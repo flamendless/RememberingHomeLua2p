@@ -1,0 +1,10 @@
+*.love
+*.zip
+*.ase
+*assets/_images/*
+*assets/android/*
+*assets/gallery/*
+*assets/icons/*
+*assets/audio/*
+*assets/media/*
+*assets/soundtracks/*
