@@ -33,6 +33,14 @@ function GSM:switch(state)
 	Log.trace(("Switched from '%s' to '%s'"):format(self.previous_state:getID(), self.current_state:getID()))
 end
 
+function GSM:switchToPrevious()
+	if self.previous_state then
+		self:switch(self.previous_state)
+	else
+		return nil
+	end
+end
+
 function GSM:update(dt)
 	self.current_state:update(dt)
 end

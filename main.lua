@@ -1,5 +1,5 @@
 --[[
-Project: Going Home Redux
+Project: Going Home Revisit
 Author: Brandon Blanker Lim-it @flamendless
 Start Date: Mon Jan  7 15:28:53 PST 2019
 --]]
@@ -19,7 +19,8 @@ local States = require("states")
 function love.load()
 	AssetsManager:init()
 	-- GSM:initState(States.splash())
-	GSM:initState(States.menu())
+	-- GSM:initState(States.menu())
+	GSM:initState(States.about())
 end
 
 function love.update(dt)

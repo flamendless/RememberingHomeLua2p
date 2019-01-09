@@ -5,4 +5,5 @@ end
 return {
 	splash = req("splash"),
 	menu = req("menu"),
+	about = req("about"),
 }

@@ -20,8 +20,9 @@ if __DEBUG then
 end
 
 function AssetsManager:init()
-	self.fonts.main = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
+	self.fonts.main = love.graphics.newFont("assets/fonts/Jamboree.ttf", 48)
 	self.fonts.menu = love.graphics.newFont("assets/fonts/Jamboree.ttf", 16)
+	self.fonts.about = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
 	for k, font in pairs(self.fonts) do font:setFilter("nearest", "nearest") end
 	canvas = love.graphics.newCanvas()
 	Log.trace("Initialized")
@@ -32,6 +33,8 @@ function AssetsManager:addImage(container, images)
 		self.images[container] = {}
 	end
 	for i, v in ipairs(images) do
+		assert(v.id, "No ID is passed at index .. " .. i)
+		assert(v.path, "No path is passed at index .." .. i)
 		Loader.newImage(self.images[container], v.id, v.path)
 	end
 end

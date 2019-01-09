@@ -1,6 +1,7 @@
 local BaseState = require("states.base_state")
 local Menu = BaseState:extend()
 
+local GSM = require("src.gamestate_manager")
 local AssetsManager = require("src.assets_manager")
 local images = {}
 local scale
@@ -78,11 +79,10 @@ function Menu:keyreleased(key)
 	if key == "return" then
 		local selected = string.lower(menu_options[cursor])
 		if selected == "start" then
-
 		elseif selected == "options" then
-
 		elseif selected == "about" then
-
+			local States = require("states")
+			GSM:switch(States.about())
 		elseif selected == "quit" then
 			love.event.quit()
 		end
