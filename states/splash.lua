@@ -34,7 +34,6 @@ end
 
 function Splash:load()
 	images = AssetsManager:getAllImages(self:getID())
-	for k,v in pairs(images) do v:setFilter("nearest", "nearest") end
 	local grid_splash = Animation.newGrid(64, 32, images.sheet_flamendless:getDimensions())
 	anim_splash = Animation.newAnimation(grid_splash("1-5", 1), 0.25, function()
 		fadeOut()

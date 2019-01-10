@@ -15,14 +15,14 @@ local Flux = require("modules.flux.flux")
 local str, str_x, str_y
 local canvas
 local dur = 1.5
+local delay = 0.9
 if __DEBUG then
 	dur = 0.25
+	delay = 0.25
 end
 
 function AssetsManager:init()
 	self.fonts.main = love.graphics.newFont("assets/fonts/Jamboree.ttf", 48)
-	self.fonts.menu = love.graphics.newFont("assets/fonts/Jamboree.ttf", 16)
-	self.fonts.about = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
 	for k, font in pairs(self.fonts) do font:setFilter("nearest", "nearest") end
 	canvas = love.graphics.newCanvas()
 	Log.trace("Initialized")
@@ -39,6 +39,15 @@ function AssetsManager:addImage(container, images)
 	end
 end
 
+function AssetsManager:addFont(fonts)
+	for i, v in ipairs(fonts) do
+		assert(v.id, "No ID is passed at index .. " .. i)
+		assert(v.path, "No path is passed at index .." .. i)
+		assert(v.size, "No size is passed at index .." .. i)
+		Loader.newFont(self.fonts, v.id, v.path, v.size)
+	end
+end
+
 function AssetsManager:start(cb)
 	self.isFinished = false
 	Loader.start(function()
@@ -49,12 +58,12 @@ function AssetsManager:start(cb)
 				Flux.to(self, dur, { in_alpha = 0 })
 					:oncomplete(function()
 						self.isFadeIn = false
-
 						--reset
 						self.alpha = 1
 						self.in_alpha = 1
 					end)
 			end)
+			:delay(delay)
 		--FINISHED
 		if cb then cb() end
 		Log.trace("Finished Loading")
@@ -97,16 +106,21 @@ end
 function AssetsManager:getIsFinished() return self.isFinished end
 function AssetsManager:getFont(id)
 	assert(self.fonts[id], ("Font '%s' does not exist"):format(id))
+	self.fonts[id]:setFilter("nearest", "nearest")
 	return self.fonts[id]
 end
 function AssetsManager:getImage(container, id)
 	assert(self.images[container], ("Container '%s' does not exist"):format(container))
 	assert(self.images[container][id], ("Image '%s' does not exist"):format(id))
+	self.images[container][id]:setFilter("nearest", "nearest")
 	return self.images[container][id]
 end
 
 function AssetsManager:getAllImages(container)
 	assert(self.images[container], ("Container '%s' does not exist"):format(container))
+	for k, v in pairs(self.images[container]) do
+		v:setFilter("nearest", "nearest")
+	end
 	return self.images[container]
 end
 

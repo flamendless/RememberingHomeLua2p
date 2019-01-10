@@ -57,4 +57,12 @@ function GSM:keyreleased(key)
 	self.current_state:keyreleased(key)
 end
 
+function GSM:mousepressed(mx, my, mb)
+	self.current_state:mousepressed(mx, my, mb)
+end
+
+function GSM:mousereleased(mx, my, mb)
+	self.current_state:mousereleased(mx, my, mb)
+end
+
 return GSM

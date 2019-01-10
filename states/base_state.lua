@@ -15,6 +15,8 @@ function BaseState:update(dt) end
 function BaseState:draw() end
 function BaseState:keypressed(key) end
 function BaseState:keyreleased(key) end
+function BaseState:mousepressed(mx, my, mb) end
+function BaseState:mousereleased(mx, my, mb) end
 function BaseState:exit() end
 
 return BaseState

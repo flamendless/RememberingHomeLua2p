@@ -50,5 +50,13 @@ function love.keyreleased(key)
 	GSM:keyreleased(key)
 end
 
+function love.mousepressed(mx, my, mb)
+	GSM:mousepressed(mx, my, mb)
+end
+
+function love.mousereleased(mx, my, mb)
+	GSM:mousereleased(mx, my, mb)
+end
+
 function love.quit()
 end

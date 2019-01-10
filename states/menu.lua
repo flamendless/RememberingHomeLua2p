@@ -26,12 +26,16 @@ function Menu:preload()
 			{ id = "title", path = "assets/images/menu/title.png" },
 		}
 	)
+	AssetsManager:addFont(
+		{
+			{ id = "menu", path = "assets/fonts/Jamboree.ttf", size = 16 }
+		}
+	)
 	AssetsManager:start(function() self:load() end)
 end
 
 function Menu:load()
 	images = AssetsManager:getAllImages(self:getID())
-	for k,v in pairs(images) do v:setFilter("nearest", "nearest") end
 	font = AssetsManager:getFont("menu")
 	scale = math.min(love.graphics.getWidth()/images.title:getWidth(), love.graphics.getHeight()/images.title:getHeight())
 end
