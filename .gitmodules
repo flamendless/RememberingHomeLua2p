@@ -15,7 +15,7 @@
 	url = https://github.com/flamendless/log.lua
 [submodule "modules/love-loader"]
 	path = modules/love-loader
-	url = https://github.com/kikito/love-loader
+	url = https://github.com/flamendless/love-loader
 [submodule "modules/flux"]
 	path = modules/flux
 	url = https://github.com/rxi/flux
