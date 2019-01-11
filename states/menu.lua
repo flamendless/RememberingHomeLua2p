@@ -4,6 +4,7 @@ local Menu = BaseState:extend()
 local GSM = require("src.gamestate_manager")
 local AssetsManager = require("src.assets_manager")
 local images = {}
+local sources = {}
 local scale
 local font
 local color_hovered = { 1, 0, 0, 1 }
@@ -31,13 +32,23 @@ function Menu:preload()
 			{ id = "menu", path = "assets/fonts/Jamboree.ttf", size = 16 }
 		}
 	)
+	AssetsManager:addSource(self:getID(),
+		{
+			{ id = "bgm_main", path = "assets/soundtracks/main.ogg", kind = "stream" }
+		}
+	)
 	AssetsManager:start(function() self:load() end)
 end
 
 function Menu:load()
 	images = AssetsManager:getAllImages(self:getID())
+	sources = AssetsManager:getAllSources(self:getID())
 	font = AssetsManager:getFont("menu")
 	scale = math.min(love.graphics.getWidth()/images.title:getWidth(), love.graphics.getHeight()/images.title:getHeight())
+
+	sources.bgm_main:play()
+	sources.bgm_main:setVolume(0.5)
+	sources.bgm_main:setLooping(true)
 end
 
 function Menu:update(dt)
@@ -82,10 +93,11 @@ end
 function Menu:keyreleased(key)
 	if key == "return" then
 		local selected = string.lower(menu_options[cursor])
+		local States = require("states")
 		if selected == "start" then
+			GSM:switch(States.rain_intro())
 		elseif selected == "options" then
 		elseif selected == "about" then
-			local States = require("states")
 			GSM:switch(States.about())
 		elseif selected == "quit" then
 			love.event.quit()
@@ -93,7 +105,8 @@ function Menu:keyreleased(key)
 	end
 end
 
-function Menu:quit()
+function Menu:exit()
+	sources.bgm_main:stop()
 end
 
 return Menu

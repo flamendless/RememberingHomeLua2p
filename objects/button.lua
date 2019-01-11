@@ -1,6 +1,8 @@
 local classic = require("modules.classic.classic")
 local Button = classic:extend()
 
+local Flux = require("modules.flux.flux")
+
 function Button:new(image, x, y, rot, sx, sy, ox, oy)
 	self.image = image
 	self.isHovered = false
@@ -10,6 +12,8 @@ function Button:new(image, x, y, rot, sx, sy, ox, oy)
 	self.rot = rot or 0
 	self.sx = sx or 1
 	self.sy = sy or 1
+	self.original_sx = self.sx
+	self.original_sy = self.sy
 	self.w = self.image:getWidth() * self.sx
 	self.h = self.image:getHeight() * self.sy
 	self:processOffset(ox, oy)
@@ -36,15 +40,32 @@ function Button:setCallbackOnPressed(cb_onPressed)
 	self.cb_onPressed = cb_onPressed
 end
 
+function Button:setCallbackOnHovered(cb_onHovered, cb_onNotHovered)
+	self.cb_onHovered = cb_onHovered
+	self.cb_onNotHovered = cb_onNotHovered
+	self.isCalled_onHovered = false
+	self.isCalled_onNotHovered = false
+end
+
 function Button:update(dt)
 	local mx, my = love.mouse.getPosition()
 	local x = self.x - (self.ox * self.sx)
 	local y = self.y - (self.oy * self.sy)
 	if mx > x and mx < x + self.w
 		and my > y and my < y + self.h then
+		if self.cb_onHovered and not self.isCalled_onHovered then
+			self.cb_onHovered(self)
+			self.isCalled_onHovered = true
+		end
 		self.isHovered = true
+		self.isCalled_onNotHovered = false
 	else
+		if self.cb_onNotHovered and not self.isCalled_onNotHovered and self.isHovered then
+			self.cb_onNotHovered(self)
+			self.isCalled_onNotHovered = true
+		end
 		self.isHovered = false
+		self.isCalled_onHovered = false
 	end
 end
 
@@ -58,7 +79,11 @@ function Button:draw()
 
 	if __DEBUG then
 		love.graphics.setColor(1, 0, 0, 1)
-		love.graphics.rectangle("line", self.x - (self.ox * self.sx), self.y - (self.oy * self.sy), self.w, self.h)
+		love.graphics.rectangle("line",
+			self.x - (self.ox * self.sx),
+			self.y - (self.oy * self.sy),
+			self.w + (self.sx/self.ox),
+			self.h + (self.sy/self.oy))
 	end
 end
 
@@ -70,6 +95,10 @@ function Button:mousepressed(mx, my, mb)
 			end
 		end
 	end
+end
+
+function Button:resetScale(dur)
+	Flux.to(self, dur, { sx = self.original_sx, sy = self.original_sy })
 end
 
 return Button

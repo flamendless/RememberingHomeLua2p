@@ -2,8 +2,7 @@ local AssetsManager = {
 	isFinished = false,
 	isFadeIn = false,
 	images = {},
-	sfx = {},
-	music = {},
+	sources = {},
 	fonts = {},
 	alpha = 1,
 	in_alpha = 1,
@@ -48,6 +47,18 @@ function AssetsManager:addFont(fonts)
 	end
 end
 
+function AssetsManager:addSource(container, sources)
+	if not self.sources[container] then
+		self.sources[container] = {}
+	end
+	for i, v in ipairs(sources) do
+		assert(v.id, "No ID is passed at index .. " .. i)
+		assert(v.path, "No path is passed at index .." .. i)
+		assert(v.kind, "No kind is passed at index .." .. i)
+		Loader.newSource(self.sources[container], v.id, v.path, v.kind)
+	end
+end
+
 function AssetsManager:start(cb)
 	self.isFinished = false
 	Loader.start(function()
@@ -75,7 +86,7 @@ function AssetsManager:update(dt)
 		Loader.update()
 		local percent = 0
 		if Loader.resourceCount ~= 0 then percent = Loader.loadedCount / Loader.resourceCount end
-		str = "Loading.." .. (percent * 100) .. "%"
+		str = ("Loading..%2d%%"):format(percent * 100)
 		str_x = love.graphics.getWidth() - self.fonts.main:getWidth(str) - 4
 		str_y = love.graphics.getHeight() - self.fonts.main:getHeight(str) - 4
 	end
@@ -122,6 +133,14 @@ function AssetsManager:getAllImages(container)
 		v:setFilter("nearest", "nearest")
 	end
 	return self.images[container]
+end
+
+function AssetsManager:getAllSources(container)
+	assert(self.sources[container], ("Container '%s' does not exist"):format(container))
+	for k, v in pairs(self.sources[container]) do
+		v:setLooping(false)
+	end
+	return self.sources[container]
 end
 
 return AssetsManager

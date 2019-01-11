@@ -20,7 +20,8 @@ function love.load()
 	AssetsManager:init()
 	-- GSM:initState(States.splash())
 	-- GSM:initState(States.menu())
-	GSM:initState(States.about())
+	-- GSM:initState(States.about())
+	GSM:initState(States.rain_intro())
 end
 
 function love.update(dt)
