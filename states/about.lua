@@ -82,13 +82,15 @@ function About:load()
 	local y = love.graphics.getHeight()/2
 	buttons.website = Button(images.gui_website, base_x, y, 0, 4, 4, "center", "center")
 	buttons.website:setCallbackOnHovered(onHover, onNotHover)
-	buttons.website:setCallbackOnPressed(love.system.openURL(url_website))
 	buttons.twitter = Button(images.gui_twitter, base_x - images.gui_twitter:getWidth() - pad_x, y, 0, 4, 4, "center", "center")
 	buttons.twitter:setCallbackOnHovered(onHover, onNotHover)
-	buttons.twitter:setCallbackOnPressed(love.system.openURL(url_twitter))
 	buttons.email = Button(images.gui_email, base_x + images.gui_email:getWidth() + pad_x, y, 0, 4, 4, "center", "center")
 	buttons.email:setCallbackOnHovered(onHover, onNotHover)
-	buttons.email:setCallbackOnPressed(love.system.openURL(url_email))
+
+	--TODO: use anonymous function
+	buttons.website:setCallbackOnPressed(function() love.system.openURL(url_website) end)
+	buttons.twitter:setCallbackOnPressed(function() love.system.openURL(url_twitter) end)
+	buttons.email:setCallbackOnPressed(function() love.system.openURL(url_email) end)
 
 	--set up scrolling text
 	base_y = love.graphics.getHeight() * 1.25

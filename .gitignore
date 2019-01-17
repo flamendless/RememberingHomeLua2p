@@ -8,3 +8,5 @@
 *assets/audio/*
 *assets/media/*
 *assets/soundtracks/*
+*.vscode
+*.code-workspace

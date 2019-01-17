@@ -5,7 +5,8 @@ local Animation = require("modules.anim8.anim8")
 local Flux = require("modules.flux.flux")
 
 local AssetsManager = require("src.assets_manager")
-local Button = require("objects.button")
+local AnimatedButton = require("objects.animated_button")
+local GSM = require("src.gamestate_manager")
 
 local sources = {}
 local images = {}
@@ -30,6 +31,9 @@ local in_house_show = false
 local current_text = 1
 local _timer = 2
 local btn_skip
+
+--functions
+local skip
 
 function RainIntro:new()
 	RainIntro.super.new(self, "RainIntro")
@@ -76,11 +80,11 @@ function RainIntro:load()
 	scale = math.min(love.graphics.getWidth()/128, love.graphics.getHeight()/32)
 	text_x = love.graphics.getWidth()/2 - 32 - font:getWidth(str_intro[current_text])/2
 	text_y = love.graphics.getHeight()/2 - font:getHeight(str_intro[current_text])/2
-	btn_skip = Button(animations.skip:getFrameInfo(), 0, 0, 0, 4, 4)
+	btn_skip = AnimatedButton(animations.skip, images.sheet_skip, love.graphics.getWidth() - 16, love.graphics.getHeight() - 16, 0, 6, 6, "right", "bottom")
+	btn_skip:setCallbackOnPressed(function() skip() end)
 end
 
 function RainIntro:update(dt)
-	animations.skip:update(dt)
 	btn_skip:update(dt)
 	if show_car then
 		if alpha.car < 255 then
@@ -164,11 +168,27 @@ function RainIntro:draw()
 		love.graphics.print(str_intro[current_text], text_x, text_y)
 	end
 
+	love.graphics.setColor(1, 1, 1, 1)
 	btn_skip:draw()
+end
+
+function RainIntro:keypressed(key)
+	if key == "escape" then
+		skip()
+	end
+end
+
+function RainIntro:mousepressed(mx, my, mb)
+	btn_skip:mousepressed(mx, my, mb)
 end
 
 function RainIntro:exit()
 	sources.bgm_rain_intro:stop()
+end
+
+skip = function()
+	local States = require("states")
+	GSM:switch(States.menu())
 end
 
 return RainIntro

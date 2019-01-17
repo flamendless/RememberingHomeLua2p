@@ -14,12 +14,19 @@ function Button:new(image, x, y, rot, sx, sy, ox, oy)
 	self.sy = sy or 1
 	self.original_sx = self.sx
 	self.original_sy = self.sy
-	self.w = self.image:getWidth() * self.sx
-	self.h = self.image:getHeight() * self.sy
-	self:processOffset(ox, oy)
+	if image:type() == "Image" then
+		self.w = self.image:getWidth() * self.sx
+		self.h = self.image:getHeight() * self.sy
+		self:processOffsetImage(ox, oy)
+	elseif image:type() == "Quad" then
+		local x, y, w, h = image:getViewport()
+		self.w = w * self.sx
+		self.h = h * self.sy
+		self:processOffsetQuad(ox, oy)
+	end
 end
 
-function Button:processOffset(ox, oy)
+function Button:processOffsetImage(ox, oy)
 	if type(ox) == "string" then
 		if ox == "center" then
 			self.ox = self.image:getWidth()/2
@@ -30,6 +37,34 @@ function Button:processOffset(ox, oy)
 	if type(oy) == "string" then
 		if ox == "center" then
 			self.oy = self.image:getHeight()/2
+		end
+	else
+		self.oy = oy or 0
+	end
+end
+
+function Button:processOffsetQuad(ox, oy)
+	if type(ox) == "string" then
+		local x, y, w, h = self.image:getViewport()
+		if ox == "center" then
+			self.ox = w/2
+		elseif ox == "left" then
+			self.ox = 0
+		elseif ox == "right" then
+			self.ox = w
+		end
+	else
+		self.ox = ox or 0
+	end
+
+	if type(oy) == "string" then
+		local x, y, w, h = self.image:getViewport()
+		if oy == "center" then
+			self.oy = h/2
+		elseif oy == "top" then
+			self.oy = 0
+		elseif oy == "bottom" then
+			self.oy = h
 		end
 	else
 		self.oy = oy or 0
@@ -48,6 +83,10 @@ function Button:setCallbackOnHovered(cb_onHovered, cb_onNotHovered)
 end
 
 function Button:update(dt)
+	self:checkPointCollision()
+end
+
+function Button:checkPointCollision()
 	local mx, my = love.mouse.getPosition()
 	local x = self.x - (self.ox * self.sx)
 	local y = self.y - (self.oy * self.sy)
@@ -100,5 +139,7 @@ end
 function Button:resetScale(dur)
 	Flux.to(self, dur, { sx = self.original_sx, sy = self.original_sy })
 end
+
+function Button:getIsHovered() return self.isHovered end
 
 return Button
