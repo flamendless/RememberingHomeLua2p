@@ -87,7 +87,6 @@ function About:load()
 	buttons.email = Button(images.gui_email, base_x + images.gui_email:getWidth() + pad_x, y, 0, 4, 4, "center", "center")
 	buttons.email:setCallbackOnHovered(onHover, onNotHover)
 
-	--TODO: use anonymous function
 	buttons.website:setCallbackOnPressed(function() love.system.openURL(url_website) end)
 	buttons.twitter:setCallbackOnPressed(function() love.system.openURL(url_twitter) end)
 	buttons.email:setCallbackOnPressed(function() love.system.openURL(url_email) end)
