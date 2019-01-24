@@ -59,25 +59,41 @@ function AssetsManager:addSource(container, sources)
 	end
 end
 
+function AssetsManager:onFinish(cb)
+	Flux.to(self, dur, { alpha = 0 })
+		:oncomplete(function()
+			self.isFinished = true
+			self.isFadeIn = true
+			Flux.to(self, dur, { in_alpha = 0 })
+				:oncomplete(function()
+					self.isFadeIn = false
+					--reset
+					self.alpha = 1
+					self.in_alpha = 1
+				end)
+		end)
+		:delay(delay)
+	if cb then cb() end
+	Log.trace("Finished Loading")
+end
+
+function AssetsManager:onLoad(kind, holder, key)
+	local asset = holder[key]
+	if kind == "image" or kind == "font" then
+		asset:setFilter("nearest", "nearest")
+	elseif kind == "streamSource" then
+		asset:setLooping(false)
+	end
+	Log.trace(("%s loaded: '%s'"):format(kind, key))
+end
+
 function AssetsManager:start(cb)
 	self.isFinished = false
 	Loader.start(function()
-		Flux.to(self, dur, { alpha = 0 })
-			:oncomplete(function()
-				self.isFinished = true
-				self.isFadeIn = true
-				Flux.to(self, dur, { in_alpha = 0 })
-					:oncomplete(function()
-						self.isFadeIn = false
-						--reset
-						self.alpha = 1
-						self.in_alpha = 1
-					end)
-			end)
-			:delay(delay)
-		--FINISHED
-		if cb then cb() end
-		Log.trace("Finished Loading")
+		self:onFinish(cb)
+	end,
+	function(kind, holder, key)
+		self:onLoad(kind, holder, key)
 	end)
 end
 
@@ -115,31 +131,30 @@ function AssetsManager:drawOverlay()
 end
 
 function AssetsManager:getIsFinished() return self.isFinished end
+
 function AssetsManager:getFont(id)
 	assert(self.fonts[id], ("Font '%s' does not exist"):format(id))
-	self.fonts[id]:setFilter("nearest", "nearest")
 	return self.fonts[id]
 end
 function AssetsManager:getImage(container, id)
 	assert(self.images[container], ("Container '%s' does not exist"):format(container))
 	assert(self.images[container][id], ("Image '%s' does not exist"):format(id))
-	self.images[container][id]:setFilter("nearest", "nearest")
 	return self.images[container][id]
 end
 
 function AssetsManager:getAllImages(container)
 	assert(self.images[container], ("Container '%s' does not exist"):format(container))
-	for k, v in pairs(self.images[container]) do
-		v:setFilter("nearest", "nearest")
-	end
 	return self.images[container]
+end
+
+function AssetsManager:getSource(container, id)
+	assert(self.sources[container], ("Container '%s' does not exist"):format(container))
+	assert(self.sources[container][id], ("Source '%s' does not exist"):format(id))
+	return self.sources[container][id]
 end
 
 function AssetsManager:getAllSources(container)
 	assert(self.sources[container], ("Container '%s' does not exist"):format(container))
-	for k, v in pairs(self.sources[container]) do
-		v:setLooping(false)
-	end
 	return self.sources[container]
 end
 
