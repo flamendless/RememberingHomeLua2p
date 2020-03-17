@@ -13,9 +13,15 @@
 [submodule "modules/log"]
 	path = modules/log
 	url = https://github.com/flamendless/log.lua
-[submodule "modules/love-loader"]
-	path = modules/love-loader
-	url = https://github.com/flamendless/love-loader
 [submodule "modules/flux"]
 	path = modules/flux
 	url = https://github.com/rxi/flux
+[submodule "modules/splashes"]
+	path = modules/splashes
+	url = https://github.com/love2d-community/splashes
+[submodule "modules/concord"]
+	path = modules/concord
+	url = https://github.com/Tjakka5/Concord
+[submodule "modules/lily"]
+	path = modules/lily
+	url = https://github.com/MikuAuahDark/lily.git
