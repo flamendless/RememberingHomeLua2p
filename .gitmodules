@@ -1,18 +1,6 @@
 [submodule "modules/anim8"]
 	path = modules/anim8
 	url = https://github.com/kikito/anim8
-[submodule "modules/classic"]
-	path = modules/classic
-	url = https://github.com/rxi/classic/
-[submodule "modules/hump"]
-	path = modules/hump
-	url = https://github.com/vrld/hump
-[submodule "modules/knife"]
-	path = modules/knife
-	url = https://github.com/airstruck/knife
-[submodule "modules/log"]
-	path = modules/log
-	url = https://github.com/flamendless/log.lua
 [submodule "modules/flux"]
 	path = modules/flux
 	url = https://github.com/rxi/flux
@@ -25,3 +13,9 @@
 [submodule "modules/lily"]
 	path = modules/lily
 	url = https://github.com/MikuAuahDark/lily.git
+[submodule "modules/hump"]
+	path = modules/hump
+	url = https://github.com/vrld/hump
+[submodule "modules/batteries"]
+	path = modules/batteries
+	url = https://github.com/1bardesign/batteries
