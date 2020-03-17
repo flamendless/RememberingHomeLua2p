@@ -19,3 +19,9 @@
 [submodule "modules/batteries"]
 	path = modules/batteries
 	url = https://github.com/1bardesign/batteries
+[submodule "modules/log"]
+	path = modules/log
+	url = https://github.com/flamendless/log.lua
+[submodule "modules/enum"]
+	path = modules/enum
+	url = https://github.com/Tjakka5/Enum
