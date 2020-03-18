@@ -1,0 +1,49 @@
+local Reporter = {}
+
+!if _REPORTING then
+local Crush = require("modules.crush.crush")
+
+local file_output = !(_LOG_OUTPUT)
+local file_info = !(_LOG_INFO)
+
+local attachments = {
+	{
+		mimetype = "text/plain",
+		filename = love.filesystem.getSaveDirectory() .. "/" .. file_info,
+	},
+	{
+		mimetype = "text/plain",
+		filename = love.filesystem.getSaveDirectory() .. "/" .. file_output,
+	},
+}
+
+local game_name = !(_GAME_NAME)
+local game_version = !(_GAME_VERSION)
+local platform = !(_PLATFORM)
+local email = !(_EMAIL)
+local url = !(_GITHUB_URL)
+
+local format = string.format
+local rec = format("<%s>", email)
+
+function Reporter.send(msg)
+	Crush.pcall(function()
+		local recipient = rec
+		local smtp_config = {
+			server = "smtp.mailgun.org",
+			port = 2525,
+			user = "brbl@sandboxb8f406440cf4418487839136f9838754.mailgun.org",
+			password = "flamendless",
+		}
+		local extra_info = {
+			Version = game_version,
+			OS = platform,
+			_files = { unpack(attachments) }
+		}
+		Crush.report_automatically(msg, recipient, smtp_config, extra_info, 3)
+	end)
+end
+
+!end
+
+return Reporter

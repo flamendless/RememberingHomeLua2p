@@ -1,0 +1,12 @@
+local Utils = {}
+
+function Utils.multiline_string_count_lines(str)
+	assert(type(str) == "string", "arg1 must be a string")
+	local count = 0
+	for w in str:gmatch("[^\n]+") do
+		count = count + 1
+	end
+	return count
+end
+
+return Utils
