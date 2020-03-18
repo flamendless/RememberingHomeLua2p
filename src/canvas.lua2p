@@ -1,0 +1,49 @@
+local Canvas = class()
+
+function Canvas:new(x, y, width, height)
+	local canvas = love.graphics.newCanvas(width, height)
+	canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+
+	return self:init({
+		width = width,
+		height = height,
+		x = x,
+		y = y,
+		canvas = canvas,
+	})
+end
+
+function Canvas:reset(x, y, width, height)
+	self.width = width
+	self.height = height
+	self.x = x
+	self.y = y
+end
+
+function Canvas:attach()
+	love.graphics.setCanvas(self.canvas)
+	love.graphics.clear()
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Canvas:detach()
+	love.graphics.setCanvas()
+end
+
+function Canvas:override_draw(fn)
+	self:attach()
+	fn()
+	self:detach()
+end
+
+function Canvas:render(scale)
+	love.graphics.draw(self.canvas, self.x, self.y, 0, scale, scale)
+end
+
+function Canvas:draw_bounds(color)
+	love.graphics.setColor(color)
+	love.graphics.rectangle("line", 0, 0, self.width, self.height)
+end
+
+return Canvas
