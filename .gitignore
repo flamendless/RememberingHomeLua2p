@@ -1,12 +1,3 @@
-*.love
-*.zip
-*.ase
-*assets/_images/*
-*assets/android/*
-*assets/gallery/*
-*assets/icons/*
-*assets/audio/*
-*assets/media/*
-*assets/soundtracks/*
-*.vscode
-*.code-workspace
+output
+profiler_log_load.txt
+tags

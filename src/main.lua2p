@@ -1,0 +1,188 @@
+--[[
+Project: Going Home Revisit
+Author: Brandon Blanker Lim-it @flamendless
+Start Date: Mon Jan  7 15:28:53 PST 2019
+Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
+--]]
+
+assert(love.system.getOS() == !(_OS))
+require("modules.batteries")
+local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+
+io.stdout:setvbuf("no")
+local ErrorHandler = require("error_handler")
+love.errhand = ErrorHandler.callback
+local Canvas = require("canvas")
+local Info = require("info")
+local Preloader = require("preloader")
+
+local sort = table.sort
+local format = string.format
+local min = math.min
+local floor = math.floor
+
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+local Log = require("modules.log.log")
+Log.outfile = !(_LOG_OUTPUT)
+Log.lovesave = true
+local Timer = require("modules.hump.timer")
+
+local Worlds = require("ecs.worlds")
+local current_world
+
+local game_canvas, bot_canvas, top_canvas
+local game_size = !(_GAME_BASE_SIZE)
+local scale = 1
+
+local supported_modes = love.window.getFullscreenModes()
+sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
+
+!if not _RELEASE then
+local color_red = {1, 0, 0, 1}
+local color_green = {0, 1, 0, 1}
+local color_blue = {0, 0, 1, 1}
+!end
+
+function love_init()
+	local window_w = love.graphics.getWidth()
+	local window_h = love.graphics.getHeight()
+	scale = min((window_w/game_size.x), (window_h/game_size.y))
+
+	local game_w = game_size.x * scale
+	local game_h = game_size.y * scale
+
+	local remaining_h = window_h - game_h
+	local top_h = floor(remaining_h/2)/scale
+	local bot_h = floor(remaining_h/2)/scale
+
+	local gcx = window_w/2 - game_size.x/2 * scale
+	local gcy = window_h/2 - game_size.y/2 * scale
+	local tcx = gcx
+	local tcy = 0
+	local bcx = gcx
+	local bcy = gcy + (game_size.y * scale)
+
+	if not game_canvas then game_canvas = Canvas:new(gcx, gcy, game_size.x, game_size.y)
+	else game_canvas:reset(gcx, gcy, game_size.x, game_size.y)
+	end
+
+	if not top_canvas then top_canvas = Canvas:new(tcx, tcy, game_size.x, top_h)
+	else top_canvas:reset(tcx, tcy, game_size.x, top_h)
+	end
+
+	if not bot_canvas then bot_canvas = Canvas:new(bcx, bcy, game_size.x, bot_h)
+	else bot_canvas:reset(bcx, bcy, game_size.x, bot_h)
+	end
+end
+
+function love.load()
+	Log.info(format("Starting... Game Version: %s", game_version))
+	Info.initialize()
+	love_init()
+	-- current_world = Worlds.Splash
+	current_world = Worlds.Menu
+	Log.info("Starting scene: ", current_world.id)
+	current_world:load()
+end
+
+function love.update(dt)
+	Timer.update(dt)
+	Flux.update(dt)
+	current_world:update(dt)
+
+	top_canvas:attach()
+	!if not _RELEASE then
+	top_canvas:draw_bounds(color_green)
+	!end
+	top_canvas:detach()
+
+	game_canvas:attach()
+	current_world:draw()
+	!if not _RELEASE then
+	game_canvas:draw_bounds(color_red)
+	!end
+	game_canvas:detach()
+
+	if current_world.ui_draw then
+		bot_canvas:attach()
+		current_world:ui_draw()
+		!if not _RELEASE then
+		bot_canvas:draw_bounds(color_blue)
+		!end
+		bot_canvas:detach()
+	end
+end
+
+function love.draw()
+	love.graphics.setColor(1, 1, 1, 1)
+	top_canvas:render(scale)
+	game_canvas:render(scale)
+	bot_canvas:render(scale)
+
+	if not current_world.is_ready then
+		Preloader.draw_loading()
+	end
+end
+
+function love.keypressed(key)
+	if key == "f" then
+		love_resize()
+	end
+
+	if current_world.keypressed then
+		current_world:keypressed(key)
+	else
+		Log.warn("No keypressed event for ", current_world.id)
+	end
+end
+
+function love.keyreleased(key)
+	if current_world.keyreleased then
+		current_world:keyreleased(key)
+	else
+		Log.warn("No keyreleased event for ", current_world.id)
+	end
+end
+
+function love.mousepressed(mx, my, mb)
+	if current_world.mousepressed then
+		current_world:mousepressed(mx, my, mb)
+	else
+		Log.warn("No mousepressed event for ", current_world.id)
+	end
+end
+
+function love.mousereleased(mx, my, mb)
+	if current_world.mousereleased then
+		current_world:mousereleased(mx, my, mb)
+	else
+		Log.warn("No mousereleased event for ", current_world.id)
+	end
+end
+
+function love.quit()
+	Log.info("Quitting...")
+end
+
+function love_switch(next_id)
+	local str_err = format("State '%s' doest not exist in 'Worlds'", next_id)
+	assert(Worlds[next_id], str_err)
+	local prev_id = current_world.id
+	current_world = Worlds[next_id]
+	local str = format("Switched from %s to %s", prev_id, current_world.id)
+	Log.trace(str)
+	current_world:load()
+end
+
+local current_mode = 1
+function love_resize(override_mode)
+	current_mode = override_mode or (current_mode + 1)
+	if current_mode > #supported_modes then
+		current_mode = 1
+	end
+	local mode = supported_modes[current_mode]
+	love.window.setMode(mode.width, mode.height)
+	Log.info(format("Current Mode: [%i] %ix%i", current_mode, mode.width, mode.height))
+	love_init()
+end

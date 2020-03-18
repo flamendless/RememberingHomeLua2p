@@ -1,0 +1,59 @@
+local Log = require("modules.log.log")
+local Info = {}
+
+local sort = table.sort
+local concat = table.concat
+local format = string.format
+local file = !(_LOG_INFO)
+
+function Info.initialize()
+	Log.info("System information checking...")
+	local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+
+	local info_os = love.system.getOS()
+	local state, percent, seconds = love.system.getPowerInfo()
+	local processor_count = love.system.getProcessorCount()
+	local has_bgm = love.system.hasBackgroundMusic()
+	local limits = love.graphics.getSystemLimits()
+	local name, version, vendor, device = love.graphics.getRendererInfo()
+	local supported_modes = love.window.getFullscreenModes()
+	sort(supported_modes, function(a, b) return a.width*a.height < b.width*b.height end)
+
+	local str = {
+		format("Game Version: %s", game_version),
+		format("OS: %s", info_os),
+		"Power Info:",
+		format("\tState: %s", state),
+		format("\tPercent: %s", percent),
+		format("\tSeconds: %s", seconds or "not available"),
+		format("Processor Count: %s", processor_count),
+		format("Has BGM: %s", tostring(has_bgm)),
+		"Renderer Info:",
+		format("\tName: %s", name),
+		format("\tVersion: %s", version),
+		format("\tVendor: %s", vendor),
+		format("\tDevice: %s", device),
+		"Supported Modes:",
+	}
+	for i, t in ipairs(supported_modes) do
+		str[#str + 1] = format("\t[%i] - %ix%i", i, t.width, t.height)
+	end
+
+	local data = concat(str, "\n")
+	local exists = love.filesystem.getInfo(file)
+	Log.info(format("'%s' exists: %s", file, exists or false))
+	if exists then
+		local content = love.filesystem.read(file)
+		if (content ~= data) then
+			love.filesystem.write(file, data)
+			Log.info(format("'%s' overwritten", file))
+		else
+			Log.info(format("'%s' untouched", file))
+		end
+	else
+		love.filesystem.write(file, data)
+		Log.info(format("'%s' written", file))
+	end
+end
+
+return Info

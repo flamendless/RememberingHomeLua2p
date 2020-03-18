@@ -1,0 +1,63 @@
+local Animation = require("modules.anim8.anim8")
+local Enum = require("modules.enum.enum")
+local Log = require("modules.log.log")
+local LoveSplash = require("modules.splashes.o-ten-one")
+
+local Preloader = require("preloader")
+local Fade = require("fade")
+
+local State_Menu = {
+	id = "Menu",
+	is_ready = false,
+}
+
+local states = Enum("main_menu", "settings", "about")
+local current_state = states.main_menu
+local assets_data = {
+	image = {
+		{ "bg_title", "assets/images/menu/title.png" },
+	},
+	font = {
+		{ "jamboree", "assets/fonts/Jamboree.ttf", 24 },
+	}
+}
+local assets = { images = {}, sources = {}, fonts = {} }
+
+local options = { "Play", "Settings", "About", "Exit" }
+table.reverse(options)
+
+function State_Menu:load()
+	Log.info("State Load: ", self.id)
+	local p = Preloader.start(assets_data, assets)
+	p:onComplete(function()
+		self.is_ready = true
+	end)
+end
+
+function State_Menu:update(dt)
+	if not self.is_ready then return end
+end
+
+function State_Menu:draw()
+	if not self.is_ready then return end
+	love.graphics.draw(assets.images.bg_title)
+end
+
+function State_Menu:ui_draw()
+	love.graphics.setColor(1, 1, 1, 1)
+
+	love.graphics.setFont(assets.fonts.jamboree_24)
+	for i, str in ipairs(options) do
+		local padding = 32
+		local w = love.graphics.getFont():getWidth(str)
+		local h = love.graphics.getFont():getHeight(str)
+		local x = love.graphics.getWidth() - w - padding
+		local y = love.graphics.getHeight() - (i * h) - padding
+		love.graphics.print(str, x, y, 0)
+	end
+end
+
+function State_Menu:keypressed(key)
+end
+
+return State_Menu
