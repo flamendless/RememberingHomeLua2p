@@ -32,6 +32,7 @@ local Timer = require("modules.hump.timer")
 local Worlds = require("ecs.worlds")
 local current_world
 
+local window_size = !(_GAME_SIZE)
 local window_resize, canvas_resize
 local game_canvas, bot_canvas, top_canvas
 local supported_modes = love.window.getFullscreenModes()
@@ -79,7 +80,7 @@ function love.update(dt)
 
 	if current_world.ui_draw then
 		bot_canvas:attach()
-		current_world:ui_draw()
+		current_world:ui_draw(bot_canvas)
 		!if not _RELEASE then
 		bot_canvas:draw_bounds(color_blue)
 		!end
@@ -204,7 +205,8 @@ window_resize = function(override_mode)
 		current_mode = 1
 	end
 	local mode = supported_modes[current_mode]
+	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)
-	Log.info(format("Current Mode: [%i] %ix%i", current_mode, mode.width, mode.height))
+	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", current_mode, mode.width, mode.height, scale))
 	canvas_resize()
 end

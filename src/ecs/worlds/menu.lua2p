@@ -38,22 +38,22 @@ function State_Menu:update(dt)
 	if not self.is_ready then return end
 end
 
-function State_Menu:draw()
+function State_Menu:draw(canvas)
 	if not self.is_ready then return end
-	love.graphics.draw(assets.images.bg_title)
+	love.graphics.draw(assets.images.bg_title, 0, 0, 0, canvas.scale)
 end
 
-function State_Menu:ui_draw()
+function State_Menu:ui_draw(canvas)
 	love.graphics.setColor(1, 1, 1, 1)
-
 	love.graphics.setFont(assets.fonts.jamboree_24)
+
 	for i, str in ipairs(options) do
 		local padding = 32
-		local w = love.graphics.getFont():getWidth(str)
-		local h = love.graphics.getFont():getHeight(str)
-		local x = love.graphics.getWidth() - w - padding
-		local y = love.graphics.getHeight() - (i * h) - padding
-		love.graphics.print(str, x, y, 0)
+		local str_w = love.graphics.getFont():getWidth(str)
+		local str_h = love.graphics.getFont():getHeight(str)
+		local x = canvas.width - str_w - padding
+		local y = canvas.height - (i * str_h) - padding
+		love.graphics.print(str, x, y)
 	end
 end
 

@@ -75,8 +75,8 @@ function Canvas:override_draw(fn)
 	self:detach()
 end
 
-function Canvas:render(scale)
-	love.graphics.draw(self.canvas, self.x, self.y, 0, scale or 1, scale or 1)
+function Canvas:render()
+	love.graphics.draw(self.canvas, self.x, self.y)
 end
 
 function Canvas:draw_bounds(color)
