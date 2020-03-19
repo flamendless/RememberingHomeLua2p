@@ -1,23 +1,61 @@
 local Canvas = class()
 
-function Canvas:new(x, y, width, height)
-	local canvas = love.graphics.newCanvas(width, height)
-	canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+function Canvas:new(x, y, width, height, rotation, scale)
+	local _canvas = love.graphics.newCanvas(width, height)
+	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
+	local _flags = {}
+	!if not _RELEASE then
+	_flags.draw_bounds = true
+	!else
+	_flags.draw_bounds = false
+	!end
+
+	local _x, _y, _w, _h, _scale
+	if (type(x) == "number") then
+		_x = x
+		_y = y
+		_w = width
+		_h = height
+		_scale = scale or 1
+	elseif (type(x) == "table") then
+		local tbl = x
+		_x = tbl.x
+		_y = tbl.y
+		_w = tbl.width
+		_h = tbl.height
+		_scale = tbl.scale or 1
+	end
 	return self:init({
-		width = width,
-		height = height,
-		x = x,
-		y = y,
-		canvas = canvas,
+		flags = _flags,
+		canvas = _canvas,
+		x = _x, y = _y,
+		width = _w, height = _h,
+		scale = _scale,
 	})
 end
 
-function Canvas:reset(x, y, width, height)
-	self.width = width
-	self.height = height
-	self.x = x
-	self.y = y
+function Canvas:set(x, y, width, height, rotation, scale)
+	local _x, _y, _w, _h, _scale
+	if (type(x) == "number") then
+		_x = x
+		_y = y
+		_w = width
+		_h = height
+		_scale = scale or 1
+	elseif (type(x) == "table") then
+		local tbl = x
+		_x = tbl.x
+		_y = tbl.y
+		_w = tbl.width
+		_h = tbl.height
+		_scale = tbl.scale or 1
+	end
+	self.width = _w
+	self.height = _h
+	self.x = _x
+	self.y = _y
+	self.scale = _scale
 end
 
 function Canvas:attach()
@@ -38,11 +76,13 @@ function Canvas:override_draw(fn)
 end
 
 function Canvas:render(scale)
-	love.graphics.draw(self.canvas, self.x, self.y, 0, scale, scale)
+	love.graphics.draw(self.canvas, self.x, self.y, 0, scale or 1, scale or 1)
 end
 
 function Canvas:draw_bounds(color)
+	if not self.flags.draw_bounds then return end
 	love.graphics.setColor(color)
+	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 0, 0, self.width, self.height)
 end
 
