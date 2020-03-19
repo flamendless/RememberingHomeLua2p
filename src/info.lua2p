@@ -1,6 +1,7 @@
 local Log = require("modules.log.log")
 local Info = {}
 
+local min = math.min
 local sort = table.sort
 local concat = table.concat
 local format = string.format
@@ -17,7 +18,7 @@ function Info.initialize()
 	local limits = love.graphics.getSystemLimits()
 	local name, version, vendor, device = love.graphics.getRendererInfo()
 	local supported_modes = love.window.getFullscreenModes()
-	sort(supported_modes, function(a, b) return a.width*a.height < b.width*b.height end)
+	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
 
 	local str = {
 		format("Game Version: %s", game_version),
@@ -35,8 +36,9 @@ function Info.initialize()
 		format("\tDevice: %s", device),
 		"Supported Modes:",
 	}
-	for i, t in ipairs(supported_modes) do
-		str[#str + 1] = format("\t[%i] - %ix%i", i, t.width, t.height)
+	for i, mode in ipairs(supported_modes) do
+		local scale = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
+		str[#str + 1] = format("\t[%i] - %ix%i - scale: %f", i, mode.width, mode.height, scale)
 	end
 
 	local data = concat(str, "\n")
