@@ -1,13 +1,7 @@
 local Animation = require("modules.anim8.anim8")
 local Enum = require("modules.enum.enum")
-local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
-local Lume = require("modules.lume.lume")
-local Timer = require("modules.hump.timer")
-
-local random = math.random
-local randomf = Lume.random
 
 local Preloader = require("preloader")
 local Fade = require("fade")
@@ -20,85 +14,23 @@ local State_Splash = {
 local states = Enum("splash_love", "splash_flam")
 local current_state = states.splash_love
 local assets_data = {
-	font = {
-		{ "firefly", "assets/fonts/Firefly.ttf", 256 },
-		{ "uncle_type", "assets/fonts/uncle_type.ttf", 32 },
+	image = {
+		{ "ss_flamendless", "assets/images/splash/sheet_flamendless.png" }
 	}
 }
-local assets = { fonts = {} }
+local assets = { images = {} }
 
-local splash_love
-local timer_effect, timer_skip, timer_type, timer_love_skip
-local str = "flamendless"
-local str2_target = "a game by"
-local str2 = ""
-local splash_love_skippable = false
-local splash_flam_skippable = false
-
-local color_a = {0.898, 0.48627451, 0.074509804}
-local color_b = {0.952941176, 0.952941176, 0.054901961}
-
-local splash_flam_color = {color_a[1], color_a[2], color_a[3], 1}
-local effect_color = {}
-
-local is_large = false
-local large = { x = 0, y = 0, sx = 1, sy = 1 }
+local scale_x, scale_y = 4, 4
+local splash_love, splash_flam
+local sf_width, sf_height
 
 local is_switching = false
 local switch = function()
 	if is_switching then return end
 	is_switching = true
-	timer_effect:clear()
-	timer_type:clear()
 	Fade.fade_out(function()
-		state_switch("Menu")
+		love_switch("Menu")
 	end)
-end
-
-local toggle_effect = function()
-	local r = random(30, 70)/100
-	timer_effect:during(r, function()
-		local c = Lume.weightedchoice({ yes = 25, no = 75 })
-		if c == "yes" then
-			local width = love.graphics.getWidth()
-			local height = love.graphics.getHeight()
-			effect_color[1] = randomf(0.2, 1)
-			effect_color[2] = randomf(0.2, 1)
-			effect_color[3] = randomf(0.2, 1)
-			effect_color[4] = randomf(0.2, 0.5)
-			is_large = true
-			large.sx = random(1, 4)
-			large.sy = large.sx
-			large.x = random(-width/4, width - 64)
-			large.y = random(-height/4, height - 64)
-		else
-			is_large = false
-		end
-	end)
-end
-
-local color_mode = 0
-local toggle_color
-toggle_color = function(dur_in, delay)
-	if color_mode == 0 then
-		color_mode = 1
-		Flux.to(splash_flam_color, dur_in, {
-			[1] = color_b[1],
-			[2] = color_b[2],
-			[3] = color_b[3],
-		}):delay(delay):oncomplete(function()
-			toggle_color(dur_in, delay)
-		end)
-	else
-		color_mode = 0
-		Flux.to(splash_flam_color, dur_in, {
-			[1] = color_a[1],
-			[2] = color_a[2],
-			[3] = color_a[3],
-		}):delay(delay):oncomplete(function()
-			toggle_color(dur_in, delay)
-		end)
-	end
 end
 
 function State_Splash:load()
@@ -106,91 +38,47 @@ function State_Splash:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
-	end)
-	timer_effect = Timer()
-	timer_skip = Timer()
-	timer_type = Timer()
-	timer_love_skip = Timer()
-
-	timer_effect:every(randomf(0.5, 2), function()
-		toggle_effect()
-	end)
-
-	timer_love_skip:after(1.5, function()
-		splash_love_skippable = true
+		local grid = Animation.newGrid(64, 32, assets.images.ss_flamendless:getDimensions())
+		splash_flam = Animation.newAnimation(grid("1-5", 1), 0.25, function()
+			splash_flam:pauseAtEnd()
+			switch()
+		end)
+		sf_width, sf_height = splash_flam:getDimensions()
 	end)
 
 	splash_love = LoveSplash()
 	splash_love.onDone = function()
 		current_state = states.splash_flam
-
-		timer_type:every(0.4, function()
-			if #str2 ~= #str2_target then
-				local char = str2_target:sub(#str2 + 1, #str2 + 1)
-				str2 = str2 .. char
-				splash_flam_skippable = #str2 >= #str2_target/2
-			else
-				timer_type:clear()
-				timer_skip:after(2, function()
-					switch()
-				end)
-			end
-		end)
-		toggle_color(1.5, 0.15)
 	end
 end
 
 function State_Splash:update(dt)
 	if not self.is_ready then return end
 	if current_state == states.splash_love then
-		timer_love_skip:update(dt)
 		splash_love:update(dt)
 	elseif current_state == states.splash_flam then
-		timer_effect:update(dt)
-		timer_skip:update(dt)
-		timer_type:update(dt)
+		splash_flam:update(dt)
 	end
 end
 
 function State_Splash:draw()
 	if not self.is_ready then return end
+	love.graphics.setColor(Fade.getColor())
 	if current_state == states.splash_love then
 		splash_love:draw()
 	elseif current_state == states.splash_flam then
-		local font = assets.fonts.firefly_256
-		local str_offx = font:getWidth(str)/2
-		local str_offy = font:getHeight(str)/2
-		love.graphics.setColor(splash_flam_color)
-		love.graphics.setFont(font)
-		love.graphics.print(str,
-			love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0,
-			1, 1, str_offx, str_offy)
-
-		local font2 = assets.fonts.uncle_type_32
-		local str_offx2 = font2:getWidth(str)/2
-		local str_offy2 = font2:getHeight(str)/2
-		love.graphics.setColor(1, 1, 1, 1)
-		love.graphics.setFont(font2)
-		love.graphics.print(str2,
-			love.graphics.getWidth()/2, love.graphics.getHeight() * 0.3, 0,
-			1, 1, str_offx2, str_offy2)
-
-		if is_large then
-			love.graphics.setFont(font)
-			love.graphics.setColor(effect_color)
-			love.graphics.print(str, large.x, large.y, 0, large.sx, large.sy)
-		end
+		splash_flam:draw(assets.images.ss_flamendless,
+			love.graphics.getWidth()/2, love.graphics.getHeight()/2,
+			0, scale_x, scale_y, sf_width/2, sf_height/2)
 	end
-	love.graphics.setColor(Fade.getColor())
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 function State_Splash:keypressed(key)
 	if key == "e" or key == "space" or key == "return" then
-		if splash_love and splash_love_skippable then
+		if splash_love then
 			splash_love:skip()
 		end
-		if current_state == states.splash_flam and splash_flam_skippable then
+		if current_state == states.splash_flam then
 			switch()
 		end
 	end
