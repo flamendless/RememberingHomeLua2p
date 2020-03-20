@@ -65,6 +65,7 @@ function Preloader.start(assets, container)
 			elseif data_type == "Font" then
 				assert(container.fonts ~= nil, "You must provide a 'fonts' table")
 				assert(type(container.fonts) == "table", "'container.fonts' must be a table")
+				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 				container.fonts[name] = data
 			end
 

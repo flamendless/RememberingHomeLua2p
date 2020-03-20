@@ -33,7 +33,7 @@ local Worlds = require("ecs.worlds")
 local current_world
 
 local window_size = !(_GAME_SIZE)
-local window_resize, canvas_resize
+local window_resize, canvas_resize, state_init
 local game_canvas, bot_canvas, top_canvas
 local supported_modes = love.window.getFullscreenModes()
 
@@ -41,22 +41,30 @@ local supported_modes = love.window.getFullscreenModes()
 local color_red = {1, 0, 0, 1}
 local color_green = {0, 1, 0, 1}
 local color_blue = {0, 0, 1, 1}
+local base_font
 !end
 
 function love.load()
 	Log.info(format("Starting... Game Version: %s", game_version))
+	love.math.setRandomSeed(love.timer.getTime())
+	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
 	for i = #supported_modes, 1, -1 do
 		local mode = supported_modes[i]
 		local s = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
 		if s < 1 then remove(supported_modes, i) end
 	end
+	base_font = love.graphics.getFont()
 
 	Info.initialize()
 	canvas_resize()
-	-- current_world = Worlds.Splash
+	!if _RELEASE then
+	current_world = Worlds.Splash
+	!else
 	current_world = Worlds.Menu
+	!end
 	Log.info("Starting scene: ", current_world.id)
+	state_init()
 	current_world:load()
 end
 
@@ -65,18 +73,23 @@ function love.update(dt)
 	Flux.update(dt)
 	current_world:update(dt)
 
-	top_canvas:attach()
-	!if not _RELEASE then
-	top_canvas:draw_bounds(color_green)
-	!end
-	top_canvas:detach()
+	if current_world.top_draw then
+		top_canvas:attach()
+		current_world:top_draw(game_canvas)
+		!if not _RELEASE then
+		top_canvas:draw_bounds(color_green)
+		!end
+		top_canvas:detach()
+	end
 
-	game_canvas:attach()
-	current_world:draw(game_canvas)
-	!if not _RELEASE then
-	game_canvas:draw_bounds(color_red)
-	!end
-	game_canvas:detach()
+	if current_world.game_draw then
+		game_canvas:attach()
+		current_world:game_draw(game_canvas)
+		!if not _RELEASE then
+		game_canvas:draw_bounds(color_red)
+		!end
+		game_canvas:detach()
+	end
 
 	if current_world.ui_draw then
 		bot_canvas:attach()

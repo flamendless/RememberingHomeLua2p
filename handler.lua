@@ -9,6 +9,7 @@ _GAME_BASE_SIZE = { x = 128, y = 32 }
 
 _GAME_VERSION = { 0, 0, 1 }
 
+_DEFAULT_FILTER = "nearest"
 _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
 _CANVAS_FILTER = "nearest"
