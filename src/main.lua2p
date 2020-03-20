@@ -21,13 +21,19 @@ function printf(...)
 	print(msg)
 end
 
-local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+function printt(t)
+	assert(type(t) == "table", "argument must be of type 'table'")
+	for k, v in pairs(t) do
+		print(k, v)
+	end
+end
 
 io.stdout:setvbuf("no")
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
 local Canvas = require("canvas")
 local Info = require("info")
+local Network = require("network")
 local Preloader = require("preloader")
 
 local remove = table.remove
@@ -41,6 +47,7 @@ local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 Log.outfile = !(_LOG_OUTPUT)
 Log.lovesave = true
+local Semver = require("modules.semver.semver")
 local Timer = require("modules.hump.timer")
 
 local Worlds = require("ecs.worlds")
@@ -58,8 +65,13 @@ local color_blue = {0, 0, 1, 1}
 local base_font
 !end
 
+local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+local this_semver = Semver(this_version)
+
 function love.load()
-	Log.info(format("Starting... Game Version: %s", game_version))
+	Log.info(format("Starting... Game Version: %s", this_version))
+	Network.check_latest_version(this_semver)
+
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)

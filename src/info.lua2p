@@ -6,10 +6,10 @@ local sort = table.sort
 local concat = table.concat
 local format = string.format
 local file = !(_LOG_INFO)
+local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 
 function Info.initialize()
 	Log.info("System information checking...")
-	local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 
 	local info_os = love.system.getOS()
 	local state, percent, seconds = love.system.getPowerInfo()

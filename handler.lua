@@ -16,6 +16,7 @@ _CANVAS_FILTER = "nearest"
 
 _EMAIL = "flamendless8@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
+_GITHUB_URL_RELEASE = ""
 
 _LOG_OUTPUT = "log_output.txt"
 _LOG_INFO = "info.txt"

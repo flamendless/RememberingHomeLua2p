@@ -31,3 +31,6 @@
 [submodule "modules/lume"]
 	path = modules/lume
 	url = https://github.com/rxi/lume
+[submodule "modules/semver"]
+	path = modules/semver
+	url = https://github.com/kikito/semver.lua
