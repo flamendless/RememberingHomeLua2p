@@ -1,0 +1,12 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("text", function(c, text, font)
+	!if _ASSERT then
+	assert(type(text) == "string", "Passed argument must be of type 'string'")
+	if font then
+		assert(font:type() == "Font", "Passed argument must be of type 'Font'")
+	end
+	!end
+	c.text = text
+	c.font = font
+end)

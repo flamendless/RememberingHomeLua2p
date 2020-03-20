@@ -9,4 +9,5 @@ Concord.component("position", function(c, x, y)
 	elseif type(x) == "number" then
 		c.pos = vec2:new(x, y)
 	end
+	c.original_pos = c.pos:copy()
 end)

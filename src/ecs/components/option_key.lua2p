@@ -1,0 +1,8 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("option_key", function(c, id)
+	!if _ASSERT then
+	assert(type(id) == "number", "Passed argument must be of type 'number'")
+	!end
+	c.id = id
+end)
