@@ -1,14 +1,27 @@
 local Animation = require("modules.anim8.anim8")
+local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
+
+local lower = string.lower
 
 local Preloader = require("preloader")
 local Fade = require("fade")
 
 local State_Menu = {
 	id = "Menu",
+	world = Concord.world(),
+	entities = {},
+	canvases = {},
 	is_ready = false,
+}
+
+local Components = {}
+Concord.utils.loadNamespace("ecs/components", Components)
+local Systems = {
+	RenderText = require("ecs.systems.render_text"),
+	MenuCursor = require("ecs.systems.menu_cursor"),
 }
 
 local states = Enum("main_menu", "settings", "about")
@@ -24,6 +37,7 @@ local assets_data = {
 local assets = { images = {}, sources = {}, fonts = {} }
 
 local options = { "Play", "Settings", "About", "Exit" }
+local current_option = #options + 1
 table.reverse(options)
 
 function State_Menu:load()
@@ -31,6 +45,25 @@ function State_Menu:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
+
+		self.world:addSystems(Systems.RenderText)
+		self.world:addSystems(Systems.MenuCursor)
+
+		for i, str in ipairs(options) do
+			local padding = 32
+			local font = assets.fonts.jamboree_24
+			local str_w = font:getWidth(str)
+			local str_h = font:getHeight(str)
+			local x = self.canvases.bot_canvas.width - str_w - padding
+			local y = self.canvases.bot_canvas.height - (i * str_h) - padding
+
+			local id = "text_" .. lower(str)
+			self.entities[id] = Concord.entity(self.world)
+				:give("position", vec2:new(x, y))
+				:give("text", str, font)
+				:give("color", {1, 1, 1, 1})
+				:give("option_key", i)
+		end
 	end)
 end
 
@@ -38,26 +71,30 @@ function State_Menu:update(dt)
 	if not self.is_ready then return end
 end
 
-function State_Menu:draw(canvas)
+function State_Menu:game_draw(canvas)
 	if not self.is_ready then return end
 	love.graphics.draw(assets.images.bg_title, 0, 0, 0, canvas.scale)
 end
 
 function State_Menu:ui_draw(canvas)
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(assets.fonts.jamboree_24)
+	self.world:emit("ui_draw")
 
-	for i, str in ipairs(options) do
-		local padding = 32
-		local str_w = love.graphics.getFont():getWidth(str)
-		local str_h = love.graphics.getFont():getHeight(str)
-		local x = canvas.width - str_w - padding
-		local y = canvas.height - (i * str_h) - padding
-		love.graphics.print(str, x, y)
-	end
 end
 
 function State_Menu:keypressed(key)
+	if key == "s" or key == "down" then
+		current_option = current_option - 1
+	elseif key == "w" or key == "up" then
+		current_option = current_option + 1
+	end
+
+	if current_option > #options then
+		current_option = 1
+	elseif current_option < 1 then
+		current_option = #options
+	end
+	self.world:emit("update_cursor", current_option)
 end
 
 return State_Menu
