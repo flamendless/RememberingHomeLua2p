@@ -103,9 +103,25 @@ end
 
 function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
-	top_canvas:render()
-	game_canvas:render()
-	bot_canvas:render()
+	if current_world.top_draw then
+		top_canvas:render()
+	end
+	if current_world.game_draw then
+		game_canvas:render()
+	end
+	if current_world.ui_draw then
+		bot_canvas:render()
+	end
+
+	if current_world.draw then
+		current_world:draw()
+	end
+
+	!if not _RELEASE then
+	love.graphics.setFont(base_font)
+	love.graphics.setColor(1, 0, 0, 1)
+	love.graphics.print(love.timer.getFPS(), 8, 8)
+	!end
 
 	if not current_world.is_ready then
 		Preloader.draw_loading()
@@ -160,13 +176,24 @@ function love.quit()
 	Log.info("Quitting...")
 end
 
-function love_switch(next_id)
+function state_init()
+	if current_world.canvases then
+		current_world.canvases = {
+			game_canvas = game_canvas,
+			top_canvas = top_canvas,
+			bot_canvas = bot_canvas
+		}
+	end
+end
+
+function state_switch(next_id)
 	local str_err = format("State '%s' doest not exist in 'Worlds'", next_id)
 	assert(Worlds[next_id], str_err)
 	local prev_id = current_world.id
 	current_world = Worlds[next_id]
 	local str = format("Switched from %s to %s", prev_id, current_world.id)
 	Log.trace(str)
+	state_init()
 	current_world:load()
 end
 
