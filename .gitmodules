@@ -25,3 +25,9 @@
 [submodule "modules/enum"]
 	path = modules/enum
 	url = https://github.com/Tjakka5/Enum
+[submodule "modules/moonshine"]
+	path = modules/moonshine
+	url = https://github.com/vrld/moonshine
+[submodule "modules/lume"]
+	path = modules/lume
+	url = https://github.com/rxi/lume
