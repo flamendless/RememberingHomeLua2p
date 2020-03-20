@@ -7,6 +7,20 @@ Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
 
 assert(love.system.getOS() == !(_OS))
 require("modules.batteries")
+function printf(...)
+	local msg = ""
+	for i, arg in ipairs({...}) do
+		if type(arg) == "table" then
+			for k, v in pairs(arg) do
+				msg = msg .. v .. ", "
+			end
+		else
+			msg = msg .. arg .. ", "
+		end
+	end
+	print(msg)
+end
+
 local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 
 io.stdout:setvbuf("no")
