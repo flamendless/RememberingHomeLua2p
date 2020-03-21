@@ -25,6 +25,7 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	GhostEffect = require("systems.ghost_effect"),
 	GlitchEffect = require("systems.glitch_effect"),
+	Lerp = require("systems.lerp"),
 }
 
 local states = Enum("splash_love", "splash_flam")
@@ -47,16 +48,15 @@ local str2 = ""
 local splash_love_skippable = false
 local splash_flam_skippable = false
 
-local color_a = {0.898, 0.48627451, 0.074509804}
-local color_b = {0.952941176, 0.952941176, 0.054901961}
+local color_a = {0.898, 0.48627451, 0.074509804, 1}
+local color_b = {0.952941176, 0.952941176, 0.054901961, 1}
+
 local color_glitches = {
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 }
-
-local splash_flam_color = {color_a[1], color_a[2], color_a[3], 1}
 
 local is_switching = false
 local switch = function()
@@ -68,30 +68,6 @@ local switch = function()
 	end)
 end
 
-local color_mode = 0
-local toggle_color
-toggle_color = function(dur_in, delay)
-	if color_mode == 0 then
-		color_mode = 1
-		Flux.to(splash_flam_color, dur_in, {
-			[1] = color_b[1],
-			[2] = color_b[2],
-			[3] = color_b[3],
-		}):delay(delay):oncomplete(function()
-			toggle_color(dur_in, delay)
-		end)
-	else
-		color_mode = 0
-		Flux.to(splash_flam_color, dur_in, {
-			[1] = color_a[1],
-			[2] = color_a[2],
-			[3] = color_a[3],
-		}):delay(delay):oncomplete(function()
-			toggle_color(dur_in, delay)
-		end)
-	end
-end
-
 function StateSplash:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
@@ -99,6 +75,7 @@ function StateSplash:load()
 		self.is_ready = true
 		self.world:addSystems(Systems.GhostEffect)
 		self.world:addSystems(Systems.GlitchEffect)
+		self.world:addSystem(Systems.Lerp)
 
 		local font = assets.fonts.firefly_256
 		self.entities.ghost_effect = Concord.entity(self.world)
@@ -109,7 +86,8 @@ function StateSplash:load()
 			:give("random_text", {"flamendless", "brandon"}, font)
 			:give("glitch_effect")
 			:give("glitch_colors", color_glitches)
-			:give("color", splash_flam_color)
+			:give("color", color_a)
+			:give("lerp_color", {color_a, color_b})
 			:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2))
 	end)
 
@@ -124,6 +102,7 @@ function StateSplash:load()
 	splash_love = LoveSplash()
 	splash_love.onDone = function()
 		current_state = states.splash_flam
+		self.world:emit("start_color_lerp")
 
 		timer_type:every(0.4, function()
 			if #str2 ~= #str2_target then
@@ -137,7 +116,6 @@ function StateSplash:load()
 				end)
 			end
 		end)
-		toggle_color(1.5, 0.15)
 	end
 end
 
