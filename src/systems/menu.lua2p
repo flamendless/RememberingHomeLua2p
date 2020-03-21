@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "position"}
+	pool = {"option_key", "color", "position", "text", "on_enter"}
 })
 
 local offset_x = 64
@@ -31,9 +31,14 @@ end
 function Menu:init()
 	self.cursor = 0
 	self.length_options = 0
+
+	self.pool.onEntityAdded = function(pool, e)
+		self.length_options = self.length_options + 1
+	end
 end
 
 function Menu:update_cursor(dt)
+	if dt == 0 then return end
 	self.cursor = self.cursor + dt
 	if self.cursor > self.length_options then
 		self.cursor = 1
@@ -56,6 +61,20 @@ function Menu:update_cursor(dt)
 			Flux.to(position.pos, dur_out, {
 				x = position.original_pos.x
 			})
+		end
+	end
+end
+
+function Menu:enter_option()
+	if self.cursor == 0 then return end
+	for _, e in ipairs(self.pool) do
+		local option_key = e:get("option_key")
+		local text = e:get("text")
+		local callback = e:get("on_enter")
+
+		if option_key.id == self.cursor then
+			callback.callback()
+			break
 		end
 	end
 end

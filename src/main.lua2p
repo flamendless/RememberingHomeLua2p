@@ -70,7 +70,9 @@ local this_semver = Semver(this_version)
 
 function love.load()
 	Log.info(format("Starting... Game Version: %s", this_version))
+	!if _NETWORK then
 	Network.check_latest_version(this_semver)
+	!end
 
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))

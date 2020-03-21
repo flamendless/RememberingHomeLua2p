@@ -12,7 +12,7 @@ local randomf = Lume.random
 local Preloader = require("preloader")
 local Fade = require("fade")
 
-local State_Splash = {
+local StateSplash = {
 	id = "Splash",
 	is_ready = false,
 }
@@ -127,7 +127,7 @@ toggle_color = function(dur_in, delay)
 	end
 end
 
-function State_Splash:load()
+function StateSplash:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
@@ -169,7 +169,7 @@ function State_Splash:load()
 	end
 end
 
-function State_Splash:update(dt)
+function StateSplash:update(dt)
 	if not self.is_ready then return end
 	if current_state == states.splash_love then
 		timer_love_skip:update(dt)
@@ -183,7 +183,7 @@ function State_Splash:update(dt)
 	end
 end
 
-function State_Splash:draw()
+function StateSplash:draw()
 	if not self.is_ready then return end
 	if current_state == states.splash_love then
 		splash_love:draw()
@@ -229,7 +229,7 @@ function State_Splash:draw()
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
-function State_Splash:keypressed(key)
+function StateSplash:keypressed(key)
 	if key == "e" or key == "space" or key == "return" then
 		if splash_love and splash_love_skippable then
 			splash_love:skip()
@@ -240,4 +240,4 @@ function State_Splash:keypressed(key)
 	end
 end
 
-return State_Splash
+return StateSplash
