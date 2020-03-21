@@ -1,4 +1,4 @@
-local base_path = "ecs.worlds."
+local base_path = "worlds."
 local req = function(id)
 	return require(base_path .. id)
 end

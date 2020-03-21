@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-return Concord.component("sprite", function(c, image)
+Concord.component("sprite", function(c, image)
 	!if not _ASSERT then
 	assert(image:type() == "Image", "'image' must be of type Image")
 	!end

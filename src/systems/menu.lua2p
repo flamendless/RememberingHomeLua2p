@@ -1,20 +1,21 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
-local MenuCursor = Concord.system({
+local Menu = Concord.system({
 	pool = {"option_key", "color", "position"}
 })
 
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
+local color_red = { 1, 0, 0, 1 }
 
 local color_to_red = function(color)
 	Flux.to(color.color, dur_in, {
-		[1] = 1,
-		[2] = 0,
-		[3] = 0,
-		[4] = 1
+		[1] = color_red[1],
+		[2] = color_red[2],
+		[3] = color_red[3],
+		[4] = color_red[4]
 	})
 end
 
@@ -27,13 +28,25 @@ local color_to_white = function(color)
 	})
 end
 
-function MenuCursor:update_cursor(cursor)
+function Menu:init()
+	self.cursor = 0
+	self.length_options = 0
+end
+
+function Menu:update_cursor(dt)
+	self.cursor = self.cursor + dt
+	if self.cursor > self.length_options then
+		self.cursor = 1
+	elseif self.cursor < 1 then
+		self.cursor = self.length_options
+	end
+
 	for _, e in ipairs(self.pool) do
 		local option_key = e:get("option_key")
 		local position = e:get("position")
 		local color = e:get("color")
 
-		if cursor == option_key.id then
+		if self.cursor == option_key.id then
 			color_to_red(color)
 			Flux.to(position.pos, dur_in, {
 				x = position.original_pos.x - offset_x
@@ -47,4 +60,4 @@ function MenuCursor:update_cursor(cursor)
 	end
 end
 
-return MenuCursor
+return Menu

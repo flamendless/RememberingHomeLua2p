@@ -18,10 +18,10 @@ local State_Menu = {
 }
 
 local Components = {}
-Concord.utils.loadNamespace("ecs/components", Components)
+Concord.utils.loadNamespace("components", Components)
 local Systems = {
-	RenderText = require("ecs.systems.render_text"),
-	MenuCursor = require("ecs.systems.menu_cursor"),
+	RenderText = require("systems.render_text"),
+	Menu = require("systems.menu"),
 }
 
 local states = Enum("main_menu", "settings", "about")
@@ -37,7 +37,6 @@ local assets_data = {
 local assets = { images = {}, sources = {}, fonts = {} }
 
 local options = { "Play", "Settings", "About", "Exit" }
-local current_option = #options + 1
 table.reverse(options)
 
 function State_Menu:load()
@@ -47,7 +46,7 @@ function State_Menu:load()
 		self.is_ready = true
 
 		self.world:addSystems(Systems.RenderText)
-		self.world:addSystems(Systems.MenuCursor)
+		self.world:addSystems(Systems.Menu)
 
 		for i, str in ipairs(options) do
 			local padding = 32
@@ -79,22 +78,16 @@ end
 function State_Menu:ui_draw(canvas)
 	love.graphics.setColor(1, 1, 1, 1)
 	self.world:emit("ui_draw")
-
 end
 
 function State_Menu:keypressed(key)
+	local dt = 0
 	if key == "s" or key == "down" then
-		current_option = current_option - 1
+		dt = -1
 	elseif key == "w" or key == "up" then
-		current_option = current_option + 1
+		dt = 1
 	end
-
-	if current_option > #options then
-		current_option = 1
-	elseif current_option < 1 then
-		current_option = #options
-	end
-	self.world:emit("update_cursor", current_option)
+	self.world:emit("update_cursor", dt)
 end
 
 return State_Menu
