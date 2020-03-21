@@ -4,18 +4,32 @@ local RenderText = Concord.system({
 	pool = {"position", "text"}
 })
 
-function RenderText:ui_draw()
+function RenderText:draw()
 	for _, e in ipairs(self.pool) do
 		local pos = e:get("position")
 		local color = e:get("color")
 		local text = e:get("text")
+		local transform = e:get("transform")
 		if color then
 			love.graphics.setColor(e.color.color)
 		end
 		if text.font then
 			love.graphics.setFont(text.font)
 		end
-		love.graphics.print(text.text, pos.pos.x, pos.pos.y)
+
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = love.graphics.getFont():getWidth(text)/2
+			end
+			if transform.oy == 0.5 then
+				oy = love.graphics.getFont():getHeight(text)/2
+			end
+		end
+		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 	end
 end
 

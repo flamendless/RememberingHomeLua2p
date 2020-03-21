@@ -22,7 +22,6 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	RenderText = require("systems.render_text"),
 	Menu = require("systems.menu"),
-	GhostEffect = require("systems.ghost_effect"),
 }
 
 local assets_data = {
@@ -67,16 +66,6 @@ function StateMenu:load()
 
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
-		self.world:addSystems(Systems.GhostEffect)
-
-		self.entities.ghost_effect = Concord.entity(self.world)
-			:give("random_text", { "Going", "Home", "Revisited" }, assets.fonts.jamboree_24)
-			:give("ghost_effect", {
-				range_scale = vec2:new(1, 2),
-				range_every = vec2:new(0.5, 3),
-				range_trigger = vec2:new(0.15, 0.85),
-				range_chance = vec2:new(15, 85),
-			})
 
 		local font = assets.fonts.jamboree_24
 		for i, str in ipairs(options) do
@@ -115,12 +104,11 @@ end
 function StateMenu:ui_draw(canvas)
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
-	self.world:emit("ui_draw")
+	self.world:emit("draw")
 end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
-	self.world:emit("effect_draw")
 end
 
 function StateMenu:keypressed(key)
