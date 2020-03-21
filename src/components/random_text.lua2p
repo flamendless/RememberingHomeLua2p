@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("ghost_text", function(c, text, font)
+Concord.component("random_text", function(c, text, font)
 	!if _ASSERT then
 	assert(type(text) == "string" or type(text) == "table", "Passed argument must be of type 'string' or 'table'")
 	if font then

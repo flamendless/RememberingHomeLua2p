@@ -1,0 +1,19 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("glitch_effect", function(c, props)
+	local properties = {}
+	!if _ASSERT then
+	if props then
+		assert(type(props) == "table", "Passed argument must be of type 'table'")
+		properties = props
+	end
+	!end
+	c.is_glitch = false
+
+	c.timer_glitch = nil
+	c.timer_effect = nil
+
+	c.range_every = properties.range_every or vec2:new(0.5, 2)
+	c.range_trigger = properties.range_trigger or vec2:new(0.3, 0.7)
+	c.range_chance = properties.range_chance or vec2:new(45, 55)
+end)

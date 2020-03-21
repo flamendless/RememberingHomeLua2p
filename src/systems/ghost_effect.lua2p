@@ -8,7 +8,7 @@ local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
 local GhostEffect = Concord.system({
-	pool_text = {"ghost_effect", "ghost_text"}
+	pool_text = {"ghost_effect", "random_text"}
 })
 
 function GhostEffect:init()
@@ -54,19 +54,19 @@ end
 
 function GhostEffect:effect_draw()
 	for _, e in ipairs(self.pool_text) do
-		local ghost_text = e:get("ghost_text")
+		local random_text = e:get("random_text")
 		local ghost_effect = e:get("ghost_effect")
 		local text
-		if ghost_text.use_string then
-			text = ghost_text.text
-		elseif ghost_text.use_table then
-			local r = random(1, #ghost_text.text)
-			text = ghost_text.text[r]
+		if random_text.use_string then
+			text = random_text.text
+		elseif random_text.use_table then
+			local r = random(1, #random_text.text)
+			text = random_text.text[r]
 		end
 
 		if ghost_effect.is_ghost then
-			if ghost_text.font then
-				love.graphics.setFont(ghost_text.font)
+			if random_text.font then
+				love.graphics.setFont(random_text.font)
 			end
 			love.graphics.setColor(ghost_effect.effect_color)
 			love.graphics.print(text,

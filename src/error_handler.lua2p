@@ -17,7 +17,6 @@ local font, p, ph
 local error_printer = function(msg, layer)
 	local err_msg = (debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", ""))
 	print(err_msg)
-	Log.error(err_msg)
 end
 
 local draw = function()

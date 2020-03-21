@@ -70,7 +70,7 @@ function StateMenu:load()
 		self.world:addSystems(Systems.GhostEffect)
 
 		self.entities.ghost_effect = Concord.entity(self.world)
-			:give("ghost_text", { "Going", "Home", "Revisited" }, assets.fonts.jamboree_24)
+			:give("random_text", { "Going", "Home", "Revisited" }, assets.fonts.jamboree_24)
 			:give("ghost_effect", {
 				range_scale = vec2:new(1, 2),
 				range_every = vec2:new(0.5, 3),

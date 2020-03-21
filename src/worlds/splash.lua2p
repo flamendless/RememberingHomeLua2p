@@ -1,4 +1,5 @@
 local Animation = require("modules.anim8.anim8")
+local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
@@ -15,6 +16,15 @@ local Fade = require("fade")
 local StateSplash = {
 	id = "Splash",
 	is_ready = false,
+	world = Concord.world(),
+	entities = {},
+}
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+local Systems = {
+	GhostEffect = require("systems.ghost_effect"),
+	GlitchEffect = require("systems.glitch_effect"),
 }
 
 local states = Enum("splash_love", "splash_flam")
@@ -28,12 +38,11 @@ local assets_data = {
 local assets = { fonts = {} }
 
 local splash_love
-local timer_effects, timer_skip, timer_type, timer_love_skip, timer_ghost, timer_glitch
+local timer_effects, timer_skip, timer_type, timer_love_skip
 
 local str = "flamendless"
 local str2_target = "a game by"
 local str2 = ""
-local str_glitch = "brandon"
 
 local splash_love_skippable = false
 local splash_flam_skippable = false
@@ -46,60 +55,16 @@ local color_glitches = {
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 }
-local color_glitch_mode = 1
 
 local splash_flam_color = {color_a[1], color_a[2], color_a[3], 1}
-local effect_color = {}
-
-local is_ghost = false
-local is_glitch = false
-local ghost = { x = 0, y = 0, sx = 1, sy = 1 }
 
 local is_switching = false
 local switch = function()
 	if is_switching then return end
 	is_switching = true
-	timer_effects:clear()
 	timer_type:clear()
-	timer_ghost:clear()
-	timer_glitch:clear()
 	Fade.fade_out(function()
 		state_switch("Menu")
-	end)
-end
-
-local toggle_ghost = function()
-	local r = random(30, 70)/100
-	timer_ghost:during(r, function()
-		local c = Lume.weightedchoice({ yes = 25, no = 75 })
-		if c == "yes" then
-			local width = love.graphics.getWidth()
-			local height = love.graphics.getHeight()
-			effect_color[1] = randomf(0.2, 1)
-			effect_color[2] = randomf(0.2, 1)
-			effect_color[3] = randomf(0.2, 1)
-			effect_color[4] = randomf(0.2, 0.5)
-			is_ghost = true
-			ghost.sx = random(1, 4)
-			ghost.sy = ghost.sx
-			ghost.x = random(-width/4, width - 64)
-			ghost.y = random(-height/4, height - 64)
-		elseif c == "no" then
-			is_ghost = false
-		end
-	end)
-end
-
-local toggle_glitch = function()
-	local r = random(30, 70)/100
-	timer_glitch:during(r, function()
-		local c = Lume.weightedchoice({ yes = 45, no = 55 })
-		if c == "yes" then
-			color_glitch_mode = random(1, #color_glitches)
-			is_glitch = true
-		elseif c == "no" then
-			is_glitch = false
-		end
 	end)
 end
 
@@ -132,18 +97,25 @@ function StateSplash:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
+		self.world:addSystems(Systems.GhostEffect)
+		self.world:addSystems(Systems.GlitchEffect)
+
+		local font = assets.fonts.firefly_256
+		self.entities.ghost_effect = Concord.entity(self.world)
+			:give("random_text", str, font)
+			:give("ghost_effect")
+
+		self.entities.glitch_effect = Concord.entity(self.world)
+			:give("random_text", {"flamendless", "brandon"}, font)
+			:give("glitch_effect")
+			:give("glitch_colors", color_glitches)
+			:give("color", splash_flam_color)
+			:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2))
 	end)
-	timer_effects = Timer()
-	timer_glitch = Timer()
-	timer_ghost = Timer()
+
 	timer_skip = Timer()
 	timer_type = Timer()
 	timer_love_skip = Timer()
-
-	timer_effects:every(randomf(0.5, 2), function()
-		toggle_ghost()
-		toggle_glitch()
-	end)
 
 	timer_love_skip:after(1.5, function()
 		splash_love_skippable = true
@@ -175,11 +147,9 @@ function StateSplash:update(dt)
 		timer_love_skip:update(dt)
 		splash_love:update(dt)
 	elseif current_state == states.splash_flam then
-		timer_effects:update(dt)
+		self.world:emit("update", dt)
 		timer_skip:update(dt)
 		timer_type:update(dt)
-		timer_ghost:update(dt)
-		timer_glitch:update(dt)
 	end
 end
 
@@ -188,24 +158,6 @@ function StateSplash:draw()
 	if current_state == states.splash_love then
 		splash_love:draw()
 	elseif current_state == states.splash_flam then
-		local font = assets.fonts.firefly_256
-		love.graphics.setFont(font)
-		if not is_glitch then
-			local str_offx = font:getWidth(str)/2
-			local str_offy = font:getHeight(str)/2
-			love.graphics.setColor(splash_flam_color)
-			love.graphics.print(str,
-				love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0,
-				1, 1, str_offx, str_offy)
-		else
-			local ox = font:getWidth(str_glitch)/2
-			local oy = font:getHeight(str_glitch)/2
-			love.graphics.setColor(color_glitches[color_glitch_mode])
-			love.graphics.print(str_glitch,
-				love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0,
-				1, 1, ox, oy)
-		end
-
 		local font2 = assets.fonts.uncle_type_32
 		local str_offx2 = font2:getWidth(str)/2
 		local str_offy2 = font2:getHeight(str)/2
@@ -215,15 +167,7 @@ function StateSplash:draw()
 			love.graphics.getWidth()/2, love.graphics.getHeight() * 0.3, 0,
 			1, 1, str_offx2, str_offy2)
 
-		if is_ghost then
-			love.graphics.setFont(font)
-			love.graphics.setColor(effect_color)
-			if not is_glitch then
-				love.graphics.print(str, ghost.x, ghost.y, 0, ghost.sx, ghost.sy)
-			else
-				love.graphics.print(str_glitch, ghost.x, ghost.y, 0, ghost.sx, ghost.sy)
-			end
-		end
+		self.world:emit("effect_draw")
 	end
 	love.graphics.setColor(Fade.getColor())
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())

@@ -89,8 +89,8 @@ function love.load()
 	!if _RELEASE then
 	current_world = Worlds.Splash
 	!else
-	-- current_world = Worlds.Splash
-	current_world = Worlds.Menu
+	current_world = Worlds.Splash
+	-- current_world = Worlds.Menu
 	!end
 	Log.info("Starting scene: ", current_world.id)
 	state_init()
