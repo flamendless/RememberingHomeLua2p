@@ -1,0 +1,56 @@
+local Log = require("modules.log.log")
+local Semver = require("modules.semver.semver")
+
+local format = string.format
+local match = string.match
+local sub = string.sub
+
+local Network = {}
+
+local ssl = require("ssl")
+local socket = require("socket")
+local https = require("ssl.https")
+
+local github_url = "https://github.com/aseprite/aseprite/releases/latest"
+-- local github_url = !(_GITHUB_URL_LATEST)
+
+function Network.check_latest_version(current_semver)
+	local r, c, h, s = https.request({
+		method = "GET",
+		url = github_url,
+	})
+	local str_r = format("Request to: %s", github_url)
+	local str_c = format("Client to: %s", c)
+	local str_s = format("Header to: %s", s)
+
+	Log.info(str_r)
+	Log.info(str_c)
+	Log.info(str_s)
+
+	if c == 301 or c == 302 then
+		local new_url = h.location
+		local parsed_url = socket.url.parse(new_url)
+		local path = socket.url.parse_path(parsed_url.path)
+		local latest_ver = path[#path]
+		latest_ver = sub(latest_ver, 2)
+		local latest_semver = Semver(latest_ver)
+		Log.info("Latest version: ", latest_ver)
+
+		if latest_semver > current_semver then
+			Network.show_latest_dialogbox(new_url)
+		end
+	end
+end
+
+function Network.show_latest_dialogbox(url)
+	local pressed = love.window.showMessageBox("Alert", "There is a newer version available! Do you want to check it?", {
+		"OK",
+		"No",
+		escapebutton = 2
+	})
+	if pressed == 1 then
+		love.system.openURL(url)
+	end
+end
+
+return Network
