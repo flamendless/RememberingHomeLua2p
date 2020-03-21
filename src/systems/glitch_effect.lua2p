@@ -51,6 +51,7 @@ function GlitchEffect:effect_draw()
 		local glitch_colors = e:get("glitch_colors")
 		local color = e:get("color")
 		local pos = e:get("position")
+		local transform = e:get("transform")
 
 		local text
 		if glitch_effect.is_glitch then
@@ -70,9 +71,19 @@ function GlitchEffect:effect_draw()
 			love.graphics.setFont(random_text.font)
 		end
 
-		local ox = random_text.font:getWidth(text)/2
-		local oy = random_text.font:getHeight(text)/2
-		love.graphics.print(text, pos.pos.x, pos.pos.y, 0, 1, 1, ox, oy)
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = love.graphics.getFont():getWidth(text)/2
+			end
+			if transform.oy == 0.5 then
+				oy = love.graphics.getFont():getHeight(text)/2
+			end
+		end
+		love.graphics.print(text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 	end
 end
 

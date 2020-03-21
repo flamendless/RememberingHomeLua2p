@@ -1,0 +1,70 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+local Timer = require("modules.hump.timer")
+
+local Typewriter = Concord.system({
+	pool = {"text", "typewriter", "position"}
+})
+
+function Typewriter:start_typewriter()
+	for _, e in ipairs(self.pool) do
+		local text = e:get("text")
+		local typewriter = e:get("typewriter")
+		local cb_on_finish = e:get("typewriter_on_finish")
+		if not typewriter.timer then
+			typewriter.timer = Timer()
+			typewriter.timer:every(typewriter.every, function()
+				local target = typewriter.target_text
+				if #text.text ~= #target then
+					local ch = target:sub(#text.text + 1, #text.text + 1)
+					text.text = text.text .. ch
+				else
+					if cb_on_finish then
+						typewriter.timer:after(cb_on_finish.delay, function()
+							cb_on_finish.callback()
+						end)
+					end
+				end
+			end)
+		end
+	end
+end
+
+function Typewriter:update(dt)
+	for _, e in ipairs(self.pool) do
+		local typewriter = e:get("typewriter")
+		if typewriter.timer then
+			typewriter.timer:update(dt)
+		end
+	end
+end
+
+function Typewriter:draw()
+	for _, e in ipairs(self.pool) do
+		local text = e:get("text")
+		local pos = e:get("position")
+		local color = e:get("color")
+		local transform = e:get("transform")
+		if color then
+			love.graphics.setColor(color.color)
+		end
+		if text.font then
+			love.graphics.setFont(text.font)
+		end
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = love.graphics.getFont():getWidth(text.text)/2
+			end
+			if transform.oy == 0.5 then
+				oy = love.graphics.getFont():getHeight(text.text)/2
+			end
+		end
+		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+	end
+end
+
+return Typewriter
