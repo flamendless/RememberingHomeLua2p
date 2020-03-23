@@ -4,7 +4,7 @@ _NETWORK = false
 _ASSERT = true
 _PLATFORM = "desktop"
 _OS = "Linux"
-_GAME_TITLE  = "Going Home: Revisit"
+_GAME_TITLE  = "Going Home: Revisited"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
 
