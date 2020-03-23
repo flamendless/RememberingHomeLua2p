@@ -101,7 +101,10 @@ function love.update(dt)
 	Timer.update(dt)
 	Flux.update(dt)
 	current_world:update(dt)
+end
 
+function love.draw()
+	love.graphics.setColor(1, 1, 1, 1)
 	if current_world.top_draw then
 		top_canvas:attach()
 		current_world:top_draw(game_canvas)
@@ -109,6 +112,8 @@ function love.update(dt)
 		top_canvas:draw_bounds(color_green)
 		!end
 		top_canvas:detach()
+
+		top_canvas:render()
 	end
 
 	if current_world.game_draw then
@@ -118,6 +123,8 @@ function love.update(dt)
 		game_canvas:draw_bounds(color_red)
 		!end
 		game_canvas:detach()
+
+		game_canvas:render()
 	end
 
 	if current_world.ui_draw then
@@ -127,18 +134,7 @@ function love.update(dt)
 		bot_canvas:draw_bounds(color_blue)
 		!end
 		bot_canvas:detach()
-	end
-end
 
-function love.draw()
-	love.graphics.setColor(1, 1, 1, 1)
-	if current_world.top_draw then
-		top_canvas:render()
-	end
-	if current_world.game_draw then
-		game_canvas:render()
-	end
-	if current_world.ui_draw then
 		bot_canvas:render()
 	end
 

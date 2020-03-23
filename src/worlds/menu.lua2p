@@ -6,8 +6,9 @@ local LoveSplash = require("modules.splashes.o-ten-one")
 
 local lower = string.lower
 
-local Preloader = require("preloader")
+local Canvas = require("canvas")
 local Fade = require("fade")
+local Preloader = require("preloader")
 
 local StateMenu = {
 	id = "Menu",
@@ -20,8 +21,9 @@ local StateMenu = {
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
-	RenderText = require("systems.render_text"),
 	Menu = require("systems.menu"),
+	MotionBlur = require("systems.motion_blur"),
+	RenderText = require("systems.render_text"),
 }
 
 local assets_data = {
@@ -47,6 +49,7 @@ end
 !end
 
 function StateMenu:on_play()
+	self.world:emit("set_shader_process", true)
 end
 
 function StateMenu:on_settings()
@@ -65,7 +68,13 @@ function StateMenu:load()
 		self.is_ready = true
 
 		self.world:addSystems(Systems.RenderText)
+		self.world:addSystems(Systems.MotionBlur)
 		self.world:addSystems(Systems.Menu)
+
+		local target_canvas = Canvas:new(self.canvases.bot_canvas)
+		target_canvas.flags.draw_bounds = true
+		target_canvas.custom_color_bounds = {0, 1, 0, 1}
+		self.world:emit("set_target_canvas", target_canvas)
 
 		local font = assets.fonts.jamboree_24
 		for i, str in ipairs(options) do
@@ -87,6 +96,7 @@ function StateMenu:load()
 					Log.info("Switched Menu State to: ", current_state)
 					self["on_" .. lstr](self)
 				end)
+				:give("motion_blur")
 		end
 	end)
 end
@@ -94,10 +104,15 @@ end
 function StateMenu:update(dt)
 	if not self.is_ready then return end
 	self.world:emit("update", dt)
+	if current_state == states.play then
+		love.graphics.setColor(1, 1, 1, 1)
+		self.world:emit("shader_send_update", dt)
+	end
 end
 
 function StateMenu:game_draw(canvas)
 	if not self.is_ready then return end
+	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.draw(assets.images.bg_title, 0, 0, 0, canvas.scale)
 end
 
@@ -109,6 +124,8 @@ end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
+	love.graphics.setColor(1, 1, 1, 1)
+	self.world:emit("post_process_draw")
 end
 
 function StateMenu:keypressed(key)

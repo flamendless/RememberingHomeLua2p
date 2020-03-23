@@ -20,7 +20,7 @@ SOURCE_FILES := $(strip $(call search,$(SOURCE_PATH),*.lua2p))
 SOURCE_FILES += $(strip $(call search,$(SOURCE_PATH)/*.lua2p))
 SOURCE_OBJECTS := $(SOURCE_FILES:$(SOURCE_PATH)/%.lua2p=./$(OUTPUT_DIRECTORY)/%.lua)
 
-DIRECTORIES_TO_COPY := ecs #folders inside the "${SOURCE}"
+DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
 DIR_MODULES = modules
 
@@ -42,13 +42,9 @@ init:
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_W) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_W); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_W) directory already exists"; fi
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_C) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_C); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_C) directory already exists"; fi
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_S) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_S); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_S) directory already exists"; fi
-	# @for x ($(DIRECTORIES_TO_COPY)); do \
-	# 	if [ ! -d $(OUTPUT_DIRECTORY)/$$x ]; then \
-	# 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
-	# 	else \
-	# 		echo "$$x already exists"; \
-	# 	fi; \
-	# done
+	@for x ($(DIRECTORIES_TO_COPY)); do \
+		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
+	done
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_MODULES) ]; then \
 		cp -rf $(DIR_MODULES) $(OUTPUT_DIRECTORY)/; \
 	else \
