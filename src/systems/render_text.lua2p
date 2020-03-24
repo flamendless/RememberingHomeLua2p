@@ -4,13 +4,6 @@ local RenderText = Concord.system({
 	pool = {"position", "text"},
 })
 
-function RenderText:set_target_canvas(target_canvas)
-	!if _ASSERT then
-	assert(target_canvas:type() == "Canvas", "Passed argument must be of type 'Canvas'")
-	!end
-	self.target_canvas = target_canvas
-end
-
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
 		local pos = e:get("position")
@@ -40,14 +33,6 @@ function RenderText:draw()
 		end
 
 		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
-	end
-end
-
-function RenderText:post_process_draw()
-	if self.target_canvas then
-		self.target_canvas:attach()
-		self:draw()
-		self.target_canvas:detach()
 	end
 end
 

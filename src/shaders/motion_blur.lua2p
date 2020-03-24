@@ -1,0 +1,54 @@
+local MotionBlur = {}
+
+function MotionBlur:init(target_canvas, config)
+	!if _ASSERT then
+	assert(target_canvas:type() == "Canvas", "Passed argument must be of type 'Canvas'")
+	if config then
+		assert(type(config) == "table", "Passed argument must be of type 'table'")
+	end
+	!end
+
+	self.canvas = target_canvas
+	self.flag_process = false
+	self.shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
+	self.shader_code:send("canvas_size", {
+		target_canvas.width, target_canvas.height
+	})
+
+	local quality = 32
+	local length = 0.5
+	local dir = { -1, 0 }
+	if config then
+		quality = config.quality
+		length = config.length
+		dir[0] = config.dir[0]
+		dir[1] = config.dir[1]
+	end
+	self.shader_code:send("quality", quality)
+	self.shader_code:send("length", length)
+	self.shader_code:send("dir", dir)
+end
+
+function MotionBlur:update_config(config)
+	!if _ASSERT then
+		assert(type(config) == "table", "Passed argument must be of type 'table'")
+	!end
+	if config.quality then
+		self.shader_code:send("quality", config.quality)
+	end
+	if config.length then
+		self.shader_code:send("length", config.length)
+	end
+	if config.dir then
+		self.shader_code:send("dir", config.dir)
+	end
+end
+
+function MotionBlur:post_process_draw()
+	if not self.flag_process then return end
+	love.graphics.setShader(self.shader_code)
+	self.canvas:render()
+	love.graphics.setShader()
+end
+
+return MotionBlur

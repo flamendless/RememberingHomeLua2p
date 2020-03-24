@@ -133,6 +133,7 @@ function Canvas:render()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(self.canvas, self.x, self.y)
+	love.graphics.setBlendMode("alpha")
 end
 
 !if not _RELEASE then

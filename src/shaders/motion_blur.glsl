@@ -1,38 +1,21 @@
-extern float samplesF;
-extern float radius;
+extern int quality;
+extern vec2 canvas_size;
 extern vec2 dir;
+extern float length;
 
 vec4 effect(vec4 color, Image texture, vec2 tex_coords, vec2 screen_coords)
 {
-	float hstep = dir.x;
-	float vstep = dir.y;
-	float total = 0.0;
-	int samplesI = int(samplesF);
-	vec4 sum = vec4(0.0);
+	vec4 blur;
+	vec2 c = vec2(0, 0)/canvas_size;
+	vec2 pos = vec2(0.0, 0.0);
 
-	for (int i = 1; i <= samplesI; i++)
+	for (float i = 0.0; i < 1.0; i += 1.0/float(quality))
 	{
-		float floatI = float(i);
-		float counter = samplesF - floatI + 1.0;
-		float p = floatI/samplesF;
-		float t = (p * 0.1783783784) + 0.0162162162;
-		total += t;
-		sum += Texel(texture, vec2(tex_coords.x - counter * radius * hstep, tex_coords.y - counter * radius * vstep)) * t;
+		pos.x = (length * dir.x + c.x * dir.x) * i;
+		pos.y = (length * dir.y + c.y * dir.y) * i;
+		blur += Texel(texture, tex_coords - pos);
 	}
+	blur /= float(quality);
 
-	sum += Texel(texture, vec2(tex_coords.x, tex_coords.y)) * 0.2270270270;
-
-	for (int i = samplesI; i >= 1; i--)
-	{
-		float floatI = float(i);
-		float counter = samplesF - floatI + 1.0;
-		float p = floatI/samplesF;
-		float t = (p * 0.1783783784) + 0.0162162162;
-		total += t;
-		sum += Texel(texture, vec2(tex_coords.x + counter * radius * hstep, tex_coords.y + counter * radius * vstep)) * t;
-	}
-
-	vec4 px = Texel(texture, tex_coords);
-	// return px * (sum/total);
-	return (sum/total);
+	return color * blur;
 }
