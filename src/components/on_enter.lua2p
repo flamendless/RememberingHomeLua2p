@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("on_enter", function(c, callback)
-	!if not _ASSERT then
+	!if _ASSERT then
 	assert(type(callback) == "function", "Passed argument must be of type 'function'")
 	!end
 	c.callback = callback

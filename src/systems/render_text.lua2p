@@ -33,6 +33,11 @@ function RenderText:draw()
 		end
 
 		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+
+		!if not _RELEASE then
+		-- love.graphics.setColor(1, 0, 0, 0.75)
+		-- love.graphics.rectangle("line", pos.pos.x, pos.pos.y, love.graphics.getFont():getWidth(text.text), love.graphics.getFont():getHeight(text.text))
+		!end
 	end
 end
 

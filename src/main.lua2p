@@ -251,29 +251,25 @@ canvas_resize = function()
 
 	if main_canvas == nil then
 		main_canvas = Canvas:new(main_canvas_prop)
-		main_canvas.flags.draw_bounds = true
-		main_canvas.draw_bounds_color = color_red
+		main_canvas.debug_color = color_red
 	else main_canvas:set(main_canvas_prop)
 	end
 
 	if top_canvas == nil then
 		top_canvas = Canvas:new(top_canvas_prop)
-		top_canvas.flags.draw_bounds = true
-		top_canvas.draw_bounds_color = color_red
+		top_canvas.debug_color = color_red
 	else top_canvas:set(top_canvas_prop)
 	end
 
 	if mid_canvas == nil then
 		mid_canvas = Canvas:new(mid_canvas_prop)
-		mid_canvas.flags.draw_bounds = true
-		mid_canvas.draw_bounds_color = color_green
+		mid_canvas.debug_color = color_green
 	else mid_canvas:set(mid_canvas_prop)
 	end
 
 	if bot_canvas == nil then
 		bot_canvas = Canvas:new(bot_canvas_prop)
-		bot_canvas.flags.draw_bounds = true
-		bot_canvas.draw_bounds_color = color_blue
+		bot_canvas.debug_color = color_blue
 	else bot_canvas:set(bot_canvas_prop)
 	end
 end
