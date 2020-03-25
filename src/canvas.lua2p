@@ -134,19 +134,16 @@ function Canvas:render()
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(self.canvas, self.x, self.y)
 	love.graphics.setBlendMode("alpha")
+
+	self:draw_bounds()
 end
 
 !if not _RELEASE then
-function Canvas:draw_bounds(r, g, b, a)
+function Canvas:draw_bounds()
 	if not self.flags.draw_bounds then return end
-	if type(r) == "table" then
-		love.graphics.setColor(r)
-	else
-		love.graphics.setColor(r, g or 0, b or 0, a or 1)
-	end
+	love.graphics.setColor(self.draw_bounds_color)
 	love.graphics.setLineWidth(4)
-	love.graphics.rectangle("line", 0, 0, self.width, self.height)
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
 !end
 

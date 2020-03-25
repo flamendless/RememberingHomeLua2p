@@ -7,10 +7,12 @@ local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 
 local lower = string.lower
+local min = math.min
 
 local Canvas = require("canvas")
 local Fade = require("fade")
-local MotionBlur = require("shaders.motion_blur")
+local Info = require("info")
+local MotionBlur = require("motion_blur")
 local Preloader = require("preloader")
 
 local StateMenu = {
@@ -27,6 +29,7 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
+	RenderSprite = require("systems.render_sprite"),
 }
 
 local assets_data = {
@@ -34,7 +37,8 @@ local assets_data = {
 		{ "bg_title", "assets/images/menu/title.png" },
 	},
 	font = {
-		{ "jamboree", "assets/fonts/Jamboree.ttf", 24 },
+		{ "menu", "assets/fonts/Jamboree.ttf", 24 },
+		{ "about", "assets/fonts/Pixeled.ttf", 24 },
 	}
 }
 local assets = { images = {}, sources = {}, fonts = {} }
@@ -43,6 +47,12 @@ local states = Enum("menu", "play", "settings", "about", "exit")
 local current_state = states.menu
 local options = { "Play", "Settings", "About", "Exit" }
 table.reverse(options)
+local about = {
+	"Going Home: Revisited",
+	"A Game By",
+	"Brandon Blanker Lim-it",
+	"@flamendless"
+}
 
 !if not _RELEASE and _ASSERT then
 for i, str in ipairs(options) do
@@ -51,14 +61,21 @@ for i, str in ipairs(options) do
 end
 !end
 
+function StateMenu:on_menu()
+	self.world:emit("allow_cursor", true)
+end
+
 function StateMenu:on_play()
-	MotionBlur.flag_process = true
 end
 
 function StateMenu:on_settings()
+	self.world:emit("allow_cursor", false)
+	self:MB_to_left()
 end
 
 function StateMenu:on_about()
+	self.world:emit("allow_cursor", false)
+	self:MB_to_down()
 end
 
 function StateMenu:on_exit()
@@ -69,8 +86,6 @@ function StateMenu:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
-		self.canvas_mb = self.canvases.bot_canvas
-		MotionBlur:init(self.canvas_mb)
 		local w = love.graphics.getWidth()
 		local h = love.graphics.getHeight()
 		self.camera = Gamera.new(0, 0, w * 2, h * 2)
@@ -79,22 +94,30 @@ function StateMenu:load()
 		self.canvas_main = self.canvases.main_canvas
 		self.mb_main = MotionBlur:new(self.canvas_main)
 
+		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
 
-		local font = assets.fonts.jamboree_24
+		local main_bg = assets.images.bg_title
+		local scale = min(w/main_bg:getWidth(), h/main_bg:getHeight())
+		self.entities.main_bg = Concord.entity(self.world)
+			:give("position", vec2:new(w/2, h/2))
+			:give("sprite", main_bg)
+			:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+
+		local font_menu = assets.fonts.menu_24
 		for i, str in ipairs(options) do
 			local padding = 32
-			local str_w = font:getWidth(str)
-			local str_h = font:getHeight(str)
+			local str_w = font_menu:getWidth(str)
+			local str_h = font_menu:getHeight(str)
 			local x = self.canvases.bot_canvas.width - str_w - padding
-			local y = self.canvases.bot_canvas.height - (i * str_h) - padding
+			local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - (i * str_h) - padding
 			local lstr = lower(str)
 
 			local id = "text_" .. lstr
 			self.entities[id] = Concord.entity(self.world)
 				:give("position", vec2:new(x, y))
-				:give("text", str, font)
+				:give("text", str, font_menu)
 				:give("color", {1, 1, 1, 1})
 				:give("option_key", i)
 				:give("on_enter", function()
@@ -103,52 +126,39 @@ function StateMenu:load()
 					self["on_" .. lstr](self)
 				end)
 		end
+
+		local l, t, w, h = self.camera:getWorld()
+		local font_about = assets.fonts.about_24
+		for i, str in ipairs(about) do
+			local padding = 32
+			local str_w = font_about:getWidth(str)
+			local str_h = font_about:getHeight(str)
+			local base_y = h/2 + padding
+			local x = self.canvases.main_canvas.width/2 - str_w/2
+			local y = base_y + ((i - 1) * str_h) + padding
+			local id = "about_" .. str
+			self.entities[id] = Concord.entity(self.world)
+				:give("position", vec2:new(x, y))
+				:give("text", str, font_about)
+				:give("color", {1, 1, 1, 1})
+		end
 	end)
 end
-
-local camera_x = -1
-local camera_y = 0
-local cam_length = 0
 
 function StateMenu:update(dt)
 	if not self.is_ready then return end
 	self.world:emit("update", dt)
-	if current_state == states.play then
-		love.graphics.setColor(1, 1, 1, 1)
-		if love.keyboard.isDown("left") then
-			cam_length = cam_length - 64 * dt
-		elseif love.keyboard.isDown("right") then
-			cam_length = cam_length + 64 * dt
-		end
-
-		MotionBlur:update_config({
-			dir = { camera_x, camera_y },
-			length = cam_length/self.canvas_mb.width
-		})
-	end
-end
-
-function StateMenu:game_draw(canvas)
-	if not self.is_ready then return end
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.draw(assets.images.bg_title, 0, 0, 0, canvas.scale)
-end
-
-function StateMenu:ui_draw(canvas)
-	if not self.is_ready then return end
-	love.graphics.setColor(1, 1, 1, 1)
-	if current_state == states.menu then
-		self.world:emit("draw")
-	elseif current_state == states.play then
-		self.canvas_mb:attach()
-		self.world:emit("draw")
-		self.canvas_mb:detach()
-		MotionBlur:post_process_draw()
-	end
 end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
+	love.graphics.setColor(1, 1, 1, 1)
+	self.canvas_main:attach()
+	self.camera:draw(function()
+		self.world:emit("draw")
+	end)
+	self.canvas_main:detach()
+	self.mb_main:post_process_draw()
 end
 
 function StateMenu:keypressed(key)
@@ -161,7 +171,95 @@ function StateMenu:keypressed(key)
 	elseif key == "e" or key == "return" or key == "space" then
 		self.world:emit("enter_option")
 	end
+
+	if current_state ~= states.menu and key == "escape" then
+		self:MB_return()
+	end
 	self.world:emit("update_cursor", dt)
+end
+
+local temp_mb = {}
+function StateMenu:MB_to_down()
+	self.mb_main.flag_process = true
+	local l, t, w, h = self.camera:getWorld()
+	local cx, cy = self.camera:getPosition()
+	local cworld = { x = l, y = t, w = w, h = h }
+	local cpos = vec2:new(cx, cy)
+	local duration = 1
+	local dist = cworld.h/2
+
+	Flux.to(cpos, duration, { y = cworld.h })
+	:onstart(function()
+		temp_mb.target_x = cx
+		temp_mb.target_y = cy
+		temp_mb.dir_x = 0
+		temp_mb.dir_y = -1
+		temp_mb.dist = dist
+		self.mb_main:update_config({
+			dir = { 0, 1 },
+			dist = dist,
+		})
+	end)
+	:onupdate(function()
+		self.camera:setPosition(cpos.x, cpos.y)
+	end)
+	:oncomplete(function()
+		self.mb_main.flag_process = false
+	end)
+end
+
+function StateMenu:MB_to_left()
+	self.mb_main.flag_process = true
+	local l, t, w, h = self.camera:getWorld()
+	local cx, cy = self.camera:getPosition()
+	local cworld = { x = l, y = t, w = w, h = h }
+	local cpos = vec2:new(cx, cy)
+	local duration = 1
+	local dist = cworld.w/2
+
+	Flux.to(cpos, duration, { x = cworld.w })
+	:onstart(function()
+		temp_mb.target_x = cx
+		temp_mb.target_y = cy
+		temp_mb.dir_x = -1
+		temp_mb.dir_y = 0
+		temp_mb.dist = dist
+		self.mb_main:update_config({
+			dir = { 1, 0 },
+			dist = dist,
+		})
+	end)
+	:onupdate(function()
+		self.camera:setPosition(cpos.x, cpos.y)
+	end)
+	:oncomplete(function()
+		self.mb_main.flag_process = false
+	end)
+end
+
+function StateMenu:MB_return()
+	self.mb_main.flag_process = true
+	local l, t, w, h = self.camera:getWorld()
+	local cx, cy = self.camera:getPosition()
+	local cworld = { x = l, y = t, w = w, h = h }
+	local cpos = vec2:new(cx, cy)
+	local duration = 1
+
+	Flux.to(cpos, duration, { x = temp_mb.target_x, y = temp_mb.target_y })
+	:onstart(function()
+		self.mb_main:update_config({
+			dir = { temp_mb.dir_x, temp_mb.dir_y },
+			dist = temp_mb.dist,
+		})
+	end)
+	:onupdate(function()
+		self.camera:setPosition(cpos.x, cpos.y)
+	end)
+	:oncomplete(function()
+		current_state = states.menu
+		Log.info("Switched Menu State to: ", current_state)
+		self:on_menu()
+	end)
 end
 
 return StateMenu

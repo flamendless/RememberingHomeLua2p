@@ -55,7 +55,7 @@ local current_world
 
 local window_size = !(_GAME_SIZE)
 local window_resize, canvas_resize, state_init
-local game_canvas, bot_canvas, top_canvas
+local mid_canvas, bot_canvas, top_canvas, main_canvas
 local supported_modes = love.window.getFullscreenModes()
 
 !if not _RELEASE then
@@ -107,39 +107,30 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	if current_world.top_draw then
 		top_canvas:attach()
-		current_world:top_draw(game_canvas)
-		!if not _RELEASE then
-		top_canvas:draw_bounds(color_green)
-		!end
+		current_world:top_draw(top_canvas)
 		top_canvas:detach()
-
 		top_canvas:render()
 	end
 
 	if current_world.game_draw then
-		game_canvas:attach()
-		current_world:game_draw(game_canvas)
-		!if not _RELEASE then
-		game_canvas:draw_bounds(color_red)
-		!end
-		game_canvas:detach()
-
-		game_canvas:render()
+		mid_canvas:attach()
+		current_world:game_draw(mid_canvas)
+		mid_canvas:detach()
+		mid_canvas:render()
 	end
 
-	if current_world.ui_draw then
+	if current_world.bot_draw then
 		bot_canvas:attach()
-		current_world:ui_draw(bot_canvas)
-		!if not _RELEASE then
-		bot_canvas:draw_bounds(color_blue)
-		!end
+		current_world:bot_draw(bot_canvas)
 		bot_canvas:detach()
-
 		bot_canvas:render()
 	end
 
 	if current_world.draw then
-		current_world:draw()
+		main_canvas:attach()
+		current_world:draw(main_canvas)
+		main_canvas:detach()
+		main_canvas:render()
 	end
 
 	!if not _RELEASE then
@@ -161,7 +152,7 @@ function love.keypressed(key)
 	!if not _RELEASE then
 	if key == "`" then
 		top_canvas.flags.draw_bounds = not top_canvas.flags.draw_bounds
-		game_canvas.flags.draw_bounds = not game_canvas.flags.draw_bounds
+		mid_canvas.flags.draw_bounds = not mid_canvas.flags.draw_bounds
 		bot_canvas.flags.draw_bounds = not bot_canvas.flags.draw_bounds
 	end
 	!end
@@ -204,7 +195,8 @@ end
 function state_init()
 	if current_world.canvases then
 		current_world.canvases = {
-			game_canvas = game_canvas,
+			main_canvas = main_canvas,
+			mid_canvas = mid_canvas,
 			top_canvas = top_canvas,
 			bot_canvas = bot_canvas
 		}
@@ -228,14 +220,21 @@ canvas_resize = function()
 	local window_h = love.graphics.getHeight()
 	local scale = min(window_w/game_size.x, window_h/game_size.y)
 
-	local game_canvas_prop = {}
-	game_canvas_prop.width = game_size.x * scale
-	game_canvas_prop.height = game_size.y * scale
-	game_canvas_prop.x = 0
-	game_canvas_prop.y = floor(window_h/2 - game_canvas_prop.height/2)
-	game_canvas_prop.scale = scale
+	local main_canvas_prop = {}
+	main_canvas_prop.width = window_w
+	main_canvas_prop.height = window_h
+	main_canvas_prop.x = 0
+	main_canvas_prop.y = 0
+	main_canvas_prop.scale = 1
 
-	local rem_height = window_h - game_canvas_prop.height
+	local mid_canvas_prop = {}
+	mid_canvas_prop.width = game_size.x * scale
+	mid_canvas_prop.height = game_size.y * scale
+	mid_canvas_prop.x = 0
+	mid_canvas_prop.y = floor(window_h/2 - mid_canvas_prop.height/2)
+	mid_canvas_prop.scale = scale
+
+	local rem_height = window_h - mid_canvas_prop.height
 	local top_canvas_prop = {}
 	top_canvas_prop.width = window_w
 	top_canvas_prop.height = floor(rem_height/2)
@@ -247,18 +246,34 @@ canvas_resize = function()
 	bot_canvas_prop.width = window_w
 	bot_canvas_prop.height = floor(rem_height/2)
 	bot_canvas_prop.x = 0
-	bot_canvas_prop.y = floor(window_h/2 + game_canvas_prop.height/2)
+	bot_canvas_prop.y = floor(window_h/2 + mid_canvas_prop.height/2)
 	bot_canvas_prop.scale = scale
 
-	if top_canvas == nil then top_canvas = Canvas:new(top_canvas_prop)
+	if main_canvas == nil then
+		main_canvas = Canvas:new(main_canvas_prop)
+		main_canvas.flags.draw_bounds = true
+		main_canvas.draw_bounds_color = color_red
+	else main_canvas:set(main_canvas_prop)
+	end
+
+	if top_canvas == nil then
+		top_canvas = Canvas:new(top_canvas_prop)
+		top_canvas.flags.draw_bounds = true
+		top_canvas.draw_bounds_color = color_red
 	else top_canvas:set(top_canvas_prop)
 	end
 
-	if game_canvas == nil then game_canvas = Canvas:new(game_canvas_prop)
-	else game_canvas:set(game_canvas_prop)
+	if mid_canvas == nil then
+		mid_canvas = Canvas:new(mid_canvas_prop)
+		mid_canvas.flags.draw_bounds = true
+		mid_canvas.draw_bounds_color = color_green
+	else mid_canvas:set(mid_canvas_prop)
 	end
 
-	if bot_canvas == nil then bot_canvas = Canvas:new(bot_canvas_prop)
+	if bot_canvas == nil then
+		bot_canvas = Canvas:new(bot_canvas_prop)
+		bot_canvas.flags.draw_bounds = true
+		bot_canvas.draw_bounds_color = color_blue
 	else bot_canvas:set(bot_canvas_prop)
 	end
 end

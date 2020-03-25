@@ -31,14 +31,22 @@ end
 function Menu:init()
 	self.cursor = 0
 	self.length_options = 0
+	self.flags = {
+		allow_cursor = true
+	}
 
 	self.pool.onEntityAdded = function(pool, e)
 		self.length_options = self.length_options + 1
 	end
 end
 
+function Menu:allow_cursor(flag)
+	self.flags.allow_cursor = flag
+end
+
 function Menu:update_cursor(dt)
 	if dt == 0 then return end
+	if not self.flags.allow_cursor then return end
 	self.cursor = self.cursor + dt
 	if self.cursor > self.length_options then
 		self.cursor = 1
@@ -67,6 +75,7 @@ end
 
 function Menu:enter_option()
 	if self.cursor == 0 then return end
+	if not self.flags.allow_cursor then return end
 	for _, e in ipairs(self.pool) do
 		local option_key = e:get("option_key")
 		local text = e:get("text")
