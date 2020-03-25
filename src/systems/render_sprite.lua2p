@@ -1,0 +1,44 @@
+local Concord = require("modules.concord.concord")
+
+local RenderSprite = Concord.system({
+	pool = {"position", "sprite"},
+})
+
+function RenderSprite:draw()
+	for _, e in ipairs(self.pool) do
+		local pos = e:get("position")
+		local color = e:get("color")
+		local sprite = e:get("sprite")
+		local transform = e:get("transform")
+		love.graphics.setColor(1, 1, 1, 1)
+
+		if color then
+			love.graphics.setColor(e.color.color)
+		end
+
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = sprite.sprite:getWidth()/2
+			else
+				if type(transform.ox) == "number" then
+					ox = transform.ox
+				end
+			end
+			if transform.oy == 0.5 then
+				oy = sprite.sprite:getHeight()/2
+			else
+				if type(transform.oy) == "number" then
+					oy = transform.oy
+				end
+			end
+		end
+
+		love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+	end
+end
+
+return RenderSprite
