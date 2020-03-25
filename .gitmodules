@@ -34,3 +34,6 @@
 [submodule "modules/semver"]
 	path = modules/semver
 	url = https://github.com/kikito/semver.lua
+[submodule "modules/gamera"]
+	path = modules/gamera
+	url = https://github.com/kikito/gamera
