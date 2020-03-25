@@ -1,4 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("motion_blur", function(c)
-end)
