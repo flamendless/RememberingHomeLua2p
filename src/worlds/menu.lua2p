@@ -1,6 +1,8 @@
 local Animation = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
+local Flux = require("modules.flux.flux")
+local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 
@@ -13,6 +15,7 @@ local Preloader = require("preloader")
 
 local StateMenu = {
 	id = "Menu",
+	camera = nil,
 	world = Concord.world(),
 	entities = {},
 	canvases = {},
@@ -68,6 +71,13 @@ function StateMenu:load()
 		self.is_ready = true
 		self.canvas_mb = self.canvases.bot_canvas
 		MotionBlur:init(self.canvas_mb)
+		local w = love.graphics.getWidth()
+		local h = love.graphics.getHeight()
+		self.camera = Gamera.new(0, 0, w * 2, h * 2)
+		self.camera:setWindow(0, 0, w, h)
+
+		self.canvas_main = self.canvases.main_canvas
+		self.mb_main = MotionBlur:new(self.canvas_main)
 
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
