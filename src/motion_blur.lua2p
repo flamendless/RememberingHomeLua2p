@@ -1,18 +1,16 @@
-local MotionBlur = {}
+local MotionBlur = class()
 
-function MotionBlur:init(target_canvas, config)
+function MotionBlur:new(canvas, config)
 	!if _ASSERT then
-	assert(target_canvas:type() == "Canvas", "Passed argument must be of type 'Canvas'")
+	assert(canvas:type() == "Canvas", "Passed argument must be of type 'Canvas'")
 	if config then
 		assert(type(config) == "table", "Passed argument must be of type 'table'")
 	end
 	!end
 
-	self.canvas = target_canvas
-	self.flag_process = false
-	self.shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
-	self.shader_code:send("canvas_size", {
-		target_canvas.width, target_canvas.height
+	local shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
+	shader_code:send("canvas_size", {
+		canvas.width, canvas.height
 	})
 
 	local quality = 32
@@ -24,9 +22,15 @@ function MotionBlur:init(target_canvas, config)
 		dir[0] = config.dir[0]
 		dir[1] = config.dir[1]
 	end
-	self.shader_code:send("quality", quality)
-	self.shader_code:send("length", length)
-	self.shader_code:send("dir", dir)
+	shader_code:send("quality", quality)
+	shader_code:send("length", length)
+	shader_code:send("dir", dir)
+
+	return self:init({
+		flag_process = false,
+		shader_code = shader_code,
+		canvas = canvas,
+	})
 end
 
 function MotionBlur:update_config(config)
@@ -38,6 +42,8 @@ function MotionBlur:update_config(config)
 	end
 	if config.length then
 		self.shader_code:send("length", config.length)
+	elseif config.dist then
+		self.shader_code:send("length", config.dist/self.canvas.width)
 	end
 	if config.dir then
 		self.shader_code:send("dir", config.dir)
