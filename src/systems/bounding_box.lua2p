@@ -1,0 +1,18 @@
+local Concord = require("modules.concord.concord")
+
+local BoundingBox = Concord.system({
+	pool = {"bounding_box", "position"}
+})
+
+function BoundingBox:on_camera_move(camera)
+	for _, e in ipairs(self.pool) do
+		local box = e:get("bounding_box")
+		local pos = e:get("position")
+
+		local bx, by = camera:toScreen(box.x, box.y)
+		box.screen_x = bx
+		box.screen_y = by
+	end
+end
+
+return BoundingBox

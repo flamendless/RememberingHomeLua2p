@@ -3,12 +3,6 @@ local Canvas = class()
 function Canvas:new_default(x, y, width, height, rotation, scale)
 	local _canvas = love.graphics.newCanvas(width, height)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-	local _flags = {}
-	!if not _RELEASE then
-	_flags.draw_bounds = true
-	!else
-	_flags.draw_bounds = false
-	!end
 
 	return self:init({
 		flags = _flags,
@@ -20,20 +14,14 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 end
 
 function Canvas:new_from_table(tbl)
-	_x = tbl.x
-	_y = tbl.y
-	_w = tbl.width
-	_h = tbl.height
-	_scale = tbl.scale or 1
+	local _x = tbl.x
+	local _y = tbl.y
+	local _w = tbl.width
+	local _h = tbl.height
+	local _scale = tbl.scale or 1
 
 	local _canvas = love.graphics.newCanvas(_w, _h)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-	local _flags = {}
-	!if not _RELEASE then
-	_flags.draw_bounds = true
-	!else
-	_flags.draw_bounds = false
-	!end
 
 	return self:init({
 		flags = _flags,
@@ -47,12 +35,6 @@ end
 function Canvas:new_from_canvas(source)
 	local _canvas = love.graphics.newCanvas(source.width, source.height)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-	local _flags = {}
-	!if not _RELEASE then
-	_flags.draw_bounds = true
-	!else
-	_flags.draw_bounds = false
-	!end
 
 	return self:init({
 		flags = _flags,
@@ -64,15 +46,29 @@ function Canvas:new_from_canvas(source)
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
+	local _flags = {}
+	!if not _RELEASE then
+	_flags.draw_bounds = true
+	_flags.draw_cross = true
+	!else
+	_flags.draw_bounds = false
+	_flags.draw_cross = false
+	!end
+
+	local c
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
-			return self:new_from_canvas(x)
+			c = self:new_from_canvas(x)
+			c.flags = _flags
 		else
-			return self:new_from_table(x)
+			c = self:new_from_table(x)
+			c.flags = _flags
 		end
 	elseif type(x) == "number" then
-		return self:new_default(x, y, width, height, rotation, scale)
+	 	c = self:new_default(x, y, width, height, rotation, scale)
+		c.flags = _flags
 	end
+	return c
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
@@ -135,15 +131,28 @@ function Canvas:render()
 	love.graphics.draw(self.canvas, self.x, self.y)
 	love.graphics.setBlendMode("alpha")
 
+	!if not _RELEASE then
 	self:draw_bounds()
+	self:draw_cross()
+	!end
 end
 
 !if not _RELEASE then
 function Canvas:draw_bounds()
 	if not self.flags.draw_bounds then return end
-	love.graphics.setColor(self.draw_bounds_color)
+	love.graphics.setColor(self.debug_color)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+end
+
+function Canvas:draw_cross()
+	if not self.flags.draw_cross then return end
+	love.graphics.setColor(self.debug_color)
+	love.graphics.setLineWidth(1)
+	local w = love.graphics.getWidth()
+	local h = love.graphics.getHeight()
+	love.graphics.line(w/2, 0, w/2, h)
+	love.graphics.line(0, h/2, w, h/2)
 end
 !end
 

@@ -6,13 +6,16 @@ local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 
-local lower = string.lower
+local max = math.max
 local min = math.min
+local lower = string.lower
+local upper = string.upper
 
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Info = require("info")
 local MotionBlur = require("motion_blur")
+local Palette = require("palette")
 local Preloader = require("preloader")
 
 local StateMenu = {
@@ -27,6 +30,9 @@ local StateMenu = {
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
+	BoundingBox = require("systems.bounding_box"),
+	Click = require("systems.click"),
+	HoverEffect = require("systems.hover_effect"),
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
@@ -35,10 +41,14 @@ local Systems = {
 local assets_data = {
 	image = {
 		{ "bg_title", "assets/images/menu/title.png" },
+		{ "twitter", "assets/images/menu/twitter.png" },
+		{ "website", "assets/images/menu/website.png" },
+		{ "mail", "assets/images/menu/mail.png" },
 	},
 	font = {
 		{ "menu", "assets/fonts/Jamboree.ttf", 24 },
-		{ "about", "assets/fonts/Pixeled.ttf", 24 },
+		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
+		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
 	}
 }
 local assets = { images = {}, sources = {}, fonts = {} }
@@ -47,12 +57,6 @@ local states = Enum("menu", "play", "settings", "about", "exit")
 local current_state = states.menu
 local options = { "Play", "Settings", "About", "Exit" }
 table.reverse(options)
-local about = {
-	"Going Home: Revisited",
-	"A Game By",
-	"Brandon Blanker Lim-it",
-	"@flamendless"
-}
 
 !if not _RELEASE and _ASSERT then
 for i, str in ipairs(options) do
@@ -79,6 +83,13 @@ function StateMenu:on_about()
 end
 
 function StateMenu:on_exit()
+	!if _PLATFORM == "desktop" then
+		local btn = love.window.showMessageBox("Alert", "Are you sure you want to exit the game?", { "Exit", "Cancel", escapebutton = 2 })
+		if btn == 1 then
+			love.event.quit()
+		elseif btn == 2 then
+		end
+	!end
 end
 
 function StateMenu:load()
@@ -86,10 +97,10 @@ function StateMenu:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
-		local w = love.graphics.getWidth()
-		local h = love.graphics.getHeight()
-		self.camera = Gamera.new(0, 0, w * 2, h * 2)
-		self.camera:setWindow(0, 0, w, h)
+		local ww = love.graphics.getWidth()
+		local wh = love.graphics.getHeight()
+		self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
+		self.camera:setWindow(0, 0, ww, wh)
 
 		self.canvas_main = self.canvases.main_canvas
 		self.mb_main = MotionBlur:new(self.canvas_main)
@@ -97,11 +108,14 @@ function StateMenu:load()
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
+		self.world:addSystems(Systems.Click)
+		self.world:addSystems(Systems.BoundingBox)
+		self.world:addSystems(Systems.HoverEffect)
 
 		local main_bg = assets.images.bg_title
-		local scale = min(w/main_bg:getWidth(), h/main_bg:getHeight())
+		local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
 		self.entities.main_bg = Concord.entity(self.world)
-			:give("position", vec2:new(w/2, h/2))
+			:give("position", vec2:new(ww/2, wh/2))
 			:give("sprite", main_bg)
 			:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
 
@@ -118,7 +132,7 @@ function StateMenu:load()
 			self.entities[id] = Concord.entity(self.world)
 				:give("position", vec2:new(x, y))
 				:give("text", str, font_menu)
-				:give("color", {1, 1, 1, 1})
+				:give("color", Palette.colors.white)
 				:give("option_key", i)
 				:give("on_enter", function()
 					current_state = states[lstr]
@@ -127,27 +141,120 @@ function StateMenu:load()
 				end)
 		end
 
-		local l, t, w, h = self.camera:getWorld()
+		local about = {
+			{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
+			{ "A Game By:" },
+			{ "Brandon Blanker Lim-it" },
+			{ "@flamendless" },
+			{ assets.images.twitter, assets.images.website, assets.images.mail },
+			{ "@LAYOUT:LEFT" },
+			{ "TOOLS USED:" },
+			{ "Löve framework" },
+			{ "Vim" },
+			{ "Audacity" },
+			{ "Manjaro i3-wm Linux" },
+			{ "Brave Browser" },
+
+			{ "@LAYOUT:RIGHT" },
+			{ "LIBRARIES USED:" },
+			{ "Anim8, Batteries" },
+			{ "Concord, Crush" },
+			{ "Enum, Flux" },
+			{ "Gamera, Hump" },
+			{ "Lily, Log" },
+			{ "Lume, Moonshine" },
+			{ "Semver, Splashes" },
+
+			{ "@LAYOUT:CENTER" },
+			{ "SPECIAL THANKS TO:" },
+			{ "People at the Löve Discord server" },
+		}
+
+		local options_link = {
+			!(_URL_TWITTER),
+			!(_URL_WEBSITE),
+			!(_URL_MAIL),
+		}
+
+		local l, t, w, h = self.camera:getVisible()
 		local font_about = assets.fonts.about_24
-		for i, str in ipairs(about) do
-			local padding = 32
-			local str_w = font_about:getWidth(str)
-			local str_h = font_about:getHeight(str)
-			local base_y = h/2 + padding
-			local x = self.canvases.main_canvas.width/2 - str_w/2
-			local y = base_y + ((i - 1) * str_h) + padding
-			local id = "about_" .. str
-			self.entities[id] = Concord.entity(self.world)
-				:give("position", vec2:new(x, y))
-				:give("text", str, font_about)
-				:give("color", {1, 1, 1, 1})
+		local base_x = w/2
+		local base_y = h + 16
+		local layout = false
+		local layout_base_y = 0
+		local largest = 0
+		for i, el in ipairs(about) do
+			if type(el[1]) == "string" then
+				local str = el[1]
+				local font = el[2] or font_about
+				local space = el[3]
+				local str_w = font:getWidth(str)
+				local str_h = font:getHeight(str)
+				local x = base_x - str_w/2
+				local y = base_y
+				if space then base_y = base_y + space end
+				if str == "@LAYOUT:LEFT" then
+					base_x = w * 0.25
+					layout_base_y = base_y
+					layout = true
+				elseif str == "@LAYOUT:RIGHT" then
+					base_x = w * 0.75
+					layout_base_y = base_y
+					layout = true
+				elseif str == "@LAYOUT:CENTER" then
+					base_x = w/2
+					base_y = largest
+					layout = false
+				else
+					if layout then
+						y = layout_base_y
+						layout_base_y = layout_base_y + str_h
+						largest = max(largest, layout_base_y)
+					end
+					local id = "about_text_" .. i
+					self.entities[id] = Concord.entity(self.world)
+						:give("color", Palette.colors.white)
+						:give("text", str, font)
+						:give("position", vec2:new(x, y))
+						:give("camera")
+					if not layout then
+						base_y = base_y + str_h
+					end
+				end
+
+			elseif el[1].type and el[1]:type() == "Image" then
+				local pad = 32
+				local img_h
+				for i2, image in ipairs(el) do
+					local id = "about_image_" .. (i + i2)
+					local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
+					local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
+					local y = base_y + image:getHeight()/2 - pad
+					img_h = image:getHeight()
+					self.entities[id] = Concord.entity(self.world)
+						:give("color", Palette.colors.white)
+						:give("sprite", image)
+						:give("position", vec2:new(x, y))
+						:give("camera")
+						:give("bounding_box", x, y, image:getWidth(), image:getHeight())
+						:give("clickable", 1, function()
+							local url = options_link[i2]
+							love.system.openURL(url)
+						end)
+						:give("hoverable")
+						:give("hover_change_color", Palette.colors.red, 0.5)
+				end
+				base_y = base_y + img_h + pad
+			end
 		end
 	end)
 end
 
 function StateMenu:update(dt)
 	if not self.is_ready then return end
+	local mx, my = love.mouse.getPosition()
 	self.world:emit("update", dt)
+	self.world:emit("change_color", mx, my)
 end
 
 function StateMenu:draw()
@@ -178,6 +285,11 @@ function StateMenu:keypressed(key)
 	self.world:emit("update_cursor", dt)
 end
 
+function StateMenu:mousepressed(mx, my, mb)
+	if not self.is_ready then return end
+	self.world:emit("mousepressed", mb, mx, my)
+end
+
 local temp_mb = {}
 function StateMenu:MB_to_down()
 	self.mb_main.flag_process = true
@@ -202,6 +314,7 @@ function StateMenu:MB_to_down()
 	end)
 	:onupdate(function()
 		self.camera:setPosition(cpos.x, cpos.y)
+		self.world:emit("on_camera_move", self.camera)
 	end)
 	:oncomplete(function()
 		self.mb_main.flag_process = false
@@ -231,6 +344,7 @@ function StateMenu:MB_to_left()
 	end)
 	:onupdate(function()
 		self.camera:setPosition(cpos.x, cpos.y)
+		self.world:emit("on_camera_move", self.camera)
 	end)
 	:oncomplete(function()
 		self.mb_main.flag_process = false
@@ -254,10 +368,12 @@ function StateMenu:MB_return()
 	end)
 	:onupdate(function()
 		self.camera:setPosition(cpos.x, cpos.y)
+		self.world:emit("on_camera_move", self.camera)
 	end)
 	:oncomplete(function()
 		current_state = states.menu
 		Log.info("Switched Menu State to: ", current_state)
+		self.mb_main.flag_process = false
 		self:on_menu()
 	end)
 end

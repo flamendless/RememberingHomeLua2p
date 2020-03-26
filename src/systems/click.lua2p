@@ -1,0 +1,30 @@
+local Concord = require("modules.concord.concord")
+
+local Click = Concord.system({
+	pool = {"bounding_box", "clickable"}
+})
+
+function Click:mousepressed(mb, mx, my)
+	for _, e in ipairs(self.pool) do
+		local box = e:get("bounding_box")
+		local clickable = e:get("clickable")
+		local camera = e:get("camera")
+
+		local bx = box.x
+		local by = box.y
+		local bw = box.w
+		local bh = box.h
+		if camera then
+			bx = box.screen_x
+			by = box.screen_y
+		end
+
+		if mb == clickable.mb then
+			if mx > bx and mx < bx + bw and my > by and my < by + bh then
+				clickable.on_click()
+			end
+		end
+	end
+end
+
+return Click
