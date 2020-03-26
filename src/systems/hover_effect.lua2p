@@ -1,0 +1,47 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local HoverEffect = Concord.system({
+	pool_change_color = {"bounding_box", "hoverable", "color", "hover_change_color"},
+})
+
+function HoverEffect:change_color(mx, my)
+	for _, e in ipairs(self.pool_change_color) do
+		local color = e:get("color")
+		local new_color = e:get("hover_change_color")
+		local box = e:get("bounding_box")
+		local hoverable = e:get("hoverable")
+		local camera = e:get("camera")
+		local bx = box.x
+		local by = box.y
+		local bw = box.w
+		local bh = box.h
+		if camera then
+			bx = box.screen_x
+			by = box.screen_y
+		end
+		if mx > bx and mx < bx + bw and my > by and my < by + bh then
+			if not hoverable.is_hovered then
+				hoverable.is_hovered = true
+				Flux.to(color.color, new_color.duration, {
+					[1] = new_color.color[1],
+					[2] = new_color.color[2],
+					[3] = new_color.color[3],
+					[4] = new_color.color[4],
+				})
+			end
+		else
+			if hoverable.is_hovered then
+				hoverable.is_hovered = false
+				Flux.to(color.color, new_color.duration, {
+					[1] = color.original_color[1],
+					[2] = color.original_color[2],
+					[3] = color.original_color[3],
+					[4] = color.original_color[4],
+				})
+			end
+		end
+	end
+end
+
+return HoverEffect

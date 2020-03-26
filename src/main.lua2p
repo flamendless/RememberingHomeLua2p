@@ -154,6 +154,7 @@ function love.keypressed(key)
 		top_canvas.flags.draw_bounds = not top_canvas.flags.draw_bounds
 		mid_canvas.flags.draw_bounds = not mid_canvas.flags.draw_bounds
 		bot_canvas.flags.draw_bounds = not bot_canvas.flags.draw_bounds
+		main_canvas.flags.draw_cross = not main_canvas.flags.draw_cross
 	end
 	!end
 

@@ -24,5 +24,6 @@ _LOG_INFO = "info.txt"
 
 _URL_TWITTER = "https://twitter.com/@flamendless"
 _URL_WEBSITE = "https://flamendless.github.io/goinghomerevisited"
+_URL_MAIL = "mailto:flamendless8@gmail.com"
 
 return {}
