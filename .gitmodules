@@ -37,3 +37,6 @@
 [submodule "modules/gamera"]
 	path = modules/gamera
 	url = https://github.com/kikito/gamera
+[submodule "modules/slab"]
+	path = modules/slab
+	url = https://github.com/coding-jackalope/Slab

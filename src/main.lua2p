@@ -36,6 +36,7 @@ local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
 
+local insert = table.insert
 local remove = table.remove
 local sort = table.sort
 local format = string.format
@@ -54,9 +55,10 @@ local Worlds = require("worlds")
 local current_world
 
 local window_size = !(_GAME_SIZE)
-local window_resize, canvas_resize, state_init
+local canvas_resize, state_init
 local mid_canvas, bot_canvas, top_canvas, main_canvas
 local supported_modes = love.window.getFullscreenModes()
+local current_mode = 1
 
 !if not _RELEASE then
 local color_red = {1, 0, 0, 1}
@@ -76,12 +78,14 @@ function love.load()
 
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
+	insert(supported_modes, 1, { width = love.graphics.getWidth(), height = love.graphics.getHeight() })
 	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
 	for i = #supported_modes, 1, -1 do
 		local mode = supported_modes[i]
 		local s = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
 		if s < 1 then remove(supported_modes, i) end
 	end
+	current_mode = #supported_modes
 	base_font = love.graphics.getFont()
 
 	Info.initialize()
@@ -146,7 +150,7 @@ end
 
 function love.keypressed(key)
 	if key == "f" then
-		window_resize()
+		G_window_resize()
 	end
 
 	!if not _RELEASE then
@@ -275,8 +279,7 @@ canvas_resize = function()
 	end
 end
 
-local current_mode = 1
-window_resize = function(override_mode)
+function G_window_resize(override_mode)
 	current_mode = override_mode or (current_mode + 1)
 	if current_mode > #supported_modes then
 		current_mode = 1

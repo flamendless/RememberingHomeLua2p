@@ -5,6 +5,7 @@ local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
+local Slab = require("modules.slab")
 
 local max = math.max
 local min = math.min
@@ -36,6 +37,9 @@ local Systems = {
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
+}
+local Assemblages = {
+	Common = require("assemblages.common")
 }
 
 local assets_data = {
@@ -72,9 +76,13 @@ end
 function StateMenu:on_play()
 end
 
+local current_wm
+local flag_game_sounds = true
+local flag_game_music = true
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
 	self:MB_to_left()
+	current_wm = Info.data.current_mode
 end
 
 function StateMenu:on_about()
@@ -92,13 +100,198 @@ function StateMenu:on_exit()
 	!end
 end
 
+function StateMenu:setup_menu()
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+	local main_bg = assets.images.bg_title
+	local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
+	self.entities.main_bg = Concord.entity(self.world)
+		:give("position", vec2:new(ww/2, wh/2))
+		:give("sprite", main_bg)
+		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+
+	local font_menu = assets.fonts.menu_24
+	for i, str in ipairs(options) do
+		local padding = 32
+		local str_w = font_menu:getWidth(str)
+		local str_h = font_menu:getHeight(str)
+		local x = self.canvases.bot_canvas.width - str_w - padding
+		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - (i * str_h) - padding
+		local lstr = lower(str)
+
+		local id = "text_" .. lstr
+		self.entities[id] = Concord.entity(self.world)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, font_menu, Palette.colors.white)
+			:give("option_key", i)
+			:give("on_enter", function()
+				current_state = states[lstr]
+				Log.info("Switched Menu State to: ", current_state)
+				self["on_" .. lstr](self)
+			end)
+	end
+end
+
+function StateMenu:setup_settings(dt)
+	local x = 64
+	local y = 64
+	local width = love.graphics.getWidth() - (x * 2)
+	local height = love.graphics.getHeight() - (y * 2)
+	Slab.Update(dt)
+
+	Slab.BeginWindow("Settings", {
+		X = x, Y = y,
+		W = width, H = height,
+		AllowMove = false, AllowResize = false,
+		AutoSizeWindow = false,
+	})
+	Slab.BeginLayout("Title", {
+		AlignX = "center", AlignY = "top",
+		Columns = 1
+	})
+		Slab.SetLayoutColumn(1)
+		Slab.Text("GAME SETTINGS")
+	Slab.EndLayout()
+	Slab.Separator()
+
+	Slab.BeginLayout("Layout", {
+		AlignX = "center", AlignY = "top",
+		Columns = 2
+	})
+		Slab.SetLayoutColumn(1)
+		Slab.Text("Window Resolution")
+		if Slab.CheckBox(flag_game_sounds, "Game Sounds") then
+			flag_game_sounds = not flag_game_sounds
+		end
+		if Slab.CheckBox(flag_game_music, "Game Music") then
+			flag_game_music = not flag_game_music
+		end
+
+		Slab.SetLayoutColumn(2)
+		if Slab.BeginComboBox("WindowMode", { Selected = current_wm }) then
+			for i, str in ipairs(Info.data.supported_modes_str) do
+				if Slab.TextSelectable(str) then
+					current_wm = str
+					G_window_resize(i)
+				end
+			end
+			Slab.EndComboBox()
+		end
+		--TODO add sliders here
+		Slab.Text("Volume Game Sounds")
+		Slab.Text("Volume Game Music")
+	Slab.EndLayout()
+	Slab.EndWindow()
+end
+
+function StateMenu:setup_about()
+	local about = {
+		{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
+		{ "A Game By:" },
+		{ "Brandon Blanker Lim-it" },
+		{ "@flamendless" },
+		{ assets.images.twitter, assets.images.website, assets.images.mail },
+		{ "@LAYOUT:LEFT" },
+		{ "TOOLS USED:" },
+		{ "Löve framework" },
+		{ "Vim" },
+		{ "Audacity" },
+		{ "Manjaro i3-wm Linux" },
+		{ "Brave Browser" },
+
+		{ "@LAYOUT:RIGHT" },
+		{ "LIBRARIES USED:" },
+		{ "Anim8, Batteries" },
+		{ "Concord, Crush" },
+		{ "Enum, Flux" },
+		{ "Gamera, Hump" },
+		{ "Lily, Log" },
+		{ "Lume, Moonshine" },
+		{ "Semver, Splashes" },
+
+		{ "@LAYOUT:CENTER" },
+		{ "SPECIAL THANKS TO:" },
+		{ "People at the Löve Discord server" },
+	}
+	local about_links = { !(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL), }
+
+	local l, t, w, h = self.camera:getVisible()
+	local font_about = assets.fonts.about_24
+	local base_x = w/2
+	local base_y = h + 16
+	local layout = false
+	local layout_base_y = 0
+	local largest = 0
+	for i, el in ipairs(about) do
+		if type(el[1]) == "string" then
+			local str = el[1]
+			local font = el[2] or font_about
+			local space = el[3]
+			local str_w = font:getWidth(str)
+			local str_h = font:getHeight(str)
+			local x = base_x - str_w/2
+			local y = base_y
+			if space then base_y = base_y + space end
+			if str == "@LAYOUT:LEFT" then
+				base_x = w * 0.25
+				layout_base_y = base_y
+				layout = true
+			elseif str == "@LAYOUT:RIGHT" then
+				base_x = w * 0.75
+				layout_base_y = base_y
+				layout = true
+			elseif str == "@LAYOUT:CENTER" then
+				base_x = w/2
+				base_y = largest
+				layout = false
+			else
+				if layout then
+					y = layout_base_y
+					layout_base_y = layout_base_y + str_h
+					largest = max(largest, layout_base_y)
+				end
+				local id = "about_text_" .. i
+				self.entities[id] = Concord.entity(self.world)
+					:assemble(Assemblages.Common.text, vec2:new(x, y), str, font, Palette.colors.white)
+					:give("position", vec2:new(x, y))
+					:give("camera")
+
+				if not layout then
+					base_y = base_y + str_h
+				end
+			end
+
+		elseif el[1].type and el[1]:type() == "Image" then
+			local pad = 32
+			local img_h
+			for i2, image in ipairs(el) do
+				local id = "about_image_" .. (i + i2)
+				local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
+				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
+				local y = base_y + image:getHeight()/2 - pad
+				img_h = image:getHeight()
+				self.entities[id] = Concord.entity(self.world)
+					:assemble(Assemblages.Common.sprite, image, vec2:new(x, y), Palette.colors.white)
+					:give("camera")
+					:give("bounding_box", x, y, image:getWidth(), image:getHeight())
+					:give("clickable", 1, function()
+						local url = about_links[i2]
+						love.system.openURL(url)
+					end)
+					:give("hoverable")
+					:give("hover_change_color", Palette.colors.red, 0.5)
+			end
+			base_y = base_y + img_h + pad
+		end
+	end
+end
+
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
-		self.is_ready = true
 		local ww = love.graphics.getWidth()
 		local wh = love.graphics.getHeight()
+
 		self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 		self.camera:setWindow(0, 0, ww, wh)
 
@@ -111,142 +304,12 @@ function StateMenu:load()
 		self.world:addSystems(Systems.Click)
 		self.world:addSystems(Systems.BoundingBox)
 		self.world:addSystems(Systems.HoverEffect)
+		self:setup_menu()
+		self:setup_about()
 
-		local main_bg = assets.images.bg_title
-		local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
-		self.entities.main_bg = Concord.entity(self.world)
-			:give("position", vec2:new(ww/2, wh/2))
-			:give("sprite", main_bg)
-			:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+		Slab.Initialize()
 
-		local font_menu = assets.fonts.menu_24
-		for i, str in ipairs(options) do
-			local padding = 32
-			local str_w = font_menu:getWidth(str)
-			local str_h = font_menu:getHeight(str)
-			local x = self.canvases.bot_canvas.width - str_w - padding
-			local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - (i * str_h) - padding
-			local lstr = lower(str)
-
-			local id = "text_" .. lstr
-			self.entities[id] = Concord.entity(self.world)
-				:give("position", vec2:new(x, y))
-				:give("text", str, font_menu)
-				:give("color", Palette.colors.white)
-				:give("option_key", i)
-				:give("on_enter", function()
-					current_state = states[lstr]
-					Log.info("Switched Menu State to: ", current_state)
-					self["on_" .. lstr](self)
-				end)
-		end
-
-		local about = {
-			{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
-			{ "A Game By:" },
-			{ "Brandon Blanker Lim-it" },
-			{ "@flamendless" },
-			{ assets.images.twitter, assets.images.website, assets.images.mail },
-			{ "@LAYOUT:LEFT" },
-			{ "TOOLS USED:" },
-			{ "Löve framework" },
-			{ "Vim" },
-			{ "Audacity" },
-			{ "Manjaro i3-wm Linux" },
-			{ "Brave Browser" },
-
-			{ "@LAYOUT:RIGHT" },
-			{ "LIBRARIES USED:" },
-			{ "Anim8, Batteries" },
-			{ "Concord, Crush" },
-			{ "Enum, Flux" },
-			{ "Gamera, Hump" },
-			{ "Lily, Log" },
-			{ "Lume, Moonshine" },
-			{ "Semver, Splashes" },
-
-			{ "@LAYOUT:CENTER" },
-			{ "SPECIAL THANKS TO:" },
-			{ "People at the Löve Discord server" },
-		}
-
-		local options_link = {
-			!(_URL_TWITTER),
-			!(_URL_WEBSITE),
-			!(_URL_MAIL),
-		}
-
-		local l, t, w, h = self.camera:getVisible()
-		local font_about = assets.fonts.about_24
-		local base_x = w/2
-		local base_y = h + 16
-		local layout = false
-		local layout_base_y = 0
-		local largest = 0
-		for i, el in ipairs(about) do
-			if type(el[1]) == "string" then
-				local str = el[1]
-				local font = el[2] or font_about
-				local space = el[3]
-				local str_w = font:getWidth(str)
-				local str_h = font:getHeight(str)
-				local x = base_x - str_w/2
-				local y = base_y
-				if space then base_y = base_y + space end
-				if str == "@LAYOUT:LEFT" then
-					base_x = w * 0.25
-					layout_base_y = base_y
-					layout = true
-				elseif str == "@LAYOUT:RIGHT" then
-					base_x = w * 0.75
-					layout_base_y = base_y
-					layout = true
-				elseif str == "@LAYOUT:CENTER" then
-					base_x = w/2
-					base_y = largest
-					layout = false
-				else
-					if layout then
-						y = layout_base_y
-						layout_base_y = layout_base_y + str_h
-						largest = max(largest, layout_base_y)
-					end
-					local id = "about_text_" .. i
-					self.entities[id] = Concord.entity(self.world)
-						:give("color", Palette.colors.white)
-						:give("text", str, font)
-						:give("position", vec2:new(x, y))
-						:give("camera")
-					if not layout then
-						base_y = base_y + str_h
-					end
-				end
-
-			elseif el[1].type and el[1]:type() == "Image" then
-				local pad = 32
-				local img_h
-				for i2, image in ipairs(el) do
-					local id = "about_image_" .. (i + i2)
-					local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
-					local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
-					local y = base_y + image:getHeight()/2 - pad
-					img_h = image:getHeight()
-					self.entities[id] = Concord.entity(self.world)
-						:give("color", Palette.colors.white)
-						:give("sprite", image)
-						:give("position", vec2:new(x, y))
-						:give("camera")
-						:give("bounding_box", x, y, image:getWidth(), image:getHeight())
-						:give("clickable", 1, function()
-							local url = options_link[i2]
-							love.system.openURL(url)
-						end)
-						:give("hoverable")
-						:give("hover_change_color", Palette.colors.red, 0.5)
-				end
-				base_y = base_y + img_h + pad
-			end
-		end
+		self.is_ready = true
 	end)
 end
 
@@ -255,14 +318,25 @@ function StateMenu:update(dt)
 	local mx, my = love.mouse.getPosition()
 	self.world:emit("update", dt)
 	self.world:emit("change_color", mx, my)
+
+	if current_state == states.settings and not self.mb_main.flag_process then
+		self:setup_settings(dt)
+	end
 end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
 	self.canvas_main:attach()
-	self.camera:draw(function()
+	self.camera:draw(function(l, t, w, h)
 		self.world:emit("draw")
+
+		if current_state == states.settings and not self.mb_main.flag_process then
+			love.graphics.push()
+			love.graphics.translate(l, t)
+			Slab.Draw()
+			love.graphics.pop()
+		end
 	end)
 	self.canvas_main:detach()
 	self.mb_main:post_process_draw()

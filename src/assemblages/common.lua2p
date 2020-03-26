@@ -1,0 +1,17 @@
+local Concord = require("modules.concord.concord")
+
+local Common = {}
+
+function Common.text(e, pos, str, font, color)
+	e:give("text", str, font)
+	:give("position", pos)
+	:give("color", color)
+end
+
+function Common.sprite(e, sprite, pos, color)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("color", color)
+end
+
+return Common
