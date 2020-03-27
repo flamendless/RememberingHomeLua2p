@@ -12,10 +12,7 @@ FILENAME_LOG_INFO = info.txt
 OUTPUT_DIRECTORY := output
 EXCLUDES := modules
 
-DIR_ECS_W := worlds
-DIR_ECS_C := components
-DIR_ECS_S := systems
-DIR_ECS_A := assemblages
+DIR_ECS := worlds components systems assemblages
 SOURCE_PATH := ./${SOURCE}
 SOURCE_FILES := $(strip $(call search,$(SOURCE_PATH),*.lua2p))
 SOURCE_FILES += $(strip $(call search,$(SOURCE_PATH)/*.lua2p))
@@ -40,10 +37,7 @@ process: init $(SOURCE_OBJECTS) ltags
 
 init:
 	@if [ ! -d $(OUTPUT_DIRECTORY) ]; then mkdir -p $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory already exists"; fi
-	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_W) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_W); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_W) directory already exists"; fi
-	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_C) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_C); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_C) directory already exists"; fi
-	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_S) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_S); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_S) directory already exists"; fi
-	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ECS_A) ]; then mkdir -p $(OUTPUT_DIRECTORY)/$(DIR_ECS_A); else echo "$(OUTPUT_DIRECTORY)/$(DIR_ECS_A) directory already exists"; fi
+	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var))
 	@for x ($(DIRECTORIES_TO_COPY)); do \
 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
 	done
