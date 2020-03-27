@@ -1,0 +1,21 @@
+local Image = {}
+
+function Image.resize_image(image, width, height)
+	!if _ASSERT then
+	assert(image:type() == "Image", "Passed argument must be of type 'Image'")
+	!end
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+
+	local scale_x = ww/(width or image:getWidth())
+	local scale_y = wh/(height or image:getHeight())
+
+	local temp_canvas = love.graphics.newCanvas(ww, wh)
+	love.graphics.setCanvas(temp_canvas)
+	love.graphics.draw(image, 0, 0, 0, scale_x, scale_y)
+	love.graphics.setCanvas()
+	local img_data = temp_canvas:newImageData()
+	return love.graphics.newImage(img_data)
+end
+
+return Image
