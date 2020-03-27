@@ -6,6 +6,7 @@ local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Slab = require("modules.slab")
+local Timer = require("modules.hump.timer")
 
 local cos = math.cos
 local floor = math.floor
@@ -17,7 +18,9 @@ local lower = string.lower
 local upper = string.upper
 
 local Canvas = require("canvas")
+local DissolveFF = require("dissolve_flowfield")
 local Fade = require("fade")
+local Image = require("image")
 local Info = require("info")
 local Keybinds = require("keybinds")
 local MotionBlur = require("motion_blur")
@@ -53,6 +56,7 @@ local assets_data = {
 		{ "twitter", "assets/images/menu/twitter.png" },
 		{ "website", "assets/images/menu/website.png" },
 		{ "mail", "assets/images/menu/mail.png" },
+		{ "flowfield", "assets/textures/perlin.png" },
 	},
 	font = {
 		{ "menu", "assets/fonts/Jamboree.ttf", 24 },
@@ -107,11 +111,20 @@ function StateMenu:on_about()
 end
 
 function StateMenu:on_exit()
+	self.world:emit("allow_cursor", false)
 	!if _PLATFORM == "desktop" then
 		local btn = love.window.showMessageBox("Alert", "Are you sure you want to exit the game?", { "Exit", "Cancel", escapebutton = 2 })
 		if btn == 1 then
-			love.event.quit()
+			self.dissolve_ff.flag_process = true
+			self.dissolve_ff.on_complete = function()
+				Timer.after(1, function()
+					love.event.quit()
+				end)
+			end
 		elseif btn == 2 then
+			current_state = states.menu
+			Log.info("Switched Menu State to: ", current_state)
+			self:on_menu()
 		end
 	!end
 end
@@ -365,6 +378,9 @@ function StateMenu:load()
 		self.canvas_main = self.canvases.main_canvas
 		self.mb_main = MotionBlur:new(self.canvas_main)
 
+		local new_img = Image.resize_image(assets.images.flowfield)
+		self.dissolve_ff = DissolveFF:new(new_img, 3)
+
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
@@ -388,25 +404,33 @@ function StateMenu:update(dt)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
 		self:setup_settings(dt)
+	elseif current_state == states.exit then
+		self.dissolve_ff:update(dt)
 	end
 end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
-	self.canvas_main:attach()
-	self.camera:draw(function(l, t, w, h)
-		self.world:emit("draw")
 
-		if current_state == states.settings and not self.mb_main.flag_process then
-			love.graphics.push()
-			love.graphics.translate(l, t)
-			Slab.Draw()
-			love.graphics.pop()
-		end
-	end)
-	self.canvas_main:detach()
-	self.mb_main:post_process_draw()
+	if current_state == states.menu then
+		self.canvas_main:attach()
+		self.camera:draw(function(l, t, w, h)
+			self.world:emit("draw")
+			if current_state == states.settings and not self.mb_main.flag_process then
+				love.graphics.push()
+				love.graphics.translate(l, t)
+				Slab.Draw()
+				love.graphics.pop()
+			end
+		end)
+		self.canvas_main:detach()
+		self.mb_main:post_process_draw()
+	elseif current_state == states.exit then
+		self.dissolve_ff:draw(function()
+			self.world:emit("draw")
+		end)
+	end
 end
 
 function StateMenu:keypressed(key)
