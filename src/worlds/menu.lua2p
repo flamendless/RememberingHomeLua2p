@@ -7,8 +7,12 @@ local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Slab = require("modules.slab")
 
+local cos = math.cos
+local floor = math.floor
 local max = math.max
 local min = math.min
+local rad = math.rad
+local sin = math.sin
 local lower = string.lower
 local upper = string.upper
 
@@ -63,6 +67,11 @@ local current_state = states.menu
 local options = { "Play", "Settings", "About", "Exit" }
 table.reverse(options)
 
+local ANGLE_UP = 90
+local ANGLE_DOWN = 270
+local ANGLE_LEFT = 180
+local ANGLE_RIGHT = 0
+
 !if not _RELEASE and _ASSERT then
 for i, str in ipairs(options) do
 	local lstr = lower(str)
@@ -84,13 +93,17 @@ local show_message_box_kb_reset = false
 local show_message_box_conflict = {}
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
-	self:MB_to_left()
 	current_wm = Info.data.current_mode
+	local l, t, w, h = self.camera:getWorld()
+	local cworld = { x = l, y = t, w = w, h = h }
+	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
 end
 
 function StateMenu:on_about()
 	self.world:emit("allow_cursor", false)
-	self:MB_to_down()
+	local l, t, w, h = self.camera:getWorld()
+	local cworld = { x = l, y = t, w = w, h = h }
+	self:MB_move(nil, cworld.h, ANGLE_UP)
 end
 
 function StateMenu:on_exit()
@@ -419,57 +432,24 @@ function StateMenu:mousepressed(mx, my, mb)
 	self.world:emit("mousepressed", mb, mx, my)
 end
 
-local temp_mb = {}
-function StateMenu:MB_to_down()
+function StateMenu:MB_move(tx, ty, angle)
 	self.mb_main.flag_process = true
 	local l, t, w, h = self.camera:getWorld()
 	local cx, cy = self.camera:getPosition()
 	local cworld = { x = l, y = t, w = w, h = h }
 	local cpos = vec2:new(cx, cy)
 	local duration = 1
-	local dist = cworld.h/2
+	local distance = { 1.0 }
+	local prev_angle = (angle + 180) % 360
 
-	Flux.to(cpos, duration, { y = cworld.h })
+	Flux.to(cpos, duration, { x = tx, y = ty })
 	:onstart(function()
-		temp_mb.target_x = cx
-		temp_mb.target_y = cy
-		temp_mb.dir_x = 0
-		temp_mb.dir_y = -1
-		temp_mb.dist = dist
-		self.mb_main:update_config({
-			dir = { 0, 1 },
-			dist = dist,
-		})
-	end)
-	:onupdate(function()
-		self.camera:setPosition(cpos.x, cpos.y)
-		self.world:emit("on_camera_move", self.camera)
-	end)
-	:oncomplete(function()
-		self.mb_main.flag_process = false
-	end)
-end
-
-function StateMenu:MB_to_left()
-	self.mb_main.flag_process = true
-	local l, t, w, h = self.camera:getWorld()
-	local cx, cy = self.camera:getPosition()
-	local cworld = { x = l, y = t, w = w, h = h }
-	local cpos = vec2:new(cx, cy)
-	local duration = 1
-	local dist = cworld.w/2
-
-	Flux.to(cpos, duration, { x = cworld.w })
-	:onstart(function()
-		temp_mb.target_x = cx
-		temp_mb.target_y = cy
-		temp_mb.dir_x = -1
-		temp_mb.dir_y = 0
-		temp_mb.dist = dist
-		self.mb_main:update_config({
-			dir = { 1, 0 },
-			dist = dist,
-		})
+		self.mb_main:store_previous(cx, cy, prev_angle)
+		self.mb_main:set_angle(angle)
+		Flux.to(distance, duration, { [1] = 0.0 })
+		:onupdate(function()
+			self.mb_main:set_strength(distance[1])
+		end)
 	end)
 	:onupdate(function()
 		self.camera:setPosition(cpos.x, cpos.y)
@@ -487,13 +467,16 @@ function StateMenu:MB_return()
 	local cworld = { x = l, y = t, w = w, h = h }
 	local cpos = vec2:new(cx, cy)
 	local duration = 1
+	local distance = { 1.0 }
+	local temp_mb = self.mb_main.previous
 
-	Flux.to(cpos, duration, { x = temp_mb.target_x, y = temp_mb.target_y })
+	Flux.to(cpos, duration, { x = temp_mb.target.x, y = temp_mb.target.y })
 	:onstart(function()
-		self.mb_main:update_config({
-			dir = { temp_mb.dir_x, temp_mb.dir_y },
-			dist = temp_mb.dist,
-		})
+		self.mb_main:set_angle(temp_mb.angle)
+		Flux.to(distance, duration, { [1] = 0.0 })
+		:onupdate(function()
+			self.mb_main:set_strength(distance[1])
+		end)
 	end)
 	:onupdate(function()
 		self.camera:setPosition(cpos.x, cpos.y)

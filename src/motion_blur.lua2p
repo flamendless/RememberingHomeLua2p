@@ -9,45 +9,33 @@ function MotionBlur:new(canvas, config)
 	!end
 
 	local shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
-	shader_code:send("canvas_size", {
-		canvas.width, canvas.height
-	})
-
-	local quality = 32
-	local length = 0.5
-	local dir = { -1, 0 }
-	if config then
-		quality = config.quality
-		length = config.length
-		dir[0] = config.dir[0]
-		dir[1] = config.dir[1]
-	end
-	shader_code:send("quality", quality)
-	shader_code:send("length", length)
-	shader_code:send("dir", dir)
+	shader_code:send("strength", 0.1)
 
 	return self:init({
 		flag_process = false,
 		shader_code = shader_code,
 		canvas = canvas,
+		previous = {}
 	})
 end
 
-function MotionBlur:update_config(config)
+function MotionBlur:store_previous(x, y, angle)
+	self.previous.target = vec2:new(x, y)
+	self.previous.angle = angle
+end
+
+function MotionBlur:set_angle(angle)
 	!if _ASSERT then
-		assert(type(config) == "table", "Passed argument must be of type 'table'")
+	assert(type(angle) == "number", "Passed argument must be of type 'number'")
 	!end
-	if config.quality then
-		self.shader_code:send("quality", config.quality)
-	end
-	if config.length then
-		self.shader_code:send("length", config.length)
-	elseif config.dist then
-		self.shader_code:send("length", config.dist/self.canvas.width)
-	end
-	if config.dir then
-		self.shader_code:send("dir", config.dir)
-	end
+	self.shader_code:send("angle", angle)
+end
+
+function MotionBlur:set_strength(strength)
+	!if _ASSERT then
+	assert(type(strength) == "number", "Passed argument must be of type 'number'")
+	!end
+	self.shader_code:send("strength", strength)
 end
 
 function MotionBlur:post_process_draw()

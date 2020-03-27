@@ -36,12 +36,14 @@ local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
 
+local min = math.min
+local floor = math.floor
+local randomseed = math.randomseed
+local time = os.time
 local insert = table.insert
 local remove = table.remove
 local sort = table.sort
 local format = string.format
-local min = math.min
-local floor = math.floor
 
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
@@ -76,6 +78,7 @@ function love.load()
 	Network.check_latest_version(this_semver)
 	!end
 
+	randomseed(time())
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 	insert(supported_modes, 1, { width = love.graphics.getWidth(), height = love.graphics.getHeight() })

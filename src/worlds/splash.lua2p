@@ -7,7 +7,7 @@ local LoveSplash = require("modules.splashes.o-ten-one")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local random = math.random
+local random = love.math.random
 local randomf = Lume.random
 
 local Keybinds = require("keybinds")
