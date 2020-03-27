@@ -15,6 +15,7 @@ local upper = string.upper
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Info = require("info")
+local Keybinds = require("keybinds")
 local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
@@ -79,6 +80,8 @@ end
 local current_wm
 local flag_game_sounds = true
 local flag_game_music = true
+local show_message_box_kb_reset = false
+local show_message_box_conflict = {}
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
 	self:MB_to_left()
@@ -144,19 +147,9 @@ function StateMenu:setup_settings(dt)
 		AllowMove = false, AllowResize = false,
 		AutoSizeWindow = false,
 	})
-	Slab.BeginLayout("Title", {
-		AlignX = "center", AlignY = "top",
-		Columns = 1
-	})
-		Slab.SetLayoutColumn(1)
-		Slab.Text("GAME SETTINGS")
-	Slab.EndLayout()
-	Slab.Separator()
 
-	Slab.BeginLayout("Layout", {
-		AlignX = "center", AlignY = "top",
-		Columns = 2
-	})
+	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
+	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Window Resolution")
 		if Slab.CheckBox(flag_game_sounds, "Game Sounds") then
@@ -180,7 +173,68 @@ function StateMenu:setup_settings(dt)
 		Slab.Text("Volume Game Sounds")
 		Slab.Text("Volume Game Music")
 	Slab.EndLayout()
+	Slab.Separator()
+
+	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
+	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
+		for key_name, key_table in pairs(Keybinds.ui) do
+			local id = "ui_" .. key_name
+			Slab.SetLayoutColumn(1)
+			Slab.Text(id)
+			for i, key_ui in ipairs(key_table) do
+				Slab.SetLayoutColumn(i + 1)
+				local id2 = id .. "_" .. i
+				if Slab.BeginComboBox(id2, { Selected =  key_ui}) then
+					for j, new_key_ui in ipairs(Keybinds.key_constants) do
+						if Slab.TextSelectable(new_key_ui) then
+							local is_conflict, conflict_key_name = Keybinds.check_for_conflicts_ui(key_name, new_key_ui)
+							if is_conflict then
+								show_message_box_conflict = { true, conflict_key_name }
+							end
+							key_table[i] = new_key_ui
+						end
+					end
+					Slab.EndComboBox()
+				end
+			end
+			if #key_table == 1 then
+				Slab.SetLayoutColumn(3)
+				Slab.NewLine()
+			end
+		end
+		Slab.SetLayoutColumn(2)
+		Slab.NewLine()
+		if Slab.Button("Reset to defaults") then
+			show_message_box_kb_reset = true
+		end
+	Slab.EndLayout()
+	Slab.Separator()
+
+	if show_message_box_kb_reset then
+		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the keybindings to default?", { Buttons = { "Confirm", "Cancel" } })
+		if res ~= "" then
+			table.copy(Keybinds.ui_default, Keybinds.ui)
+			show_message_box_kb_reset = false
+		end
+	end
+
+	if show_message_box_conflict[1] then
+		local res = Slab.MessageBox("Alert", "There's a conflict with button " .. show_message_box_conflict[2], { Buttons = { "Confirm" } })
+		if res ~= "" then
+			show_message_box_conflict[1] = false
+			show_message_box_conflict[2] = nil
+		end
+	end
+
 	Slab.EndWindow()
+end
+
+function StateMenu:slab_title(title, text)
+	Slab.BeginLayout(title, { AlignX = "center", AlignY = "top", Columns = 1 })
+	Slab.SetLayoutColumn(1)
+	if text then Slab.Text(text) end
+	Slab.EndLayout()
+	Slab.Separator()
 end
 
 function StateMenu:setup_about()
@@ -345,17 +399,18 @@ end
 function StateMenu:keypressed(key)
 	if not self.is_ready then return end
 	local dt = 0
-	if key == "s" or key == "down" then
+	if Keybinds.pressed_ui("down", key) then
 		dt = -1
-	elseif key == "w" or key == "up" then
+	elseif Keybinds.pressed_ui("up", key) then
 		dt = 1
-	elseif key == "e" or key == "return" or key == "space" then
+	elseif Keybinds.pressed_ui("enter", key) then
 		self.world:emit("enter_option")
 	end
 
-	if current_state ~= states.menu and key == "escape" then
+	if current_state ~= states.menu and Keybinds.pressed_ui("escape", key) then
 		self:MB_return()
 	end
+
 	self.world:emit("update_cursor", dt)
 end
 
