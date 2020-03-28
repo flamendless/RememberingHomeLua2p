@@ -89,7 +89,30 @@ end
 
 function StateMenu:on_play()
 	self.world:emit("allow_cursor", false)
-	self.dissolve_noise.flag_process = true
+	local ww, wh = love.graphics.getDimensions()
+	--TODO set this to the door's size and position
+	local tpos = vec2:new(ww/2, wh/2)
+	local tw = 128
+	local th = 64
+
+	local target_scale = min(ww/tw, wh/th)
+	local cam_scale = self.camera:getScale()
+	local x, y = self.camera:getPosition()
+	local c = { x = x, y = y, scale = cam_scale }
+	local duration = 3
+
+	Flux.to(c, duration, {
+		x = tpos.x, y = tpos.y,
+		scale = target_scale
+	}):onupdate(function()
+		self.camera:setPosition(c.x, c.y)
+		self.camera:setScale(c.scale)
+	end):oncomplete(function()
+		self.dissolve_noise.flag_process = true
+		self.dissolve_noise.on_complete = function()
+			G_state_switch("Intro")
+		end
+	end)
 end
 
 local current_wm
@@ -377,6 +400,7 @@ function StateMenu:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
+		self.is_ready = true
 		local ww = love.graphics.getWidth()
 		local wh = love.graphics.getHeight()
 
@@ -403,8 +427,6 @@ function StateMenu:load()
 		self:setup_about()
 
 		Slab.Initialize()
-
-		self.is_ready = true
 	end)
 end
 
@@ -442,7 +464,9 @@ function StateMenu:draw()
 		self.mb_main:post_process_draw()
 	elseif current_state == states.play then
 		self.dissolve_noise:draw(function()
-			self.world:emit("draw")
+			self.camera:draw(function(l, t, w, h)
+				self.world:emit("draw")
+			end)
 		end)
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
@@ -462,7 +486,7 @@ function StateMenu:keypressed(key)
 		self.world:emit("enter_option")
 	end
 
-	if current_state ~= states.menu and Keybinds.pressed_ui("escape", key) then
+	if current_state ~= states.menu and current_state ~= states.play and Keybinds.pressed_ui("escape", key) then
 		self:MB_return()
 	end
 
