@@ -183,13 +183,13 @@ function StateSplash:draw()
 end
 
 function StateSplash:keypressed(key)
+	if not self.is_ready then return end
 	if Keybinds.pressed_ui("enter", key) then
 		if splash_love and splash_love_skippable then
 			splash_love:skip()
 		end
 		if current_state == states.splash_wits and splash_wits_skippable then
 			self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
-			self.world:emit("stop_animation")
 			splash_wits_skippable = false
 		end
 		if current_state == states.splash_flam and splash_flam_skippable then

@@ -5,4 +5,5 @@ local floor = math.floor
 Concord.component("animation", function(c)
 	c.grid = nil
 	c.animation = nil
+	c.is_playing = true
 end)
