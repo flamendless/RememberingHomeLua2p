@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("lerp_color", function(c, colors, duration, delay)
+Concord.component("lerp_colors", function(c, colors, duration, delay)
 	!if _ASSERT then
 	assert(type(colors) == "table", "Passed argument1 must be of type 'table'")
 	if duration then

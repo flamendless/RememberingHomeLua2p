@@ -14,4 +14,10 @@ function Common.sprite(e, sprite, pos, color)
 	:give("color", color)
 end
 
+function Common.animated_sprite(e, animation_data, pos)
+	e:give("animation_data", animation_data)
+	:give("position", pos)
+	:give("animation")
+end
+
 return Common

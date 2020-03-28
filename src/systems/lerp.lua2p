@@ -2,16 +2,30 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
 local Lerp = Concord.system({
-	pool_color = {"color", "lerp_color"}
+	pool_colors = {"color", "lerp_colors"},
+	pool_fade_to_black = {"color", "fade_to_black"}
 })
 
-function Lerp:start_color_lerp()
-	for _, e in ipairs(self.pool_color) do
+function Lerp:start_fade()
+	for _, e in ipairs(self.pool_fade_to_black) do
 		local color = e:get("color")
-		local lc = e:get("lerp_color")
+		local fade = e:get("fade_to_black")
+		Flux.to(color.color, fade.duration, {
+			[1] = 0,
+			[2] = 0,
+			[3] = 0,
+			[4] = 0,
+		}):delay(fade.delay)
+	end
+end
 
-		local lerp_color
-		lerp_color = function(duration, delay)
+function Lerp:start_colors_lerp()
+	for _, e in ipairs(self.pool_colors) do
+		local color = e:get("color")
+		local lc = e:get("lerp_colors")
+
+		local lerp_colors
+		lerp_colors = function(duration, delay)
 			local current = lc.colors[lc.current_color]
 			local next_value = lc.current_color + 1
 			if next_value > #lc.colors then
@@ -28,10 +42,10 @@ function Lerp:start_color_lerp()
 				if lc.current_color > #lc.colors then
 					lc.current_color = 1
 				end
-				lerp_color(duration, delay)
+				lerp_colors(duration, delay)
 			end)
 		end
-		lerp_color(lc.duration, lc.delay)
+		lerp_colors(lc.duration, lc.delay)
 	end
 end
 
