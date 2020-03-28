@@ -18,7 +18,7 @@ local lower = string.lower
 local upper = string.upper
 
 local Canvas = require("canvas")
-local DissolveFF = require("dissolve_flowfield")
+local Dissolve = require("dissolve")
 local Fade = require("fade")
 local Image = require("image")
 local Info = require("info")
@@ -88,6 +88,8 @@ function StateMenu:on_menu()
 end
 
 function StateMenu:on_play()
+	self.world:emit("allow_cursor", false)
+	self.dissolve_noise.flag_process = true
 end
 
 local current_wm
@@ -201,6 +203,7 @@ function StateMenu:setup_settings(dt)
 	Slab.EndLayout()
 	Slab.Separator()
 
+	!if _PLATFORM == "desktop" then
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
 	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
 		for key_name, key_table in pairs(Keybinds.ui) do
@@ -243,6 +246,7 @@ function StateMenu:setup_settings(dt)
 			show_message_box_kb_reset = false
 		end
 	end
+	!end --_PLATFORM == "desktop"
 
 	if show_message_box_conflict[1] then
 		local res = Slab.MessageBox("Alert", "There's a conflict with button " .. show_message_box_conflict[2], { Buttons = { "Confirm" } })
@@ -378,8 +382,12 @@ function StateMenu:load()
 		self.canvas_main = self.canvases.main_canvas
 		self.mb_main = MotionBlur:new(self.canvas_main)
 
-		local new_img = Image.resize_image(assets.images.flowfield)
-		self.dissolve_ff = DissolveFF:new(new_img, 3)
+		local img_ff = Image.resize_image(assets.images.flowfield)
+		self.dissolve_ff = Dissolve:new(img_ff, 3)
+
+		local img_noise_low = Image.generate_noise(ww/8, wh/8)
+		local img_noise_scaled = Image.resize_image(img_noise_low)
+		self.dissolve_noise = Dissolve:new(img_noise_scaled, 3)
 
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
@@ -404,6 +412,8 @@ function StateMenu:update(dt)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
 		self:setup_settings(dt)
+	elseif current_state == states.play then
+		self.dissolve_noise:update(dt)
 	elseif current_state == states.exit then
 		self.dissolve_ff:update(dt)
 	end
@@ -413,7 +423,7 @@ function StateMenu:draw()
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
 
-	if current_state == states.menu then
+	if current_state == states.menu or current_state == states.settings or current_state == states.about then
 		self.canvas_main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
@@ -426,6 +436,10 @@ function StateMenu:draw()
 		end)
 		self.canvas_main:detach()
 		self.mb_main:post_process_draw()
+	elseif current_state == states.play then
+		self.dissolve_noise:draw(function()
+			self.world:emit("draw")
+		end)
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
 			self.world:emit("draw")
