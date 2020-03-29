@@ -31,8 +31,10 @@ function RenderText:draw()
 				oy = love.graphics.getFont():getHeight(text)/2
 			end
 		end
+		local x = pos.pos.x
+		local y = pos.pos.y
 
-		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
 	end
 end
 

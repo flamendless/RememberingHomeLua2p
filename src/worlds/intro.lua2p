@@ -1,0 +1,40 @@
+local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+local Log = require("modules.log.log")
+
+local Preloader = require("preloader")
+
+local StateIntro = {
+	id = "Intro",
+	is_ready = false,
+	world = Concord.world(),
+	entities = {},
+}
+
+local assets_data = {
+	images = {
+
+	},
+	font = {
+
+	}
+}
+local assets = { images = {}, fonts = {} }
+
+function StateIntro:load()
+	Log.info("State Load: ", self.id)
+	local p = Preloader.start(assets_data, assets)
+	p:onComplete(function()
+		self.is_ready = true
+	end)
+end
+
+function StateIntro:update(dt)
+	if not self.is_ready then return end
+end
+
+function StateIntro:draw()
+	if not self.is_ready then return end
+end
+
+return StateIntro

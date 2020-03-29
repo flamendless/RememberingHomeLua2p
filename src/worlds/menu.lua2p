@@ -45,6 +45,7 @@ local Systems = {
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
+	Transform = require("systems.transform"),
 }
 local Assemblages = {
 	Common = require("assemblages.common")
@@ -133,6 +134,7 @@ function StateMenu:on_settings()
 end
 
 function StateMenu:on_about()
+	self:setup_about()
 	self.world:emit("allow_cursor", false)
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = { x = l, y = t, w = w, h = h }
@@ -168,19 +170,23 @@ function StateMenu:setup_menu()
 		:give("sprite", main_bg)
 		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
 
-	local font_menu = assets.fonts.menu_24
+	local font_menu = assets.fonts.menu_default
 	for i, str in ipairs(options) do
 		local padding = 32
-		local str_w = font_menu:getWidth(str)
-		local str_h = font_menu:getHeight(str)
-		local x = self.canvases.bot_canvas.width - str_w - padding
-		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - (i * str_h) - padding
 		local lstr = lower(str)
-
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, font_menu, Palette.colors.white)
+			:assemble(Assemblages.Common.text, vec2:new(), str, font_menu, Palette.colors.white)
+			:give("fonts", {
+				tiny = assets.fonts.menu_tiny,
+				small = assets.fonts.menu_small,
+				default = assets.fonts.menu_default,
+				medium = assets.fonts.menu_medium,
+				large = assets.fonts.menu_large,
+			})
+			:give("camera")
 			:give("option_key", i)
+			:give("option_data", self.canvases.bot_canvas, padding, #options)
 			:give("on_enter", function()
 				current_state = states[lstr]
 				Log.info("Switched Menu State to: ", current_state)
@@ -371,9 +377,7 @@ function StateMenu:setup_about()
 					:give("position", vec2:new(x, y))
 					:give("camera")
 
-				if not layout then
-					base_y = base_y + str_h
-				end
+				if not layout then base_y = base_y + str_h end
 			end
 
 		elseif el[1].type and el[1]:type() == "Image" then
@@ -428,8 +432,9 @@ function StateMenu:load()
 		self.world:addSystems(Systems.Click)
 		self.world:addSystems(Systems.BoundingBox)
 		self.world:addSystems(Systems.HoverEffect)
+		self.world:addSystems(Systems.Transform)
 		self:setup_menu()
-		self:setup_about()
+		-- self:setup_about()
 
 		Slab.Initialize()
 	end)
@@ -480,6 +485,15 @@ function StateMenu:draw()
 	end
 end
 
+function StateMenu:canvas_resize(ww, wh, scale)
+	self.camera:setWorld(0, 0, ww * 2, wh * 2)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.world:emit("canvas_resize", ww, wh, scale)
+	self.world:emit("menu_set_position")
+	local new_l, new_t = self.camera:getVisible()
+	self.world:emit("update_position", new_l, new_t)
+end
+
 function StateMenu:keypressed(key)
 	if not self.is_ready then return end
 	local dt = 0
@@ -490,12 +504,21 @@ function StateMenu:keypressed(key)
 	elseif Keybinds.pressed_ui("enter", key) then
 		self.world:emit("enter_option")
 	end
+	self.world:emit("update_cursor", dt)
 
 	if current_state ~= states.menu and current_state ~= states.play and Keybinds.pressed_ui("escape", key) then
 		self:MB_return()
 	end
 
-	self.world:emit("update_cursor", dt)
+	!if not _RELEASE then
+	if key == "o" then
+		local s = self.camera:getScale()
+		self.camera:setScale(s - 0.5)
+	elseif key == "p" then
+		local s = self.camera:getScale()
+		self.camera:setScale(s + 0.5)
+	end
+	!end
 end
 
 function StateMenu:mousepressed(mx, my, mb)

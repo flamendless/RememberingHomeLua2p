@@ -9,4 +9,8 @@ function Utils.multiline_string_count_lines(str)
 	return count
 end
 
+function Utils.is_between(val, min, max)
+	return val >= min and val <= max
+end
+
 return Utils
