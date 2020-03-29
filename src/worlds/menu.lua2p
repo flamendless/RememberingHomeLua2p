@@ -59,7 +59,11 @@ local assets_data = {
 		{ "flowfield", "assets/textures/perlin.png" },
 	},
 	font = {
-		{ "menu", "assets/fonts/Jamboree.ttf", 24 },
+		{ "menu", "assets/fonts/Jamboree.ttf", 12, "tiny" },
+		{ "menu", "assets/fonts/Jamboree.ttf", 16, "small" },
+		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
+		{ "menu", "assets/fonts/Jamboree.ttf", 32, "medium" },
+		{ "menu", "assets/fonts/Jamboree.ttf", 38, "large" },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
 	}
