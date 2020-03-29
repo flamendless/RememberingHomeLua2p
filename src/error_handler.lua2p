@@ -7,7 +7,6 @@ local Lily = require("modules.lily.lily")
 local Reporter = require("reporter")
 !end
 
-local Utils = require("utils")
 local Utf8 = require("utf8")
 local insert = table.insert
 local concat = table.concat
