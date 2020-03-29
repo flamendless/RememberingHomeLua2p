@@ -5,6 +5,7 @@ local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
+local SDF = require("modules.sdf").mount()
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 

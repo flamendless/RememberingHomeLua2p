@@ -10,6 +10,7 @@ function RenderText:draw()
 		local color = e:get("color")
 		local text = e:get("text")
 		local transform = e:get("transform")
+		local sdf = e:get("sdf")
 		love.graphics.setColor(1, 1, 1, 1)
 
 		if color then
@@ -30,6 +31,10 @@ function RenderText:draw()
 			if transform.oy == 0.5 then
 				oy = love.graphics.getFont():getHeight(text)/2
 			end
+		end
+		if sdf then
+			sx = sdf.scale_x
+			sy = sdf.scale_y
 		end
 		local x = pos.pos.x
 		local y = pos.pos.y

@@ -4,7 +4,7 @@ Concord.component("text", function(c, text, font)
 	!if _ASSERT then
 	assert(type(text) == "string", "Passed argument must be of type 'string'")
 	if font then
-		assert(font:type() == "Font", "Passed argument must be of type 'Font'")
+		assert(font:type() == "Font" or font:type() == "fontsdf", "Passed argument must be of type 'Font' or 'fontsdf'")
 	end
 	!end
 	c.text = text
