@@ -190,18 +190,20 @@ function StateMenu:setup_menu()
 end
 
 function StateMenu:setup_settings(dt)
+	!if _PLATFORM == "desktop" then
+	self:settings_desktop(dt)
+	!elseif _PLATFORM == "mobile" then
+	!end
+end
+
+!if _PLATFORM == "desktop" then
+function StateMenu:settings_desktop(dt)
 	local x = 64
 	local y = 64
 	local width = love.graphics.getWidth() - (x * 2)
 	local height = love.graphics.getHeight() - (y * 2)
 	Slab.Update(dt)
-
-	Slab.BeginWindow("Settings", {
-		X = x, Y = y,
-		W = width, H = height,
-		AllowMove = false, AllowResize = false,
-		AutoSizeWindow = false,
-	})
+	Slab.BeginWindow("Settings", { X = x, Y = y, W = width, H = height, AllowMove = false, AllowResize = false, AutoSizeWindow = false, })
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
 	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
@@ -230,7 +232,6 @@ function StateMenu:setup_settings(dt)
 	Slab.EndLayout()
 	Slab.Separator()
 
-	!if _PLATFORM == "desktop" then
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
 	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
 		for key_name, key_table in pairs(Keybinds.ui) do
@@ -273,7 +274,6 @@ function StateMenu:setup_settings(dt)
 			show_message_box_kb_reset = false
 		end
 	end
-	!end --_PLATFORM == "desktop"
 
 	if show_message_box_conflict[1] then
 		local res = Slab.MessageBox("Alert", "There's a conflict with button " .. show_message_box_conflict[2], { Buttons = { "Confirm" } })
@@ -285,6 +285,7 @@ function StateMenu:setup_settings(dt)
 
 	Slab.EndWindow()
 end
+!end --PLATFORM == "desktop"
 
 function StateMenu:slab_title(title, text)
 	Slab.BeginLayout(title, { AlignX = "center", AlignY = "top", Columns = 1 })
