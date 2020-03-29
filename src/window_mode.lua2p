@@ -1,0 +1,12 @@
+local WindowMode = {}
+
+WindowMode.current = 1
+WindowMode.modes = {
+	{ width = !(_GAME_SIZE.x), height = !(_GAME_SIZE.y) },
+}
+
+function WindowMode.getCurrent()
+	return WindowMode.modes[WindowMode.current]
+end
+
+return WindowMode

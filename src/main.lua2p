@@ -35,6 +35,7 @@ local Canvas = require("canvas")
 local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
+local WindowMode = require("window_mode")
 
 local min = math.min
 local floor = math.floor
@@ -59,7 +60,6 @@ local current_world
 local window_size = !(_GAME_SIZE)
 local canvas_resize, state_init
 local mid_canvas, bot_canvas, top_canvas, main_canvas
-local supported_modes = love.window.getFullscreenModes()
 local current_mode = 1
 
 !if not _RELEASE then
@@ -81,14 +81,6 @@ function love.load()
 	randomseed(time())
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
-	insert(supported_modes, 1, { width = love.graphics.getWidth(), height = love.graphics.getHeight() })
-	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
-	for i = #supported_modes, 1, -1 do
-		local mode = supported_modes[i]
-		local s = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
-		if s < 1 then remove(supported_modes, i) end
-	end
-	current_mode = #supported_modes
 	base_font = love.graphics.getFont()
 
 	Info.initialize()
@@ -98,6 +90,8 @@ function love.load()
 	!else
 	-- current_world = Worlds.Splash
 	current_world = Worlds.Menu
+	--current_world = Worlds.Intro
+	--current_world = Worlds.Game
 	!end
 	Log.info("Starting scene: ", current_world.id)
 	state_init()
@@ -144,6 +138,10 @@ function love.draw()
 	love.graphics.setFont(base_font)
 	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.print(love.timer.getFPS(), 8, 8)
+	if main_canvas.flags.draw_cross then
+		local str = format("%i, %i", love.mouse.getX(), love.mouse.getY())
+		love.graphics.print(str, 8, 20)
+	end
 	!end
 
 	if not current_world.is_ready then
@@ -278,6 +276,9 @@ canvas_resize = function()
 		!end
 	else bot_canvas:set(bot_canvas_prop)
 	end
+	if current_world and current_world.canvas_resize then
+		current_world:canvas_resize(window_w, window_h, scale)
+	end
 end
 
 function G_state_switch(next_id)
@@ -294,13 +295,13 @@ function G_state_switch(next_id)
 end
 
 function G_window_resize(override_mode)
-	current_mode = override_mode or (current_mode + 1)
-	if current_mode > #supported_modes then
-		current_mode = 1
+	WindowMode.current = override_mode or (WindowMode.current + 1)
+	if WindowMode.current > #WindowMode.modes then
+		WindowMode.current = 1
 	end
-	local mode = supported_modes[current_mode]
+	local mode = WindowMode.getCurrent()
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)
-	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", current_mode, mode.width, mode.height, scale))
+	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
 	canvas_resize()
 end
