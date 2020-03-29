@@ -6,6 +6,7 @@ end
 local worlds = {
 	Splash = req("splash"),
 	Menu = req("menu"),
+	Intro = req("intro"),
 }
 
 local format = string.format
