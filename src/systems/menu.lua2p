@@ -7,7 +7,7 @@ local min = math.min
 local max = math.max
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "position", "text", "on_enter", "option_data"}
+	pool = {"option_key", "color", "position", "text", "on_enter"}
 })
 
 local offset_x = 64
@@ -42,62 +42,6 @@ function Menu:init()
 
 	self.pool.onEntityAdded = function(pool, e)
 		self.length_options = self.length_options + 1
-		self:menu_set_position()
-	end
-end
-
-function Menu:menu_set_position()
-	for _, e in ipairs(self.pool) do
-		local pos = e:get("position")
-		local text = e:get("text")
-		local data = e:get("option_data")
-		local key = e:get("option_key")
-		local fonts = e:get("fonts")
-		local font = text.font
-		local padding = data.padding
-
-		local font = text.font
-		do
-			local canvas = data.canvas
-			local ch = canvas.height
-
-			local highest = 100
-			local font_id
-			for k, v in pairs(fonts.fonts) do
-				local str_h = v:getHeight(text.text)
-				local total_h = str_h * data.max_count
-				local result = ch - total_h
-				if result >= padding then
-					highest = min(highest, result)
-					font = v
-					font_id = k
-				end
-			end
-			if text.font ~= font then
-				local scale = canvas.width/canvas.height
-				padding = padding - scale * 2
-			end
-			text.font = font
-		end
-
-		local str_w = font:getWidth(text.text)
-		local str_h = font:getHeight(text.text)
-		local x = data.canvas.width - str_w - padding
-		local y = data.canvas.y + data.canvas.height - (key.id * str_h) - padding
-		pos.pos.x = x
-		pos.pos.y = y
-		pos.original_pos = pos.pos:copy()
-	end
-end
-
-function Menu:check_size()
-	for _, e in ipairs(self.pool) do
-		local pos = e:get("position")
-		local text = e:get("text")
-		local data = e:get("option_data")
-		local key = e:get("option_key")
-		local fonts = e:get("fonts")
-
 	end
 end
 

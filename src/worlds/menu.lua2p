@@ -60,11 +60,7 @@ local assets_data = {
 		{ "flowfield", "assets/textures/perlin.png" },
 	},
 	font = {
-		{ "menu", "assets/fonts/Jamboree.ttf", 12, "tiny" },
-		{ "menu", "assets/fonts/Jamboree.ttf", 16, "small" },
 		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
-		{ "menu", "assets/fonts/Jamboree.ttf", 32, "medium" },
-		{ "menu", "assets/fonts/Jamboree.ttf", 38, "large" },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
 	}
@@ -170,23 +166,25 @@ function StateMenu:setup_menu()
 		:give("sprite", main_bg)
 		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
 
+	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
 	local font_menu = assets.fonts.menu_default
+	local str_target_h = font_menu:getHeight()
+	local str_h = sdf_menu:getHeight()
+	local scale = str_target_h/str_h * 0.75
+	local offset = 16
+	local padding = 2
+
 	for i, str in ipairs(options) do
-		local padding = 32
 		local lstr = lower(str)
+		local str_w = sdf_menu:getWidth(str) * scale
+		local x = self.canvases.bot_canvas.width - str_w - offset
+		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - ( i * str_h ) - (padding * i) - offset
+
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(), str, font_menu, Palette.colors.white)
-			:give("fonts", {
-				tiny = assets.fonts.menu_tiny,
-				small = assets.fonts.menu_small,
-				default = assets.fonts.menu_default,
-				medium = assets.fonts.menu_medium,
-				large = assets.fonts.menu_large,
-			})
-			:give("camera")
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.colors.white)
+			:give("sdf", scale, scale)
 			:give("option_key", i)
-			:give("option_data", self.canvases.bot_canvas, padding, #options)
 			:give("on_enter", function()
 				current_state = states[lstr]
 				Log.info("Switched Menu State to: ", current_state)
