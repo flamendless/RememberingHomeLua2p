@@ -4,3 +4,6 @@ tags
 temp.lua
 test
 temp.glsl
+scripts/output
+scripts/final
+scripts/fonts
