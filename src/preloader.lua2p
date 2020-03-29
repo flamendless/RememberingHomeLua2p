@@ -35,7 +35,8 @@ function Preloader.start(assets, container)
 				data[i] = {keys[kind], path, source_type}
 			elseif kind == "font" then
 				local font_size = t[j][3]
-				id = id .. "_" .. font_size
+				local font_sub = t[j][4]
+				id = id .. "_" .. (font_sub or font_size)
 				data[i] = {keys[kind], path, font_size}
 			end
 			userdata[i] = id

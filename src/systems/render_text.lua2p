@@ -10,6 +10,7 @@ function RenderText:draw()
 		local color = e:get("color")
 		local text = e:get("text")
 		local transform = e:get("transform")
+		local sdf = e:get("sdf")
 		love.graphics.setColor(1, 1, 1, 1)
 
 		if color then
@@ -31,13 +32,14 @@ function RenderText:draw()
 				oy = love.graphics.getFont():getHeight(text)/2
 			end
 		end
+		if sdf then
+			sx = sdf.scale_x
+			sy = sdf.scale_y
+		end
+		local x = pos.pos.x
+		local y = pos.pos.y
 
-		love.graphics.print(text.text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
-
-		!if not _RELEASE then
-		-- love.graphics.setColor(1, 0, 0, 0.75)
-		-- love.graphics.rectangle("line", pos.pos.x, pos.pos.y, love.graphics.getFont():getWidth(text.text), love.graphics.getFont():getHeight(text.text))
-		!end
+		love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
 	end
 end
 

@@ -1,0 +1,94 @@
+local Anim8 = require("modules.anim8.anim8")
+local Concord = require("modules.concord.concord")
+
+local min = math.min
+
+local Animation = Concord.system({
+	pool = {"animation", "animation_data", "position"},
+})
+
+function Animation:init()
+	self.pool.onEntityAdded = function(pool, e)
+		local data = e:get("animation_data")
+		local animation = e:get("animation")
+		local auto_scale = e:get("auto_scale")
+		if auto_scale then
+			local transform = e:get("transform")
+			if auto_scale.is_proportion then
+				local scale = min(auto_scale.target_width/data.frame_width, auto_scale.target_height/data.frame_height)
+				transform.sx = scale
+				transform.sy = scale
+			else
+				transform.sx = auto_scale.target_width/data.frame_width
+				transform.sy = auto_scale.target_height/data.frame_height
+			end
+		end
+
+		local cb = e:get("animation_on_complete")
+		local on_end
+		if cb then
+			on_end = function()
+				cb.callback()
+				animation.is_playing = false
+				if cb.event then
+					animation.animation[cb.event](animation.animation)
+				end
+			end
+		else
+			on_end = function()
+				animation.is_playing = false
+				animation.animation:pauseAtEnd()
+			end
+		end
+
+		animation.grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
+		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.delay, on_end)
+	end
+end
+
+function Animation:update(dt)
+	for _, e in ipairs(self.pool) do
+		local animation = e:get("animation")
+		local stop = e:get("animation_stop")
+		if animation.is_playing then
+			if stop then
+				animation.is_playing = false
+				animation.animation[stop.event](animation.animation)
+				local cb = e:get("animation_on_complete")
+				if cb then
+					cb.callback()
+				end
+			end
+			animation.animation:update(dt)
+		end
+	end
+end
+
+function Animation:draw()
+	for _, e in ipairs(self.pool) do
+		local data = e:get("animation_data")
+		local animation = e:get("animation")
+		local pos = e:get("position")
+		local color = e:get("color")
+		local transform = e:get("transform")
+		if color then
+			love.graphics.setColor(color.color)
+		end
+
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = data.frame_width/2
+			end
+			if transform.oy == 0.5 then
+				oy = data.frame_height/2
+			end
+		end
+		animation.animation:draw(data.spritesheet, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+	end
+end
+
+return Animation

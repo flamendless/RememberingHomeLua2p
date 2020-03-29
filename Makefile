@@ -22,6 +22,13 @@ DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
 DIR_MODULES = modules
 
+FONTS_PATH = scripts/fonts
+FONTS_OUTPUT = scripts/output
+FONTS_FINAL = scripts/final
+FONTS_TARGET = assets/fonts
+FONTS = Jamboree DigitalDisco-Thin DigitalDisco Firefly Jamboree Luna Pixeled tiny uncle_type
+TEXTURE_SIZE = 1024,1024
+
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
 
 .PHONY: ltags
@@ -35,8 +42,30 @@ process: init $(SOURCE_OBJECTS) ltags
 	@echo processing output: $@
 	lua $(LPP_PATH) --handler=handler.lua --outputpaths $< $@
 
-init:
+generate-fonts: msdf-fonts convert-fonts copy-fonts
+	@echo generating fonts finished
+
+msdf-fonts:
 	@if [ ! -d $(OUTPUT_DIRECTORY) ]; then mkdir -p $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory already exists"; fi
+	@if [ ! -d $(FONTS_OUTPUT) ]; then mkdir -p $(FONTS_OUTPUT); else echo "$(FONTS_OUTPUT) directory already exists"; fi
+	@if [ ! -d $(FONTS_FINAL) ]; then mkdir -p $(FONTS_FINAL); else echo "$(FONTS_FINAL) directory already exists"; fi
+	for font in $(FONTS); do \
+		msdf-bmfont -o $(FONTS_OUTPUT)/$$font.png -t msdf $(FONTS_PATH)/$$font.ttf -m $(TEXTURE_SIZE); \
+	done
+
+convert-fonts:
+	for font in $(FONTS); do \
+		python scripts/convertfont.py $(FONTS_OUTPUT)/$$font.fnt $(FONTS_FINAL)/$$font.fnt; \
+	done
+
+copy-fonts:
+	for font in $(FONTS); do \
+		cp $(FONTS_OUTPUT)/$$font.png $(FONTS_TARGET); \
+		cp $(FONTS_PATH)/$$font.ttf $(FONTS_TARGET); \
+		cp -i $(FONTS_FINAL)/$$font.fnt $(FONTS_TARGET); \
+	done
+
+init:
 	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var))
 	@for x ($(DIRECTORIES_TO_COPY)); do \
 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
@@ -69,6 +98,10 @@ clean_logs:
 	else \
 		echo "$(APPDATA)/$(FILENAME_LOG_INFO) does not exist!"; \
 	fi
+
+clean-fonts:
+	@if [ -d $(FONTS_OUTPUT) ]; then rm -rf $(FONTS_OUTPUT); else echo "$(FONTS_OUTPUT) directory does not exist"; fi
+	@if [ -d $(FONTS_FINAL) ]; then rm -rf $(FONTS_FINAL); else echo "$(FONTS_FINAL) directory does not exist"; fi
 
 ltags:
 	@if [ -f ltags ]; then \

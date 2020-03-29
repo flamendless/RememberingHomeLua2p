@@ -1,4 +1,6 @@
 local Log = require("modules.log.log")
+local WindowMode = require("window_mode")
+
 local Info = {}
 
 local min = math.min
@@ -21,11 +23,10 @@ function Info.initialize()
 	Info.data.has_bgm = love.system.hasBackgroundMusic()
 	Info.data.limits = love.graphics.getSystemLimits()
 	Info.data.name, version, vendor, device = love.graphics.getRendererInfo()
-	Info.data.supported_modes = love.window.getFullscreenModes()
+	Info.data.supported_modes = WindowMode.modes
 
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
-	insert(Info.data.supported_modes, 1, { width = w, height = h })
 	sort(Info.data.supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
 	Info.data.current_mode = w .. "x" .. h
 
@@ -46,12 +47,6 @@ function Info.initialize()
 		"Supported Modes:",
 	}
 	Info.data.supported_modes_str = {}
-	for i = #Info.data.supported_modes, 1, -1 do
-		local mode = Info.data.supported_modes[i]
-		local s = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
-		if s < 1 then remove(Info.data.supported_modes, i) end
-	end
-
 	for i, mode in ipairs(Info.data.supported_modes) do
 		local scale = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
 		str[#str + 1] = format("\t[%i] - %ix%i - scale: %f", i, mode.width, mode.height, scale)

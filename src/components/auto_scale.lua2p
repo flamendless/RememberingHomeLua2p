@@ -1,0 +1,14 @@
+local Concord = require("modules.concord.concord")
+
+local floor = math.floor
+
+Concord.component("auto_scale", function(c, target_width, target_height, is_proportion)
+	!if _ASSERT then
+	assert(type(target_width) == "number", "Passed argument must be of type 'number'")
+	assert(type(target_height) == "number", "Passed argument must be of type 'number'")
+	!end
+
+	c.target_width = target_width
+	c.target_height = target_height
+	c.is_proportion = is_proportion or false
+end)

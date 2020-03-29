@@ -1,0 +1,27 @@
+local Concord = require("modules.concord.concord")
+
+local Transform = Concord.system({
+	pool = {"transform"},
+	pool_camera = {"position", "camera"}
+})
+
+function Transform:canvas_resize(ww, wh, scale)
+	for _, e in ipairs(self.pool) do
+		local transform = e:get("transform")
+		if transform then
+			transform.sx = scale
+			transform.sy = scale
+		end
+	end
+end
+
+function Transform:update_position(l, t)
+	for _, e in ipairs(self.pool_camera) do
+		local pos = e:get("position")
+		pos.pos.x = pos.pos.x + l
+		pos.pos.y = pos.pos.y + t
+		pos.original_pos = pos.pos:copy()
+	end
+end
+
+return Transform

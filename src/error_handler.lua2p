@@ -7,12 +7,11 @@ local Lily = require("modules.lily.lily")
 local Reporter = require("reporter")
 !end
 
-local Utils = require("utils")
 local Utf8 = require("utf8")
 local insert = table.insert
 local concat = table.concat
 
-local font, p, ph
+local font, p
 
 local error_printer = function(msg, layer)
 	local err_msg = (debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", ""))
@@ -20,12 +19,15 @@ local error_printer = function(msg, layer)
 end
 
 local draw = function()
-	-- local pos_x = love.graphics.getWidth()/2
-	local pos_x = 32
-	local pos_y = love.graphics.getHeight()/2 - ph
+	local pos_x = 0
+	!if not _RELEASE then
+	local pos_y = 24
+	!else
+	local pos_y = love.graphics.getHeight()/2
+	!end
 	love.graphics.clear()
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.printf(p, pos_x, pos_y, love.graphics.getWidth())
+	love.graphics.printf(p, pos_x, pos_y, love.graphics.getWidth(), "center")
 	love.graphics.present()
 end
 
@@ -72,7 +74,14 @@ function ErrorHandler.callback(msg)
 	end
 
 	love.graphics.reset()
-	font = love.graphics.setNewFont(14)
+	-- font = love.graphics.setNewFont(12)
+	!if not _RELEASE then
+	font = love.graphics.newFont("assets/fonts/DigitalDisco.ttf", 16)
+	!else
+	font = love.graphics.newFont("assets/fonts/DigitalDisco.ttf", 24)
+	!end
+	font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+	love.graphics.setFont(font)
 	love.graphics.setColor(1, 1, 1, 1)
 	local trace = debug.traceback()
 	love.graphics.origin()
@@ -83,9 +92,10 @@ function ErrorHandler.callback(msg)
 	sanitized_msg = concat(sanitized_msg)
 
 	local err = {}
-	insert(err, "SORRY! SOMETHING UNEXPECTED OCCURED!\n")
+	insert(err, "SORRY! SOMETHING UNEXPECTED OCCURED!")
 	insert(err, "The developer will work on to fix this, please have patience\n")
-	insert(err, "Error\n")
+
+	!if not _RELEASE then
 	insert(err, sanitized_msg)
 
 	if #sanitized_msg ~= #msg then
@@ -99,24 +109,13 @@ function ErrorHandler.callback(msg)
 			insert(err, l)
 		end
 	end
+	!end
 
 	p = concat(err, "\n")
 	p = p:gsub("\t", "")
 	p = p:gsub("$[string \"(.-)\"%]", "%1")
 
-	local h = Utils.multiline_string_count_lines(p)
-	ph = (font:getHeight(" ") * h)
-
 	local text_full = p
-
-	if love.system then
-		!if _PLATFORM == "desktop" then
-		p = p .. "\n\nPress Ctrl+C to copy this error"
-		!elseif _PLATFORM == "mobile" then
-		p = p .. "\n\nTap on the screen to copy this error"
-		!end
-	end
-
 	Lily.quit()
 
 	return function()

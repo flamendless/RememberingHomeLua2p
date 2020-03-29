@@ -35,6 +35,7 @@ local Canvas = require("canvas")
 local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
+local WindowMode = require("window_mode")
 
 local min = math.min
 local floor = math.floor
@@ -59,7 +60,6 @@ local current_world
 local window_size = !(_GAME_SIZE)
 local canvas_resize, state_init
 local mid_canvas, bot_canvas, top_canvas, main_canvas
-local supported_modes = love.window.getFullscreenModes()
 local current_mode = 1
 
 !if not _RELEASE then
@@ -81,14 +81,6 @@ function love.load()
 	randomseed(time())
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
-	insert(supported_modes, 1, { width = love.graphics.getWidth(), height = love.graphics.getHeight() })
-	sort(supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
-	for i = #supported_modes, 1, -1 do
-		local mode = supported_modes[i]
-		local s = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
-		if s < 1 then remove(supported_modes, i) end
-	end
-	current_mode = #supported_modes
 	base_font = love.graphics.getFont()
 
 	Info.initialize()
@@ -98,6 +90,8 @@ function love.load()
 	!else
 	-- current_world = Worlds.Splash
 	current_world = Worlds.Menu
+	--current_world = Worlds.Intro
+	--current_world = Worlds.Game
 	!end
 	Log.info("Starting scene: ", current_world.id)
 	state_init()
@@ -144,6 +138,10 @@ function love.draw()
 	love.graphics.setFont(base_font)
 	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.print(love.timer.getFPS(), 8, 8)
+	if main_canvas.flags.draw_cross then
+		local str = format("%i, %i", love.mouse.getX(), love.mouse.getY())
+		love.graphics.print(str, 8, 20)
+	end
 	!end
 
 	if not current_world.is_ready then
@@ -211,17 +209,6 @@ function state_init()
 	end
 end
 
-function state_switch(next_id)
-	local str_err = format("State '%s' doest not exist in 'Worlds'", next_id)
-	assert(Worlds[next_id], str_err)
-	local prev_id = current_world.id
-	current_world = Worlds[next_id]
-	local str = format("Switched from %s to %s", prev_id, current_world.id)
-	Log.trace(str)
-	state_init()
-	current_world:load()
-end
-
 canvas_resize = function()
 	local game_size = !(_GAME_BASE_SIZE)
 	local window_w = love.graphics.getWidth()
@@ -259,37 +246,62 @@ canvas_resize = function()
 
 	if main_canvas == nil then
 		main_canvas = Canvas:new(main_canvas_prop)
+		!if not _RELEASE then
 		main_canvas.debug_color = color_red
+		main_canvas.flags.draw_cross = false
+		!end
 	else main_canvas:set(main_canvas_prop)
 	end
 
 	if top_canvas == nil then
 		top_canvas = Canvas:new(top_canvas_prop)
+		!if not _RELEASE then
 		top_canvas.debug_color = color_red
+		!end
 	else top_canvas:set(top_canvas_prop)
 	end
 
 	if mid_canvas == nil then
 		mid_canvas = Canvas:new(mid_canvas_prop)
+		!if not _RELEASE then
 		mid_canvas.debug_color = color_green
+		!end
 	else mid_canvas:set(mid_canvas_prop)
 	end
 
 	if bot_canvas == nil then
 		bot_canvas = Canvas:new(bot_canvas_prop)
+		!if not _RELEASE then
 		bot_canvas.debug_color = color_blue
+		!end
 	else bot_canvas:set(bot_canvas_prop)
+	end
+	if current_world and current_world.canvas_resize then
+		current_world:canvas_resize(window_w, window_h, scale)
 	end
 end
 
+function G_state_switch(next_id)
+	local str_err = format("State '%s' doest not exist in 'Worlds'", next_id)
+	!if _ASSERT then
+	assert(Worlds[next_id], str_err)
+	!end
+	local prev_id = current_world.id
+	current_world = Worlds[next_id]
+	local str = format("Switched from %s to %s", prev_id, current_world.id)
+	Log.trace(str)
+	state_init()
+	current_world:load()
+end
+
 function G_window_resize(override_mode)
-	current_mode = override_mode or (current_mode + 1)
-	if current_mode > #supported_modes then
-		current_mode = 1
+	WindowMode.current = override_mode or (WindowMode.current + 1)
+	if WindowMode.current > #WindowMode.modes then
+		WindowMode.current = 1
 	end
-	local mode = supported_modes[current_mode]
+	local mode = WindowMode.getCurrent()
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)
-	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", current_mode, mode.width, mode.height, scale))
+	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
 	canvas_resize()
 end

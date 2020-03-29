@@ -5,6 +5,7 @@ local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
+local SDF = require("modules.sdf").mount()
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
@@ -18,7 +19,7 @@ local lower = string.lower
 local upper = string.upper
 
 local Canvas = require("canvas")
-local DissolveFF = require("dissolve_flowfield")
+local Dissolve = require("dissolve")
 local Fade = require("fade")
 local Image = require("image")
 local Info = require("info")
@@ -45,6 +46,7 @@ local Systems = {
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
+	Transform = require("systems.transform"),
 }
 local Assemblages = {
 	Common = require("assemblages.common")
@@ -59,7 +61,7 @@ local assets_data = {
 		{ "flowfield", "assets/textures/perlin.png" },
 	},
 	font = {
-		{ "menu", "assets/fonts/Jamboree.ttf", 24 },
+		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
 	}
@@ -88,6 +90,31 @@ function StateMenu:on_menu()
 end
 
 function StateMenu:on_play()
+	self.world:emit("allow_cursor", false)
+	local ww, wh = love.graphics.getDimensions()
+	--TODO set this to the door's size and position
+	local tpos = vec2:new(ww/2, wh/2)
+	local tw = 128
+	local th = 64
+
+	local target_scale = min(ww/tw, wh/th)
+	local cam_scale = self.camera:getScale()
+	local x, y = self.camera:getPosition()
+	local c = { x = x, y = y, scale = cam_scale }
+	local duration = 3
+
+	Flux.to(c, duration, {
+		x = tpos.x, y = tpos.y,
+		scale = target_scale
+	}):onupdate(function()
+		self.camera:setPosition(c.x, c.y)
+		self.camera:setScale(c.scale)
+	end):oncomplete(function()
+		self.dissolve_noise.flag_process = true
+		self.dissolve_noise.on_complete = function()
+			G_state_switch("Intro")
+		end
+	end)
 end
 
 local current_wm
@@ -104,6 +131,7 @@ function StateMenu:on_settings()
 end
 
 function StateMenu:on_about()
+	self:setup_about()
 	self.world:emit("allow_cursor", false)
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = { x = l, y = t, w = w, h = h }
@@ -139,18 +167,24 @@ function StateMenu:setup_menu()
 		:give("sprite", main_bg)
 		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
 
-	local font_menu = assets.fonts.menu_24
+	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
+	local font_menu = assets.fonts.menu_default
+	local str_target_h = font_menu:getHeight()
+	local str_h = sdf_menu:getHeight()
+	local scale = str_target_h/str_h * 0.75
+	local offset = 16
+	local padding = 2
+
 	for i, str in ipairs(options) do
-		local padding = 32
-		local str_w = font_menu:getWidth(str)
-		local str_h = font_menu:getHeight(str)
-		local x = self.canvases.bot_canvas.width - str_w - padding
-		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - (i * str_h) - padding
 		local lstr = lower(str)
+		local str_w = sdf_menu:getWidth(str) * scale
+		local x = self.canvases.bot_canvas.width - str_w - offset
+		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - ( i * str_h ) - (padding * i) - offset
 
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, font_menu, Palette.colors.white)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.colors.white)
+			:give("sdf", scale, scale)
 			:give("option_key", i)
 			:give("on_enter", function()
 				current_state = states[lstr]
@@ -161,18 +195,20 @@ function StateMenu:setup_menu()
 end
 
 function StateMenu:setup_settings(dt)
+	!if _PLATFORM == "desktop" then
+	self:settings_desktop(dt)
+	!elseif _PLATFORM == "mobile" then
+	!end
+end
+
+!if _PLATFORM == "desktop" then
+function StateMenu:settings_desktop(dt)
 	local x = 64
 	local y = 64
 	local width = love.graphics.getWidth() - (x * 2)
 	local height = love.graphics.getHeight() - (y * 2)
 	Slab.Update(dt)
-
-	Slab.BeginWindow("Settings", {
-		X = x, Y = y,
-		W = width, H = height,
-		AllowMove = false, AllowResize = false,
-		AutoSizeWindow = false,
-	})
+	Slab.BeginWindow("Settings", { X = x, Y = y, W = width, H = height, AllowMove = false, AllowResize = false, AutoSizeWindow = false, })
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
 	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
@@ -254,6 +290,7 @@ function StateMenu:setup_settings(dt)
 
 	Slab.EndWindow()
 end
+!end --PLATFORM == "desktop"
 
 function StateMenu:slab_title(title, text)
 	Slab.BeginLayout(title, { AlignX = "center", AlignY = "top", Columns = 1 })
@@ -267,13 +304,16 @@ function StateMenu:setup_about()
 	local about = {
 		{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
 		{ "A Game By:" },
-		{ "Brandon Blanker Lim-it" },
-		{ "@flamendless" },
+		{ "Brandon Blanker Lim-it @flamendless" },
+		{ "" },
+		{ "Arts By:" },
+		{ "Conrad Reyes @wits" },
 		{ assets.images.twitter, assets.images.website, assets.images.mail },
 		{ "@LAYOUT:LEFT" },
 		{ "TOOLS USED:" },
 		{ "Löve framework" },
-		{ "Vim" },
+		{ "Vim, Git, Trello" },
+		{ "Aseprite, Laigter" },
 		{ "Audacity" },
 		{ "Manjaro i3-wm Linux" },
 		{ "Brave Browser" },
@@ -285,10 +325,11 @@ function StateMenu:setup_about()
 		{ "Enum, Flux" },
 		{ "Gamera, Hump" },
 		{ "Lily, Log" },
-		{ "Lume, Moonshine" },
+		{ "Luapreprocess, Lume" },
 		{ "Semver, Splashes" },
 
 		{ "@LAYOUT:CENTER" },
+		{ "" },
 		{ "SPECIAL THANKS TO:" },
 		{ "People at the Löve Discord server" },
 	}
@@ -335,9 +376,7 @@ function StateMenu:setup_about()
 					:give("position", vec2:new(x, y))
 					:give("camera")
 
-				if not layout then
-					base_y = base_y + str_h
-				end
+				if not layout then base_y = base_y + str_h end
 			end
 
 		elseif el[1].type and el[1]:type() == "Image" then
@@ -369,6 +408,7 @@ function StateMenu:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
+		self.is_ready = true
 		local ww = love.graphics.getWidth()
 		local wh = love.graphics.getHeight()
 
@@ -378,8 +418,12 @@ function StateMenu:load()
 		self.canvas_main = self.canvases.main_canvas
 		self.mb_main = MotionBlur:new(self.canvas_main)
 
-		local new_img = Image.resize_image(assets.images.flowfield)
-		self.dissolve_ff = DissolveFF:new(new_img, 3)
+		local img_ff = Image.resize_image(assets.images.flowfield)
+		self.dissolve_ff = Dissolve:new(img_ff, 3)
+
+		local img_noise_low = Image.generate_noise(ww/8, wh/8)
+		local img_noise_scaled = Image.resize_image(img_noise_low)
+		self.dissolve_noise = Dissolve:new(img_noise_scaled, 3)
 
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
@@ -387,12 +431,11 @@ function StateMenu:load()
 		self.world:addSystems(Systems.Click)
 		self.world:addSystems(Systems.BoundingBox)
 		self.world:addSystems(Systems.HoverEffect)
+		self.world:addSystems(Systems.Transform)
 		self:setup_menu()
-		self:setup_about()
+		-- self:setup_about()
 
 		Slab.Initialize()
-
-		self.is_ready = true
 	end)
 end
 
@@ -404,6 +447,8 @@ function StateMenu:update(dt)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
 		self:setup_settings(dt)
+	elseif current_state == states.play then
+		self.dissolve_noise:update(dt)
 	elseif current_state == states.exit then
 		self.dissolve_ff:update(dt)
 	end
@@ -413,7 +458,7 @@ function StateMenu:draw()
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
 
-	if current_state == states.menu then
+	if current_state == states.menu or current_state == states.settings or current_state == states.about then
 		self.canvas_main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
@@ -426,11 +471,26 @@ function StateMenu:draw()
 		end)
 		self.canvas_main:detach()
 		self.mb_main:post_process_draw()
+	elseif current_state == states.play then
+		self.dissolve_noise:draw(function()
+			self.camera:draw(function(l, t, w, h)
+				self.world:emit("draw")
+			end)
+		end)
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
 			self.world:emit("draw")
 		end)
 	end
+end
+
+function StateMenu:canvas_resize(ww, wh, scale)
+	self.camera:setWorld(0, 0, ww * 2, wh * 2)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.world:emit("canvas_resize", ww, wh, scale)
+	self.world:emit("menu_set_position")
+	local new_l, new_t = self.camera:getVisible()
+	self.world:emit("update_position", new_l, new_t)
 end
 
 function StateMenu:keypressed(key)
@@ -443,12 +503,21 @@ function StateMenu:keypressed(key)
 	elseif Keybinds.pressed_ui("enter", key) then
 		self.world:emit("enter_option")
 	end
+	self.world:emit("update_cursor", dt)
 
-	if current_state ~= states.menu and Keybinds.pressed_ui("escape", key) then
+	if current_state ~= states.menu and current_state ~= states.play and Keybinds.pressed_ui("escape", key) then
 		self:MB_return()
 	end
 
-	self.world:emit("update_cursor", dt)
+	!if not _RELEASE then
+	if key == "o" then
+		local s = self.camera:getScale()
+		self.camera:setScale(s - 0.5)
+	elseif key == "p" then
+		local s = self.camera:getScale()
+		self.camera:setScale(s + 0.5)
+	end
+	!end
 end
 
 function StateMenu:mousepressed(mx, my, mb)
