@@ -6,40 +6,43 @@ local RenderText = Concord.system({
 
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
-		local pos = e:get("position")
-		local color = e:get("color")
-		local text = e:get("text")
-		local transform = e:get("transform")
-		local sdf = e:get("sdf")
-		love.graphics.setColor(1, 1, 1, 1)
+		local hidden = e:get("hidden")
+		if not hidden then
+			local pos = e:get("position")
+			local color = e:get("color")
+			local text = e:get("text")
+			local transform = e:get("transform")
+			local sdf = e:get("sdf")
+			love.graphics.setColor(1, 1, 1, 1)
 
-		if color then
-			love.graphics.setColor(e.color.color)
-		end
-		if text.font then
-			love.graphics.setFont(text.font)
-		end
-
-		local rotation, sx, sy, ox, oy
-		if transform then
-			rotation = transform.rotation
-			sx = transform.sx
-			sy = transform.sy
-			if transform.ox == 0.5 then
-				ox = love.graphics.getFont():getWidth(text)/2
+			if color then
+				love.graphics.setColor(e.color.color)
 			end
-			if transform.oy == 0.5 then
-				oy = love.graphics.getFont():getHeight(text)/2
+			if text.font then
+				love.graphics.setFont(text.font)
 			end
-		end
-		if sdf then
-			sx = sdf.scale_x
-			sy = sdf.scale_y
-		end
-		local x = pos.pos.x
-		local y = pos.pos.y
 
-		love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+			local rotation, sx, sy, ox, oy
+			if transform then
+				rotation = transform.rotation
+				sx = transform.sx
+				sy = transform.sy
+				if transform.ox == 0.5 then
+					ox = love.graphics.getFont():getWidth(text)/2
+				end
+				if transform.oy == 0.5 then
+					oy = love.graphics.getFont():getHeight(text)/2
+				end
+			end
+			if sdf then
+				sx = sdf.scale_x
+				sy = sdf.scale_y
+			end
+			local x = pos.pos.x
+			local y = pos.pos.y
+
+			love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+		end
 	end
 end
 
