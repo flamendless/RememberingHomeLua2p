@@ -1,0 +1,14 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("target_position", function(c, pos, duration, delay)
+	!if _ASSERT then
+	assert(pos.type == "vec2", "Passed argument must be of type 'vec2'")
+	assert(type(duration) == "number", "Passed argument must be of type 'number'")
+	if delay then
+		assert(type(delay) == "number", "Passed argument must be of type 'number'")
+	end
+	!end
+	c.target_pos = pos:copy()
+	c.duration = duration
+	c.delay = delay or 0
+end)

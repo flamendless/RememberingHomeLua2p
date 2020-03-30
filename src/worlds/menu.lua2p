@@ -43,6 +43,7 @@ local Systems = {
 	BoundingBox = require("systems.bounding_box"),
 	Click = require("systems.click"),
 	HoverEffect = require("systems.hover_effect"),
+	Lerp = require("systems.lerp"),
 	Menu = require("systems.menu"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
@@ -425,6 +426,7 @@ function StateMenu:load()
 		local img_noise_scaled = Image.resize_image(img_noise_low)
 		self.dissolve_noise = Dissolve:new(img_noise_scaled, 3)
 
+		self.world:addSystems(Systems.Lerp)
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
