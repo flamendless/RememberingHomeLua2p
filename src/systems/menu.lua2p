@@ -37,7 +37,7 @@ function Menu:init()
 	self.cursor = 0
 	self.length_options = 0
 	self.flags = {
-		allow_cursor = true,
+		allow_cursor = false,
 	}
 
 	self.pool.onEntityAdded = function(pool, e)
