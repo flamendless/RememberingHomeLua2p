@@ -1,13 +1,9 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("position", function(c, x, y)
-	if type(x) == "table" then
-		!if _ASSERT then
-		assert(x.type == "vec2", "Passed argument must be of type 'vec2'")
-		!end
-		c.pos = x:copy()
-	elseif type(x) == "number" then
-		c.pos = vec2:new(x, y)
-	end
+Concord.component("position", function(c, pos)
+	!if _ASSERT then
+	assert(pos.type == "vec2", "Passed argument must be of type 'vec2'")
+	!end
+	c.pos = pos:copy()
 	c.original_pos = c.pos:copy()
 end)
