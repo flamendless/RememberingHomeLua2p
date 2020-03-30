@@ -55,7 +55,10 @@ local Assemblages = {
 
 local assets_data = {
 	image = {
-		{ "bg_title", "assets/images/menu/title.png" },
+		-- { "bg_title", "assets/images/menu/title.png" },
+		{ "bg_title", "assets/images/menu/menu_background.png" },
+		{ "title", "assets/images/menu/menu_title.png" },
+		{ "subtitle", "assets/images/menu/menu_subtitle.png" },
 		{ "twitter", "assets/images/menu/twitter.png" },
 		{ "website", "assets/images/menu/website.png" },
 		{ "mail", "assets/images/menu/mail.png" },
@@ -162,11 +165,29 @@ function StateMenu:setup_menu()
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
 	local main_bg = assets.images.bg_title
+	local title = assets.images.title
+	local subtitle = assets.images.subtitle
+
 	local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
+	local scale_title = min((main_bg:getWidth() * scale)/title:getWidth(), (main_bg:getHeight() * scale)/title:getHeight())
+	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
 	self.entities.main_bg = Concord.entity(self.world)
 		:give("position", vec2:new(ww/2, wh/2))
 		:give("sprite", main_bg)
 		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+
+	self.entities.title = Concord.entity(self.world)
+		-- :give("position", vec2:new(ww * 0.25, wh/2 - 36))
+		:give("position", vec2:new(ww * 0.25, -wh/2))
+		:give("sprite", title)
+		:give("transform", 0, scale_title, scale_title, title:getWidth()/2, title:getHeight()/2)
+
+	self.entities.subtitle = Concord.entity(self.world)
+		:give("position", vec2:new(ww * 0.25, wh * 1.5))
+		:give("anchor", self.entities.title, "center", "bottom")
+		:give("sprite", subtitle)
+		:give("color", {1, 1, 1, 0})
+		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
 	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
 	local font_menu = assets.fonts.menu_default
@@ -435,6 +456,31 @@ function StateMenu:load()
 		self.world:addSystems(Systems.HoverEffect)
 		self.world:addSystems(Systems.Transform)
 		self:setup_menu()
+
+		local ww = love.graphics.getWidth()
+		local wh = love.graphics.getHeight()
+
+		!if _RELEASE then
+		local duration = 2
+		local delay = 0.5
+		!else
+		local duration = 0.5
+		local delay = 0.1
+		!end
+		self.entities.title
+			:give("target_position", vec2:new(ww * 0.25, wh/2 - 32), duration)
+			:give("lerp_on_complete", function()
+				self.entities.subtitle
+					:give("target_color", {1, 1, 1, 1}, duration, delay)
+					:give("lerp_on_complete", function()
+						for i, str in ipairs(options) do
+							local lstr = lower(str)
+							local id = "text_" .. lstr
+							self.entities[id]:remove("hidden")
+						end
+						self.world:emit("allow_cursor", true)
+					end)
+			end)
 		-- self:setup_about()
 
 		Slab.Initialize()
