@@ -36,13 +36,15 @@ function Animation:init()
 			end
 		else
 			on_end = function()
-				animation.is_playing = false
-				animation.animation:pauseAtEnd()
+				if animation.stop_on_last then
+					animation.is_playing = false
+					animation.animation:pauseAtEnd()
+				end
 			end
 		end
 
 		animation.grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.delay, on_end)
+		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.durations or data.delay, on_end)
 	end
 end
 

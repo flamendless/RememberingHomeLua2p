@@ -40,6 +40,7 @@ local StateMenu = {
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
+	Animation = require("systems.animation"),
 	BoundingBox = require("systems.bounding_box"),
 	Click = require("systems.click"),
 	HoverEffect = require("systems.hover_effect"),
@@ -57,6 +58,7 @@ local assets_data = {
 	image = {
 		-- { "bg_title", "assets/images/menu/title.png" },
 		{ "bg_title", "assets/images/menu/menu_background.png" },
+		{ "sheet_desk", "assets/images/menu/sheet_desk.png" },
 		{ "title", "assets/images/menu/menu_title.png" },
 		{ "subtitle", "assets/images/menu/menu_subtitle.png" },
 		{ "twitter", "assets/images/menu/twitter.png" },
@@ -170,22 +172,39 @@ function StateMenu:setup_menu()
 	local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
 	local scale_title = min((main_bg:getWidth() * scale)/title:getWidth(), (main_bg:getHeight() * scale)/title:getHeight())
 	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
-	self.entities.main_bg = Concord.entity(self.world)
-		:give("position", vec2:new(ww/2, wh/2))
-		:give("sprite", main_bg)
-		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+
+	-- self.entities.main_bg = Concord.entity(self.world)
+	-- 	:give("position", vec2:new(ww/2, wh/2))
+	-- 	:give("sprite", main_bg)
+	-- 	:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+
+	self.entities.desk = Concord.entity(self.world)
+		:assemble(Assemblages.Common.animated_sprite,
+			{
+				spritesheet = assets.images.sheet_desk,
+				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
+				durations = { 1, 0.1, 1, 0.1, 0.1, 0.1, 1  },
+				delay = 0.1,
+				rows_count = 3,
+				columns_count = 3,
+			},
+			vec2:new(ww/2, wh/2), false)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("auto_scale", ww, wh, true)
+		:give("color", {1, 1, 1, 1})
 
 	self.entities.title = Concord.entity(self.world)
 		-- :give("position", vec2:new(ww * 0.25, wh/2 - 36))
 		:give("position", vec2:new(ww * 0.25, -wh/2))
 		:give("sprite", title)
 		:give("transform", 0, scale_title, scale_title, title:getWidth()/2, title:getHeight()/2)
+		:give("color", {1, 1, 1, 0.4})
 
 	self.entities.subtitle = Concord.entity(self.world)
 		:give("position", vec2:new(ww * 0.25, wh * 1.5))
 		:give("anchor", self.entities.title, "center", "bottom")
 		:give("sprite", subtitle)
-		:give("color", {1, 1, 1, 0})
+		:give("color", {1, 1, 1, 0.4})
 		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
 	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
@@ -447,6 +466,7 @@ function StateMenu:load()
 		local img_noise_scaled = Image.resize_image(img_noise_low)
 		self.dissolve_noise = Dissolve:new(img_noise_scaled, 3)
 
+		self.world:addSystem(Systems.Animation)
 		self.world:addSystems(Systems.Lerp)
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
