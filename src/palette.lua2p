@@ -8,6 +8,10 @@ Palette.colors = {
 	red = { 1, 0, 0, 1 }
 }
 
+Palette.windows = {
+	settings = { 0.2, 0.2, 0.2, 0.8 }
+}
+
 Palette.color_glitches = {
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},

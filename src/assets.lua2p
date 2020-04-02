@@ -1,0 +1,41 @@
+local Assets = {
+	data = {}
+}
+Assets.data.splash = {
+	image = {
+		{ "sheet_wits", "assets/images/splash/sheet_wits.png" },
+	},
+	font = {
+		{ "firefly", "assets/fonts/Firefly.ttf", 256 },
+		{ "uncle_type", "assets/fonts/uncle_type.ttf", 32 },
+	}
+}
+
+Assets.data.menu = {
+	image = {
+		-- { "bg_title", "assets/images/menu/title.png" },
+		{ "bg_door", "assets/images/menu/bg_door.png" },
+		{ "sheet_desk", "assets/images/menu/sheet_desk.png" },
+		{ "title", "assets/images/menu/title.png" },
+		{ "subtitle", "assets/images/menu/subtitle.png" },
+		{ "twitter", "assets/images/menu/twitter.png" },
+		{ "website", "assets/images/menu/website.png" },
+		{ "mail", "assets/images/menu/mail.png" },
+		{ "flowfield", "assets/textures/perlin.png" },
+	},
+	font = {
+		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
+		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
+		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
+	}
+}
+
+function Assets:getData(key)
+	!if _ASSERT then
+	assert(type(key) == "string", "Passed argument must be of type 'string'")
+	assert(self.data[key], "Passed argument does not exist in 'Assets.data' table")
+	!end
+	return self.data[key]
+end
+
+return Assets

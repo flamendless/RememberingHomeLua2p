@@ -11,6 +11,7 @@ local min = math.min
 local random = love.math.random
 local randomf = Lume.random
 
+local Assets = require("assets")
 local Keybinds = require("keybinds")
 local Fade = require("fade")
 local Palette = require("palette")
@@ -36,18 +37,11 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
+local assets_data = Assets:getData("splash")
+local assets = { images = {}, fonts = {} }
+
 local states = Enum("splash_love", "splash_wits", "splash_flam")
 local current_state = states.splash_love
-local assets_data = {
-	image = {
-		{ "sheet_wits", "assets/images/splash/sheet_wits.png" },
-	},
-	font = {
-		{ "firefly", "assets/fonts/Firefly.ttf", 256 },
-		{ "uncle_type", "assets/fonts/uncle_type.ttf", 32 },
-	}
-}
-local assets = { images = {}, fonts = {} }
 
 local splash_love
 local delay_skip = 1.25
