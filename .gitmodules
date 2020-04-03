@@ -39,4 +39,4 @@
 	url = https://github.com/coding-jackalope/Slab
 [submodule "modules/sdf"]
 	path = modules/sdf
-	url = https://github.com/Tjakka5/love-sdf-text.git
+	url = https://github.com/flamendless/love-sdf-text.git

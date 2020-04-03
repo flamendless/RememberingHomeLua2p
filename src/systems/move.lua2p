@@ -1,0 +1,53 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local Move = Concord.system({
+	pool = {"position", "move_by"},
+	pool_original = {"position", "move_by_original"}
+})
+
+function Move:init()
+	self.pool.onEntityAdded = function(pool, e)
+		local pos = e:get("position")
+		local move_by = e:get("move_by")
+		local on_complete = e:get("move_by_on_complete")
+
+		move_by.original_pos = pos.pos:copy()
+
+		local f = Flux.to(pos.pos, move_by.duration, {
+			x = pos.pos.x + move_by.pos.x,
+			y = pos.pos.y + move_by.pos.y,
+		})
+		:delay(move_by.delay)
+		:oncomplete(function()
+			if on_complete then
+				on_complete.callback()
+				e:remove("move_by_on_complete")
+			end
+			e:remove("move_by")
+		end)
+	end
+
+	self.pool_original.onEntityAdded = function(pool, e)
+		local pos = e:get("position")
+		local move_by = e:get("move_by_original")
+		local on_complete = e:get("move_by_on_complete")
+
+		move_by.original_pos = pos.pos:copy()
+
+		local f = Flux.to(pos.pos, move_by.duration, {
+			x = pos.original_pos.x,
+			y = pos.original_pos.y,
+		})
+		:delay(move_by.delay)
+		:oncomplete(function()
+			if on_complete then
+				on_complete.callback()
+				e:remove("move_by_on_complete")
+			end
+			e:remove("move_by_original")
+		end)
+	end
+end
+
+return Move

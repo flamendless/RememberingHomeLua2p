@@ -43,7 +43,7 @@ function Lerp:init()
 				on_complete.callback()
 				e:remove("lerp_on_complete")
 			end
-			e:remove("target_position")
+			e:remove("target_color")
 		end)
 	end
 end

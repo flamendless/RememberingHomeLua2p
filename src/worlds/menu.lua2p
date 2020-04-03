@@ -17,6 +17,8 @@ local rad = math.rad
 local sin = math.sin
 local lower = string.lower
 local upper = string.upper
+local gsub = string.gsub
+local insert = table.insert
 
 local Assets = require("assets")
 local Canvas = require("canvas")
@@ -28,6 +30,7 @@ local Keybinds = require("keybinds")
 local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
+local Save = require("save")
 
 local StateMenu = {
 	id = "Menu",
@@ -47,6 +50,7 @@ local Systems = {
 	HoverEffect = require("systems.hover_effect"),
 	Lerp = require("systems.lerp"),
 	Menu = require("systems.menu"),
+	Move = require("systems.move"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
 	Transform = require("systems.transform"),
@@ -58,10 +62,14 @@ local Assemblages = {
 local assets_data = Assets:getData("menu")
 local assets = { images = {}, sources = {}, fonts = {} }
 
-local states = Enum("menu", "play", "settings", "about", "exit")
+local states = Enum("menu", "play", "play2", "settings", "about", "exit")
 local current_state = states.menu
 local options = { "Play", "Settings", "About", "Exit" }
-table.reverse(options)
+local options_sub = { "Continue", "New Game" }
+local is_sub_menu = false
+local is_transition = false
+local ent_options = {}
+local ent_options_sub = {}
 
 local ANGLE_UP = 90
 local ANGLE_DOWN = 270
@@ -77,10 +85,73 @@ end
 
 function StateMenu:on_menu()
 	self.world:emit("allow_cursor", true)
+	self.world:emit("set_to_prev_cursor")
 end
 
 function StateMenu:on_play()
+	is_transition = true
+	is_sub_menu = true
 	self.world:emit("allow_cursor", false)
+	local duration = 1
+	local duration2 = 0.25
+	local tx = 172
+
+	for i, e in ipairs(ent_options) do
+			e:give("target_color", Palette:get_color("white", 0), duration)
+			:give("move_by", vec2:new(tx, 0), duration)
+			:remove("option_key")
+	end
+
+	local next_cursor = 0
+	if Save:exists() then
+		next_cursor = 1
+	else
+		next_cursor = 2
+	end
+
+	for i, e in ipairs(ent_options_sub) do
+			e:give("option_key", i)
+			:give("target_color", Palette:get_color("white", 1), duration2)
+			:give("lerp_on_complete", function()
+				e:remove("hidden")
+				self.world:emit("allow_cursor", true)
+				self.world:emit("set_cursor", next_cursor)
+				is_transition = false
+			end)
+
+			--TODO implement disabled option key for "Continue" if there's no save file
+			if next_cursor == 2 and i == 1 then
+				e:give("option_disabled")
+			end
+	end
+end
+
+function StateMenu:on_menu_from_play2()
+	is_transition = true
+	is_sub_menu = false
+	self.world:emit("allow_cursor", false)
+	local duration = 1
+	local duration2 = 0.25
+	local tx = 172
+
+	for i, e in ipairs(ent_options_sub) do
+			e:remove("option_key")
+			:give("target_color", Palette:get_color("white", 0), duration)
+			:give("move_by", vec2:new(tx, 0), duration)
+			:give("lerp_on_complete", function()
+				e:give("hidden")
+			end)
+	end
+
+	for i, e in ipairs(ent_options) do
+			e:give("option_key", i)
+			:give("target_color", Palette:get_color("white", 1), duration2)
+			:give("lerp_on_complete", function()
+				self:on_menu()
+				is_transition = false
+			end)
+			:give("move_by_original", duration2)
+	end
 end
 
 local current_wm
@@ -179,11 +250,11 @@ function StateMenu:setup_menu()
 		local lstr = lower(str)
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
-		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - ( i * str_h ) - (padding * i) - offset
+		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
 
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.colors.white)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i)
 			:give("on_enter", function()
@@ -192,6 +263,25 @@ function StateMenu:setup_menu()
 				self["on_" .. lstr](self)
 			end)
 			:give("hidden")
+		insert(ent_options, self.entities[id])
+	end
+
+	for i, str in ipairs(options_sub) do
+		local lstr = lower(str)
+		lstr = gsub(lstr, "%s+", "")
+		local str_w = sdf_menu:getWidth(str) * scale
+		local x = self.canvases.bot_canvas.width - str_w - offset
+		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
+
+		local id = "text_sub_" .. lstr
+		self.entities[id] = Concord.entity(self.world)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
+			:give("sdf", scale, scale)
+			:give("on_enter", function()
+				print(lstr)
+			end)
+			:give("hidden")
+		insert(ent_options_sub, self.entities[id])
 	end
 end
 
@@ -442,6 +532,7 @@ function StateMenu:load()
 		self.world:addSystems(Systems.BoundingBox)
 		self.world:addSystems(Systems.HoverEffect)
 		self.world:addSystems(Systems.Transform)
+		self.world:addSystems(Systems.Move)
 		self:setup_menu()
 
 		local ww = love.graphics.getWidth()
@@ -460,14 +551,20 @@ function StateMenu:load()
 				self.entities.subtitle
 					:give("target_color", {1, 1, 1, 1}, duration, delay)
 					:give("lerp_on_complete", function()
-						for i, str in ipairs(options) do
-							local lstr = lower(str)
-							local id = "text_" .. lstr
-							self.entities[id]:remove("hidden")
+						for i, e in ipairs(ent_options) do
+							e:remove("hidden")
 						end
 						self.world:emit("allow_cursor", true)
+						self.world:emit("set_cursor", 1)
+						self.entities.subtitle:remove("anchor")
 					end)
 			end)
+
+		local tx = 172
+		for i, e in ipairs(ent_options_sub) do
+				e:give("target_color", Palette:get_color("white", 0), 0.1)
+				:give("move_by", vec2:new(tx, 0), 0.1)
+		end
 		-- self:setup_about()
 
 		Slab.Initialize()
@@ -527,16 +624,20 @@ function StateMenu:keypressed(key)
 	if not self.is_ready then return end
 	local dt = 0
 	if Keybinds.pressed_ui("down", key) then
-		dt = -1
-	elseif Keybinds.pressed_ui("up", key) then
 		dt = 1
-	elseif Keybinds.pressed_ui("enter", key) then
+	elseif Keybinds.pressed_ui("up", key) then
+		dt = -1
+	elseif Keybinds.pressed_ui("enter", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
 	self.world:emit("update_cursor", dt)
 
-	if current_state ~= states.menu and current_state ~= states.play and Keybinds.pressed_ui("escape", key) then
-		self:MB_return()
+	if Keybinds.pressed_ui("escape", key) then
+		if current_state == states.play and is_sub_menu and not is_transition then
+			self:on_menu_from_play2()
+		elseif current_state ~= states.menu and current_state ~= states.play then
+			self:MB_return()
+		end
 	end
 end
 
