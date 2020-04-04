@@ -1,0 +1,19 @@
+name = "Going Home: Revisited"
+default_targets = ["win32", "appimage"]
+build_directory = "../release"
+love_files = ["./*"]
+
+[windows]
+[windows.exe_metadata]
+CompanyName = "flamendless"
+LegalCopyright = "Copyright of flamendless 2020-2030"
+
+[win32]
+shared_libraries = [
+	"../libs/x86/libcurl.dll"
+]
+
+[linux]
+[linux.desktop_file_metadata]
+Comment="Going Home: Revisited - a game by flamendless"
+Categories="Game;"

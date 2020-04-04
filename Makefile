@@ -23,6 +23,7 @@ DIR_ASSETS = assets
 DIR_MODULES = modules
 
 DIR_TO_REMOVE := _images new_assets soundtracks audio media
+MODULES_EXCLUDE := spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml
 
 FONTS_PATH = scripts/fonts
 FONTS_OUTPUT = scripts/output
@@ -34,6 +35,8 @@ TEXTURE_SIZE = 1024,1024
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
 LPP_HANDLER := handler_dev.lua
 
+RELEASE_VERSION :=
+
 .PHONY: ltags
 
 process: init $(SOURCE_OBJECTS) minimize
@@ -43,7 +46,11 @@ process: init $(SOURCE_OBJECTS) minimize
 ./$(OUTPUT_DIRECTORY)/%.lua: ./${SOURCE}/%.lua2p
 	@echo processing input: $<
 	@echo processing output: $@
-	lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
+	@lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
+
+release:
+	@cd $(OUTPUT_DIRECTORY);
+	@makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
 
 generate-fonts: msdf-fonts convert-fonts copy-fonts
 	@echo generating fonts finished
@@ -74,7 +81,7 @@ init:
 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
 	done
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_MODULES) ]; then \
-		cp -rf $(DIR_MODULES) $(OUTPUT_DIRECTORY)/; \
+		rsync -av --progress $(DIR_MODULES) $(OUTPUT_DIRECTORY) $(foreach var,$(MODULES_EXCLUDE),--exclude $(var)); \
 	else \
 		echo "$(DIR_MODULES) already exists in $(OUTPUT_DIRECTORY)"; \
 	fi
@@ -113,3 +120,5 @@ info:
 	@echo Source----------: $(SOURCE_FILES)
 	@echo Objects---------: $(SOURCE_OBJECTS)
 	@echo AppData---------: $(APPDATA)
+
+test:
