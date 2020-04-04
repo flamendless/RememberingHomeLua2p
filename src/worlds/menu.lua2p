@@ -20,7 +20,7 @@ local upper = string.upper
 local gsub = string.gsub
 local insert = table.insert
 
-local Assets = require("assets")
+local Assets = require("data_assets")
 local Canvas = require("canvas")
 local Dissolve = require("dissolve")
 local Fade = require("fade")

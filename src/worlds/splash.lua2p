@@ -11,7 +11,7 @@ local min = math.min
 local random = love.math.random
 local randomf = Lume.random
 
-local Assets = require("assets")
+local Assets = require("data_assets")
 local Keybinds = require("keybinds")
 local Fade = require("fade")
 local Palette = require("palette")

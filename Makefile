@@ -22,6 +22,8 @@ DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
 DIR_MODULES = modules
 
+DIR_TO_REMOVE := _images new_assets soundtracks audio media
+
 FONTS_PATH = scripts/fonts
 FONTS_OUTPUT = scripts/output
 FONTS_FINAL = scripts/final
@@ -33,7 +35,7 @@ LPP_PATH := ./luapreprocess/preprocess-cl.lua
 
 .PHONY: ltags
 
-process: init $(SOURCE_OBJECTS) ltags
+process: init $(SOURCE_OBJECTS) minimize
 	@echo preprocessing finished
 	love $(OUTPUT_DIRECTORY)
 
@@ -66,7 +68,7 @@ copy-fonts:
 	done
 
 init:
-	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var))
+	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var);)
 	@for x ($(DIRECTORIES_TO_COPY)); do \
 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
 	done
@@ -76,10 +78,13 @@ init:
 		echo "$(DIR_MODULES) already exists in $(OUTPUT_DIRECTORY)"; \
 	fi
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ASSETS) ]; then \
-		cp -rf $(DIR_ASSETS) $(OUTPUT_DIRECTORY)/; \
+		rsync -av --progress $(DIR_ASSETS) $(OUTPUT_DIRECTORY) $(foreach var, $(DIR_TO_REMOVE),--exclude $(var)); \
 	else \
 		echo "$(DIR_ASSETS) already exists in $(OUTPUT_DIRECTORY)"; \
 	fi
+
+minimize:
+	@$(foreach var,$(DIR_TO_REMOVE),rm -rf $(OUTPUT_DIRECTORY)/$(DIR_ASSETS)/$(var);)
 
 clean:
 	@if [ -d $(OUTPUT_DIRECTORY) ]; then rm -rf $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory does not exist"; fi
@@ -102,21 +107,6 @@ clean_logs:
 clean-fonts:
 	@if [ -d $(FONTS_OUTPUT) ]; then rm -rf $(FONTS_OUTPUT); else echo "$(FONTS_OUTPUT) directory does not exist"; fi
 	@if [ -d $(FONTS_FINAL) ]; then rm -rf $(FONTS_FINAL); else echo "$(FONTS_FINAL) directory does not exist"; fi
-
-ltags:
-	@if [ -f ltags ]; then \
-		./ltags -nv $(SOURCE)/**/*.(lua|lua2p); \
-	else \
-		echo "no ltags found"; \
-	fi
-	@echo "Generated tags file"
-
-ltags_all:
-	@if [ -f ltags ]; then \
-		./ltags -nv $(SOURCE)/**/*.(lua|lua2p) $(DIR_MODULES)/**/*.(lua|lua2p); \
-	else \
-		echo "no ltags found"; \
-	fi
 
 info:
 	@echo Source----------: $(SOURCE_FILES)

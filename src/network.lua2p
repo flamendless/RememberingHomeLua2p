@@ -7,6 +7,7 @@ local sub = string.sub
 
 local Network = {}
 
+!if _NETWORK then
 local ssl = require("ssl")
 local socket = require("socket")
 local https = require("ssl.https")
@@ -52,5 +53,7 @@ function Network.show_latest_dialogbox(url)
 		love.system.openURL(url)
 	end
 end
+
+!end
 
 return Network
