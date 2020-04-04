@@ -32,6 +32,7 @@ FONTS = Jamboree DigitalDisco-Thin DigitalDisco Firefly Jamboree Luna Pixeled ti
 TEXTURE_SIZE = 1024,1024
 
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
+LPP_HANDLER := handler_dev.lua
 
 .PHONY: ltags
 
@@ -42,7 +43,7 @@ process: init $(SOURCE_OBJECTS) minimize
 ./$(OUTPUT_DIRECTORY)/%.lua: ./${SOURCE}/%.lua2p
 	@echo processing input: $<
 	@echo processing output: $@
-	lua $(LPP_PATH) --handler=handler.lua --outputpaths $< $@
+	lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
 
 generate-fonts: msdf-fonts convert-fonts copy-fonts
 	@echo generating fonts finished
