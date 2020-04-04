@@ -4,6 +4,10 @@ tags
 temp.lua
 test
 temp.glsl
+scripts/output
 scripts/final
 scripts/fonts
-scripts/output
+assets/new_assets
+love-windows_*
+makelove-build
+release
