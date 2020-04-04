@@ -582,8 +582,8 @@ function StateMenu:load()
 		local wh = love.graphics.getHeight()
 
 		!if _RELEASE then
-		local duration = 2
-		local delay = 0.5
+		local duration = 1
+		local delay = 0.25
 		!else
 		local duration = 0.5
 		local delay = 0.1
