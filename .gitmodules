@@ -40,3 +40,6 @@
 [submodule "modules/sdf"]
 	path = modules/sdf
 	url = https://github.com/flamendless/love-sdf-text.git
+[submodule "modules/https"]
+	path = modules/https
+	url = https://github.com/LPGhatguy/luajit-request.git

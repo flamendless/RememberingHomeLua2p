@@ -4,37 +4,72 @@ local Semver = require("modules.semver.semver")
 local format = string.format
 local match = string.match
 local sub = string.sub
+local gmatch = string.gmatch
+local match = string.match
+local insert = table.insert
 
 local Network = {}
 
-!if _NETWORK then
-local ssl = require("ssl")
-local socket = require("socket")
-local https = require("ssl.https")
+local use_luasec = false
 
+local socket = require("socket")
+local request = require("modules.https.luajit-request")
+
+-- local ssl = require("ssl")
+-- local https = require("ssl.https")
+
+--TODO replace this
 local github_url = "https://github.com/aseprite/aseprite/releases/latest"
 -- local github_url = !(_GITHUB_URL_LATEST)
 
-function Network.check_latest_version(current_semver)
-	local r, c, h, s = https.request({
-		method = "GET",
-		url = github_url,
-	})
-	local str_r = format("Request to: %s", github_url)
-	local str_c = format("Client to: %s", c)
-	local str_s = format("Header to: %s", s)
+local split = function(str)
+	local t = {}
+	for substr in gmatch(str, "([^/]+)") do
+		insert(t, substr)
+	end
+	return t
+end
 
-	Log.info(str_r)
-	Log.info(str_c)
-	Log.info(str_s)
+function Network.get_response()
+	if use_luasec then
+		local r, c, h, s = https.request({
+			method = "GET",
+			url = github_url,
+		})
+
+		return r, c, h, s
+	else
+		local res = request.send("https://github.com/aseprite/aseprite/releases/latest",
+		{
+			follow_redirects = false
+		})
+
+		return res.code, res.headers, res.headers.status
+	end
+end
+
+function Network.check_latest_version(current_semver)
+	local c, h, s = Network.get_response()
+	Log.info("Request to: " .. github_url)
+	Log.info("Client to: " .. c)
+	Log.info("Header to: " .. s)
 
 	if c == 301 or c == 302 then
 		local new_url = h.location
-		local parsed_url = socket.url.parse(new_url)
-		local path = socket.url.parse_path(parsed_url.path)
-		local latest_ver = path[#path]
-		latest_ver = sub(latest_ver, 2)
+		local latest_ver
+
+		if use_luasec then
+			local parsed_url = socket.url.parse(new_url)
+			local path = socket.url.parse_path(parsed_url.path)
+			latest_ver = path[#path]
+			latest_ver = sub(latest_ver, 2)
+		else
+			local parsed_url = match(new_url, "/([^/]+)$")
+			latest_ver = sub(parsed_url, 2)
+		end
+
 		local latest_semver = Semver(latest_ver)
+		Log.info("Current version: ", current_semver)
 		Log.info("Latest version: ", latest_ver)
 
 		if latest_semver > current_semver then
@@ -53,7 +88,5 @@ function Network.show_latest_dialogbox(url)
 		love.system.openURL(url)
 	end
 end
-
-!end
 
 return Network
