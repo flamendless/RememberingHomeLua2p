@@ -1,12 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("animation_stop", function(c, event)
-	!if _ASSERT then
-	assert(event == "pauseAtEnd" or event == "pauseAtStart", "Passed argument must be either be 'pauseAtEnd' or 'pauseAtStart'")
-	!end
-	c.event = event
-end)
-
 Concord.component("animation_on_complete", function(c, callback, event)
 	!if _ASSERT then
 	assert(type(callback) == "function", "Passed argument must be of type 'function'")
