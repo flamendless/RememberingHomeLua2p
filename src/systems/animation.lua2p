@@ -5,6 +5,7 @@ local min = math.min
 
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
+	pool_pause = {"animation", "animation_data", "animation_pause_at"}
 })
 
 function Animation:init()
@@ -36,13 +37,38 @@ function Animation:init()
 			end
 		else
 			on_end = function()
-				animation.is_playing = false
-				animation.animation:pauseAtEnd()
+				if animation.stop_on_last then
+					animation.is_playing = false
+					animation.animation:pauseAtEnd()
+				end
 			end
 		end
 
 		animation.grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.delay, on_end)
+		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.durations or data.delay, on_end)
+	end
+
+	self.pool_pause.onEntityAdded = function(pool, e)
+		local data = e:get("animation_data")
+		local animation = e:get("animation")
+		local pause_at = e:get("animation_pause_at")
+
+		if type(pause_at.at_frame) == "string" then
+			if pause_at.at_frame == "first" then
+				animation.animation:pauseAtStart()
+			elseif pause_at.at_frame == "last" then
+				animation.animation:pauseAtEnd()
+			end
+		elseif type(pause_at.at_frame) == "number" then
+			assert(pause_at.at_frame <= data.n_frames, "Passed 'at_frames' must not exceed number of total frames in 'animation_data'")
+			animation.animation:gotoFrame(pause_at.at_frame)
+			animation.animation:pause()
+		end
+	end
+
+	self.pool_pause.onEntityRemoved = function(pool, e)
+		local animation = e:get("animation")
+		animation.animation:resume()
 	end
 end
 
@@ -50,6 +76,12 @@ function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
 		local animation = e:get("animation")
 		local stop = e:get("animation_stop")
+		local dt_multiplier = e:get("dt_multiplier")
+
+		if dt_multiplier then
+			dt = dt * dt_multiplier.mul
+		end
+
 		if animation.is_playing then
 			if stop then
 				animation.is_playing = false
@@ -71,23 +103,27 @@ function Animation:draw()
 		local pos = e:get("position")
 		local color = e:get("color")
 		local transform = e:get("transform")
-		if color then
-			love.graphics.setColor(color.color)
-		end
+		local hidden = e:get("hidden")
 
-		local rotation, sx, sy, ox, oy
-		if transform then
-			rotation = transform.rotation
-			sx = transform.sx
-			sy = transform.sy
-			if transform.ox == 0.5 then
-				ox = data.frame_width/2
+		if not hidden then
+			if color then
+				love.graphics.setColor(color.color)
 			end
-			if transform.oy == 0.5 then
-				oy = data.frame_height/2
+
+			local rotation, sx, sy, ox, oy
+			if transform then
+				rotation = transform.rotation
+				sx = transform.sx
+				sy = transform.sy
+				if transform.ox == 0.5 then
+					ox = data.frame_width/2
+				end
+				if transform.oy == 0.5 then
+					oy = data.frame_height/2
+				end
 			end
+			animation.animation:draw(data.spritesheet, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		end
-		animation.animation:draw(data.spritesheet, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 	end
 end
 

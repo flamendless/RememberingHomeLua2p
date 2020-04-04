@@ -17,7 +17,10 @@ local rad = math.rad
 local sin = math.sin
 local lower = string.lower
 local upper = string.upper
+local gsub = string.gsub
+local insert = table.insert
 
+local Assets = require("data_assets")
 local Canvas = require("canvas")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
@@ -27,6 +30,7 @@ local Keybinds = require("keybinds")
 local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
+local Save = require("save")
 
 local StateMenu = {
 	id = "Menu",
@@ -40,10 +44,13 @@ local StateMenu = {
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
+	Animation = require("systems.animation"),
 	BoundingBox = require("systems.bounding_box"),
 	Click = require("systems.click"),
 	HoverEffect = require("systems.hover_effect"),
+	Lerp = require("systems.lerp"),
 	Menu = require("systems.menu"),
+	Move = require("systems.move"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
 	Transform = require("systems.transform"),
@@ -52,26 +59,17 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local assets_data = {
-	image = {
-		{ "bg_title", "assets/images/menu/title.png" },
-		{ "twitter", "assets/images/menu/twitter.png" },
-		{ "website", "assets/images/menu/website.png" },
-		{ "mail", "assets/images/menu/mail.png" },
-		{ "flowfield", "assets/textures/perlin.png" },
-	},
-	font = {
-		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
-		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
-		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
-	}
-}
+local assets_data = Assets:getData("menu")
 local assets = { images = {}, sources = {}, fonts = {} }
 
 local states = Enum("menu", "play", "settings", "about", "exit")
 local current_state = states.menu
 local options = { "Play", "Settings", "About", "Exit" }
-table.reverse(options)
+local options_sub = { "Continue", "New Game" }
+local is_sub_menu = false
+local is_transition = false
+local ent_options = {}
+local ent_options_sub = {}
 
 local ANGLE_UP = 90
 local ANGLE_DOWN = 270
@@ -87,34 +85,114 @@ end
 
 function StateMenu:on_menu()
 	self.world:emit("allow_cursor", true)
+	self.world:emit("set_to_prev_cursor")
+end
+
+local duration1 = 1
+local duration2 = 0.25
+local tx = 172
+function StateMenu:show_main_menu()
+	for i, e in ipairs(ent_options) do
+			e:give("option_key", i)
+			:give("target_color", Palette:get_color("white", 1), duration2)
+			:give("lerp_on_complete", function()
+				self:on_menu()
+				is_transition = false
+			end)
+			:give("move_by_original", duration2)
+	end
+end
+
+function StateMenu:hide_main_menu()
+	for i, e in ipairs(ent_options) do
+			e:give("target_color", Palette:get_color("white", 0), duration1)
+			:give("move_by", vec2:new(tx, 0), duration1)
+			:remove("option_key")
+	end
+end
+
+function StateMenu:show_sub_menu()
+	local next_cursor = 0
+	if Save:exists() then
+		next_cursor = 1
+	else
+		next_cursor = 2
+	end
+
+	for i, e in ipairs(ent_options_sub) do
+			e:give("option_key", i)
+			:give("target_color", Palette:get_color("white", 1), duration2)
+			:give("lerp_on_complete", function()
+				e:remove("hidden")
+				self.world:emit("allow_cursor", true)
+				self.world:emit("set_cursor", next_cursor)
+				is_transition = false
+			end)
+			if next_cursor == 2 and i == 1 then
+				e:give("option_disabled")
+			end
+	end
+end
+
+function StateMenu:hide_sub_menu()
+	for i, e in ipairs(ent_options_sub) do
+			e:remove("option_key")
+			:give("target_color", Palette:get_color("white", 0), duration1)
+			:give("move_by", vec2:new(tx, 0), duration1)
+			:give("lerp_on_complete", function()
+				e:give("hidden")
+			end)
+	end
+end
+
+function StateMenu:turn_off_lamp()
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+	local duration = 2
+	local timer = 1.75
+	--TODO turn off BGM
+
+	self:hide_sub_menu()
+	self.entities.desk:give("hidden")
+	self.entities.title
+		:give("target_color", Palette:get_color("white", 0), duration)
+	self.entities.subtitle
+		:give("target_color", Palette:get_color("white", 0), duration)
+
+	self.entities.desk_fast = Concord.entity(self.world)
+		:assemble(Assemblages.Common.animated_sprite,
+			{
+				spritesheet = assets.images.sheet_desk,
+				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
+				delay = 0.001,
+				rows_count = 3,
+				columns_count = 3,
+				n_frames = 7
+			}, vec2:new(ww/2, wh/2), false)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("auto_scale", ww, wh, true)
+		:give("color", {1, 1, 1, 1})
+
+	Timer.after(timer, function()
+		--TODO add sudden static sound
+		self.entities.desk_fast:give("hidden")
+	end)
 end
 
 function StateMenu:on_play()
+	is_transition = true
+	is_sub_menu = true
 	self.world:emit("allow_cursor", false)
-	local ww, wh = love.graphics.getDimensions()
-	--TODO set this to the door's size and position
-	local tpos = vec2:new(ww/2, wh/2)
-	local tw = 128
-	local th = 64
+	self:hide_main_menu()
+	self:show_sub_menu()
+end
 
-	local target_scale = min(ww/tw, wh/th)
-	local cam_scale = self.camera:getScale()
-	local x, y = self.camera:getPosition()
-	local c = { x = x, y = y, scale = cam_scale }
-	local duration = 3
+function StateMenu:on_newgame()
+	self:turn_off_lamp()
+end
 
-	Flux.to(c, duration, {
-		x = tpos.x, y = tpos.y,
-		scale = target_scale
-	}):onupdate(function()
-		self.camera:setPosition(c.x, c.y)
-		self.camera:setScale(c.scale)
-	end):oncomplete(function()
-		self.dissolve_noise.flag_process = true
-		self.dissolve_noise.on_complete = function()
-			G_state_switch("Intro")
-		end
-	end)
+function StateMenu:on_continue()
+
 end
 
 local current_wm
@@ -143,11 +221,10 @@ function StateMenu:on_exit()
 	!if _PLATFORM == "desktop" then
 		local btn = love.window.showMessageBox("Alert", "Are you sure you want to exit the game?", { "Exit", "Cancel", escapebutton = 2 })
 		if btn == 1 then
+			self:hide_main_menu()
 			self.dissolve_ff.flag_process = true
 			self.dissolve_ff.on_complete = function()
-				Timer.after(1, function()
-					love.event.quit()
-				end)
+				love.event.quit()
 			end
 		elseif btn == 2 then
 			current_state = states.menu
@@ -160,12 +237,47 @@ end
 function StateMenu:setup_menu()
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
-	local main_bg = assets.images.bg_title
-	local scale = min(ww/main_bg:getWidth(), wh/main_bg:getHeight())
-	self.entities.main_bg = Concord.entity(self.world)
-		:give("position", vec2:new(ww/2, wh/2))
-		:give("sprite", main_bg)
-		:give("transform", 0, scale, scale, main_bg:getWidth()/2, main_bg:getHeight()/2)
+	local bg_door = assets.images.bg_door
+	local title = assets.images.title
+	local subtitle = assets.images.subtitle
+
+	local scale = min(ww/bg_door:getWidth(), wh/bg_door:getHeight())
+	local scale_title = min((bg_door:getWidth() * scale)/title:getWidth(), (bg_door:getHeight() * scale)/title:getHeight())
+	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
+
+	self.entities.bg_door = Concord.entity(self.world)
+		:give("position", vec2:new(ww * 1.5, wh/2))
+		:give("sprite", bg_door)
+		:give("transform", 0, scale, scale, bg_door:getWidth()/2, bg_door:getHeight()/2)
+
+	self.entities.desk = Concord.entity(self.world)
+		:assemble(Assemblages.Common.animated_sprite,
+			{
+				spritesheet = assets.images.sheet_desk,
+				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
+				durations = { 1, 0.1, 1, 0.1, 0.1, 0.1, 1  },
+				rows_count = 3,
+				columns_count = 3,
+				n_frames = 7
+			},
+			vec2:new(ww/2, wh/2), false)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("auto_scale", ww, wh, true)
+		:give("color", {1, 1, 1, 1})
+
+	self.entities.title = Concord.entity(self.world)
+		-- :give("position", vec2:new(ww * 0.25, wh/2 - 36))
+		:give("position", vec2:new(ww * 0.25, -wh/2))
+		:give("sprite", title)
+		:give("transform", 0, scale_title, scale_title, title:getWidth()/2, title:getHeight()/2)
+		:give("color", {1, 1, 1, 0.4})
+
+	self.entities.subtitle = Concord.entity(self.world)
+		:give("position", vec2:new(ww * 0.25, wh * 1.5))
+		:give("anchor", self.entities.title, "center", "bottom")
+		:give("sprite", subtitle)
+		:give("color", {1, 1, 1, 0.4})
+		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
 	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
 	local font_menu = assets.fonts.menu_default
@@ -179,11 +291,11 @@ function StateMenu:setup_menu()
 		local lstr = lower(str)
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
-		local y = self.canvases.bot_canvas.y + self.canvases.bot_canvas.height - ( i * str_h ) - (padding * i) - offset
+		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
 
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.colors.white)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i)
 			:give("on_enter", function()
@@ -191,6 +303,26 @@ function StateMenu:setup_menu()
 				Log.info("Switched Menu State to: ", current_state)
 				self["on_" .. lstr](self)
 			end)
+			:give("hidden")
+		insert(ent_options, self.entities[id])
+	end
+
+	for i, str in ipairs(options_sub) do
+		local lstr = lower(str)
+		lstr = gsub(lstr, "%s+", "")
+		local str_w = sdf_menu:getWidth(str) * scale
+		local x = self.canvases.bot_canvas.width - str_w - offset
+		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
+
+		local id = "text_sub_" .. lstr
+		self.entities[id] = Concord.entity(self.world)
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
+			:give("sdf", scale, scale)
+			:give("on_enter", function()
+				self["on_" .. lstr](self)
+			end)
+			:give("hidden")
+		insert(ent_options_sub, self.entities[id])
 	end
 end
 
@@ -208,7 +340,11 @@ function StateMenu:settings_desktop(dt)
 	local width = love.graphics.getWidth() - (x * 2)
 	local height = love.graphics.getHeight() - (y * 2)
 	Slab.Update(dt)
-	Slab.BeginWindow("Settings", { X = x, Y = y, W = width, H = height, AllowMove = false, AllowResize = false, AutoSizeWindow = false, })
+	Slab.BeginWindow("Settings", {
+		X = x, Y = y, W = width, H = height,
+		AllowMove = false, AllowResize = false, AutoSizeWindow = false,
+		BgColor = Palette.windows.settings
+	})
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
 	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
@@ -271,6 +407,13 @@ function StateMenu:settings_desktop(dt)
 		end
 	Slab.EndLayout()
 	Slab.Separator()
+
+	Slab.BeginLayout("GeneralOptionsLayout", { AlignX = "center", AlignY = "bottom", Columns = 1 })
+		Slab.SetLayoutColumn(2)
+		if Slab.Button("Return to Main Menu") then
+			self:keypressed("escape")
+		end
+	Slab.EndLayout()
 
 	if show_message_box_kb_reset then
 		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the keybindings to default?", { Buttons = { "Confirm", "Cancel" } })
@@ -408,6 +551,8 @@ function StateMenu:load()
 	Log.info("State Load: ", self.id)
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
+		--TODO play BGM
+
 		self.is_ready = true
 		local ww = love.graphics.getWidth()
 		local wh = love.graphics.getHeight()
@@ -419,12 +564,10 @@ function StateMenu:load()
 		self.mb_main = MotionBlur:new(self.canvas_main)
 
 		local img_ff = Image.resize_image(assets.images.flowfield)
-		self.dissolve_ff = Dissolve:new(img_ff, 3)
+		self.dissolve_ff = Dissolve:new(img_ff, 2)
 
-		local img_noise_low = Image.generate_noise(ww/8, wh/8)
-		local img_noise_scaled = Image.resize_image(img_noise_low)
-		self.dissolve_noise = Dissolve:new(img_noise_scaled, 3)
-
+		self.world:addSystem(Systems.Animation)
+		self.world:addSystems(Systems.Lerp)
 		self.world:addSystems(Systems.RenderSprite)
 		self.world:addSystems(Systems.RenderText)
 		self.world:addSystems(Systems.Menu)
@@ -432,8 +575,34 @@ function StateMenu:load()
 		self.world:addSystems(Systems.BoundingBox)
 		self.world:addSystems(Systems.HoverEffect)
 		self.world:addSystems(Systems.Transform)
+		self.world:addSystems(Systems.Move)
 		self:setup_menu()
-		-- self:setup_about()
+
+		local ww = love.graphics.getWidth()
+		local wh = love.graphics.getHeight()
+
+		!if _RELEASE then
+		local duration = 1
+		local delay = 0.25
+		!else
+		local duration = 0.5
+		local delay = 0.1
+		!end
+		self.entities.title
+			:give("target_position", vec2:new(ww * 0.25, wh/2 - 32), duration)
+			:give("lerp_on_complete", function()
+				self.entities.subtitle
+					:give("target_color", {1, 1, 1, 1}, duration, delay)
+					:give("lerp_on_complete", function()
+						for i, e in ipairs(ent_options) do
+							e:remove("hidden")
+						end
+						self.world:emit("allow_cursor", true)
+						self.world:emit("set_cursor", 1)
+						self.entities.subtitle:remove("anchor")
+					end)
+			end)
+		self:hide_sub_menu()
 
 		Slab.Initialize()
 	end)
@@ -447,8 +616,6 @@ function StateMenu:update(dt)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
 		self:setup_settings(dt)
-	elseif current_state == states.play then
-		self.dissolve_noise:update(dt)
 	elseif current_state == states.exit then
 		self.dissolve_ff:update(dt)
 	end
@@ -458,7 +625,10 @@ function StateMenu:draw()
 	if not self.is_ready then return end
 	love.graphics.setColor(1, 1, 1, 1)
 
-	if current_state == states.menu or current_state == states.settings or current_state == states.about then
+	if current_state == states.menu or
+		current_state == states.settings or
+		current_state == states.about or
+		current_state == states.play then
 		self.canvas_main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
@@ -471,12 +641,6 @@ function StateMenu:draw()
 		end)
 		self.canvas_main:detach()
 		self.mb_main:post_process_draw()
-	elseif current_state == states.play then
-		self.dissolve_noise:draw(function()
-			self.camera:draw(function(l, t, w, h)
-				self.world:emit("draw")
-			end)
-		end)
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
 			self.world:emit("draw")
@@ -496,28 +660,27 @@ end
 function StateMenu:keypressed(key)
 	if not self.is_ready then return end
 	local dt = 0
+	--TODO add keypress sounds (up = down, enter, disabled, escape)
 	if Keybinds.pressed_ui("down", key) then
-		dt = -1
-	elseif Keybinds.pressed_ui("up", key) then
 		dt = 1
-	elseif Keybinds.pressed_ui("enter", key) then
+	elseif Keybinds.pressed_ui("up", key) then
+		dt = -1
+	elseif Keybinds.pressed_ui("enter", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
 	self.world:emit("update_cursor", dt)
 
-	if current_state ~= states.menu and current_state ~= states.play and Keybinds.pressed_ui("escape", key) then
-		self:MB_return()
+	if Keybinds.pressed_ui("escape", key) then
+		if current_state == states.play and is_sub_menu and not is_transition then
+				is_transition = true
+				is_sub_menu = false
+				self.world:emit("allow_cursor", false)
+				self:show_main_menu()
+				self:hide_sub_menu()
+		elseif current_state ~= states.menu and current_state ~= states.play then
+			self:MB_return()
+		end
 	end
-
-	!if not _RELEASE then
-	if key == "o" then
-		local s = self.camera:getScale()
-		self.camera:setScale(s - 0.5)
-	elseif key == "p" then
-		local s = self.camera:getScale()
-		self.camera:setScale(s + 0.5)
-	end
-	!end
 end
 
 function StateMenu:mousepressed(mx, my, mb)
@@ -526,6 +689,7 @@ function StateMenu:mousepressed(mx, my, mb)
 end
 
 function StateMenu:MB_move(tx, ty, angle)
+	--TODO add motion blur sound
 	self.mb_main.flag_process = true
 	local l, t, w, h = self.camera:getWorld()
 	local cx, cy = self.camera:getPosition()
@@ -554,6 +718,7 @@ function StateMenu:MB_move(tx, ty, angle)
 end
 
 function StateMenu:MB_return()
+	--TODO add motion blur sound
 	self.mb_main.flag_process = true
 	local l, t, w, h = self.camera:getWorld()
 	local cx, cy = self.camera:getPosition()

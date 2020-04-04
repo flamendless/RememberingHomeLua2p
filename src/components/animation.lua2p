@@ -2,8 +2,31 @@ local Concord = require("modules.concord.concord")
 
 local floor = math.floor
 
-Concord.component("animation", function(c)
+Concord.component("animation", function(c, stop_on_last)
+	!if _ASSERT then
+	if stop_on_last then
+		assert(type(stop_on_last) == "boolean", "Passed argument must be of type 'boolean'")
+	end
+	!end
 	c.grid = nil
 	c.animation = nil
 	c.is_playing = true
+	c.stop_on_last = (stop_on_last == true) and true or false
+end)
+
+Concord.component("animation_pause_at", function(c, at_frame)
+	!if _ASSERT then
+	assert(type(at_frame) == "number" or type(at_frame) == "string", "Passed argument must be of type 'string' or 'number'")
+	if type(at_frame) == "string" then
+		assert(at_frame == "first" or at_frame == "last", "Passed argument must be either be 'first' or 'last'")
+	end
+	!end
+	c.at_frame = at_frame
+end)
+
+Concord.component("animation_stop", function(c, event)
+	!if _ASSERT then
+	assert(event == "pauseAtEnd" or event == "pauseAtStart", "Passed argument must be either be 'pauseAtEnd' or 'pauseAtStart'")
+	!end
+	c.event = event
 end)

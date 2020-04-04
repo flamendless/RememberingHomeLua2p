@@ -1,0 +1,21 @@
+local Concord = require("modules.concord.concord")
+local Type = require("modules.concord.concord.type")
+
+Concord.component("anchor", function(c, entity, anchor_x, anchor_y, padding_x, padding_y)
+	!if _ASSERT then
+	assert(Type.isEntity(entity) == true, "Passed argument must be of type 'Entity'")
+	assert(type(anchor_x) == "string", "Passed argument must be of type 'string'")
+	assert(type(anchor_y) == "string", "Passed argument must be of type 'string'")
+	if padding_x then
+	assert(type(padding_x) == "number", "Passed argument must be of type 'number'")
+	end
+	if padding_y then
+	assert(type(padding_y) == "number", "Passed argument must be of type 'number'")
+	end
+	!end
+	c.entity = entity
+	c.anchor_x = anchor_x
+	c.anchor_y = anchor_y
+	c.padding_x = padding_x
+	c.padding_y = padding_y
+end)

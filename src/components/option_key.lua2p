@@ -6,3 +6,6 @@ Concord.component("option_key", function(c, id)
 	!end
 	c.id = id
 end)
+
+Concord.component("option_disabled", function(c)
+end)

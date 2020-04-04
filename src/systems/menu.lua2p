@@ -1,19 +1,23 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
-local Utils = require("utils")
+local Palette = require("palette")
 
 local min = math.min
 local max = math.max
+local insert = table.insert
+local remove = table.remove
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "position", "text", "on_enter"}
+	pool = {"option_key", "color", "position", "text", "on_enter"},
+	pool_hole = {"option_key", "option_disabled"}
 })
 
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
-local color_red = { 1, 0, 0, 1 }
+local color_red = Palette:get_color("red", 1)
+local color_disabled = Palette:get_color("disabled", 1)
 
 local color_to_red = function(color)
 	Flux.to(color.color, dur_in, {
@@ -33,38 +37,98 @@ local color_to_white = function(color)
 	})
 end
 
+local color_to_disabled = function(color)
+	Flux.to(color.color, dur_out, {
+		[1] = color_disabled[1],
+		[2] = color_disabled[2],
+		[3] = color_disabled[3],
+		[4] = color_disabled[4]
+	})
+end
+
 function Menu:init()
 	self.cursor = 0
+	self.prev_cursor = 0
 	self.length_options = 0
+	self.keys = {}
+	self.holes = {}
 	self.flags = {
-		allow_cursor = true,
+		allow_cursor = false,
 	}
 
 	self.pool.onEntityAdded = function(pool, e)
 		self.length_options = self.length_options + 1
+		local option_key = e:get("option_key")
+		if not e:has("option_disabled") then
+			insert(self.keys, option_key.id)
+		end
+	end
+
+	self.pool_hole.onEntityAdded = function(pool, e)
+		local option_key = e:get("option_key")
+		insert(self.holes, option_key.id)
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		self.length_options = self.length_options - 1
+		self.cursor = 0
+
+		-- local option_key = e:get("option_key")
+		-- for i = #self.keys, 1, -1 do
+		-- 	if self.keys[i] == option_key.id then
+		-- 		remove(self.keys, i)
+		-- 		break
+		-- 	end
+		-- end
 	end
 end
 
 function Menu:allow_cursor(flag)
+	!if _ASSERT then
+	assert(type(flag) == "boolean", "Passed argument must be of type 'boolean'")
+	!end
 	self.flags.allow_cursor = flag
+end
+
+function Menu:set_cursor(cursor)
+	!if _ASSERT then
+	assert(type(cursor) == "number", "Passed argument must be of type 'number'")
+	!end
+	self.cursor = cursor
+	self:update_cursor_color()
+end
+
+function Menu:set_to_prev_cursor()
+	self.cursor = self.prev_cursor
+	self:update_cursor_color()
 end
 
 function Menu:update_cursor(dt)
 	if dt == 0 then return end
 	if not self.flags.allow_cursor then return end
-	self.cursor = self.cursor + dt
-	if self.cursor > self.length_options then
-		self.cursor = 1
-	elseif self.cursor < 1 then
-		self.cursor = self.length_options
+
+	-- self.cursor = self.cursor + dt
+	if dt > 0 then
+		self.cursor = self.keys[self.cursor + 1] or self.keys[1]
+	elseif dt < 0 then
+		self.cursor = self.keys[self.cursor - 1] or self.keys[#self.keys]
 	end
 
+	self:update_cursor_color()
+end
+
+function Menu:update_cursor_color()
 	for _, e in ipairs(self.pool) do
 		local option_key = e:get("option_key")
 		local pos = e:get("position")
 		local color = e:get("color")
+		local disabled = e:get("option_disabled")
 
-		if self.cursor == option_key.id then
+		if disabled then
+			color_to_disabled(color)
+		end
+
+		if self.cursor == option_key.id and not disabled then
 			color_to_red(color)
 			Flux.to(pos.pos, dur_in, {
 				x = pos.original_pos.x - offset_x
@@ -87,6 +151,7 @@ function Menu:enter_option()
 		local callback = e:get("on_enter")
 
 		if option_key.id == self.cursor then
+			self.prev_cursor = option_key.id
 			callback.callback()
 			break
 		end

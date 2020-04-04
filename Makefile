@@ -22,6 +22,9 @@ DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
 DIR_MODULES = modules
 
+DIR_TO_REMOVE := _images new_assets soundtracks audio media
+MODULES_EXCLUDE := spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml
+
 FONTS_PATH = scripts/fonts
 FONTS_OUTPUT = scripts/output
 FONTS_FINAL = scripts/final
@@ -30,17 +33,24 @@ FONTS = Jamboree DigitalDisco-Thin DigitalDisco Firefly Jamboree Luna Pixeled ti
 TEXTURE_SIZE = 1024,1024
 
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
+LPP_HANDLER := handler_dev.lua
+
+RELEASE_VERSION :=
 
 .PHONY: ltags
 
-process: init $(SOURCE_OBJECTS) ltags
+process: init $(SOURCE_OBJECTS) minimize
 	@echo preprocessing finished
 	love $(OUTPUT_DIRECTORY)
 
 ./$(OUTPUT_DIRECTORY)/%.lua: ./${SOURCE}/%.lua2p
 	@echo processing input: $<
 	@echo processing output: $@
-	lua $(LPP_PATH) --handler=handler.lua --outputpaths $< $@
+	@lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
+
+release:
+	@cd $(OUTPUT_DIRECTORY);
+	@makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
 
 generate-fonts: msdf-fonts convert-fonts copy-fonts
 	@echo generating fonts finished
@@ -66,20 +76,23 @@ copy-fonts:
 	done
 
 init:
-	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var))
+	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY)/$(var);)
 	@for x ($(DIRECTORIES_TO_COPY)); do \
 		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY)/; \
 	done
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_MODULES) ]; then \
-		cp -rf $(DIR_MODULES) $(OUTPUT_DIRECTORY)/; \
+		rsync -av --progress $(DIR_MODULES) $(OUTPUT_DIRECTORY) $(foreach var,$(MODULES_EXCLUDE),--exclude $(var)); \
 	else \
 		echo "$(DIR_MODULES) already exists in $(OUTPUT_DIRECTORY)"; \
 	fi
 	@if [ ! -d $(OUTPUT_DIRECTORY)/$(DIR_ASSETS) ]; then \
-		cp -rf $(DIR_ASSETS) $(OUTPUT_DIRECTORY)/; \
+		rsync -av --progress $(DIR_ASSETS) $(OUTPUT_DIRECTORY) $(foreach var, $(DIR_TO_REMOVE),--exclude $(var)); \
 	else \
 		echo "$(DIR_ASSETS) already exists in $(OUTPUT_DIRECTORY)"; \
 	fi
+
+minimize:
+	@$(foreach var,$(DIR_TO_REMOVE),rm -rf $(OUTPUT_DIRECTORY)/$(DIR_ASSETS)/$(var);)
 
 clean:
 	@if [ -d $(OUTPUT_DIRECTORY) ]; then rm -rf $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory does not exist"; fi
@@ -103,22 +116,9 @@ clean-fonts:
 	@if [ -d $(FONTS_OUTPUT) ]; then rm -rf $(FONTS_OUTPUT); else echo "$(FONTS_OUTPUT) directory does not exist"; fi
 	@if [ -d $(FONTS_FINAL) ]; then rm -rf $(FONTS_FINAL); else echo "$(FONTS_FINAL) directory does not exist"; fi
 
-ltags:
-	@if [ -f ltags ]; then \
-		./ltags -nv $(SOURCE)/**/*.(lua|lua2p); \
-	else \
-		echo "no ltags found"; \
-	fi
-	@echo "Generated tags file"
-
-ltags_all:
-	@if [ -f ltags ]; then \
-		./ltags -nv $(SOURCE)/**/*.(lua|lua2p) $(DIR_MODULES)/**/*.(lua|lua2p); \
-	else \
-		echo "no ltags found"; \
-	fi
-
 info:
 	@echo Source----------: $(SOURCE_FILES)
 	@echo Objects---------: $(SOURCE_OBJECTS)
 	@echo AppData---------: $(APPDATA)
+
+test:

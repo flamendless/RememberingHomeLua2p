@@ -1,0 +1,9 @@
+local Save = {}
+
+local save_filename = "save_file.lua"
+
+function Save:exists()
+	return love.filesystem.getInfo(save_filename)
+end
+
+return Save

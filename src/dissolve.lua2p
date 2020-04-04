@@ -39,11 +39,11 @@ function Dissolve:update(dt)
 		local n = self.kind + smootherstep(max(0, min(self.time/self.duration, 1)))
 		self.shader_code:send("time", abs(n))
 		if self.time > self.duration then
-			self.flag_process = false
 			if self.on_complete then
 				self.on_complete()
 				self.on_complete = nil
 			end
+			self.flag_process = false
 		end
 	end
 end
