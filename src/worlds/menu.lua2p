@@ -244,6 +244,7 @@ function StateMenu:setup_menu()
 	local scale = min(ww/bg_door:getWidth(), wh/bg_door:getHeight())
 	local scale_title = min((bg_door:getWidth() * scale)/title:getWidth(), (bg_door:getHeight() * scale)/title:getHeight())
 	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
+	scale_subtitle = scale_subtitle * 0.75
 
 	self.entities.bg_door = Concord.entity(self.world)
 		:give("position", vec2:new(ww * 1.5, wh/2))
@@ -266,8 +267,7 @@ function StateMenu:setup_menu()
 		:give("color", {1, 1, 1, 1})
 
 	self.entities.title = Concord.entity(self.world)
-		-- :give("position", vec2:new(ww * 0.25, wh/2 - 36))
-		:give("position", vec2:new(ww * 0.25, -wh/2))
+		:give("position", vec2:new(ww * 0.25, wh/2 - 36))
 		:give("sprite", title)
 		:give("transform", 0, scale_title, scale_title, title:getWidth()/2, title:getHeight()/2)
 		:give("color", {1, 1, 1, 0.4})
@@ -303,7 +303,6 @@ function StateMenu:setup_menu()
 				Log.info("Switched Menu State to: ", current_state)
 				self["on_" .. lstr](self)
 			end)
-			:give("hidden")
 		insert(ent_options, self.entities[id])
 	end
 
@@ -578,31 +577,13 @@ function StateMenu:load()
 		self.world:addSystems(Systems.Move)
 		self:setup_menu()
 
-		local ww = love.graphics.getWidth()
-		local wh = love.graphics.getHeight()
-
-		!if _RELEASE then
-		local duration = 1
-		local delay = 0.25
-		!else
-		local duration = 0.5
-		local delay = 0.1
-		!end
-		self.entities.title
-			:give("target_position", vec2:new(ww * 0.25, wh/2 - 32), duration)
-			:give("lerp_on_complete", function()
-				self.entities.subtitle
-					:give("target_color", {1, 1, 1, 1}, duration, delay)
-					:give("lerp_on_complete", function()
-						for i, e in ipairs(ent_options) do
-							e:remove("hidden")
-						end
-						self.world:emit("allow_cursor", true)
-						self.world:emit("set_cursor", 1)
-						self.entities.subtitle:remove("anchor")
-					end)
-			end)
-		self:hide_sub_menu()
+		Fade.set_color({0, 0, 0, 1})
+		Fade.fade_in(function()
+			self.world:emit("allow_cursor", true)
+			self.world:emit("set_cursor", 1)
+			self.entities.subtitle:remove("anchor")
+			self:hide_sub_menu()
+		end, 3, 1)
 
 		Slab.Initialize()
 	end)
@@ -638,6 +619,7 @@ function StateMenu:draw()
 				Slab.Draw()
 				love.graphics.pop()
 			end
+			Fade.draw()
 		end)
 		self.canvas_main:detach()
 		self.mb_main:post_process_draw()

@@ -167,8 +167,7 @@ function StateSplash:draw()
 		self.world:emit("draw")
 		self.world:emit("effect_draw")
 	end
-	love.graphics.setColor(Fade.getColor())
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+	Fade.draw()
 end
 
 function StateSplash:keypressed(key)
