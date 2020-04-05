@@ -21,6 +21,7 @@ _GITHUB_URL_RELEASE = ""
 
 _LOG_OUTPUT = "log_output.txt"
 _LOG_INFO = "info.txt"
+_SAVE_FILENAME = "save_file.lua"
 
 _URL_TWITTER = "https://twitter.com/@flamendless"
 _URL_WEBSITE = "https://flamendless.github.io/goinghomerevisited"

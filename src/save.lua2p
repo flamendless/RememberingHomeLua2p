@@ -1,6 +1,6 @@
 local Save = {}
 
-local save_filename = "save_file.lua"
+local save_filename = !(_SAVE_FILENAME)
 
 function Save:exists()
 	return love.filesystem.getInfo(save_filename)
