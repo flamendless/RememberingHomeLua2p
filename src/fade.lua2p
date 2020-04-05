@@ -2,24 +2,51 @@ local Flux = require("modules.flux.flux")
 
 local Fade = {}
 
-local duration = 1
-local delay = 0.5
-local color = { 0, 0, 0, 0 }
+local f_duration = 1
+local f_delay = 0.5
+local f_color = { 0, 0, 0, 0 }
 
 function Fade.fade_out(on_complete)
-	local f = Flux.to(color, duration, { [4] = 1 }):delay(delay)
+	!if _ASSERT then
+	assert(type(on_complete) == "function", "Passed argumebt must be of type 'function'")
+	!end
+	local f = Flux.to(f_color, f_duration, { [4] = 1 }):delay(f_delay)
 	if on_complete then
 		f:oncomplete(on_complete)
 	end
 end
 
-function Fade.fade_in(on_complete)
-	local f = Flux.to(color, duration, { [4] = 0 }):delay(delay)
+function Fade.fade_in(on_complete, duration, delay)
+	!if _ASSERT then
+	assert(type(on_complete) == "function", "Passed argumebt must be of type 'function'")
+	if duration then
+		assert(type(duration) == "number", "Passed argument must be of type 'number'")
+	end
+	if delay then
+		assert(type(delay) == "number", "Passed argument must be of type 'number'")
+	end
+	!end
+	local f = Flux.to(f_color, duration or f_duration, { [4] = 0 }):delay(delay or f_delay)
 	if on_complete then
 		f:oncomplete(on_complete)
 	end
 end
 
-function Fade.getColor() return color end
+function Fade.draw()
+	love.graphics.setColor(Fade.getColor())
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+end
+
+function Fade.set_color(color)
+	!if _ASSERT then
+	assert(type(color) == "table", "Passed argument must be of type 'table'")
+	!end
+	f_color[1] = color[1] or f_color[1]
+	f_color[2] = color[2] or f_color[2]
+	f_color[3] = color[3] or f_color[3]
+	f_color[4] = color[4] or f_color[4]
+end
+
+function Fade.getColor() return f_color end
 
 return Fade
