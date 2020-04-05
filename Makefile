@@ -21,6 +21,7 @@ SOURCE_OBJECTS := $(SOURCE_FILES:$(SOURCE_PATH)/%.lua2p=./$(OUTPUT_DIRECTORY)/%.
 DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
 DIR_MODULES = modules
+DIR_RELEASE = release
 
 DIR_TO_REMOVE := _images new_assets soundtracks audio media
 MODULES_EXCLUDE := spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml
@@ -37,7 +38,7 @@ LPP_HANDLER := handler_dev.lua
 
 RELEASE_VERSION :=
 
-.PHONY: ltags
+.PHONY: ltags release
 
 process: init $(SOURCE_OBJECTS) minimize
 	@echo preprocessing finished
@@ -49,8 +50,7 @@ process: init $(SOURCE_OBJECTS) minimize
 	@lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
 
 release:
-	@cd $(OUTPUT_DIRECTORY);
-	@makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
+	@cd $(OUTPUT_DIRECTORY) && makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
 
 generate-fonts: msdf-fonts convert-fonts copy-fonts
 	@echo generating fonts finished
@@ -97,6 +97,9 @@ minimize:
 clean:
 	@if [ -d $(OUTPUT_DIRECTORY) ]; then rm -rf $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory does not exist"; fi
 	@echo "Clean finished"
+
+clean-release:
+	@if [ -d $(DIR_RELEASE) ]; then rm -rf $(DIR_RELEASE); else echo "$(DIR_RELEASE) directory does not exist"; fi
 
 clean_logs:
 	@if [ -f $(APPDATA)/$(FILENAME_LOG_OUTPUT) ]; then \
