@@ -86,32 +86,39 @@ end
 function StateMenu:on_menu()
 	self.world:emit("allow_cursor", true)
 	self.world:emit("set_to_prev_cursor")
+	self.world:emit("set_page", 1)
 end
 
-local duration1 = 1
-local duration2 = 0.25
-local tx = 172
-function StateMenu:show_main_menu()
+local duration_show = 0.75
+local duration_hide = 0.75
+local duration_pos = 0.75
+local tx = 176
+
+function StateMenu:show_main_menu(duration)
 	for i, e in ipairs(ent_options) do
-			e:give("option_key", i)
-			:give("target_color", Palette:get_color("white", 1), duration2)
+			e
+			:remove("hidden")
+			:give("target_color", Palette:get_color("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
 				self:on_menu()
 				is_transition = false
 			end)
-			:give("move_by_original", duration2)
+			:give("move_to_original", duration or duration_pos)
 	end
 end
 
-function StateMenu:hide_main_menu()
+function StateMenu:hide_main_menu(duration)
 	for i, e in ipairs(ent_options) do
-			e:give("target_color", Palette:get_color("white", 0), duration1)
-			:give("move_by", vec2:new(tx, 0), duration1)
-			:remove("option_key")
+			e
+			:give("target_color", Palette:get_color("white", 0), duration or duration_hide)
+			:give("lerp_on_complete", function()
+				e:give("hidden")
+			end)
+			:give("move_by", vec2:new(tx, 0), duration or duration_pos)
 	end
 end
 
-function StateMenu:show_sub_menu()
+function StateMenu:show_sub_menu(duration)
 	local next_cursor = 0
 	if Save:exists() then
 		next_cursor = 1
@@ -120,28 +127,30 @@ function StateMenu:show_sub_menu()
 	end
 
 	for i, e in ipairs(ent_options_sub) do
-			e:give("option_key", i)
-			:give("target_color", Palette:get_color("white", 1), duration2)
+			e
+			:remove("hidden")
+			:give("target_color", Palette:get_color("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
-				e:remove("hidden")
 				self.world:emit("allow_cursor", true)
 				self.world:emit("set_cursor", next_cursor)
 				is_transition = false
 			end)
+			:give("move_to_original", duration or duration_pos)
 			if next_cursor == 2 and i == 1 then
 				e:give("option_disabled")
 			end
 	end
+	self.world:emit("set_page", 2)
 end
 
-function StateMenu:hide_sub_menu()
+function StateMenu:hide_sub_menu(duration)
 	for i, e in ipairs(ent_options_sub) do
-			e:remove("option_key")
-			:give("target_color", Palette:get_color("white", 0), duration1)
-			:give("move_by", vec2:new(tx, 0), duration1)
+			e
+			:give("target_color", Palette:get_color("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
 				e:give("hidden")
 			end)
+			:give("move_by", vec2:new(tx, 0), duration or duration_pos)
 	end
 end
 
@@ -304,7 +313,7 @@ function StateMenu:setup_menu()
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
 			:give("sdf", scale, scale)
-			:give("option_key", i)
+			:give("option_key", i, 1)
 			:give("on_enter", function()
 				current_state = states[lstr]
 				Log.info("Switched Menu State to: ", current_state)
@@ -324,10 +333,10 @@ function StateMenu:setup_menu()
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
 			:give("sdf", scale, scale)
+			:give("option_key", i, 2)
 			:give("on_enter", function()
 				self["on_" .. lstr](self)
 			end)
-			:give("hidden")
 		insert(ent_options_sub, self.entities[id])
 	end
 end
@@ -585,12 +594,15 @@ function StateMenu:load()
 		self.world:addSystems(Systems.Move)
 		self:setup_menu()
 
+		self:hide_main_menu(0.1)
+		self:hide_sub_menu(0.1)
+
 		Fade.set_color({0, 0, 0, 1})
 		Fade.fade_in(function()
 			self.world:emit("allow_cursor", true)
 			self.world:emit("set_cursor", 1)
 			self.entities.subtitle:remove("anchor")
-			self:hide_sub_menu()
+			self:show_main_menu()
 		end, 1.5, 0.25)
 
 		Slab.Initialize()
@@ -655,7 +667,8 @@ function StateMenu:keypressed(key)
 		dt = 1
 	elseif Keybinds.pressed_ui("up", key) then
 		dt = -1
-	elseif Keybinds.pressed_ui("enter", key) and not is_transition then
+	end
+	if Keybinds.pressed_ui("enter", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
 	self.world:emit("update_cursor", dt)
@@ -665,12 +678,21 @@ function StateMenu:keypressed(key)
 				is_transition = true
 				is_sub_menu = false
 				self.world:emit("allow_cursor", false)
-				self:show_main_menu()
 				self:hide_sub_menu()
+				self:show_main_menu()
 		elseif current_state ~= states.menu and current_state ~= states.play then
 			self:MB_return()
 		end
 	end
+
+	!if not _RELEASE then
+	local scale = self.camera:getScale()
+	if key == "i" then
+		self.camera:setScale(scale - 0.1)
+	elseif key == "p" then
+		self.camera:setScale(scale + 0.1)
+	end
+	!end
 end
 
 function StateMenu:mousepressed(mx, my, mb)

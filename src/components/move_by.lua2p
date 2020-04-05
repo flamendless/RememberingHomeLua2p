@@ -9,12 +9,11 @@ Concord.component("move_by", function(c, pos, duration, delay)
 	end
 	!end
 	c.pos = pos:copy()
-	c.original_pos = nil
 	c.duration = duration
 	c.delay = delay or 0
 end)
 
-Concord.component("move_by_original", function(c, duration, delay)
+Concord.component("move_to_original", function(c, duration, delay)
 	!if _ASSERT then
 	assert(type(duration) == "number", "Passed argument must be of type 'number'")
 	if delay then
@@ -25,7 +24,7 @@ Concord.component("move_by_original", function(c, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("move_by_on_complete", function(c, callback)
+Concord.component("move_on_complete", function(c, callback)
 	!if _ASSERT then
 	assert(type(callback) == "function", "Passed argument must be of type 'function'")
 	!end

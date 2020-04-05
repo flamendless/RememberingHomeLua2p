@@ -10,7 +10,7 @@ local remove = table.remove
 
 local Menu = Concord.system({
 	pool = {"option_key", "color", "position", "text", "on_enter"},
-	pool_hole = {"option_key", "option_disabled"}
+	pool_disabled = {"option_key", "option_disabled"}
 })
 
 local offset_x = 64
@@ -47,40 +47,44 @@ local color_to_disabled = function(color)
 end
 
 function Menu:init()
-	self.cursor = 0
-	self.prev_cursor = 0
-	self.length_options = 0
+	self.cursor = 1
+	self.prev_cursor = self.cursor
+	self.current_page = 1
 	self.keys = {}
-	self.holes = {}
 	self.flags = {
 		allow_cursor = false,
 	}
 
 	self.pool.onEntityAdded = function(pool, e)
-		self.length_options = self.length_options + 1
 		local option_key = e:get("option_key")
 		if not e:has("option_disabled") then
-			insert(self.keys, option_key.id)
+			if not self.keys[option_key.page] then
+				self.keys[option_key.page] = {}
+			end
+			insert(self.keys[option_key.page], option_key.id)
 		end
 	end
 
-	self.pool_hole.onEntityAdded = function(pool, e)
+	self.pool_disabled.onEntityAdded = function(pool, e)
 		local option_key = e:get("option_key")
-		insert(self.holes, option_key.id)
+		local t = self.keys[option_key.page]
+		for i = #t, 1, -1 do
+			local key = t[i]
+			if key == option_key.id then
+				remove(t, key)
+				break
+			end
+		end
 	end
+end
 
-	self.pool.onEntityRemoved = function(pool, e)
-		self.length_options = self.length_options - 1
-		self.cursor = 0
-
-		-- local option_key = e:get("option_key")
-		-- for i = #self.keys, 1, -1 do
-		-- 	if self.keys[i] == option_key.id then
-		-- 		remove(self.keys, i)
-		-- 		break
-		-- 	end
-		-- end
-	end
+function Menu:set_page(page)
+	!if _ASSERT then
+	assert(type(page) == "number", "Passed argument must be of type 'number'")
+	assert(self.keys[page], "Passed 'Page' does not exist in 'Menu.keys' table")
+	!end
+	self.current_page = page
+	self:update_cursor_color()
 end
 
 function Menu:allow_cursor(flag)
@@ -107,11 +111,11 @@ function Menu:update_cursor(dt)
 	if dt == 0 then return end
 	if not self.flags.allow_cursor then return end
 
-	-- self.cursor = self.cursor + dt
+	local t = self.keys[self.current_page]
 	if dt > 0 then
-		self.cursor = self.keys[self.cursor + 1] or self.keys[1]
+		self.cursor = t[self.cursor + 1] or t[1]
 	elseif dt < 0 then
-		self.cursor = self.keys[self.cursor - 1] or self.keys[#self.keys]
+		self.cursor = t[self.cursor - 1] or t[#t]
 	end
 
 	self:update_cursor_color()
@@ -124,20 +128,22 @@ function Menu:update_cursor_color()
 		local color = e:get("color")
 		local disabled = e:get("option_disabled")
 
-		if disabled then
-			color_to_disabled(color)
-		end
-
-		if self.cursor == option_key.id and not disabled then
-			color_to_red(color)
-			Flux.to(pos.pos, dur_in, {
-				x = pos.original_pos.x - offset_x
-			})
-		else
-			color_to_white(color)
-			Flux.to(pos.pos, dur_out, {
-				x = pos.original_pos.x
-			})
+		if self.current_page == option_key.page then
+			if disabled then
+				color_to_disabled(color)
+			else
+				if self.cursor == option_key.id then
+					color_to_red(color)
+					Flux.to(pos.pos, dur_in, {
+						x = pos.original_pos.x - offset_x
+					})
+				else
+					color_to_white(color)
+					Flux.to(pos.pos, dur_out, {
+						x = pos.original_pos.x
+					})
+				end
+			end
 		end
 	end
 end
@@ -149,11 +155,16 @@ function Menu:enter_option()
 		local option_key = e:get("option_key")
 		local text = e:get("text")
 		local callback = e:get("on_enter")
+		local t = self.keys[self.current_page]
 
-		if option_key.id == self.cursor then
-			self.prev_cursor = option_key.id
-			callback.callback()
-			break
+		if self.current_page == option_key.page then
+			for i, key in ipairs(self.keys[self.current_page]) do
+				if key == option_key.id and key == self.cursor then
+					self.prev_cursor = option_key.id
+					callback.callback()
+					return
+				end
+			end
 		end
 	end
 end

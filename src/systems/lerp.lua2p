@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
+local insert = table.insert
+
 local Lerp = Concord.system({
 	pool_colors = {"color", "lerp_colors"},
 	pool_fade_to_black = {"color", "fade_to_black"},
@@ -13,6 +15,7 @@ function Lerp:init()
 		local pos = e:get("position")
 		local target = e:get("target_position")
 		local on_complete = e:get("lerp_on_complete")
+
 		local f = Flux.to(pos.pos, target.duration, {
 			x = target.target_pos.x,
 			y = target.target_pos.y,
