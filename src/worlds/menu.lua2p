@@ -192,7 +192,7 @@ function StateMenu:on_newgame()
 end
 
 function StateMenu:on_continue()
-
+	--TODO load saved game here
 end
 
 local current_wm
@@ -238,10 +238,12 @@ function StateMenu:setup_menu()
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
 	local bg_door = assets.images.bg_door
+	local bg_hallway = assets.images.bg_hallway
 	local title = assets.images.title
 	local subtitle = assets.images.subtitle
 
 	local scale = min(ww/bg_door:getWidth(), wh/bg_door:getHeight())
+	local scale_hallway = min(ww/bg_hallway:getWidth(), wh/bg_hallway:getHeight())
 	local scale_title = min((bg_door:getWidth() * scale)/title:getWidth(), (bg_door:getHeight() * scale)/title:getHeight())
 	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
 	scale_subtitle = scale_subtitle * 0.75
@@ -250,6 +252,11 @@ function StateMenu:setup_menu()
 		:give("position", vec2:new(ww * 1.5, wh/2))
 		:give("sprite", bg_door)
 		:give("transform", 0, scale, scale, bg_door:getWidth()/2, bg_door:getHeight()/2)
+
+	self.entities.bg_hallway = Concord.entity(self.world)
+		:give("position", vec2:new(ww/2, wh * 1.5))
+		:give("sprite", bg_hallway)
+		:give("transform", 0, scale_hallway, scale_hallway, bg_hallway:getWidth()/2, bg_hallway:getHeight()/2)
 
 	self.entities.desk = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
@@ -450,7 +457,7 @@ function StateMenu:setup_about()
 		{ "" },
 		{ "Arts By:" },
 		{ "Conrad Reyes @wits" },
-		{ assets.images.twitter, assets.images.website, assets.images.mail },
+
 		{ "@LAYOUT:LEFT" },
 		{ "TOOLS USED:" },
 		{ "Löve framework" },
@@ -471,9 +478,10 @@ function StateMenu:setup_about()
 		{ "Semver, Splashes" },
 
 		{ "@LAYOUT:CENTER" },
-		{ "" },
 		{ "SPECIAL THANKS TO:" },
 		{ "People at the Löve Discord server" },
+		{ "" },
+		{ assets.images.twitter, assets.images.website, assets.images.mail },
 	}
 	local about_links = { !(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL), }
 
@@ -583,7 +591,7 @@ function StateMenu:load()
 			self.world:emit("set_cursor", 1)
 			self.entities.subtitle:remove("anchor")
 			self:hide_sub_menu()
-		end, 3, 1)
+		end, 1.5, 0.25)
 
 		Slab.Initialize()
 	end)

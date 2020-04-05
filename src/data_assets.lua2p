@@ -13,8 +13,8 @@ Assets.data.splash = {
 
 Assets.data.menu = {
 	image = {
-		-- { "bg_title", "assets/images/menu/title.png" },
 		{ "bg_door", "assets/images/menu/bg_door.png" },
+		{ "bg_hallway", "assets/images/menu/bg_hallway.png" },
 		{ "sheet_desk", "assets/images/menu/sheet_desk.png" },
 		{ "title", "assets/images/menu/title.png" },
 		{ "subtitle", "assets/images/menu/subtitle.png" },
