@@ -10,6 +10,7 @@ local insert = table.insert
 
 local Network = {}
 
+!if _NETWORK then
 local use_luasec = false
 
 local socket = require("socket")
@@ -39,7 +40,7 @@ function Network.get_response()
 
 		return r, c, h, s
 	else
-		local res = request.send("https://github.com/aseprite/aseprite/releases/latest",
+		local res = request.send(github_url,
 		{
 			follow_redirects = false
 		})
@@ -88,5 +89,7 @@ function Network.show_latest_dialogbox(url)
 		love.system.openURL(url)
 	end
 end
+
+!end
 
 return Network
