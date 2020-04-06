@@ -10,6 +10,7 @@ APPDATA = ~/.local/share/love/goinghomerevisit
 FILENAME_LOG_OUTPUT = log_output.txt
 FILENAME_LOG_INFO = info.txt
 OUTPUT_DIRECTORY := output
+OUTPUT_DIRECTORY_WIN := output_win
 EXCLUDES := modules
 
 DIR_ECS := worlds components systems assemblages
@@ -17,6 +18,7 @@ SOURCE_PATH := ./${SOURCE}
 SOURCE_FILES := $(strip $(call search,$(SOURCE_PATH),*.lua2p))
 SOURCE_FILES += $(strip $(call search,$(SOURCE_PATH)/*.lua2p))
 SOURCE_OBJECTS := $(SOURCE_FILES:$(SOURCE_PATH)/%.lua2p=./$(OUTPUT_DIRECTORY)/%.lua)
+SOURCE_OBJECTS_WIN := $(SOURCE_FILES:$(SOURCE_PATH)/%.lua2p=./$(OUTPUT_DIRECTORY_WIN)/%.lua)
 
 DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
 DIR_ASSETS = assets
@@ -35,6 +37,7 @@ TEXTURE_SIZE = 1024,1024
 
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
 LPP_HANDLER := handler_dev.lua
+LPP_HANDLER_WIN := handler_release_window.lua
 
 RELEASE_VERSION :=
 
@@ -49,8 +52,11 @@ process: init $(SOURCE_OBJECTS) minimize
 	@echo processing output: $@
 	@lua $(LPP_PATH) --handler=$(LPP_HANDLER) --outputpaths $< $@
 
-release:
+release: init $(SOURCE_OBJECTS) minimize
 	@cd $(OUTPUT_DIRECTORY) && makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
+
+release-win: init-win $(SOURCE_OBJECTS_WIN) minimize
+	@cd $(OUTPUT_DIRECTORY_WIN) && makelove --config ../makelove.toml --version-name $(RELEASE_VERSION)
 
 generate-fonts: msdf-fonts convert-fonts copy-fonts
 	@echo generating fonts finished
@@ -96,6 +102,7 @@ minimize:
 
 clean:
 	@if [ -d $(OUTPUT_DIRECTORY) ]; then rm -rf $(OUTPUT_DIRECTORY); else echo "$(OUTPUT_DIRECTORY) directory does not exist"; fi
+	@if [ -d $(OUTPUT_DIRECTORY_WIN) ]; then rm -rf $(OUTPUT_DIRECTORY_WIN); else echo "$(OUTPUT_DIRECTORY_WIN) directory does not exist"; fi
 	@echo "Clean finished"
 
 clean-release:
@@ -124,4 +131,26 @@ info:
 	@echo Objects---------: $(SOURCE_OBJECTS)
 	@echo AppData---------: $(APPDATA)
 
-test:
+build-win: init-win $(SOURCE_OBJECTS_WIN) minimize
+	@echo preprocessing finished
+
+./$(OUTPUT_DIRECTORY_WIN)/%.lua: ./${SOURCE}/%.lua2p
+	@echo processing input: $<
+	@echo processing output: $@
+	@lua $(LPP_PATH) --handler=$(LPP_HANDLER_WIN) --outputpaths $< $@
+
+init-win:
+	@$(foreach var,$(DIR_ECS),mkdir -p $(OUTPUT_DIRECTORY_WIN)/$(var);)
+	@for x ($(DIRECTORIES_TO_COPY)); do \
+		cp -rf $(SOURCE)/$$x $(OUTPUT_DIRECTORY_WIN)/; \
+	done
+	@if [ ! -d $(OUTPUT_DIRECTORY_WIN)/$(DIR_MODULES) ]; then \
+		rsync -av --progress $(DIR_MODULES) $(OUTPUT_DIRECTORY_WIN) $(foreach var,$(MODULES_EXCLUDE),--exclude $(var)); \
+	else \
+		echo "$(DIR_MODULES) already exists in $(OUTPUT_DIRECTORY_WIN)"; \
+	fi
+	@if [ ! -d $(OUTPUT_DIRECTORY_WIN)/$(DIR_ASSETS) ]; then \
+		rsync -av --progress $(DIR_ASSETS) $(OUTPUT_DIRECTORY_WIN) $(foreach var, $(DIR_TO_REMOVE),--exclude $(var)); \
+	else \
+		echo "$(DIR_ASSETS) already exists in $(OUTPUT_DIRECTORY_WIN)"; \
+	fi
