@@ -40,17 +40,28 @@ function Network.get_response()
 
 		return r, c, h, s
 	else
-		local res = request.send(github_url,
-		{
-			follow_redirects = false
-		})
+		!if _OS == "Linux" then
+		local res = request.send(github_url, { follow_redirects = false })
+		if res then
+			return res.code, res.headers, res.headers.status
+		else
+			return false
+		end
 
-		return res.code, res.headers, res.headers.status
+		!elseif _OS == "Windows" then
+		--TODO bug here, after changing libcurl version, the return value is different
+		local res = {request.send(github_url, { follow_redirects = false })}
+		!end
 	end
 end
 
 function Network.check_latest_version(current_semver)
 	local c, h, s = Network.get_response()
+	if not c then
+		Log.info("Failed to connect to network")
+		return
+	end
+
 	Log.info("Request to: " .. github_url)
 	Log.info("Client to: " .. c)
 	Log.info("Header to: " .. s)
