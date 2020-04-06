@@ -41,7 +41,7 @@ LPP_HANDLER_WIN := handler_release_window.lua
 
 RELEASE_VERSION :=
 
-.PHONY: ltags release
+.PHONY: ltags release release-win
 
 process: init $(SOURCE_OBJECTS) minimize
 	@echo preprocessing finished
