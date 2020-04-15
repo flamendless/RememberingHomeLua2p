@@ -9,9 +9,14 @@ local worlds = {
 	Intro = req("intro"),
 }
 
+!if not _RELEASE then
+worlds.Test = req("test")
+!end
+
 local format = string.format
 for k, v in pairs(worlds) do
 	assert(v.id, format("'%s' must have an `id`", k))
+	assert(type(v.new) == "function", format("'%s' must have a `new` method", k))
 end
 
 return worlds

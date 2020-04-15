@@ -1,6 +1,6 @@
 _RELEASE = false
 _REPORTING = false
-_NETWORK = true
+_NETWORK = false
 _ASSERT = true
 _OS = "Linux"
 _PLATFORM = "desktop"

@@ -4,22 +4,22 @@ local Log = require("modules.log.log")
 
 local Preloader = require("preloader")
 
-local StateIntro = {
-	id = "Intro",
-	is_ready = false,
-	world = Concord.world(),
-	entities = {},
-}
+local StateIntro = class()
+StateIntro.id = "Intro"
 
 local assets_data = {
-	images = {
-
-	},
-	font = {
-
-	}
+	images = {},
+	font = {}
 }
 local assets = { images = {}, fonts = {} }
+
+function StateIntro:new()
+	return self:init({
+		is_ready = false,
+		world = Concord.world(),
+		entities = {},
+	})
+end
 
 function StateIntro:load()
 	Log.info("State Load: ", self.id)

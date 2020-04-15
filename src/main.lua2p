@@ -33,7 +33,7 @@ local Semver = require("modules.semver.semver")
 local Timer = require("modules.hump.timer")
 
 local Worlds = require("worlds")
-local current_world
+local current_world, prev_world
 
 local window_size = !(_GAME_SIZE)
 local canvas_resize, state_init
@@ -65,12 +65,12 @@ function love.load()
 	Info.initialize()
 	canvas_resize()
 	!if _RELEASE then
-	current_world = Worlds.Splash
+	current_world = Worlds.Splash:new()
 	!else
-	-- current_world = Worlds.Splash
-	current_world = Worlds.Menu
-	--current_world = Worlds.Intro
-	--current_world = Worlds.Game
+	-- current_world = Worlds.Splash:new()
+	current_world = Worlds.Menu:new()
+	--current_world = Worlds.Intro:new()
+	--current_world = Worlds.Game:new()
 	!end
 	Log.info("Starting scene: ", current_world.id)
 	state_init()
@@ -139,6 +139,11 @@ function love.keypressed(key)
 		mid_canvas.flags.draw_bounds = not mid_canvas.flags.draw_bounds
 		bot_canvas.flags.draw_bounds = not bot_canvas.flags.draw_bounds
 		main_canvas.flags.draw_cross = not main_canvas.flags.draw_cross
+	elseif key == "t" then
+		G_state_switch("Test")
+	end
+	if key == "b" and current_world.id == "Test" then
+		G_state_switch(prev_world.id)
 	end
 	!end
 
@@ -265,9 +270,9 @@ function G_state_switch(next_id)
 	!if _ASSERT then
 	assert(Worlds[next_id], str_err)
 	!end
-	local prev_id = current_world.id
-	current_world = Worlds[next_id]
-	local str = format("Switched from %s to %s", prev_id, current_world.id)
+	prev_world = current_world
+	current_world = Worlds[next_id]:new()
+	local str = format("Switched from %s to %s", prev_world.id, current_world.id)
 	Log.trace(str)
 	state_init()
 	current_world:load()

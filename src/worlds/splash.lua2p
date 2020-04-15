@@ -17,12 +17,8 @@ local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
 
-local StateSplash = {
-	id = "Splash",
-	is_ready = false,
-	world = Concord.world(),
-	entities = {},
-}
+local StateSplash = class()
+StateSplash.id = "Splash"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
@@ -61,6 +57,14 @@ local switch = function()
 	Fade.fade_out(function()
 		G_state_switch("Menu")
 	end)
+end
+
+function StateSplash:new()
+	return self:init({
+		is_ready = false,
+		world = Concord.world(),
+		entities = {},
+	})
 end
 
 function StateSplash:load()

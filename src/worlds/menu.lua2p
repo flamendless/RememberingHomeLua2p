@@ -32,14 +32,8 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
 
-local StateMenu = {
-	id = "Menu",
-	camera = nil,
-	world = Concord.world(),
-	entities = {},
-	canvases = {},
-	is_ready = false,
-}
+local StateMenu = class()
+StateMenu.id = "Menu"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
@@ -357,7 +351,7 @@ function StateMenu:settings_desktop(dt)
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
 		X = x, Y = y, W = width, H = height,
-		AllowMove = false, AllowResize = false, AutoSizeWindow = false,
+		AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
 		BgColor = Palette.windows.settings
 	})
 
@@ -561,6 +555,16 @@ function StateMenu:setup_about()
 			base_y = base_y + img_h + pad
 		end
 	end
+end
+
+function StateMenu:new()
+	return self:init({
+		camera = nil,
+		world = Concord.world(),
+		entities = {},
+		canvases = {},
+		is_ready = false,
+	})
 end
 
 function StateMenu:load()

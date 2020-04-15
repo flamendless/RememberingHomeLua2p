@@ -1,0 +1,32 @@
+local Slab = require("modules.slab")
+local SlabDebug = require("modules.slab.SlabDebug")
+
+local StateTest = class()
+StateTest.id = "Test"
+
+local opt = { Title = "Test", IsOpen = true }
+
+function StateTest:new()
+	return self:init({
+		is_ready = true,
+	})
+end
+
+function StateTest:load()
+	Slab.Initialize()
+end
+
+function StateTest:update(dt)
+	Slab.Update(dt)
+	if opt.IsOpen then
+		Slab.BeginWindow('MyFirstWindow', opt)
+		Slab.Text("Hello World")
+		Slab.EndWindow()
+	end
+end
+
+function StateTest:draw()
+	Slab.Draw()
+end
+
+return StateTest
