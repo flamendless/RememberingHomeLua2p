@@ -23,14 +23,6 @@ local request = require("modules.https.luajit-request")
 local github_url = "https://github.com/aseprite/aseprite/releases/latest"
 -- local github_url = !(_GITHUB_URL_LATEST)
 
-local split = function(str)
-	local t = {}
-	for substr in gmatch(str, "([^/]+)") do
-		insert(t, substr)
-	end
-	return t
-end
-
 function Network.get_response()
 	if use_luasec then
 		local r, c, h, s = https.request({
