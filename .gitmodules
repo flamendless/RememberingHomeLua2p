@@ -43,3 +43,6 @@
 [submodule "modules/https"]
 	path = modules/https
 	url = https://github.com/LPGhatguy/luajit-request.git
+[submodule "modules/bump"]
+	path = modules/bump
+	url = https://github.com/oniietzschan/bump-3dpd/
