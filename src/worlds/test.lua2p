@@ -1,4 +1,5 @@
 local Animation = require("modules.anim8.anim8")
+local Bump = require("modules.bump.bump")
 local Slab = require("modules.slab")
 local SlabDebug = require("modules.slab.SlabDebug")
 
@@ -16,23 +17,28 @@ local assets_data = {
 }
 local assets = { images = {} }
 
+local world
+local ground = { name = "ground", x = 256, y = 412, w = 512, h = 128 }
+local wall_r = { name = "wall_right", x = 640, y = 412-128, w = 64, h = 128 }
+local wall_l = { name = "wall_left", x = 180, y = 412-128, w = 64, h = 128 }
+
 local animations = {"idle", "walk", "run"}
 local player_anim = {
 	idle = { speed = 0 },
 	walk = { speed = 128 },
 	run = { speed = 180 },
 }
+local player = { x = 512, y = 256, w = 64, h = 64 }
 
 local current_anim, current_anim_name
-local player_x = 512
-local player_y = 256
 local speed = 0
 local is_shift = false
 local moving = false
 local dir = 1
 
 local opt = { Title = "Test", IsOpen = true, W = 480, H = 480 }
-local scale = 4
+local scale = 1
+local gravity = 320
 
 local animation_switch = function(new_anim, new_dir)
 	assert(type(new_anim) == "string")
@@ -58,7 +64,15 @@ local player_movement = function(dt)
 		moving = false
 	end
 
-	player_x = player_x + speed * _dir * dt
+	if _dir ~= 0 then
+		local mx = speed * _dir * dt
+		local cols
+		player.x, player.y, cols, cols_len = world:move(player, player.x + mx, player.y)
+	end
+
+	local my = gravity * dt
+	player.x, player.y = world:move(player, player.x, player.y + my)
+
 	if moving then
 		if is_shift then
 			animation_switch("run", _dir)
@@ -67,23 +81,6 @@ local player_movement = function(dt)
 		end
 	else
 		animation_switch("idle")
-	end
-end
-
-function StateTest:keypressed(key)
-	if key == "lshift" then
-		is_shift = true
-	end
-	if key == "a" or key == "left" then
-		moving = true
-	elseif key == "d" or key == "right" then
-		moving = true
-	end
-end
-
-function StateTest:keyreleased(key)
-	if key == "lshift" then
-		is_shift = false
 	end
 end
 
@@ -116,6 +113,12 @@ function StateTest:load()
 		player_anim.run.anim_left = player_anim.run.anim_right:clone():flipH()
 
 		animation_switch("idle")
+
+		world = Bump.newWorld()
+		world:add(ground, ground.x, ground.y, ground.w, ground.h)
+		world:add(wall_r, wall_r.x, wall_r.y, wall_r.w, wall_r.h)
+		world:add(wall_l, wall_l.x, wall_l.y, wall_l.w, wall_l.h)
+		world:add(player, player.x, player.y, player.w, player.h)
 	end)
 end
 
@@ -136,6 +139,12 @@ function StateTest:update(dt)
 				scale = tonumber(Slab.GetInputText())
 		end
 
+		Slab.Text("Gravity: ")
+		Slab.SameLine()
+		if Slab.Input("Gravity", { Text = tostring(gravity), ReturnOnText = false, NumbersOnly = true, MinNumber = 0, MaxNumber = 720}) then
+				gravity = tonumber(Slab.GetInputText())
+		end
+
 		Slab.Separator()
 		Slab.Text("Player")
 		Slab.Text("Current Animation: " .. current_anim_name)
@@ -150,13 +159,13 @@ function StateTest:update(dt)
 
 		Slab.Text("x: ")
 		Slab.SameLine()
-		if Slab.Input("player_x", { Text = tostring(player_x), ReturnOnText = false, NumbersOnly = true}) then
-				player_x = tonumber(Slab.GetInputText())
+		if Slab.Input("player_x", { Text = tostring(player.x), ReturnOnText = false, NumbersOnly = true}) then
+				player.x = tonumber(Slab.GetInputText())
 		end
 		Slab.Text("y: ")
 		Slab.SameLine()
-		if Slab.Input("player_y", { Text = tostring(player_y), ReturnOnText = false, NumbersOnly = true}) then
-				player_y = tonumber(Slab.GetInputText())
+		if Slab.Input("player_y", { Text = tostring(player.y), ReturnOnText = false, NumbersOnly = true}) then
+				player.y = tonumber(Slab.GetInputText())
 		end
 		Slab.Text("moving: ")
 		Slab.SameLine()
@@ -194,8 +203,32 @@ function StateTest:draw()
 	if not self.is_ready then return end
 	local img = player_anim[current_anim_name].img
 	local anim = current_anim
-	anim:draw(img, player_x, player_y, 0, scale, scale)
+	anim:draw(img, player.x, player.y, 0, scale, scale)
+
+	love.graphics.setColor(1, 0, 0, 0.5)
+	love.graphics.rectangle("line", ground.x, ground.y, ground.w, ground.h)
+	love.graphics.rectangle("line", wall_r.x, wall_r.y, wall_r.w, wall_r.h)
+	love.graphics.rectangle("line", wall_l.x, wall_l.y, wall_l.w, wall_l.h)
+	love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
+
 	Slab.Draw()
+end
+
+function StateTest:keypressed(key)
+	if key == "lshift" then
+		is_shift = true
+	end
+	if key == "a" or key == "left" then
+		moving = true
+	elseif key == "d" or key == "right" then
+		moving = true
+	end
+end
+
+function StateTest:keyreleased(key)
+	if key == "lshift" then
+		is_shift = false
+	end
 end
 
 return StateTest
