@@ -1,0 +1,70 @@
+local Concord = require("modules.concord.concord")
+local Bump = require("modules.bump.bump")
+
+local Keybinds = require("keybinds")
+
+local Controller = Concord.system({
+	pool = {"controller"},
+})
+
+function Controller:init()
+end
+
+function Controller:update(dt)
+	local world = self:getWorld()
+	for _, e in ipairs(self.pool) do
+		local controller = e:get("controller")
+		if e:has("override_animation") then return end
+		if Keybinds.pressed_player("move_left") then
+			controller.is_run = love.keyboard.isDown("lshift")
+			controller.dir = -1
+			controller.dx = -1
+		elseif Keybinds.pressed_player("move_right") then
+			controller.is_run = love.keyboard.isDown("lshift")
+			controller.dir = 1
+			controller.dx = 1
+		else
+			controller.dx = 0
+		end
+
+		if controller.dx ~= 0 then
+			if controller.is_run then
+				if controller.dir == 1 then
+					world:emit("switch_animation_tag", "run")
+				else
+					world:emit("switch_animation_tag", "run_left")
+				end
+			else
+				if controller.dir == 1 then
+					world:emit("switch_animation_tag", "walk")
+				else
+					world:emit("switch_animation_tag", "walk_left")
+				end
+			end
+		else
+			if controller.dir == 1 then
+				world:emit("switch_animation_tag", "idle")
+			else
+				world:emit("switch_animation_tag", "idle_left")
+			end
+		end
+	end
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+function Controller:draw_debug_slab()
+	for _, e in ipairs(self.pool) do
+		local controller = e:get("controller")
+		if not e:has("override_animation") then
+			Slab.Text("Moving: " .. tostring(controller.dx ~= 0))
+			Slab.Text("Direction: " .. controller.dir)
+		else
+			Slab.Text("Moving: (overriden)")
+			Slab.Text("Direction: (overriden)")
+		end
+	end
+end
+!end
+
+return Controller
