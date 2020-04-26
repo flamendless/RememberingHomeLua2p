@@ -95,38 +95,64 @@ function StateTest:load()
 	local p = Preloader.start(assets_data, assets)
 	p:onComplete(function()
 		self.is_ready = true
-		player_anim.idle.img = assets.images.sheet_player_idle
-		player_anim.walk.img = assets.images.sheet_player_walk
-		player_anim.run.img = assets.images.sheet_player_run
 
-		local g_idle = Animation.newGrid(64, 64, player_anim.idle.img:getWidth(), player_anim.idle.img:getHeight())
-		local g_walk = Animation.newGrid(64, 64, player_anim.walk.img:getWidth(), player_anim.walk.img:getHeight())
-		local g_run = Animation.newGrid(64, 64, player_anim.run.img:getWidth(), player_anim.run.img:getHeight())
+		self.world:addSystem(Systems.Animation)
+		self.world:addSystem(Systems.Collision)
+		self.world:addSystem(Systems.Controller)
 
-		player_anim.idle.anim_right = Animation.newAnimation(g_idle("1-5", 1, "1-5", 2), 0.1)
-		player_anim.idle.anim_left = player_anim.idle.anim_right:clone():flipH()
+		local ground = Concord.entity(self.world)
+			:give("position", vec2:new(256, 412))
+			:give("collider", vec2:new(512, 128))
 
-		player_anim.walk.anim_right = Animation.newAnimation(g_walk("1-4", 1, "1-4", 2), 0.1)
-		player_anim.walk.anim_left = player_anim.walk.anim_right:clone():flipH()
-
-		player_anim.run.anim_right = Animation.newAnimation(g_run("1-6", 1), 0.1)
-		player_anim.run.anim_left = player_anim.run.anim_right:clone():flipH()
-
-		animation_switch("idle")
-
-		world = Bump.newWorld()
-		world:add(ground, ground.x, ground.y, ground.w, ground.h)
-		world:add(wall_r, wall_r.x, wall_r.y, wall_r.w, wall_r.h)
-		world:add(wall_l, wall_l.x, wall_l.y, wall_l.w, wall_l.h)
-		world:add(player, player.x, player.y, player.w, player.h)
+		local player = Concord.entity(self.world)
+			:give("position", vec2:new(512, 256))
+			:give("collider", vec2:new(64, 64))
+			:give("animation")
+			:give("controller")
+			:give("multiple_animation_data", "idle",
+				{
+					idle = {
+						spritesheet = assets.images.sheet_player_idle,
+						frames = {"1-5", 1, "1-5", 2},
+						delay = 0.1,
+						rows_count = 2,
+						columns_count = 5,
+						n_frames = 10,
+					},
+					walk = {
+						spritesheet = assets.images.sheet_player_walk,
+						frames = {"1-4", 1, "1-4", 2},
+						delay = 0.1,
+						rows_count = 2,
+						columns_count = 4,
+						n_frames = 8,
+					},
+					run = {
+						spritesheet = assets.images.sheet_player_run,
+						frames = {"1-6", 1},
+						delay = 0.1,
+						rows_count = 1,
+						columns_count = 6,
+						n_frames = 6,
+					},
+				}, {
+					--copy (1) as (2) applying (3)
+					idle = { "idle_left",  "flipH"},
+					walk = { "walk_left",  "flipH"},
+					run = { "run_left", "flipH"},
+				})
 	end)
 end
 
 function StateTest:update(dt)
 	if not self.is_ready then return end
-	player_movement(dt)
-	current_anim:update(dt)
+	self.world:emit("update", dt)
+	!if not _RELEASE then
+	self:slab_update(dt)
+	!end
+end
 
+function StateTest:slab_update(dt)
 	Slab.Update(dt)
 	if opt.IsOpen then
 		Slab.BeginWindow('Test Mode', opt)
@@ -226,9 +252,28 @@ function StateTest:keypressed(key)
 end
 
 function StateTest:keyreleased(key)
-	if key == "lshift" then
-		is_shift = false
+	if key == "1" then
+		if love.keyboard.isDown("lshift") then
+			self.world:emit("switch_animation_tag", "idle_left")
+		else
+			self.world:emit("switch_animation_tag", "idle")
+		end
+	elseif key == "2" then
+		if love.keyboard.isDown("lshift") then
+			self.world:emit("switch_animation_tag", "walk_left")
+		else
+			self.world:emit("switch_animation_tag", "walk")
+		end
+	elseif key == "3" then
+		if love.keyboard.isDown("lshift") then
+			self.world:emit("switch_animation_tag", "run_left")
+		else
+			self.world:emit("switch_animation_tag", "run")
+		end
 	end
+	-- if key == "lshift" then
+	-- 	is_shift = false
+	-- end
 end
 
 return StateTest

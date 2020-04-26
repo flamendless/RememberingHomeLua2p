@@ -11,6 +11,7 @@ Concord.component("animation", function(c, stop_on_last)
 	c.grid = nil
 	c.animation = nil
 	c.is_playing = true
+	c.current_tag = nil
 	c.stop_on_last = (stop_on_last == true) and true or false
 end)
 
@@ -29,4 +30,7 @@ Concord.component("animation_stop", function(c, event)
 	assert(event == "pauseAtEnd" or event == "pauseAtStart", "Passed argument must be either be 'pauseAtEnd' or 'pauseAtStart'")
 	!end
 	c.event = event
+end)
+
+Concord.component("override_animation", function(c)
 end)

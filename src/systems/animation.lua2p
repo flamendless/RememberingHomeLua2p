@@ -2,50 +2,104 @@ local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
 local min = math.min
+local cache_multi_animation = {}
+
+!if not _RELEASE then
+local all_animation = {}
+!end
 
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
+	pool_multi = {"multiple_animation_data", "animation", "position"},
 	pool_pause = {"animation", "animation_data", "animation_pause_at"}
 })
+
+local setup_on_end = function(e, animation)
+	local cb = e:get("animation_on_complete")
+	if cb then
+		on_end = function()
+			cb.callback()
+			animation.is_playing = false
+			if cb.event then
+				animation.animation[cb.event](animation.animation)
+			end
+		end
+	else
+		on_end = function()
+			if animation.stop_on_last then
+				animation.is_playing = false
+				animation.animation:pauseAtEnd()
+			end
+		end
+	end
+end
+
+local setup_auto_scale = function(e, data)
+	local auto_scale = e:get("auto_scale")
+	if auto_scale then
+		local transform = e:get("transform")
+		if auto_scale.is_proportion then
+			local scale = min(auto_scale.target_width/data.frame_width, auto_scale.target_height/data.frame_height)
+			transform.sx = scale
+			transform.sy = scale
+		else
+			transform.sx = auto_scale.target_width/data.frame_width
+			transform.sy = auto_scale.target_height/data.frame_height
+		end
+	end
+end
+
+local setup_animation = function(e, data, on_end)
+	local animation = e:get("animation")
+	local multi = e:get("multiple_animation_data")
+
+	local obj_grid
+	local obj_animation
+	if not multi then
+		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
+		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_end)
+	else
+		if cache_multi_animation[animation.current_tag] then
+			local cached = cache_multi_animation[animation.current_tag]
+			obj_grid = cached.grid
+			obj_animation = cached.animation
+		else
+			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
+			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_end)
+			cache_multi_animation[animation.current_tag] = {
+				grid = obj_grid,
+				animation = obj_animation
+			}
+			if data.is_flipped then
+				obj_animation:flipH()
+			end
+		end
+	end
+
+	animation.grid = obj_grid
+	animation.animation = obj_animation
+end
 
 function Animation:init()
 	self.pool.onEntityAdded = function(pool, e)
 		local data = e:get("animation_data")
+		setup_auto_scale(e, data)
+		local on_end = setup_on_end(e, nimation)
+		setup_animation(e, data, on_end)
+	end
+
+	self.pool_multi.onEntityAdded = function(pool, e)
+		local multi = e:get("multiple_animation_data")
 		local animation = e:get("animation")
-		local auto_scale = e:get("auto_scale")
-		if auto_scale then
-			local transform = e:get("transform")
-			if auto_scale.is_proportion then
-				local scale = min(auto_scale.target_width/data.frame_width, auto_scale.target_height/data.frame_height)
-				transform.sx = scale
-				transform.sy = scale
-			else
-				transform.sx = auto_scale.target_width/data.frame_width
-				transform.sy = auto_scale.target_height/data.frame_height
+		local on_end = setup_on_end(e, animation)
+		local data = multi.data[multi.first]
+		animation.current_tag = multi.first
+		e:give("animation_data", data)
+		!if not _RELEASE then
+			for k, v in pairs(multi.data) do
+				all_animation[k] = k
 			end
-		end
-
-		local cb = e:get("animation_on_complete")
-		local on_end
-		if cb then
-			on_end = function()
-				cb.callback()
-				animation.is_playing = false
-				if cb.event then
-					animation.animation[cb.event](animation.animation)
-				end
-			end
-		else
-			on_end = function()
-				if animation.stop_on_last then
-					animation.is_playing = false
-					animation.animation:pauseAtEnd()
-				end
-			end
-		end
-
-		animation.grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.durations or data.delay, on_end)
+		!end
 	end
 
 	self.pool_pause.onEntityAdded = function(pool, e)
@@ -69,6 +123,25 @@ function Animation:init()
 	self.pool_pause.onEntityRemoved = function(pool, e)
 		local animation = e:get("animation")
 		animation.animation:resume()
+	end
+end
+
+function Animation:switch_animation_tag(new_tag)
+	!if _ASSERT then
+	assert(type(new_tag) == "string", "Passed argument must be of type 'string'")
+	!end
+	for _, e in ipairs(self.pool_multi) do
+		local multi = e:get("multiple_animation_data")
+		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
+		local animation = e:get("animation")
+		local on_end = setup_on_end(e, animation)
+		if not (new_tag == animation.current_tag) then
+			local data = multi.data[new_tag]
+			animation.current_tag = new_tag
+			e:remove("animation_data")
+			e:give("animation_data", data)
+			setup_animation(e, data, on_end)
+		end
 	end
 end
 
@@ -126,5 +199,30 @@ function Animation:draw()
 		end
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+function Animation:draw_debug_slab()
+	for _, e in ipairs(self.pool_multi) do
+		local animation = e:get("animation")
+		Slab.Text("Current Animation: " .. animation.current_tag)
+		if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
+			for k, v in pairs(all_animation) do
+				if Slab.TextSelectable(k) then
+					e:give("override_animation")
+					self:switch_animation_tag(k)
+				end
+			end
+			Slab.EndComboBox()
+		end
+		if e:has("override_animation") then
+			Slab.SameLine()
+			if Slab.Button("stop") then
+				e:remove("override_animation")
+			end
+		end
+	end
+end
+!end
 
 return Animation
