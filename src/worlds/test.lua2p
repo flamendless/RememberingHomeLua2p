@@ -1,5 +1,5 @@
 local Animation = require("modules.anim8.anim8")
-local Bump = require("modules.bump.bump")
+local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
 local SlabDebug = require("modules.slab.SlabDebug")
 
@@ -7,6 +7,17 @@ local StateTest = class()
 StateTest.id = "Test"
 
 local Preloader = require("preloader")
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+local Systems = {
+	Animation = require("systems.animation"),
+	Collision = require("systems.collision"),
+	Controller = require("systems.controller"),
+}
+local Assemblages = {
+	Common = require("assemblages.common")
+}
 
 local assets_data = {
 	image = {
@@ -17,10 +28,7 @@ local assets_data = {
 }
 local assets = { images = {} }
 
-local world
-local ground = { name = "ground", x = 256, y = 412, w = 512, h = 128 }
-local wall_r = { name = "wall_right", x = 640, y = 412-128, w = 64, h = 128 }
-local wall_l = { name = "wall_left", x = 180, y = 412-128, w = 64, h = 128 }
+local bump_world
 
 local animations = {"idle", "walk", "run"}
 local player_anim = {
@@ -28,7 +36,6 @@ local player_anim = {
 	walk = { speed = 128 },
 	run = { speed = 180 },
 }
-local player = { x = 512, y = 256, w = 64, h = 64 }
 
 local current_anim, current_anim_name
 local speed = 0
@@ -67,11 +74,11 @@ local player_movement = function(dt)
 	if _dir ~= 0 then
 		local mx = speed * _dir * dt
 		local cols
-		player.x, player.y, cols, cols_len = world:move(player, player.x + mx, player.y)
+		player.x, player.y, cols, cols_len = bump_world:move(player, player.x + mx, player.y)
 	end
 
 	local my = gravity * dt
-	player.x, player.y = world:move(player, player.x, player.y + my)
+	player.x, player.y = bump_world:move(player, player.x, player.y + my)
 
 	if moving then
 		if is_shift then
@@ -87,6 +94,8 @@ end
 function StateTest:new()
 	return self:init({
 		is_ready = false,
+		world = Concord.world(),
+		entities = {},
 	})
 end
 
@@ -172,54 +181,35 @@ function StateTest:slab_update(dt)
 		end
 
 		Slab.Separator()
-		Slab.Text("Player")
-		Slab.Text("Current Animation: " .. current_anim_name)
-		if Slab.BeginComboBox("Player Animation", { Selected = current_anim_name }) then
-			for i, anim in ipairs(animations) do
-				if Slab.TextSelectable(anim) then
-					animation_switch(anim)
-				end
-			end
-			Slab.EndComboBox()
-		end
+		self.world:emit("draw_debug_slab")
 
-		Slab.Text("x: ")
-		Slab.SameLine()
-		if Slab.Input("player_x", { Text = tostring(player.x), ReturnOnText = false, NumbersOnly = true}) then
-				player.x = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("y: ")
-		Slab.SameLine()
-		if Slab.Input("player_y", { Text = tostring(player.y), ReturnOnText = false, NumbersOnly = true}) then
-				player.y = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("moving: ")
-		Slab.SameLine()
-		if Slab.Input("player_moving", { Text = tostring(moving), ReturnOnText = false}) then
-				moving = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("direction: ")
-		Slab.SameLine()
-		if Slab.Input("player_dir", { Text = tostring(dir), ReturnOnText = false, NumbersOnly = true}) then
-				dir = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("speed: " .. speed)
-
-		Slab.Text("speed idle (override): ")
-		Slab.SameLine()
-		if Slab.Input("idle_speed", { Text = tostring(player_anim.idle.speed), ReturnOnText = false, NumbersOnly = true}) then
-				player_anim.idle.speed = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("speed walk (override): ")
-		Slab.SameLine()
-		if Slab.Input("walk_speed", { Text = tostring(player_anim.walk.speed), ReturnOnText = false, NumbersOnly = true}) then
-				player_anim.walk.speed = tonumber(Slab.GetInputText())
-		end
-		Slab.Text("speed run (override): ")
-		Slab.SameLine()
-		if Slab.Input("run_speed", { Text = tostring(player_anim.run.speed), ReturnOnText = false, NumbersOnly = true}) then
-				player_anim.run.speed = tonumber(Slab.GetInputText())
-		end
+		-- Slab.Text("x: ")
+		-- Slab.SameLine()
+		-- if Slab.Input("player_x", { Text = tostring(player.x), ReturnOnText = false, NumbersOnly = true}) then
+		-- 		player.x = tonumber(Slab.GetInputText())
+		-- end
+		-- Slab.Text("y: ")
+		-- Slab.SameLine()
+		-- if Slab.Input("player_y", { Text = tostring(player.y), ReturnOnText = false, NumbersOnly = true}) then
+		-- 		player.y = tonumber(Slab.GetInputText())
+		-- end
+		-- Slab.Text("speed: " .. speed)
+    --
+		-- Slab.Text("speed idle (override): ")
+		-- Slab.SameLine()
+		-- if Slab.Input("idle_speed", { Text = tostring(player_anim.idle.speed), ReturnOnText = false, NumbersOnly = true}) then
+		-- 		player_anim.idle.speed = tonumber(Slab.GetInputText())
+		-- end
+		-- Slab.Text("speed walk (override): ")
+		-- Slab.SameLine()
+		-- if Slab.Input("walk_speed", { Text = tostring(player_anim.walk.speed), ReturnOnText = false, NumbersOnly = true}) then
+		-- 		player_anim.walk.speed = tonumber(Slab.GetInputText())
+		-- end
+		-- Slab.Text("speed run (override): ")
+		-- Slab.SameLine()
+		-- if Slab.Input("run_speed", { Text = tostring(player_anim.run.speed), ReturnOnText = false, NumbersOnly = true}) then
+		-- 		player_anim.run.speed = tonumber(Slab.GetInputText())
+		-- end
 
 		Slab.EndWindow()
 	end
@@ -227,28 +217,23 @@ end
 
 function StateTest:draw()
 	if not self.is_ready then return end
-	local img = player_anim[current_anim_name].img
-	local anim = current_anim
-	anim:draw(img, player.x, player.y, 0, scale, scale)
+	self.world:emit("draw")
 
-	love.graphics.setColor(1, 0, 0, 0.5)
-	love.graphics.rectangle("line", ground.x, ground.y, ground.w, ground.h)
-	love.graphics.rectangle("line", wall_r.x, wall_r.y, wall_r.w, wall_r.h)
-	love.graphics.rectangle("line", wall_l.x, wall_l.y, wall_l.w, wall_l.h)
-	love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
-
+	!if not _RELEASE then
 	Slab.Draw()
+	self.world:emit("draw_debug")
+	!end
 end
 
 function StateTest:keypressed(key)
-	if key == "lshift" then
-		is_shift = true
-	end
-	if key == "a" or key == "left" then
-		moving = true
-	elseif key == "d" or key == "right" then
-		moving = true
-	end
+	-- if key == "lshift" then
+	-- 	is_shift = true
+	-- end
+	-- if key == "a" or key == "left" then
+	-- 	moving = true
+	-- elseif key == "d" or key == "right" then
+	-- 	moving = true
+	-- end
 end
 
 function StateTest:keyreleased(key)

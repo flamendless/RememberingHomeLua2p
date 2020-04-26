@@ -17,6 +17,11 @@ Keybinds.ui = {
 	escape = { "escape", "backspace" }
 }
 
+Keybinds.player = {
+	move_left = { "a" },
+	move_right = { "d" },
+}
+
 Keybinds.ui_default = {}
 table.copy(Keybinds.ui, Keybinds.ui_default)
 
@@ -45,6 +50,11 @@ function Keybinds.pressed_ui(ui_key, key)
 		end
 	end
 	return false
+end
+
+function Keybinds.pressed_player(id)
+	local keys = Keybinds.player[id]
+	return love.keyboard.isDown(Keybinds.player[id])
 end
 
 return Keybinds
