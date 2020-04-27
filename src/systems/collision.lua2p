@@ -2,12 +2,12 @@ local Concord = require("modules.concord.concord")
 local Bump = require("modules.bump.bump")
 
 local Collision = Concord.system({
-	pool = {"collider", "position"},
+	pool = {"collider", "position", "body"},
 })
 
 local world
 
-function Collision:init(world)
+function Collision:init()
 	world = Bump.newWorld()
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -18,12 +18,26 @@ function Collision:init(world)
 	end
 end
 
+function Collision:update(dt)
+	for _, e in ipairs(self.pool) do
+		local collider = e:get("collider")
+		local body = e:get("body")
+		local pos = e:get("position").pos
+
+		if body.vel_x ~= 0 or body.vel_y ~= 0 then
+			local cols
+			pos.x, pos.y, cols = world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y)
+		end
+	end
+end
+
 !if not _RELEASE then
 function Collision:draw_debug()
 	for _, e in ipairs(self.pool) do
 		local collider = e:get("collider")
 		local pos = e:get("position").pos
 		local size = collider.size
+
 		love.graphics.setColor(1, 0, 0, 0.5)
 		love.graphics.rectangle("line", pos.x, pos.y, size.x, size.y)
 	end

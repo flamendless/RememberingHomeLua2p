@@ -14,9 +14,11 @@ local Systems = {
 	Animation = require("systems.animation"),
 	Collision = require("systems.collision"),
 	Controller = require("systems.controller"),
+	DebugSlab = require("systems.debug_slab"),
+	Movement = require("systems.movement"),
 }
 local Assemblages = {
-	Common = require("assemblages.common")
+	Player = require("assemblages.player")
 }
 
 local assets_data = {
@@ -27,69 +29,7 @@ local assets_data = {
 	},
 }
 local assets = { images = {} }
-
-local bump_world
-
-local animations = {"idle", "walk", "run"}
-local player_anim = {
-	idle = { speed = 0 },
-	walk = { speed = 128 },
-	run = { speed = 180 },
-}
-
-local current_anim, current_anim_name
-local speed = 0
-local is_shift = false
-local moving = false
-local dir = 1
-
-local opt = { Title = "Test", IsOpen = true, W = 480, H = 480 }
 local scale = 1
-local gravity = 320
-
-local animation_switch = function(new_anim, new_dir)
-	assert(type(new_anim) == "string")
-	assert(player_anim[new_anim])
-	dir = new_dir or dir
-	current_anim_name = new_anim
-	local t = player_anim[new_anim]
-	if dir == 1 then
-		current_anim = t.anim_right
-	elseif dir == -1 then
-		current_anim = t.anim_left
-	end
-	speed = t.speed
-end
-
-local player_movement = function(dt)
-	local _dir = 0
-	if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
-		_dir = -1
-	elseif love.keyboard.isDown("d") or love.keyboard.isDown("right") then
-		_dir = 1
-	else
-		moving = false
-	end
-
-	if _dir ~= 0 then
-		local mx = speed * _dir * dt
-		local cols
-		player.x, player.y, cols, cols_len = bump_world:move(player, player.x + mx, player.y)
-	end
-
-	local my = gravity * dt
-	player.x, player.y = bump_world:move(player, player.x, player.y + my)
-
-	if moving then
-		if is_shift then
-			animation_switch("run", _dir)
-		else
-			animation_switch("walk", _dir)
-		end
-	else
-		animation_switch("idle")
-	end
-end
 
 function StateTest:new()
 	return self:init({
@@ -108,47 +48,24 @@ function StateTest:load()
 		self.world:addSystem(Systems.Animation)
 		self.world:addSystem(Systems.Collision)
 		self.world:addSystem(Systems.Controller)
+		self.world:addSystem(Systems.DebugSlab)
+		self.world:addSystem(Systems.Movement)
 
 		local ground = Concord.entity(self.world)
 			:give("position", vec2:new(256, 412))
 			:give("collider", vec2:new(512, 128))
+			:give("body", "static")
+			:give("debug_slab", "ground")
 
 		local player = Concord.entity(self.world)
-			:give("position", vec2:new(512, 256))
-			:give("collider", vec2:new(64, 64))
-			:give("animation")
-			:give("controller")
-			:give("multiple_animation_data", "idle",
+			:give("debug_slab", "player")
+			:assemble(Assemblages.Player.base,
+				vec2:new(512, 256), vec2:new(64, 64),
+				{ idle = 0, walk = 128, run = 180 }, 320,
 				{
-					idle = {
-						spritesheet = assets.images.sheet_player_idle,
-						frames = {"1-5", 1, "1-5", 2},
-						delay = 0.1,
-						rows_count = 2,
-						columns_count = 5,
-						n_frames = 10,
-					},
-					walk = {
-						spritesheet = assets.images.sheet_player_walk,
-						frames = {"1-4", 1, "1-4", 2},
-						delay = 0.1,
-						rows_count = 2,
-						columns_count = 4,
-						n_frames = 8,
-					},
-					run = {
-						spritesheet = assets.images.sheet_player_run,
-						frames = {"1-6", 1},
-						delay = 0.1,
-						rows_count = 1,
-						columns_count = 6,
-						n_frames = 6,
-					},
-				}, {
-					--copy (1) as (2) applying (3)
-					idle = { "idle_left",  "flipH"},
-					walk = { "walk_left",  "flipH"},
-					run = { "run_left", "flipH"},
+					sheet_idle = assets.images.sheet_player_idle,
+					sheet_walk = assets.images.sheet_player_walk,
+					sheet_run = assets.images.sheet_player_run,
 				})
 	end)
 end
@@ -163,56 +80,7 @@ end
 
 function StateTest:slab_update(dt)
 	Slab.Update(dt)
-	if opt.IsOpen then
-		Slab.BeginWindow('Test Mode', opt)
-		Slab.Text("FPS: " .. love.timer.getFPS())
-		Slab.Separator()
-
-		Slab.Text("Scale: ")
-		Slab.SameLine()
-		if Slab.Input("Scale", { Text = tostring(scale), ReturnOnText = false, NumbersOnly = true, MinNumber = 1, MaxNumber = 4}) then
-				scale = tonumber(Slab.GetInputText())
-		end
-
-		Slab.Text("Gravity: ")
-		Slab.SameLine()
-		if Slab.Input("Gravity", { Text = tostring(gravity), ReturnOnText = false, NumbersOnly = true, MinNumber = 0, MaxNumber = 720}) then
-				gravity = tonumber(Slab.GetInputText())
-		end
-
-		Slab.Separator()
-		self.world:emit("draw_debug_slab")
-
-		-- Slab.Text("x: ")
-		-- Slab.SameLine()
-		-- if Slab.Input("player_x", { Text = tostring(player.x), ReturnOnText = false, NumbersOnly = true}) then
-		-- 		player.x = tonumber(Slab.GetInputText())
-		-- end
-		-- Slab.Text("y: ")
-		-- Slab.SameLine()
-		-- if Slab.Input("player_y", { Text = tostring(player.y), ReturnOnText = false, NumbersOnly = true}) then
-		-- 		player.y = tonumber(Slab.GetInputText())
-		-- end
-		-- Slab.Text("speed: " .. speed)
-    --
-		-- Slab.Text("speed idle (override): ")
-		-- Slab.SameLine()
-		-- if Slab.Input("idle_speed", { Text = tostring(player_anim.idle.speed), ReturnOnText = false, NumbersOnly = true}) then
-		-- 		player_anim.idle.speed = tonumber(Slab.GetInputText())
-		-- end
-		-- Slab.Text("speed walk (override): ")
-		-- Slab.SameLine()
-		-- if Slab.Input("walk_speed", { Text = tostring(player_anim.walk.speed), ReturnOnText = false, NumbersOnly = true}) then
-		-- 		player_anim.walk.speed = tonumber(Slab.GetInputText())
-		-- end
-		-- Slab.Text("speed run (override): ")
-		-- Slab.SameLine()
-		-- if Slab.Input("run_speed", { Text = tostring(player_anim.run.speed), ReturnOnText = false, NumbersOnly = true}) then
-		-- 		player_anim.run.speed = tonumber(Slab.GetInputText())
-		-- end
-
-		Slab.EndWindow()
-	end
+	self.world:emit("draw_slab")
 end
 
 function StateTest:draw()
@@ -223,42 +91,6 @@ function StateTest:draw()
 	Slab.Draw()
 	self.world:emit("draw_debug")
 	!end
-end
-
-function StateTest:keypressed(key)
-	-- if key == "lshift" then
-	-- 	is_shift = true
-	-- end
-	-- if key == "a" or key == "left" then
-	-- 	moving = true
-	-- elseif key == "d" or key == "right" then
-	-- 	moving = true
-	-- end
-end
-
-function StateTest:keyreleased(key)
-	if key == "1" then
-		if love.keyboard.isDown("lshift") then
-			self.world:emit("switch_animation_tag", "idle_left")
-		else
-			self.world:emit("switch_animation_tag", "idle")
-		end
-	elseif key == "2" then
-		if love.keyboard.isDown("lshift") then
-			self.world:emit("switch_animation_tag", "walk_left")
-		else
-			self.world:emit("switch_animation_tag", "walk")
-		end
-	elseif key == "3" then
-		if love.keyboard.isDown("lshift") then
-			self.world:emit("switch_animation_tag", "run_left")
-		else
-			self.world:emit("switch_animation_tag", "run")
-		end
-	end
-	-- if key == "lshift" then
-	-- 	is_shift = false
-	-- end
 end
 
 return StateTest

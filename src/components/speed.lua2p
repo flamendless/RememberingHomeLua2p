@@ -1,0 +1,19 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("speed", function(c, speed)
+	!if _ASSERT then
+	if speed then
+		assert(type(speed) == "number", "Passed argument must be of type 'number'")
+	end
+	!end
+	c.speed = speed or 0
+end)
+
+Concord.component("speed_data", function(c, speed_data)
+	!if _ASSERT then
+	if speed then
+		assert(type(speed) == "table", "Passed argument must be of type 'table'")
+	end
+	!end
+	c.speed_data = speed_data
+end)

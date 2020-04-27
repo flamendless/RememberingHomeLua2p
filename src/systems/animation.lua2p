@@ -4,10 +4,6 @@ local Concord = require("modules.concord.concord")
 local min = math.min
 local cache_multi_animation = {}
 
-!if not _RELEASE then
-local all_animation = {}
-!end
-
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
 	pool_multi = {"multiple_animation_data", "animation", "position"},
@@ -95,11 +91,6 @@ function Animation:init()
 		local data = multi.data[multi.first]
 		animation.current_tag = multi.first
 		e:give("animation_data", data)
-		!if not _RELEASE then
-			for k, v in pairs(multi.data) do
-				all_animation[k] = k
-			end
-		!end
 	end
 
 	self.pool_pause.onEntityAdded = function(pool, e)
@@ -199,30 +190,5 @@ function Animation:draw()
 		end
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-function Animation:draw_debug_slab()
-	for _, e in ipairs(self.pool_multi) do
-		local animation = e:get("animation")
-		Slab.Text("Current Animation: " .. animation.current_tag)
-		if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
-			for k, v in pairs(all_animation) do
-				if Slab.TextSelectable(k) then
-					e:give("override_animation")
-					self:switch_animation_tag(k)
-				end
-			end
-			Slab.EndComboBox()
-		end
-		if e:has("override_animation") then
-			Slab.SameLine()
-			if Slab.Button("stop") then
-				e:remove("override_animation")
-			end
-		end
-	end
-end
-!end
 
 return Animation

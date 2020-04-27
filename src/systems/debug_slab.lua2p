@@ -1,0 +1,106 @@
+local Concord = require("modules.concord.concord")
+local Slab = require("modules.slab")
+
+local format = string.format
+
+local DebugSlab = Concord.system({
+	pool = {"debug_slab"},
+})
+
+local world
+local ent_count = 0
+local all_animation = {}
+
+function DebugSlab:init()
+	world = self:getWorld()
+	self.pool.onEntityAdded = function(pool, e)
+		local id = e:get("debug_slab").id
+		local multi = e:get("multiple_animation_data")
+
+		ent_count = ent_count + 1
+
+		if multi then
+			if all_animation[id] == nil then
+				all_animation[id] = {}
+			end
+			for k, v in pairs(multi.data) do
+				all_animation[id][k] = k
+			end
+		end
+	end
+end
+
+function DebugSlab:draw_slab()
+	Slab.BeginWindow("MainDebug", { Title = "Entity" })
+	Slab.Text("Entity Count (debuggable): " .. ent_count)
+	Slab.EndWindow()
+
+	for _, e in ipairs(self.pool) do
+		local id = e:get("debug_slab").id
+
+		Slab.BeginWindow(id, { Title = id })
+
+		local animation = e:get("animation")
+		if animation then
+			Slab.Text("Current Animation: " .. animation.current_tag)
+			if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
+				for k, v in pairs(all_animation[id]) do
+					if Slab.TextSelectable(k) then
+						e:give("override_animation")
+						world:emit("switch_animation_tag", k)
+					end
+				end
+				Slab.EndComboBox()
+			end
+			if e:has("override_animation") then
+				Slab.SameLine()
+				if Slab.Button("stop") then
+					e:remove("override_animation")
+				end
+			end
+		end
+
+		local pos = e:get("position")
+		if pos then
+			local pos = pos.pos
+			local str_pos = format("(%i, %i)", pos.x, pos.y)
+			Slab.Text("Position: " .. str_pos)
+		end
+
+		local collider = e:get("collider")
+		if collider then
+			local size = collider.size
+			local str_size = format("(%i, %i)", size.x, size.y)
+			Slab.Text("Size: " .. str_size)
+		end
+
+		local speed = e:get("speed")
+		if speed then
+			speed = speed.speed
+			Slab.Text("Speed: "  .. speed)
+		end
+
+		local gravity = e:get("gravity")
+		if gravity then
+			gravity = gravity.gravity
+			Slab.Text("Gravity: "  .. gravity)
+		end
+
+		local body = e:get("body")
+		if body then
+			if body.kind == "dynamic" then
+				if not e:has("override_animation") then
+					Slab.Text("Moving: " .. tostring(body.dx ~= 0))
+					Slab.Text("Direction: " .. body.dir)
+				else
+					Slab.Text("Moving: (overriden)")
+					Slab.Text("Direction: (overriden)")
+				end
+			end
+		end
+
+		Slab.EndWindow()
+	end
+end
+
+return DebugSlab

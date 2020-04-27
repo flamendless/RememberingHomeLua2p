@@ -1,0 +1,8 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("gravity", function(c, gravity)
+	!if _ASSERT then
+	assert(type(gravity) == "number", "Passed argument must be of type 'number'")
+	!end
+	c.gravity = gravity
+end)

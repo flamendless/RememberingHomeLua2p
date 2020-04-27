@@ -4,7 +4,7 @@ local Bump = require("modules.bump.bump")
 local Keybinds = require("keybinds")
 
 local Controller = Concord.system({
-	pool = {"controller"},
+	pool = {"controller", "body"},
 })
 
 function Controller:init()
@@ -14,57 +14,58 @@ function Controller:update(dt)
 	local world = self:getWorld()
 	for _, e in ipairs(self.pool) do
 		local controller = e:get("controller")
+		local body = e:get("body")
+
 		if e:has("override_animation") then return end
 		if Keybinds.pressed_player("move_left") then
-			controller.is_run = love.keyboard.isDown("lshift")
-			controller.dir = -1
-			controller.dx = -1
+			body.is_run = love.keyboard.isDown("lshift")
+			body.dir = -1
+			body.dx = -1
 		elseif Keybinds.pressed_player("move_right") then
-			controller.is_run = love.keyboard.isDown("lshift")
-			controller.dir = 1
-			controller.dx = 1
+			body.is_run = love.keyboard.isDown("lshift")
+			body.dir = 1
+			body.dx = 1
 		else
-			controller.dx = 0
+			body.dx = 0
 		end
 
-		if controller.dx ~= 0 then
-			if controller.is_run then
-				if controller.dir == 1 then
-					world:emit("switch_animation_tag", "run")
-				else
-					world:emit("switch_animation_tag", "run_left")
-				end
+		local animation_name
+		local animation_variance
+		if body.dx ~= 0 then
+			if body.is_run then
+				animation_name = "run"
 			else
-				if controller.dir == 1 then
-					world:emit("switch_animation_tag", "walk")
-				else
-					world:emit("switch_animation_tag", "walk_left")
-				end
+				animation_name = "walk"
 			end
 		else
-			if controller.dir == 1 then
-				world:emit("switch_animation_tag", "idle")
+			animation_name = "idle"
+		end
+
+		if body.dir == -1 then
+			animation_variance = "_left"
+		end
+
+		if animation_name then
+			if animation_variance then
+				world:emit("switch_animation_tag", animation_name .. animation_variance)
 			else
-				world:emit("switch_animation_tag", "idle_left")
+				world:emit("switch_animation_tag", animation_name)
+			end
+		end
+
+		local speed = e:get("speed")
+		local speed_data = e:get("speed_data")
+		if speed and speed_data then
+			local old_speed = speed.speed
+			local new_speed = speed_data.speed_data[animation_name]
+			if body.dx ~= 0 then
+				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
+				speed.speed = speed_dt
+			else
+				speed.speed = new_speed
 			end
 		end
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-function Controller:draw_debug_slab()
-	for _, e in ipairs(self.pool) do
-		local controller = e:get("controller")
-		if not e:has("override_animation") then
-			Slab.Text("Moving: " .. tostring(controller.dx ~= 0))
-			Slab.Text("Direction: " .. controller.dir)
-		else
-			Slab.Text("Moving: (overriden)")
-			Slab.Text("Direction: (overriden)")
-		end
-	end
-end
-!end
 
 return Controller

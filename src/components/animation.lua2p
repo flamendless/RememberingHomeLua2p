@@ -10,8 +10,8 @@ Concord.component("animation", function(c, stop_on_last)
 	!end
 	c.grid = nil
 	c.animation = nil
-	c.is_playing = true
 	c.current_tag = nil
+	c.is_playing = true
 	c.stop_on_last = (stop_on_last == true) and true or false
 end)
 

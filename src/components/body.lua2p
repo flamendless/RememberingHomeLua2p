@@ -1,0 +1,16 @@
+local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+
+local body_kinds = Enum("dynamic", "static")
+
+Concord.component("body", function(c, kind)
+	!if ASSERT then
+	assert(type(kind) == "string", "Passed argument must be of type 'string'")
+	!end
+	c.kind = body_kinds[kind]
+	c.is_run = false
+	c.dx = 0
+	c.dir = 1
+	c.vel_x = 0
+	c.vel_y = 0
+end)
