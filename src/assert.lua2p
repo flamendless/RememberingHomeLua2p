@@ -80,8 +80,8 @@ function Assert.should_vec2(arg)
 end
 
 function Assert.within_range(arg, min, max)
-	local msg = format("Passed argument must be within the range: %n - %n", min, max)
-	assert(arg > max or arg < min, msg)
+	local msg = format("Passed argument must be within the range: %i - %i", min, max)
+	assert((not (arg > max)) or (not (arg < min)), msg)
 end
 
 --SAFE
