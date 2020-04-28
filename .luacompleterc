@@ -1,0 +1,9 @@
+{
+  "global": {
+  },
+  "luaVersion": "5.1",
+  "packagePath": "./?.lua",
+  "cwd": "."
+}
+
+# vim:filetype=json

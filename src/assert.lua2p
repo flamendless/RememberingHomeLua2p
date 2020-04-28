@@ -32,6 +32,10 @@ function Assert.should_exists(arg)
 	assert(arg, msg_should_exists)
 end
 
+function Assert.should_font(arg)
+	assert(arg:type() == T_FONT, msg_should_font)
+end
+
 function Assert.should_function(arg)
 	assert(type(arg) == T_FUNCTION, msg_should_function)
 end
@@ -55,14 +59,14 @@ end
 --CUSTOM
 function Assert.either_type(arg, ...)
 	local msg = "Passed argumebt must be either of types: " .. concat({...}, ", ")
-	for i, v in ipairs({...}) do
+	for _, v in ipairs({...}) do
 		assert(type(arg) == v, msg)
 	end
 end
 
 function Assert.either_value(arg, ...)
 	local msg = "Passed argument must be either of values: " .. concat({...}, ", ")
-	for i, v in ipairs({...}) do
+	for _, v in ipairs({...}) do
 		assert(arg == v, msg)
 	end
 end
