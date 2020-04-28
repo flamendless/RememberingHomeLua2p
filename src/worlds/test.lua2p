@@ -93,4 +93,8 @@ function StateTest:draw()
 	!end
 end
 
+function StateTest:exit()
+	self.world:emit("deinit")
+end
+
 return StateTest

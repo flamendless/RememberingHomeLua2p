@@ -265,6 +265,9 @@ function G_state_switch(next_id, init)
 	assert(Worlds[next_id], str_err)
 	!end
 	prev_world = current_world
+	if prev_world and prev_world.exit then
+		prev_world:exit()
+	end
 	current_world = Worlds[next_id]:new()
 	local str = format("Switched from %s to %s", (prev_world and prev_world.id) or "", current_world.id)
 	Log.trace(str)
