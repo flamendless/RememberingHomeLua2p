@@ -1,0 +1,125 @@
+local Assert = {}
+
+local concat = table.concat
+local format = string.format
+
+local T_BOOLEAN = "boolean"
+local T_FONT = "Font"
+local T_FONT_SDF = "fontsdf"
+local T_FUNCTION = "function"
+local T_IMAGE = "Image"
+local T_NUMBER = "number"
+local T_STRING = "string"
+local T_TABLE = "table"
+local T_VEC2 = "vec2"
+
+local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_exists = "Passed argument must not be nil"
+local msg_should_font = "Passed argument must be of type 'Font'"
+local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
+local msg_should_function = "Passed argument must be of type 'function'"
+local msg_should_image = "Passed argument must be of type 'Image'"
+local msg_should_number = "Passed argument must be of type 'number'"
+local msg_should_string = "Passed argument must be of type 'string'"
+local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_vec2 = "Passed argument must be of type 'vec2'"
+
+function Assert.should_boolean(arg)
+	assert(type(arg) == T_BOOLEAN, msg_should_boolean)
+end
+
+function Assert.should_exists(arg)
+	assert(arg, msg_should_exists)
+end
+
+function Assert.should_function(arg)
+	assert(type(arg) == T_FUNCTION, msg_should_function)
+end
+
+function Assert.should_image(arg)
+	assert(arg:type() == T_IMAGE, msg_should_image)
+end
+
+function Assert.should_number(arg)
+	assert(type(arg) == T_NUMBER, msg_should_number)
+end
+
+function Assert.should_string(arg)
+	assert(type(arg) == T_STRING, msg_should_string)
+end
+
+function Assert.should_table(arg)
+	assert(type(arg) == T_TABLE, msg_should_table)
+end
+
+--CUSTOM
+function Assert.either_type(arg, ...)
+	local msg = "Passed argumebt must be either of types: " .. concat({...}, ", ")
+	for i, v in ipairs({...}) do
+		assert(type(arg) == v, msg)
+	end
+end
+
+function Assert.either_value(arg, ...)
+	local msg = "Passed argument must be either of values: " .. concat({...}, ", ")
+	for i, v in ipairs({...}) do
+		assert(arg == v, msg)
+	end
+end
+
+function Assert.should_true(arg, id)
+	assert(arg == true, "Passed argument must be of type: " .. (id or ""))
+end
+
+function Assert.should_vec2(arg)
+	assert(arg.type == T_VEC2, msg_should_vec2)
+end
+
+function Assert.within_range(arg, min, max)
+	local msg = format("Passed argument must be within the range: %n - %n", min, max)
+	assert(arg > max or arg < min, msg)
+end
+
+--SAFE
+function Assert.safe_should_boolean(arg)
+	if arg then
+		Assert.should_boolean(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_font(arg)
+	if arg then
+		Assert.should_font(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_font_or_sdf(arg)
+	if arg then
+		local t = arg:type()
+		assert(t == T_FONT or t == T_FONT_SDF, msg_should_font_or_sdf)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_number(arg)
+	if arg then
+		Assert.should_number(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_table(arg)
+	if arg then
+		Assert.should_table(arg)
+		return true
+	end
+	return false
+end
+
+return Assert

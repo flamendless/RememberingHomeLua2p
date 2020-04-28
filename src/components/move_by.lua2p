@@ -1,13 +1,16 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("move_by", function(c, pos, duration, delay)
 	!if _ASSERT then
-	assert(pos.type == "vec2", "Passed argument must be of type 'vec2'")
-	assert(type(duration) == "number", "Passed argument must be of type 'number'")
-	if delay then
-		assert(type(delay) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_vec2(pos)
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
+
 	c.pos = pos:copy()
 	c.duration = duration
 	c.delay = delay or 0
@@ -15,18 +18,18 @@ end)
 
 Concord.component("move_to_original", function(c, duration, delay)
 	!if _ASSERT then
-	assert(type(duration) == "number", "Passed argument must be of type 'number'")
-	if delay then
-		assert(type(delay) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
+
 	c.duration = duration
 	c.delay = delay or 0
 end)
 
 Concord.component("move_on_complete", function(c, callback)
 	!if _ASSERT then
-	assert(type(callback) == "function", "Passed argument must be of type 'function'")
+	Assert.should_funciton(callback)
 	!end
+
 	c.callback = callback
 end)

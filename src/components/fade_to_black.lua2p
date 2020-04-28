@@ -1,12 +1,15 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("fade_to_black", function(c, duration, delay)
 	!if _ASSERT then
-	assert(type(duration) == "number", "Passed argument1 must be of type 'number'")
-	if delay then
-		assert(type(delay) == "number", "Passed argument1 must be of type 'number'")
-	end
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
+
 	c.duration = duration
 	c.delay = delay or 0
 end)

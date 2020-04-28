@@ -1,8 +1,13 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("collider", function(c, size)
 	!if _ASSERT then
-	assert(size.type == "vec2", "Passed argument must be of type 'vec2'")
+	Assert.should_vec2(size)
 	!end
+
 	c.size = size:copy()
 end)

@@ -1,11 +1,13 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("random_text", function(c, text, font)
 	!if _ASSERT then
-	assert(type(text) == "string" or type(text) == "table", "Passed argument must be of type 'string' or 'table'")
-	if font then
-		assert(font:type() == "Font", "Passed argument must be of type 'Font'")
-	end
+	Assert.either_type(text, "string", "table")
+	Assert.safe_should_font(font)
 	!end
 
 	if type(text) == "string" then

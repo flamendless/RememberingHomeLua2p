@@ -1,13 +1,16 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("target_color", function(c, target_color, duration, delay)
 	!if _ASSERT then
-	assert(type(target_color) == "table", "Passed argument must be of type 'table'")
-	assert(type(duration) == "number", "Passed argument must be of type 'number'")
-	if delay then
-		assert(type(delay) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_table(target_color)
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
+
 	c.target_color = { target_color[1], target_color[2], target_color[3], target_color[4] }
 	c.duration = duration
 	c.delay = delay or 0

@@ -1,23 +1,18 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("transform", function(c, rotation, sx, sy, ox, oy)
 	!if _ASSERT then
-	if rotation then
-		assert(type(rotation) == "number", "Passed argument 'rotation' must be of type 'number'")
-	end
-	if sx then
-		assert(type(sx) == "number", "Passed argument 'sx' must be of type 'number'")
-	end
-	if sy then
-		assert(type(sy) == "number", "Passed argument 'sy' must be of type 'number'")
-	end
-	if ox then
-		assert(type(ox) == "number", "Passed argument 'ox' must be of type 'number'")
-	end
-	if oy then
-		assert(type(oy) == "number", "Passed argument 'oy' must be of type 'number'")
-	end
+	Assert.safe_should_number(rotation)
+	Assert.safe_should_number(sx)
+	Assert.safe_should_number(sy)
+	Assert.safe_should_number(ox)
+	Assert.safe_should_number(oy)
 	!end
+
 	c.rotation = rotation or 0
 	c.sx = sx or 1
 	c.sy = sy or 1

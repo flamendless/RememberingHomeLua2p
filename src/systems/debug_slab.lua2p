@@ -12,6 +12,10 @@ local ent_count = 0
 local all_animation = {}
 
 function DebugSlab:init()
+	!if RELEASE then
+	assert("You are in Release build")
+	!end
+
 	world = self:getWorld()
 	self.pool.onEntityAdded = function(pool, e)
 		local id = e:get("debug_slab").id

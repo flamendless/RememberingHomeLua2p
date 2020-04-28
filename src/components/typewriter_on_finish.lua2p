@@ -1,12 +1,15 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("typewriter_on_finish", function(c, callback, delay)
 	!if _ASSERT then
-	assert(type(callback) == "function", "Passed argument1 must be of type 'function'")
-	if delay then
-		assert(type(delay) == "number", "Passed argument2 must be of type 'number'")
-	end
+	Assert.should_function(callback)
+	Assert.safe_should_number(delay)
 	!end
+
 	c.callback = callback
 	c.delay = delay or 0
 end)

@@ -1,12 +1,17 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("bounding_box", function(c, x, y, w, h)
 	!if _ASSERT then
-	assert(type(x) == "number", "Passed argument must be of type 'number'")
-	assert(type(y) == "number", "Passed argument must be of type 'number'")
-	assert(type(w) == "number", "Passed argument must be of type 'number'")
-	assert(type(h) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(x)
+	Assert.should_number(y)
+	Assert.should_number(w)
+	Assert.should_number(h)
 	!end
+
 	c.x = x
 	c.y = y
 	c.w = w

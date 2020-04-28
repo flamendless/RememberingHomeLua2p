@@ -1,9 +1,14 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("position", function(c, pos)
 	!if _ASSERT then
-	assert(pos.type == "vec2", "Passed argument must be of type 'vec2'")
+	Assert.should_vec2(pos)
 	!end
+
 	c.pos = pos:copy()
 	c.original_pos = c.pos:copy()
 end)

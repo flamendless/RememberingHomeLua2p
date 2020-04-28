@@ -1,8 +1,13 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("debug_slab", function(c, id)
 	!if _ASSERT then
-	assert(type(id) == "string", "Passed argument must be of type 'string'")
+	Assert.should_string(id)
 	!end
+
 	c.id = id
 end)

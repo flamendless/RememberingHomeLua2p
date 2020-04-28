@@ -1,8 +1,13 @@
 local Concord = require("modules.concord.concord")
 
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
 Concord.component("lerp_on_complete", function(c, callback)
 	!if _ASSERT then
-	assert(type(callback) == "function", "Passed argument must be of type 'function'")
+	Assert.should_function(callback)
 	!end
+
 	c.callback = callback
 end)
