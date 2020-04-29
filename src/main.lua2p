@@ -9,11 +9,10 @@ io.stdout:setvbuf("no")
 require("modules.batteries"):export()
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
-local Canvas = require("canvas")
+local GameStates = require("gamestates")
 local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
-local WindowMode = require("window_mode")
 
 local min = math.min
 local floor = math.floor
@@ -32,21 +31,6 @@ Log.lovesave = true
 local Semver = require("modules.semver.semver")
 local Timer = require("modules.hump.timer")
 
-local Worlds = require("worlds")
-local current_world, prev_world
-
-local window_size = !(_GAME_SIZE)
-local canvas_resize, state_init
-local mid_canvas, bot_canvas, top_canvas, main_canvas
-local current_mode = 1
-
-!if not _RELEASE then
-local color_red = {1, 0, 0, 1}
-local color_green = {0, 1, 0, 1}
-local color_blue = {0, 0, 1, 1}
-local base_font
-!end
-
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
 
@@ -63,68 +47,32 @@ function love.load()
 	base_font = love.graphics.getFont()
 
 	Info.initialize()
-	canvas_resize()
+	GameStates:canvas_resize()
 	!if _RELEASE then
-	G_state_switch("Splash")
+	GameStates:switch("Splash")
 	!else
-	G_state_switch("Menu")
+	GameStates:switch("Menu")
 	!end
 end
 
 function love.update(dt)
 	Timer.update(dt)
 	Flux.update(dt)
-	current_world:update(dt)
+	GameStates:update(dt)
 end
 
 function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
-	if current_world.top_draw then
-		top_canvas:attach()
-		current_world:top_draw(top_canvas)
-		top_canvas:detach()
-		top_canvas:render()
-	end
+	GameStates:draw()
 
-	if current_world.game_draw then
-		mid_canvas:attach()
-		current_world:game_draw(mid_canvas)
-		mid_canvas:detach()
-		mid_canvas:render()
-	end
-
-	if current_world.bot_draw then
-		bot_canvas:attach()
-		current_world:bot_draw(bot_canvas)
-		bot_canvas:detach()
-		bot_canvas:render()
-	end
-
-	if current_world.draw then
-		main_canvas:attach()
-		current_world:draw(main_canvas)
-		main_canvas:detach()
-		main_canvas:render()
-	end
-
-	!if not _RELEASE then
-	love.graphics.setFont(base_font)
-	love.graphics.setColor(1, 0, 0, 1)
-	love.graphics.print(love.timer.getFPS(), 8, 8)
-	if main_canvas.flags.draw_cross then
-		local str = format("%i, %i", love.mouse.getX(), love.mouse.getY())
-		love.graphics.print(str, 8, 20)
-	end
-	!end
-
-	if not current_world.is_ready then
+	if not GameStates:is_ready() then
 		Preloader.draw_loading()
 	end
 end
 
 function love.keypressed(key)
 	if key == "f" then
-		G_window_resize()
+		GameStates:resize()
 	end
 
 	!if not _RELEASE then
@@ -134,155 +82,29 @@ function love.keypressed(key)
 		bot_canvas.flags.draw_bounds = not bot_canvas.flags.draw_bounds
 		main_canvas.flags.draw_cross = not main_canvas.flags.draw_cross
 	elseif key == "t" then
-		G_state_switch("Test")
+		GameStates:switch("Test")
 	end
-	if key == "b" and current_world.id == "Test" then
-		G_state_switch(prev_world.id)
+	if key == "b" and GameStates:getID() == "Test" then
+		GameStates:switch_to_previous("Test")
 	end
 	!end
 
-	if current_world.keypressed then
-		current_world:keypressed(key)
-	else
-		Log.warn("No keypressed event for ", current_world.id)
-	end
+	GameStates:keypressed(key)
 end
 
 function love.keyreleased(key)
-	if current_world.keyreleased then
-		current_world:keyreleased(key)
-	else
-		Log.warn("No keyreleased event for ", current_world.id)
-	end
+	GameStates:keyreleased(key)
 end
 
 function love.mousepressed(mx, my, mb)
-	if current_world.mousepressed then
-		current_world:mousepressed(mx, my, mb)
-	else
-		Log.warn("No mousepressed event for ", current_world.id)
-	end
+	GameStates:mousepressed(mx, my, mb)
 end
 
 function love.mousereleased(mx, my, mb)
-	if current_world.mousereleased then
-		current_world:mousereleased(mx, my, mb)
-	else
-		Log.warn("No mousereleased event for ", current_world.id)
-	end
+	GameStates:mousereleased(mx, my, mb)
 end
 
 function love.quit()
+	GameStates:quit()
 	Log.info("Quitting...")
-end
-
-function state_init()
-	if current_world.canvases then
-		current_world.canvases = {
-			main_canvas = main_canvas,
-			mid_canvas = mid_canvas,
-			top_canvas = top_canvas,
-			bot_canvas = bot_canvas
-		}
-	end
-end
-
-canvas_resize = function()
-	local game_size = !(_GAME_BASE_SIZE)
-	local window_w = love.graphics.getWidth()
-	local window_h = love.graphics.getHeight()
-	local scale = min(window_w/game_size.x, window_h/game_size.y)
-
-	local main_canvas_prop = {}
-	main_canvas_prop.width = window_w
-	main_canvas_prop.height = window_h
-	main_canvas_prop.x = 0
-	main_canvas_prop.y = 0
-	main_canvas_prop.scale = 1
-
-	local mid_canvas_prop = {}
-	mid_canvas_prop.width = game_size.x * scale
-	mid_canvas_prop.height = game_size.y * scale
-	mid_canvas_prop.x = 0
-	mid_canvas_prop.y = floor(window_h/2 - mid_canvas_prop.height/2)
-	mid_canvas_prop.scale = scale
-
-	local rem_height = window_h - mid_canvas_prop.height
-	local top_canvas_prop = {}
-	top_canvas_prop.width = window_w
-	top_canvas_prop.height = floor(rem_height/2)
-	top_canvas_prop.x = 0
-	top_canvas_prop.y = 0
-	top_canvas_prop.scale = scale
-
-	local bot_canvas_prop = {}
-	bot_canvas_prop.width = window_w
-	bot_canvas_prop.height = floor(rem_height/2)
-	bot_canvas_prop.x = 0
-	bot_canvas_prop.y = floor(window_h/2 + mid_canvas_prop.height/2)
-	bot_canvas_prop.scale = scale
-
-	if main_canvas == nil then
-		main_canvas = Canvas:new(main_canvas_prop)
-		!if not _RELEASE then
-		main_canvas.debug_color = color_red
-		main_canvas.flags.draw_cross = false
-		!end
-	else main_canvas:set(main_canvas_prop)
-	end
-
-	if top_canvas == nil then
-		top_canvas = Canvas:new(top_canvas_prop)
-		!if not _RELEASE then
-		top_canvas.debug_color = color_red
-		!end
-	else top_canvas:set(top_canvas_prop)
-	end
-
-	if mid_canvas == nil then
-		mid_canvas = Canvas:new(mid_canvas_prop)
-		!if not _RELEASE then
-		mid_canvas.debug_color = color_green
-		!end
-	else mid_canvas:set(mid_canvas_prop)
-	end
-
-	if bot_canvas == nil then
-		bot_canvas = Canvas:new(bot_canvas_prop)
-		!if not _RELEASE then
-		bot_canvas.debug_color = color_blue
-		!end
-	else bot_canvas:set(bot_canvas_prop)
-	end
-	if current_world and current_world.canvas_resize then
-		current_world:canvas_resize(window_w, window_h, scale)
-	end
-end
-
-function G_state_switch(next_id, init)
-	local str_err = format("State '%s' doest not exist in 'Worlds'", next_id)
-	!if _ASSERT then
-	assert(Worlds[next_id], str_err)
-	!end
-	prev_world = current_world
-	if prev_world and prev_world.exit then
-		prev_world:exit()
-	end
-	current_world = Worlds[next_id]:new()
-	local str = format("Switched from %s to %s", (prev_world and prev_world.id) or "", current_world.id)
-	Log.trace(str)
-	state_init()
-	current_world:load()
-end
-
-function G_window_resize(override_mode)
-	WindowMode.current = override_mode or (WindowMode.current + 1)
-	if WindowMode.current > #WindowMode.modes then
-		WindowMode.current = 1
-	end
-	local mode = WindowMode.getCurrent()
-	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
-	love.window.setMode(mode.width, mode.height)
-	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
-	canvas_resize()
 end

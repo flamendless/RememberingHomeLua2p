@@ -1,0 +1,235 @@
+local Log = require("modules.log.log")
+
+local Canvas = require("canvas")
+local WindowMode = require("window_mode")
+local Worlds = require("worlds")
+
+local format = string.format
+local min = math.min
+local floor = math.floor
+
+local window_size = !(_GAME_SIZE)
+
+local GameStates = {
+	prev_world = nil,
+	current_world = nil,
+	current_id = nil,
+}
+local mid_canvas, bot_canvas, top_canvas, main_canvas
+!if not _RELEASE then
+local color_red = {1, 0, 0, 1}
+local color_green = {0, 1, 0, 1}
+local color_blue = {0, 0, 1, 1}
+local base_font
+!end
+
+function GameStates:init()
+	if self.current_world.canvases then
+		self.current_world.canvases = {
+			main_canvas = main_canvas,
+			mid_canvas = mid_canvas,
+			top_canvas = top_canvas,
+			bot_canvas = bot_canvas
+		}
+	end
+end
+
+function GameStates:switch(next_id)
+	!if _ASSERT then
+	local str_err = format("State '%s' does not exist in 'Worlds'", next_id)
+	assert(Worlds[next_id], str_err)
+	!end
+
+	self.prev_world = self.current_world
+	if self.prev_world and self.prev_world.exit then
+		self.prev_world:exit()
+	end
+
+	self.current_world = Worlds[next_id]:new()
+	self.current_id = next_id
+
+	local str = format("Switched from %s to %s", (self.prev_world and self.prev_world.id) or "", self.current_id)
+	Log.trace(str)
+
+	self:init()
+	self.current_world:load()
+end
+
+function GameStates:switch_to_previous()
+	self:switch(self.prev_world.id)
+end
+
+function GameStates:resize(override_mode)
+	WindowMode.current = override_mode or (WindowMode.current + 1)
+	if WindowMode.current > #WindowMode.modes then
+		WindowMode.current = 1
+	end
+	local mode = WindowMode.getCurrent()
+	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
+	love.window.setMode(mode.width, mode.height)
+	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
+	self:canvas_resize()
+end
+
+function GameStates:canvas_resize()
+	local game_size = !(_GAME_BASE_SIZE)
+	local window_w = love.graphics.getWidth()
+	local window_h = love.graphics.getHeight()
+	local scale = min(window_w/game_size.x, window_h/game_size.y)
+
+	local main_canvas_prop = {}
+	main_canvas_prop.width = window_w
+	main_canvas_prop.height = window_h
+	main_canvas_prop.x = 0
+	main_canvas_prop.y = 0
+	main_canvas_prop.scale = 1
+
+	local mid_canvas_prop = {}
+	mid_canvas_prop.width = game_size.x * scale
+	mid_canvas_prop.height = game_size.y * scale
+	mid_canvas_prop.x = 0
+	mid_canvas_prop.y = floor(window_h/2 - mid_canvas_prop.height/2)
+	mid_canvas_prop.scale = scale
+
+	local rem_height = window_h - mid_canvas_prop.height
+	local top_canvas_prop = {}
+	top_canvas_prop.width = window_w
+	top_canvas_prop.height = floor(rem_height/2)
+	top_canvas_prop.x = 0
+	top_canvas_prop.y = 0
+	top_canvas_prop.scale = scale
+
+	local bot_canvas_prop = {}
+	bot_canvas_prop.width = window_w
+	bot_canvas_prop.height = floor(rem_height/2)
+	bot_canvas_prop.x = 0
+	bot_canvas_prop.y = floor(window_h/2 + mid_canvas_prop.height/2)
+	bot_canvas_prop.scale = scale
+
+	if main_canvas == nil then
+		main_canvas = Canvas:new(main_canvas_prop)
+		!if not _RELEASE then
+		main_canvas.debug_color = color_red
+		main_canvas.flags.draw_cross = false
+		!end
+	else main_canvas:set(main_canvas_prop)
+	end
+
+	if top_canvas == nil then
+		top_canvas = Canvas:new(top_canvas_prop)
+		!if not _RELEASE then
+		top_canvas.debug_color = color_red
+		!end
+	else top_canvas:set(top_canvas_prop)
+	end
+
+	if mid_canvas == nil then
+		mid_canvas = Canvas:new(mid_canvas_prop)
+		!if not _RELEASE then
+		mid_canvas.debug_color = color_green
+		!end
+	else mid_canvas:set(mid_canvas_prop)
+	end
+
+	if bot_canvas == nil then
+		bot_canvas = Canvas:new(bot_canvas_prop)
+		!if not _RELEASE then
+		bot_canvas.debug_color = color_blue
+		!end
+	else bot_canvas:set(bot_canvas_prop)
+	end
+
+	if self.current_world and self.current_world.canvas_resize then
+		self.current_world:canvas_resize(w, h, scale)
+	end
+end
+
+function GameStates:getID()
+	return self.current_id
+end
+
+function GameStates:is_ready()
+	return self.current_world.is_ready
+end
+
+function GameStates:update(dt)
+	self.current_world:update(dt)
+end
+
+function GameStates:draw()
+	if self.current_world.top_draw then
+		top_canvas:attach()
+		self.current_world:top_draw(top_canvas)
+		top_canvas:detach()
+		top_canvas:render()
+	end
+
+	if self.current_world.game_draw then
+		mid_canvas:attach()
+		self.current_world:game_draw(mid_canvas)
+		mid_canvas:detach()
+		mid_canvas:render()
+	end
+
+	if self.current_world.bot_draw then
+		bot_canvas:attach()
+		self.current_world:bot_draw(bot_canvas)
+		bot_canvas:detach()
+		bot_canvas:render()
+	end
+
+	if self.current_world.draw then
+		main_canvas:attach()
+		self.current_world:draw(main_canvas)
+		main_canvas:detach()
+		main_canvas:render()
+	end
+end
+
+function GameStates:keypressed(key)
+	if self.current_world.keypressed then
+		self.current_world:keypressed(key)
+	!if not _RELEASE then
+	else
+		Log.warn("No keypressed event for ", self.current_id)
+	!end
+	end
+end
+
+function GameStates:keyreleased(key)
+	if self.current_world.keyreleased then
+		self.current_world:keyreleased(key)
+	!if not _RELEASE then
+	else
+		Log.warn("No keyreleased event for ", self.current_id)
+	!end
+	end
+end
+
+function GameStates:mousepressed(mx, my, mb)
+	if self.current_world.mousepressed then
+		self.current_world:mousepressed(mx, my, mb)
+	else
+	!if not _RELEASE then
+		Log.warn("No mousepressed event for ", self.current_id)
+	!end
+	end
+end
+
+function GameStates:mousereleased(mx, my, mb)
+	if self.current_world.mousereleased then
+		self.current_world:mousereleased(mx, my, mb)
+	else
+	!if not _RELEASE then
+		Log.warn("No mousereleased event for ", self.current_id)
+	!end
+	end
+end
+
+function GameStates:quit()
+	if self.current_world.quit then
+		self.current_world:quit()
+	end
+end
+
+return GameStates
