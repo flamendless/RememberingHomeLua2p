@@ -14,9 +14,10 @@ local font = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
 font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 local str_loading = ""
 
-function Preloader.start(assets, container)
+function Preloader.start(assets, container, oncomplete)
 	assert(type(assets) == "table", "'assets' must be a table")
 	assert(type(container) == "table", "'container' must be a table")
+	assert(type(oncomplete) == "function", "'oncomplete' must be a function")
 
 	local i = 1
 	local data = {}
@@ -51,39 +52,43 @@ function Preloader.start(assets, container)
 	local preloader = Lily.loadMulti(data)
 	preloader:setUserData(userdata)
 	preloader:onLoaded(function(id, i, data)
-			local name = id[i]
-			local data_type = data:type()
-
-			if data_type == "Image" then
-				assert(container.images ~= nil, "You must provide an 'images' table")
-				assert(type(container.images) == "table", "'container.images' must be a table ")
-				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
-				container.images[name] = data
-			elseif data_type == "Source" then
-				assert(container.sources ~= nil, "You must provide a 'sources' table")
-				assert(type(container.sources) == "table", "'container.sources' must be a table")
-				container.sources[name] = data
-			elseif data_type == "Font" then
-				assert(container.fonts ~= nil, "You must provide a 'fonts' table")
-				assert(type(container.fonts) == "table", "'container.fonts' must be a table")
-				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-				container.fonts[name] = data
-			end
-
-			local str = format("Loaded: #%i - %s : %s", i, data_type, name)
-			Log.info(str)
-
 			local to_load = preloader:getCount()
 			local completed = preloader:getLoadedCount()
 			local percent = (completed/to_load) * 100
 			str_loading = format("LOADING...%.0f%%", percent)
 		end)
 
-	return preloader
+	preloader:onComplete(function(id, tbl_data)
+		for i, tbl in ipairs(tbl_data) do
+			local id = id[i]
+			local data = tbl[1]
+			local data_type = data:type()
+
+			if data_type == "Image" then
+				assert(container.images ~= nil, "You must provide an 'images' table")
+				assert(type(container.images) == "table", "'container.images' must be a table ")
+				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
+				container.images[id] = data
+			elseif data_type == "Source" then
+				assert(container.sources ~= nil, "You must provide a 'sources' table")
+				assert(type(container.sources) == "table", "'container.sources' must be a table")
+				container.sources[id] = data
+			elseif data_type == "Font" then
+				assert(container.fonts ~= nil, "You must provide a 'fonts' table")
+				assert(type(container.fonts) == "table", "'container.fonts' must be a table")
+				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+				container.fonts[id] = data
+			end
+			local str = format("Loaded: #%i - %s : %s", i, data_type, id)
+			Log.info(str)
+		end
+
+		oncomplete()
+	end)
 end
 
 function Preloader.draw_loading()
-	love.graphics.setColor(0, 0, 0, 1)
+	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
 	local ox = font:getWidth(str_loading)/2

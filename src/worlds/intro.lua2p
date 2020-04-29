@@ -23,10 +23,10 @@ end
 
 function StateIntro:load()
 	Log.info("State Load: ", self.id)
-	local p = Preloader.start(assets_data, assets)
-	p:onComplete(function()
-		self.is_ready = true
-	end)
+	Preloader.start(assets_data, assets,
+		function()
+			self.is_ready = true
+		end)
 end
 
 function StateIntro:update(dt)
