@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
+local Timer = require("modules.hump.timer")
 
 local format = string.format
 
@@ -9,6 +10,7 @@ local DebugSlab = Concord.system({
 
 local world
 local ent_count = 0
+local ent_id = {}
 local all_animation = {}
 
 function DebugSlab:init()
@@ -20,8 +22,14 @@ function DebugSlab:init()
 	self.pool.onEntityAdded = function(pool, e)
 		local id = e:get("debug_slab").id
 		local multi = e:get("multiple_animation_data")
+		local pos = e:get("position")
+		local collider = e:get("collider")
 
-		ent_count = ent_count + 1
+		assert(ent_id[id] == nil, format("'%s' id was already added", id))
+		ent_id[id] = e
+
+		e:give("bounding_box", pos.pos.x, pos.pos.y, collider.size.x, collider.size.y)
+		e:give("bounding_box_color", {1, 0, 0, 0.5})
 
 		if multi then
 			if all_animation[id] == nil then
@@ -31,12 +39,43 @@ function DebugSlab:init()
 				all_animation[id][k] = k
 			end
 		end
+
+		ent_count = ent_count + 1
 	end
 end
 
+function DebugSlab:deinit()
+	world = nil
+	ent_count = 0
+	for k, v in pairs(ent_id) do
+		ent_id[k] = nil
+	end
+	for k, v in pairs(all_animation) do
+		all_animation[k] = nil
+	end
+end
+
+local hg_on = 0.25
+local hg_off = 0.35
+local hg_count = 5
+
 function DebugSlab:draw_slab()
-	Slab.BeginWindow("MainDebug", { Title = "Entity" })
+	Slab.BeginWindow("EntityDebug", { Title = "Entity List" })
 	Slab.Text("Entity Count (debuggable): " .. ent_count)
+	for id, e in pairs(ent_id) do
+		if Slab.Button(id) then
+			local pos = e:get("position")
+			local collider = e:get("collider")
+			Timer.every(hg_on, function()
+				local color = e:get("bounding_box_color")
+				color.color = { 1, 0, 1, 1 }
+			end, hg_count)
+			Timer.every(hg_off, function()
+				local color = e:get("bounding_box_color")
+				color.color = { 1, 0, 0, 0.5 }
+			end, hg_count)
+		end
+	end
 	Slab.EndWindow()
 
 	for _, e in ipairs(self.pool) do

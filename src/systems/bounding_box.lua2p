@@ -1,8 +1,14 @@
 local Concord = require("modules.concord.concord")
 
 local BoundingBox = Concord.system({
-	pool = {"bounding_box", "position"}
+	pool = {"bounding_box", "position"},
+	pool_highlight = {"bounding_box", "position", "bounding_box_color"}
 })
+
+function BoundingBox:init()
+	self.pool_highlight.onEntityAdded = function(pool, e)
+	end
+end
 
 function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
@@ -12,6 +18,17 @@ function BoundingBox:on_camera_move(camera)
 		local bx, by = camera:toScreen(box.x, box.y)
 		box.screen_x = bx
 		box.screen_y = by
+	end
+end
+
+function BoundingBox:draw()
+	for _, e in ipairs(self.pool_highlight) do
+		local box = e:get("bounding_box")
+		local pos = e:get("position")
+		local color = e:get("bounding_box_color").color
+
+		love.graphics.setColor(color)
+		love.graphics.rectangle("line", pos.pos.x, pos.pos.y, box.w, box.h)
 	end
 end
 

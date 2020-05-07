@@ -31,17 +31,4 @@ function Collision:update(dt)
 	end
 end
 
-!if not _RELEASE then
-function Collision:draw_debug()
-	for _, e in ipairs(self.pool) do
-		local collider = e:get("collider")
-		local pos = e:get("position").pos
-		local size = collider.size
-
-		love.graphics.setColor(1, 0, 0, 0.5)
-		love.graphics.rectangle("line", pos.x, pos.y, size.x, size.y)
-	end
-end
-!end
-
 return Collision

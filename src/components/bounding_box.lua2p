@@ -19,3 +19,11 @@ Concord.component("bounding_box", function(c, x, y, w, h)
 	c.screen_x = x
 	c.screen_y = y
 end)
+
+Concord.component("bounding_box_color", function(c, color)
+	!if _ASSERT then
+	Assert.should_table(color)
+	!end
+
+	c.color = { color[1], color[2], color[3], color[4] }
+end)
