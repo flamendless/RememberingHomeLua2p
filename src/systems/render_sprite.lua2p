@@ -1,46 +1,89 @@
 local Concord = require("modules.concord.concord")
 
+local insert = table.insert
+local remove = table.remove
+
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
+	pool_z = {"position", "sprite", "z_index"}
 })
+
+function RenderSprite:init()
+	self.custom_pool_z = {}
+
+	self.pool_z.onEntityAdded = function(pool, e)
+		insert(self.custom_pool_z, e)
+		table.insertion_sort(self.custom_pool_z, function(a, b)
+			local a_z = a:get("z_index").z
+			local b_z = b:get("z_index").z
+			return a_z < b_z
+		end)
+	end
+
+	self.pool_z.onEntityRemoved = function(pool, e)
+		for i = #self.custom_pool_z, 1, -1 do
+			if e == self.custom_pool_z[i] then
+				remove(self.custom_pool_z, i)
+				break
+			end
+		end
+	end
+end
+
+function RenderSprite:internal_draw(e)
+	local hidden = e:get("hidden")
+	if not hidden then
+		local pos = e:get("position")
+		local quad = e:get("quad")
+		local color = e:get("color")
+		local sprite = e:get("sprite")
+		local transform = e:get("transform")
+		love.graphics.setColor(1, 1, 1, 1)
+
+		if color then
+			love.graphics.setColor(e.color.color)
+		end
+
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+			if transform.ox == 0.5 then
+				ox = sprite.sprite:getWidth()/2
+			else
+				if type(transform.ox) == "number" then
+					ox = transform.ox
+				end
+			end
+			if transform.oy == 0.5 then
+				oy = sprite.sprite:getHeight()/2
+			else
+				if type(transform.oy) == "number" then
+					oy = transform.oy
+				end
+			end
+		end
+
+		if quad then
+			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		else
+			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		end
+	end
+end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		local hidden = e:get("hidden")
-		if not hidden then
-			local pos = e:get("position")
-			local color = e:get("color")
-			local sprite = e:get("sprite")
-			local transform = e:get("transform")
-			love.graphics.setColor(1, 1, 1, 1)
-
-			if color then
-				love.graphics.setColor(e.color.color)
-			end
-
-			local rotation, sx, sy, ox, oy
-			if transform then
-				rotation = transform.rotation
-				sx = transform.sx
-				sy = transform.sy
-				if transform.ox == 0.5 then
-					ox = sprite.sprite:getWidth()/2
-				else
-					if type(transform.ox) == "number" then
-						ox = transform.ox
-					end
-				end
-				if transform.oy == 0.5 then
-					oy = sprite.sprite:getHeight()/2
-				else
-					if type(transform.oy) == "number" then
-						oy = transform.oy
-					end
-				end
-			end
-
-			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		if not e:has("z_index") then
+			self:internal_draw(e)
 		end
+	end
+end
+
+function RenderSprite:draw_z()
+	for _, e in ipairs(self.custom_pool_z) do
+		self:internal_draw(e)
 	end
 end
 
