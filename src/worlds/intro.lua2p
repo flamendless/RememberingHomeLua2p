@@ -1,17 +1,29 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 local Log = require("modules.log.log")
 
+local min = math.min
+local random = math.random
+
+local Assets = require("data_assets")
 local Preloader = require("preloader")
 
 local StateIntro = class()
 StateIntro.id = "Intro"
 
-local assets_data = {
-	images = {},
-	font = {}
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+local Systems = {
+	Parallax = require("systems.parallax"),
+	RandomTree = require("systems.random_tree"),
+	RenderSprite = require("systems.render_sprite"),
 }
+local Assemblages = {
+	Common = require("assemblages.common")
+}
+
 local assets = { images = {}, fonts = {} }
+
+local scale = 1
 
 function StateIntro:new()
 	return self:init({
@@ -23,18 +35,80 @@ end
 
 function StateIntro:load()
 	Log.info("State Load: ", self.id)
+	local assets_data = Assets:getData("intro")
 	Preloader.start(assets_data, assets,
 		function()
 			self.is_ready = true
+			self:start()
 		end)
+end
+
+function StateIntro:start()
+	self.world:addSystem(Systems.Parallax)
+	self.world:addSystem(Systems.RandomTree)
+	self.world:addSystem(Systems.RenderSprite)
+
+	local ww, wh = love.graphics.getDimensions()
+	local w, h = assets.images.bg:getDimensions()
+	scale = min(ww/w, wh/h)
+
+	local bg = Concord.entity(self.world)
+		:give("sprite", assets.images.bg)
+		:give("position", vec2:new(0, 0))
+
+	local parallax_building = Concord.entity(self.world)
+		:assemble(Assemblages.Common.parallax_sprite,
+			assets.images.parallax_buildings,
+			love.graphics.newQuad(0, 0, ww * 2, wh, assets.images.parallax_buildings:getDimensions()),
+			vec2:new(0, 0),
+			vec2:new(32, 0))
+
+	local parallax_road = Concord.entity(self.world)
+		:assemble(Assemblages.Common.parallax_sprite,
+			assets.images.parallax_road,
+			love.graphics.newQuad(0, 0, ww * 2, wh, assets.images.parallax_road:getDimensions()),
+			vec2:new(0, 0),
+			vec2:new(128, 0))
+
+	local post = Concord.entity(self.world)
+		:assemble(Assemblages.Common.parallax_sprite,
+			assets.images.bg_post,
+			love.graphics.newQuad(0, 0, ww * 2, wh, assets.images.bg_post:getDimensions()),
+			vec2:new(0, 0),
+			vec2:new(128, 0))
+		:give("z_index", 1)
+
+	local bg_tree_data = Concord.entity(self.world)
+		:give("tree_data", {
+				images = {
+					assets.images.bg_tree1,
+					assets.images.bg_tree2,
+					assets.images.bg_tree3,
+				},
+				z = 2,
+		});
+
+	self.world:emit("generate_bg_tree")
 end
 
 function StateIntro:update(dt)
 	if not self.is_ready then return end
+	self.world:emit("update", dt)
+
+	if love.keyboard.isDown("a") then
+		self.world:emit("parallax_move_x", dt, -1)
+	elseif love.keyboard.isDown("d") then
+		self.world:emit("parallax_move_x", dt, 1)
+	end
 end
 
 function StateIntro:draw()
 	if not self.is_ready then return end
+	love.graphics.push()
+	love.graphics.scale(scale)
+	self.world:emit("draw")
+	self.world:emit("draw_z")
+	love.graphics.pop()
 end
 
 return StateIntro

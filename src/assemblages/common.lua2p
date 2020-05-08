@@ -8,16 +8,17 @@ function Common.text(e, pos, str, font, color)
 	:give("color", color)
 end
 
-function Common.sprite(e, sprite, pos, color)
-	e:give("sprite", sprite)
-	:give("position", pos)
-	:give("color", color)
-end
-
 function Common.animated_sprite(e, animation_data, pos, stop_on_last)
 	e:give("animation_data", animation_data)
 	:give("position", pos)
 	:give("animation", stop_on_last)
+end
+
+function Common.parallax_sprite(e, sprite, quad, pos, speed, dir)
+	e:give("sprite", sprite)
+	:give("quad", quad)
+	:give("position", pos)
+	:give("parallax", speed, dir)
 end
 
 return Common

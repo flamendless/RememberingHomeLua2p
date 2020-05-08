@@ -1,0 +1,24 @@
+local Concord = require("modules.concord.concord")
+
+local RandomTree = Concord.system({
+	pool_data = {"tree_data"},
+})
+
+function RandomTree:init()
+	self.world = self:getWorld()
+	self.bg_data = nil
+
+	self.pool_data.onEntityAdded = function(pool_data, e)
+		local data = e:get("tree_data")
+		self.bg_data = data.data
+	end
+end
+
+function RandomTree:generate_bg_tree()
+	assert(self.bg_data, "'bg_data' is empty")
+end
+
+function RandomTree:update(dt)
+end
+
+return RandomTree

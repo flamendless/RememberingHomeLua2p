@@ -1,6 +1,7 @@
 local Assets = {
 	data = {}
 }
+
 Assets.data.splash = {
 	image = {
 		{ "sheet_wits", "assets/images/splash/sheet_wits.png" },
@@ -28,6 +29,21 @@ Assets.data.menu = {
 		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 64 },
 	}
+}
+
+Assets.data.intro = {
+	image = {
+		{ "bg", "assets/images/intro/bg.png" },
+		{ "bg_post", "assets/images/intro/bg_post.png" },
+		{ "bg_tree1", "assets/images/intro/bg_tree1.png" },
+		{ "bg_tree2", "assets/images/intro/bg_tree2.png" },
+		{ "bg_tree3", "assets/images/intro/bg_tree3.png" },
+		{ "fg_tree1", "assets/images/intro/fg_tree1.png" },
+		{ "fg_tree2", "assets/images/intro/fg_tree2.png" },
+		{ "parallax_buildings", "assets/images/intro/parallax_buildings.png" },
+		{ "parallax_road", "assets/images/intro/parallax_road.png" },
+	},
+	font = {},
 }
 
 function Assets:getData(key)

@@ -1,0 +1,29 @@
+local Concord = require("modules.concord.concord")
+
+local Parallax = Concord.system({
+	pool = {"parallax", "quad", "sprite"},
+})
+
+function Parallax:init()
+	self.pool.onEntityAdded = function(pool, e)
+		local sprite = e:get("sprite")
+		sprite.sprite:setWrap("repeat")
+	end
+end
+
+function Parallax:update(dt)
+
+end
+
+function Parallax:parallax_move_x(dt, dir)
+	for _, e in ipairs(self.pool) do
+		local parallax = e:get("parallax")
+		local quad = e:get("quad")
+
+		local x, y, w, h = quad.quad:getViewport()
+		x = x + parallax.speed.x * dir * dt
+		quad.quad:setViewport(x, y, w, h)
+	end
+end
+
+return Parallax

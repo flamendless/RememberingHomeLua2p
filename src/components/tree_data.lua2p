@@ -1,0 +1,15 @@
+local Concord = require("modules.concord.concord")
+
+!if _ASSERT then
+local Assert = require("assert")
+!end
+
+Concord.component("tree_data", function(c, data)
+	!if _ASSERT then
+	Assert.should_table(data)
+	Assert.should_all_image_i(data.images)
+	Assert.should_number(data.z)
+	!end
+
+	c.data = data
+end)
