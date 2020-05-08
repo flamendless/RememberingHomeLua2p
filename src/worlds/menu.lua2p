@@ -53,7 +53,6 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local assets_data = Assets:getData("menu")
 local assets = { images = {}, sources = {}, fonts = {} }
 
 local states = Enum("menu", "play", "settings", "about", "exit")
@@ -542,7 +541,9 @@ function StateMenu:setup_about()
 				local y = base_y + image:getHeight()/2 - pad
 				img_h = image:getHeight()
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Common.sprite, image, vec2:new(x, y), Palette.colors.white)
+					:give("sprite", image)
+					:give("position", vec2:new(x, y))
+					:give("color", Palette.colors.white)
 					:give("camera")
 					:give("bounding_box", x, y, image:getWidth(), image:getHeight())
 					:give("clickable", 1, function()
@@ -573,48 +574,50 @@ end
 
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
+	local assets_data = Assets:getData("menu")
 	Preloader.start(assets_data, assets,
 		function()
 			--TODO play BGM
-
 			self.is_ready = true
-			local ww = love.graphics.getWidth()
-			local wh = love.graphics.getHeight()
-
-			self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
-			self.camera:setWindow(0, 0, ww, wh)
-
-			self.canvas_main = self.canvases.main_canvas
-			self.mb_main = MotionBlur:new(self.canvas_main)
-
-			local img_ff = Image.resize_image(assets.images.flowfield)
-			self.dissolve_ff = Dissolve:new(img_ff, 2)
-
-			self.world:addSystem(Systems.Animation)
-			self.world:addSystems(Systems.Lerp)
-			self.world:addSystems(Systems.RenderSprite)
-			self.world:addSystems(Systems.RenderText)
-			self.world:addSystems(Systems.Menu)
-			self.world:addSystems(Systems.Click)
-			self.world:addSystems(Systems.BoundingBox)
-			self.world:addSystems(Systems.HoverEffect)
-			self.world:addSystems(Systems.Transform)
-			self.world:addSystems(Systems.Move)
-			self:setup_menu()
-
-			self:hide_main_menu(0.1)
-			self:hide_sub_menu(0.1)
-
-			Fade.set_color({0, 0, 0, 1})
-			Fade.fade_in(function()
-				self.world:emit("allow_cursor", true)
-				self.world:emit("set_cursor", 1)
-				self.entities.subtitle:remove("anchor")
-				self:show_main_menu()
-			end, 1.5, 0.25)
-
+			self:start()
 			Slab.Initialize()
 		end)
+end
+
+function StateMenu:start()
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+
+	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.canvas_main = self.canvases.main_canvas
+	self.mb_main = MotionBlur:new(self.canvas_main)
+
+	local img_ff = Image.resize_image(assets.images.flowfield)
+	self.dissolve_ff = Dissolve:new(img_ff, 2)
+
+	self.world:addSystem(Systems.Animation)
+	self.world:addSystems(Systems.Lerp)
+	self.world:addSystems(Systems.RenderSprite)
+	self.world:addSystems(Systems.RenderText)
+	self.world:addSystems(Systems.Menu)
+	self.world:addSystems(Systems.Click)
+	self.world:addSystems(Systems.BoundingBox)
+	self.world:addSystems(Systems.HoverEffect)
+	self.world:addSystems(Systems.Transform)
+	self.world:addSystems(Systems.Move)
+	self:setup_menu()
+
+	self:hide_main_menu(0.1)
+	self:hide_sub_menu(0.1)
+
+	Fade.set_color({0, 0, 0, 1})
+	Fade.fade_in(function()
+		self.world:emit("allow_cursor", true)
+		self.world:emit("set_cursor", 1)
+		self.entities.subtitle:remove("anchor")
+		self:show_main_menu()
+	end, 1.5, 0.25)
 end
 
 function StateMenu:update(dt)

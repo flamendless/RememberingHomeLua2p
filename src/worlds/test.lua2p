@@ -45,43 +45,47 @@ function StateTest:load()
 	Preloader.start(assets_data, assets,
 		function()
 			self.is_ready = true
-
-			self.world:addSystem(Systems.Animation)
-			self.world:addSystem(Systems.BoundingBox)
-			self.world:addSystem(Systems.Collision)
-			self.world:addSystem(Systems.Controller)
-			self.world:addSystem(Systems.DebugSlab)
-			self.world:addSystem(Systems.Movement)
-
-			local ground = Concord.entity(self.world)
-				:give("position", vec2:new(256, 412))
-				:give("collider", vec2:new(512, 128))
-				:give("body", "static")
-				:give("debug_slab", "ground")
-
-			local left_wall = Concord.entity(self.world)
-				:give("position", vec2:new(230, 284))
-				:give("collider", vec2:new(64, 128))
-				:give("body", "static")
-				:give("debug_slab", "left_wall")
-
-			local right_wall = Concord.entity(self.world)
-				:give("position", vec2:new(256+512, 284))
-				:give("collider", vec2:new(64, 128))
-				:give("body", "static")
-				:give("debug_slab", "right_wall")
-
-			local player = Concord.entity(self.world)
-				:give("debug_slab", "player")
-				:assemble(Assemblages.Player.base,
-					vec2:new(512, 256), vec2:new(64, 64),
-					{ idle = 0, walk = 128, run = 180 }, 320,
-					{
-						sheet_idle = assets.images.sheet_player_idle,
-						sheet_walk = assets.images.sheet_player_walk,
-						sheet_run = assets.images.sheet_player_run,
-					})
+			self:start()
 		end)
+end
+
+
+function StateTest:start()
+	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.BoundingBox)
+	self.world:addSystem(Systems.Collision)
+	self.world:addSystem(Systems.Controller)
+	self.world:addSystem(Systems.DebugSlab)
+	self.world:addSystem(Systems.Movement)
+
+	local ground = Concord.entity(self.world)
+		:give("position", vec2:new(256, 412))
+		:give("collider", vec2:new(512, 128))
+		:give("body", "static")
+		:give("debug_slab", "ground")
+
+	local left_wall = Concord.entity(self.world)
+		:give("position", vec2:new(230, 284))
+		:give("collider", vec2:new(64, 128))
+		:give("body", "static")
+		:give("debug_slab", "left_wall")
+
+	local right_wall = Concord.entity(self.world)
+		:give("position", vec2:new(256+512, 284))
+		:give("collider", vec2:new(64, 128))
+		:give("body", "static")
+		:give("debug_slab", "right_wall")
+
+	local player = Concord.entity(self.world)
+		:give("debug_slab", "player")
+		:assemble(Assemblages.Player.base,
+			vec2:new(512, 256), vec2:new(64, 64),
+			{ idle = 0, walk = 128, run = 180 }, 320,
+			{
+				sheet_idle = assets.images.sheet_player_idle,
+				sheet_walk = assets.images.sheet_player_walk,
+				sheet_run = assets.images.sheet_player_run,
+			})
 end
 
 function StateTest:update(dt)
