@@ -9,6 +9,7 @@ local T_FONT_SDF = "fontsdf"
 local T_FUNCTION = "function"
 local T_IMAGE = "Image"
 local T_NUMBER = "number"
+local T_QUAD = "Quad"
 local T_STRING = "string"
 local T_TABLE = "table"
 local T_VEC2 = "vec2"
@@ -20,9 +21,17 @@ local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fonts
 local msg_should_function = "Passed argument must be of type 'function'"
 local msg_should_image = "Passed argument must be of type 'Image'"
 local msg_should_number = "Passed argument must be of type 'number'"
+local msg_should_quad = "Passed argument must be of type 'Quad'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_table = "Passed argument must be of type 'table'"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
+
+function Assert.should_all_image_i(arg)
+	Assert.should_table(arg)
+	for i, v in ipairs(arg) do
+		Assert.should_image(v)
+	end
+end
 
 function Assert.should_boolean(arg)
 	assert(type(arg) == T_BOOLEAN, msg_should_boolean)
@@ -48,6 +57,10 @@ function Assert.should_number(arg)
 	assert(type(arg) == T_NUMBER, msg_should_number)
 end
 
+function Assert.should_quad(arg)
+	assert(arg:type() == T_QUAD, msg_should_quad)
+end
+
 function Assert.should_string(arg)
 	assert(type(arg) == T_STRING, msg_should_string)
 end
@@ -66,9 +79,14 @@ end
 
 function Assert.either_value(arg, ...)
 	local msg = "Passed argument must be either of values: " .. concat({...}, ", ")
+	local pass = false
 	for _, v in ipairs({...}) do
-		assert(arg == v, msg)
+		if arg == v then
+			pass = true
+			break
+		end
 	end
+	if not pass then error(msg) end
 end
 
 function Assert.should_true(arg, id)
