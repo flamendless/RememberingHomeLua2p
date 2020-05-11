@@ -2,10 +2,8 @@ local MotionBlur = class()
 
 function MotionBlur:new(canvas, config)
 	!if _ASSERT then
-	assert(canvas:type() == "Canvas", "Passed argument must be of type 'Canvas'")
-	if config then
-		assert(type(config) == "table", "Passed argument must be of type 'table'")
-	end
+	Assert.should_custom_canvas(canvas)
+	Assert.safe_should_table(config)
 	!end
 
 	local shader_code = love.graphics.newShader("shaders/motion_blur.glsl")

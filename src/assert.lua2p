@@ -4,6 +4,7 @@ local concat = table.concat
 local format = string.format
 
 local T_BOOLEAN = "boolean"
+local T_CUSTOM_CANVAS = "CustomCanvas"
 local T_FONT = "Font"
 local T_FONT_SDF = "fontsdf"
 local T_FUNCTION = "function"
@@ -15,6 +16,7 @@ local T_TABLE = "table"
 local T_VEC2 = "vec2"
 
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
 local msg_should_exists = "Passed argument must not be nil"
 local msg_should_font = "Passed argument must be of type 'Font'"
 local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
@@ -35,6 +37,10 @@ end
 
 function Assert.should_boolean(arg)
 	assert(type(arg) == T_BOOLEAN, msg_should_boolean)
+end
+
+function Assert.should_custom_canvas(arg)
+	assert(arg:type() == T_CUSTOM_CANVAS, msg_should_custom_canvas)
 end
 
 function Assert.should_exists(arg)
