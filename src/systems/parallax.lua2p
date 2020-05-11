@@ -11,10 +11,6 @@ function Parallax:init()
 	end
 end
 
-function Parallax:update(dt)
-
-end
-
 function Parallax:parallax_move_x(dt, dir)
 	for _, e in ipairs(self.pool) do
 		local parallax = e:get("parallax")
