@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-!if _ASSERT then
-local Assert = require("assert")
-!end
-
 Concord.component("bounding_box", function(c, x, y, w, h)
 	!if _ASSERT then
 	Assert.should_number(x)

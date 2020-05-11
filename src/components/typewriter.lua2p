@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-!if _ASSERT then
-local Assert = require("assert")
-!end
-
 Concord.component("typewriter", function(c, target_text, every)
 	!if _ASSERT then
 	Assert.should_string(target_text)

@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-!if _ASSERT then
-local Assert = require("assert")
-!end
-
 Concord.component("transform", function(c, rotation, sx, sy, ox, oy)
 	!if _ASSERT then
 	Assert.safe_should_number(rotation)

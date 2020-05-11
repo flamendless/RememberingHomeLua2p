@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-!if _ASSERT then
-local Assert = require("assert")
-!end
-
 Concord.component("sdf", function(c, scale_x, scale_y)
 	!if _ASSERT then
 	Assert.safe_should_number(scale_x)

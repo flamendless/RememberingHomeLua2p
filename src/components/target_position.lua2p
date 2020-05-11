@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-!if _ASSERT then
-local Assert = require("assert")
-!end
-
 Concord.component("target_position", function(c, pos, duration, delay)
 	!if _ASSERT then
 	Assert.should_vec2(pos)

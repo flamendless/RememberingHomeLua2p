@@ -7,6 +7,11 @@ Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
 
 io.stdout:setvbuf("no")
 require("modules.batteries"):export()
+
+!if _ASSERT and not _RELEASE then
+Assert = require("assert")
+!end
+
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
 local GameStates = require("gamestates")
