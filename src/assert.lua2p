@@ -16,7 +16,9 @@ local T_TABLE = "table"
 local T_VEC2 = "vec2"
 
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
+local msg_should_entity = "Passed argument must not be of type 'Entity'"
 local msg_should_exists = "Passed argument must not be nil"
 local msg_should_font = "Passed argument must be of type 'Font'"
 local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
@@ -25,8 +27,10 @@ local msg_should_image = "Passed argument must be of type 'Image'"
 local msg_should_number = "Passed argument must be of type 'number'"
 local msg_should_quad = "Passed argument must be of type 'Quad'"
 local msg_should_string = "Passed argument must be of type 'string'"
+local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
+local msg_should_world = "Passed argument must not be of type 'World'"
 
 function Assert.should_all_image_i(arg)
 	Assert.should_table(arg)
@@ -120,6 +124,23 @@ end
 function Assert.within_range(arg, min, max)
 	local msg = format("Passed argument must be within the range: %i - %i", min, max)
 	assert((not (arg > max)) or (not (arg < min)), msg)
+end
+
+--ECS (Concord)
+function Assert.should_component(arg)
+	assert(arg.__isComponent, msg_should_component)
+end
+
+function Assert.should_entity(arg)
+	assert(arg.__isEntity, msg_should_entity)
+end
+
+function Assert.should_system(arg)
+	assert(arg.__isSystem, msg_should_system)
+end
+
+function Assert.should_world(arg)
+	assert(arg.__isWorld, msg_should_world)
 end
 
 --SAFE
