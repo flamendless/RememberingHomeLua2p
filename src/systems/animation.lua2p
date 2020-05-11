@@ -186,6 +186,7 @@ function Animation:draw()
 					oy = data.frame_height/2
 				end
 			end
+
 			animation.animation:draw(data.spritesheet, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		end
 	end

@@ -14,6 +14,7 @@ StateIntro.id = "Intro"
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
+	Animation = require("systems.animation"),
 	Parallax = require("systems.parallax"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
@@ -46,6 +47,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
+	self.world:addSystem(Systems.Animation)
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = assets.images.bg:getDimensions()
@@ -54,12 +56,12 @@ function StateIntro:start()
 	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 	self.camera:setWindow(0, 0, ww, wh)
 
-	local bg = Concord.entity(self.world)
+	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", assets.images.bg)
 		:give("position", vec2:new(0, 0))
 
 	local building_w, building_h = assets.images.parallax_buildings:getDimensions()
-	local parallax_building = Concord.entity(self.world)
+	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Common.parallax_sprite,
 			assets.images.parallax_buildings,
 			love.graphics.newQuad(0, 0, ww * 2, building_h, building_w, building_h),
@@ -67,7 +69,7 @@ function StateIntro:start()
 			vec2:new(32, 0))
 
 	local road_w, road_h = assets.images.parallax_road:getDimensions()
-	local parallax_road = Concord.entity(self.world)
+	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Common.parallax_sprite,
 			assets.images.parallax_road,
 			love.graphics.newQuad(0, 0, ww * 2, road_h, road_w, road_h),
@@ -75,7 +77,7 @@ function StateIntro:start()
 			vec2:new(128, 0))
 
 	local post_w, post_h = assets.images.bg_post:getDimensions()
-	local post = Concord.entity(self.world)
+	self.entities.post = Concord.entity(self.world)
 		:assemble(Assemblages.Common.parallax_sprite,
 			assets.images.bg_post,
 			love.graphics.newQuad(0, 0, ww * 2, post_h, post_w, post_h),
@@ -83,7 +85,19 @@ function StateIntro:start()
 			vec2:new(128, 0))
 		:give("z_index", 1)
 
-	local bg_tree_data = Concord.entity(self.world)
+	self.entities.car = Concord.entity(self.world)
+		:assemble(Assemblages.Common.animated_sprite,
+			{
+				spritesheet = assets.images.sheet_car,
+				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+				delay = 0.2,
+				rows_count = 4,
+				columns_count = 3,
+				n_frames = 12
+			},
+			vec2:new(0, 0), false)
+
+	self.entities.bg_tree_data = Concord.entity(self.world)
 		:give("tree_data", {
 				images = {
 					assets.images.bg_tree1,
