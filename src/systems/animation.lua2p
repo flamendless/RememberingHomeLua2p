@@ -119,8 +119,9 @@ end
 
 function Animation:switch_animation_tag(new_tag)
 	!if _ASSERT then
-	assert(type(new_tag) == "string", "Passed argument must be of type 'string'")
+	Assert.should_string(new_tag)
 	!end
+
 	for _, e in ipairs(self.pool_multi) do
 		local multi = e:get("multiple_animation_data")
 		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
