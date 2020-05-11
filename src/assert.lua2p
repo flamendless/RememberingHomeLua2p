@@ -84,15 +84,29 @@ function Assert.either_type(arg, ...)
 end
 
 function Assert.either_value(arg, ...)
-	local msg = "Passed argument must be either of values: " .. concat({...}, ", ")
+	local args = {...}
 	local pass = false
-	for _, v in ipairs({...}) do
+	for _, v in ipairs(args) do
 		if arg == v then
 			pass = true
 			break
 		end
 	end
-	if not pass then error(msg) end
+	local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+	assert(pass, msg)
+end
+
+function Assert.should_atleast(...)
+	local args = {...}
+	local pass = false
+	for i = 1, #args do
+		if args[i] ~= nil then
+			pass = true
+			break
+		end
+	end
+	local msg = "Passed arguments must have atleast one true"
+	assert(pass, msg)
 end
 
 function Assert.should_true(arg, id)

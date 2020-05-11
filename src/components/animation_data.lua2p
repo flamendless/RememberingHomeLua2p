@@ -10,6 +10,7 @@ Concord.component("animation_data", function(c, data)
 	Assert.should_number(data.rows_count)
 	Assert.should_number(data.columns_count)
 	Assert.should_number(data.n_frames)
+	Assert.should_atleast(data.durations, data.delay)
 	Assert.safe_should_table(data.durations)
 	Assert.safe_should_number(data.delay)
 	!end
