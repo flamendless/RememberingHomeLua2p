@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("attach_to", function(c, target_e)
+	!if _ASSERT then
+	Assert.should_entity(target_e)
+	!end
+
+	c.target_e = target_e
+end)

@@ -4,11 +4,20 @@ local Transform = Concord.system({
 	pool = {"transform"},
 	pool_anchor = {"position", "anchor"},
 	pool_camera = {"position", "camera"},
+	pool_attach = {"position", "attach_to"},
 })
 
 function Transform:init()
 	self.pool_anchor.onEntityAdded = function(pool, e)
 		self:update_anchor(e)
+	end
+
+	self.pool_attach.onEntityAdded = function(pool, e)
+		local attach = e:get("attach_to")
+		local target = attach.target_e
+		if not target:has("position") then
+			error("Target entity must have a position component")
+		end
 	end
 end
 
@@ -76,9 +85,23 @@ function Transform:update_position(l, t)
 	end
 end
 
+function Transform:update_attachment(e)
+	local attach = e:get("attach_to")
+	local pos = e:get("position")
+
+	local target = attach.target_e
+	local t_pos = target:get("position")
+
+	pos.pos = t_pos.pos:copy()
+end
+
 function Transform:update(dt)
 	for _, e in ipairs(self.pool_anchor) do
 		self:update_anchor(e)
+	end
+
+	for _,e in ipairs(self.pool_attach) do
+		self:update_attachment(e)
 	end
 end
 
