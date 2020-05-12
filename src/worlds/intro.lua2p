@@ -32,6 +32,14 @@ local Assemblages = {
 }
 
 local assets = { images = {}, fonts = {} }
+local speed = {
+	[1] = 32, --building
+	[2] = 128, --road, post
+	[3] = 160, --grass1
+	[4] = 164, --grass2
+	[5] = -100, --bg tree
+	[6] = -168, --fg tree
+}
 
 function StateIntro:new()
 	return self:init({
@@ -82,7 +90,7 @@ function StateIntro:start()
 			assets.images.parallax_buildings,
 			love.graphics.newQuad(0, 0, ww * 2, building_h, building_w, building_h),
 			vec2:new(0, 0),
-			vec2:new(32, 0))
+			vec2:new(speed[1], 0))
 
 	local road_w, road_h = assets.images.parallax_road:getDimensions()
 	self.entities.parallax_road = Concord.entity(self.world)
@@ -90,7 +98,25 @@ function StateIntro:start()
 			assets.images.parallax_road,
 			love.graphics.newQuad(0, 0, ww * 2, road_h, road_w, road_h),
 			vec2:new(0, 0),
-			vec2:new(128, 0))
+			vec2:new(speed[2], 0))
+
+	local grass_w, grass_h = assets.images.parallax_grass:getDimensions()
+	self.entities.parallax_grass = Concord.entity(self.world)
+		:assemble(Assemblages.Common.parallax_sprite,
+			assets.images.parallax_grass,
+			love.graphics.newQuad(0, 0, ww * 2, grass_h, grass_w, grass_h),
+			vec2:new(0, 0),
+			vec2:new(speed[3], 0))
+		:give("z_index", 4)
+
+	local grass2_w, grass2_h = assets.images.parallax_grass2:getDimensions()
+	self.entities.parallax_grass2 = Concord.entity(self.world)
+		:assemble(Assemblages.Common.parallax_sprite,
+			assets.images.parallax_grass2,
+			love.graphics.newQuad(0, 0, ww * 2, grass2_h, grass2_w, grass2_h),
+			vec2:new(0, 0),
+			vec2:new(speed[4], 0))
+		:give("z_index", 6)
 
 	local post_w, post_h = assets.images.bg_post:getDimensions()
 	self.entities.post = Concord.entity(self.world)
@@ -98,7 +124,7 @@ function StateIntro:start()
 			assets.images.bg_post,
 			love.graphics.newQuad(0, 0, ww * 2, post_h, post_w, post_h),
 			vec2:new(0, 0),
-			vec2:new(128, 0))
+			vec2:new(speed[2], 0))
 		:give("z_index", 1)
 
 	self.entities.car = Concord.entity(self.world)
@@ -135,7 +161,7 @@ function StateIntro:start()
 				},
 				z_index = 2,
 				max_width = building_w * 2,
-				parallax = vec2:new(-96, 0),
+				parallax = vec2:new(speed[5], 0),
 				offset_y = -16
 		})
 
@@ -145,9 +171,10 @@ function StateIntro:start()
 					assets.images.fg_tree1,
 					assets.images.fg_tree2,
 				},
-				z_index = 3,
+				z_index = 5,
 				max_width = building_w,
-				parallax = vec2:new(-160, 0)
+				parallax = vec2:new(speed[6], 0),
+				ensure = 2
 		})
 
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
@@ -181,8 +208,8 @@ function StateIntro:draw()
 	end)
 
 	!if not _RELEASE then
-	Slab.Draw()
 	self.world:emit("draw_debug", self.scale)
+	Slab.Draw()
 	!end
 end
 

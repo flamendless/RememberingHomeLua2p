@@ -42,6 +42,8 @@ Assets.data.intro = {
 		{ "fg_tree2", "assets/images/intro/fg_tree2.png" },
 		{ "parallax_buildings", "assets/images/intro/parallax_buildings.png" },
 		{ "parallax_road", "assets/images/intro/parallax_road.png" },
+		{ "parallax_grass", "assets/images/intro/parallax_grass.png" },
+		{ "parallax_grass2", "assets/images/intro/parallax_grass2.png" },
 		{ "sheet_car", "assets/images/intro/sheet_car.png" },
 		{ "sheet_car_reflect", "assets/images/intro/sheet_car_reflect.png" },
 	},
