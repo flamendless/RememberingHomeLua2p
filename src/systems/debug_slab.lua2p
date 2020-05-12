@@ -24,12 +24,22 @@ function DebugSlab:init()
 		local multi = e:get("multiple_animation_data")
 		local pos = e:get("position")
 		local collider = e:get("collider")
+		local sprite = e:get("sprite")
 
 		assert(ent_id[id] == nil, format("'%s' id was already added", id))
 		ent_id[id] = e
 
-		e:give("bounding_box", pos.pos.x, pos.pos.y, collider.size.x, collider.size.y)
-		e:give("bounding_box_color", {1, 0, 0, 0.5})
+		local w, h
+		if collider then
+			w = collider.size.x
+			h = collider.size.y
+		elseif sprite then
+			w = sprite.sprite:getWidth()
+			h = sprite.sprite:getHeight()
+		end
+
+		e:give("bounding_box", pos.pos.x, pos.pos.y, w, h)
+		e:give("bounding_box_color", {1, 0, 0, 0})
 
 		if multi then
 			if all_animation[id] == nil then
@@ -41,6 +51,12 @@ function DebugSlab:init()
 		end
 
 		ent_count = ent_count + 1
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		local id = e:get("debug_slab").id
+		ent_id[id] = nil
+		ent_count = ent_count - 1
 	end
 end
 
@@ -72,15 +88,17 @@ function DebugSlab:draw_slab()
 			end, hg_count)
 			Timer.every(hg_off, function()
 				local color = e:get("bounding_box_color")
-				color.color = { 1, 0, 0, 0.5 }
+				color.color = { 1, 0, 0, 0 }
 			end, hg_count)
 		end
 	end
 	Slab.EndWindow()
 
 	for _, e in ipairs(self.pool) do
-		local id = e:get("debug_slab").id
+		local d = e:get("debug_slab")
+		if d.flag_full == false then return end
 
+		local id = d.id
 		Slab.BeginWindow(id, { Title = id })
 
 		local animation = e:get("animation")

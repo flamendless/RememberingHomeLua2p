@@ -1,9 +1,11 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("debug_slab", function(c, id)
+Concord.component("debug_slab", function(c, id, flag_full)
 	!if _ASSERT then
 	Assert.should_string(id)
+	Assert.safe_should_boolean(flag_full)
 	!end
 
 	c.id = id
+	c.flag_full = flag_full == nil
 end)
