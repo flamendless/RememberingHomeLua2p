@@ -1,24 +1,111 @@
 local Concord = require("modules.concord.concord")
+local Lume = require("modules.lume.lume")
+
+local floor = math.floor
+local max = math.max
+local random = math.random
 
 local RandomTree = Concord.system({
 	pool_data = {"tree_data"},
+	pool_tree = {"tree", "position", "sprite"}
 })
+
+local c = { yes = 0.4, no = 0.6 }
+
+function RandomTree:computer_max_n(data)
+	for _, img in ipairs(data.tree_data.images) do
+		data.largest_w = max(data.largest_w, img:getWidth())
+	end
+	data.max_n = floor(data.tree_data.max_width/data.largest_w)
+end
 
 function RandomTree:init()
 	self.world = self:getWorld()
-	self.bg_data = nil
+
+	self.data_map = unique_mapping:new()
+	self.data = {}
+
+	!if not _RELEASE then
+	self.last_id = 0
+	!end
 
 	self.pool_data.onEntityAdded = function(pool_data, e)
 		local data = e:get("tree_data")
-		self.bg_data = data.data
+		local i = self.data_map:map(e)
+		self.data[i] = {
+			tree_data = data.data,
+			largest_w = 0,
+			max_n = 0,
+		}
+		self:computer_max_n(self.data[i])
 	end
 end
 
-function RandomTree:generate_bg_tree()
-	assert(self.bg_data, "'bg_data' is empty")
+function RandomTree:generate_tree(e)
+	local index = self.data_map:map(e)
+	local data = self.data[index]
+	local images = data.tree_data.images
+
+	for i = 0, data.max_n - 1 do
+		local chance = Lume.weightedchoice(c)
+		if chance == "yes" then
+			local r = random(1, #images)
+			local img = images[r]
+			local x = i * data.largest_w
+			local y = 0
+			if data.tree_data.offset_y then
+				y = random(0, data.tree_data.offset_y)
+			end
+			local tree = Concord.entity(self.world)
+				:give("sprite", img)
+				:give("position", vec2:new(x, y))
+				:give("tree", index)
+				:give("parallax", data.tree_data.parallax)
+				:give("z_index", data.tree_data.z_index)
+
+			!if not _RELEASE then
+			tree:give("debug_slab", "tree_" .. self.last_id, false)
+			self.last_id = self.last_id + 1
+			!end
+		end
+	end
+end
+
+function RandomTree:append_tree(index)
+	local data = self.data[index]
+	local images = data.tree_data.images
+
+	local r = random(1, #images)
+	local img = images[r]
+	local x = data.tree_data.max_width
+	local y = 0
+	if data.tree_data.offset_y then
+		y = random(0, data.tree_data.offset_y)
+	end
+	local tree = Concord.entity(self.world)
+		:give("sprite", img)
+		:give("position", vec2:new(x, y))
+		:give("tree", index)
+		:give("parallax", data.tree_data.parallax)
+		:give("z_index", data.tree_data.z_index)
+
+	!if not _RELEASE then
+	tree:give("debug_slab", "tree_" .. self.last_id, false)
+	self.last_id = self.last_id + 1
+	!end
 end
 
 function RandomTree:update(dt)
+	for _, e in ipairs(self.pool_tree) do
+		local tree = e:get("tree").index
+		local pos = e:get("position").pos
+		local sprite = e:get("sprite").sprite
+
+		if (pos.x + sprite:getWidth() < 0) then
+			self.world:removeEntity(e)
+			self:append_tree(tree)
+		end
+	end
 end
 
 return RandomTree

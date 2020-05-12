@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 
 local Parallax = Concord.system({
 	pool = {"parallax", "quad", "sprite"},
+	pool_tree = {"sprite", "position", "tree", "parallax"},
 })
 
 function Parallax:init()
@@ -19,6 +20,14 @@ function Parallax:parallax_move_x(dt, dir)
 		local x, y, w, h = quad.quad:getViewport()
 		x = x + parallax.speed.x * dir * dt
 		quad.quad:setViewport(x, y, w, h)
+	end
+
+	for _, e in ipairs(self.pool_tree) do
+		local pos = e:get("position").pos
+		local parallax = e:get("parallax")
+		local x = pos.x
+		x = x + parallax.speed.x * dir * dt
+		pos.x = x
 	end
 end
 

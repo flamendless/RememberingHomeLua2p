@@ -1,10 +1,21 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("tree", function(c, index)
+	!if _ASSERT then
+	Assert.should_number(index)
+	!end
+
+	c.index = index
+end)
+
 Concord.component("tree_data", function(c, data)
 	!if _ASSERT then
 	Assert.should_table(data)
 	Assert.should_all_image_i(data.images)
-	Assert.should_number(data.z)
+	Assert.should_number(data.z_index)
+	Assert.should_number(data.max_width)
+	Assert.should_vec2(data.parallax)
+	Assert.safe_should_number(data.offset_y)
 	!end
 
 	c.data = data

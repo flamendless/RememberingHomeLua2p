@@ -1,6 +1,9 @@
 local Gamera = require("modules.gamera.gamera")
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
+!if not _RELEASE then
+local Slab = require("modules.slab")
+!end
 
 local min = math.min
 local random = math.random
@@ -20,6 +23,10 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	Transform = require("systems.transform"),
 }
+!if not _RELEASE then
+Systems.BoundingBox = require("systems.bounding_box")
+Systems.DebugSlab = require("systems.debug_slab")
+!end
 local Assemblages = {
 	Common = require("assemblages.common")
 }
@@ -42,6 +49,9 @@ function StateIntro:load()
 			self.is_ready = true
 			self:start()
 		end)
+	!if not _RELEASE then
+	Slab.Initialize()
+	!end
 end
 
 function StateIntro:start()
@@ -50,6 +60,10 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.Animation)
+	!if not _RELEASE then
+	self.world:addSystem(Systems.DebugSlab)
+	self.world:addSystem(Systems.BoundingBox)
+	!end
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = assets.images.bg:getDimensions()
@@ -119,10 +133,25 @@ function StateIntro:start()
 					assets.images.bg_tree2,
 					assets.images.bg_tree3,
 				},
-				z = 2,
+				z_index = 2,
+				max_width = building_w * 2,
+				parallax = vec2:new(-96, 0),
+				offset_y = -16
 		})
 
-	self.world:emit("generate_bg_tree")
+	self.entities.fg_tree_data = Concord.entity(self.world)
+		:give("tree_data", {
+				images = {
+					assets.images.fg_tree1,
+					assets.images.fg_tree2,
+				},
+				z_index = 3,
+				max_width = building_w,
+				parallax = vec2:new(-160, 0)
+		})
+
+	self.world:emit("generate_tree", self.entities.bg_tree_data)
+	self.world:emit("generate_tree", self.entities.fg_tree_data)
 end
 
 function StateIntro:update(dt)
@@ -134,6 +163,11 @@ function StateIntro:update(dt)
 	elseif love.keyboard.isDown("d") then
 		self.world:emit("parallax_move_x", dt, 1)
 	end
+
+	!if not _RELEASE then
+	Slab.Update(dt)
+	self.world:emit("draw_slab")
+	!end
 end
 
 function StateIntro:draw()
@@ -145,6 +179,11 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 		love.graphics.pop()
 	end)
+
+	!if not _RELEASE then
+	Slab.Draw()
+	self.world:emit("draw_debug", self.scale)
+	!end
 end
 
 return StateIntro
