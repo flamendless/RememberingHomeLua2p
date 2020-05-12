@@ -23,6 +23,7 @@ local format = string.format
 
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
+local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 Log.outfile = !(_LOG_OUTPUT)
 Log.lovesave = true
@@ -78,13 +79,10 @@ function love.keypressed(key)
 	end
 
 	!if not _RELEASE then
-	if key == "`" then
-		top_canvas.flags.draw_bounds = not top_canvas.flags.draw_bounds
-		mid_canvas.flags.draw_bounds = not mid_canvas.flags.draw_bounds
-		bot_canvas.flags.draw_bounds = not bot_canvas.flags.draw_bounds
-		main_canvas.flags.draw_cross = not main_canvas.flags.draw_cross
-	elseif key == "t" then
+	if key == "t" then
 		GameStates:switch("Test")
+	elseif key == "r" then
+		love.event.quit("restart")
 	end
 	if key == "b" and GameStates:getID() == "Test" then
 		GameStates:switch_to_previous("Test")
@@ -107,6 +105,7 @@ function love.mousereleased(mx, my, mb)
 end
 
 function love.quit()
+	Lily.quit()
 	GameStates:quit()
 	Log.info("Quitting...")
 end

@@ -12,6 +12,8 @@ local world
 local ent_count = 0
 local ent_id = {}
 local all_animation = {}
+local show_inspector = false
+local inspect_e = nil
 
 function DebugSlab:init()
 	!if RELEASE then
@@ -76,6 +78,7 @@ local hg_off = 0.35
 local hg_count = 5
 
 function DebugSlab:draw_slab()
+	if ent_count == 0 then return end
 	Slab.BeginWindow("EntityDebug", { Title = "Entity List" })
 	Slab.Text("Entity Count (debuggable): " .. ent_count)
 	for id, e in pairs(ent_id) do
@@ -90,78 +93,97 @@ function DebugSlab:draw_slab()
 				local color = e:get("bounding_box_color")
 				color.color = { 1, 0, 0, 0 }
 			end, hg_count)
+			show_inspector = true
+			inspect_e = e
 		end
 	end
 	Slab.EndWindow()
 
-	for _, e in ipairs(self.pool) do
-		local d = e:get("debug_slab")
-		if d.flag_full == false then return end
-
-		local id = d.id
-		Slab.BeginWindow(id, { Title = id })
-
-		local animation = e:get("animation")
-		if animation then
-			Slab.Text("Current Animation: " .. animation.current_tag)
-			if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
-				for k, v in pairs(all_animation[id]) do
-					if Slab.TextSelectable(k) then
-						e:give("override_animation")
-						world:emit("switch_animation_tag", k)
-					end
-				end
-				Slab.EndComboBox()
-			end
-			if e:has("override_animation") then
-				Slab.SameLine()
-				if Slab.Button("stop") then
-					e:remove("override_animation")
-				end
-			end
-		end
-
-		local pos = e:get("position")
-		if pos then
-			local pos = pos.pos
-			local str_pos = format("(%i, %i)", pos.x, pos.y)
-			Slab.Text("Position: " .. str_pos)
-		end
-
-		local collider = e:get("collider")
-		if collider then
-			local size = collider.size
-			local str_size = format("(%i, %i)", size.x, size.y)
-			Slab.Text("Size: " .. str_size)
-		end
-
-		local speed = e:get("speed")
-		if speed then
-			speed = speed.speed
-			Slab.Text("Speed: "  .. speed)
-		end
-
-		local gravity = e:get("gravity")
-		if gravity then
-			gravity = gravity.gravity
-			Slab.Text("Gravity: "  .. gravity)
-		end
-
-		local body = e:get("body")
-		if body then
-			if body.kind == "dynamic" then
-				if not e:has("override_animation") then
-					Slab.Text("Moving: " .. tostring(body.dx ~= 0))
-					Slab.Text("Direction: " .. body.dir)
-				else
-					Slab.Text("Moving: (overriden)")
-					Slab.Text("Direction: (overriden)")
-				end
-			end
-		end
-
-		Slab.EndWindow()
+	if show_inspector then
+		self:draw_inspector()
 	end
+end
+
+function DebugSlab:draw_inspector()
+	local id = inspect_e:get("debug_slab").id
+	local sprite = inspect_e:get("sprite")
+	local pos = inspect_e:get("position")
+	local z_index = inspect_e:get("z_index")
+	local animation = inspect_e:get("animation")
+	local collider = inspect_e:get("collider")
+	local speed = inspect_e:get("speed")
+	local gravity = inspect_e:get("gravity")
+	local body = inspect_e:get("body")
+
+	Slab.BeginWindow("Inspector", { Title = "Inspector" })
+	Slab.Text(id)
+
+	if sprite then
+		Slab.Image("sprite_" .. id, { Image = sprite.sprite })
+	end
+
+	if pos then
+		local str_pos = format("Position: (%i, %i)", pos.pos.x, pos.pos.y)
+		Slab.Text(str_pos)
+	end
+
+	if z_index then
+		Slab.Text("z-index: " .. z_index.z)
+	end
+
+	if animation then
+		Slab.Text("Current Animation: " .. animation.current_tag)
+		if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
+			for k, v in pairs(all_animation[id]) do
+				if Slab.TextSelectable(k) then
+					e:give("override_animation")
+					world:emit("switch_animation_tag", k)
+				end
+			end
+			Slab.EndComboBox()
+		end
+		if e:has("override_animation") then
+			Slab.SameLine()
+			if Slab.Button("stop") then
+				e:remove("override_animation")
+			end
+		end
+	end
+
+	if collider then
+		local size = collider.size
+		local str_size = format("(%i, %i)", size.x, size.y)
+		Slab.Text("Size: " .. str_size)
+	end
+
+	if speed then
+		speed = speed.speed
+		Slab.Text("Speed: "  .. speed)
+	end
+
+	if gravity then
+		gravity = gravity.gravity
+		Slab.Text("Gravity: "  .. gravity)
+	end
+
+	if body then
+		if body.kind == "dynamic" then
+			if not e:has("override_animation") then
+				Slab.Text("Moving: " .. tostring(body.dx ~= 0))
+				Slab.Text("Direction: " .. body.dir)
+			else
+				Slab.Text("Moving: (overriden)")
+				Slab.Text("Direction: (overriden)")
+			end
+		end
+	end
+
+	if Slab.Button("Close") then
+		show_inspector = false
+		inspect_e = nil
+	end
+
+	Slab.EndWindow()
 end
 
 return DebugSlab
