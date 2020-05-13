@@ -1,9 +1,6 @@
 local Gamera = require("modules.gamera.gamera")
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
-!if not _RELEASE then
-local Slab = require("modules.slab")
-!end
 
 local min = math.min
 local random = math.random
@@ -23,23 +20,12 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	Transform = require("systems.transform"),
 }
-!if not _RELEASE then
-Systems.BoundingBox = require("systems.bounding_box")
-Systems.DebugSlab = require("systems.debug_slab")
-!end
 local Assemblages = {
-	Common = require("assemblages.common")
+	Common = require("assemblages.common"),
+	Intro = require("assemblages.intro"),
 }
 
 local assets = { images = {}, fonts = {} }
-local speed = {
-	[1] = 32, --building
-	[2] = 128, --road, post
-	[3] = 160, --grass1
-	[4] = 164, --grass2
-	[5] = -100, --bg tree
-	[6] = -168, --fg tree
-}
 
 function StateIntro:new()
 	return self:init({
@@ -57,9 +43,6 @@ function StateIntro:load()
 			self.is_ready = true
 			self:start()
 		end)
-	!if not _RELEASE then
-	Slab.Initialize()
-	!end
 end
 
 function StateIntro:start()
@@ -68,10 +51,6 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.Animation)
-	!if not _RELEASE then
-	self.world:addSystem(Systems.DebugSlab)
-	self.world:addSystem(Systems.BoundingBox)
-	!end
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = assets.images.bg:getDimensions()
@@ -84,98 +63,41 @@ function StateIntro:start()
 		:give("sprite", assets.images.bg)
 		:give("position", vec2:new(0, 0))
 
-	local building_w, building_h = assets.images.parallax_buildings:getDimensions()
 	self.entities.parallax_building = Concord.entity(self.world)
-		:assemble(Assemblages.Common.parallax_sprite,
-			assets.images.parallax_buildings,
-			love.graphics.newQuad(0, 0, ww * 2, building_h, building_w, building_h),
-			vec2:new(0, 0),
-			vec2:new(speed[1], 0))
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_buildings, ww * 2, "building")
 
-	local road_w, road_h = assets.images.parallax_road:getDimensions()
 	self.entities.parallax_road = Concord.entity(self.world)
-		:assemble(Assemblages.Common.parallax_sprite,
-			assets.images.parallax_road,
-			love.graphics.newQuad(0, 0, ww * 2, road_h, road_w, road_h),
-			vec2:new(0, 0),
-			vec2:new(speed[2], 0))
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_road, ww * 2, "road")
 
-	local grass_w, grass_h = assets.images.parallax_grass:getDimensions()
 	self.entities.parallax_grass = Concord.entity(self.world)
-		:assemble(Assemblages.Common.parallax_sprite,
-			assets.images.parallax_grass,
-			love.graphics.newQuad(0, 0, ww * 2, grass_h, grass_w, grass_h),
-			vec2:new(0, 0),
-			vec2:new(speed[3], 0))
-		:give("z_index", 4)
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass, ww * 2, "grass1")
 
-	local grass2_w, grass2_h = assets.images.parallax_grass2:getDimensions()
 	self.entities.parallax_grass2 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.parallax_sprite,
-			assets.images.parallax_grass2,
-			love.graphics.newQuad(0, 0, ww * 2, grass2_h, grass2_w, grass2_h),
-			vec2:new(0, 0),
-			vec2:new(speed[4], 0))
-		:give("z_index", 6)
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass2, ww * 2, "grass2")
 
-	local post_w, post_h = assets.images.bg_post:getDimensions()
 	self.entities.post = Concord.entity(self.world)
-		:assemble(Assemblages.Common.parallax_sprite,
-			assets.images.bg_post,
-			love.graphics.newQuad(0, 0, ww * 2, post_h, post_w, post_h),
-			vec2:new(0, 0),
-			vec2:new(speed[2], 0))
-		:give("z_index", 1)
+		:assemble(Assemblages.Intro.parallax, assets.images.bg_post, ww * 2, "post")
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite,
-			{
-				spritesheet = assets.images.sheet_car,
-				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
-				delay = 0.2,
-				rows_count = 4,
-				columns_count = 3,
-				n_frames = 12
-			},
-			vec2:new(0, 0), false)
+		:assemble(Assemblages.Intro.car, assets.images.sheet_car, vec2:new(0, 0))
 
 	self.entities.car_reflect = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite,
-			{
-				spritesheet = assets.images.sheet_car_reflect,
-				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
-				delay = 0.1,
-				rows_count = 4,
-				columns_count = 3,
-				n_frames = 12
-			},
-			vec2:new(0, 0), false)
-		:give("attach_to", self.entities.car)
+		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, vec2:new(0, 0), self.entities.car)
 
 	self.entities.bg_tree_data = Concord.entity(self.world)
-		:give("tree_data", {
-				images = {
-					assets.images.bg_tree1,
-					assets.images.bg_tree2,
-					assets.images.bg_tree3,
-				},
-				z_index = 2,
-				max_width = building_w * 2,
-				parallax = vec2:new(speed[5], 0),
-				offset_y = -16
-		})
+		:assemble(Assemblages.Intro.bg_tree_data,
+			{
+				assets.images.bg_tree1,
+				assets.images.bg_tree2,
+				assets.images.bg_tree3,
+			}, w * 2)
 
 	self.entities.fg_tree_data = Concord.entity(self.world)
-		:give("tree_data", {
-				images = {
-					assets.images.fg_tree1,
-					assets.images.fg_tree2,
-				},
-				z_index = 5,
-				max_width = building_w,
-				parallax = vec2:new(speed[6], 0),
-				ensure = 2
-		})
+		:assemble(Assemblages.Intro.fg_tree_data,
+			{
+				assets.images.fg_tree1,
+				assets.images.fg_tree2,
+			}, w)
 
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
@@ -190,11 +112,6 @@ function StateIntro:update(dt)
 	elseif love.keyboard.isDown("d") then
 		self.world:emit("parallax_move_x", dt, 1)
 	end
-
-	!if not _RELEASE then
-	Slab.Update(dt)
-	self.world:emit("draw_slab")
-	!end
 end
 
 function StateIntro:draw()
@@ -206,11 +123,6 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 		love.graphics.pop()
 	end)
-
-	!if not _RELEASE then
-	self.world:emit("draw_debug", self.scale)
-	Slab.Draw()
-	!end
 end
 
 return StateIntro

@@ -14,11 +14,4 @@ function Common.animated_sprite(e, animation_data, pos, stop_on_last)
 	:give("animation", stop_on_last)
 end
 
-function Common.parallax_sprite(e, sprite, quad, pos, speed)
-	e:give("sprite", sprite)
-	:give("quad", quad)
-	:give("position", pos)
-	:give("parallax", speed)
-end
-
 return Common

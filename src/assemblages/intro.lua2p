@@ -1,0 +1,97 @@
+local Concord = require("modules.concord.concord")
+
+local Intro = {}
+
+local speed = {
+	building = 32,
+	road = 128,
+	post = 128,
+	grass1 = 160,
+	grass2 = 164,
+	bg_tree = -100,
+	fg_tree = -168,
+}
+
+local z_index = {
+	building = 1,
+	road = 2,
+	bg_tree = 3,
+	post = 4,
+	grass1 = 5,
+	fg_tree = 6,
+	grass2 = 7,
+}
+
+function Intro.parallax(e, sprite, quad_width, tag)
+	!if _ASSERT then
+	Assert.should_exists(speed[tag])
+	Assert.should_exists(z_index[tag])
+	!end
+	local w, h = sprite:getDimensions()
+	local quad = love.graphics.newQuad(0, 0, quad_width, h, w, h)
+	e:give("sprite", sprite)
+	:give("quad", quad)
+	:give("position", vec2:new(0, 0))
+	:give("parallax", vec2:new(speed[tag], 0))
+	:give("z_index", z_index[tag])
+end
+
+function Intro.bg_tree_data(e, images, max_width)
+	e:give("tree_data", {
+		images = images,
+		max_width = max_width,
+		parallax = vec2:new(speed.bg_tree, 0),
+		offset_y = -16,
+		z_index = z_index.bg_tree,
+	})
+end
+
+function Intro.fg_tree_data(e, images, max_width)
+	e:give("tree_data", {
+		images = images,
+		max_width = max_width,
+		parallax = vec2:new(speed.fg_tree, 0),
+		z_index = z_index.fg_tree,
+		ensure = 2,
+	})
+end
+
+function Intro.tree(e, img, pos, index, parallax, z_index)
+	e:give("sprite", img)
+	:give("position", pos)
+	:give("tree", index)
+	:give("parallax", parallax)
+	:give("z_index", z_index)
+end
+
+function Intro.car(e, spritesheet, pos)
+	local data = {
+		spritesheet = spritesheet,
+		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		delay = 0.2,
+		rows_count = 4,
+		columns_count = 3,
+		n_frames = 12
+	}
+	e:give("animation_data", data)
+	:give("position", pos)
+	:give("animation", false)
+end
+
+function Intro.car_reflect(e, spritesheet, pos, car)
+	local data = {
+		spritesheet = spritesheet,
+		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		delay = 0.1,
+		rows_count = 4,
+		columns_count = 3,
+		n_frames = 12
+	}
+	e:give("animation_data", data)
+	:give("position", pos)
+	:give("animation", false)
+	:give("attach_to", car)
+	:give("hidden")
+end
+
+return Intro

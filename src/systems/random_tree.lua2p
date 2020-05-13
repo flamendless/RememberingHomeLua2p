@@ -9,6 +9,9 @@ local RandomTree = Concord.system({
 	pool_data = {"tree_data"},
 	pool_tree = {"tree", "position", "sprite"}
 })
+local Assemblages = {
+	Intro = require("assemblages.intro")
+}
 
 local c = { yes = 0.4, no = 0.6 }
 
@@ -55,11 +58,7 @@ function RandomTree:generate_tree(e)
 				y = random(0, data.tree_data.offset_y)
 			end
 			local tree = Concord.entity(self.world)
-				:give("sprite", img)
-				:give("position", vec2:new(x, y))
-				:give("tree", index)
-				:give("parallax", data.tree_data.parallax)
-				:give("z_index", data.tree_data.z_index)
+				:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
 
 			ensure = ensure - 1
 		end
@@ -79,11 +78,7 @@ function RandomTree:append_tree(index)
 		y = random(0, data.tree_data.offset_y)
 	end
 	local tree = Concord.entity(self.world)
-		:give("sprite", img)
-		:give("position", vec2:new(x, y))
-		:give("tree", index)
-		:give("parallax", data.tree_data.parallax)
-		:give("z_index", data.tree_data.z_index)
+		:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
 end
 
 function RandomTree:update(dt)
