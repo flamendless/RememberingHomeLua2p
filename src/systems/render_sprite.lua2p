@@ -5,7 +5,7 @@ local remove = table.remove
 
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
-	pool_z = {"position", "sprite", "z_index"}
+	pool_z = {"position", "sprite", "z_index"},
 })
 
 function RenderSprite:init()
