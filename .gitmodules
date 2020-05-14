@@ -46,3 +46,6 @@
 [submodule "modules/bump"]
 	path = modules/bump
 	url = https://github.com/oniietzschan/bump-3dpd/
+[submodule "modules/inspect"]
+	path = modules/inspect
+	url = https://github.com/kikito/inspect.lua
