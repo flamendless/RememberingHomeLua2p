@@ -18,8 +18,9 @@ local z_index = {
 	bg_tree = 3,
 	post = 4,
 	grass1 = 5,
-	fg_tree = 6,
-	grass2 = 7,
+	car = 6,
+	fg_tree = 7,
+	grass2 = 8,
 }
 
 !if not _RELEASE then
@@ -85,9 +86,10 @@ function Intro.car(e, spritesheet, pos)
 	e:give("animation_data", data)
 	:give("position", pos)
 	:give("animation", false)
+	:give("z_index", z_index.car)
 end
 
-function Intro.car_reflect(e, spritesheet, pos, car)
+function Intro.car_reflect(e, spritesheet, car)
 	local data = {
 		spritesheet = spritesheet,
 		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
@@ -97,10 +99,11 @@ function Intro.car_reflect(e, spritesheet, pos, car)
 		n_frames = 12
 	}
 	e:give("animation_data", data)
-	:give("position", pos)
+	:give("position", car:get("position").pos:copy())
 	:give("animation", false)
 	:give("attach_to", car)
 	:give("hidden")
+	:give("z_index", z_index.car)
 end
 
 return Intro

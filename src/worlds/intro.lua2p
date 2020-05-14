@@ -79,10 +79,10 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.parallax, assets.images.bg_post, ww * 2, "post")
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.car, assets.images.sheet_car, vec2:new(0, 0))
+		:assemble(Assemblages.Intro.car, assets.images.sheet_car, vec2:new(0, 325))
 
 	self.entities.car_reflect = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, vec2:new(0, 0), self.entities.car)
+		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, self.entities.car)
 
 	self.entities.bg_tree_data = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_data,
