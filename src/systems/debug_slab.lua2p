@@ -27,11 +27,12 @@ function DebugSlab:init()
 		local pos = e:get("position")
 		local collider = e:get("collider")
 		local sprite = e:get("sprite")
+		local animation_data = e:get("animation_data")
 
 		assert(ent_id[id] == nil, format("'%s' id was already added", id))
 		ent_id[id] = e
 
-		if pos and (collider or sprite) then
+		if pos and (collider or sprite or animation_data) then
 			local w, h
 			if collider then
 				w = collider.size.x
@@ -39,6 +40,9 @@ function DebugSlab:init()
 			elseif sprite then
 				w = sprite.sprite:getWidth()
 				h = sprite.sprite:getHeight()
+			elseif animation_data then
+				w = animation_data.frame_width
+				h = animation_data.frame_height
 			end
 
 			e:give("bounding_box", pos.pos.x, pos.pos.y, w, h)
