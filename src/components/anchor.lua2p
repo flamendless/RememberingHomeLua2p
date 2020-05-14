@@ -3,7 +3,7 @@ local Type = require("modules.concord.concord.type")
 
 Concord.component("anchor", function(c, entity, anchor_x, anchor_y, padding_x, padding_y)
 	!if _ASSERT then
-	Assert.should_true(Type.isEntity(entity), "Entity")
+	Assert.should_entity(entity)
 	Assert.should_string(anchor_x)
 	Assert.should_string(anchor_y)
 	Assert.safe_should_number(padding_x)

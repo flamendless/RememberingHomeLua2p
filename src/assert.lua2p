@@ -40,50 +40,73 @@ function Assert.should_all_image_i(arg)
 end
 
 function Assert.should_boolean(arg)
-	assert(type(arg) == T_BOOLEAN, msg_should_boolean)
+	if type(arg) ~= T_BOOLEAN then
+		error(msg_should_boolean, 2)
+	end
 end
 
 function Assert.should_custom_canvas(arg)
-	assert(arg:type() == T_CUSTOM_CANVAS, msg_should_custom_canvas)
+	if arg:type() ~= T_CUSTOM_CANVAS then
+		error(msg_should_custom_canvas, 2)
+	end
 end
 
 function Assert.should_exists(arg)
-	assert(arg, msg_should_exists)
+	if not arg then
+		error(msg_should_exists, 2)
+	end
 end
 
 function Assert.should_font(arg)
-	assert(arg:type() == T_FONT, msg_should_font)
+	if arg:type() ~= T_FONT then
+		error(msg_should_font, 2)
+	end
 end
 
 function Assert.should_function(arg)
-	assert(type(arg) == T_FUNCTION, msg_should_function)
+	if type(arg) ~= T_FUNCTION then
+		error(msg_should_function, 2)
+	end
 end
 
 function Assert.should_image(arg)
-	assert(arg:type() == T_IMAGE, msg_should_image)
+	if arg:type() ~= T_IMAGE then
+		error(msg_should_image, 2)
+	end
 end
 
 function Assert.should_number(arg)
-	assert(type(arg) == T_NUMBER, msg_should_number)
+	if type(arg) ~= T_NUMBER then
+		error(msg_should_number, 2)
+	end
 end
 
 function Assert.should_quad(arg)
-	assert(arg:type() == T_QUAD, msg_should_quad)
+	if arg:type() ~= T_QUAD then
+		error(msg_should_quad, 2)
+	end
 end
 
 function Assert.should_string(arg)
-	assert(type(arg) == T_STRING, msg_should_string)
+	if type(arg) ~= T_STRING then
+		error(msg_should_string, 2)
+	end
 end
 
 function Assert.should_table(arg)
-	assert(type(arg) == T_TABLE, msg_should_table)
+	if type(arg) ~= T_TABLE then
+		error(msg_should_table, 2)
+	end
 end
 
 --CUSTOM
 function Assert.either_type(arg, ...)
-	local msg = "Passed argumebt must be either of types: " .. concat({...}, ", ")
-	for _, v in ipairs({...}) do
-		assert(type(arg) == v, msg)
+	local args = {...}
+	for _, v in ipairs(args) do
+		if type(arg) ~= v then
+			local msg = "Passed argumebt must be either of types: " .. concat(args, ", ")
+			error(msg, 2)
+		end
 	end
 end
 
@@ -96,8 +119,10 @@ function Assert.either_value(arg, ...)
 			break
 		end
 	end
-	local msg = "Passed argument must be either of values: " .. concat(args, ", ")
-	assert(pass, msg)
+	if not pass then
+		local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+		error(msg, 2)
+	end
 end
 
 function Assert.should_atleast(...)
@@ -109,38 +134,48 @@ function Assert.should_atleast(...)
 			break
 		end
 	end
-	local msg = "Passed arguments must have atleast one true"
-	assert(pass, msg)
-end
-
-function Assert.should_true(arg, id)
-	assert(arg == true, "Passed argument must be of type: " .. (id or ""))
+	if not pass then
+		local msg = "Passed arguments must have atleast one true"
+		error(msg, 2)
+	end
 end
 
 function Assert.should_vec2(arg)
-	assert(arg.type == T_VEC2, msg_should_vec2)
+	if arg.type ~= T_VEC2 then
+		error(msg_should_vec2, 2)
+	end
 end
 
 function Assert.within_range(arg, min, max)
-	local msg = format("Passed argument must be within the range: %i - %i", min, max)
-	assert((not (arg > max)) or (not (arg < min)), msg)
+	if (arg > max) or (arg < min) then
+		local msg = format("Passed argument must be within the range: %i - %i", min, max)
+		error(msg, 2)
+	end
 end
 
 --ECS (Concord)
 function Assert.should_component(arg)
-	assert(arg.__isComponent, msg_should_component)
+	if not arg.__isComponent then
+		error(msg_should_component, 2)
+	end
 end
 
 function Assert.should_entity(arg)
-	assert(arg.__isEntity, msg_should_entity)
+	if not arg.__isEntity then
+		error(msg_should_entity, 2)
+	end
 end
 
 function Assert.should_system(arg)
-	assert(arg.__isSystem, msg_should_system)
+	if not arg.__isSystem then
+		error(msg_should_system, 2)
+	end
 end
 
 function Assert.should_world(arg)
-	assert(arg.__isWorld, msg_should_world)
+	if not arg.__isWorld then
+		error(msg_should_world, 2)
+	end
 end
 
 --SAFE
@@ -163,7 +198,9 @@ end
 function Assert.safe_should_font_or_sdf(arg)
 	if arg then
 		local t = arg:type()
-		assert(t == T_FONT or t == T_FONT_SDF, msg_should_font_or_sdf)
+		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+			error(msg_should_font_or_sdf)
+		end
 		return true
 	end
 	return false
