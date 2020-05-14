@@ -22,6 +22,10 @@ local z_index = {
 	grass2 = 7,
 }
 
+!if not _RELEASE then
+last_id = 0
+!end
+
 function Intro.parallax(e, sprite, quad_width, tag)
 	!if _ASSERT then
 	Assert.should_exists(speed[tag])
@@ -62,6 +66,11 @@ function Intro.tree(e, img, pos, index, parallax, z_index)
 	:give("tree", index)
 	:give("parallax", parallax)
 	:give("z_index", z_index)
+
+	!if not _RELEASE then
+	e:give("debug_slab", "tree_" .. last_id)
+	last_id = last_id + 1
+	!end
 end
 
 function Intro.car(e, spritesheet, pos)

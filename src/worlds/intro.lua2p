@@ -101,6 +101,12 @@ function StateIntro:start()
 
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
+
+	!if not _RELEASE then
+	for k, v in pairs(self.entities) do
+		v:give("debug_slab", k)
+	end
+	!end
 end
 
 function StateIntro:update(dt)
@@ -123,6 +129,12 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 		love.graphics.pop()
 	end)
+end
+
+function StateIntro:exit()
+	for k, v in pairs(self.entities) do
+		self.entities[k] = nil
+	end
 end
 
 return StateIntro

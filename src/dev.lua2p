@@ -1,0 +1,68 @@
+local Dev = {}
+
+!if not _RELEASE then
+
+local Concord = require("modules.concord.concord")
+local Slab = require("modules.slab")
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+
+local DebugSlab = require("systems.debug_slab")
+local BoundingBox = require("systems.bounding_box")
+
+function Dev.init(id, world)
+	Assert.should_string(id)
+	Assert.should_world(world)
+
+	Dev.id = id
+	Dev.world = world
+	Dev.window_title = "DevTool: " .. id
+	Dev.scale = 1
+	Dev.show = true
+	Dev.show_bounding_box = (id == "Test")
+
+	Dev.world:addSystem(DebugSlab)
+	Dev.world:addSystem(BoundingBox)
+	Slab.Initialize()
+end
+
+function Dev.update(dt)
+	if Dev.show then
+		Slab.Update(dt)
+
+		Slab.BeginWindow("DevToolMain", { Title = Dev.window_title })
+		if Slab.CheckBox(Dev.show_bounding_box, "BoundingBox") then
+			Dev.show_bounding_box = not Dev.show_bounding_box
+		end
+		Slab.EndWindow()
+
+		Dev.world:emit("draw_slab")
+	end
+end
+
+function Dev.draw()
+	if Dev.show then
+		if Dev.show_bounding_box then
+			Dev.world:emit("draw_debug", Dev.scale)
+		end
+		Slab.Draw()
+	end
+end
+
+function Dev.deinit()
+	Dev.world:emit("deinit")
+end
+
+function Dev.toggle()
+	Dev.show = not Dev.show
+end
+
+function Dev.setScale(scale)
+	Assert.should_number(scale)
+	Dev.scale = scale
+end
+
+!end
+
+return Dev

@@ -1,6 +1,7 @@
 local Log = require("modules.log.log")
 
 local Canvas = require("canvas")
+local Dev = require("dev")
 local WindowMode = require("window_mode")
 local Worlds = require("worlds")
 
@@ -15,12 +16,14 @@ local GameStates = {
 	current_world = nil,
 	current_id = nil,
 }
+
 local mid_canvas, bot_canvas, top_canvas, main_canvas
+
 !if not _RELEASE then
 local color_red = {1, 0, 0, 1}
 local color_green = {0, 1, 0, 1}
 local color_blue = {0, 0, 1, 1}
-local base_font
+local last_scale = 1
 !end
 
 function GameStates:init()
@@ -43,6 +46,9 @@ function GameStates:switch(next_id)
 	self.prev_world = self.current_world
 	if self.prev_world and self.prev_world.exit then
 		self.prev_world:exit()
+		!if not _RELEASE then
+		Dev.deinit()
+		!end
 	end
 
 	self.current_world = Worlds[next_id]:new()
@@ -53,6 +59,10 @@ function GameStates:switch(next_id)
 
 	self:init()
 	self.current_world:load()
+
+	!if not _RELEASE then
+	Dev.init(self.current_id, self.current_world.world)
+	!end
 end
 
 function GameStates:switch_to_previous()
@@ -154,6 +164,16 @@ end
 
 function GameStates:update(dt)
 	self.current_world:update(dt)
+
+	!if not _RELEASE then
+	if self.current_world.scale then
+		if last_scale ~= self.current_world.scale then
+			last_scale = self.current_world.scale
+			Dev.setScale(self.current_world.scale)
+		end
+	end
+	Dev.update(dt)
+	!end
 end
 
 function GameStates:draw()
@@ -184,45 +204,39 @@ function GameStates:draw()
 		main_canvas:detach()
 		main_canvas:render()
 	end
+
+	!if not _RELEASE then
+	Dev.draw()
+	!end
 end
 
 function GameStates:keypressed(key)
 	if self.current_world.keypressed then
 		self.current_world:keypressed(key)
-	!if not _RELEASE then
-	else
-		Log.warn("No keypressed event for ", self.current_id)
-	!end
 	end
+
+	!if not _RELEASE then
+	if key == "`" then
+		Dev.toggle()
+	end
+	!end
 end
 
 function GameStates:keyreleased(key)
 	if self.current_world.keyreleased then
 		self.current_world:keyreleased(key)
-	!if not _RELEASE then
-	else
-		Log.warn("No keyreleased event for ", self.current_id)
-	!end
 	end
 end
 
 function GameStates:mousepressed(mx, my, mb)
 	if self.current_world.mousepressed then
 		self.current_world:mousepressed(mx, my, mb)
-	else
-	!if not _RELEASE then
-		Log.warn("No mousepressed event for ", self.current_id)
-	!end
 	end
 end
 
 function GameStates:mousereleased(mx, my, mb)
 	if self.current_world.mousereleased then
 		self.current_world:mousereleased(mx, my, mb)
-	else
-	!if not _RELEASE then
-		Log.warn("No mousereleased event for ", self.current_id)
-	!end
 	end
 end
 

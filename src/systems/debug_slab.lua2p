@@ -31,17 +31,19 @@ function DebugSlab:init()
 		assert(ent_id[id] == nil, format("'%s' id was already added", id))
 		ent_id[id] = e
 
-		local w, h
-		if collider then
-			w = collider.size.x
-			h = collider.size.y
-		elseif sprite then
-			w = sprite.sprite:getWidth()
-			h = sprite.sprite:getHeight()
-		end
+		if pos and (collider or sprite) then
+			local w, h
+			if collider then
+				w = collider.size.x
+				h = collider.size.y
+			elseif sprite then
+				w = sprite.sprite:getWidth()
+				h = sprite.sprite:getHeight()
+			end
 
-		e:give("bounding_box", pos.pos.x, pos.pos.y, w, h)
-		e:give("bounding_box_color", {1, 0, 0, 0})
+			e:give("bounding_box", pos.pos.x, pos.pos.y, w, h)
+			e:give("bounding_box_color", {1, 0, 0, 0})
+		end
 
 		if multi then
 			if all_animation[id] == nil then
@@ -82,20 +84,26 @@ function DebugSlab:draw_slab()
 	Slab.BeginWindow("EntityDebug", { Title = "Entity List" })
 	Slab.Text("Entity Count (debuggable): " .. ent_count)
 	for id, e in pairs(ent_id) do
-		if Slab.Button(id) then
-			local pos = e:get("position")
-			local collider = e:get("collider")
-			Timer.every(hg_on, function()
-				local color = e:get("bounding_box_color")
-				color.color = { 1, 0, 1, 1 }
-			end, hg_count)
-			Timer.every(hg_off, function()
-				local color = e:get("bounding_box_color")
-				color.color = { 1, 0, 0, 0 }
-			end, hg_count)
+		local bounding_box_color = e:get("bounding_box_color")
+		if Slab.Button("Highlight", { Disabled = not bounding_box_color }) then
+			if bounding_box_color then
+				Timer.every(hg_on, function()
+					bounding_box_color.color = { 1, 0, 1, 1 }
+				end, hg_count)
+				Timer.every(hg_off, function()
+					bounding_box_color.color = { 1, 0, 0, 0 }
+				end, hg_count)
+			end
+		end
+
+		Slab.SameLine()
+		if Slab.Button("View") then
 			show_inspector = true
 			inspect_e = e
 		end
+
+		Slab.SameLine()
+		Slab.Text(id)
 	end
 	Slab.EndWindow()
 
@@ -105,6 +113,7 @@ function DebugSlab:draw_slab()
 end
 
 function DebugSlab:draw_inspector()
+	local e = inspect_e
 	local id = inspect_e:get("debug_slab").id
 	local sprite = inspect_e:get("sprite")
 	local pos = inspect_e:get("position")
@@ -133,14 +142,16 @@ function DebugSlab:draw_inspector()
 
 	if animation then
 		Slab.Text("Current Animation: " .. animation.current_tag)
-		if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
-			for k, v in pairs(all_animation[id]) do
-				if Slab.TextSelectable(k) then
-					e:give("override_animation")
-					world:emit("switch_animation_tag", k)
+		if all_animation[id] then
+			if Slab.BeginComboBox("Player Animation", { Selected = animation.current_tag }) then
+				for k, v in pairs(all_animation[id]) do
+					if Slab.TextSelectable(k) then
+						e:give("override_animation")
+						world:emit("switch_animation_tag", k)
+					end
 				end
+				Slab.EndComboBox()
 			end
-			Slab.EndComboBox()
 		end
 		if e:has("override_animation") then
 			Slab.SameLine()

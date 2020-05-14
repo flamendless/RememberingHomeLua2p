@@ -1,6 +1,4 @@
-local Animation = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
-local Slab = require("modules.slab")
 
 local StateTest = class()
 StateTest.id = "Test"
@@ -11,10 +9,8 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
-	BoundingBox = require("systems.bounding_box"),
 	Collision = require("systems.collision"),
 	Controller = require("systems.controller"),
-	DebugSlab = require("systems.debug_slab"),
 	Movement = require("systems.movement"),
 }
 local Assemblages = {
@@ -40,7 +36,6 @@ function StateTest:new()
 end
 
 function StateTest:load()
-	Slab.Initialize()
 	Preloader.start(assets_data, assets,
 		function()
 			self.is_ready = true
@@ -51,10 +46,8 @@ end
 
 function StateTest:start()
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Controller)
-	self.world:addSystem(Systems.DebugSlab)
 	self.world:addSystem(Systems.Movement)
 
 	local ground = Concord.entity(self.world)
@@ -90,28 +83,11 @@ end
 function StateTest:update(dt)
 	if not self.is_ready then return end
 	self.world:emit("update", dt)
-	!if not _RELEASE then
-	self:slab_update(dt)
-	!end
-end
-
-function StateTest:slab_update(dt)
-	Slab.Update(dt)
-	self.world:emit("draw_slab")
 end
 
 function StateTest:draw()
 	if not self.is_ready then return end
 	self.world:emit("draw")
-
-	!if not _RELEASE then
-	Slab.Draw()
-	self.world:emit("draw_debug")
-	!end
-end
-
-function StateTest:exit()
-	self.world:emit("deinit")
 end
 
 return StateTest
