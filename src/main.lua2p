@@ -10,6 +10,7 @@ require("modules.batteries"):export()
 
 !if _ASSERT and not _RELEASE then
 Assert = require("assert")
+Inspect = require("modules.inspect.inspect")
 !end
 
 local ErrorHandler = require("error_handler")
@@ -42,7 +43,6 @@ function love.load()
 
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
-	base_font = love.graphics.getFont()
 
 	Info.initialize()
 	GameStates:canvas_resize()
