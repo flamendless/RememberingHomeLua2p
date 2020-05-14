@@ -5,11 +5,15 @@ local Dev = {}
 local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
 
+local format = string.format
+
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
 
 local DebugSlab = require("systems.debug_slab")
 local BoundingBox = require("systems.bounding_box")
+
+local stats = {}
 
 function Dev.init(id, world)
 	Assert.should_string(id)
@@ -35,6 +39,10 @@ function Dev.update(dt)
 		if Slab.CheckBox(Dev.show_bounding_box, "BoundingBox") then
 			Dev.show_bounding_box = not Dev.show_bounding_box
 		end
+		for k, v in pairs(stats) do
+			local str_stat = format("%s: %i", k, v)
+			Slab.Text(str_stat)
+		end
 		Slab.EndWindow()
 
 		Dev.world:emit("draw_slab")
@@ -47,6 +55,7 @@ function Dev.draw()
 			Dev.world:emit("draw_debug", Dev.scale)
 		end
 		Slab.Draw()
+		stats = love.graphics.getStats(stats)
 	end
 end
 
