@@ -8,6 +8,8 @@ _GAME_TITLE  = "Going Home: Revisited"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
 
+_IDENTITY = "goinghomerevisited"
+_LOVE_VERSION = "11.3"
 _GAME_VERSION = { 0, 0, 1 }
 
 _DEFAULT_FILTER = "nearest"
