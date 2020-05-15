@@ -14,6 +14,7 @@ local max = math.max
 local min = math.min
 local rad = math.rad
 local sin = math.sin
+local format = string.format
 local lower = string.lower
 local upper = string.upper
 local gsub = string.gsub
@@ -66,6 +67,18 @@ local ANGLE_UP = 90
 local ANGLE_DOWN = 270
 local ANGLE_LEFT = 180
 local ANGLE_RIGHT = 0
+
+local tools = {
+	"Löve Framework", "Vim", "Trello", "Aseprite", "Audacity",
+	"Brave Browser", "Manjaro", "i3-WM",
+}
+
+local libs = {
+	"Anim8", "Batteries", "Bump", "Concord", "Crush",
+	"Enum", "Flux", "Gamera", "HTTPS", "HUMP",
+	"Inspect", "Lily", "Log", "Luapreprocessor", "Lume",
+	"SDF", "Semver", "Slab", "Splashed",
+}
 
 !if not _RELEASE and _ASSERT then
 for i, str in ipairs(options) do
@@ -449,8 +462,8 @@ function StateMenu:slab_title(title, text)
 	Slab.Separator()
 end
 
-function StateMenu:setup_about()
-	local about = {
+local function generate_about()
+	local t = {
 		{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
 		{ "A Game By:" },
 		{ "Brandon Blanker Lim-it @flamendless" },
@@ -460,29 +473,37 @@ function StateMenu:setup_about()
 
 		{ "@LAYOUT:LEFT" },
 		{ "TOOLS USED:" },
-		{ "Löve framework" },
-		{ "Vim, Git, Trello" },
-		{ "Aseprite, Laigter" },
-		{ "Audacity" },
-		{ "Manjaro i3-wm Linux" },
-		{ "Brave Browser" },
-
-		{ "@LAYOUT:RIGHT" },
-		{ "LIBRARIES USED:" },
-		{ "Anim8, Batteries" },
-		{ "Concord, Crush" },
-		{ "Enum, Flux" },
-		{ "Gamera, Hump" },
-		{ "Lily, Log" },
-		{ "Luapreprocess, Lume" },
-		{ "Semver, Splashes" },
-
-		{ "@LAYOUT:CENTER" },
-		{ "SPECIAL THANKS TO:" },
-		{ "People at the Löve Discord server" },
-		{ "" },
-		{ assets.images.twitter, assets.images.website, assets.images.mail },
 	}
+
+	for i = 1, #tools, 2 do
+		local a = tools[i]
+		local b = tools[i + 1] or ""
+		local subt = { format("%s, %s", a, b) }
+		insert(t, subt)
+	end
+
+	insert(t, { "@LAYOUT:RIGHT" })
+	insert(t, { "LIBRARIES USED:" })
+
+	for i = 1, #libs, 3 do
+		local a = libs[i]
+		local b = libs[i + 1] or ""
+		local c = libs[i + 2] or ""
+		local subt = { format("%s, %s, %s", a, b, c) }
+		insert(t, subt)
+	end
+
+	insert(t, { "@LAYOUT:CENTER" })
+	insert(t, { "SPECIAL THANKS TO:" })
+	insert(t, { "People at the Löve Discord server" })
+	insert(t, { "" })
+	insert(t, { assets.images.twitter, assets.images.website, assets.images.mail })
+
+	return t
+end
+
+function StateMenu:setup_about()
+	local about = generate_about()
 	local about_links = { !(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL), }
 
 	local l, t, w, h = self.camera:getVisible()
