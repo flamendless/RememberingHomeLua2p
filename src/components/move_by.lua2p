@@ -12,6 +12,18 @@ Concord.component("move_by", function(c, pos, duration, delay)
 	c.delay = delay or 0
 end)
 
+Concord.component("move_to_x", function(c, x_pos, duration, delay)
+	!if _ASSERT then
+	Assert.should_number(x_pos)
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
+	!end
+
+	c.target_x = x_pos
+	c.duration = duration
+	c.delay = delay or 0
+end)
+
 Concord.component("move_to_original", function(c, duration, delay)
 	!if _ASSERT then
 	Assert.should_number(duration)

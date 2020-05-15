@@ -3,7 +3,8 @@ local Flux = require("modules.flux.flux")
 
 local Move = Concord.system({
 	pool = {"position", "move_by"},
-	pool_original = {"position", "move_to_original"}
+	pool_move_x = {"position", "move_to_x"},
+	pool_original = {"position", "move_to_original"},
 })
 
 function Move:init()
@@ -13,9 +14,9 @@ function Move:init()
 		local on_complete = e:get("move_on_complete")
 
 		local f = Flux.to(pos.pos, move_by.duration, {
-			x = pos.pos.x + move_by.pos.x,
-			y = pos.pos.y + move_by.pos.y
-		})
+				x = pos.pos.x + move_by.pos.x,
+				y = pos.pos.y + move_by.pos.y
+			})
 		:delay(move_by.delay)
 		:oncomplete(function()
 			if on_complete then
@@ -23,6 +24,19 @@ function Move:init()
 				e:remove("move_on_complete")
 			end
 			e:remove("move_by")
+		end)
+	end
+
+	self.pool_move_x.onEntityAdded = function(pool, e)
+		local pos = e:get("position")
+		local target = e:get("move_to_x")
+
+		local f = Flux.to(pos.pos, target.duration, {
+				x = target.target_x,
+			})
+		:delay(target.delay)
+		:oncomplete(function()
+			e:remove("move_to_x")
 		end)
 	end
 
