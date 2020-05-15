@@ -12,6 +12,32 @@ function Parallax:init()
 	end
 end
 
+function Parallax:stop_parallax()
+	for _, e in ipairs(self.pool) do
+		e:remove("parallax")
+	end
+
+	for _, e in ipairs(self.pool_tree) do
+		e:remove("parallax")
+	end
+end
+
+function Parallax:slow_parallax(amount)
+	for _, e in ipairs(self.pool) do
+		local parallax = e:get("parallax")
+		local dx = parallax.speed.x * amount
+		print(parallax.speed.x, dx)
+		parallax.speed.x = dx
+	end
+
+	for _, e in ipairs(self.pool_tree) do
+		local parallax = e:get("parallax")
+		local dx = parallax.speed.x * amount
+		print(parallax.speed.x, dx)
+		parallax.speed.x = dx
+	end
+end
+
 function Parallax:parallax_move_x(dt, dir)
 	for _, e in ipairs(self.pool) do
 		local parallax = e:get("parallax")
