@@ -59,10 +59,6 @@ function GameStates:switch(next_id)
 
 	self:init()
 	self.current_world:load()
-
-	!if not _RELEASE then
-	Dev.init(self.current_id, self.current_world.world)
-	!end
 end
 
 function GameStates:switch_to_previous()
@@ -199,10 +195,26 @@ function GameStates:draw()
 	end
 
 	if self.current_world.draw then
+		!if not _RELEASE then
+		if Dev.camera then
+			Dev.camera:draw(function()
+				main_canvas:attach()
+				self.current_world:draw(main_canvas)
+				main_canvas:detach()
+				main_canvas:render()
+			end)
+		else
+			main_canvas:attach()
+			self.current_world:draw(main_canvas)
+			main_canvas:detach()
+			main_canvas:render()
+		end
+		!else
 		main_canvas:attach()
 		self.current_world:draw(main_canvas)
 		main_canvas:detach()
 		main_canvas:render()
+		!end
 	end
 
 	!if not _RELEASE then
@@ -216,9 +228,7 @@ function GameStates:keypressed(key)
 	end
 
 	!if not _RELEASE then
-	if key == "`" then
-		Dev.toggle()
-	end
+	Dev.keypressed(key)
 	!end
 end
 
