@@ -1,7 +1,6 @@
 local Log = require("modules.log.log")
 
 local Canvas = require("canvas")
-local Dev = require("dev")
 local WindowMode = require("window_mode")
 local Worlds = require("worlds")
 
