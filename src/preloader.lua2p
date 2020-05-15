@@ -5,6 +5,7 @@ local format = string.format
 local Preloader = {}
 local keys = {
 	image = "newImage",
+	image_data = "newImageData",
 	source = "newSource",
 	font = "newFont",
 }
@@ -30,6 +31,8 @@ function Preloader.start(assets, container, oncomplete)
 			local path = t[j][2]
 
 			if kind == "image" then
+				data[i] = {keys[kind], path}
+			elseif kind == "image_data" then
 				data[i] = {keys[kind], path}
 			elseif kind == "source" then
 				local source_type = t[j][3]
@@ -69,6 +72,10 @@ function Preloader.start(assets, container, oncomplete)
 				assert(type(container.images) == "table", "'container.images' must be a table ")
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
 				container.images[id] = data
+			elseif data_type == "ImageData" then
+				assert(container.image_data ~= nil, "You must provide an 'image_data' table")
+				assert(type(container.image_data) == "table", "'container.image_data' must be a table ")
+				container.image_data[id] = data
 			elseif data_type == "Source" then
 				assert(container.sources ~= nil, "You must provide a 'sources' table")
 				assert(type(container.sources) == "table", "'container.sources' must be a table")
