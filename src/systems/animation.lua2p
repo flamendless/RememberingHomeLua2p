@@ -87,7 +87,6 @@ function Animation:init()
 		local on_end = setup_on_end(e, nimation)
 		setup_animation(e, data, on_end)
 
-
 		local animation = e:get("animation")
 		local quad = animation.animation:getFrameInfo()
 		e:give("sprite", data.spritesheet)

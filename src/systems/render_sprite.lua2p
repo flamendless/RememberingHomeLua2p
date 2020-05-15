@@ -38,6 +38,7 @@ function RenderSprite:internal_draw(e)
 		local color = e:get("color")
 		local sprite = e:get("sprite")
 		local transform = e:get("transform")
+		local data = e:get("animation_data")
 		love.graphics.setColor(1, 1, 1, 1)
 
 		if color then
@@ -49,18 +50,28 @@ function RenderSprite:internal_draw(e)
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
-			if transform.ox == 0.5 then
-				ox = sprite.sprite:getWidth()/2
-			else
-				if type(transform.ox) == "number" then
-					ox = transform.ox
+
+			if data then
+				if transform.ox == 0.5 then
+					ox = data.frame_width/2
 				end
-			end
-			if transform.oy == 0.5 then
-				oy = sprite.sprite:getHeight()/2
+				if transform.oy == 0.5 then
+					oy = data.frame_height/2
+				end
 			else
-				if type(transform.oy) == "number" then
-					oy = transform.oy
+				if transform.ox == 0.5 then
+					ox = sprite.sprite:getWidth()/2
+				else
+					if type(transform.ox) == "number" then
+						ox = transform.ox
+					end
+				end
+				if transform.oy == 0.5 then
+					oy = sprite.sprite:getHeight()/2
+				else
+					if type(transform.oy) == "number" then
+						oy = transform.oy
+					end
 				end
 			end
 		end
