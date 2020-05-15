@@ -10,6 +10,7 @@ require("modules.batteries"):export()
 
 !if _ASSERT and not _RELEASE then
 Assert = require("assert")
+Dev = require("dev")
 Inspect = require("modules.inspect.inspect")
 !end
 
@@ -30,6 +31,7 @@ Log.outfile = !(_LOG_OUTPUT)
 Log.lovesave = true
 local Semver = require("modules.semver.semver")
 local Timer = require("modules.hump.timer")
+local TLE = require("modules.tle.timeline")
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
@@ -45,7 +47,9 @@ function love.load()
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 
 	Info.initialize()
+	TLE.Attach()
 	GameStates:canvas_resize()
+
 	!if _RELEASE then
 	GameStates:switch("Splash")
 	!else

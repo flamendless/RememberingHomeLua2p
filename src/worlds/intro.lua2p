@@ -1,6 +1,7 @@
 local Gamera = require("modules.gamera.gamera")
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
+local TLE = require("modules.tle.timeline")
 
 local min = math.min
 local random = math.random
@@ -15,6 +16,7 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
+	Move = require("systems.move"),
 	Parallax = require("systems.parallax"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
@@ -32,6 +34,7 @@ function StateIntro:new()
 		is_ready = false,
 		world = Concord.world(),
 		entities = {},
+		camera = nil,
 	})
 end
 
@@ -50,6 +53,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
+	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Animation)
 
 	local ww, wh = love.graphics.getDimensions()
@@ -57,7 +61,7 @@ function StateIntro:start()
 
 	self.scale = min(ww/w, wh/h)
 	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
-	self.camera:setWindow(0, 0, ww, wh)
+	self.camera:setWindow(0, (wh - h * self.scale)/2, ww, wh)
 
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", assets.images.bg)
@@ -79,7 +83,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.parallax, assets.images.bg_post, ww * 2, "post")
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.car, assets.images.sheet_car, vec2:new(0, 325))
+		:assemble(Assemblages.Intro.car, assets.images.sheet_car)
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, self.entities.car)
@@ -102,7 +106,28 @@ function StateIntro:start()
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
+	self.timeline = TLE.Do(function()
+		--Car enter scene
+		TLE.Event.Wait(2)
+		self.entities.car:give("move_to_x", 128, 5)
+		--TODO do the intro
+
+		--Slow Down
+		TLE.Event.Wait(6)
+		self.world:emit("slow_parallax", 0.75)
+		self.entities.car:give("move_to_x", 160, 0.75)
+
+		--Car exit scene
+		TLE.Event.Wait(1)
+		self.world:emit("stop_parallax")
+		self.entities.car:give("move_to_x", ww * 1.5, 2)
+
+		--Transition
+		TLE.Event.Wait(3)
+	end)
+
 	!if not _RELEASE then
+	Dev.init(self.id, self.world)
 	for k, v in pairs(self.entities) do
 		v:give("debug_slab", k)
 	end
@@ -111,17 +136,14 @@ end
 
 function StateIntro:update(dt)
 	if not self.is_ready then return end
-	self.world:emit("update", dt)
 
-	if love.keyboard.isDown("a") then
-		self.world:emit("parallax_move_x", dt, -1)
-	elseif love.keyboard.isDown("d") then
-		self.world:emit("parallax_move_x", dt, 1)
-	end
+	self.world:emit("parallax_move_x", dt, 1)
+	self.world:emit("update", dt)
 end
 
 function StateIntro:draw()
 	if not self.is_ready then return end
+
 	self.camera:draw(function()
 		love.graphics.push()
 		love.graphics.scale(self.scale)
