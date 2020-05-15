@@ -1,6 +1,7 @@
 local Gamera = require("modules.gamera.gamera")
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
+local NGrading = require("modules.ngrading.ngrading")
 local TLE = require("modules.tle.timeline")
 
 local min = math.min
@@ -27,7 +28,8 @@ local Assemblages = {
 	Intro = require("assemblages.intro"),
 }
 
-local assets = { images = {}, fonts = {} }
+local assets = { images = {}, image_data = {}, fonts = {} }
+local effect
 
 function StateIntro:new()
 	return self:init({
@@ -125,6 +127,7 @@ function StateIntro:start()
 		--Transition
 		TLE.Event.Wait(3)
 	end)
+	effect = NGrading.load(assets.image_data.neutral_lut64, 64)
 
 	!if not _RELEASE then
 	Dev.init(self.id, self.world)
@@ -147,8 +150,14 @@ function StateIntro:draw()
 	self.camera:draw(function()
 		love.graphics.push()
 		love.graphics.scale(self.scale)
+
+		effect:apply()
+
 		self.world:emit("draw")
 		self.world:emit("draw_z")
+
+		love.graphics.setShader()
+
 		love.graphics.pop()
 	end)
 end
