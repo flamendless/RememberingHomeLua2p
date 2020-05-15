@@ -51,4 +51,4 @@
 	url = https://github.com/kikito/inspect.lua
 [submodule "modules/tle"]
 	path = modules/tle
-	url = https://github.com/babulous/TimelineEvents
+	url = https://github.com/flamendless/TimelineEvents
