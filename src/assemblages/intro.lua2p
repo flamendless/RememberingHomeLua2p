@@ -3,13 +3,13 @@ local Concord = require("modules.concord.concord")
 local Intro = {}
 
 local speed = {
-	building = 32,
-	road = 128,
-	post = 128,
-	grass1 = 160,
-	grass2 = 164,
-	bg_tree = -100,
-	fg_tree = -168,
+	building = 32 * 2,
+	road = 128 * 2,
+	post = 128 * 2,
+	grass1 = 160 * 2,
+	grass2 = 164 * 2,
+	bg_tree = -100 * 2,
+	fg_tree = -168 * 2,
 }
 
 local z_index = {
@@ -74,7 +74,7 @@ function Intro.tree(e, img, pos, index, parallax, z_index)
 	!end
 end
 
-function Intro.car(e, spritesheet, pos)
+function Intro.car(e, spritesheet)
 	local data = {
 		spritesheet = spritesheet,
 		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
@@ -83,8 +83,9 @@ function Intro.car(e, spritesheet, pos)
 		columns_count = 3,
 		n_frames = 12
 	}
+	local car_init_pos = vec2:new(-64, 325)
 	e:give("animation_data", data)
-	:give("position", pos)
+	:give("position", car_init_pos)
 	:give("animation", false)
 	:give("z_index", z_index.car)
 end

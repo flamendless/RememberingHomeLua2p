@@ -15,6 +15,7 @@ local T_STRING = "string"
 local T_TABLE = "table"
 local T_VEC2 = "vec2"
 
+local msg_nil = "Passed argument is 'nil'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
 local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
@@ -141,6 +142,9 @@ function Assert.should_atleast(...)
 end
 
 function Assert.should_vec2(arg)
+	if arg == nil then
+		error(msg_nil, 2)
+	end
 	if arg.type ~= T_VEC2 then
 		error(msg_should_vec2, 2)
 	end
