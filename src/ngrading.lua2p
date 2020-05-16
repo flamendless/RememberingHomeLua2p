@@ -26,38 +26,13 @@ local floor = math.floor
 local format = string.format
 
 local shaders = {
-	old = love.graphics.newShader("shaders/ngrading_old.glsl"),
-	volume = love.graphics.newShader("shaders/ngrading.glsl"),
-	volume_multi = love.graphics.newShader("shaders/ngrading_multi.glsl"),
+	old = "shaders/ngrading_old.glsl",
+	volume = "shaders/ngrading_volume.glsl",
+	volume_multi = "shaders/ngrading_volume_multi.glsl",
 }
 
 local NGrading = class()
-
 local default_setting = {linear = true, dpiscale = 1}
-local default_shader
-local default_shader_obj
-local used_shader
-
-local get_shader = function(is_multi)
-	if not used_shader then
-		used_shader = love.graphics.getTextureTypes().volume
-		if used_shader == 0 then
-			used_shader = false
-		end
-		if is_multi then
-			used_shader = used_shader and "volume_multi" or "old_multi"
-		else
-			used_shader = used_shader and "volume" or "old"
-		end
-	end
-
-	if not default_shader then
-		assert(used_shader)
-		default_shader = shaders[used_shader]
-	end
-
-	return used_shader, default_shader
-end
 
 function NGrading:new_single(img, cell_size)
 	assert(img:type() == "ImageData")
@@ -65,8 +40,13 @@ function NGrading:new_single(img, cell_size)
 	local tw = floor(data:getWidth() / cell_size)
 	local th = floor(data:getHeight() / cell_size)
 	local volume_img, image
+	local shader
 
-	if get_shader() == "volume" then
+	local used_shader = love.graphics.getTextureTypes().volume
+	if used_shader == 0 then used_shader = false end
+	used_shader = used_shader and "volume" or "old"
+
+	if used_shader == "volume" then
 		local imgs = {}
 		local fmt = data:getFormat()
 		for j = 0, th - 1 do
@@ -86,9 +66,7 @@ function NGrading:new_single(img, cell_size)
 		image:setWrap("clamp", "clamp")
 	end
 
-	if not default_shader_obj then
-		default_shader_obj = select(2, get_shader())
-	end
+	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
 
 	return self:init({
 		tile_size = {tw, th},
@@ -109,7 +87,11 @@ function NGrading:new_multi(img, img2, cell_size)
 	local volume_img, image
 	local volume_img2, image2
 
-	if get_shader(true) == "volume_multi" then
+	local used_shader = love.graphics.getTextureTypes().volume
+	if used_shader == 0 then used_shader = false end
+	used_shader = used_shader and "volume_multi" or "old_multi"
+
+	if used_shader == "volume_multi" then
 		local imgs = {}
 		local imgs2 = {}
 		local fmt = data:getFormat()
@@ -142,9 +124,7 @@ function NGrading:new_multi(img, img2, cell_size)
 		image2:setWrap("clamp", "clamp")
 	end
 
-	if not default_shader_obj then
-		default_shader_obj = select(2, get_shader())
-	end
+	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
 
 	return self:init({
 		is_multi = true,
@@ -167,7 +147,7 @@ function NGrading:new(arg1, arg2, arg3)
 end
 
 function NGrading:set_dt(dt)
-	if self.is_multi and dt ~= 0 then
+	if self.is_multi then
 		self.shader:send("dt", dt)
 	end
 end
