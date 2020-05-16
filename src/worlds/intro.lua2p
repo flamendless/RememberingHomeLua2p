@@ -31,7 +31,7 @@ local Assemblages = {
 }
 
 local assets = { images = {}, image_data = {}, fonts = {} }
-local effect = { single = nil, multi = nil, multi2 = nil, dt = 0, status = 1 }
+local effect = { single = nil, multi = nil, multi2 = nil, dt = 0, dt2 = 0, status = 1 }
 
 function StateIntro:new()
 	return self:init({
@@ -110,32 +110,35 @@ function StateIntro:start()
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
-	effect.single = NGrading:new(assets.image_data.lut_afternoon, 64)
+	effect.single = NGrading:new(assets.image_data.lut_afternoon_64, 64)
 	effect.single:setup_data()
-	effect.multi = NGrading:new(assets.image_data.lut_afternoon, assets.image_data.lut_dusk, 64)
-	effect.mutli:setup_data()
-	effect.multi2 = NGrading:new(assets.image_data.lut_dusk, assets.image_data.lut_evening, 64)
-	effect.mutli2:setup_data()
+	effect.multi = NGrading:new(assets.image_data.lut_afternoon_64, assets.image_data.lut_evening_64, 64)
+	effect.multi:setup_data()
+	effect.multi2 = NGrading:new(assets.image_data.lut_evening_64, assets.image_data.lut_night_64, 64)
+	effect.multi2:setup_data()
 
-	-- self.timeline = TLE.Do(function()
-	-- 	--Car enter scene
-	-- 	TLE.Event.Wait(2)
-	-- 	self.entities.car:give("move_to_x", 128, 5)
-	-- 	--TODO do the intro
-    --
-	-- 	--Slow Down
-	-- 	TLE.Event.Wait(6)
-	-- 	self.world:emit("slow_parallax", 0.75)
-	-- 	self.entities.car:give("move_to_x", 160, 0.75)
-    --
-	-- 	--Car exit scene
-	-- 	TLE.Event.Wait(1)
-	-- 	self.world:emit("stop_parallax")
-	-- 	self.entities.car:give("move_to_x", ww * 1.5, 2)
-    --
-	-- 	--Transition
-	-- 	TLE.Event.Wait(3)
-	-- end)
+	self.timeline = TLE.Do(function()
+		--Car enter scene
+		TLE.Event.Wait(2)
+		self.entities.car:give("move_to_x", 128, 5)
+		--TODO do the intro
+
+		--Slow Down
+		TLE.Event.Wait(6)
+		effect.status = 2
+		Flux.to(effect, 5, { dt = 1 })
+		self.world:emit("slow_parallax", 0.75)
+		self.entities.car:give("move_to_x", 160, 0.75)
+
+		--Car exit scene
+		TLE.Event.Wait(1)
+		Flux.to(effect, 5, { dt2 = 1 })
+		self.world:emit("stop_parallax")
+		self.entities.car:give("move_to_x", ww * 1.5, 2)
+
+		--Transition
+		TLE.Event.Wait(3)
+	end)
 
 	!if not _RELEASE then
 	Dev.init(self.id, self.world)
@@ -148,7 +151,7 @@ end
 function StateIntro:update(dt)
 	if not self.is_ready then return end
 
-	-- self.world:emit("parallax_move_x", dt, 1)
+	self.world:emit("parallax_move_x", dt, 1)
 
 	if effect.status == 2 then
 		effect.multi:set_dt(effect.dt)
@@ -168,9 +171,9 @@ function StateIntro:draw()
 
 		if effect.status == 1 then
 			effect.single:apply()
-		elseif effects.status == 2 then
+		elseif effect.status == 2 then
 			effect.multi:apply()
-		elseif effects.status == 3 then
+		elseif effect.status == 3 then
 			effect.multi2:apply()
 		end
 
@@ -179,9 +182,9 @@ function StateIntro:draw()
 
 		if effect.status == 1 then
 			effect.single:unapply()
-		elseif effects.status == 2 then
+		elseif effect.status == 2 then
 			effect.multi:unapply()
-		elseif effects.status == 3 then
+		elseif effect.status == 3 then
 			effect.multi2:unapply()
 		end
 
@@ -190,17 +193,6 @@ function StateIntro:draw()
 end
 
 function StateIntro:keypressed(key)
-	if key == "e" then
-		if effect.status == 2 then
-			Flux.to(effect, 5, {
-				dt = 1
-			})
-		elseif effect.status == 3 then
-			Flux.to(effect, 5, {
-				dt2 = 1
-			})
-		end
-	end
 end
 
 function StateIntro:exit()
