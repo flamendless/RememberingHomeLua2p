@@ -10,7 +10,6 @@ local insert = table.insert
 local remove = table.remove
 local format = string.format
 local file = !(_LOG_INFO)
-local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 
 Info.data = {}
 
@@ -18,12 +17,13 @@ function Info.initialize()
 	Log.info("System information checking...")
 
 	Info.data.info_os = love.system.getOS()
-	Info.data.state, percent, seconds = love.system.getPowerInfo()
+	Info.data.state, Info.data.percent, Info.data.seconds = love.system.getPowerInfo()
 	Info.data.processor_count = love.system.getProcessorCount()
 	Info.data.has_bgm = love.system.hasBackgroundMusic()
 	Info.data.limits = love.graphics.getSystemLimits()
-	Info.data.name, version, vendor, device = love.graphics.getRendererInfo()
+	Info.data.name, Info.data.version, Info.data.vendor, Info.data.device = love.graphics.getRendererInfo()
 	Info.data.supported_modes = WindowMode.modes
+	Info.data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
 
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
@@ -68,6 +68,8 @@ function Info.initialize()
 		love.filesystem.write(file, to_write)
 		Log.info(format("'%s' written", file))
 	end
+
+	Log.info(to_write)
 end
 
 return Info
