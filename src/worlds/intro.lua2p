@@ -2,13 +2,14 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
--- local NGrading = require("modules.ngrading.ngrading")
 local TLE = require("modules.tle.timeline")
 
 local min = math.min
 local random = math.random
+local sub = string.sub
 
 local Assets = require("data_assets")
+local Info = require("info")
 local NGrading = require("ngrading")
 local Preloader = require("preloader")
 
@@ -110,11 +111,28 @@ function StateIntro:start()
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
-	effect.single = NGrading:new(assets.image_data.lut_afternoon_64, 64)
+	local lut_size
+	local lut_afternoon, lut_dusk, lut_night
+	local gl_version = sub(Info.data.version, 1, 3)
+
+	if gl_version == "2.0" then
+		lut_size = 16
+		lut_afternoon = assets.image_data.lut_afternoon_16
+		lut_dusk = assets.image_data.lut_dusk_16
+		lut_night = assets.image_data.lut_night_16
+	else
+		lut_size = 64
+		lut_afternoon = assets.image_data.lut_afternoon_64
+		lut_dusk = assets.image_data.lut_dusk_64
+		lut_night = assets.image_data.lut_night_64
+	end
+	Log.info("Using LUT size: " .. lut_size)
+
+	effect.single = NGrading:new(lut_afternoon, lut_size)
 	effect.single:setup_data()
-	effect.multi = NGrading:new(assets.image_data.lut_afternoon_64, assets.image_data.lut_dusk_64, 64)
+	effect.multi = NGrading:new(lut_afternoon, lut_dusk, lut_size)
 	effect.multi:setup_data()
-	effect.multi2 = NGrading:new(assets.image_data.lut_dusk_64, assets.image_data.lut_night_64, 64)
+	effect.multi2 = NGrading:new(lut_dusk, lut_night, lut_size)
 	effect.multi2:setup_data()
 
 	self.timeline = TLE.Do(function()
@@ -141,10 +159,10 @@ function StateIntro:start()
 	end)
 
 	!if not _RELEASE then
-	Dev.init(self.id, self.world)
-	for k, v in pairs(self.entities) do
-		v:give("debug_slab", k)
-	end
+	-- Dev.init(self.id, self.world)
+	-- for k, v in pairs(self.entities) do
+	-- 	v:give("debug_slab", k)
+	-- end
 	!end
 end
 
