@@ -49,7 +49,7 @@ Assets.data.intro = {
 	},
 	image_data = {
 		{ "lut_afternoon_64", "assets/lut/lut_afternoon_64.png" },
-		{ "lut_evening_64", "assets/lut/lut_evening_64.png" },
+		{ "lut_dusk_64", "assets/lut/lut_dusk_64.png" },
 		{ "lut_night_64", "assets/lut/lut_night_64.png" },
 	},
 	font = {},

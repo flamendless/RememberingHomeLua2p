@@ -112,9 +112,9 @@ function StateIntro:start()
 
 	effect.single = NGrading:new(assets.image_data.lut_afternoon_64, 64)
 	effect.single:setup_data()
-	effect.multi = NGrading:new(assets.image_data.lut_afternoon_64, assets.image_data.lut_evening_64, 64)
+	effect.multi = NGrading:new(assets.image_data.lut_afternoon_64, assets.image_data.lut_dusk_64, 64)
 	effect.multi:setup_data()
-	effect.multi2 = NGrading:new(assets.image_data.lut_evening_64, assets.image_data.lut_night_64, 64)
+	effect.multi2 = NGrading:new(assets.image_data.lut_dusk_64, assets.image_data.lut_night_64, 64)
 	effect.multi2:setup_data()
 
 	self.timeline = TLE.Do(function()
