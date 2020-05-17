@@ -8,8 +8,10 @@ Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
 io.stdout:setvbuf("no")
 require("modules.batteries"):export()
 
-!if _ASSERT and not _RELEASE then
+!if _ASSERT then
 Assert = require("assert")
+!end
+!if not _RELEASE then
 Dev = require("dev")
 Inspect = require("modules.inspect.inspect")
 !end
@@ -20,6 +22,8 @@ local GameStates = require("gamestates")
 local Info = require("info")
 local Network = require("network")
 local Preloader = require("preloader")
+local Settings = require("settings")
+local WindowMode = require("window_mode")
 
 local format = string.format
 
@@ -47,6 +51,8 @@ function love.load()
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 
 	Info.initialize()
+	WindowMode.initialize()
+	Settings.initialize()
 	TLE.Attach()
 	GameStates:canvas_resize()
 

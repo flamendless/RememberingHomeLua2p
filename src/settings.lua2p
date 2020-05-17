@@ -1,0 +1,91 @@
+local Enum = require("modules.enum.enum")
+local Inspect = require("modules.inspect.inspect")
+local JSON = require("modules.json.json")
+local Log = require("modules.log.log")
+
+local WindowMode = require("window_mode")
+
+local format = string.format
+local sub = string.sub
+
+local Settings = {
+	current = {}
+}
+
+local filename = !(_SETTINGS_FILENAME)
+local filename_key = !(_SETTINGS_FILENAME_KEY)
+local graphics_quality = Enum("Low", "High")
+
+function Settings.initialize()
+	local file = Settings.check_file()
+	if file then
+		local valid = Settings.validate_file()
+		if valid then
+			Settings.current = Settings.parse_file()
+		else
+			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", filename, filename_key, love.filesystem.getSaveDirectory())
+			error(error_msg)
+		end
+	else
+		Settings.create_new()
+	end
+
+	Log.info(Inspect(Settings.current))
+end
+
+function Settings.create_new()
+	local renderer_name, renderer_version, renderer_vendor, renderer_device = love.graphics.getRendererInfo()
+	local gl_version = sub(renderer_version, 1, 3)
+	if gl_version == !(_MIN_GL_VERSION) then
+		Settings.current.graphics_quality = graphics_quality.Low
+	else
+		Settings.current.graphics_quality = graphics_quality.High
+	end
+	Settings.current.current_wm = 1
+
+	local to_write = JSON.encode(Settings.current)
+	Settings.overwrite(to_write)
+end
+
+function Settings.check_file()
+	local file = love.filesystem.getInfo(filename)
+	local key = love.filesystem.getInfo(filename_key)
+	Log.info(format("'%s' exists: %s", filename, file or false))
+	Log.info(format("'%s' exists: %s", filename_key, key or false))
+	return file and key
+end
+
+function Settings.validate_file()
+	local content = love.filesystem.read(filename)
+	local key = love.filesystem.read(filename_key)
+	local hashed = love.data.hash("sha256", content)
+	return hashed == key
+end
+
+function Settings.parse_file()
+	local content = love.filesystem.read(filename)
+	local save_data = JSON.decode(content)
+	return save_data
+end
+
+function Settings.overwrite(to_write)
+	local to_write = to_write or JSON.encode(Settings.current)
+	love.filesystem.write(filename, to_write)
+	Log.info(format("'%s' written", filename))
+
+	local hashed = love.data.hash("sha256", to_write)
+	love.filesystem.write(filename_key, hashed)
+	Log.info(format("'%s' updated", filename_key))
+end
+
+function Settings.update_graphics_quality(str)
+	Settings.current.graphics_quality = graphics_quality[str]
+	Settings.overwrite()
+end
+
+function Settings.update_window_mode(i)
+	Settings.current.current_wm = i
+	Settings.overwrite()
+end
+
+return Settings

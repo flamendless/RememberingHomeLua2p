@@ -25,6 +25,8 @@ _GITHUB_URL_RELEASE = ""
 
 _LOG_OUTPUT = "log_output.txt"
 _LOG_INFO = "info.txt"
+_SETTINGS_FILENAME = "user_settings.lua"
+_SETTINGS_FILENAME_KEY = "data_store"
 _SAVE_FILENAME = "save_file.lua"
 
 _URL_TWITTER = "https://twitter.com/@flamendless"

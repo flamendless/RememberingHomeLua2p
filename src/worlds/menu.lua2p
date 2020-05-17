@@ -8,12 +8,8 @@ local SDF = require("modules.sdf").mount()
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
-local cos = math.cos
-local floor = math.floor
 local max = math.max
 local min = math.min
-local rad = math.rad
-local sin = math.sin
 local format = string.format
 local lower = string.lower
 local upper = string.upper
@@ -30,6 +26,8 @@ local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
+local Settings = require("settings")
+local WindowMode = require("window_mode")
 
 local StateMenu = class()
 StateMenu.id = "Menu"
@@ -68,6 +66,12 @@ local ANGLE_DOWN = 270
 local ANGLE_LEFT = 180
 local ANGLE_RIGHT = 0
 
+local flag_game_sounds = true
+local flag_game_music = true
+local show_message_box_reset = false
+local show_message_box_conflict = {}
+local list_gq = { "Low", "High" }
+
 local tools = {
 	"Löve Framework", "Vim", "Trello", "Aseprite", "Audacity",
 	"Brave Browser", "Manjaro", "i3-WM",
@@ -76,8 +80,9 @@ local tools = {
 local libs = {
 	"Anim8", "Batteries", "Bump", "Concord", "Crush",
 	"Enum", "Flux", "Gamera", "HTTPS", "HUMP",
-	"Inspect", "Lily", "Log", "Luapreprocessor", "Lume",
-	"SDF", "Semver", "Slab", "Splashed",
+	"JSON", "Inspect", "Lily", "Log", "Luapreprocessor",
+	"Lume", "NGrading", "SDF", "Semver", "Slab",
+	"Splashed", "TimelineEvents",
 }
 
 !if not _RELEASE and _ASSERT then
@@ -208,14 +213,8 @@ function StateMenu:on_continue()
 	--TODO load saved game here
 end
 
-local current_wm
-local flag_game_sounds = true
-local flag_game_music = true
-local show_message_box_kb_reset = false
-local show_message_box_conflict = {}
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
-	current_wm = Info.data.current_mode
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = { x = l, y = t, w = w, h = h }
 	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
@@ -369,6 +368,7 @@ function StateMenu:settings_desktop(dt)
 	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Window Resolution")
+		Slab.Text("Graphics Quality")
 		if Slab.CheckBox(flag_game_sounds, "Game Sounds") then
 			flag_game_sounds = not flag_game_sounds
 		end
@@ -377,15 +377,26 @@ function StateMenu:settings_desktop(dt)
 		end
 
 		Slab.SetLayoutColumn(2)
+		local current_wm = WindowMode.list[Settings.current.current_wm]
 		if Slab.BeginComboBox("WindowMode", { Selected = current_wm }) then
-			for i, str in ipairs(Info.data.supported_modes_str) do
+			for i, str in ipairs(WindowMode.list) do
 				if Slab.TextSelectable(str) then
-					current_wm = str
-					G_window_resize(i)
+					Settings.update_window_mode(i)
 				end
 			end
 			Slab.EndComboBox()
 		end
+
+		local current_gq = Settings.current.graphics_quality
+		if Slab.BeginComboBox("GraphicsQuality", { Selected = current_gq }) then
+			for i, str in ipairs(list_gq) do
+				if Slab.TextSelectable(str) then
+					Settings.update_graphics_quality(str)
+				end
+			end
+			Slab.EndComboBox()
+		end
+
 		--TODO add sliders here
 		Slab.Text("Volume Game Sounds")
 		Slab.Text("Volume Game Music")
@@ -419,26 +430,25 @@ function StateMenu:settings_desktop(dt)
 				Slab.NewLine()
 			end
 		end
-		Slab.SetLayoutColumn(2)
-		Slab.NewLine()
-		if Slab.Button("Reset to defaults") then
-			show_message_box_kb_reset = true
-		end
 	Slab.EndLayout()
 	Slab.Separator()
 
 	Slab.BeginLayout("GeneralOptionsLayout", { AlignX = "center", AlignY = "bottom", Columns = 1 })
-		Slab.SetLayoutColumn(2)
+		if Slab.Button("Reset to defaults") then
+			show_message_box_reset = true
+		end
+
 		if Slab.Button("Return to Main Menu") then
 			self:keypressed("escape")
 		end
 	Slab.EndLayout()
 
-	if show_message_box_kb_reset then
-		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the keybindings to default?", { Buttons = { "Confirm", "Cancel" } })
+	if show_message_box_reset then
+		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the settings to default?", { Buttons = { "Confirm", "Cancel" } })
 		if res ~= "" then
 			table.copy(Keybinds.ui_default, Keybinds.ui)
-			show_message_box_kb_reset = false
+			Settings.create_new()
+			show_message_box_reset = false
 		end
 	end
 
@@ -467,7 +477,6 @@ local function generate_about()
 		{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
 		{ "A Game By:" },
 		{ "Brandon Blanker Lim-it @flamendless" },
-		{ "" },
 		{ "Arts By:" },
 		{ "Conrad Reyes @wits" },
 
@@ -494,8 +503,8 @@ local function generate_about()
 	end
 
 	insert(t, { "@LAYOUT:CENTER" })
-	insert(t, { "SPECIAL THANKS TO:" })
-	insert(t, { "People at the Löve Discord server" })
+	insert(t, { "" })
+	insert(t, { "SPECIAL THANKS to the people at the Löve Discord server:" })
 	insert(t, { "" })
 	insert(t, { assets.images.twitter, assets.images.website, assets.images.mail })
 
