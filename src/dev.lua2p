@@ -83,17 +83,19 @@ function Dev.draw()
 end
 
 function Dev.keypressed(key)
-	if key == "`" then
-		Dev.show = not Dev.show
-	elseif key == "-" then
-		local scale = Dev.camera:getScale()
-		Dev.camera:setScale(scale - 0.25)
-	elseif key == "=" then
-		local scale = Dev.camera:getScale()
-		Dev.camera:setScale(scale + 0.25)
-	elseif key == "space" then
-		Dev.camera:setPosition(0, 0)
-		Dev.camera:setScale(1)
+	if Dev.show then
+		if key == "`" then
+			Dev.show = not Dev.show
+		elseif key == "-" then
+			local scale = Dev.camera:getScale()
+			Dev.camera:setScale(scale - 0.25)
+		elseif key == "=" then
+			local scale = Dev.camera:getScale()
+			Dev.camera:setScale(scale + 0.25)
+		elseif key == "space" then
+			Dev.camera:setPosition(0, 0)
+			Dev.camera:setScale(1)
+		end
 	end
 end
 

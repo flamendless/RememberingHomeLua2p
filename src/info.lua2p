@@ -45,6 +45,7 @@ function Info.initialize()
 		Info.validate_file(to_write)
 	else
 		Info.create_new(to_write)
+		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES", "Editing any files in this directory will invalidate all your progress")
 	end
 	Log.info(to_write)
 end
