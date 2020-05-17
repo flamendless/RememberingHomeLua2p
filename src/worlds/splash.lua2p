@@ -8,8 +8,6 @@ local Timer = require("modules.hump.timer")
 
 local floor = math.floor
 local min = math.min
-local random = love.math.random
-local randomf = Lume.random
 
 local Assets = require("data_assets")
 local Keybinds = require("keybinds")

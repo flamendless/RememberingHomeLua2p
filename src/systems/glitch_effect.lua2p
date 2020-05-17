@@ -3,7 +3,6 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local random = love.math.random
 local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
@@ -28,7 +27,7 @@ function GlitchEffect:toggle_effect(c, colors)
 	c.timer_glitch:during(r, function()
 		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
 		if chance == "yes" then
-			colors.current = random(1, #colors.colors)
+			colors.current = love.math.random(1, #colors.colors)
 			c.is_glitch = true
 		elseif chance == "no" then
 			c.is_glitch = false
@@ -58,7 +57,7 @@ function GlitchEffect:effect_draw()
 			if random_text.use_string then
 				text = random_text.text
 			elseif random_text.use_table then
-				local r = random(1, #random_text.text)
+				local r = love.math.random(1, #random_text.text)
 				text = random_text.text[r]
 			end
 			love.graphics.setColor(glitch_colors.colors[glitch_colors.current])

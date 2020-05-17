@@ -3,7 +3,6 @@ local Lume = require("modules.lume.lume")
 
 local floor = math.floor
 local max = math.max
-local random = math.random
 
 local RandomTree = Concord.system({
 	pool_data = {"tree_data"},
@@ -50,12 +49,12 @@ function RandomTree:generate_tree(e)
 	while (i < data.max_n) do
 		local chance = Lume.weightedchoice(c)
 		if chance == "yes" or (ensure > 0) then
-			local r = random(1, #images)
+			local r = love.math.random(1, #images)
 			local img = images[r]
 			local x = i * data.largest_w
 			local y = 0
 			if data.tree_data.offset_y then
-				y = random(0, data.tree_data.offset_y)
+				y = love.math.random(0, data.tree_data.offset_y)
 			end
 			local tree = Concord.entity(self.world)
 				:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
@@ -70,12 +69,12 @@ function RandomTree:append_tree(index)
 	local data = self.data[index]
 	local images = data.tree_data.images
 
-	local r = random(1, #images)
+	local r = love.math.random(1, #images)
 	local img = images[r]
-	local x = data.tree_data.max_width + random(32, 128)
+	local x = data.tree_data.max_width + love.math.random(32, 128)
 	local y = 0
 	if data.tree_data.offset_y then
-		y = random(0, data.tree_data.offset_y)
+		y = love.math.random(0, data.tree_data.offset_y)
 	end
 	local tree = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)

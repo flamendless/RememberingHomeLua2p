@@ -3,7 +3,6 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local random = love.math.random
 local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
@@ -34,10 +33,10 @@ function GhostEffect:toggle_effect(c)
 			c.effect_color[3] = randomf(c.range_color.x, c.range_color.y)
 			c.effect_color[4] = randomf(c.range_alpha.x, c.range_alpha.y)
 			c.is_ghost = true
-			c.ghost.sx = random(c.range_scale.x, c.range_scale.y)
+			c.ghost.sx = love.math.random(c.range_scale.x, c.range_scale.y)
 			c.ghost.sy = c.ghost.sx
-			c.ghost.x = random(-width/4, width - 64)
-			c.ghost.y = random(-height/4, height - 64)
+			c.ghost.x = love.math.random(-width/4, width - 64)
+			c.ghost.y = love.math.random(-height/4, height - 64)
 		elseif chance == "no" then
 			c.is_ghost = false
 		end
@@ -60,7 +59,7 @@ function GhostEffect:effect_draw()
 		if random_text.use_string then
 			text = random_text.text
 		elseif random_text.use_table then
-			local r = random(1, #random_text.text)
+			local r = love.math.random(1, #random_text.text)
 			text = random_text.text[r]
 		end
 

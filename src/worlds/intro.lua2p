@@ -5,7 +5,6 @@ local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
 local min = math.min
-local random = math.random
 local sub = string.sub
 
 local Assets = require("data_assets")
