@@ -11,6 +11,7 @@ local Assets = require("data_assets")
 local Info = require("info")
 local NGrading = require("ngrading")
 local Preloader = require("preloader")
+local Settings = require("settings")
 
 local StateIntro = class()
 StateIntro.id = "Intro"
@@ -19,10 +20,10 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
-	Move = require("systems.move"),
 	Parallax = require("systems.parallax"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
+	RenderText = require("systems.render_text"),
 	Transform = require("systems.transform"),
 }
 local Assemblages = {
@@ -32,6 +33,13 @@ local Assemblages = {
 
 local assets = { images = {}, image_data = {}, fonts = {} }
 local effect = { single = nil, multi = nil, multi2 = nil, dt = 0, dt2 = 0, status = 1 }
+
+local fade_text = function(e, duration)
+	e:remove("hidden")
+	local color_txt1 = e:get("color")
+	Flux.to(color_txt1.color, duration, { [4] = 1 })
+		:oncomplete(function() Flux.to(color_txt1.color, duration, { [4] = 0 }) end)
+end
 
 function StateIntro:new()
 	return self:init({
@@ -57,15 +65,17 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.Move)
+	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = assets.images.bg:getDimensions()
 
 	self.scale = min(ww/w, wh/h)
-	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
-	self.camera:setWindow(0, (wh - h * self.scale)/2, ww, wh)
+	-- self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
+	-- self.camera:setWindow(0, (wh - h * self.scale)/2, ww, wh)
+	self.camera = Gamera.new(0, 0, ww, wh)
+	self.camera:setWindow(0, 0, ww, wh)
 
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", assets.images.bg)
@@ -112,9 +122,8 @@ function StateIntro:start()
 
 	local lut_size
 	local lut_afternoon, lut_dusk, lut_night
-	local gl_version = sub(Info.data.version, 1, 3)
 
-	if gl_version == !(_MIN_GL_VERSION) then
+	if Settings.current.graphics_quality == "Low" then
 		lut_size = 16
 		lut_afternoon = assets.image_data.lut_afternoon_16
 		lut_dusk = assets.image_data.lut_dusk_16
@@ -125,7 +134,6 @@ function StateIntro:start()
 		lut_dusk = assets.image_data.lut_dusk_64
 		lut_night = assets.image_data.lut_night_64
 	end
-	Log.info("Using LUT size: " .. lut_size)
 
 	effect.single = NGrading:new(lut_afternoon, lut_size)
 	effect.single:setup_data()
@@ -134,27 +142,63 @@ function StateIntro:start()
 	effect.multi2 = NGrading:new(lut_dusk, lut_night, lut_size)
 	effect.multi2:setup_data()
 
+	self.entities.intro_txt1 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", vec2:new(32, 32))
+
+	self.entities.intro_txt2 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", vec2:new(32, 64))
+
+	self.entities.intro_txt3 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", vec2:new(32, 96))
+
+	self.entities.intro_txt4 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.ui_text, "music by ???", vec2:new(ww/2, wh/2))
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+
 	self.timeline = TLE.Do(function()
-		--Car enter scene
+		--Setup camera
+		local cam_scale = self.camera:getScale()
+		self.camera:setScale(15)
+		self.camera:setPosition(53, 544)
+
 		TLE.Event.Wait(2)
-		self.entities.car:give("move_to_x", 128, 5)
-		--TODO do the intro
+		Flux.to(self.camera, 5, { y = 480 })
+		Flux.to(self.camera, 5, { scale = 10 })
 
-		--Slow Down
-		TLE.Event.Wait(6)
-		effect.status = 2
-		Flux.to(effect, 5, { dt = 1 })
-		self.world:emit("slow_parallax", 0.75)
-		self.entities.car:give("move_to_x", 160, 0.75)
+		TLE.Event.Wait(2)
+		fade_text(self.entities.intro_txt1, 2)
 
-		--Car exit scene
-		TLE.Event.Wait(1)
-		Flux.to(effect, 5, { dt2 = 1 })
-		self.world:emit("stop_parallax")
-		self.entities.car:give("move_to_x", ww * 1.5, 2)
-
-		--Transition
 		TLE.Event.Wait(3)
+		local car_pos = self.entities.car:get("position").pos
+		Flux.to(self.camera, 5, { scale = 5 })
+		Flux.to(self.camera, 5, { x = 260, y = 460 })
+		Flux.to(car_pos, 5, { x = 128 })
+
+		TLE.Event.Wait(2)
+		fade_text(self.entities.intro_txt2, 2)
+
+		TLE.Event.Wait(3)
+		effect.status = 2
+		Flux.to(effect, 15, { dt = 1 })
+		Flux.to(self.camera, 5, { scale = 3 })
+		Flux.to(self.camera, 5, { x = 356 })
+		Flux.to(car_pos, 3, { x = 160 })
+
+		TLE.Event.Wait(2)
+		fade_text(self.entities.intro_txt3, 2)
+
+		TLE.Event.Wait(2)
+		self.world:emit("slow_parallax", 0.75)
+		Flux.to(car_pos, 3, { x = ww/2 })
+		fade_text(self.entities.intro_txt4, 2)
+
+		TLE.Event.Wait(2)
+		Flux.to(self.camera, 5, { scale = 1 })
+		Flux.to(self.camera, 5, { x = ww/2, y = wh/2 })
+
+		-- TLE.Event.Wait(6)
+		-- self.world:emit("stop_parallax")
+		-- Flux.to(car_pos, 5, { x = ww * 1.5 })
 	end)
 
 	!if not _RELEASE then
@@ -207,9 +251,32 @@ function StateIntro:draw()
 
 		love.graphics.pop()
 	end)
+
+	self.world:emit("draw_ui")
 end
 
 function StateIntro:keypressed(key)
+	local cs = self.camera:getScale()
+	local cx, cy = self.camera:getPosition()
+	if key == "-" then
+		self.camera:setScale(cs - 0.1)
+		print(self.camera:getScale())
+	elseif key == "=" then
+		self.camera:setScale(cs + 0.1)
+		print(self.camera:getScale())
+	elseif key == "left" then
+		self.camera:setPosition(cx - 32, cy)
+		print(self.camera:getPosition())
+	elseif key == "right" then
+		self.camera:setPosition(cx + 32, cy)
+		print(self.camera:getPosition())
+	elseif key == "up" then
+		self.camera:setPosition(cx, cy - 32)
+		print(self.camera:getPosition())
+	elseif key == "down" then
+		self.camera:setPosition(cx, cy + 32)
+		print(self.camera:getPosition())
+	end
 end
 
 function StateIntro:exit()

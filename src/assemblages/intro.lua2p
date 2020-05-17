@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
+
 local Intro = {}
 
 local speed = {
@@ -83,7 +85,7 @@ function Intro.car(e, spritesheet)
 		columns_count = 3,
 		n_frames = 12
 	}
-	local car_init_pos = vec2:new(-128, 325)
+	local car_init_pos = vec2:new(16, 325)
 	e:give("animation_data", data)
 	:give("position", car_init_pos)
 	:give("animation", false)
@@ -105,6 +107,14 @@ function Intro.car_reflect(e, spritesheet, car)
 	:give("attach_to", car)
 	:give("hidden")
 	:give("z_index", z_index.car)
+end
+
+function Intro.ui_text(e, text, pos)
+	e:give("text", text)
+	:give("position", pos)
+	:give("color", Palette:get_color("white", 0))
+	:give("ui_text")
+	:give("hidden")
 end
 
 return Intro
