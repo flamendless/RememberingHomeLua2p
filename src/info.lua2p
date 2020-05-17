@@ -1,17 +1,16 @@
 local Log = require("modules.log.log")
+
 local WindowMode = require("window_mode")
 
-local Info = {}
+local Info = {
+	data = {},
+	options = {},
+}
 
 local min = math.min
-local sort = table.sort
 local concat = table.concat
-local insert = table.insert
-local remove = table.remove
 local format = string.format
-local file = !(_LOG_INFO)
-
-Info.data = {}
+local filename = !(_LOG_INFO)
 
 function Info.initialize()
 	Log.info("System information checking...")
@@ -22,13 +21,7 @@ function Info.initialize()
 	Info.data.has_bgm = love.system.hasBackgroundMusic()
 	Info.data.limits = love.graphics.getSystemLimits()
 	Info.data.name, Info.data.version, Info.data.vendor, Info.data.device = love.graphics.getRendererInfo()
-	Info.data.supported_modes = WindowMode.modes
 	Info.data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
-
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
-	sort(Info.data.supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
-	Info.data.current_mode = w .. "x" .. h
 
 	local str = {
 		format("Game Version: %s", Info.data.game_version),
@@ -44,32 +37,37 @@ function Info.initialize()
 		format("\tVersion: %s", Info.data.version),
 		format("\tVendor: %s", Info.data.vendor),
 		format("\tDevice: %s", Info.data.device),
-		"Supported Modes:",
 	}
-	Info.data.supported_modes_str = {}
-	for i, mode in ipairs(Info.data.supported_modes) do
-		local scale = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
-		str[#str + 1] = format("\t[%i] - %ix%i - scale: %f", i, mode.width, mode.height, scale)
-		Info.data.supported_modes_str[i] = mode.width .. "x" .. mode.height
-	end
 
 	local to_write = concat(str, "\n")
-	local exists = love.filesystem.getInfo(file)
-	Log.info(format("'%s' exists: %s", file, exists or false))
-	if exists then
-		local content = love.filesystem.read(file)
-		if (content ~= to_write) then
-			love.filesystem.write(file, to_write)
-			Log.info(format("'%s' overwritten", file))
-		else
-			Log.info(format("'%s' untouched", file))
-		end
+	local file = Info.check_file()
+	if file then
+		Info.validate_file(to_write)
 	else
-		love.filesystem.write(file, to_write)
-		Log.info(format("'%s' written", file))
+		Info.create_new(to_write)
 	end
-
 	Log.info(to_write)
+end
+
+function Info.check_file()
+	local file = love.filesystem.getInfo(filename)
+	Log.info(format("'%s' exists: %s", filename, file or false))
+	return file
+end
+
+function Info.validate_file(to_write)
+	local content = love.filesystem.read(filename)
+	if (content ~= to_write) then
+		love.filesystem.write(filename, to_write)
+		Log.info(format("'%s' overwritten", filename))
+	else
+		Log.info(format("'%s' untouched", filename))
+	end
+end
+
+function Info.create_new(to_write)
+	love.filesystem.write(filename, to_write)
+	Log.info(format("'%s' written", filename))
 end
 
 return Info
