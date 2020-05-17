@@ -114,7 +114,7 @@ function StateIntro:start()
 	local lut_afternoon, lut_dusk, lut_night
 	local gl_version = sub(Info.data.version, 1, 3)
 
-	if gl_version == "2.0" then
+	if gl_version == !(_MIN_GL_VERSION) then
 		lut_size = 16
 		lut_afternoon = assets.image_data.lut_afternoon_16
 		lut_dusk = assets.image_data.lut_dusk_16

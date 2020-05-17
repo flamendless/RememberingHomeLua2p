@@ -12,6 +12,8 @@ _IDENTITY = "goinghomerevisited"
 _LOVE_VERSION = "11.3"
 _GAME_VERSION = { 0, 0, 1 }
 
+_MIN_GL_VERSION = "2.1"
+
 _DEFAULT_FILTER = "nearest"
 _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
