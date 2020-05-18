@@ -43,7 +43,7 @@ function Dev.init(id, world)
 end
 
 function Dev.update(dt)
-	if Dev.show then
+	if Dev.show and Dev.world then
 		local dx, dy = Dev.camera:getPosition()
 		if love.keyboard.isDown("left") then
 			dx = dx - cam_speed * dt
@@ -73,7 +73,7 @@ function Dev.update(dt)
 end
 
 function Dev.draw()
-	if Dev.show then
+	if Dev.show and Dev.world then
 		if Dev.show_bounding_box then
 			Dev.world:emit("draw_debug", Dev.scale)
 		end
@@ -105,7 +105,9 @@ function Dev.setScale(scale)
 end
 
 function Dev.deinit()
-	Dev.world:emit("deinit")
+	if Dev.world then
+		Dev.world:emit("deinit")
+	end
 	Dev.id = nil
 	Dev.world = nil
 	Dev.scale = 1
