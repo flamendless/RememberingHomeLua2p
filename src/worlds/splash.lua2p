@@ -192,4 +192,11 @@ function StateSplash:keypressed(key)
 	end
 end
 
+function StateSplash:exit()
+	Assets.clean(assets)
+	for i, e in ipairs(self.world:getEntities()) do
+		self.world:removeEntity(e)
+	end
+end
+
 return StateSplash

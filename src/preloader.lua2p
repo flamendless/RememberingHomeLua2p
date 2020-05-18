@@ -87,7 +87,7 @@ function Preloader.start(assets, container, oncomplete)
 				container.fonts[id] = data
 			end
 			local str = format("Loaded: #%i - %s : %s", i, data_type, id)
-			Log.info(str)
+			Log.trace(str)
 		end
 
 		oncomplete()

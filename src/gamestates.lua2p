@@ -50,6 +50,12 @@ function GameStates:switch(next_id)
 		!end
 	end
 
+	!if not _RELEASE then
+	if self.prev_world and self.prev_world.exit == nil then
+		Log.warn("No 'exit' for state. No cleanup.")
+	end
+	!end
+
 	self.current_world = Worlds[next_id]:new()
 	self.current_id = next_id
 

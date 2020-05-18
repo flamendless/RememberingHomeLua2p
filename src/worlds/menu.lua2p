@@ -799,4 +799,11 @@ function StateMenu:MB_return()
 	end)
 end
 
+function StateMenu:exit()
+	Assets.clean(assets)
+	for i, e in ipairs(self.world:getEntities()) do
+		self.world:removeEntity(e)
+	end
+end
+
 return StateMenu

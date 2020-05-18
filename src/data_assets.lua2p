@@ -1,3 +1,7 @@
+local Log = require("modules.log.log")
+
+local format = string.format
+
 local Assets = {
 	data = {}
 }
@@ -62,10 +66,22 @@ Assets.data.intro = {
 
 function Assets:getData(key)
 	!if _ASSERT then
-	assert(type(key) == "string", "Passed argument must be of type 'string'")
-	assert(self.data[key], "Passed argument does not exist in 'Assets.data' table")
+	Assert.should_string(key)
+	Assert.should_exists(self.data[key])
 	!end
 	return self.data[key]
+end
+
+function Assets.clean(assets)
+	!if _ASSERT then
+	Assert.should_table(assets)
+	!end
+	for k, t in pairs(assets) do
+		for name, obj in pairs(t) do
+			assets[k][name] = nil
+			Log.trace(format("'%s':'%s' cleaned", k, name))
+		end
+	end
 end
 
 return Assets
