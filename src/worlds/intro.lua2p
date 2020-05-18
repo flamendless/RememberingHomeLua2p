@@ -10,6 +10,7 @@ local sub = string.sub
 
 local Assets = require("data_assets")
 local Info = require("info")
+local Fade = require("fade")
 local NGrading = require("ngrading")
 local Preloader = require("preloader")
 local Settings = require("settings")
@@ -38,34 +39,41 @@ local effect = { dt = 0, dt2 = 0, status = 1 }
 local current_dialogue = 1
 local e_dialogues = {}
 local dialogues = {
-	"Hey have you heard of the latest news?",
+	"Hey, latest reports came in a few minutes ago.",
 	"Apparently another case occured.",
-	"This time it's more out-of-fashion than the usual",
-	"Anyways, I know you are on the road",
-	"Make sure to check the reports",
-	"Man! Things keep getting worse."
+	"This one's more disturbing.",
+	"Anyways, I know you are on the road.",
+	"I'll send the files over as soon as them",
+	"investigators are done in the crime scene.",
+	"I know you're on the road so umm,",
+	"make sure to check it when you got home okay?",
+	"Man! Things keep getting worse and wor--"
 }
 
 local fade_text = function(e, duration)
 	e:remove("hidden")
 	local color = e:get("color")
 	Flux.to(color.color, duration, { [4] = 1 })
-		:oncomplete(function() Flux.to(color.color, duration, { [4] = 0 }) end)
+		:oncomplete(function()
+			Flux.to(color.color, duration, { [4] = 0 }):oncomplete(function() e:give("hidden") end)
+		end)
 end
 
+local duration_in = 3
+local duration_out = 1
 local show_dialogue
-show_dialogue = function(duration, timeline)
+show_dialogue = function(timeline)
 	if current_dialogue > #e_dialogues then
 		timeline:Unpause()
 	else
 		local e = e_dialogues[current_dialogue]
 		e:remove("hidden")
 		local color = e:get("color")
-		Flux.to(color.color, duration, { [4] = 1 })
+		Flux.to(color.color, duration_in, { [4] = 1 })
 			:oncomplete(function()
-				e:give("hidden")
+				Flux.to(color.color, duration_out, { [4] = 0 }):oncomplete(function() e:give("hidden") end)
 				current_dialogue = current_dialogue + 1
-				show_dialogue(duration, timeline)
+				show_dialogue(timeline)
 			end)
 	end
 end
@@ -104,8 +112,9 @@ function StateIntro:start()
 	self.scale = min(ww/w, wh/h)
 	-- self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 	-- self.camera:setWindow(0, (wh - h * self.scale)/2, ww, wh)
-	self.camera = Gamera.new(0, 0, ww, wh)
+	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, wh)
+	self.camera:setScale(self.scale)
 
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", assets.images.bg)
@@ -184,49 +193,53 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", vec2:new(32, 32))
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", vec2:new(32, 64))
+		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", vec2:new(32, 32))
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", vec2:new(32, 96))
+		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", vec2:new(32, 32))
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "music by ???", vec2:new(ww/2, wh/2))
+		:assemble(Assemblages.Intro.ui_text, "music by ???", vec2:new(32, 32))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	for i, str in ipairs(dialogues) do
+		--TODO add voice acting dialogue
 		local e = Concord.entity(self.world)
-			--TODO add voice acting dialogue
 			:assemble(Assemblages.Intro.dialogue_text, str, vec2:new(ww/2, 32))
 		insert(e_dialogues, e)
 	end
 
 	self.timeline = TLE.Do(function()
-		--Setup camera
-		local cam_scale = self.camera:getScale()
+		local car_pos = self.entities.car:get("position").pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
 
 		TLE.Event.Wait(2)
-		Flux.to(self.camera, 5, { y = 480 })
+		local cx, cy = self.camera:getPosition()
+		-- Flux.to(self.camera, 5, { y = 480 })
+		Flux.to(self.camera, 5, { y = cy - 64 })
 		Flux.to(self.camera, 5, { scale = 10 })
 
 		TLE.Event.Wait(2)
 		fade_text(self.entities.intro_txt1, 2)
 
 		TLE.Event.Wait(3)
-		local car_pos = self.entities.car:get("position").pos
+		local cx, cy = self.camera:getPosition()
 		Flux.to(self.camera, 5, { scale = 5 })
-		Flux.to(self.camera, 5, { x = 260, y = 460 })
+		-- Flux.to(self.camera, 5, { x = 260, y = 460 })
+		Flux.to(self.camera, 5, { x = cx + 160, y = cy - 32 })
 		Flux.to(car_pos, 5, { x = 128 })
 
 		TLE.Event.Wait(2)
 		fade_text(self.entities.intro_txt2, 2)
 
 		TLE.Event.Wait(3)
+		local cx, cy = self.camera:getPosition()
 		effect.status = 2
 		Flux.to(effect, 15, { dt = 1 })
 		Flux.to(self.camera, 5, { scale = 3 })
-		Flux.to(self.camera, 5, { x = 356 })
+		-- Flux.to(self.camera, 5, { x = 356 })
+		Flux.to(self.camera, 5, { x = cx + 72, y = cy - 32 })
 		Flux.to(car_pos, 3, { x = 160 })
 
 		TLE.Event.Wait(3)
@@ -251,8 +264,9 @@ function StateIntro:start()
 		Flux.to(car_pos, 3, { x = ww/2 })
 
 		TLE.Event.Wait(2)
-		Flux.to(self.camera, 5, { scale = 1 })
-		Flux.to(self.camera, 5, { x = ww/2, y = wh/2 })
+		Flux.to(self.camera, 5, { scale = self.scale })
+		-- Flux.to(self.camera, 5, { x = ww/2, y = wh/2 })
+		Flux.to(self.camera, 5, { x = w/2, y = h/2 })
 
 		TLE.Event.Wait(6)
 		self.world:emit("stop_parallax")
@@ -265,16 +279,9 @@ function StateIntro:start()
 	end)
 
 	self.timeline_dialogue = TLE.Do(function()
-		show_dialogue(4, self.timeline)
+		show_dialogue(self.timeline)
 	end)
 	self.timeline_dialogue:Pause()
-
-	!if not _RELEASE then
-	-- Dev.init(self.id, self.world)
-	-- for k, v in pairs(self.entities) do
-	-- 	v:give("debug_slab", k)
-	-- end
-	!end
 end
 
 function StateIntro:update(dt)
@@ -295,9 +302,6 @@ function StateIntro:draw()
 	if not self.is_ready then return end
 
 	self.camera:draw(function()
-		love.graphics.push()
-		love.graphics.scale(self.scale)
-
 		if effect.status == 1 then
 			effect.single:apply()
 		elseif effect.status == 2 then
@@ -312,11 +316,10 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 
 		love.graphics.setShader()
-
-		love.graphics.pop()
 	end)
 
 	self.world:emit("draw_ui")
+	Fade.draw()
 end
 
 function StateIntro:exit()
