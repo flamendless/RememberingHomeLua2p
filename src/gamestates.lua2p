@@ -64,7 +64,7 @@ function GameStates:switch(next_id)
 
 	self:init()
 	self.current_world:load()
-	self.current_world.gamestate = gamestate
+	self.current_world.gamestate = self
 end
 
 function GameStates:switch_to_previous()

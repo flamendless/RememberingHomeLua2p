@@ -103,11 +103,16 @@ end
 --CUSTOM
 function Assert.either_type(arg, ...)
 	local args = {...}
+	local pass = false
 	for _, v in ipairs(args) do
-		if type(arg) ~= v then
-			local msg = "Passed argumebt must be either of types: " .. concat(args, ", ")
-			error(msg, 2)
+		if type(arg) == v then
+			pass = true
+			break
 		end
+	end
+	if not pass then
+		local msg = "Passed argument must be either of types: " .. concat(args, ", ")
+		error(msg, 2)
 	end
 end
 

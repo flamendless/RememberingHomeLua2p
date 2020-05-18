@@ -13,7 +13,12 @@ local Animation = Concord.system({
 })
 
 local setup_on_end = function(e, animation)
+	!if _ASSERT then
+	Assert.should_component(animation)
+	!end
+
 	local cb = e:get("animation_on_complete")
+	local on_end
 	if cb then
 		on_end = function()
 			cb.callback()
@@ -30,6 +35,7 @@ local setup_on_end = function(e, animation)
 			end
 		end
 	end
+	return on_end
 end
 
 local setup_auto_scale = function(e, data)
@@ -80,7 +86,12 @@ local setup_animation = function(e, data, on_end)
 	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 	e:give("sprite", data.spritesheet)
 	e:give("quad", quad)
-	e:give("quad_transform", r, sx, sy, ox, oy)
+
+	if data.is_flipped then
+		e:give("quad_transform", r, sx, sy, ox, oy)
+	else
+		e:remove("quad_transform")
+	end
 end
 
 function Animation:init()
@@ -88,8 +99,9 @@ function Animation:init()
 
 	self.pool.onEntityAdded = function(pool, e)
 		local data = e:get("animation_data")
+		local animation = e:get("animation")
 		setup_auto_scale(e, data)
-		local on_end = setup_on_end(e, nimation)
+		local on_end = setup_on_end(e, animation)
 		setup_animation(e, data, on_end)
 	end
 

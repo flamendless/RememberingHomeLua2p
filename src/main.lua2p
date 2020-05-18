@@ -14,6 +14,7 @@ Assert = require("assert")
 !if not _RELEASE then
 Dev = require("dev")
 Inspect = require("modules.inspect.inspect")
+local font_default = love.graphics.newFont(24)
 !end
 
 local ErrorHandler = require("error_handler")
@@ -78,6 +79,7 @@ function love.draw()
 	end
 
 	!if not _RELEASE then
+	love.graphics.setFont(font_default)
 	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.print(love.timer.getFPS(), 8, 8)
 	!end

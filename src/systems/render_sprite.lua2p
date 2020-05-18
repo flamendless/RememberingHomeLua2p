@@ -47,13 +47,7 @@ function RenderSprite:internal_draw(e)
 		end
 
 		local rotation, sx, sy, ox, oy
-		if quad and quad_transform then
-			rotation = quad_transform.rotation
-			sx = quad_transform.sx
-			sy = quad_transform.sy
-			ox = quad_transform.ox
-			oy = quad_transform.oy
-		elseif transform then
+		if transform then
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
@@ -84,6 +78,13 @@ function RenderSprite:internal_draw(e)
 		end
 
 		if quad then
+			if quad_transform then
+				rotation = quad_transform.rotation
+				sx = quad_transform.sx
+				sy = quad_transform.sy
+				ox = quad_transform.ox
+				oy = quad_transform.oy
+			end
 			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
 			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)

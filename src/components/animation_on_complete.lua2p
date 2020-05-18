@@ -2,8 +2,8 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("animation_on_complete", function(c, callback, event)
 	!if _ASSERT then
-	ASSERT.should_function(callback)
-	ASSERT.either_value(event, "pauseAtEnd", "pauseAtStart")
+	Assert.should_function(callback)
+	Assert.either_value(event, "pauseAtEnd", "pauseAtStart")
 	!end
 
 	c.callback = callback
