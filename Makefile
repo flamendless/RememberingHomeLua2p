@@ -6,9 +6,8 @@ endef
 
 SHELL := /bin/zsh
 SOURCE := src
-APPDATA = ~/.local/share/love/goinghomerevisit
-FILENAME_LOG_OUTPUT = log_output.txt
-FILENAME_LOG_INFO = info.txt
+APPDATA = ~/.local/share/love/goinghomerevisited
+
 OUTPUT_DIRECTORY := output
 EXCLUDES := modules
 
@@ -35,6 +34,8 @@ TEXTURE_SIZE = 1024,1024
 
 LPP_PATH := ./luapreprocess/preprocess-cl.lua
 LPP_HANDLER := handler_dev.lua
+
+FILENAME_LOGS = log_output.txt info.txt user_settings.lua data_store save_file.lua PLEASE_DO_NOT_EDIT_ANY_FILES
 
 RELEASE_VERSION :=
 
@@ -102,18 +103,7 @@ clean-release:
 	@if [ -d $(DIR_RELEASE) ]; then rm -rf $(DIR_RELEASE); else echo "$(DIR_RELEASE) directory does not exist"; fi
 
 clean_logs:
-	@if [ -f $(APPDATA)/$(FILENAME_LOG_OUTPUT) ]; then \
-		echo "$(APPDATA)/$(FILENAME_LOG_OUTPUT) exists. Deleting..."; \
-		rm $(APPDATA)/$(FILENAME_LOG_OUTPUT); \
-	else \
-		echo "$(APPDATA)/$(FILENAME_LOG_OUTPUT) does not exist!"; \
-	fi
-	@if [ -f $(APPDATA)/$(FILENAME_LOG_INFO) ]; then \
-		echo "$(APPDATA)/$(FILENAME_LOG_INFO) exists. Deleting..."; \
-		rm $(APPDATA)/$(FILENAME_LOG_INFO); \
-	else \
-		echo "$(APPDATA)/$(FILENAME_LOG_INFO) does not exist!"; \
-	fi
+	@$(foreach var,$(FILENAME_LOGS), rm $(APPDATA)/$(var);)
 
 clean-fonts:
 	@if [ -d $(FONTS_OUTPUT) ]; then rm -rf $(FONTS_OUTPUT); else echo "$(FONTS_OUTPUT) directory does not exist"; fi
