@@ -3,6 +3,7 @@ local Concord = require("modules.concord.concord")
 local StateTest = class()
 StateTest.id = "Test"
 
+local Assets = require("data_assets")
 local Preloader = require("preloader")
 
 local Components = {}
@@ -12,6 +13,7 @@ local Systems = {
 	Collision = require("systems.collision"),
 	Controller = require("systems.controller"),
 	Movement = require("systems.movement"),
+	RenderSprite = require("systems.render_sprite"),
 }
 local Assemblages = {
 	Player = require("assemblages.player")
@@ -49,6 +51,7 @@ function StateTest:start()
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Controller)
 	self.world:addSystem(Systems.Movement)
+	self.world:addSystem(Systems.RenderSprite)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
@@ -78,6 +81,7 @@ function StateTest:start()
 				sheet_walk = assets.images.sheet_player_walk,
 				sheet_run = assets.images.sheet_player_run,
 			})
+	Dev.init(self.id, self.world)
 end
 
 function StateTest:update(dt)
@@ -88,6 +92,13 @@ end
 function StateTest:draw()
 	if not self.is_ready then return end
 	self.world:emit("draw")
+end
+
+function StateTest:exit()
+	Assets.clean(assets)
+	for i, e in ipairs(self.world:getEntities()) do
+		self.world:removeEntity(e)
+	end
 end
 
 return StateTest

@@ -76,6 +76,11 @@ local setup_animation = function(e, data, on_end)
 
 	animation.grid = obj_grid
 	animation.animation = obj_animation
+
+	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
+	e:give("sprite", data.spritesheet)
+	e:give("quad", quad)
+	e:give("quad_transform", r, sx, sy, ox, oy)
 end
 
 function Animation:init()
@@ -86,11 +91,6 @@ function Animation:init()
 		setup_auto_scale(e, data)
 		local on_end = setup_on_end(e, nimation)
 		setup_animation(e, data, on_end)
-
-		local animation = e:get("animation")
-		local quad = animation.animation:getFrameInfo()
-		e:give("sprite", data.spritesheet)
-		e:give("quad", quad)
 	end
 
 	self.pool_z.onEntityAdded = function(pool, e)
@@ -142,7 +142,9 @@ function Animation:switch_animation_tag(new_tag)
 
 	for _, e in ipairs(self.pool_multi) do
 		local multi = e:get("multiple_animation_data")
+		!if _ASSERT then
 		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
+		!end
 		local animation = e:get("animation")
 		local on_end = setup_on_end(e, animation)
 		if not (new_tag == animation.current_tag) then

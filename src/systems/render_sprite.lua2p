@@ -38,25 +38,32 @@ function RenderSprite:internal_draw(e)
 		local color = e:get("color")
 		local sprite = e:get("sprite")
 		local transform = e:get("transform")
-		local data = e:get("animation_data")
-		love.graphics.setColor(1, 1, 1, 1)
+		local quad_transform = e:get("quad_transform")
+		local animation_data = e:get("animation_data")
 
+		love.graphics.setColor(1, 1, 1, 1)
 		if color then
 			love.graphics.setColor(e.color.color)
 		end
 
 		local rotation, sx, sy, ox, oy
-		if transform then
+		if quad and quad_transform then
+			rotation = quad_transform.rotation
+			sx = quad_transform.sx
+			sy = quad_transform.sy
+			ox = quad_transform.ox
+			oy = quad_transform.oy
+		elseif transform then
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
 
-			if data then
+			if animation_data then
 				if transform.ox == 0.5 then
-					ox = data.frame_width/2
+					ox = animation_data.frame_width/2
 				end
 				if transform.oy == 0.5 then
-					oy = data.frame_height/2
+					oy = animation_data.frame_height/2
 				end
 			else
 				if transform.ox == 0.5 then

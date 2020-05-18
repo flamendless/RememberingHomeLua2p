@@ -15,3 +15,19 @@ Concord.component("transform", function(c, rotation, sx, sy, ox, oy)
 	c.ox = ox or 0
 	c.oy = oy or 0
 end)
+
+Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy)
+	!if _ASSERT then
+	Assert.safe_should_number(rotation)
+	Assert.safe_should_number(sx)
+	Assert.safe_should_number(sy)
+	Assert.safe_should_number(ox)
+	Assert.safe_should_number(oy)
+	!end
+
+	c.rotation = rotation or 0
+	c.sx = sx or 1
+	c.sy = sy or 1
+	c.ox = ox or 0
+	c.oy = oy or 0
+end)
