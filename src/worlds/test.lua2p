@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local Gamera = require("modules.gamera.gamera")
 
 local StateTest = class()
 StateTest.id = "Test"
@@ -34,6 +35,7 @@ function StateTest:new()
 		is_ready = false,
 		world = Concord.world(),
 		entities = {},
+		camera = nil,
 	})
 end
 
@@ -45,8 +47,11 @@ function StateTest:load()
 		end)
 end
 
-
 function StateTest:start()
+	local ww, wh = love.graphics.getDimensions()
+	self.camera = Gamera.new(0, 0, ww, wh)
+	self.camera:setWindow(0, 0, ww, wh)
+
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Controller)
@@ -91,7 +96,16 @@ end
 
 function StateTest:draw()
 	if not self.is_ready then return end
-	self.world:emit("draw")
+	self.camera:draw(function()
+		self.world:emit("draw")
+
+		love.graphics.setColor(1, 0, 0, 1)
+		local cx, cy = self.camera:getPosition()
+		local l, t, w, h = self.camera:getVisible()
+		love.graphics.circle("fill", cx, cy, 8)
+		love.graphics.circle("fill", l, t, 16)
+		love.graphics.circle("fill", w, h, 16)
+	end)
 end
 
 function StateTest:exit()

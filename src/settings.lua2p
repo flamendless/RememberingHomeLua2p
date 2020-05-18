@@ -42,6 +42,7 @@ function Settings.create_new()
 		Settings.current.graphics_quality = graphics_quality.High
 	end
 	Settings.current.current_wm = 1
+	Settings.current.intro_done = false
 
 	local to_write = JSON.encode(Settings.current)
 	Settings.overwrite(to_write)
