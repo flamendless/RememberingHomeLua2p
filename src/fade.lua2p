@@ -6,11 +6,14 @@ local f_duration = 1
 local f_delay = 0.5
 local f_color = { 0, 0, 0, 0 }
 
-function Fade.fade_out(on_complete)
+function Fade.fade_out(on_complete, duration, delay)
 	!if _ASSERT then
-	assert(type(on_complete) == "function", "Passed argumebt must be of type 'function'")
+	Assert.should_function(on_complete)
+	Assert.safe_should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
-	local f = Flux.to(f_color, f_duration, { [4] = 1 }):delay(f_delay)
+
+	local f = Flux.to(f_color, duration or f_duration, { [4] = 1 }):delay(delay or f_delay)
 	if on_complete then
 		f:oncomplete(on_complete)
 	end
@@ -18,14 +21,11 @@ end
 
 function Fade.fade_in(on_complete, duration, delay)
 	!if _ASSERT then
-	assert(type(on_complete) == "function", "Passed argumebt must be of type 'function'")
-	if duration then
-		assert(type(duration) == "number", "Passed argument must be of type 'number'")
-	end
-	if delay then
-		assert(type(delay) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_function(on_complete)
+	Assert.safe_should_number(duration)
+	Assert.safe_should_number(delay)
 	!end
+
 	local f = Flux.to(f_color, duration or f_duration, { [4] = 0 }):delay(delay or f_delay)
 	if on_complete then
 		f:oncomplete(on_complete)
@@ -39,8 +39,9 @@ end
 
 function Fade.set_color(color)
 	!if _ASSERT then
-	assert(type(color) == "table", "Passed argument must be of type 'table'")
+	Assert.should_table(color)
 	!end
+
 	f_color[1] = color[1] or f_color[1]
 	f_color[2] = color[2] or f_color[2]
 	f_color[3] = color[3] or f_color[3]
