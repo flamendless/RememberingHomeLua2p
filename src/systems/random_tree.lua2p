@@ -53,9 +53,6 @@ function RandomTree:generate_tree(e)
 			local img = images[r]
 			local x = i * data.largest_w
 			local y = 0
-			if data.tree_data.offset_y then
-				y = love.math.random(0, data.tree_data.offset_y)
-			end
 			local tree = Concord.entity(self.world)
 				:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
 
@@ -73,9 +70,6 @@ function RandomTree:append_tree(index)
 	local img = images[r]
 	local x = data.tree_data.max_width + love.math.random(32, 128)
 	local y = 0
-	if data.tree_data.offset_y then
-		y = love.math.random(0, data.tree_data.offset_y)
-	end
 	local tree = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
 end

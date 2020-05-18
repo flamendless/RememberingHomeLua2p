@@ -10,19 +10,23 @@ local speed = {
 	post = 512,
 	grass1 = 640,
 	grass2 = 656,
+	grass_back = 480,
+	grass_front = 480,
 	bg_tree = -256,
 	fg_tree = -672,
 }
 
 local z_index = {
 	building = 1,
-	road = 2,
+	grass_back = 2,
 	bg_tree = 3,
-	post = 4,
-	grass1 = 5,
-	car = 6,
-	fg_tree = 7,
-	grass2 = 8,
+	grass_front = 4,
+	road = 5,
+	post = 6,
+	grass1 = 7,
+	car = 8,
+	fg_tree = 9,
+	grass2 = 10,
 }
 
 !if not _RELEASE then
@@ -48,7 +52,6 @@ function Intro.bg_tree_data(e, images, max_width)
 		images = images,
 		max_width = max_width,
 		parallax = vec2:new(speed.bg_tree, 0),
-		offset_y = -16,
 		z_index = z_index.bg_tree,
 	})
 end

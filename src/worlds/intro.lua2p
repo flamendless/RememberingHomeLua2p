@@ -93,6 +93,12 @@ function StateIntro:start()
 	self.entities.parallax_grass2 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass2, ww * 2, "grass2")
 
+	self.entities.parallax_grass_back = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass_back, ww * 2, "grass_back")
+
+	self.entities.parallax_grass_front = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass_front, ww * 2, "grass_front")
+
 	self.entities.post = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, assets.images.bg_post, ww * 2, "post")
 
