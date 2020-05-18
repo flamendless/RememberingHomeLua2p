@@ -207,6 +207,10 @@ end
 
 function StateMenu:on_newgame()
 	self:turn_off_lamp()
+	if Settings.current.intro_done then
+	else
+		self.gamestate:switch("Intro")
+	end
 end
 
 function StateMenu:on_continue()
@@ -597,6 +601,7 @@ function StateMenu:new()
 		entities = {},
 		canvases = {},
 		is_ready = false,
+		gamestate = nil,
 	})
 end
 

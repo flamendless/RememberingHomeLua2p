@@ -76,6 +76,7 @@ function StateIntro:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
+		gamestate = nil
 	})
 end
 
@@ -258,7 +259,9 @@ function StateIntro:start()
 		Flux.to(car_pos, 5, { x = ww * 1.5 })
 
 		TLE.Event.Wait(1)
-		--TODO transition
+		Fade.fade_out(function()
+			self.gamestate:switch("MainGame")
+		end, 2)
 	end)
 
 	self.timeline_dialogue = TLE.Do(function()

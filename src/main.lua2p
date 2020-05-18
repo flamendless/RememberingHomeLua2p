@@ -116,6 +116,5 @@ end
 
 function love.quit()
 	Lily.quit()
-	GameStates:quit()
 	Log.info("Quitting...")
 end
