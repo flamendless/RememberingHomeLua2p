@@ -256,8 +256,8 @@ function GameStates:mousereleased(mx, my, mb)
 end
 
 function GameStates:quit()
-	if self.current_world.quit then
-		self.current_world:quit()
+	if self.current_world.exit then
+		self.current_world:exit()
 	end
 end
 
