@@ -4,6 +4,7 @@ local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
+local insert = table.insert
 local min = math.min
 local sub = string.sub
 
@@ -32,13 +33,41 @@ local Assemblages = {
 }
 
 local assets = { images = {}, image_data = {}, fonts = {} }
-local effect = { single = nil, multi = nil, multi2 = nil, dt = 0, dt2 = 0, status = 1 }
+local effect = { dt = 0, dt2 = 0, status = 1 }
+
+local current_dialogue = 1
+local e_dialogues = {}
+local dialogues = {
+	"Hey have you heard of the latest news?",
+	"Apparently another case occured.",
+	"This time it's more out-of-fashion than the usual",
+	"Anyways, I know you are on the road",
+	"Make sure to check the reports",
+	"Man! Things keep getting worse."
+}
 
 local fade_text = function(e, duration)
 	e:remove("hidden")
-	local color_txt1 = e:get("color")
-	Flux.to(color_txt1.color, duration, { [4] = 1 })
-		:oncomplete(function() Flux.to(color_txt1.color, duration, { [4] = 0 }) end)
+	local color = e:get("color")
+	Flux.to(color.color, duration, { [4] = 1 })
+		:oncomplete(function() Flux.to(color.color, duration, { [4] = 0 }) end)
+end
+
+local show_dialogue
+show_dialogue = function(duration, timeline)
+	if current_dialogue > #e_dialogues then
+		timeline:Unpause()
+	else
+		local e = e_dialogues[current_dialogue]
+		e:remove("hidden")
+		local color = e:get("color")
+		Flux.to(color.color, duration, { [4] = 1 })
+			:oncomplete(function()
+				e:give("hidden")
+				current_dialogue = current_dialogue + 1
+				show_dialogue(duration, timeline)
+			end)
+	end
 end
 
 function StateIntro:new()
@@ -143,6 +172,8 @@ function StateIntro:start()
 
 	effect.single = NGrading:new(lut_afternoon, lut_size)
 	effect.single:setup_data()
+	effect.single2 = NGrading:new(lut_night, lut_size)
+	effect.single2:setup_data()
 	effect.multi = NGrading:new(lut_afternoon, lut_dusk, lut_size)
 	effect.multi:setup_data()
 	effect.multi2 = NGrading:new(lut_dusk, lut_night, lut_size)
@@ -160,6 +191,13 @@ function StateIntro:start()
 	self.entities.intro_txt4 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.ui_text, "music by ???", vec2:new(ww/2, wh/2))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
+
+	for i, str in ipairs(dialogues) do
+		local e = Concord.entity(self.world)
+			--TODO add voice acting dialogue
+			:assemble(Assemblages.Intro.dialogue_text, str, vec2:new(ww/2, 32))
+		insert(e_dialogues, e)
+	end
 
 	self.timeline = TLE.Do(function()
 		--Setup camera
@@ -190,22 +228,43 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = 356 })
 		Flux.to(car_pos, 3, { x = 160 })
 
-		TLE.Event.Wait(2)
+		TLE.Event.Wait(3)
 		fade_text(self.entities.intro_txt3, 2)
+
+		TLE.Event.Wait(3)
+		fade_text(self.entities.intro_txt4, 2)
+
+		TLE.Event.Wait(3)
+		effect.status = 3
+		Flux.to(effect, 25, { dt2 = 1 })
+			:oncomplete(function()
+				effect.status = 4
+			end)
+
+		TLE.Event.Wait(3)
+		self.timeline_dialogue:Unpause()
+		self.timeline:Pause()
 
 		TLE.Event.Wait(2)
 		self.world:emit("slow_parallax", 0.75)
 		Flux.to(car_pos, 3, { x = ww/2 })
-		fade_text(self.entities.intro_txt4, 2)
 
 		TLE.Event.Wait(2)
 		Flux.to(self.camera, 5, { scale = 1 })
 		Flux.to(self.camera, 5, { x = ww/2, y = wh/2 })
 
-		-- TLE.Event.Wait(6)
-		-- self.world:emit("stop_parallax")
-		-- Flux.to(car_pos, 5, { x = ww * 1.5 })
+		TLE.Event.Wait(6)
+		self.world:emit("stop_parallax")
+		Flux.to(car_pos, 5, { x = ww * 1.5 })
+
+		TLE.Event.Wait(1)
+		--TODO transition
 	end)
+
+	self.timeline_dialogue = TLE.Do(function()
+		show_dialogue(4, self.timeline)
+	end)
+	self.timeline_dialogue:Pause()
 
 	!if not _RELEASE then
 	-- Dev.init(self.id, self.world)
@@ -242,18 +301,14 @@ function StateIntro:draw()
 			effect.multi:apply()
 		elseif effect.status == 3 then
 			effect.multi2:apply()
+		elseif effect.status == 4 then
+			effect.single2:apply()
 		end
 
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
-		if effect.status == 1 then
-			effect.single:unapply()
-		elseif effect.status == 2 then
-			effect.multi:unapply()
-		elseif effect.status == 3 then
-			effect.multi2:unapply()
-		end
+		love.graphics.setShader()
 
 		love.graphics.pop()
 	end)
@@ -261,34 +316,16 @@ function StateIntro:draw()
 	self.world:emit("draw_ui")
 end
 
-function StateIntro:keypressed(key)
-	local cs = self.camera:getScale()
-	local cx, cy = self.camera:getPosition()
-	if key == "-" then
-		self.camera:setScale(cs - 0.1)
-		print(self.camera:getScale())
-	elseif key == "=" then
-		self.camera:setScale(cs + 0.1)
-		print(self.camera:getScale())
-	elseif key == "left" then
-		self.camera:setPosition(cx - 32, cy)
-		print(self.camera:getPosition())
-	elseif key == "right" then
-		self.camera:setPosition(cx + 32, cy)
-		print(self.camera:getPosition())
-	elseif key == "up" then
-		self.camera:setPosition(cx, cy - 32)
-		print(self.camera:getPosition())
-	elseif key == "down" then
-		self.camera:setPosition(cx, cy + 32)
-		print(self.camera:getPosition())
-	end
-end
-
 function StateIntro:exit()
-	for k, v in pairs(self.entities) do
-		self.entities[k] = nil
+	Assets.clean(assets)
+	for i, e in ipairs(self.world:getEntities()) do
+		self.world:removeEntity(e)
 	end
+	effect.dt = 0
+	effect.dt2 = 0
+	effect.status = 1
+	self.timeline:Die()
+	self.timeline_dialogue:Die()
 end
 
 return StateIntro

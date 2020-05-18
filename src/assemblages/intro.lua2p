@@ -120,4 +120,15 @@ function Intro.ui_text(e, text, pos)
 	:give("hidden")
 end
 
+function Intro.dialogue_text(e, text, pos)
+	e:give("text", text)
+	:give("position", pos)
+	:give("transform", 0, 1, 1, 0.5)
+	:give("color", Palette:get_color("white", 0))
+	:give("ui_text")
+	:give("hidden")
+	--TODO add voice acting dialogue
+	-- :give("sound", sound_voice)
+end
+
 return Intro
