@@ -11,6 +11,7 @@ Assets.data.splash = {
 		{ "sheet_wits", "assets/images/splash/sheet_wits.png" },
 	},
 	font = {
+		{ "ui", "assets/fonts/Jamboree.ttf", 32, "default" },
 		{ "firefly", "assets/fonts/Firefly.ttf", 256 },
 		{ "uncle_type", "assets/fonts/uncle_type.ttf", 32 },
 	}

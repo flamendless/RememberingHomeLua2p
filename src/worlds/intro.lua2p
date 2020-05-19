@@ -11,6 +11,7 @@ local sub = string.sub
 local Assets = require("data_assets")
 local Info = require("info")
 local Fade = require("fade")
+local Keybinds = require("keybinds")
 local NGrading = require("ngrading")
 local Palette = require("palette")
 local Preloader = require("preloader")
@@ -276,6 +277,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(1)
 		Fade.fade_out(function()
+			Settings.set_intro_done()
 			self.gamestate:switch("MainGame")
 		end, 2)
 	end)
@@ -336,7 +338,7 @@ end
 
 function StateIntro:keypressed(key)
 	if Settings.current.intro_done then
-		if key == "escape" then
+		if Keybinds.pressed_ui("skip", key) then
 			self.gamestate:switch("MainGame")
 		end
 	end

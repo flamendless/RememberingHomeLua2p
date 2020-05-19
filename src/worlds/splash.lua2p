@@ -14,6 +14,7 @@ local Keybinds = require("keybinds")
 local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
+local Settings = require("settings")
 
 local StateSplash = class()
 StateSplash.id = "Splash"
@@ -26,6 +27,7 @@ local Systems = {
 	GhostEffect = require("systems.ghost_effect"),
 	GlitchEffect = require("systems.glitch_effect"),
 	RenderSprite = require("systems.render_sprite"),
+	RenderText = require("systems.render_text"),
 	Typewriter = require("systems.typewriter"),
 }
 local Assemblages = {
@@ -38,7 +40,7 @@ local states = Enum("splash_love", "splash_wits", "splash_flam")
 local current_state = states.splash_love
 
 local splash_love
-local delay_skip = 1.25
+local delay_skip = 0.5
 local timer_flam_skip, timer_wits_skip, timer_love_skip
 
 local splash_love_skippable = false
@@ -53,6 +55,7 @@ local switch = function(gamestate)
 	if is_switching then return end
 	is_switching = true
 	Fade.fade_out(function()
+		Settings.set_splash_done()
 		gamestate:switch("Menu")
 	end)
 end
@@ -99,6 +102,7 @@ function StateSplash:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.RenderSprite)
+	self.world:addSystem(Systems.RenderText)
 
 	local ww, wh = love.graphics.getDimensions()
 	self.entities.splash_wits = Concord.entity(self.world)
@@ -150,6 +154,16 @@ function StateSplash:start()
 		:give("typewriter_on_finish", function()
 			switch(self.gamestate)
 		end, 2)
+
+	if Settings.current.splash_done then
+		self.entities.skip_intro = Concord.entity(self.world)
+			:give("text", "Press ESC/ENTER to skip splash", assets.fonts.ui)
+			:give("color", Palette:get_color("ui_red"))
+			:give("position", vec2:new(ww/2, wh - 8))
+			:give("ui_text")
+			:give("transform", 0, 1, 1, 0.5, 1)
+			:give("color_fade_in_out", 1)
+	end
 end
 
 function StateSplash:update(dt)
@@ -176,22 +190,25 @@ function StateSplash:draw()
 		self.world:emit("draw")
 		self.world:emit("effect_draw")
 	end
+	self.world:emit("draw_ui")
 	Fade.draw()
 end
 
 function StateSplash:keypressed(key)
 	if not self.is_ready then return end
-	if Keybinds.pressed_ui("enter", key) then
-		if splash_love and splash_love_skippable then
-			splash_love:skip()
-		end
-		if current_state == states.splash_wits and splash_wits_skippable then
-			self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
-			splash_wits_skippable = false
-		end
-		if current_state == states.splash_flam and splash_flam_skippable then
-			switch(self.gamestate)
-			splash_flam_skippable = false
+	if Settings.current.splash_done then
+		if Keybinds.pressed_ui("skip", key) then
+			if splash_love and splash_love_skippable then
+				splash_love:skip()
+			end
+			if current_state == states.splash_wits and splash_wits_skippable then
+				self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
+				splash_wits_skippable = false
+			end
+			if current_state == states.splash_flam and splash_flam_skippable then
+				switch(self.gamestate)
+				splash_flam_skippable = false
+			end
 		end
 	end
 end
