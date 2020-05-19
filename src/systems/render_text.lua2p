@@ -38,6 +38,8 @@ function RenderText:internal_draw(e)
 			end
 			if transform.oy == 0.5 then
 				oy = font:getHeight(text.text)/2
+			elseif transform.oy == 1 then
+				oy = font:getHeight(text.text)
 			end
 		end
 		if sdf then

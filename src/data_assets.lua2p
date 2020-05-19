@@ -61,7 +61,10 @@ Assets.data.intro = {
 		{ "lut_night_16", "assets/lut/lut_night_16.png" },
 		{ "lut_night_64", "assets/lut/lut_night_64.png" },
 	},
-	font = {},
+	font = {
+		{ "ui", "assets/fonts/Jamboree.ttf", 32, "default" },
+		{ "dialogue", "assets/fonts/DigitalDisco.ttf", 32, "default" },
+	},
 }
 
 function Assets:getData(key)

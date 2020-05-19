@@ -40,7 +40,9 @@ function Preloader.start(assets, container, oncomplete)
 			elseif kind == "font" then
 				local font_size = t[j][3]
 				local font_sub = t[j][4]
-				id = id .. "_" .. (font_sub or font_size)
+				if not font_sub then
+					id = id .. "_" .. (font_sub or font_size)
+				end
 				data[i] = {keys[kind], path, font_size}
 			end
 			userdata[i] = id

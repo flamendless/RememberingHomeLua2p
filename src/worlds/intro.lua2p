@@ -12,6 +12,7 @@ local Assets = require("data_assets")
 local Info = require("info")
 local Fade = require("fade")
 local NGrading = require("ngrading")
+local Palette = require("palette")
 local Preloader = require("preloader")
 local Settings = require("settings")
 
@@ -22,6 +23,7 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
+	Color = require("systems.color"),
 	Parallax = require("systems.parallax"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
@@ -99,6 +101,7 @@ function StateIntro:load()
 end
 
 function StateIntro:start()
+	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RandomTree)
@@ -190,22 +193,21 @@ function StateIntro:start()
 	effect.multi2:setup_data()
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", vec2:new(32, 32))
+		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", assets.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", vec2:new(32, 32))
+		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", assets.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", vec2:new(32, 32))
+		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", assets.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "music by ???", vec2:new(32, 32))
-		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:assemble(Assemblages.Intro.ui_text, "music by ???", assets.fonts.ui, vec2:new(32, 32))
 
 	for i, str in ipairs(dialogues) do
 		--TODO add voice acting dialogue
 		local e = Concord.entity(self.world)
-			:assemble(Assemblages.Intro.dialogue_text, str, vec2:new(ww/2, 32))
+			:assemble(Assemblages.Intro.dialogue_text, str, assets.fonts.dialogue, vec2:new(ww/2, 32))
 		insert(e_dialogues, e)
 	end
 
