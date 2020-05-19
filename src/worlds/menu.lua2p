@@ -38,8 +38,8 @@ local Systems = {
 	Animation = require("systems.animation"),
 	BoundingBox = require("systems.bounding_box"),
 	Click = require("systems.click"),
+	Color = require("systems.color"),
 	HoverEffect = require("systems.hover_effect"),
-	Lerp = require("systems.lerp"),
 	Menu = require("systems.menu"),
 	Move = require("systems.move"),
 	RenderText = require("systems.render_text"),
@@ -72,17 +72,22 @@ local show_message_box_reset = false
 local show_message_box_conflict = {}
 local list_gq = { "Low", "High" }
 
+local duration_show = 0.75
+local duration_hide = 0.75
+local duration_pos = 0.75
+local tx = 176
+
 local tools = {
 	"Löve Framework", "Vim", "Trello", "Aseprite", "Audacity",
 	"Brave Browser", "Manjaro", "i3-WM",
 }
 
 local libs = {
-	"Anim8", "Batteries", "Bump", "Concord", "Crush",
-	"Enum", "Flux", "Gamera", "HTTPS", "HUMP",
-	"JSON", "Inspect", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "SDF", "Semver", "Slab",
-	"Splashed", "TimelineEvents",
+	"Anim8", "Arson", "Batteries", "Bump", "Concord",
+	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
+	"HUMP", "JSON", "Inspect", "Lily", "Log",
+	"Luapreprocessor", "Lume", "NGrading", "SDF", "Semver",
+	"Slab", "Splashed", "TimelineEvents",
 }
 
 !if not _RELEASE and _ASSERT then
@@ -97,11 +102,6 @@ function StateMenu:on_menu()
 	self.world:emit("set_to_prev_cursor")
 	self.world:emit("set_page", 1)
 end
-
-local duration_show = 0.75
-local duration_hide = 0.75
-local duration_pos = 0.75
-local tx = 176
 
 function StateMenu:show_main_menu(duration)
 	for i, e in ipairs(ent_options) do
@@ -207,10 +207,7 @@ end
 
 function StateMenu:on_newgame()
 	self:turn_off_lamp()
-	if Settings.current.intro_done then
-	else
-		self.gamestate:switch("Intro")
-	end
+	self.gamestate:switch("Intro")
 end
 
 function StateMenu:on_continue()
@@ -303,7 +300,7 @@ function StateMenu:setup_menu()
 		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
 	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
-	local font_menu = assets.fonts.menu_default
+	local font_menu = assets.fonts.menu
 	local str_target_h = font_menu:getHeight()
 	local str_h = sdf_menu:getHeight()
 	local scale = str_target_h/str_h * 0.75
@@ -630,11 +627,11 @@ function StateMenu:start()
 	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystems(Systems.Lerp)
 	self.world:addSystems(Systems.RenderSprite)
 	self.world:addSystems(Systems.RenderText)
 	self.world:addSystems(Systems.Menu)
 	self.world:addSystems(Systems.Click)
+	self.world:addSystems(Systems.Color)
 	self.world:addSystems(Systems.BoundingBox)
 	self.world:addSystems(Systems.HoverEffect)
 	self.world:addSystems(Systems.Transform)

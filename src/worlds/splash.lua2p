@@ -22,9 +22,9 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
+	Color = require("systems.color"),
 	GhostEffect = require("systems.ghost_effect"),
 	GlitchEffect = require("systems.glitch_effect"),
-	Lerp = require("systems.lerp"),
 	RenderSprite = require("systems.render_sprite"),
 	Typewriter = require("systems.typewriter"),
 }
@@ -95,9 +95,9 @@ end
 function StateSplash:start()
 	self.world:addSystems(Systems.GhostEffect)
 	self.world:addSystems(Systems.GlitchEffect)
-	self.world:addSystem(Systems.Lerp)
 	self.world:addSystem(Systems.Typewriter)
 	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.RenderSprite)
 
 	local ww, wh = love.graphics.getDimensions()
