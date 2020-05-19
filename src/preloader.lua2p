@@ -2,7 +2,10 @@ local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 
 local format = string.format
-local Preloader = {}
+local Preloader = {
+	percent = 0
+}
+
 local keys = {
 	image = "newImage",
 	image_data = "newImageData",
@@ -10,20 +13,18 @@ local keys = {
 	font = "newFont",
 }
 
-local apply_filter = true
-local font = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
-font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-local str_loading = ""
-
 function Preloader.start(assets, container, oncomplete)
-	assert(type(assets) == "table", "'assets' must be a table")
-	assert(type(container) == "table", "'container' must be a table")
-	assert(type(oncomplete) == "function", "'oncomplete' must be a function")
+	!if _ASSERT then
+	Assert.should_table(assets)
+	Assert.should_table(container)
+	Assert.should_function(oncomplete)
+	!end
 
 	local i = 1
 	local data = {}
 	local userdata = {}
 	local cache = {}
+	Preloader.percent = 0
 
 	for kind, t in pairs(assets) do
 		for j = 1, #t do
@@ -47,9 +48,11 @@ function Preloader.start(assets, container, oncomplete)
 			end
 			userdata[i] = id
 
-			assert(cache[id] == nil, format("'%s' is duplicated", id))
-			cache[id] = true
+			!if _ASSERT then
+			Assert.should_nil(cache[id])
+			!end
 
+			cache[id] = true
 			i = i + 1
 		end
 	end
@@ -59,8 +62,7 @@ function Preloader.start(assets, container, oncomplete)
 	preloader:onLoaded(function(id, i, data)
 			local to_load = preloader:getCount()
 			local completed = preloader:getLoadedCount()
-			local percent = (completed/to_load) * 100
-			str_loading = format("LOADING...%.0f%%", percent)
+			Preloader.percent = (completed/to_load) * 100
 		end)
 
 	preloader:onComplete(function(id, tbl_data)
@@ -70,21 +72,33 @@ function Preloader.start(assets, container, oncomplete)
 			local data_type = data:type()
 
 			if data_type == "Image" then
-				assert(container.images ~= nil, "You must provide an 'images' table")
-				assert(type(container.images) == "table", "'container.images' must be a table ")
+				!if _ASSERT then
+				Assert.should_exists(container.images)
+				Assert.should_table(container.images)
+				!end
+
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
 				container.images[id] = data
 			elseif data_type == "ImageData" then
-				assert(container.image_data ~= nil, "You must provide an 'image_data' table")
-				assert(type(container.image_data) == "table", "'container.image_data' must be a table ")
+				!if _ASSERT then
+				Assert.should_exists(container.image_data)
+				Assert.should_table(container.image_data)
+				!end
+
 				container.image_data[id] = data
 			elseif data_type == "Source" then
-				assert(container.sources ~= nil, "You must provide a 'sources' table")
-				assert(type(container.sources) == "table", "'container.sources' must be a table")
+				!if _ASSERT then
+				Assert.should_exists(container.sources)
+				Assert.should_table(container.sources)
+				!end
+
 				container.sources[id] = data
 			elseif data_type == "Font" then
-				assert(container.fonts ~= nil, "You must provide a 'fonts' table")
-				assert(type(container.fonts) == "table", "'container.fonts' must be a table")
+				!if _ASSERT then
+				Assert.should_exists(container.fonts)
+				Assert.should_table(container.fonts)
+				!end
+
 				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 				container.fonts[id] = data
 			end
@@ -94,19 +108,6 @@ function Preloader.start(assets, container, oncomplete)
 
 		oncomplete()
 	end)
-end
-
-function Preloader.draw_loading()
-	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-
-	local ox = font:getWidth(str_loading)/2
-	local oy = font:getHeight(str_loading)/2
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(font)
-	love.graphics.print(str_loading,
-		love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75,
-		0, 1, 1, ox, oy)
 end
 
 return Preloader

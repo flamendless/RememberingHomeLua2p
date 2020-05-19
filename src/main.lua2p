@@ -1,20 +1,25 @@
 --[[
-Project: Going Home Revisit
+Project: Going Home: Revisited
 Author: Brandon Blanker Lim-it @flamendless
 Start Date: Mon Jan  7 15:28:53 PST 2019
 Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
 --]]
 
+!if not _RELEASE then
 io.stdout:setvbuf("no")
+!end
+
 require("modules.batteries"):export()
 
 !if _ASSERT then
 Assert = require("assert")
 !end
+
 !if not _RELEASE then
 Dev = require("dev")
 Inspect = require("modules.inspect.inspect")
-local font_default = love.graphics.newFont(24)
+local font_default = love.graphics.newFont(18)
+font_default:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 !end
 
 local ErrorHandler = require("error_handler")
@@ -28,7 +33,6 @@ local WindowMode = require("window_mode")
 
 local format = string.format
 
-local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
@@ -40,6 +44,22 @@ local TLE = require("modules.tle.timeline")
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
+
+local font_preload = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
+font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+local custom_loading_screen = function()
+	love.graphics.setColor(0, 0, 0, 0.5)
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+	local str_loading = format("LOADING: %i%%", Preloader.percent)
+	local ox = font_preload:getWidth(str_loading)/2
+	local oy = font_preload:getHeight(str_loading)/2
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setFont(font_preload)
+	love.graphics.print(str_loading,
+		love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75,
+		0, 1, 1, ox, oy)
+end
 
 function love.load()
 	Log.info(format("Starting... Game Version: %s", this_version))
@@ -75,7 +95,7 @@ function love.draw()
 	GameStates:draw()
 
 	if not GameStates:is_ready() then
-		Preloader.draw_loading()
+		custom_loading_screen()
 	end
 
 	!if not _RELEASE then
@@ -86,18 +106,17 @@ function love.draw()
 end
 
 function love.keypressed(key)
+	!if not _RELEASE then
 	if key == "f" then
 		GameStates:resize()
-	end
-
-	!if not _RELEASE then
-	if key == "t" then
-		GameStates:switch("Test")
+	elseif key == "t" then
+		if GameStates:getID() == "Test" then
+			GameStates:switch_to_previous()
+		else
+			GameStates:switch("Test")
+		end
 	elseif key == "r" then
 		love.event.quit("restart")
-	end
-	if key == "b" and GameStates:getID() == "Test" then
-		GameStates:switch_to_previous("Test")
 	end
 	!end
 
