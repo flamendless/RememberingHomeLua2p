@@ -25,6 +25,7 @@ local msg_should_font = "Passed argument must be of type 'Font'"
 local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
 local msg_should_function = "Passed argument must be of type 'function'"
 local msg_should_image = "Passed argument must be of type 'Image'"
+local msg_should_nil = "Passed argument must be nil"
 local msg_should_number = "Passed argument must be of type 'number'"
 local msg_should_quad = "Passed argument must be of type 'Quad'"
 local msg_should_string = "Passed argument must be of type 'string'"
@@ -73,6 +74,12 @@ end
 function Assert.should_image(arg)
 	if arg:type() ~= T_IMAGE then
 		error(msg_should_image, 2)
+	end
+end
+
+function Assert.should_nil(arg)
+	if arg ~= nil then
+		error(msg_should_nil, 2)
 	end
 end
 
