@@ -66,8 +66,10 @@ local ANGLE_DOWN = 270
 local ANGLE_LEFT = 180
 local ANGLE_RIGHT = 0
 
-local flag_game_sounds = true
-local flag_game_music = true
+local current_gq
+local current_wm
+local flag_game_sounds
+local flag_game_music
 local show_message_box_reset = false
 local show_message_box_conflict = {}
 local list_gq = { "Low", "High" }
@@ -214,10 +216,18 @@ function StateMenu:on_continue()
 	--TODO load saved game here
 end
 
+function StateMenu:initialize_settings_value()
+	current_gq = Settings.current.graphics_quality
+	current_wm = WindowMode.list[Settings.current.current_wm]
+	flag_game_sounds = Settings.current.game_sounds
+	flag_game_music = Settings.current.game_music
+end
+
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = { x = l, y = t, w = w, h = h }
+	self:initialize_settings_value()
 	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
 end
 
@@ -370,6 +380,7 @@ function StateMenu:settings_desktop(dt)
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Window Resolution")
 		Slab.Text("Graphics Quality")
+
 		if Slab.CheckBox(flag_game_sounds, "Game Sounds") then
 			flag_game_sounds = not flag_game_sounds
 		end
@@ -378,21 +389,19 @@ function StateMenu:settings_desktop(dt)
 		end
 
 		Slab.SetLayoutColumn(2)
-		local current_wm = WindowMode.list[Settings.current.current_wm]
 		if Slab.BeginComboBox("WindowMode", { Selected = current_wm }) then
 			for i, str in ipairs(WindowMode.list) do
 				if Slab.TextSelectable(str) then
-					Settings.update_window_mode(i)
+					current_wm = str
 				end
 			end
 			Slab.EndComboBox()
 		end
 
-		local current_gq = Settings.current.graphics_quality
 		if Slab.BeginComboBox("GraphicsQuality", { Selected = current_gq }) then
 			for i, str in ipairs(list_gq) do
 				if Slab.TextSelectable(str) then
-					Settings.update_graphics_quality(str)
+					current_gq = str
 				end
 			end
 			Slab.EndComboBox()
@@ -439,6 +448,15 @@ function StateMenu:settings_desktop(dt)
 			show_message_box_reset = true
 		end
 
+		if Slab.Button("Apply") then
+			Settings.update_graphics_quality(current_gq)
+			Settings.update_window_mode(current_wm)
+			Settings.set_game_sounds(flag_game_sounds)
+			Settings.set_game_music(flag_game_music)
+			Settings.update_keybindings()
+			Settings.overwrite()
+		end
+
 		if Slab.Button("Return to Main Menu") then
 			self:keypressed("escape")
 		end
@@ -449,6 +467,7 @@ function StateMenu:settings_desktop(dt)
 		if res ~= "" then
 			table.copy(Keybinds.ui_default, Keybinds.ui)
 			Settings.create_new()
+			self:initialize_settings_value()
 			show_message_box_reset = false
 		end
 	end
@@ -709,12 +728,12 @@ function StateMenu:keypressed(key)
 	elseif Keybinds.pressed_ui("up", key) then
 		dt = -1
 	end
-	if Keybinds.pressed_ui("enter", key) and not is_transition then
+	if Keybinds.pressed_ui("interact", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
 	self.world:emit("update_cursor", dt)
 
-	if Keybinds.pressed_ui("escape", key) then
+	if Keybinds.pressed_ui("back", key) then
 		if current_state == states.play and is_sub_menu and not is_transition then
 				is_transition = true
 				is_sub_menu = false

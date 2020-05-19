@@ -3,6 +3,7 @@ local Inspect = require("modules.inspect.inspect")
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
+local Keybinds = require("keybinds")
 local WindowMode = require("window_mode")
 
 local format = string.format
@@ -22,6 +23,7 @@ function Settings.initialize()
 		local valid = Settings.validate_file()
 		if valid then
 			Settings.current = Settings.parse_file()
+			Keybinds.set_from_settings(Settings.current.keybindings)
 		else
 			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", filename, filename_key, love.filesystem.getSaveDirectory())
 			error(error_msg)
@@ -42,7 +44,16 @@ function Settings.create_new()
 		Settings.current.graphics_quality = graphics_quality.High
 	end
 	Settings.current.current_wm = 1
+	Settings.current.splash_done = false
 	Settings.current.intro_done = false
+	Settings.current.game_sounds = true
+	Settings.current.game_music = true
+	Settings.current.keybindings = {
+		ui = {},
+		player = {},
+	}
+	table.copy(Keybinds.ui_default, Settings.current.keybindings.ui)
+	table.copy(Keybinds.player_default, Settings.current.keybindings.player)
 
 	local to_write = JSON.encode(Settings.current)
 	Settings.overwrite(to_write)
@@ -79,14 +90,64 @@ function Settings.overwrite(to_write)
 	Log.info(format("'%s' updated", filename_key))
 end
 
-function Settings.update_graphics_quality(str)
+function Settings.update_graphics_quality(str, should_overwrite)
 	Settings.current.graphics_quality = graphics_quality[str]
-	Settings.overwrite()
+	if should_overwrite then
+		Settings.overwrite()
+	end
 end
 
-function Settings.update_window_mode(i)
+function Settings.update_window_mode(i, should_overwrite)
 	Settings.current.current_wm = i
-	Settings.overwrite()
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_splash_done(should_overwrite)
+	Settings.current.splash_done = true
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_intro_done(should_overwrite)
+	Settings.current.intro_done = true
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_game_sounds(flag, should_overwrite)
+	local prev = Settings.current_game_sounds
+	if prev ~= flag then
+		Settings.current.game_sounds = flag
+		if should_overwrite then
+			Settings.overwrite()
+		end
+	end
+end
+
+function Settings.set_game_music(flag, should_overwrite)
+	local prev = Settings.current_game_musoc
+	if prev ~= flag then
+		Settings.current.game_music = flag
+		if should_overwrite then
+			Settings.overwrite()
+		end
+	end
+end
+
+function Settings.update_keybindings(should_overwrite)
+	Settings.current.keybindings = {
+		ui = {},
+		player = {},
+	}
+	table.copy(Keybinds.ui, Settings.current.keybindings.ui)
+	table.copy(Keybinds.player, Settings.current.keybindings.player)
+	if should_overwrite then
+		Settings.overwrite()
+	end
 end
 
 return Settings
