@@ -8,3 +8,49 @@ Concord.component("color", function(c, color)
 	c.original_color = { unpack(color) }
 	c.color = { unpack(color) }
 end)
+
+Concord.component("color_fade_in_out", function(c, duration, count)
+	!if _ASSERT then
+	Assert.should_number(duration)
+	Assert.safe_should_number(count)
+	!end
+
+	c.duration = duration
+	c.count = count or 0
+end)
+
+Concord.component("fade_to_black", function(c, duration, delay)
+	!if _ASSERT then
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
+	!end
+
+	c.duration = duration
+	c.delay = delay or 0
+end)
+
+Concord.component("lerp_colors", function(c, colors, duration, delay)
+	!if _ASSERT then
+	Assert.should_table(colors)
+	Assert.safe_should_number(duration)
+	Assert.safe_should_number(delay)
+	!end
+
+	c.current_color = 1
+	c.colors = colors
+
+	c.duration = duration or 1.5
+	c.delay = delay or 0.15
+end)
+
+Concord.component("target_color", function(c, target_color, duration, delay)
+	!if _ASSERT then
+	Assert.should_table(target_color)
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
+	!end
+
+	c.target_color = { target_color[1], target_color[2], target_color[3], target_color[4] }
+	c.duration = duration
+	c.delay = delay or 0
+end)

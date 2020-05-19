@@ -1,33 +1,52 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
-local insert = table.insert
-
-local Lerp = Concord.system({
-	pool_colors = {"color", "lerp_colors"},
+local Color = Concord.system({
 	pool_fade_to_black = {"color", "fade_to_black"},
-	pool_pos = {"position", "target_position"},
+	pool_fade_in_out = {"color", "color_fade_in_out"},
+	pool_colors = {"color", "lerp_colors"},
 	pool_color = {"color", "target_color"},
 })
 
-function Lerp:init()
-	self.pool_pos.onEntityAdded = function(pool, e)
-		local pos = e:get("position")
-		local target = e:get("target_position")
-		local on_complete = e:get("lerp_on_complete")
+function Color:init()
+	self.pool_fade_in_out.onEntityAdded = function(pool, e)
+		local color = e:get("color")
+		local f_in_out = e:get("color_fade_in_out")
+		local f
+		local count = 0
 
-		local f = Flux.to(pos.pos, target.duration, {
-			x = target.target_pos.x,
-			y = target.target_pos.y,
-		})
-		:delay(target.delay)
-		:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("lerp_on_complete")
-			end
-			e:remove("target_position")
-		end)
+		local fn_out, fn_in
+		fn_out = function()
+			f = Flux.to(color.color, f_in_out.duration, {
+				[4] = 0
+			}):oncomplete(function()
+				fn_in()
+				count = count + 1
+				if count == f_in_out.count then
+					f:stop()
+					e:remove("color_fade_in_out")
+				end
+			end)
+		end
+
+		fn_in = function()
+			f = Flux.to(color.color, f_in_out.duration, {
+				[4] = 1
+			}):oncomplete(function()
+				fn_out()
+				count = count + 1
+				if count == f_in_out.count then
+					f:stop()
+					e:remove("color_fade_in_out")
+				end
+			end)
+		end
+
+		if color.color[4] == 1 then
+			fn_out()
+		elseif color.color[4] == 0 then
+			fn_in()
+		end
 	end
 
 	self.pool_color.onEntityAdded = function(pool, e)
@@ -51,7 +70,7 @@ function Lerp:init()
 	end
 end
 
-function Lerp:start_fade()
+function Color:start_fade()
 	for _, e in ipairs(self.pool_fade_to_black) do
 		local color = e:get("color")
 		local fade = e:get("fade_to_black")
@@ -64,7 +83,7 @@ function Lerp:start_fade()
 	end
 end
 
-function Lerp:start_colors_lerp()
+function Color:start_colors_lerp()
 	for _, e in ipairs(self.pool_colors) do
 		local color = e:get("color")
 		local lc = e:get("lerp_colors")
@@ -94,4 +113,5 @@ function Lerp:start_colors_lerp()
 	end
 end
 
-return Lerp
+
+return Color
