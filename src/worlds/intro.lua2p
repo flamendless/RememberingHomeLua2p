@@ -284,6 +284,16 @@ function StateIntro:start()
 		show_dialogue(self.timeline)
 	end)
 	self.timeline_dialogue:Pause()
+
+	if Settings.current.intro_done then
+		self.entities.skip_intro = Concord.entity(self.world)
+			:give("text", "Press ESC to skip intro", assets.fonts.ui)
+			:give("color", Palette:get_color("ui_red"))
+			:give("position", vec2:new(ww/2, wh - 8))
+			:give("ui_text")
+			:give("transform", 0, 1, 1, 0.5, 1)
+			:give("color_fade_in_out", 1)
+	end
 end
 
 function StateIntro:update(dt)
@@ -322,6 +332,14 @@ function StateIntro:draw()
 
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function StateIntro:keypressed(key)
+	if Settings.current.intro_done then
+		if key == "escape" then
+			self.gamestate:switch("MainGame")
+		end
+	end
 end
 
 function StateIntro:exit()
