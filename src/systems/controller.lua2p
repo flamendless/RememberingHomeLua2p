@@ -17,11 +17,11 @@ function Controller:update(dt)
 		local body = e:get("body")
 
 		if e:has("override_animation") then return end
-		if Keybinds.pressed_player("move_left") then
+		if Keybinds.is_down_player("move_left") then
 			body.is_run = love.keyboard.isDown("lshift")
 			body.dir = -1
 			body.dx = -1
-		elseif Keybinds.pressed_player("move_right") then
+		elseif Keybinds.is_down_player("move_right") then
 			body.is_run = love.keyboard.isDown("lshift")
 			body.dir = 1
 			body.dx = 1
