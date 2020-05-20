@@ -65,6 +65,13 @@ function Assert.should_font(arg)
 	end
 end
 
+function Assert.should_font_or_sdf(arg)
+	local t = arg:type()
+	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+		error(msg_should_font_or_sdf)
+	end
+end
+
 function Assert.should_function(arg)
 	if type(arg) ~= T_FUNCTION then
 		error(msg_should_function, 2)

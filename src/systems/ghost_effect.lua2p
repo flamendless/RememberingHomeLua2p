@@ -55,7 +55,9 @@ function GhostEffect:effect_draw()
 	for _, e in ipairs(self.pool_text) do
 		local random_text = e:get("random_text")
 		local ghost_effect = e:get("ghost_effect")
+		local font = e:get("font")
 		local text
+
 		if random_text.use_string then
 			text = random_text.text
 		elseif random_text.use_table then
@@ -64,8 +66,8 @@ function GhostEffect:effect_draw()
 		end
 
 		if ghost_effect.is_ghost then
-			if random_text.font then
-				love.graphics.setFont(random_text.font)
+			if font then
+				love.graphics.setFont(font.font)
 			end
 			love.graphics.setColor(ghost_effect.effect_color)
 			love.graphics.print(text,

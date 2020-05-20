@@ -46,6 +46,7 @@ end
 function GlitchEffect:effect_draw()
 	for _, e in ipairs(self.pool_text) do
 		local random_text = e:get("random_text")
+		local font = e:get("font")
 		local glitch_effect = e:get("glitch_effect")
 		local glitch_colors = e:get("glitch_colors")
 		local color = e:get("color")
@@ -66,8 +67,8 @@ function GlitchEffect:effect_draw()
 	 		love.graphics.setColor(color.color)
 		end
 
-		if random_text.font then
-			love.graphics.setFont(random_text.font)
+		if font then
+			love.graphics.setFont(font.font)
 		end
 
 		local rotation, sx, sy, ox, oy

@@ -1,11 +1,9 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("text", function(c, text, font)
+Concord.component("text", function(c, text)
 	!if _ASSERT then
 	Assert.should_string(text)
-	Assert.safe_should_font_or_sdf(font)
 	!end
 
 	c.text = text
-	c.font = font
 end)

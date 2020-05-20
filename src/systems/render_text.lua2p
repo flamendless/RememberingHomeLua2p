@@ -14,6 +14,7 @@ function RenderText:internal_draw(e)
 		local pos = e:get("position")
 		local color = e:get("color")
 		local text = e:get("text")
+		local font = e:get("font")
 		local transform = e:get("transform")
 		local sdf = e:get("sdf")
 		love.graphics.setColor(1, 1, 1, 1)
@@ -21,8 +22,9 @@ function RenderText:internal_draw(e)
 		if color then
 			love.graphics.setColor(e.color.color)
 		end
-		if text.font then
-			love.graphics.setFont(text.font)
+
+		if font then
+			love.graphics.setFont(font.font)
 		end
 
 		local font = love.graphics.getFont()

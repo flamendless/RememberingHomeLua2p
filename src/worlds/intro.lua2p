@@ -259,6 +259,9 @@ function StateIntro:start()
 			end)
 
 		TLE.Event.Wait(3)
+		--TODO play intro radio
+
+		TLE.Event.Wait(3)
 		self.timeline_dialogue:Unpause()
 		self.timeline:Pause()
 
@@ -289,7 +292,8 @@ function StateIntro:start()
 
 	if Settings.current.intro_done then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:give("text", "Press ESC to skip intro", assets.fonts.ui)
+			:give("text", "Press ESC to skip intro")
+			:give("font", assets.fonts.ui)
 			:give("color", Palette:get_color("ui_red"))
 			:give("position", vec2:new(ww/2, wh - 8))
 			:give("ui_text")
