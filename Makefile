@@ -17,7 +17,7 @@ SOURCE_FILES := $(strip $(call search,$(SOURCE_PATH),*.lua2p))
 SOURCE_FILES += $(strip $(call search,$(SOURCE_PATH)/*.lua2p))
 SOURCE_OBJECTS := $(SOURCE_FILES:$(SOURCE_PATH)/%.lua2p=./$(OUTPUT_DIRECTORY)/%.lua)
 
-DIRECTORIES_TO_COPY := shaders #folders inside the "${SOURCE}"
+DIRECTORIES_TO_COPY := shaders
 DIR_ASSETS = assets
 DIR_MODULES = modules
 DIR_RELEASE = release
