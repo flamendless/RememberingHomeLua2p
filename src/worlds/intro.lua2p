@@ -290,7 +290,7 @@ function StateIntro:start()
 	end)
 	self.timeline_dialogue:Pause()
 
-	if Settings.current.intro_done then
+	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
 			:give("static_text", "Press ESC to skip intro")
 			:give("font", assets.fonts.ui)
@@ -341,9 +341,12 @@ function StateIntro:draw()
 end
 
 function StateIntro:keypressed(key)
-	if Settings.current.intro_done then
+	if Settings.current.intro_done or not !(_RELEASE) then
 		if Keybinds.pressed_ui("skip", key) then
-			self.gamestate:switch("MainGame")
+			Fade.fade_out(function()
+				Settings.set_intro_done()
+				self.gamestate:switch("MainGame")
+			end, 2)
 		end
 	end
 end
