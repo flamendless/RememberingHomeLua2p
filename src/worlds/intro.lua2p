@@ -292,7 +292,7 @@ function StateIntro:start()
 
 	if Settings.current.intro_done then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:give("text", "Press ESC to skip intro")
+			:give("static_text", "Press ESC to skip intro")
 			:give("font", assets.fonts.ui)
 			:give("color", Palette:get_color("ui_red"))
 			:give("position", vec2:new(ww/2, wh - 8))

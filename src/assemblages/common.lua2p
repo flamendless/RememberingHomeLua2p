@@ -9,6 +9,13 @@ function Common.text(e, pos, str, font, color)
 	:give("color", color)
 end
 
+function Common.static_text(e, pos, str, font, color)
+	e:give("static_text", str)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", color)
+end
+
 function Common.animated_sprite(e, animation_data, pos, stop_on_last)
 	e:give("animation_data", animation_data)
 	:give("position", pos)

@@ -160,7 +160,7 @@ function StateSplash:start()
 
 	if Settings.current.splash_done then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:give("text", "Press ESC/ENTER to skip splash")
+			:give("static_text", "Press ESC/ENTER to skip splash")
 			:give("font", assets.fonts.ui)
 			:give("color", Palette:get_color("ui_red"))
 			:give("position", vec2:new(ww/2, wh - 8))

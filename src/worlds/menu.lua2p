@@ -4,7 +4,6 @@ local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
-local SDF = require("modules.sdf").mount()
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
@@ -572,7 +571,7 @@ function StateMenu:setup_about()
 				end
 				local id = "about_text_" .. i
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Common.text, vec2:new(x, y), str, font, Palette.colors.white)
+					:assemble(Assemblages.Common.static_text, vec2:new(x, y), str, font, Palette.colors.white)
 					:give("position", vec2:new(x, y))
 					:give("camera")
 

@@ -2,10 +2,22 @@ local Concord = require("modules.concord.concord")
 
 local RenderText = Concord.system({
 	pool = {"position", "text"},
+	pool_static = {"position", "static_text", "font"},
 	pool_ui = {"position", "text", "ui_text"},
 })
 
 function RenderText:init()
+	self.pool_static.onEntityAdded = function(pool, e)
+		!if _ASSERT then
+		if e:has("sdf") then
+			error("static_font can't use sdf font")
+		end
+		!end
+
+		local static_text = e:get("static_text")
+		local font = e:get("font")
+		static_text.text_obj = love.graphics.newText(font.font, static_text.text)
+	end
 end
 
 function RenderText:internal_draw(e)
@@ -14,11 +26,12 @@ function RenderText:internal_draw(e)
 		local pos = e:get("position")
 		local color = e:get("color")
 		local text = e:get("text")
+		local static_text = e:get("static_text")
 		local font = e:get("font")
 		local transform = e:get("transform")
 		local sdf = e:get("sdf")
-		love.graphics.setColor(1, 1, 1, 1)
 
+		love.graphics.setColor(1, 1, 1, 1)
 		if color then
 			love.graphics.setColor(e.color.color)
 		end
@@ -35,15 +48,29 @@ function RenderText:internal_draw(e)
 			sy = transform.sy
 			ox = transform.ox
 			oy = transform.oy
+
 			if transform.ox == 0.5 then
-				ox = font:getWidth(text.text)/2
+				if static_text then
+					ox = static_text.text_obj:getWidth()/2
+				else
+					ox = font:getWidth(text.text)/2
+				end
 			end
 			if transform.oy == 0.5 then
-				oy = font:getHeight(text.text)/2
+				if static_text then
+					oy = static_text.text_obj:getHeight()/2
+				else
+					oy = font:getHeight(text.text)/2
+				end
 			elseif transform.oy == 1 then
-				oy = font:getHeight(text.text)
+				if static_text then
+					oy = static_text.text_obj:getHeight()
+				else
+					oy = font:getHeight(text.text)
+				end
 			end
 		end
+
 		if sdf then
 			sx = sdf.scale_x
 			sy = sdf.scale_y
@@ -51,7 +78,11 @@ function RenderText:internal_draw(e)
 		local x = pos.pos.x
 		local y = pos.pos.y
 
-		love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+		if static_text then
+			love.graphics.draw(static_text.text_obj, x, y, rotation, sx, sy, ox, oy)
+		else
+			love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+		end
 	end
 end
 
@@ -61,10 +92,18 @@ function RenderText:draw()
 			self:internal_draw(e)
 		end
 	end
+	for _, e in ipairs(self.pool_static) do
+		if not e:has("ui_text") then
+			self:internal_draw(e)
+		end
+	end
 end
 
 function RenderText:draw_ui()
 	for _, e in ipairs(self.pool_ui) do
+		self:internal_draw(e)
+	end
+	for _, e in ipairs(self.pool_static) do
 		self:internal_draw(e)
 	end
 end

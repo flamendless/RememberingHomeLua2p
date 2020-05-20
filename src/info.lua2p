@@ -37,6 +37,9 @@ function Info.initialize()
 		format("\tVersion: %s", Info.data.version),
 		format("\tVendor: %s", Info.data.vendor),
 		format("\tDevice: %s", Info.data.device),
+		"Other Info:",
+		format("Release Mode: %s", !(_RELEASE)),
+		format("Assert Mode: %s", !(_ASSERT)),
 	}
 
 	local to_write = concat(str, "\n")
