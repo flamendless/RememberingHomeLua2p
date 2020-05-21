@@ -381,6 +381,7 @@ function StateIntro:draw()
 	if not self.is_ready then return end
 
 	self.camera:draw(function()
+
 		if current_effect then
 			current_effect:apply()
 		end

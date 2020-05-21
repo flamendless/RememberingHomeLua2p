@@ -11,6 +11,7 @@ local T_FUNCTION = "function"
 local T_IMAGE = "Image"
 local T_NUMBER = "number"
 local T_QUAD = "Quad"
+local T_SHADER = "Shader"
 local T_STRING = "string"
 local T_TABLE = "table"
 local T_VEC2 = "vec2"
@@ -28,6 +29,7 @@ local msg_should_image = "Passed argument must be of type 'Image'"
 local msg_should_nil = "Passed argument must be nil"
 local msg_should_number = "Passed argument must be of type 'number'"
 local msg_should_quad = "Passed argument must be of type 'Quad'"
+local msg_should_shader = "Passed argument must be of type 'Shader'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
@@ -47,40 +49,15 @@ function Assert.should_boolean(arg)
 	end
 end
 
-function Assert.should_custom_canvas(arg)
-	if arg:type() ~= T_CUSTOM_CANVAS then
-		error(msg_should_custom_canvas, 2)
-	end
-end
-
 function Assert.should_exists(arg)
 	if not arg then
 		error(msg_should_exists, 2)
 	end
 end
 
-function Assert.should_font(arg)
-	if arg:type() ~= T_FONT then
-		error(msg_should_font, 2)
-	end
-end
-
-function Assert.should_font_or_sdf(arg)
-	local t = arg:type()
-	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
-		error(msg_should_font_or_sdf)
-	end
-end
-
 function Assert.should_function(arg)
 	if type(arg) ~= T_FUNCTION then
 		error(msg_should_function, 2)
-	end
-end
-
-function Assert.should_image(arg)
-	if arg:type() ~= T_IMAGE then
-		error(msg_should_image, 2)
 	end
 end
 
@@ -93,12 +70,6 @@ end
 function Assert.should_number(arg)
 	if type(arg) ~= T_NUMBER then
 		error(msg_should_number, 2)
-	end
-end
-
-function Assert.should_quad(arg)
-	if arg:type() ~= T_QUAD then
-		error(msg_should_quad, 2)
 	end
 end
 
@@ -160,6 +131,12 @@ function Assert.should_atleast(...)
 	end
 end
 
+function Assert.should_custom_canvas(arg)
+	if arg:type() ~= T_CUSTOM_CANVAS then
+		error(msg_should_custom_canvas, 2)
+	end
+end
+
 function Assert.should_vec2(arg)
 	if arg == nil then
 		error(msg_nil, 2)
@@ -198,6 +175,37 @@ end
 function Assert.should_world(arg)
 	if not arg.__isWorld then
 		error(msg_should_world, 2)
+	end
+end
+
+--LOVE
+function Assert.should_font(arg)
+	if arg:type() ~= T_FONT then
+		error(msg_should_font, 2)
+	end
+end
+
+function Assert.should_font_or_sdf(arg)
+	local t = arg:type()
+	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+		error(msg_should_font_or_sdf)
+	end
+end
+
+function Assert.should_image(arg)
+	if arg:type() ~= T_IMAGE then
+		error(msg_should_image, 2)
+	end
+end
+
+function Assert.should_quad(arg)
+	if arg:type() ~= T_QUAD then
+		error(msg_should_quad, 2)
+	end
+end
+function Assert.should_shader(arg)
+	if arg:type() ~= T_SHADER then
+		error(msg_should_shader, 2)
 	end
 end
 

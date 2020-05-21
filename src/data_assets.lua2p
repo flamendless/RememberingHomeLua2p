@@ -10,6 +10,7 @@ Assets.data.splash = {
 	image = {
 		{ "sheet_wits", "assets/images/splash/sheet_wits.png" },
 	},
+
 	font = {
 		{ "ui", "assets/fonts/Jamboree.ttf", 32, "default" },
 		{ "firefly", "assets/fonts/Firefly.ttf", 256 },
@@ -29,6 +30,7 @@ Assets.data.menu = {
 		{ "mail", "assets/images/menu/mail.png" },
 		{ "flowfield", "assets/textures/perlin.png" },
 	},
+
 	font = {
 		{ "menu", "assets/fonts/Jamboree.ttf", 24, "default" },
 		{ "about", "assets/fonts/DigitalDisco.ttf", 24 },
@@ -55,8 +57,8 @@ Assets.data.intro = {
 		{ "sheet_car_reflect", "assets/images/intro/sheet_car_reflect.png" },
 		{ "sheet_paint", "assets/images/intro/sheet_paint.png" },
 		{ "title", "assets/images/menu/title.png" },
-		{ "subtitle", "assets/images/menu/subtitle.png" },
 	},
+
 	image_data = {
 		{ "lut_afternoon_16", "assets/lut/lut_afternoon_16.png" },
 		{ "lut_afternoon_64", "assets/lut/lut_afternoon_64.png" },
@@ -65,6 +67,7 @@ Assets.data.intro = {
 		{ "lut_night_16", "assets/lut/lut_night_16.png" },
 		{ "lut_night_64", "assets/lut/lut_night_64.png" },
 	},
+
 	font = {
 		{ "ui", "assets/fonts/Jamboree.ttf", 32, "default" },
 		{ "dialogue", "assets/fonts/DigitalDisco.ttf", 32, "default" },
