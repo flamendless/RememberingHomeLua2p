@@ -53,6 +53,7 @@ Assets.data.intro = {
 		{ "parallax_grass_front", "assets/images/intro/parallax_grass_front.png" },
 		{ "sheet_car", "assets/images/intro/sheet_car.png" },
 		{ "sheet_car_reflect", "assets/images/intro/sheet_car_reflect.png" },
+		{ "sheet_paint", "assets/images/intro/sheet_paint.png" },
 	},
 	image_data = {
 		{ "lut_afternoon_16", "assets/lut/lut_afternoon_16.png" },

@@ -6,6 +6,7 @@ local remove = table.remove
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
 	pool_z = {"position", "sprite", "z_index"},
+	pool_ui = {"position", "sprite", "ui_element"},
 })
 
 function RenderSprite:init()
@@ -55,24 +56,26 @@ function RenderSprite:internal_draw(e)
 			if animation_data then
 				if transform.ox == 0.5 then
 					ox = animation_data.frame_width/2
+				elseif transform.ox == 1 then
+					ox = animation_data.frame_width
 				end
+
 				if transform.oy == 0.5 then
 					oy = animation_data.frame_height/2
+				elseif transform.oy == 1 then
+					oy = animation_data.frame_height
 				end
 			else
 				if transform.ox == 0.5 then
 					ox = sprite.sprite:getWidth()/2
 				else
-					if type(transform.ox) == "number" then
-						ox = transform.ox
-					end
+					ox = transform.ox
 				end
+
 				if transform.oy == 0.5 then
 					oy = sprite.sprite:getHeight()/2
 				else
-					if type(transform.oy) == "number" then
-						oy = transform.oy
-					end
+					oy = transform.oy
 				end
 			end
 		end
@@ -94,7 +97,7 @@ end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e:has("z_index") then
+		if not e:has("z_index") and not e:has("ui_element") then
 			self:internal_draw(e)
 		end
 	end
@@ -102,6 +105,12 @@ end
 
 function RenderSprite:draw_z()
 	for _, e in ipairs(self.custom_pool_z) do
+		self:internal_draw(e)
+	end
+end
+
+function RenderSprite:draw_ui()
+	for _, e in ipairs(self.pool_ui) do
 		self:internal_draw(e)
 	end
 end

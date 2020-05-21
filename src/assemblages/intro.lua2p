@@ -125,7 +125,7 @@ function Intro.dialogue_text(e, text, font, pos)
 	e:give("static_text", text)
 	:give("font", font)
 	:give("position", pos)
-	:give("transform", 0, 1, 1, 0.5)
+	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("color", Palette:get_color("white", 0))
 	:give("ui_text")
 	:give("hidden")
@@ -133,4 +133,10 @@ function Intro.dialogue_text(e, text, font, pos)
 	-- :give("sound", sound_voice)
 end
 
+function Intro.bg_paint(e, data, pos)
+	e:give("animation_data", data)
+	:give("ui_element")
+	:give("position", pos)
+	:give("animation", true)
+end
 return Intro
