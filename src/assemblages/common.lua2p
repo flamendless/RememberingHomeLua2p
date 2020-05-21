@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
+
 local Common = {}
 
 function Common.text(e, pos, str, font, color)
@@ -20,6 +22,16 @@ function Common.animated_sprite(e, animation_data, pos, stop_on_last)
 	e:give("animation_data", animation_data)
 	:give("position", pos)
 	:give("animation", stop_on_last)
+end
+
+function Common.skip(e, font, pos)
+	e:give("static_text", "Press ESC/ENTER to skip")
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette:get_color("ui_red"))
+	:give("ui_text")
+	:give("transform", 0, 1, 1, 0.5, 1)
+	:give("color_fade_in_out", 1)
 end
 
 return Common

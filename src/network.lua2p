@@ -50,7 +50,7 @@ end
 function Network.check_latest_version(current_semver)
 	local c, h, s = Network.get_response()
 	if not c then
-		Log.info("Failed to connect to network")
+		Log.warn("Failed to connect to network")
 		return
 	end
 
@@ -84,10 +84,9 @@ end
 
 function Network.show_latest_dialogbox(url)
 	local pressed = love.window.showMessageBox("Alert", "There is a newer version available! Do you want to check it?", {
-		"OK",
-		"No",
-		escapebutton = 2
+		"OK", "No", escapebutton = 2
 	})
+
 	if pressed == 1 then
 		love.system.openURL(url)
 	end

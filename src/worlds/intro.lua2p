@@ -14,7 +14,6 @@ local Info = require("info")
 local Fade = require("fade")
 local Keybinds = require("keybinds")
 local NGrading = require("ngrading")
-local Palette = require("palette")
 local Preloader = require("preloader")
 local Settings = require("settings")
 
@@ -339,6 +338,11 @@ function StateIntro:start()
 		self.entities.title:remove("hidden")
 		Flux.to(color.color, 4, { [4] = 1 })
 			:oncomplete(function()
+				Flux.to(color.color, 4, { [4] = 0 })
+					:oncomplete(function()
+						self.entities.title:give("hidden")
+						self.world:removeEntity(self.entities.title)
+					end)
 				self.timeline:Unpause()
 			end)
 		self.timeline:Pause()
@@ -355,13 +359,7 @@ function StateIntro:start()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:give("static_text", "Press ESC to skip intro")
-			:give("font", assets.fonts.ui)
-			:give("color", Palette:get_color("ui_red"))
-			:give("position", vec2:new(ww/2, wh - 8))
-			:give("ui_text")
-			:give("transform", 0, 1, 1, 0.5, 1)
-			:give("color_fade_in_out", 1)
+			:assemble(Assemblages.Common.skip, assets.fonts.ui, vec2:new(ww/2, wh - 8))
 	end
 end
 
@@ -417,7 +415,6 @@ function StateIntro:exit()
 	effect.dt2 = 0
 	effect.status = 1
 	self.timeline:Die()
-	self.timeline_dialogue:Die()
 end
 
 return StateIntro

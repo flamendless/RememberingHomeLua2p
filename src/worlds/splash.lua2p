@@ -159,14 +159,8 @@ function StateSplash:start()
 		end, 2)
 
 	if Settings.current.splash_done then
-		self.entities.skip_intro = Concord.entity(self.world)
-			:give("static_text", "Press ESC/ENTER to skip splash")
-			:give("font", assets.fonts.ui)
-			:give("color", Palette:get_color("ui_red"))
-			:give("position", vec2:new(ww/2, wh - 8))
-			:give("ui_text")
-			:give("transform", 0, 1, 1, 0.5, 1)
-			:give("color_fade_in_out", 1)
+		self.entities.skip_splash = Concord.entity(self.world)
+			:assemble(Assemblages.Common.skip, assets.fonts.ui, vec2:new(ww/2, wh - 8))
 	end
 end
 
