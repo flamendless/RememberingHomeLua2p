@@ -54,6 +54,8 @@ Assets.data.intro = {
 		{ "sheet_car", "assets/images/intro/sheet_car.png" },
 		{ "sheet_car_reflect", "assets/images/intro/sheet_car_reflect.png" },
 		{ "sheet_paint", "assets/images/intro/sheet_paint.png" },
+		{ "title", "assets/images/menu/title.png" },
+		{ "subtitle", "assets/images/menu/subtitle.png" },
 	},
 	image_data = {
 		{ "lut_afternoon_16", "assets/lut/lut_afternoon_16.png" },

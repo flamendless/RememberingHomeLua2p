@@ -139,4 +139,14 @@ function Intro.bg_paint(e, data, pos)
 	:give("position", pos)
 	:give("animation", true)
 end
+
+function Intro.title(e, sprite, pos)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("hidden")
+	:give("transform", 0, 6, 6, 0.5, 0.5)
+	:give("color", { 1, 1, 1, 0 })
+	:give("ui_element")
+end
+
 return Intro

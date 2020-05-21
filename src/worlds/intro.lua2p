@@ -246,6 +246,7 @@ function StateIntro:start()
 	effect.multi:setup_data()
 	effect.multi2 = NGrading:new(lut_dusk, lut_night, lut_size)
 	effect.multi2:setup_data()
+	current_effect = effect.single
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", assets.fonts.ui, vec2:new(32, 32))
@@ -259,10 +260,13 @@ function StateIntro:start()
 	self.entities.intro_txt4 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.ui_text, "music by ???", assets.fonts.ui, vec2:new(32, 32))
 
+	self.entities.title = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.title, assets.images.title, vec2:new(ww/2, wh/2))
+
 	for i, str in ipairs(dialogues) do
 		--TODO add voice acting dialogue
 		local e = Concord.entity(self.world)
-			:assemble(Assemblages.Intro.dialogue_text, str, assets.fonts.dialogue, vec2:new(ww/2, 32))
+			:assemble(Assemblages.Intro.dialogue_text, str, assets.fonts.dialogue, vec2:new(ww/2, 64))
 		insert(e_dialogues, e)
 	end
 
@@ -273,50 +277,49 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		local cx, cy = self.camera:getPosition()
-		-- Flux.to(self.camera, 5, { y = 480 })
 		Flux.to(self.camera, 5, { y = cy - 64 })
 		Flux.to(self.camera, 5, { scale = 10 })
 
 		TLE.Event.Wait(2)
-		fade_text(self.entities.intro_txt1, 2)
+		local fade_duration = 4
+		fade_text(self.entities.intro_txt1, fade_duration, self.timeline)
+		self.timeline:Pause()
 
-		TLE.Event.Wait(3)
 		local cx, cy = self.camera:getPosition()
 		Flux.to(self.camera, 5, { scale = 5 })
-		-- Flux.to(self.camera, 5, { x = 260, y = 460 })
 		Flux.to(self.camera, 5, { x = cx + 160, y = cy - 32 })
 		Flux.to(car_pos, 5, { x = 128 })
 
-		TLE.Event.Wait(2)
-		fade_text(self.entities.intro_txt2, 2)
+		fade_text(self.entities.intro_txt2, fade_duration, self.timeline)
+		self.timeline:Pause()
 
-		TLE.Event.Wait(3)
 		local cx, cy = self.camera:getPosition()
 		effect.status = 2
+		current_effect = effect.multi
 		Flux.to(effect, 15, { dt = 1 })
 		Flux.to(self.camera, 5, { scale = 3 })
-		-- Flux.to(self.camera, 5, { x = 356 })
 		Flux.to(self.camera, 5, { x = cx + 72, y = cy - 32 })
 		Flux.to(car_pos, 3, { x = 160 })
 
-		TLE.Event.Wait(3)
-		fade_text(self.entities.intro_txt3, 2)
+		fade_text(self.entities.intro_txt3, fade_duration, self.timeline)
+		self.timeline:Pause()
 
-		TLE.Event.Wait(3)
-		fade_text(self.entities.intro_txt4, 2)
+		fade_text(self.entities.intro_txt4, fade_duration, self.timeline)
+		self.timeline:Pause()
 
-		TLE.Event.Wait(3)
 		effect.status = 3
+		current_effect = effect.multi2
 		Flux.to(effect, 25, { dt2 = 1 })
 			:oncomplete(function()
 				effect.status = 4
+				current_effect = effect.single2
 			end)
 
-		TLE.Event.Wait(3)
 		--TODO play intro radio
+		-- TLE.Event.Wait(3)
 
 		TLE.Event.Wait(3)
-		self.timeline_dialogue:Unpause()
+		show_dialogue(self.timeline)
 		self.timeline:Pause()
 
 		TLE.Event.Wait(2)
@@ -325,24 +328,30 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		Flux.to(self.camera, 5, { scale = self.scale })
-		-- Flux.to(self.camera, 5, { x = ww/2, y = wh/2 })
 		Flux.to(self.camera, 5, { x = w/2, y = h/2 })
 
-		TLE.Event.Wait(6)
+		if self.entities.skip_intro then
+			self.entities.skip_intro:give("hidden")
+		end
+
+		TLE.Event.Wait(1)
+		local color = self.entities.title:get("color")
+		self.entities.title:remove("hidden")
+		Flux.to(color.color, 4, { [4] = 1 })
+			:oncomplete(function()
+				self.timeline:Unpause()
+			end)
+		self.timeline:Pause()
+
+		TLE.Event.Wait(2)
 		self.world:emit("stop_parallax")
 		Flux.to(car_pos, 5, { x = ww * 1.5 })
 
-		TLE.Event.Wait(1)
 		Fade.fade_out(function()
 			Settings.set_intro_done()
 			self.gamestate:switch("MainGame")
 		end, 2)
 	end)
-
-	self.timeline_dialogue = TLE.Do(function()
-		show_dialogue(self.timeline)
-	end)
-	self.timeline_dialogue:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
@@ -374,14 +383,8 @@ function StateIntro:draw()
 	if not self.is_ready then return end
 
 	self.camera:draw(function()
-		if effect.status == 1 then
-			effect.single:apply()
-		elseif effect.status == 2 then
-			effect.multi:apply()
-		elseif effect.status == 3 then
-			effect.multi2:apply()
-		elseif effect.status == 4 then
-			effect.single2:apply()
+		if current_effect then
+			current_effect:apply()
 		end
 
 		self.world:emit("draw")
