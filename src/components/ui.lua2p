@@ -1,4 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("ui_element", function(c)
+end)
+
 Concord.component("ui_text", function(c)
 end)
