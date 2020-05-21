@@ -1,7 +1,6 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
-local min = math.min
 local insert = table.insert
 local cache_multi_animation = {}
 
@@ -36,21 +35,6 @@ local setup_on_end = function(e, animation)
 		end
 	end
 	return on_end
-end
-
-local setup_auto_scale = function(e, data)
-	local auto_scale = e:get("auto_scale")
-	if auto_scale then
-		local transform = e:get("transform")
-		if auto_scale.is_proportion then
-			local scale = min(auto_scale.target_width/data.frame_width, auto_scale.target_height/data.frame_height)
-			transform.sx = scale
-			transform.sy = scale
-		else
-			transform.sx = auto_scale.target_width/data.frame_width
-			transform.sy = auto_scale.target_height/data.frame_height
-		end
-	end
 end
 
 local setup_animation = function(e, data, on_end)
@@ -100,7 +84,6 @@ function Animation:init()
 	self.pool.onEntityAdded = function(pool, e)
 		local data = e:get("animation_data")
 		local animation = e:get("animation")
-		setup_auto_scale(e, data)
 		local on_end = setup_on_end(e, animation)
 		setup_animation(e, data, on_end)
 	end

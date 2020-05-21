@@ -1,10 +1,13 @@
 local Concord = require("modules.concord.concord")
 
+local min = math.min
+
 local Transform = Concord.system({
 	pool = {"transform"},
 	pool_anchor = {"position", "anchor"},
 	pool_camera = {"position", "camera"},
 	pool_attach = {"position", "attach_to"},
+	pool_auto_scale = {"transform", "auto_scale"},
 })
 
 function Transform:init()
@@ -17,6 +20,25 @@ function Transform:init()
 		local target = attach.target_e
 		if not target:has("position") then
 			error("Target entity must have a position component")
+		end
+	end
+
+	self.pool_auto_scale.onEntityAdded = function(pool, e)
+		local auto_scale = e:get("auto_scale")
+		local transform = e:get("transform")
+		local anim_data = e:get("animation_data")
+
+		if anim_data then
+			local dsx = auto_scale.target_width/anim_data.frame_width
+			local dsy = auto_scale.target_height/anim_data.frame_height
+			if auto_scale.is_proportion then
+				local scale = min(dsx, dsy)
+				transform.sx = transform.sx * scale
+				transform.sy = transform.sy * scale
+			else
+				transform.sx = transform.sx * dsx
+				transform.sy = transform.sy * dsy
+			end
 		end
 	end
 end
