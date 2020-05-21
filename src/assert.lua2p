@@ -210,6 +210,23 @@ function Assert.should_shader(arg)
 end
 
 --SAFE
+function Assert.safe_either_value(arg, ...)
+	if arg then
+		local args = {...}
+		local pass = false
+		for _, v in ipairs(args) do
+			if arg == v then
+				pass = true
+				break
+			end
+		end
+		if not pass then
+			local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+			error(msg, 2)
+		end
+	end
+end
+
 function Assert.safe_should_boolean(arg)
 	if arg then
 		Assert.should_boolean(arg)

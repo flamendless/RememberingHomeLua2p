@@ -21,8 +21,8 @@ local setup_on_end = function(e, animation)
 	if cb then
 		on_end = function()
 			cb.callback()
-			animation.is_playing = false
 			if cb.event then
+				animation.is_playing = false
 				animation.animation[cb.event](animation.animation)
 			end
 		end
