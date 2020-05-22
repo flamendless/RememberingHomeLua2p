@@ -26,6 +26,7 @@ local Systems = {
 	Animation = require("systems.animation"),
 	Color = require("systems.color"),
 	Parallax = require("systems.parallax"),
+	RainIntro = require("systems.rain_intro"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
@@ -158,6 +159,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
+	self.world:addSystem(Systems.RainIntro)
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
@@ -210,6 +212,32 @@ function StateIntro:start()
 	self.entities.fg_tree_data = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.fg_tree_data, {assets.images.fg_tree1, assets.images.fg_tree2}, w)
 
+	self.entities.rain_data = Concord.entity(self.world)
+		:give("rain_tilted")
+		:give("rain_data", {
+			metadata = {
+				drop = {
+					frames = {"1-3", 1},
+					delay = 0.1,
+					rows_count = 1,
+					columns_count = 3,
+				},
+				splash = {
+					frames = {"1-5", 1},
+					delay = 0.1,
+					rows_count = 1,
+					columns_count = 5,
+				}
+			},
+			drop = {
+				assets.images.rain_drop_tilted,
+				assets.images.rain_drop_tilted2
+			},
+			splash = {
+				assets.images.rain_splash_tilted,
+				assets.images.rain_splash_tilted2
+			},
+		}, 128)
 	paint_data = {
 		spritesheet = assets.images.sheet_paint,
 		frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
@@ -366,6 +394,7 @@ end
 function StateIntro:update(dt)
 	if not self.is_ready then return end
 
+	self.world:emit("emit_rain", 32)
 	self.world:emit("parallax_move_x", dt, 1)
 
 	if effect.status == 2 then
