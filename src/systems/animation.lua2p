@@ -1,7 +1,9 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
+local floor = math.floor
 local insert = table.insert
+local remove = table.remove
 local cache_multi_animation = {}
 
 local Animation = Concord.system({
@@ -24,6 +26,9 @@ local setup_on_end = function(e, animation)
 			if cb.event then
 				animation.is_playing = false
 				animation.animation[cb.event](animation.animation)
+				if cb.remove_at_end then
+					e:remove("animation_on_complete")
+				end
 			end
 		end
 	else
@@ -97,6 +102,13 @@ function Animation:init()
 		end)
 	end
 
+	self.pool_z.onEntityRemoved = function(pool, e)
+		for i = #self.custom_pool_z, 1, -1 do
+			local ent = self.custom_pool_z[i]
+			if e == ent then remove(self.custom_pool_z, i) end
+		end
+	end
+
 	self.pool_multi.onEntityAdded = function(pool, e)
 		local multi = e:get("multiple_animation_data")
 		local animation = e:get("animation")
@@ -152,31 +164,57 @@ function Animation:switch_animation_tag(new_tag)
 	end
 end
 
+function Animation:update_animation_data(e, data)
+	!if _ASSERT then
+	Assert.should_entity(e)
+	Assert.should_table(data)
+	!end
+
+	local anim_data = e:get("animation_data")
+	local animation = e:get("animation")
+
+	anim_data.spritesheet = data.spritesheet
+	anim_data.frames = data.frames
+	anim_data.delay = data.delay
+	anim_data.rows_count = data.rows_count
+	anim_data.columns_count = data.columns_count
+	anim_data.durations = data.durations
+	anim_data.n_frames = data.n_frames
+
+	anim_data.sheet_height = anim_data.spritesheet:getHeight()
+	anim_data.frame_width = floor(anim_data.sheet_width/anim_data.columns_count)
+	anim_data.frame_height = floor(anim_data.sheet_height/anim_data.rows_count)
+
+	local on_end = setup_on_end(e, animation)
+	setup_animation(e, anim_data, on_end)
+end
+
 function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
 		local animation = e:get("animation")
-		local stop = e:get("animation_stop")
-		local dt_multiplier = e:get("dt_multiplier")
-		local quad = e:get("quad")
-
-		if dt_multiplier then
-			dt = dt * dt_multiplier.mul
-		end
-
-		if animation.is_playing then
-			if stop then
-				animation.is_playing = false
-				animation.animation[stop.event](animation.animation)
-				local cb = e:get("animation_on_complete")
-				if cb then
-					cb.callback()
-				end
+		if animation.animation then
+			local stop = e:get("animation_stop")
+			local dt_multiplier = e:get("dt_multiplier")
+			local quad = e:get("quad")
+			if dt_multiplier then
+				dt = dt * dt_multiplier.mul
 			end
-			animation.animation:update(dt)
-		end
 
-		local current_quad = animation.animation:getFrameInfo()
-		quad.quad = current_quad
+			if animation.is_playing then
+				if stop then
+					animation.is_playing = false
+					animation.animation[stop.event](animation.animation)
+					local cb = e:get("animation_on_complete")
+					if cb then
+						cb.callback()
+					end
+				end
+				animation.animation:update(dt)
+			end
+
+			local current_quad = animation.animation:getFrameInfo()
+			quad.quad = current_quad
+		end
 	end
 end
 

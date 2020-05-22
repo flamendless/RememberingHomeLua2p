@@ -205,6 +205,14 @@ function StateIntro:start()
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, self.entities.car)
+		:give("animation_on_complete", function()
+			local chance = Lume.randomchoice({true, false})
+			if chance then
+				self.entities.car_reflect:remove("hidden")
+			else
+				self.entities.car_reflect:give("hidden")
+			end
+		end)
 
 	self.entities.bg_tree_data = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_data, {assets.images.bg_tree1, assets.images.bg_tree2, assets.images.bg_tree3}, w * 2)

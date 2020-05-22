@@ -1,11 +1,13 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("animation_on_complete", function(c, callback, event)
+Concord.component("animation_on_complete", function(c, callback, event, remove_at_end)
 	!if _ASSERT then
 	Assert.should_function(callback)
 	Assert.safe_either_value(event, "pauseAtEnd", "pauseAtStart")
+	Assert.safe_should_boolean(remove_at_end)
 	!end
 
 	c.callback = callback
 	c.event = event
+	c.remove_at_end = remove_at_end
 end)
