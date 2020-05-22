@@ -86,7 +86,7 @@ local generate_paint = function(e, duration, duration_out)
 		:oncomplete(function()
 			Flux.to(color.color, duration_out or duration, { [4] = 0 })
 				:oncomplete(function()
-					world:removeEntity(paint)
+					paint:destroy()
 				end)
 				:delay(1)
 		end)
@@ -104,7 +104,7 @@ local fade_text = function(e, duration, timeline)
 				:oncomplete(function()
 					timeline:Unpause()
 					e:give("hidden")
-					world:removeEntity(e)
+					e:destroy()
 				end)
 		end)
 end
@@ -127,7 +127,7 @@ show_dialogue = function(timeline)
 				Flux.to(color.color, duration_out, { [4] = 0 })
 					:oncomplete(function()
 						e:give("hidden")
-						world:removeEntity(e)
+						e:destroy()
 						current_dialogue = current_dialogue + 1
 						show_dialogue(timeline)
 					end)
@@ -369,7 +369,7 @@ function StateIntro:start()
 				Flux.to(color.color, 4, { [4] = 0 })
 					:oncomplete(function()
 						self.entities.title:give("hidden")
-						self.world:removeEntity(self.entities.title)
+						self.entities.title:destroy()
 					end)
 				self.timeline:Unpause()
 			end)
@@ -439,11 +439,13 @@ end
 function StateIntro:exit()
 	Assets.clean(assets)
 	for i, e in ipairs(self.world:getEntities()) do
-		self.world:removeEntity(e)
+		e:destroy()
 	end
 	effect.dt = 0
 	effect.dt2 = 0
 	effect.status = 1
+	current_effect = nil
+	current_dialogue = 1
 	self.timeline:Die()
 end
 

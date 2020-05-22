@@ -214,7 +214,7 @@ end
 function StateSplash:exit()
 	Assets.clean(assets)
 	for i, e in ipairs(self.world:getEntities()) do
-		self.world:removeEntity(e)
+		e:destroy()
 	end
 end
 
