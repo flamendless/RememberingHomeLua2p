@@ -2,6 +2,3 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("empty_rain", function(c)
 end)
-
-Concord.component("empty_tree", function(c)
-end)

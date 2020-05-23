@@ -62,7 +62,7 @@ function RandomTree:generate_tree(e)
 	end
 end
 
-function RandomTree:append_tree(index)
+function RandomTree:append_tree(index, e)
 	local data = self.data[index]
 	local images = data.tree_data.images
 
@@ -70,8 +70,8 @@ function RandomTree:append_tree(index)
 	local img = images[r]
 	local x = data.tree_data.max_width + love.math.random(32, 128)
 	local y = 0
-	local tree = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
+	e:give("sprite", img)
+	:give("position", vec2:new(x, y))
 end
 
 function RandomTree:update(dt)
@@ -81,8 +81,9 @@ function RandomTree:update(dt)
 		local sprite = e:get("sprite").sprite
 
 		if (pos.x + sprite:getWidth() < 0) then
-			self.world:removeEntity(e)
-			self:append_tree(tree)
+			e:remove("sprite")
+			:remove("position")
+			self:append_tree(tree, e)
 		end
 	end
 end

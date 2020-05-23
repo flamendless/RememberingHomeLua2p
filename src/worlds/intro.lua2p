@@ -40,6 +40,8 @@ local Assemblages = {
 local assets = { images = {}, image_data = {}, fonts = {} }
 local effect = { dt = 0, dt2 = 0, status = 1 }
 local current_effect
+local current_rain = 8
+local current_rain_max = current_rain
 
 local paint_data
 
@@ -221,6 +223,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.fg_tree_data, {assets.images.fg_tree1, assets.images.fg_tree2}, w)
 
 	self.entities.rain_data = Concord.entity(self.world)
+		:give("screen_size", ww, wh)
 		:give("rain_tilted")
 		:give("rain_data", {
 			metadata = {
@@ -245,7 +248,8 @@ function StateIntro:start()
 				assets.images.rain_splash_tilted,
 				assets.images.rain_splash_tilted2
 			},
-		}, 128)
+		}, 256)
+
 	paint_data = {
 		spritesheet = assets.images.sheet_paint,
 		frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
@@ -392,6 +396,7 @@ function StateIntro:start()
 			self.gamestate:switch("MainGame")
 		end, 2)
 	end)
+	self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
@@ -402,7 +407,7 @@ end
 function StateIntro:update(dt)
 	if not self.is_ready then return end
 
-	self.world:emit("emit_rain", 32)
+	self.world:emit("emit_rain", current_rain, current_rain_max)
 	self.world:emit("parallax_move_x", dt, 1)
 
 	if effect.status == 2 then
@@ -418,7 +423,6 @@ function StateIntro:draw()
 	if not self.is_ready then return end
 
 	self.camera:draw(function()
-
 		if current_effect then
 			current_effect:apply()
 		end
@@ -454,6 +458,8 @@ function StateIntro:exit()
 	effect.status = 1
 	current_effect = nil
 	current_dialogue = 1
+	current_rain = 8
+	current_rain_max = current_rain
 	self.timeline:Die()
 end
 

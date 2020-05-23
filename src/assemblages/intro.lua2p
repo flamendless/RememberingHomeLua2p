@@ -80,6 +80,7 @@ function Intro.car(e, spritesheet)
 		columns_count = 3,
 		n_frames = 12
 	}
+
 	local car_init_pos = vec2:new(16, 325)
 	e:give("animation_data", data)
 	:give("position", car_init_pos)
