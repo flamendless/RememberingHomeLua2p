@@ -1,0 +1,32 @@
+local Concord = require("modules.concord.concord")
+local Bump = require("modules.bump.bump")
+
+local BumpCollision = Concord.system({
+	pool = {"collider", "position", "body", "bump"},
+})
+
+function BumpCollision:init()
+	self.world = Bump.newWorld()
+
+	self.pool.onEntityAdded = function(pool, e)
+		local collider = e:get("collider")
+		local pos = e:get("position").pos
+		local size = collider.size
+		self.world:add(collider, pos.x, pos.y, size.x, size.y)
+	end
+end
+
+function BumpCollision:update(dt)
+	for _, e in ipairs(self.pool) do
+		local collider = e:get("collider")
+		local body = e:get("body")
+		local pos = e:get("position").pos
+
+		if body.vel_x ~= 0 or body.vel_y ~= 0 then
+			local cols
+			pos.x, pos.y, cols = self.world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y)
+		end
+	end
+end
+
+return BumpCollision

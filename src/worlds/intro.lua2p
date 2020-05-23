@@ -6,6 +6,7 @@ local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 
 local insert = table.insert
+local floor = math.floor
 local min = math.min
 local sub = string.sub
 
@@ -24,6 +25,7 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
+	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Parallax = require("systems.parallax"),
 	RainIntro = require("systems.rain_intro"),
@@ -40,6 +42,7 @@ local Assemblages = {
 local assets = { images = {}, image_data = {}, fonts = {} }
 local effect = { dt = 0, dt2 = 0, status = 1 }
 local current_effect
+local is_raining = false
 local current_rain = 8
 local current_rain_max = current_rain
 
@@ -166,6 +169,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.Collision)
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = assets.images.bg:getDimensions()
@@ -186,6 +190,7 @@ function StateIntro:start()
 
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, assets.images.parallax_road, ww * 2, "road")
+		:give("collider", vec2:new(ww, 64), vec2:new(0, 354))
 
 	self.entities.parallax_grass = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, assets.images.parallax_grass, ww * 2, "grass1")
@@ -204,6 +209,21 @@ function StateIntro:start()
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, assets.images.sheet_car)
+
+	self.entities.car_collider_left = Concord.entity(self.world)
+		:give("position", vec2:new())
+		:give("attach_to", self.entities.car)
+		:give("collider", vec2:new(36, 32), vec2:new(0, 16))
+
+	self.entities.car_collider_mid = Concord.entity(self.world)
+		:give("position", vec2:new())
+		:give("attach_to", self.entities.car)
+		:give("collider", vec2:new(45, 48), vec2:new(36, 0))
+
+	self.entities.car_collider_right = Concord.entity(self.world)
+		:give("position", vec2:new())
+		:give("attach_to", self.entities.car)
+		:give("collider", vec2:new(47, 32), vec2:new(81, 16))
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect, assets.images.sheet_car_reflect, self.entities.car)
@@ -396,7 +416,7 @@ function StateIntro:start()
 			self.gamestate:switch("MainGame")
 		end, 2)
 	end)
-	self.timeline:Pause()
+	-- self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
@@ -407,7 +427,10 @@ end
 function StateIntro:update(dt)
 	if not self.is_ready then return end
 
-	self.world:emit("emit_rain", current_rain, current_rain_max)
+	if is_raining then
+		self.world:emit("emit_rain", current_rain, current_rain_max)
+	end
+
 	self.world:emit("parallax_move_x", dt, 1)
 
 	if effect.status == 2 then
@@ -429,6 +452,8 @@ function StateIntro:draw()
 
 		self.world:emit("draw")
 		self.world:emit("draw_z")
+
+		self.world:emit("draw_debug")
 
 		love.graphics.setShader()
 	end)
@@ -458,6 +483,7 @@ function StateIntro:exit()
 	effect.status = 1
 	current_effect = nil
 	current_dialogue = 1
+	is_raining = true
 	current_rain = 8
 	current_rain_max = current_rain
 	self.timeline:Die()

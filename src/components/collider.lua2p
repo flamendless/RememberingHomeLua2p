@@ -1,9 +1,26 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("collider", function(c, size)
+Concord.component("bump", function(c)
+end)
+
+Concord.component("collider", function(c, size, offset)
 	!if _ASSERT then
 	Assert.should_vec2(size)
+	Assert.safe_should_vec2(offset)
 	!end
 
-	c.size = size:copy()
+	c.size = size
+	c.offset = offset
+	c.is_hit = false
+end)
+
+Concord.component("collider_circle", function(c, size, offset)
+	!if _ASSERT then
+	Assert.should_number(size)
+	Assert.safe_should_vec2(offset)
+	!end
+
+	c.size = size
+	c.offset = offset
+	c.is_hit = false
 end)

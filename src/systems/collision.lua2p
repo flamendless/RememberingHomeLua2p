@@ -1,34 +1,152 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump")
+
+local max = math.max
+local min = math.min
 
 local Collision = Concord.system({
-	pool = {"collider", "position", "body"},
+	pool = {"position", "collider"},
+	pool_circle = {"position", "collider_circle"},
 })
 
-local world
+local circle_rect = function(cx, cy, cr, rx, ry, rw, rh)
+	local dx = cx - max(rx, min(cx, rx + rw))
+	local dy = cy - max(ry, min(cy, ry + rh))
+	return (dx * dx + dy * dy) < (cr * cr)
+end
 
 function Collision:init()
-	world = Bump.newWorld()
-
-	self.pool.onEntityAdded = function(pool, e)
-		local collider = e:get("collider")
-		local pos = e:get("position").pos
-		local size = collider.size
-		world:add(collider, pos.x, pos.y, size.x, size.y)
-	end
 end
 
 function Collision:update(dt)
-	for _, e in ipairs(self.pool) do
-		local collider = e:get("collider")
-		local body = e:get("body")
-		local pos = e:get("position").pos
+	-- for _, e in ipairs(self.pool_circle) do
+	-- 	local col = e:get("collider_circle")
+	-- 	col.is_prev_hit = false
+	-- end
+end
 
-		if body.vel_x ~= 0 or body.vel_y ~= 0 then
-			local cols
-			pos.x, pos.y, cols = world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y)
+function Collision:check_circle_to_rect(cx, cy, cr)
+	for _, er in ipairs(self.pool) do
+		local pos = er:get("position").pos
+		local col = er:get("collider")
+		local rx = pos.x
+		local ry = pos.y
+		local rw = col.size.x
+		local rh = col.size.y
+
+		if col.offset then
+			rx = rx + col.offset.x
+			ry = ry + col.offset.y
+		end
+
+		local res = circle_rect(cx, cy, cr, rx, ry, rw, rh)
+		col.is_hit = res
+		if res then
+			return true
 		end
 	end
+	return false
 end
+
+function Collision:check_rect_to_circle(rx, ry, rw, rh)
+	for _, ec in ipairs(self.pool_circle) do
+		local pos = ec:get("position").pos
+		local col = ec:get("collider_circle")
+		local cx = pos.x
+		local cy = pos.y
+		local cr = col.size
+
+		if col.offset then
+			cx = cx + col.offset.x
+			cy = cy + col.offset.y
+		end
+
+		local res = circle_rect(cx, cy, cr, rx, ry, rw, rh)
+		col.is_hit = res
+		if res then
+			return true
+		end
+	end
+	return false
+end
+
+function Collision:check_collision(e)
+	local pos = e:get("position").pos
+	local col = e:get("collider")
+	local col_c = e:get("collider_circle")
+
+	if col then
+		local rx = pos.x
+		local ry = pos.y
+		local rw = col.size.x
+		local rh = col.size.y
+
+		if col.offset then
+			rx = rx + col.offset.x
+			ry = ry + col.offset.y
+		end
+
+		local res1 = self:check_rect_to_circle(rx, ry, rw, rh)
+		-- local res2 = self:check_rect_to_rect(e)
+		col.is_hit = res1
+
+	elseif col_c then
+		local cx = pos.x
+		local cy = pos.y
+		local r = col_c.size
+
+		if col_c.offset then
+			cx = cx + col_c.offset.x
+			cy = cy + col_c.offset.y
+		end
+
+		-- local res1 = self:check_circle_to_cicle(e)
+		local res2 = self:check_circle_to_rect(cx, cy, r)
+
+		col_c.is_hit = res2
+	end
+end
+
+!if not _RELEASE then
+function Collision:draw_debug()
+	for _, e in ipairs(self.pool) do
+		local pos = e:get("position").pos
+		local col_r = e:get("collider")
+		local size = col_r.size
+
+		local x = pos.x
+		local y = pos.y
+
+		if col_r.offset then
+			x = x + col_r.offset.x
+			y = y + col_r.offset.y
+		end
+
+		love.graphics.setColor(1, 0, 0, 1)
+		if col_r.is_hit then
+			love.graphics.setColor(0, 1, 0, 1)
+		end
+		love.graphics.rectangle("line", x, y, size.x, size.y)
+	end
+
+	for _, e in ipairs(self.pool_circle) do
+		local pos = e:get("position").pos
+		local col_c = e:get("collider_circle")
+
+		local x = pos.x
+		local y = pos.y
+
+		if col_c.offset then
+			x = x + col_c.offset.x
+			y = y + col_c.offset.y
+		end
+
+		love.graphics.setColor(1, 0, 0, 1)
+		if col_c.is_hit then
+			love.graphics.setColor(0, 1, 0, 1)
+		end
+		love.graphics.circle("line", x, y, col_c.size)
+	end
+end
+!end
 
 return Collision

@@ -1,9 +1,9 @@
 local Concord = require("modules.concord.concord")
 
 local RainIntro = Concord.system({
-	pool_empty = {"empty_rain",},
-	pool_data_tilted = {"rain_data", "rain_tilted"},
-	pool_drop_tilted = { "rain_drop", "rain_tilted", "position", "acceleration" },
+	pool_empty = {"empty_rain"},
+	pool_data_tilted = {"rain_data", "rain_tilted", "screen_size"},
+	pool_drop_tilted = { "rain_drop", "rain_tilted", "position", "acceleration", "collider_circle"},
 })
 
 local Intro = require("assemblages.intro")
@@ -18,8 +18,11 @@ function RainIntro:init(world)
 		!end
 
 		local rain_data = e:get("rain_data")
+		local screen_size = e:get("screen_size")
 		self.data = rain_data.data
 		self.metadata = rain_data.data.metadata
+		self.max_width = screen_size.width
+		self.max_height = screen_size.height
 
 		for i = 1, rain_data.buffer do
 			local empty = Concord.entity(self.world)
@@ -28,28 +31,30 @@ function RainIntro:init(world)
 	end
 end
 
-function RainIntro:emit_rain(amount)
+function RainIntro:emit_rain(amount, max_amount)
 	!if _ASSERT then
 	Assert.should_exists(self.data)
 	!end
 
-	if amount > #self.pool_empty then return end
+	if (#self.pool_drop_tilted > max_amount) or (amount > #self.pool_empty) then
+		return
+	end
 
 	local drop = self.data.drop
 	for i = 1, amount do
 		local r = love.math.random(1, #drop)
 		local img = drop[r]
-		local x = love.math.random(1, love.graphics.getWidth())
-		local pos = vec2:new(x, 0)
+		local x = love.math.random(1, self.max_width)
+		local pos = vec2:new(x, -32)
 		local anim_data = {}
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
-		local ax = love.math.random(128, 256)
-		local ay = love.math.random(128, 256)
+		local ax = love.math.random(128, 360)
+		local ay = love.math.random(128, 360)
 		local accel = vec2:new(-ax, ay)
 		local alpha = love.math.random(0, 100)/100
 		local scale = love.math.random(50, 100)/100
-		local z = love.math.random(1, 10)
+		local z = love.math.random(1, 8)
 
 		local e = self.pool_empty[i]
 			:give("animation_data", anim_data)
@@ -61,6 +66,7 @@ function RainIntro:emit_rain(amount)
 			:give("z_index", z)
 			:give("color", {1, 1, 1, alpha})
 			:give("transform", 0, scale, scale)
+			:give("collider_circle", 4, vec2:new(9, 32))
 			:remove("empty_rain")
 	end
 end
@@ -83,6 +89,7 @@ function RainIntro:emit_splash(e)
 		:remove("transform")
 		:remove("z_index")
 		:remove("color")
+		:remove("collider_circle")
 		:give("empty_rain")
 	end, "pauseAtEnd", true)
 	self.world:emit("update_animation_data", e, anim_data)
@@ -92,13 +99,16 @@ function RainIntro:update(dt)
 	for _, e in ipairs(self.pool_drop_tilted) do
 		local pos = e:get("position").pos
 		local accel = e:get("acceleration").accel
+		local col = e:get("collider_circle")
 
 		local dx = pos.x + accel.x * dt
 		local dy = pos.y + accel.y * dt
 		pos.x = dx
 		pos.y = dy
 
-		if pos.y > love.graphics.getHeight()/2 then
+		self.world:emit("check_collision", e)
+
+		if col.is_hit or (pos.y > self.max_height) then
 			e:remove("rain_drop")
 			e:remove("acceleration")
 			self:emit_splash(e)

@@ -270,4 +270,12 @@ function Assert.safe_should_table(arg)
 	return false
 end
 
+function Assert.safe_should_vec2(arg)
+	if arg then
+		Assert.should_vec2(arg)
+		return true
+	end
+	return false
+end
+
 return Assert

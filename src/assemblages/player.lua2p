@@ -5,6 +5,7 @@ local Player = {}
 function Player.base(e, pos, collider, speed_data, gravity, assets)
 	e:give("position", pos)
 	:give("collider", collider)
+	:give("bump")
 	:give("speed")
 	:give("speed_data", speed_data)
 	:give("gravity", gravity)
