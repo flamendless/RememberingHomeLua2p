@@ -99,12 +99,14 @@ function rebuild()
 
 function run()
 {
+	echo "Running buid.sh"
 	if [ ! -d "$dir_output" ]; then
 		echo "No output dir detected; Run init first"
 	else
 		process_src "$dir_source"
 		love "$dir_output"
 	fi
+	echo "Completed buid.sh"
 }
 
 if [ $# -eq 0 ]; then
