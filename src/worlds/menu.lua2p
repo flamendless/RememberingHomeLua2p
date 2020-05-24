@@ -80,15 +80,15 @@ local tx = 176
 
 local tools = {
 	"Löve Framework", "Vim", "Trello", "Aseprite", "Audacity",
-	"Brave Browser", "Manjaro", "i3-WM",
+	"Brave Browser", "Manjaro", "i3-Gaps",
 }
 
 local libs = {
 	"Anim8", "Arson", "Batteries", "Bump", "Concord",
 	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
-	"HUMP", "JSON", "Inspect", "Lily", "Log",
+	"HUMP", "Inspect", "JSON", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "SDF", "Semver",
-	"Slab", "Splashed", "TimelineEvents",
+	"Slab", "Splashes", "TimelineEvents",
 }
 
 !if not _RELEASE and _ASSERT then
