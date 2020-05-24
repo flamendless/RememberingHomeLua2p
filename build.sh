@@ -1,7 +1,7 @@
 #!/bin/bash
 
+os=$(uname)
 lpp_path=./luapreprocess/preprocess-cl.lua
-
 handler=handler_dev.lua
 
 dir_modules=modules
@@ -24,12 +24,7 @@ for e in "${meta_exclude_assets[@]}"; do
 	exclude_assets+=("--exclude=$e")
 done
 
-function run()
-{
-	love "$dir_output"
-}
-
-function check_output_dir()
+function create_output_dir()
 {
 	if [ ! -d "$dir_output" ]; then
 		mkdir $dir_output
@@ -85,12 +80,35 @@ function clean_logs()
 	rm -i $appdata/*
 }
 
-if [ $# -eq 0 ]; then
-	check_output_dir
+function init()
+{
+	create_output_dir
 	process_src "$dir_source"
 	copy_modules
 	copy_assets
-	run
+}
+
+function rebuild()
+{
+	clean
+	create_output_dir
+	process_src "$dir_source"
+	copy_modules
+	copy_assets
+}
+
+function run()
+{
+	if [ ! -d "$dir_output" ]; then
+		echo "No output dir detected; Run init first"
+	else
+		process_src "$dir_source"
+		love "$dir_output"
+	fi
+}
+
+if [ $# -eq 0 ]; then
+	echo "Must pass command: init, rebuild, clean, run"
 else
 	"$@"
 fi
