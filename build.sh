@@ -91,10 +91,7 @@ function init()
 function rebuild()
 {
 	clean
-	create_output_dir
-	process_src "$dir_source"
-	copy_modules
-	copy_assets
+	init
 }
 
 function run()
