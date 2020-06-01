@@ -25,8 +25,6 @@ local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
-local Settings = require("settings")
-local WindowMode = require("window_mode")
 
 local StateMenu = class()
 StateMenu.id = "Menu"
@@ -40,6 +38,7 @@ local Systems = {
 	Color = require("systems.color"),
 	HoverEffect = require("systems.hover_effect"),
 	Menu = require("systems.menu"),
+	MenuSettings = require("systems.menu_settings"),
 	Move = require("systems.move"),
 	RenderText = require("systems.render_text"),
 	RenderSprite = require("systems.render_sprite"),
@@ -64,14 +63,6 @@ local ANGLE_UP = 90
 local ANGLE_DOWN = 270
 local ANGLE_LEFT = 180
 local ANGLE_RIGHT = 0
-
-local current_gq
-local current_wm
-local flag_game_sounds
-local flag_game_music
-local show_message_box_reset = false
-local show_message_box_conflict = {}
-local list_gq = { "Low", "High" }
 
 local duration_show = 0.75
 local duration_hide = 0.75
@@ -106,8 +97,7 @@ end
 
 function StateMenu:show_main_menu(duration)
 	for i, e in ipairs(ent_options) do
-			e
-			:remove("hidden")
+			e:remove("hidden")
 			:give("target_color", Palette:get_color("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
 				self:on_menu()
@@ -215,18 +205,11 @@ function StateMenu:on_continue()
 	--TODO load saved game here
 end
 
-function StateMenu:initialize_settings_value()
-	current_gq = Settings.current.graphics_quality
-	current_wm = WindowMode.list[Settings.current.current_wm]
-	flag_game_sounds = Settings.current.game_sounds
-	flag_game_music = Settings.current.game_music
-end
-
 function StateMenu:on_settings()
 	self.world:emit("allow_cursor", false)
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = { x = l, y = t, w = w, h = h }
-	self:initialize_settings_value()
+	self.world:emit("init_settings")
 	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
 end
 
@@ -352,143 +335,6 @@ function StateMenu:setup_menu()
 			end)
 		insert(ent_options_sub, self.entities[id])
 	end
-end
-
-function StateMenu:setup_settings(dt)
-	!if _PLATFORM == "desktop" then
-	self:settings_desktop(dt)
-	!elseif _PLATFORM == "mobile" then
-	!end
-end
-
-!if _PLATFORM == "desktop" then
-function StateMenu:settings_desktop(dt)
-	local x = 64
-	local y = 64
-	local width = love.graphics.getWidth() - (x * 2)
-	local height = love.graphics.getHeight() - (y * 2)
-	Slab.Update(dt)
-	Slab.BeginWindow("Settings", {
-		X = x, Y = y, W = width, H = height,
-		AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
-		BgColor = Palette.windows.settings
-	})
-
-	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
-	Slab.BeginLayout("GeneralSettingsLayout", { AlignX = "center", AlignY = "top", Columns = 2 })
-		Slab.SetLayoutColumn(1)
-		Slab.Text("Window Resolution")
-		Slab.Text("Graphics Quality")
-
-		if Slab.CheckBox(flag_game_sounds, "Game Sounds") then
-			flag_game_sounds = not flag_game_sounds
-		end
-		if Slab.CheckBox(flag_game_music, "Game Music") then
-			flag_game_music = not flag_game_music
-		end
-
-		Slab.SetLayoutColumn(2)
-		if Slab.BeginComboBox("WindowMode", { Selected = current_wm }) then
-			for i, str in ipairs(WindowMode.list) do
-				if Slab.TextSelectable(str) then
-					current_wm = str
-				end
-			end
-			Slab.EndComboBox()
-		end
-
-		if Slab.BeginComboBox("GraphicsQuality", { Selected = current_gq }) then
-			for i, str in ipairs(list_gq) do
-				if Slab.TextSelectable(str) then
-					current_gq = str
-				end
-			end
-			Slab.EndComboBox()
-		end
-
-		--TODO add sliders here
-		Slab.Text("Volume Game Sounds")
-		Slab.Text("Volume Game Music")
-	Slab.EndLayout()
-	Slab.Separator()
-
-	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
-	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
-		for key_name, key_table in pairs(Keybinds.ui) do
-			local id = "ui_" .. key_name
-			Slab.SetLayoutColumn(1)
-			Slab.Text(id)
-			for i, key_ui in ipairs(key_table) do
-				Slab.SetLayoutColumn(i + 1)
-				local id2 = id .. "_" .. i
-				if Slab.BeginComboBox(id2, { Selected =  key_ui}) then
-					for j, new_key_ui in ipairs(Keybinds.key_constants) do
-						if Slab.TextSelectable(new_key_ui) then
-							local is_conflict, conflict_key_name = Keybinds.check_for_conflicts_ui(key_name, new_key_ui)
-							if is_conflict then
-								show_message_box_conflict = { true, conflict_key_name }
-							end
-							key_table[i] = new_key_ui
-						end
-					end
-					Slab.EndComboBox()
-				end
-			end
-			if #key_table == 1 then
-				Slab.SetLayoutColumn(3)
-				Slab.NewLine()
-			end
-		end
-	Slab.EndLayout()
-	Slab.Separator()
-
-	Slab.BeginLayout("GeneralOptionsLayout", { AlignX = "center", AlignY = "bottom", Columns = 1 })
-		if Slab.Button("Reset to defaults") then
-			show_message_box_reset = true
-		end
-
-		if Slab.Button("Apply") then
-			Settings.update_graphics_quality(current_gq)
-			Settings.update_window_mode(current_wm)
-			Settings.set_game_sounds(flag_game_sounds)
-			Settings.set_game_music(flag_game_music)
-			Settings.update_keybindings()
-			Settings.overwrite()
-		end
-
-		if Slab.Button("Return to Main Menu") then
-			self:keypressed("escape")
-		end
-	Slab.EndLayout()
-
-	if show_message_box_reset then
-		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the settings to default?", { Buttons = { "Confirm", "Cancel" } })
-		if res ~= "" then
-			table.copy(Keybinds.ui_default, Keybinds.ui)
-			Settings.create_new()
-			self:initialize_settings_value()
-			show_message_box_reset = false
-		end
-	end
-
-	if show_message_box_conflict[1] then
-		local res = Slab.MessageBox("Alert", "There's a conflict with button " .. show_message_box_conflict[2], { Buttons = { "Confirm" } })
-		if res ~= "" then
-			show_message_box_conflict[1] = false
-			show_message_box_conflict[2] = nil
-		end
-	end
-
-	Slab.EndWindow()
-end
-!end --PLATFORM == "desktop"
-
-function StateMenu:slab_title(title, text)
-	Slab.BeginLayout(title, { AlignX = "center", AlignY = "top", Columns = 1 })
-	Slab.SetLayoutColumn(1)
-	if text then Slab.Text(text) end
-	Slab.EndLayout()
-	Slab.Separator()
 end
 
 local function generate_about()
@@ -654,6 +500,7 @@ function StateMenu:start()
 	self.world:addSystems(Systems.HoverEffect)
 	self.world:addSystems(Systems.Transform)
 	self.world:addSystems(Systems.Move)
+	self.world:addSystems(Systems.MenuSettings)
 	self:setup_menu()
 
 	self:hide_main_menu(0.1)
@@ -675,7 +522,7 @@ function StateMenu:update(dt)
 	self.world:emit("change_color", mx, my)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
-		self:setup_settings(dt)
+		self.world:emit("update_settings", dt)
 	elseif current_state == states.exit then
 		self.dissolve_ff:update(dt)
 	end

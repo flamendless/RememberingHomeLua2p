@@ -6,6 +6,7 @@ local Log = require("modules.log.log")
 local Keybinds = require("keybinds")
 local WindowMode = require("window_mode")
 
+local insert = table.insert
 local format = string.format
 local sub = string.sub
 
@@ -148,6 +149,18 @@ function Settings.update_keybindings(should_overwrite)
 	if should_overwrite then
 		Settings.overwrite()
 	end
+end
+
+local cached_gq = {}
+function Settings.get_gq_list()
+	if #cached_gq == 0 then
+		for k, v in pairs(graphics_quality) do
+			if type(v) == "string" then
+				insert(cached_gq, v)
+			end
+		end
+	end
+	return cached_gq
 end
 
 return Settings
