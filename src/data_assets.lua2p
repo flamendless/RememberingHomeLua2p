@@ -94,7 +94,7 @@ function Assets.clean(assets)
 
 	for k, t in pairs(assets) do
 		for name, obj in pairs(t) do
-			assets[k][name] = nil
+			assets[k][name]:release()
 			Log.trace(format("'%s':'%s' cleaned", k, name))
 		end
 	end

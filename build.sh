@@ -18,7 +18,7 @@ for e in "${meta_exclude_modules[@]}"; do
 	exclude_modules+=("--exclude=$e")
 done
 
-meta_exclude_assets=(android audio gallery icons _images media new_assets soundtracks textures)
+meta_exclude_assets=(android audio gallery icons _images media new_assets soundtracks)
 exclude_assets=()
 for e in "${meta_exclude_assets[@]}"; do
 	exclude_assets+=("--exclude=$e")
@@ -97,6 +97,7 @@ function rebuild()
 function run()
 {
 	echo "Running buid.sh"
+	process_src "$dir_source"
 	love "$dir_output"
 	echo "Completed buid.sh"
 }
