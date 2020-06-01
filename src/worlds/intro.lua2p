@@ -62,58 +62,6 @@ local dialogues = {
 	"Man! Things keep getting worse and wor--"
 }
 
-local generate_paint = function(e, duration, duration_out)
-	local world = e:getWorld()
-
-	local transform = e:get("transform")
-	local text = e:get("static_text").text
-	local font = e:get("font").font
-	local str_w = font:getWidth(text)
-	local str_h = font:getHeight(text)
-	local offset = 96
-	local text_pos = e:get("position").pos
-	local pos = vec2:new(text_pos.x + str_w/2, text_pos.y + str_h/2)
-	if transform then
-		pos.x = text_pos.x
-		pos.y = text_pos.y
-	end
-	local chance = Lume.randomchoice({true, false})
-	local sx = chance == true and -1 or 1
-
-	local paint = Concord.entity(world)
-		:assemble(Assemblages.Intro.bg_paint, paint_data, pos)
-		:give("auto_scale", str_w + offset, str_h + offset, false)
-		:give("transform", 0, sx, nil, 0.5, 0.5)
-		:give("color", {1, 1, 1, 0})
-
-	local color = paint:get("color")
-	Flux.to(color.color, duration, { [4] = 1 })
-		:oncomplete(function()
-			Flux.to(color.color, duration_out or duration, { [4] = 0 })
-				:oncomplete(function()
-					paint:destroy()
-				end)
-				:delay(1)
-		end)
-end
-
-local fade_text = function(e, duration, timeline)
-	local world = e:getWorld()
-	generate_paint(e, duration)
-
-	e:remove("hidden")
-	local color = e:get("color")
-	Flux.to(color.color, duration, { [4] = 1 })
-		:oncomplete(function()
-			Flux.to(color.color, duration, { [4] = 0 })
-				:oncomplete(function()
-					timeline:Unpause()
-					e:give("hidden")
-					e:destroy()
-				end)
-		end)
-end
-
 local duration_in = 3
 local duration_out = 2
 local show_dialogue
@@ -123,7 +71,7 @@ show_dialogue = function(timeline)
 	else
 		local e = e_dialogues[current_dialogue]
 		local world = e:getWorld()
-		generate_paint(e, duration_in, duration_out)
+		world:emit("generate_paint", e, duration_in, duration_out)
 
 		e:remove("hidden")
 		local color = e:get("color")
@@ -162,6 +110,7 @@ end
 
 function StateIntro:start()
 	self.world:addSystem(Systems.Color)
+	self.world:addSystem(Systems.IntroText)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RainIntro)
@@ -270,14 +219,15 @@ function StateIntro:start()
 			},
 		}, 256)
 
-	paint_data = {
-		spritesheet = assets.images.sheet_paint,
-		frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
-		delay = 0.1,
-		rows_count = 3,
-		columns_count = 7,
-		n_frames = 21
-	}
+	self.entities.paint_data = Concord.entity(self.world)
+		:give("text_paint_data", {
+			spritesheet = assets.images.sheet_paint,
+			frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
+			delay = 0.1,
+			rows_count = 3,
+			columns_count = 7,
+			n_frames = 21
+		})
 
 	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
@@ -341,7 +291,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		local fade_duration = 4
-		fade_text(self.entities.intro_txt1, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt1, fade_duration, self.timeline)
 		self.timeline:Pause()
 
 		local cx, cy = self.camera:getPosition()
@@ -349,7 +299,7 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 160, y = cy - 32 })
 		Flux.to(car_pos, 5, { x = 128 })
 
-		fade_text(self.entities.intro_txt2, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt2, fade_duration, self.timeline)
 		self.timeline:Pause()
 
 		local cx, cy = self.camera:getPosition()
@@ -360,11 +310,13 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 72, y = cy - 32 })
 		Flux.to(car_pos, 3, { x = 160 })
 
-		fade_text(self.entities.intro_txt3, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt3, fade_duration, self.timeline)
 		self.timeline:Pause()
 
-		fade_text(self.entities.intro_txt4, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt4, fade_duration, self.timeline)
 		self.timeline:Pause()
+
+		update_rain(1)
 
 		effect.status = 3
 		current_effect = effect.multi2
