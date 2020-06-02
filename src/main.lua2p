@@ -1,8 +1,7 @@
 --[[
 Project: Going Home: Revisited
 Author: Brandon Blanker Lim-it @flamendless
-Start Date: Mon Jan  7 15:28:53 PST 2019
-Start Date (major refactor): Tue Mar 17 18:42:00 PST 2020
+Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
 
 !if not _RELEASE then
