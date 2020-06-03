@@ -13,9 +13,9 @@ local keys = {
 	font = "newFont",
 }
 
-function Preloader.start(assets, container, oncomplete)
+function Preloader.start(resources, container, oncomplete)
 	!if _ASSERT then
-	Assert.should_table(assets)
+	Assert.should_table(resources)
 	Assert.should_table(container)
 	Assert.should_function(oncomplete)
 	!end
@@ -26,7 +26,7 @@ function Preloader.start(assets, container, oncomplete)
 	local cache = {}
 	Preloader.percent = 0
 
-	for kind, t in pairs(assets) do
+	for kind, t in pairs(resources) do
 		for j = 1, #t do
 			local id = t[j][1]
 			local path = t[j][2]

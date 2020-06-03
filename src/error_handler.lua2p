@@ -76,9 +76,9 @@ function ErrorHandler.callback(msg)
 	love.graphics.reset()
 	-- font = love.graphics.setNewFont(12)
 	!if not _RELEASE then
-	font = love.graphics.newFont("assets/fonts/DigitalDisco.ttf", 16)
+	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 16)
 	!else
-	font = love.graphics.newFont("assets/fonts/DigitalDisco.ttf", 24)
+	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 24)
 	!end
 	font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 	love.graphics.setFont(font)

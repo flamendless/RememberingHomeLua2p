@@ -3,7 +3,7 @@
 dir_fonts=scripts/fonts
 dir_fonts_output=scripts/output
 dir_fonts_final=scripts/final
-dir_fonts_target=assets/fonts
+dir_fonts_target=res/fonts
 fonts=(Jamboree DigitalDisco-Thin DigitalDisco Firefly Jamboree Luna Pixeled tiny uncle_type)
 fonts_texture_size="1024,1024"
 

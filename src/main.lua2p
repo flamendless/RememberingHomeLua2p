@@ -45,7 +45,7 @@ local TLE = require("modules.tle.timeline")
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
 
-local font_preload = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
+local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 local custom_loading_screen = function()
 	love.graphics.setColor(0, 0, 0, 0.5)

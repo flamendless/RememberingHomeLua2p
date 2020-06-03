@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 local Player = {}
 
-function Player.base(e, pos, collider, speed_data, gravity, assets)
+function Player.base(e, pos, collider, speed_data, gravity, resources)
 	e:give("position", pos)
 	:give("collider", collider)
 	:give("bump")
@@ -15,8 +15,8 @@ function Player.base(e, pos, collider, speed_data, gravity, assets)
 	:give("multiple_animation_data", "idle",
 		{
 			idle = {
-				-- spritesheet = assets.images.sheet_player_idle,
-				spritesheet = assets.sheet_idle,
+				-- spritesheet = resources.images.sheet_player_idle,
+				spritesheet = resources.sheet_idle,
 				frames = {"1-5", 1, "1-5", 2},
 				delay = 0.1,
 				rows_count = 2,
@@ -24,8 +24,8 @@ function Player.base(e, pos, collider, speed_data, gravity, assets)
 				n_frames = 10,
 			},
 			walk = {
-				-- spritesheet = assets.images.sheet_player_walk,
-				spritesheet = assets.sheet_walk,
+				-- spritesheet = resources.images.sheet_player_walk,
+				spritesheet = resources.sheet_walk,
 				frames = {"1-4", 1, "1-4", 2},
 				delay = 0.1,
 				rows_count = 2,
@@ -33,8 +33,8 @@ function Player.base(e, pos, collider, speed_data, gravity, assets)
 				n_frames = 8,
 			},
 			run = {
-				-- spritesheet = assets.images.sheet_player_run,
-				spritesheet = assets.sheet_run,
+				-- spritesheet = resources.images.sheet_player_run,
+				spritesheet = resources.sheet_run,
 				frames = {"1-6", 1},
 				delay = 0.1,
 				rows_count = 1,
