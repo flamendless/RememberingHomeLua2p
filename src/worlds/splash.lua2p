@@ -9,7 +9,7 @@ local Timer = require("modules.hump.timer")
 local floor = math.floor
 local min = math.min
 
-local Assets = require("data_assets")
+local Resources = require("resources")
 local Keybinds = require("keybinds")
 local Fade = require("fade")
 local Palette = require("palette")
@@ -34,7 +34,7 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local assets = { images = {}, fonts = {} }
+local resources = { images = {}, fonts = {} }
 
 local states = Enum("splash_love", "splash_wits", "splash_flam")
 local current_state = states.splash_love
@@ -71,8 +71,8 @@ end
 
 function StateSplash:load()
 	Log.info("State Load: ", self.id)
-	local assets_data = Assets:getData("splash")
-	Preloader.start(assets_data, assets,
+	local resources_data = Resources:getData("splash")
+	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true
 			self:start()
@@ -108,7 +108,7 @@ function StateSplash:start()
 	self.entities.splash_wits = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
 			{
-				spritesheet = assets.images.sheet_wits,
+				spritesheet = resources.images.sheet_wits,
 				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, },
 				delay = 0.15,
 				rows_count = 4,
@@ -131,7 +131,7 @@ function StateSplash:start()
 			end)
 		end, "pauseAtEnd")
 
-	local font = assets.fonts.firefly_256
+	local font = resources.fonts.firefly_256
 	self.entities.ghost_effect = Concord.entity(self.world)
 		:give("random_text", "flamendless")
 		:give("font", font)
@@ -152,7 +152,7 @@ function StateSplash:start()
 		:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight() * 0.3))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
-		:give("font", assets.fonts.uncle_type_32)
+		:give("font", resources.fonts.uncle_type_32)
 		:give("typewriter", "a game by", 0.4)
 		:give("typewriter_on_finish", function()
 			switch(self.gamestate)
@@ -160,7 +160,7 @@ function StateSplash:start()
 
 	if Settings.current.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, assets.fonts.ui, vec2:new(ww/2, wh - 8))
+			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
 	end
 end
 
@@ -212,7 +212,7 @@ function StateSplash:keypressed(key)
 end
 
 function StateSplash:exit()
-	Assets.clean(assets)
+	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end

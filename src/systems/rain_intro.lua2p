@@ -32,10 +32,6 @@ function RainIntro:init(world)
 end
 
 function RainIntro:emit_rain(amount, max_amount)
-	!if _ASSERT then
-	Assert.should_exists(self.data)
-	!end
-
 	if (#self.pool_drop_tilted > max_amount) or (amount > #self.pool_empty) then
 		return
 	end

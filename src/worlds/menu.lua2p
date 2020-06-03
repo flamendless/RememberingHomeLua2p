@@ -15,7 +15,7 @@ local upper = string.upper
 local gsub = string.gsub
 local insert = table.insert
 
-local Assets = require("data_assets")
+local Resources = require("resources")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
 local Image = require("image")
@@ -48,7 +48,7 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local assets = { images = {}, sources = {}, fonts = {} }
+local resources = { images = {}, sources = {}, fonts = {} }
 
 local states = Enum("menu", "play", "settings", "about", "exit")
 local current_state = states.menu
@@ -171,7 +171,7 @@ function StateMenu:turn_off_lamp()
 	self.entities.desk_fast = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
 			{
-				spritesheet = assets.images.sheet_desk,
+				spritesheet = resources.images.sheet_desk,
 				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
 				delay = 0.001,
 				rows_count = 3,
@@ -242,10 +242,10 @@ end
 function StateMenu:setup_menu()
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
-	local bg_door = assets.images.bg_door
-	local bg_hallway = assets.images.bg_hallway
-	local title = assets.images.title
-	local subtitle = assets.images.subtitle
+	local bg_door = resources.images.bg_door
+	local bg_hallway = resources.images.bg_hallway
+	local title = resources.images.title
+	local subtitle = resources.images.subtitle
 
 	local scale = min(ww/bg_door:getWidth(), wh/bg_door:getHeight())
 	local scale_hallway = min(ww/bg_hallway:getWidth(), wh/bg_hallway:getHeight())
@@ -266,7 +266,7 @@ function StateMenu:setup_menu()
 	self.entities.desk = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
 			{
-				spritesheet = assets.images.sheet_desk,
+				spritesheet = resources.images.sheet_desk,
 				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
 				durations = { 1, 0.1, 1, 0.1, 0.1, 0.1, 1  },
 				rows_count = 3,
@@ -291,8 +291,8 @@ function StateMenu:setup_menu()
 		:give("color", {1, 1, 1, 0.4})
 		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
-	local sdf_menu = love.graphics.newFontMSDF("assets/fonts/Jamboree.fnt", "assets/fonts/Jamboree.png")
-	local font_menu = assets.fonts.menu
+	local sdf_menu = love.graphics.newFontMSDF("resources/fonts/Jamboree.fnt", "resources/fonts/Jamboree.png")
+	local font_menu = resources.fonts.menu
 	local str_target_h = font_menu:getHeight()
 	local str_h = sdf_menu:getHeight()
 	local scale = str_target_h/str_h * 0.75
@@ -339,7 +339,7 @@ end
 
 local function generate_about()
 	local t = {
-		{ upper(!(_GAME_TITLE)), assets.fonts.about_64, 12},
+		{ upper(!(_GAME_TITLE)), resources.fonts.about_64, 12},
 		{ "A Game By:" },
 		{ "Brandon Blanker Lim-it @flamendless" },
 		{ "Arts By:" },
@@ -371,7 +371,7 @@ local function generate_about()
 	insert(t, { "" })
 	insert(t, { "SPECIAL THANKS to the people at the Löve Discord server:" })
 	insert(t, { "" })
-	insert(t, { assets.images.twitter, assets.images.website, assets.images.mail })
+	insert(t, { resources.images.twitter, resources.images.website, resources.images.mail })
 
 	return t
 end
@@ -381,7 +381,7 @@ function StateMenu:setup_about()
 	local about_links = { !(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL), }
 
 	local l, t, w, h = self.camera:getVisible()
-	local font_about = assets.fonts.about_24
+	local font_about = resources.fonts.about_24
 	local base_x = w/2
 	local base_y = h + 16
 	local layout = false
@@ -468,8 +468,8 @@ end
 
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
-	local assets_data = Assets:getData("menu")
-	Preloader.start(assets_data, assets,
+	local resources_data = Resources:getData("menu")
+	Preloader.start(resources_data, resources,
 		function()
 			--TODO play BGM
 			self.is_ready = true
@@ -487,7 +487,7 @@ function StateMenu:start()
 	self.canvas_main = self.canvases.main_canvas
 	self.mb_main = MotionBlur:new(self.canvas_main)
 
-	local img_ff = Image.resize_image(assets.images.flowfield)
+	local img_ff = Image.resize_image(resources.images.flowfield)
 	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self.world:addSystem(Systems.Animation)
@@ -667,7 +667,7 @@ function StateMenu:MB_return()
 end
 
 function StateMenu:exit()
-	Assets.clean(assets)
+	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end

@@ -8,9 +8,16 @@ temp.glsl
 scripts/output
 scripts/final
 scripts/fonts
-assets/new_assets
 love-windows_*
 makelove-build
 release
 temp
 Slab.ini
+res/new_assets
+res/_images
+res/android
+res/audio
+res/gallery
+res/icons
+res/media
+res/soundtracks

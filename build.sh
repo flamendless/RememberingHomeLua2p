@@ -5,7 +5,7 @@ lpp_path=./luapreprocess/preprocess-cl.lua
 handler=handler_dev.lua
 
 dir_modules=modules
-dir_assets=assets
+dir_res=res
 dir_output=output
 dir_source=src
 
@@ -18,10 +18,10 @@ for e in "${meta_exclude_modules[@]}"; do
 	exclude_modules+=("--exclude=$e")
 done
 
-meta_exclude_assets=(android audio gallery icons _images media new_assets soundtracks)
-exclude_assets=()
-for e in "${meta_exclude_assets[@]}"; do
-	exclude_assets+=("--exclude=$e")
+meta_exclude_res=(android audio gallery icons _images media new_assets soundtracks)
+exclude_res=()
+for e in "${meta_exclude_res[@]}"; do
+	exclude_res+=("--exclude=$e")
 done
 
 function create_output_dir()
@@ -65,9 +65,9 @@ function copy_modules()
 	rsync -av --progress "$dir_modules" "$dir_output" "${exclude_modules[@]}"
 }
 
-function copy_assets()
+function copy_res()
 {
-	rsync -av --progress "$dir_assets" "$dir_output" "${exclude_assets[@]}"
+	rsync -av --progress "$dir_res" "$dir_output" "${exclude_res[@]}"
 }
 
 function clean()
@@ -85,7 +85,7 @@ function init()
 	create_output_dir
 	process_src "$dir_source"
 	copy_modules
-	copy_assets
+	copy_res
 }
 
 function rebuild()

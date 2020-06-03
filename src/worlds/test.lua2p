@@ -4,7 +4,7 @@ local Gamera = require("modules.gamera.gamera")
 local StateTest = class()
 StateTest.id = "Test"
 
-local Assets = require("data_assets")
+local Resources = require("resources")
 local Preloader = require("preloader")
 
 local Components = {}
@@ -21,14 +21,14 @@ local Assemblages = {
 	Player = require("assemblages.player")
 }
 
-local assets_data = {
+local resources_data = {
 	image = {
-		{ "sheet_player_idle", "assets/images/player/player_idle.png" },
-		{ "sheet_player_walk", "assets/images/player/player_walk.png" },
-		{ "sheet_player_run", "assets/images/player/player_run.png" },
+		{ "sheet_player_idle", "resources/images/player/player_idle.png" },
+		{ "sheet_player_walk", "resources/images/player/player_walk.png" },
+		{ "sheet_player_run", "resources/images/player/player_run.png" },
 	},
 }
-local assets = { images = {} }
+local resources = { images = {} }
 local scale = 1
 
 function StateTest:new()
@@ -41,7 +41,7 @@ function StateTest:new()
 end
 
 function StateTest:load()
-	Preloader.start(assets_data, assets,
+	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true
 			self:start()
@@ -87,9 +87,9 @@ function StateTest:start()
 			vec2:new(512, 256), vec2:new(64, 64),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
-				sheet_idle = assets.images.sheet_player_idle,
-				sheet_walk = assets.images.sheet_player_walk,
-				sheet_run = assets.images.sheet_player_run,
+				sheet_idle = resources.images.sheet_player_idle,
+				sheet_walk = resources.images.sheet_player_walk,
+				sheet_run = resources.images.sheet_player_run,
 			})
 
 	self.test_rect = Concord.entity(self.world)
@@ -129,7 +129,7 @@ function StateTest:draw()
 end
 
 function StateTest:exit()
-	Assets.clean(assets)
+	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
