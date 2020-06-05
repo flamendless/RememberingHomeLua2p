@@ -1,5 +1,4 @@
 name = "Going Home: Revisited"
-default_targets = ["win32", "appimage"]
 build_directory = "../release"
 love_files = ["./*"]
 
