@@ -4,6 +4,7 @@ local RainIntro = Concord.system({
 	pool_empty = {"empty_rain"},
 	pool_data_tilted = {"rain_data", "rain_tilted", "screen_size"},
 	pool_drop_tilted = { "rain_drop", "rain_tilted", "position", "acceleration", "collider_circle"},
+	pool_splash_tilted = {"rain_splash", "rain_tilted", "position"},
 })
 
 local Intro = require("assemblages.intro")
@@ -20,8 +21,9 @@ function RainIntro:init(world)
 		local rain_data = e:get("rain_data")
 		local screen_size = e:get("screen_size")
 		self.data = rain_data.data
+		self.scroll_speed = rain_data.data.scroll_speed
 		self.metadata = rain_data.data.metadata
-		self.max_width = screen_size.width
+		self.max_width = screen_size.width * 1.5
 		self.max_height = screen_size.height
 
 		for i = 1, rain_data.buffer do
@@ -37,20 +39,21 @@ function RainIntro:emit_rain(amount, max_amount)
 	end
 
 	local drop = self.data.drop
-	for i = 1, amount do
+	local random_amount = love.math.random(amount/2, amount * 1.5)
+	for i = 1, random_amount do
 		local r = love.math.random(1, #drop)
 		local img = drop[r]
 		local x = love.math.random(1, self.max_width)
-		local pos = vec2:new(x, -32)
+		local pos = vec2:new(x, -64)
 		local anim_data = {}
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
-		local ax = love.math.random(128, 360)
-		local ay = love.math.random(128, 360)
+		local ax = love.math.random(320, 640)
+		local ay = love.math.random(320, 640)
 		local accel = vec2:new(-ax, ay)
 		local alpha = love.math.random(0, 100)/100
-		local scale = love.math.random(50, 100)/100
-		local z = love.math.random(1, 8)
+		local z = love.math.random(1, 10)
+		local scale = love.math.random(20, 70)/100 + (z/10)
 
 		local e = self.pool_empty[i]
 			:give("animation_data", anim_data)
@@ -96,6 +99,7 @@ function RainIntro:update(dt)
 		local pos = e:get("position").pos
 		local accel = e:get("acceleration").accel
 		local col = e:get("collider_circle")
+		local z_index = e:get("z_index").z
 
 		local dx = pos.x + accel.x * dt
 		local dy = pos.y + accel.y * dt
@@ -104,11 +108,19 @@ function RainIntro:update(dt)
 
 		self.world:emit("check_collision", e)
 
-		if col.is_hit or (pos.y > self.max_height) then
+		if (z_index < 9 and col.is_hit) or (pos.y > self.max_height) then
 			e:remove("rain_drop")
-			e:remove("acceleration")
+			:remove("acceleration")
 			self:emit_splash(e)
 		end
+	end
+
+	for _, e in ipairs(self.pool_splash_tilted) do
+		local pos = e:get("position").pos
+
+		local dx = pos.x + self.scroll_speed * dt
+
+		pos.x = dx
 	end
 end
 

@@ -18,8 +18,10 @@ local stats = {}
 local cam_speed = 256
 
 function Dev.init(id, world)
+	!if _ASSERT then
 	Assert.should_string(id)
 	Assert.should_world(world)
+	!end
 
 	Dev.id = id
 	Dev.world = world
@@ -100,7 +102,9 @@ function Dev.keypressed(key)
 end
 
 function Dev.setScale(scale)
+	!if _ASSERT then
 	Assert.should_number(scale)
+	!end
 	Dev.scale = scale
 end
 

@@ -15,6 +15,7 @@ Concord.component("tree_data", function(c, data)
 	Assert.should_number(data.z_index)
 	Assert.should_number(data.max_width)
 	Assert.should_vec2(data.parallax)
+	Assert.should_table(data.chance)
 	Assert.safe_should_number(data.offset_y)
 	!end
 
