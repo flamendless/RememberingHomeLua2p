@@ -23,9 +23,9 @@ local Assemblages = {
 
 local resources_data = {
 	image = {
-		{ "sheet_player_idle", "resources/images/player/player_idle.png" },
-		{ "sheet_player_walk", "resources/images/player/player_walk.png" },
-		{ "sheet_player_run", "resources/images/player/player_run.png" },
+		{ "sheet_player_idle", "res/images/player/player_idle.png" },
+		{ "sheet_player_walk", "res/images/player/player_walk.png" },
+		{ "sheet_player_run", "res/images/player/player_run.png" },
 	},
 }
 local resources = { images = {} }
