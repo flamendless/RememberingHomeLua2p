@@ -70,8 +70,8 @@ local duration_pos = 0.75
 local tx = 176
 
 local tools = {
-	"Löve Framework", "Vim", "Trello", "Aseprite", "Audacity",
-	"Brave Browser", "Manjaro", "i3-Gaps",
+	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",
+	"Vim", "Trello", "Aseprite", "Audacity",
 }
 
 local libs = {
@@ -671,6 +671,9 @@ function StateMenu:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	current_state = states.menu
+	is_sub_menu = false
+	is_transition = false
 end
 
 return StateMenu

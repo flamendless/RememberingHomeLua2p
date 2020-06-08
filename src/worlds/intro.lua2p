@@ -10,12 +10,12 @@ local floor = math.floor
 local min = math.min
 local sub = string.sub
 
-local Resources = require("resources")
-local Info = require("info")
+local Dialogues = require("dialogues")
 local Fade = require("fade")
 local Keybinds = require("keybinds")
 local NGrading = require("ngrading")
 local Preloader = require("preloader")
+local Resources = require("resources")
 local Settings = require("settings")
 
 local StateIntro = class()
@@ -67,17 +67,7 @@ end
 
 local current_dialogue = 1
 local e_dialogues = {}
-local dialogues = {
-	"Hey, latest reports came in a few minutes ago.",
-	"Apparently another case occured.",
-	"This one's more disturbing.",
-	"Anyways, I know you are on the road.",
-	"I'll send the files over as soon as them",
-	"investigators are done in the crime scene.",
-	"I know you're on the road so umm,",
-	"make sure to check it when you got home okay?",
-	"Man! Things keep getting worse and wor--"
-}
+local dialogues = Dialogues.get("intro_rain")
 
 local duration_in = 3
 local duration_out = 2
@@ -459,7 +449,6 @@ function StateIntro:exit()
 	effect.dt2 = 0
 	effect.status = 1
 	current_effect = nil
-	paint_data = nil
 	current_dialogue = 1
 	is_raining = false
 	current_rain = rain_amount[1][1]
