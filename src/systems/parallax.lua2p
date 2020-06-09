@@ -38,20 +38,24 @@ end
 
 function Parallax:parallax_move_x(dt, dir)
 	for _, e in ipairs(self.pool) do
-		local parallax = e:get("parallax")
-		local quad = e:get("quad")
+		if not e:has("parallax_stop") then
+			local parallax = e:get("parallax")
+			local quad = e:get("quad")
 
-		local x, y, w, h = quad.quad:getViewport()
-		x = x + parallax.speed.x * dir * dt
-		quad.quad:setViewport(x, y, w, h)
+			local x, y, w, h = quad.quad:getViewport()
+			x = x + parallax.speed.x * dir * dt
+			quad.quad:setViewport(x, y, w, h)
+		end
 	end
 
 	for _, e in ipairs(self.pool_tree) do
-		local pos = e:get("position").pos
-		local parallax = e:get("parallax")
-		local x = pos.x
-		x = x + parallax.speed.x * dir * dt
-		pos.x = x
+		if not e:has("parallax_stop") then
+			local pos = e:get("position").pos
+			local parallax = e:get("parallax")
+			local x = pos.x
+			x = x + parallax.speed.x * dir * dt
+			pos.x = x
+		end
 	end
 end
 

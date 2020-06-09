@@ -42,6 +42,7 @@ Resources.data.intro = {
 	image = {
 		{ "bg", "res/images/intro/bg.png" },
 		{ "bg_post", "res/images/intro/bg_post.png" },
+		{ "bg_trees0", "res/images/intro/bg_trees0.png" },
 		{ "bg_trees1", "res/images/intro/bg_trees1.png" },
 		{ "bg_trees2", "res/images/intro/bg_trees2.png" },
 		{ "bg_trees3", "res/images/intro/bg_trees3.png" },

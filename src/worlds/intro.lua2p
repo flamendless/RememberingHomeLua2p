@@ -34,6 +34,7 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	IntroText = require("systems.intro_text"),
 	Transform = require("systems.transform"),
+	Move = require("systems.move"),
 }
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -125,6 +126,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Collision)
 
 	local ww, wh = love.graphics.getDimensions()
@@ -152,6 +154,13 @@ function StateIntro:start()
 
 	self.entities.bg_trees1 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees1, ww * 2 , "bg_trees1")
+
+	self.entities.bg_trees0 = Concord.entity(self.world)
+		:give("sprite", resources.images.bg_trees0)
+		:give("position", vec2:new(0, 0))
+		:give("attach_to", self.entities.bg_trees1)
+		:give("z_index", 5)
+		:give("bg_tree", true)
 
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.parallax_road, ww * 2, "road")
@@ -243,6 +252,7 @@ function StateIntro:start()
 			n_frames = 21
 		})
 
+	self.world:emit("validate_tree", self.entities.fg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
 	local lut_size
@@ -314,6 +324,9 @@ function StateIntro:start()
 
 		self.world:emit("fade_text", self.entities.intro_txt2, fade_duration, self.timeline)
 		self.timeline:Pause()
+
+		--Enter forest
+		self.world:emit("start_bg_trees", 3)
 
 		local cx, cy = self.camera:getPosition()
 		effect.status = 2
@@ -388,7 +401,7 @@ function StateIntro:start()
 		end, fade_out_duration)
 	end)
 
-	self.timeline:Pause()
+	-- self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)

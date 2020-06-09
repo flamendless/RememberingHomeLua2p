@@ -6,6 +6,7 @@ local max = math.max
 
 local RandomTree = Concord.system({
 	pool_data = {"tree_data"},
+	pool_bg_tree = {"bg_tree", "position"},
 	pool_tree = {"tree", "position", "sprite"}
 })
 local Assemblages = {
@@ -38,6 +39,28 @@ function RandomTree:init()
 		}
 		self:computer_max_n(self.data[i])
 	end
+end
+
+function RandomTree:start_bg_trees(dur)
+	for _, e in ipairs(self.pool_bg_tree) do
+		local bg_tree = e:get("bg_tree")
+		e:give("move_to_x", 0, dur)
+			:give("move_on_complete", function()
+				e:remove("parallax_stop")
+			end)
+
+		if bg_tree.is_cover then
+			e:destroy()
+		end
+	end
+end
+
+function RandomTree:validate_tree(e)
+	!if _ASSERT then
+	local index = self.data_map:map(e)
+	local data = self.data[index]
+	Assert.should_table(data)
+	!end
 end
 
 function RandomTree:generate_tree(e)
