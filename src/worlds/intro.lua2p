@@ -156,11 +156,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees1, ww * 2 , "bg_trees1")
 
 	self.entities.bg_trees0 = Concord.entity(self.world)
-		:give("sprite", resources.images.bg_trees0)
-		:give("position", vec2:new(0, 0))
-		:give("attach_to", self.entities.bg_trees1)
-		:give("z_index", 5)
-		:give("bg_tree", true)
+		:assemble(Assemblages.Intro.bg_tree_cover, resources.images.bg_trees0)
 
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.parallax_road, ww * 2, "road")
@@ -401,7 +397,7 @@ function StateIntro:start()
 		end, fade_out_duration)
 	end)
 
-	-- self.timeline:Pause()
+	self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)

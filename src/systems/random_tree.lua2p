@@ -47,11 +47,10 @@ function RandomTree:start_bg_trees(dur)
 		e:give("move_to_x", 0, dur)
 			:give("move_on_complete", function()
 				e:remove("parallax_stop")
+				if bg_tree.is_cover then
+					e:destroy()
+				end
 			end)
-
-		if bg_tree.is_cover then
-			e:destroy()
-		end
 	end
 end
 

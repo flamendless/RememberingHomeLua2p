@@ -24,13 +24,14 @@ local z_index = {
 	bg_trees3 = 3,
 	bg_trees2 = 4,
 	bg_trees1 = 5,
-	grass_front = 6,
-	road = 7,
-	post = 8,
-	grass1 = 9,
-	car = 10,
-	fg_tree = 11,
-	grass2 = 12,
+	bg_trees0 = 6,
+	grass_front = 7,
+	road = 8,
+	post = 9,
+	grass1 = 10,
+	car = 11,
+	fg_tree = 12,
+	grass2 = 13,
 }
 
 function Intro.parallax(e, sprite, quad_width, tag)
@@ -57,6 +58,14 @@ function Intro.parallax(e, sprite, quad_width, tag)
 	:give("position", vec2:new(x, y))
 	:give("parallax", vec2:new(speed[tag], 0))
 	:give("z_index", z_index[tag])
+end
+
+function Intro.bg_tree_cover(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(love.graphics.getWidth(), 90))
+	:give("transform", 0, 1, 1, sprite:getWidth()/2)
+	:give("z_index", z_index.bg_trees0)
+	:give("bg_tree", true)
 end
 
 function Intro.fg_tree_data(e, images, max_width)
