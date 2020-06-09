@@ -42,9 +42,9 @@ Resources.data.intro = {
 	image = {
 		{ "bg", "res/images/intro/bg.png" },
 		{ "bg_post", "res/images/intro/bg_post.png" },
-		{ "bg_tree1", "res/images/intro/bg_tree1.png" },
-		{ "bg_tree2", "res/images/intro/bg_tree2.png" },
-		{ "bg_tree3", "res/images/intro/bg_tree3.png" },
+		{ "bg_trees1", "res/images/intro/bg_trees1.png" },
+		{ "bg_trees2", "res/images/intro/bg_trees2.png" },
+		{ "bg_trees3", "res/images/intro/bg_trees3.png" },
 		{ "fg_tree1", "res/images/intro/fg_tree1.png" },
 		{ "fg_tree2", "res/images/intro/fg_tree2.png" },
 		{ "parallax_buildings", "res/images/intro/parallax_buildings.png" },

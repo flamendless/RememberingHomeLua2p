@@ -144,6 +144,15 @@ function StateIntro:start()
 	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.parallax_buildings, ww * 2, "building")
 
+	self.entities.bg_trees3 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees3, ww * 2 , "bg_trees3")
+
+	self.entities.bg_trees2 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees2, ww * 2 , "bg_trees2")
+
+	self.entities.bg_trees1 = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees1, ww * 2 , "bg_trees1")
+
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.parallax_road, ww * 2, "road")
 		:give("collider", vec2:new(ww, 64), vec2:new(0, 354))
@@ -192,9 +201,6 @@ function StateIntro:start()
 			end
 		end)
 
-	self.entities.bg_tree_data = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.bg_tree_data, {resources.images.bg_tree1, resources.images.bg_tree2, resources.images.bg_tree3}, w * 2)
-
 	self.entities.fg_tree_data = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.fg_tree_data, {resources.images.fg_tree1, resources.images.fg_tree2}, w)
 
@@ -237,7 +243,6 @@ function StateIntro:start()
 			n_frames = 21
 		})
 
-	self.world:emit("generate_tree", self.entities.bg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
 	local lut_size
@@ -382,6 +387,8 @@ function StateIntro:start()
 			self.gamestate:switch("MainGame")
 		end, fade_out_duration)
 	end)
+
+	self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)

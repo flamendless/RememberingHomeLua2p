@@ -12,21 +12,25 @@ local speed = {
 	grass2 = 656,
 	grass_back = 48,
 	grass_front = 496,
-	bg_tree = -256,
+	bg_trees1 = -256,
+	bg_trees2 = -224,
+	bg_trees3 = -192,
 	fg_tree = -672,
 }
 
 local z_index = {
 	building = 1,
 	grass_back = 2,
-	bg_tree = 3,
-	grass_front = 4,
-	road = 5,
-	post = 6,
-	grass1 = 7,
-	car = 8,
-	fg_tree = 9,
-	grass2 = 10,
+	bg_trees3 = 3,
+	bg_trees2 = 4,
+	bg_trees1 = 5,
+	grass_front = 6,
+	road = 7,
+	post = 8,
+	grass1 = 9,
+	car = 10,
+	fg_tree = 11,
+	grass2 = 12,
 }
 
 function Intro.parallax(e, sprite, quad_width, tag)
@@ -43,16 +47,6 @@ function Intro.parallax(e, sprite, quad_width, tag)
 	:give("position", vec2:new(0, 0))
 	:give("parallax", vec2:new(speed[tag], 0))
 	:give("z_index", z_index[tag])
-end
-
-function Intro.bg_tree_data(e, images, max_width)
-	e:give("tree_data", {
-		images = images,
-		max_width = max_width,
-		parallax = vec2:new(speed.bg_tree, 0),
-		z_index = z_index.bg_tree,
-		chance = { yes = 0.4, no = 0.6 },
-	})
 end
 
 function Intro.fg_tree_data(e, images, max_width)
