@@ -36,7 +36,7 @@ end)
 
 Concord.component("move_on_complete", function(c, callback)
 	!if _ASSERT then
-	Assert.should_funciton(callback)
+	Assert.should_function(callback)
 	!end
 
 	c.callback = callback

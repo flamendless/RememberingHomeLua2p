@@ -30,12 +30,17 @@ function Move:init()
 	self.pool_move_x.onEntityAdded = function(pool, e)
 		local pos = e:get("position")
 		local target = e:get("move_to_x")
+		local on_complete = e:get("move_on_complete")
 
 		local f = Flux.to(pos.pos, target.duration, {
 				x = target.target_x,
 			})
 		:delay(target.delay)
 		:oncomplete(function()
+			if on_complete then
+				on_complete.callback()
+				e:remove("move_on_complete")
+			end
 			e:remove("move_to_x")
 		end)
 	end
