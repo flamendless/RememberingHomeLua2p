@@ -16,9 +16,12 @@ local Systems = {
 	Controller = require("systems.controller"),
 	Movement = require("systems.movement"),
 	RenderSprite = require("systems.render_sprite"),
+	Item = require("systems.item"),
 }
+
 local Assemblages = {
-	Player = require("assemblages.player")
+	Common = require("assemblages.common"),
+	Player = require("assemblages.player"),
 }
 
 local resources_data = {
@@ -59,38 +62,45 @@ function StateTest:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.Collision)
+	self.world:addSystem(Systems.Item)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
 		:give("collider", vec2:new(512, 128))
 		:give("bump")
-		:give("body", "static")
+		:give("body")
 		:give("debug_slab", "ground")
 
 	local left_wall = Concord.entity(self.world)
 		:give("position", vec2:new(230, 284))
 		:give("collider", vec2:new(64, 128))
 		:give("bump")
-		:give("body", "static")
+		:give("body")
 		:give("debug_slab", "left_wall")
 
 	local right_wall = Concord.entity(self.world)
-		:give("position", vec2:new(256+512, 284))
+		:give("position", vec2:new(768, 284))
 		:give("collider", vec2:new(64, 128))
 		:give("bump")
-		:give("body", "static")
+		:give("body")
 		:give("debug_slab", "right_wall")
 
+	self.item1 = Concord.entity(self.world)
+		:assemble(Assemblages.Common.item, "item1", vec2:new(512, 360), vec2:new(32, 32))
+
+	self.item2 = Concord.entity(self.world)
+		:assemble(Assemblages.Common.item, "item2", vec2:new(560, 360), vec2:new(32, 32))
+
 	self.player = Concord.entity(self.world)
-		:give("debug_slab", "player")
 		:assemble(Assemblages.Player.base,
-			vec2:new(512, 256), vec2:new(64, 64),
+			vec2:new(496, 256), vec2:new(64, 64),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
 				sheet_idle = resources.images.sheet_player_idle,
 				sheet_walk = resources.images.sheet_player_walk,
 				sheet_run = resources.images.sheet_player_run,
 			})
+		:give("debug_slab", "player")
 
 	self.test_rect = Concord.entity(self.world)
 		:give("position", vec2:new(512, 128))
@@ -126,6 +136,11 @@ function StateTest:draw()
 		love.graphics.circle("fill", l, t, 16)
 		love.graphics.circle("fill", w, h, 16)
 	end)
+end
+
+function StateTest:keypressed(key)
+	if not self.is_ready then return end
+	self.world:emit("keypressed", key)
 end
 
 function StateTest:exit()

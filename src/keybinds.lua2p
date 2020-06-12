@@ -21,6 +21,7 @@ Keybinds.ui = {
 Keybinds.player = {
 	move_left = { "a" },
 	move_right = { "d" },
+	interact = { "e" },
 }
 
 Keybinds.ui_default = {}
@@ -60,6 +61,20 @@ function Keybinds.pressed_ui(ui_key, key)
 	!end
 
 	for i, k in ipairs(keys[ui_key]) do
+		if k == key then
+			return true
+		end
+	end
+	return false
+end
+
+function Keybinds.pressed_player(key, p)
+	local keys = Keybinds.player
+	!if _ASSERT then
+	Assert.should_exists(keys[p])
+	!end
+
+	for i, k in ipairs(keys[p]) do
 		if k == key then
 			return true
 		end
