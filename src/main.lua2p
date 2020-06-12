@@ -47,6 +47,7 @@ local this_semver = Semver(this_version)
 
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+
 local custom_loading_screen = function()
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
@@ -56,9 +57,7 @@ local custom_loading_screen = function()
 	local oy = font_preload:getHeight(str_loading)/2
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setFont(font_preload)
-	love.graphics.print(str_loading,
-		love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75,
-		0, 1, 1, ox, oy)
+	love.graphics.print(str_loading, love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75, 0, 1, 1, ox, oy)
 end
 
 function love.load()
@@ -80,7 +79,8 @@ function love.load()
 	!if _RELEASE then
 	GameStates:switch("Splash")
 	!else
-	GameStates:switch("Intro")
+	-- GameStates:switch("Intro")
+	GameStates:switch("Test")
 	!end
 end
 

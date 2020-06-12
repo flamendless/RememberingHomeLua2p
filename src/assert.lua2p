@@ -262,6 +262,14 @@ function Assert.safe_should_number(arg)
 	return false
 end
 
+function Assert.safe_should_string(arg)
+	if arg then
+		Assert.should_string(arg)
+		return true
+	end
+	return false
+end
+
 function Assert.safe_should_table(arg)
 	if arg then
 		Assert.should_table(arg)

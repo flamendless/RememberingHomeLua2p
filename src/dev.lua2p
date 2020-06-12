@@ -52,9 +52,9 @@ function Dev.update(dt)
 		elseif love.keyboard.isDown("right") then
 			dx = dx + cam_speed * dt
 		elseif love.keyboard.isDown("up") then
-			dy = dy - cam_speed * dt
-		elseif love.keyboard.isDown("down") then
 			dy = dy + cam_speed * dt
+		elseif love.keyboard.isDown("down") then
+			dy = dy - cam_speed * dt
 		end
 		Dev.camera:setPosition(dx, dy)
 

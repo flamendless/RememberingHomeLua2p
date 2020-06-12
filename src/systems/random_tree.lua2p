@@ -28,7 +28,7 @@ function RandomTree:init()
 	self.data_map = unique_mapping:new()
 	self.data = {}
 
-	self.pool_data.onEntityAdded = function(pool_data, e)
+	self.pool_data.onEntityAdded = function(pool, e)
 		local data = e:get("tree_data")
 		local i = self.data_map:map(e)
 		self.data[i] = {
@@ -39,6 +39,14 @@ function RandomTree:init()
 		}
 		self:computer_max_n(self.data[i])
 	end
+end
+
+function RandomTree:validate_tree(e)
+	!if _ASSERT then
+	local index = self.data_map:map(e)
+	local data = self.data[index]
+	Assert.should_table(data)
+	!end
 end
 
 function RandomTree:start_bg_trees(dur)
@@ -52,14 +60,6 @@ function RandomTree:start_bg_trees(dur)
 				end
 			end)
 	end
-end
-
-function RandomTree:validate_tree(e)
-	!if _ASSERT then
-	local index = self.data_map:map(e)
-	local data = self.data[index]
-	Assert.should_table(data)
-	!end
 end
 
 function RandomTree:generate_tree(e)
