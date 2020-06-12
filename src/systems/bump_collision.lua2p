@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local Bump = require("modules.bump.bump")
 
 local BumpCollision = Concord.system({
-	pool = {"collider", "position", "body", "bump"},
+	pool = {"collider", "position", "bump"},
 })
 
 function BumpCollision:init()
@@ -16,15 +16,34 @@ function BumpCollision:init()
 	end
 end
 
+local filter = function(item, other)
+	if other.filter then
+		return other.filter
+	else
+		return "slide"
+	end
+end
+
 function BumpCollision:update(dt)
 	for _, e in ipairs(self.pool) do
 		local collider = e:get("collider")
 		local body = e:get("body")
 		local pos = e:get("position").pos
 
-		if body.vel_x ~= 0 or body.vel_y ~= 0 then
-			local cols
-			pos.x, pos.y, cols = self.world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y)
+		collider.is_hit = false
+
+		if body then
+			if body.vel_x ~= 0 or body.vel_y ~= 0 then
+				local cols, len
+				pos.x, pos.y, cols, len = self.world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y, filter)
+
+				for i = 1, len do
+					local c = cols[i]
+					local other = c.other
+					other.is_hit = true
+				end
+			end
+
 		end
 	end
 end

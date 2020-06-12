@@ -12,6 +12,7 @@ Concord.component("collider", function(c, size, offset)
 	c.size = size
 	c.offset = offset
 	c.is_hit = false
+	c.filter = nil
 end)
 
 Concord.component("collider_circle", function(c, size, offset)

@@ -1,0 +1,43 @@
+local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+
+local Keybinds = require("keybinds")
+
+local Item = Concord.system({
+	pool = {"item", "collider"},
+})
+
+local filters = Enum("slide", "cross")
+
+function Item:init(world)
+	self.id_map = unique_mapping:new()
+	self.id = {}
+
+	self.pool.onEntityAdded = function(pool, e)
+		local collider = e:get("collider")
+		local item_id = e:get("item").id
+		local i = self.id_map:map(item_id)
+
+		!if _ASSERT then
+		Assert.should_nil(self.id[i])
+		!end
+
+		self.id[i] = item_id
+		collider.filter = filters.cross
+	end
+end
+
+function Item:keypressed(key)
+	if Keybinds.pressed_player(key, "interact") then
+		for _, e in ipairs(self.pool) do
+			local item = e:get("item")
+			local collider = e:get("collider")
+
+			if collider.is_hit then
+				print(item.id)
+			end
+		end
+	end
+end
+
+return Item

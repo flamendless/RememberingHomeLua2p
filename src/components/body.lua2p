@@ -1,14 +1,6 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
-local body_kinds = Enum("dynamic", "static")
-
-Concord.component("body", function(c, kind)
-	!if ASSERT then
-	Assert.should_string(kind)
-	!end
-
-	c.kind = body_kinds[kind]
+Concord.component("body", function(c)
 	c.is_run = false
 	c.dx = 0
 	c.dir = 1

@@ -11,7 +11,7 @@ function Player.base(e, pos, collider, speed_data, gravity, resources)
 	:give("gravity", gravity)
 	:give("animation")
 	:give("controller")
-	:give("body", "dynamic")
+	:give("body")
 	:give("multiple_animation_data", "idle",
 		{
 			idle = {
