@@ -35,6 +35,8 @@ function Dev.init(id, world)
 	Dev.camera:setWindow(0, 0, ww, wh)
 	Dev.camera:setPosition(ww/2, wh/2)
 
+	Dev.scale = Dev.camera:getScale()
+
 	Dev.world:addSystem(DebugSlab)
 
 	if not Dev.world:hasSystem(BoundingBox) then
@@ -77,7 +79,12 @@ end
 function Dev.draw()
 	if Dev.show and Dev.world then
 		if Dev.show_bounding_box then
-			Dev.world:emit("draw_debug", Dev.scale)
+			love.graphics.push()
+			local l, t, w, h = Dev.camera:getWindow()
+			love.graphics.translate(l, t)
+			love.graphics.scale(Dev.scale)
+			Dev.world:emit("draw_debug")
+			love.graphics.pop()
 		end
 		Slab.Draw()
 		stats = love.graphics.getStats(stats)
@@ -85,10 +92,11 @@ function Dev.draw()
 end
 
 function Dev.keypressed(key)
+	if key == "`" then
+		Dev.show = not Dev.show
+	end
 	if Dev.show then
-		if key == "`" then
-			Dev.show = not Dev.show
-		elseif key == "-" then
+		if key == "-" then
 			local scale = Dev.camera:getScale()
 			Dev.camera:setScale(scale - 0.25)
 		elseif key == "=" then
