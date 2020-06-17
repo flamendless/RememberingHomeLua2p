@@ -1,0 +1,130 @@
+local Concord = require("modules.concord.concord")
+local Gamera = require("modules.gamera.gamera")
+local Log = require("modules.log.log")
+
+local min = math.min
+
+local Resources = require("resources")
+local Preloader = require("preloader")
+
+local StateOutside = class()
+StateOutside.id = "Outside"
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+
+local Systems = {
+	Animation = require("systems.animation"),
+	BumpCollision = require("systems.bump_collision"),
+	Camera = require("systems.camera"),
+	Collision = require("systems.collision"),
+	Controller = require("systems.controller"),
+	Movement = require("systems.movement"),
+	RenderSprite = require("systems.render_sprite"),
+	RenderText = require("systems.render_text"),
+}
+
+local Assemblages = {
+	Common = require("assemblages.common"),
+	Outside = require("assemblages.outside"),
+	Player = require("assemblages.player"),
+}
+
+local resources = { images = {}, image_data = {}, fonts = {} }
+
+function StateOutside:new()
+	return self:init({
+		is_ready = false,
+		world = Concord.world(),
+		entities = {},
+		camera = nil,
+		gamestate = nil
+	})
+end
+
+function StateOutside:load()
+	Log.info("State Load: ", self.id)
+	local resources_data = Resources:getData("outside")
+	Preloader.start(resources_data, resources,
+		function()
+			self.is_ready = true
+			self:start()
+		end)
+end
+
+function StateOutside:start()
+	local ww, wh = love.graphics.getDimensions()
+	local w, h = resources.images.bg:getDimensions()
+
+	self.scale = min(ww/w, wh/h)
+	self.camera = Gamera.new(0, 0, w, h)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.camera:setScale(self.scale)
+
+	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.BumpCollision)
+	self.world:addSystem(Systems.Camera)
+	self.world:addSystem(Systems.Controller)
+	self.world:addSystem(Systems.Movement)
+	self.world:addSystem(Systems.RenderSprite)
+
+	self.world:emit("camera_set", self.camera)
+
+	self.entities.bg = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.bg, resources.images.bg)
+
+	self.entities.left_wall = Concord.entity(self.world)
+		:give("position", vec2:new(0, 0))
+		:give("collider", vec2:new(32, h))
+		:give("bump")
+
+	self.entities.right_wall = Concord.entity(self.world)
+		:give("position", vec2:new(w, 0))
+		:give("collider", vec2:new(32, h))
+		:give("bump")
+
+	self.entities.ground = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.ground,
+			vec2:new(0, 350),
+			vec2:new(w, 64))
+
+	self.entities.player = Concord.entity(self.world)
+		:assemble(Assemblages.Player.base,
+			vec2:new(920, 300), vec2:new(64, 64),
+			{ idle = 0, walk = 128, run = 180 }, 320,
+			{
+				sheet_idle = resources.images.sheet_player_idle,
+				sheet_walk = resources.images.sheet_player_walk,
+				sheet_run = resources.images.sheet_player_run,
+			})
+		:give("z_index", 2)
+	self.world:emit("face_left")
+
+	self.entities.fence = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.fence, resources.images.fence)
+end
+
+function StateOutside:update(dt)
+	if not self.is_ready then return end
+
+	self.world:emit("update", dt)
+	self.world:emit("camera_follow", self.entities.player)
+end
+
+function StateOutside:draw()
+	if not self.is_ready then return end
+
+	self.camera:draw(function()
+		self.world:emit("draw")
+		self.world:emit("draw_z")
+	end)
+end
+
+function StateOutside:exit()
+	Resources.clean(resources)
+	for i, e in ipairs(self.world:getEntities()) do
+		e:destroy()
+	end
+end
+
+return StateOutside

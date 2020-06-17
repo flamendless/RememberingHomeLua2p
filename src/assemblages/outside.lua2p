@@ -1,0 +1,29 @@
+local Concord = require("modules.concord.concord")
+
+local Outside = {}
+
+local z_index = {
+	bg = 1,
+	-- player = 2,
+	fence = 3
+}
+
+function Outside.bg(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(0, 0))
+	:give("z_index", z_index.bg)
+end
+
+function Outside.ground(e, pos, size)
+	e:give("position", pos)
+	:give("collider", size)
+	:give("bump")
+end
+
+function Outside.fence(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(-47, 330))
+	:give("z_index", z_index.fence)
+end
+
+return Outside

@@ -79,6 +79,23 @@ Resources.data.intro = {
 	},
 }
 
+Resources.data.outside = {
+	image = {
+		{ "bg", "res/images/house_outside/house_bg.png" },
+		{ "fence", "res/images/house_outside/house_fence.png" },
+		{ "sheet_player_idle", "res/images/player/player_idle.png" },
+		{ "sheet_player_walk", "res/images/player/player_walk.png" },
+		{ "sheet_player_run", "res/images/player/player_run.png" },
+	},
+
+	image_data = {
+		{ "lut_night_16", "res/lut/lut_night_16.png" },
+		{ "lut_night_64", "res/lut/lut_night_64.png" },
+	},
+
+	font = {}
+}
+
 function Resources:getData(key)
 	!if _ASSERT then
 	Assert.should_string(key)
