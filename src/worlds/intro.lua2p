@@ -14,8 +14,8 @@ local Dialogues = require("dialogues")
 local Fade = require("fade")
 local Keybinds = require("keybinds")
 local NGrading = require("ngrading")
-local Preloader = require("preloader")
 local Resources = require("resources")
+local Preloader = require("preloader")
 local Settings = require("settings")
 
 local StateIntro = class()
@@ -23,6 +23,7 @@ StateIntro.id = "Intro"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
+
 local Systems = {
 	Animation = require("systems.animation"),
 	Collision = require("systems.collision"),
@@ -36,6 +37,7 @@ local Systems = {
 	Transform = require("systems.transform"),
 	Move = require("systems.move"),
 }
+
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Intro = require("assemblages.intro"),
@@ -393,7 +395,7 @@ function StateIntro:start()
 		Fade.fade_out(function()
 			Settings.set_intro_done()
 			is_raining = false
-			self.gamestate:switch("MainGame")
+			self.gamestate:switch("Outside")
 		end, fade_out_duration)
 	end)
 
