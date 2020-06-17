@@ -12,6 +12,7 @@ end
 
 function Controller:update(dt)
 	local world = self:getWorld()
+
 	for _, e in ipairs(self.pool) do
 		local controller = e:get("controller")
 		local body = e:get("body")
@@ -65,6 +66,30 @@ function Controller:update(dt)
 				speed.speed = new_speed
 			end
 		end
+	end
+end
+
+function Controller:face_left()
+	for _, e in ipairs(self.pool) do
+		local controller = e:get("controller")
+		local body = e:get("body")
+
+		if e:has("override_animation") then return end
+		body.is_run = love.keyboard.isDown("lshift")
+		body.dir = -1
+		body.dx = -1
+	end
+end
+
+function Controller:face_right()
+	for _, e in ipairs(self.pool) do
+		local controller = e:get("controller")
+		local body = e:get("body")
+
+		if e:has("override_animation") then return end
+		body.is_run = love.keyboard.isDown("lshift")
+		body.dir = 1
+		body.dx = 1
 	end
 end
 
