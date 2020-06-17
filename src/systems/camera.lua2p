@@ -1,0 +1,27 @@
+local Concord = require("modules.concord.concord")
+
+local Camera = Concord.system({
+})
+
+function Camera:init(world)
+	self.camera = nil
+end
+
+function Camera:camera_set(camera)
+	!if _ASSERT then
+	Assert.should_exists(camera)
+	!end
+
+	self.camera = camera
+end
+
+function Camera:camera_follow(e)
+	!if _ASSERT then
+	Assert.should_entity(e)
+	!end
+
+	local pos = e:get("position").pos
+	self.camera:setPosition(pos.x, pos.y)
+end
+
+return Camera
