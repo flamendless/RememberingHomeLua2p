@@ -15,7 +15,6 @@ Assert = require("assert")
 !end
 
 !if not _RELEASE then
-Dev = require("dev")
 Inspect = require("modules.inspect.inspect")
 local font_default = love.graphics.newFont(18)
 font_default:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))

@@ -2,3 +2,6 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("camera", function(c)
 end)
+
+Concord.component("camera_follow", function(c)
+end)

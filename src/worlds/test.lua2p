@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
+local Slab = require("modules.slab")
 
 local StateTest = class()
 StateTest.id = "Test"
@@ -13,15 +14,18 @@ local Systems = {
 	Animation = require("systems.animation"),
 	BumpCollision = require("systems.bump_collision"),
 	Collision = require("systems.collision"),
-	Controller = require("systems.controller"),
+	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
 	RenderSprite = require("systems.render_sprite"),
+	RenderText = require("systems.render_text"),
 	Item = require("systems.item"),
+	DebugSlab = require("systems.debug_slab"),
 }
 
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Player = require("assemblages.player"),
+	Outside = require("assemblages.outside"),
 }
 
 local resources_data = {
@@ -48,6 +52,7 @@ function StateTest:load()
 		function()
 			self.is_ready = true
 			self:start()
+			Slab.Initialize()
 		end)
 end
 
@@ -58,11 +63,13 @@ function StateTest:start()
 
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.BumpCollision)
-	self.world:addSystem(Systems.Controller)
+	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.RenderSprite)
+	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Item)
+	self.world:addSystem(Systems.DebugSlab)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
@@ -106,8 +113,6 @@ function StateTest:start()
 	self.ent_mouse = Concord.entity(self.world)
 		:give("position", vec2:new())
 		:give("collider_circle", 8)
-
-	Dev.init(self.id, self.world)
 end
 
 function StateTest:update(dt)
@@ -118,13 +123,16 @@ function StateTest:update(dt)
 	local mpos = self.ent_mouse:get("position").pos
 	mpos.x = mx
 	mpos.y = my
+	Slab.Update(dt)
 	self.world:emit("check_collision", self.test_rect)
+	self.world:emit("draw_slab")
 end
 
 function StateTest:draw()
 	if not self.is_ready then return end
 	self.camera:draw(function()
 		self.world:emit("draw")
+		self.world:emit("draw_debug")
 
 		love.graphics.setColor(1, 0, 0, 1)
 		local cx, cy = self.camera:getPosition()
@@ -133,6 +141,7 @@ function StateTest:draw()
 		love.graphics.circle("fill", l, t, 16)
 		love.graphics.circle("fill", w, h, 16)
 	end)
+	Slab.Draw()
 end
 
 function StateTest:keypressed(key)

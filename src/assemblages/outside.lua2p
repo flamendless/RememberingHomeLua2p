@@ -18,12 +18,26 @@ function Outside.ground(e, pos, size)
 	e:give("position", pos)
 	:give("collider", size)
 	:give("bump")
+
+	!if not _RELEASE then
+	e:give("debug_slab", "ground")
+	!end
 end
 
 function Outside.fence(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(-47, 330))
 	:give("z_index", z_index.fence)
+end
+
+function Outside.car(e)
+	e:give("position", vec2:new(934, 281))
+	:give("collider", vec2:new(78, 49), nil, "cross")
+	:give("bump")
+
+	!if not _RELEASE then
+	e:give("debug_slab", "car")
+	!end
 end
 
 return Outside

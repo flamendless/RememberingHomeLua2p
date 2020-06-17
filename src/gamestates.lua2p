@@ -45,9 +45,6 @@ function GameStates:switch(next_id)
 	self.prev_world = self.current_world
 	if self.prev_world and self.prev_world.exit then
 		self.prev_world:exit()
-		!if not _RELEASE then
-		Dev.deinit()
-		!end
 	end
 
 	!if not _RELEASE then
@@ -171,10 +168,8 @@ function GameStates:update(dt)
 	if self.current_world.scale then
 		if last_scale ~= self.current_world.scale then
 			last_scale = self.current_world.scale
-			Dev.setScale(self.current_world.scale)
 		end
 	end
-	Dev.update(dt)
 	!end
 end
 
@@ -201,41 +196,17 @@ function GameStates:draw()
 	end
 
 	if self.current_world.draw then
-		!if not _RELEASE then
-		if Dev.camera then
-			Dev.camera:draw(function()
-				main_canvas:attach()
-				self.current_world:draw(main_canvas)
-				main_canvas:detach()
-				main_canvas:render()
-			end)
-		else
-			main_canvas:attach()
-			self.current_world:draw(main_canvas)
-			main_canvas:detach()
-			main_canvas:render()
-		end
-		!else
 		main_canvas:attach()
 		self.current_world:draw(main_canvas)
 		main_canvas:detach()
 		main_canvas:render()
-		!end
 	end
-
-	!if not _RELEASE then
-	Dev.draw()
-	!end
 end
 
 function GameStates:keypressed(key)
 	if self.current_world.keypressed then
 		self.current_world:keypressed(key)
 	end
-
-	!if not _RELEASE then
-	Dev.keypressed(key)
-	!end
 end
 
 function GameStates:keyreleased(key)

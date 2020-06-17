@@ -37,7 +37,7 @@ end
 function Common.item(e, id, pos, size)
 	e:give("item", id)
 	:give("position", pos)
-	:give("collider", size)
+	:give("collider", size, nil, "cross")
 	:give("bump")
 
 	!if not _RELEASE then

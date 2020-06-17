@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
 local Keybinds = require("keybinds")
 
@@ -7,14 +6,11 @@ local Item = Concord.system({
 	pool = {"item", "collider"},
 })
 
-local filters = Enum("slide", "cross")
-
 function Item:init(world)
 	self.id_map = unique_mapping:new()
 	self.id = {}
 
 	self.pool.onEntityAdded = function(pool, e)
-		local collider = e:get("collider")
 		local item_id = e:get("item").id
 		local i = self.id_map:map(item_id)
 
@@ -23,7 +19,6 @@ function Item:init(world)
 		!end
 
 		self.id[i] = item_id
-		collider.filter = filters.cross
 	end
 end
 

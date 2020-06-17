@@ -3,18 +3,17 @@ local Bump = require("modules.bump.bump")
 
 local Keybinds = require("keybinds")
 
-local Controller = Concord.system({
-	pool = {"controller", "body"},
+local PlayerController = Concord.system({
+	pool = {"player_controller", "body"},
 })
 
-function Controller:init()
+function PlayerController:init(world)
+	self.world = world
 end
 
-function Controller:update(dt)
-	local world = self:getWorld()
-
+function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		local controller = e:get("controller")
+		local player_controller = e:get("player_controller")
 		local body = e:get("body")
 
 		if e:has("override_animation") then return end
@@ -48,9 +47,9 @@ function Controller:update(dt)
 
 		if animation_name then
 			if animation_variance then
-				world:emit("switch_animation_tag", animation_name .. animation_variance)
+				self.world:emit("switch_animation_tag", animation_name .. animation_variance)
 			else
-				world:emit("switch_animation_tag", animation_name)
+				self.world:emit("switch_animation_tag", animation_name)
 			end
 		end
 
@@ -69,9 +68,9 @@ function Controller:update(dt)
 	end
 end
 
-function Controller:face_left()
+function PlayerController:face_left()
 	for _, e in ipairs(self.pool) do
-		local controller = e:get("controller")
+		local player_controller = e:get("player_controller")
 		local body = e:get("body")
 
 		if e:has("override_animation") then return end
@@ -81,9 +80,9 @@ function Controller:face_left()
 	end
 end
 
-function Controller:face_right()
+function PlayerController:face_right()
 	for _, e in ipairs(self.pool) do
-		local controller = e:get("controller")
+		local player_controller = e:get("player_controller")
 		local body = e:get("body")
 
 		if e:has("override_animation") then return end
@@ -93,4 +92,4 @@ function Controller:face_right()
 	end
 end
 
-return Controller
+return PlayerController

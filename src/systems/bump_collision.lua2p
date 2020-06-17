@@ -24,13 +24,20 @@ local filter = function(item, other)
 	end
 end
 
+function BumpCollision:preupdate(dt)
+	for _, e in ipairs(self.pool) do
+		local collider = e:get("collider")
+		collider.is_hit = false
+	end
+end
+
 function BumpCollision:update(dt)
+	self:preupdate(dt)
+
 	for _, e in ipairs(self.pool) do
 		local collider = e:get("collider")
 		local body = e:get("body")
 		local pos = e:get("position").pos
-
-		collider.is_hit = false
 
 		if body then
 			if body.vel_x ~= 0 or body.vel_y ~= 0 then
