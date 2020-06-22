@@ -29,8 +29,9 @@ function RandomTree:init()
 	self.data = {}
 
 	self.pool_data.onEntityAdded = function(pool, e)
-		local data = e:get("tree_data")
+		local data = e.tree_data
 		local i = self.data_map:map(e)
+
 		self.data[i] = {
 			tree_data = data.data,
 			chance = data.data.chance,
@@ -51,10 +52,10 @@ end
 
 function RandomTree:start_bg_trees(dur)
 	for _, e in ipairs(self.pool_bg_tree) do
-		local bg_tree = e:get("bg_tree")
 		e:give("move_to_x", 0, dur)
 			:give("move_on_complete", function()
 				e:remove("parallax_stop")
+				local bg_tree = e.bg_tree
 				if bg_tree.is_cover then
 					e:destroy()
 				end
@@ -90,15 +91,16 @@ function RandomTree:append_tree(index, e)
 	local img = images[r]
 	local x = data.tree_data.max_width + love.math.random(32, 128)
 	local y = 0
+
 	e:give("sprite", img)
 	:give("position", vec2:new(x, y))
 end
 
 function RandomTree:update(dt)
 	for _, e in ipairs(self.pool_tree) do
-		local tree = e:get("tree").index
-		local pos = e:get("position").pos
-		local sprite = e:get("sprite").sprite
+		local tree = e.tree.index
+		local pos = e.position.pos
+		local sprite = e.sprite.sprite
 
 		if (pos.x + sprite:getWidth() < 0) then
 			e:remove("sprite")

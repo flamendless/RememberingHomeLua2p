@@ -10,15 +10,16 @@ function BumpCollision:init(world)
 	self.bump_world = Bump.newWorld()
 
 	self.pool.onEntityAdded = function(pool, e)
-		local collider = e:get("collider")
-		local pos = e:get("position").pos
+		local collider = e.collider
+		local pos = e.position.pos
 		local size = collider.size
+
 		self.bump_world:add(e, pos.x, pos.y, size.x, size.y)
 	end
 end
 
 local filter = function(item, other)
-	local other_col = other:get("collider")
+	local other_col = other.collider
 	if other_col.filter then
 		return other_col.filter
 	else
@@ -28,7 +29,7 @@ end
 
 function BumpCollision:preupdate(dt)
 	for _, e in ipairs(self.pool) do
-		local collider = e:get("collider")
+		local collider = e.collider
 
 		collider.is_hit = false
 		-- collider.normal.x = 0
@@ -38,9 +39,9 @@ end
 
 function BumpCollision:update(dt)
 	for _, e in ipairs(self.pool) do
-		local collider = e:get("collider")
-		local body = e:get("body")
-		local pos = e:get("position").pos
+		local collider = e.collider
+		local body = e.body
+		local pos = e.position.pos
 
 		if body then
 			if body.vel_x ~= 0 or body.vel_y ~= 0 then
@@ -50,8 +51,8 @@ function BumpCollision:update(dt)
 				for i = 1, len do
 					local c = cols[i]
 					local other = c.other
-					local other_col = other:get("collider")
-					local other_id = other:get("bump").id
+					local other_col = other.collider
+					local other_id = other.bump.id
 
 					other_col.is_hit = true
 					other_col.normal.x = c.normalX

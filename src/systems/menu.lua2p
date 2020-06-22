@@ -56,7 +56,8 @@ function Menu:init()
 	}
 
 	self.pool.onEntityAdded = function(pool, e)
-		local option_key = e:get("option_key")
+		local option_key = e.option_key
+
 		if not e:has("option_disabled") then
 			if not self.keys[option_key.page] then
 				self.keys[option_key.page] = {}
@@ -66,8 +67,9 @@ function Menu:init()
 	end
 
 	self.pool_disabled.onEntityAdded = function(pool, e)
-		local option_key = e:get("option_key")
+		local option_key = e.option_key
 		local t = self.keys[option_key.page]
+
 		for i = #t, 1, -1 do
 			local key = t[i]
 			if key == option_key.id then
@@ -80,24 +82,27 @@ end
 
 function Menu:set_page(page)
 	!if _ASSERT then
-	assert(type(page) == "number", "Passed argument must be of type 'number'")
-	assert(self.keys[page], "Passed 'Page' does not exist in 'Menu.keys' table")
+	Assert.should_number(page)
+	Assert.should_exists(self.keys[page])
 	!end
+
 	self.current_page = page
 	self:update_cursor_color()
 end
 
 function Menu:allow_cursor(flag)
 	!if _ASSERT then
-	assert(type(flag) == "boolean", "Passed argument must be of type 'boolean'")
+	Assert.should_boolean(flag)
 	!end
+
 	self.flags.allow_cursor = flag
 end
 
 function Menu:set_cursor(cursor)
 	!if _ASSERT then
-	assert(type(cursor) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(cursor)
 	!end
+
 	self.cursor = cursor
 	self:update_cursor_color()
 end
@@ -123,10 +128,10 @@ end
 
 function Menu:update_cursor_color()
 	for _, e in ipairs(self.pool) do
-		local option_key = e:get("option_key")
-		local pos = e:get("position")
-		local color = e:get("color")
-		local disabled = e:get("option_disabled")
+		local option_key = e.option_key
+		local pos = e.position
+		local color = e.color
+		local disabled = e.option_disabled
 
 		if self.current_page == option_key.page then
 			if disabled then
@@ -152,9 +157,9 @@ function Menu:enter_option()
 	if self.cursor == 0 then return end
 	if not self.flags.allow_cursor then return end
 	for _, e in ipairs(self.pool) do
-		local option_key = e:get("option_key")
-		local text = e:get("text")
-		local callback = e:get("on_enter")
+		local option_key = e.option_key
+		local text = e.text
+		local callback = e.on_enter
 		local t = self.keys[self.current_page]
 
 		if self.current_page == option_key.page then

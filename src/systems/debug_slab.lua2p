@@ -22,12 +22,12 @@ function DebugSlab:init()
 
 	world = self:getWorld()
 	self.pool.onEntityAdded = function(pool, e)
-		local id = e:get("debug_slab").id
-		local multi = e:get("multiple_animation_data")
-		local pos = e:get("position")
-		local collider = e:get("collider")
-		local sprite = e:get("sprite")
-		local animation_data = e:get("animation_data")
+		local id = e.debug_slab.id
+		local multi = e.multiple_animation_data
+		local pos = e.position
+		local collider = e.collider
+		local sprite = e.sprite
+		local animation_data = e.animation_data
 
 		assert(ent_id[id] == nil, format("'%s' id was already added", id))
 		ent_id[id] = e
@@ -62,7 +62,8 @@ function DebugSlab:init()
 	end
 
 	self.pool.onEntityRemoved = function(pool, e)
-		local id = e:get("debug_slab").id
+		local id = e.debug_slab.id
+
 		ent_id[id] = nil
 		ent_count = ent_count - 1
 	end
@@ -88,7 +89,8 @@ function DebugSlab:draw_slab()
 	Slab.BeginWindow("EntityDebug", { Title = "Entity List" })
 	Slab.Text("Entity Count (debuggable): " .. ent_count)
 	for id, e in pairs(ent_id) do
-		local bounding_box_color = e:get("bounding_box_color")
+		local bounding_box_color = e.bounding_box_color
+
 		if Slab.Button("Highlight", { Disabled = not bounding_box_color }) then
 			if bounding_box_color then
 				Timer.every(hg_on, function()
@@ -118,15 +120,15 @@ end
 
 function DebugSlab:draw_inspector()
 	local e = inspect_e
-	local id = inspect_e:get("debug_slab").id
-	local sprite = inspect_e:get("sprite")
-	local pos = inspect_e:get("position")
-	local z_index = inspect_e:get("z_index")
-	local animation = inspect_e:get("animation")
-	local collider = inspect_e:get("collider")
-	local speed = inspect_e:get("speed")
-	local gravity = inspect_e:get("gravity")
-	local body = inspect_e:get("body")
+	local id = inspect_e.debug_slab.id
+	local sprite = inspect_e.sprite
+	local pos = inspect_e.position
+	local z_index = inspect_e.z_index
+	local animation = inspect_e.animation
+	local collider = inspect_e.collider
+	local speed = inspect_e.speed
+	local gravity = inspect_e.gravity
+	local body = inspect_e.body
 
 	Slab.BeginWindow("Inspector", { Title = "Inspector" })
 	Slab.Text(id)

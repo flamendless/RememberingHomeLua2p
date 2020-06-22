@@ -11,7 +11,7 @@ function Item:init(world)
 	self.id = {}
 
 	self.pool.onEntityAdded = function(pool, e)
-		local item_id = e:get("item").id
+		local item_id = e.item.id
 		local i = self.id_map:map(item_id)
 
 		!if _ASSERT then
@@ -25,8 +25,8 @@ end
 function Item:keypressed(key)
 	if Keybinds.pressed_player(key, "interact") then
 		for _, e in ipairs(self.pool) do
-			local item = e:get("item")
-			local collider = e:get("collider")
+			local item = e.item
+			local collider = e.collider
 
 			if collider.is_hit then
 				print(item.id)

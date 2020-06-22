@@ -18,8 +18,9 @@ local setup_on_end = function(e, animation)
 	Assert.should_component(animation)
 	!end
 
-	local cb = e:get("animation_on_complete")
+	local cb = e.animation_on_complete
 	local on_end
+
 	if cb then
 		on_end = function()
 			cb.callback()
@@ -43,17 +44,19 @@ local setup_on_end = function(e, animation)
 end
 
 local setup_animation = function(e, data, on_end)
-	local animation = e:get("animation")
-	local multi = e:get("multiple_animation_data")
+	local animation = e.animation
+	local multi = e.multiple_animation_data
 
 	local obj_grid
 	local obj_animation
+
 	if not multi then
 		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
 		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_end)
 	else
 		if cache_multi_animation[animation.current_tag] then
 			local cached = cache_multi_animation[animation.current_tag]
+
 			obj_grid = cached.grid
 			obj_animation = cached.animation
 		else
@@ -87,17 +90,19 @@ function Animation:init()
 	self.custom_pool_z = {}
 
 	self.pool.onEntityAdded = function(pool, e)
-		local data = e:get("animation_data")
-		local animation = e:get("animation")
+		local data = e.animation_data
+		local animation = e.animation
 		local on_end = setup_on_end(e, animation)
+
 		setup_animation(e, data, on_end)
 	end
 
 	self.pool_z.onEntityAdded = function(pool, e)
 		insert(self.custom_pool_z, e)
 		table.insertion_sort(self.custom_pool_z, function(a, b)
-			local a_z = a:get("z_index").z
-			local b_z = b:get("z_index").z
+			local a_z = a.z_index.z
+			local b_z = b.z_index.z
+
 			return a_z < b_z
 		end)
 	end
@@ -110,18 +115,19 @@ function Animation:init()
 	end
 
 	self.pool_multi.onEntityAdded = function(pool, e)
-		local multi = e:get("multiple_animation_data")
-		local animation = e:get("animation")
+		local multi = e.multiple_animation_data
+		local animation = e.animation
 		local on_end = setup_on_end(e, animation)
 		local data = multi.data[multi.first]
+
 		animation.current_tag = multi.first
 		e:give("animation_data", data)
 	end
 
 	self.pool_pause.onEntityAdded = function(pool, e)
-		local data = e:get("animation_data")
-		local animation = e:get("animation")
-		local pause_at = e:get("animation_pause_at")
+		local data = e.animation_data
+		local animation = e.animation
+		local pause_at = e.animation_pause_at
 
 		if type(pause_at.at_frame) == "string" then
 			if pause_at.at_frame == "first" then
@@ -137,7 +143,8 @@ function Animation:init()
 	end
 
 	self.pool_pause.onEntityRemoved = function(pool, e)
-		local animation = e:get("animation")
+		local animation = e.animation
+
 		animation.animation:resume()
 	end
 end
@@ -148,14 +155,18 @@ function Animation:switch_animation_tag(new_tag)
 	!end
 
 	for _, e in ipairs(self.pool_multi) do
-		local multi = e:get("multiple_animation_data")
+		local multi = e.multiple_animation_data
+
 		!if _ASSERT then
 		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
 		!end
-		local animation = e:get("animation")
+
+		local animation = e.animation
 		local on_end = setup_on_end(e, animation)
+
 		if not (new_tag == animation.current_tag) then
 			local data = multi.data[new_tag]
+
 			animation.current_tag = new_tag
 			e:remove("animation_data")
 			e:give("animation_data", data)
@@ -170,8 +181,8 @@ function Animation:update_animation_data(e, data)
 	Assert.should_table(data)
 	!end
 
-	local anim_data = e:get("animation_data")
-	local animation = e:get("animation")
+	local anim_data = e.animation_data
+	local animation = e.animation
 
 	anim_data.spritesheet = data.spritesheet
 	anim_data.frames = data.frames
@@ -191,11 +202,13 @@ end
 
 function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
-		local animation = e:get("animation")
+		local animation = e.animation
+
 		if animation.animation then
-			local stop = e:get("animation_stop")
-			local dt_multiplier = e:get("dt_multiplier")
-			local quad = e:get("quad")
+			local stop = e.animation_stop
+			local dt_multiplier = e.dt_multiplier
+			local quad = e.quad
+
 			if dt_multiplier then
 				dt = dt * dt_multiplier.mul
 			end
@@ -204,7 +217,8 @@ function Animation:update(dt)
 				if stop then
 					animation.is_playing = false
 					animation.animation[stop.event](animation.animation)
-					local cb = e:get("animation_on_complete")
+
+					local cb = e.animation_on_complete
 					if cb then
 						cb.callback()
 					end

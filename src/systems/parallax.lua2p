@@ -7,7 +7,8 @@ local Parallax = Concord.system({
 
 function Parallax:init()
 	self.pool.onEntityAdded = function(pool, e)
-		local sprite = e:get("sprite")
+		local sprite = e.sprite
+
 		sprite.sprite:setWrap("repeat")
 	end
 end
@@ -24,14 +25,16 @@ end
 
 function Parallax:slow_parallax(amount)
 	for _, e in ipairs(self.pool) do
-		local parallax = e:get("parallax")
+		local parallax = e.parallax
 		local dx = parallax.speed.x * amount
+
 		parallax.speed.x = dx
 	end
 
 	for _, e in ipairs(self.pool_tree) do
-		local parallax = e:get("parallax")
+		local parallax = e.parallax
 		local dx = parallax.speed.x * amount
+
 		parallax.speed.x = dx
 	end
 end
@@ -39,10 +42,10 @@ end
 function Parallax:parallax_move_x(dt, dir)
 	for _, e in ipairs(self.pool) do
 		if not e:has("parallax_stop") then
-			local parallax = e:get("parallax")
-			local quad = e:get("quad")
-
+			local parallax = e.parallax
+			local quad = e.quad
 			local x, y, w, h = quad.quad:getViewport()
+
 			x = x + parallax.speed.x * dir * dt
 			quad.quad:setViewport(x, y, w, h)
 		end
@@ -50,9 +53,10 @@ function Parallax:parallax_move_x(dt, dir)
 
 	for _, e in ipairs(self.pool_tree) do
 		if not e:has("parallax_stop") then
-			local pos = e:get("position").pos
-			local parallax = e:get("parallax")
+			local pos = e.position.pos
+			local parallax = e.parallax
 			local x = pos.x
+
 			x = x + parallax.speed.x * dir * dt
 			pos.x = x
 		end

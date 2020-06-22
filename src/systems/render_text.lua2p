@@ -14,22 +14,22 @@ function RenderText:init()
 		end
 		!end
 
-		local static_text = e:get("static_text")
-		local font = e:get("font")
+		local static_text = e.static_text
+		local font = e.font
 		static_text.text_obj = love.graphics.newText(font.font, static_text.text)
 	end
 end
 
 function RenderText:internal_draw(e)
-	local hidden = e:get("hidden")
+	local hidden = e.hidden
 	if not hidden then
-		local pos = e:get("position")
-		local color = e:get("color")
-		local text = e:get("text")
-		local static_text = e:get("static_text")
-		local font = e:get("font")
-		local transform = e:get("transform")
-		local sdf = e:get("sdf")
+		local pos = e.position
+		local color = e.color
+		local text = e.text
+		local static_text = e.static_text
+		local font = e.font
+		local transform = e.transform
+		local sdf = e.sdf
 
 		love.graphics.setColor(1, 1, 1, 1)
 		if color then
@@ -42,6 +42,7 @@ function RenderText:internal_draw(e)
 
 		local font = love.graphics.getFont()
 		local rotation, sx, sy, ox, oy
+
 		if transform then
 			rotation = transform.rotation
 			sx = transform.sx
@@ -75,6 +76,7 @@ function RenderText:internal_draw(e)
 			sx = sdf.scale_x
 			sy = sdf.scale_y
 		end
+
 		local x = pos.pos.x
 		local y = pos.pos.y
 

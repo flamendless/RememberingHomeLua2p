@@ -15,8 +15,9 @@ end
 
 function BoundingBox:update(dt)
 	for _, e in ipairs(self.pool) do
-		local box = e:get("bounding_box")
-		local pos = e:get("position")
+		local box = e.bounding_box
+		local pos = e.position
+
 		box.x = pos.pos.x
 		box.y = pos.pos.y
 	end
@@ -24,8 +25,8 @@ end
 
 function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
-		local box = e:get("bounding_box")
-		local pos = e:get("position")
+		local box = e.bounding_box
+		local pos = e.position
 
 		local bx, by = camera:toScreen(pos.pos.x, pos.pos.y)
 		box.screen_x = bx
@@ -36,9 +37,9 @@ end
 !if not _RELEASE then
 function BoundingBox:draw_debug()
 	for _, e in ipairs(self.pool) do
-		local box = e:get("bounding_box")
-		local pos = e:get("position")
-		local item = e:get("item")
+		local box = e.bounding_box
+		local pos = e.position
+		local item = e.item
 
 		local color = color_default
 		if item then
@@ -48,7 +49,7 @@ function BoundingBox:draw_debug()
 		love.graphics.setColor(color)
 		love.graphics.rectangle("line", box.x, box.y, box.w, box.h)
 
-		local ds = e:get("debug_slab")
+		local ds = e.debug_slab
 		if ds then
 			love.graphics.setColor(1, 1, 0, 1)
 			love.graphics.print(ds.id, box.x, box.y + box.h - 16)
@@ -56,9 +57,9 @@ function BoundingBox:draw_debug()
 	end
 
 	for _, e in ipairs(self.pool_highlight) do
-		local box = e:get("bounding_box")
-		local pos = e:get("position")
-		local color = e:get("bounding_box_color").color
+		local box = e.bounding_box
+		local pos = e.position
+		local color = e.bounding_box_color.color
 
 		love.graphics.setColor(color)
 		love.graphics.rectangle("line", pos.pos.x, pos.pos.y, box.w, box.h)

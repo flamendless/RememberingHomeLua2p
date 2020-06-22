@@ -15,8 +15,9 @@ function RenderSprite:init()
 	self.pool_z.onEntityAdded = function(pool, e)
 		insert(self.custom_pool_z, e)
 		table.insertion_sort(self.custom_pool_z, function(a, b)
-			local a_z = a:get("z_index").z
-			local b_z = b:get("z_index").z
+			local a_z = a.z_index.z
+			local b_z = b.z_index.z
+
 			return a_z < b_z
 		end)
 	end
@@ -32,15 +33,15 @@ function RenderSprite:init()
 end
 
 function RenderSprite:internal_draw(e)
-	local hidden = e:get("hidden")
+	local hidden = e.hidden
 	if not hidden then
-		local pos = e:get("position")
-		local quad = e:get("quad")
-		local color = e:get("color")
-		local sprite = e:get("sprite")
-		local transform = e:get("transform")
-		local quad_transform = e:get("quad_transform")
-		local animation_data = e:get("animation_data")
+		local pos = e.position
+		local quad = e.quad
+		local color = e.color
+		local sprite = e.sprite
+		local transform = e.transform
+		local quad_transform = e.quad_transform
+		local animation_data = e.animation_data
 
 		love.graphics.setColor(1, 1, 1, 1)
 		if color then

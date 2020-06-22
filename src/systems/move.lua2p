@@ -9,9 +9,9 @@ local Move = Concord.system({
 
 function Move:init()
 	self.pool.onEntityAdded = function(pool, e)
-		local pos = e:get("position")
-		local move_by = e:get("move_by")
-		local on_complete = e:get("move_on_complete")
+		local pos = e.position
+		local move_by = e.move_by
+		local on_complete = e.move_on_complete
 
 		local f = Flux.to(pos.pos, move_by.duration, {
 				x = pos.pos.x + move_by.pos.x,
@@ -28,9 +28,9 @@ function Move:init()
 	end
 
 	self.pool_move_x.onEntityAdded = function(pool, e)
-		local pos = e:get("position")
-		local target = e:get("move_to_x")
-		local on_complete = e:get("move_on_complete")
+		local pos = e.position
+		local target = e.move_to_x
+		local on_complete = e.move_on_complete
 
 		local f = Flux.to(pos.pos, target.duration, {
 				x = target.target_x,
@@ -46,9 +46,9 @@ function Move:init()
 	end
 
 	self.pool_original.onEntityAdded = function(pool, e)
-		local pos = e:get("position")
-		local move = e:get("move_to_original")
-		local on_complete = e:get("move_on_complete")
+		local pos = e.position
+		local move = e.move_to_original
+		local on_complete = e.move_on_complete
 
 		local f = Flux.to(pos.pos, move.duration, {
 			x = pos.original_pos.x,

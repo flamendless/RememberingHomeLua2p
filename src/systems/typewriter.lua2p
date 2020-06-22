@@ -8,9 +8,10 @@ local Typewriter = Concord.system({
 
 function Typewriter:start_typewriter()
 	for _, e in ipairs(self.pool) do
-		local text = e:get("text")
-		local typewriter = e:get("typewriter")
-		local cb_on_finish = e:get("typewriter_on_finish")
+		local text = e.text
+		local typewriter = e.typewriter
+		local cb_on_finish = e.typewriter_on_finish
+
 		if not typewriter.timer then
 			typewriter.timer = Timer()
 			typewriter.timer:every(typewriter.every, function()
@@ -32,8 +33,9 @@ end
 
 function Typewriter:update(dt)
 	for _, e in ipairs(self.pool) do
-		local text = e:get("text")
-		local typewriter = e:get("typewriter")
+		local text = e.text
+		local typewriter = e.typewriter
+
 		if typewriter.timer then
 			typewriter.timer:update(dt)
 		end

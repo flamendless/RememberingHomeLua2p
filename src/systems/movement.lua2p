@@ -6,9 +6,9 @@ local Movement = Concord.system({
 
 function Movement:update(dt)
 	for _, e in ipairs(self.pool) do
-		local body = e:get("body")
-		local speed = e:get("speed").speed
-		local gravity = e:get("gravity").gravity
+		local body = e.body
+		local speed = e.speed.speed
+		local gravity = e.gravity.gravity
 
 		if body.can_move then
 			local vel_x = 0

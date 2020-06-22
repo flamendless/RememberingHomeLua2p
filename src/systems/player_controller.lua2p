@@ -13,9 +13,9 @@ end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		local player_controller = e:get("player_controller")
-		local body = e:get("body")
-		local collider = e:get("collider")
+		local player_controller = e.player_controller
+		local body = e.body
+		local collider = e.collider
 
 		if e:has("override_animation") then return end
 		if not body.can_move then return end
@@ -57,8 +57,9 @@ function PlayerController:update(dt)
 			end
 		end
 
-		local speed = e:get("speed")
-		local speed_data = e:get("speed_data")
+		local speed = e.speed
+		local speed_data = e.speed_data
+
 		if speed and speed_data then
 			local old_speed = speed.speed
 			local new_speed = speed_data.speed_data[animation_name]
@@ -74,8 +75,8 @@ end
 
 function PlayerController:face_left()
 	for _, e in ipairs(self.pool) do
-		local player_controller = e:get("player_controller")
-		local body = e:get("body")
+		local player_controller = e.player_controller
+		local body = e.body
 
 		if e:has("override_animation") then return end
 		body.is_run = love.keyboard.isDown("lshift")
@@ -86,8 +87,8 @@ end
 
 function PlayerController:face_right()
 	for _, e in ipairs(self.pool) do
-		local player_controller = e:get("player_controller")
-		local body = e:get("body")
+		local player_controller = e.player_controller
+		local body = e.body
 
 		if e:has("override_animation") then return end
 		body.is_run = love.keyboard.isDown("lshift")
@@ -98,7 +99,7 @@ end
 
 function PlayerController:collision_wall(player, wall)
 	--TODO hit wall animation
-	player:get("body").can_move = false
+	player.body.can_move = false
 	self.world:emit("switch_animation_tag", "idle")
 end
 

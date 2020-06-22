@@ -18,8 +18,9 @@ function RainIntro:init(world)
 		Assert.should_nil(self.data)
 		!end
 
-		local rain_data = e:get("rain_data")
-		local screen_size = e:get("screen_size")
+		local rain_data = e.rain_data
+		local screen_size = e.screen_size
+
 		self.data = rain_data.data
 		self.scroll_speed = rain_data.data.scroll_speed
 		self.metadata = rain_data.data.metadata
@@ -40,14 +41,17 @@ function RainIntro:emit_rain(amount, max_amount)
 
 	local drop = self.data.drop
 	local random_amount = love.math.random(amount/2, amount * 1.5)
+
 	for i = 1, random_amount do
 		local r = love.math.random(1, #drop)
 		local img = drop[r]
 		local x = love.math.random(1, self.max_width)
 		local pos = vec2:new(x, -64)
 		local anim_data = {}
+
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
+
 		local ax = love.math.random(320, 640)
 		local ay = love.math.random(320, 640)
 		local accel = vec2:new(-ax, ay)
@@ -75,6 +79,7 @@ function RainIntro:emit_splash(e)
 	local r = love.math.random(1, #splash)
 	local img = splash[r]
 	local anim_data = {}
+
 	table.copy(self.metadata.splash, anim_data)
 	anim_data.spritesheet = img
 
@@ -96,13 +101,14 @@ end
 
 function RainIntro:update(dt)
 	for _, e in ipairs(self.pool_drop_tilted) do
-		local pos = e:get("position").pos
-		local accel = e:get("acceleration").accel
-		local col = e:get("collider_circle")
-		local z_index = e:get("z_index").z
+		local pos = e.position.pos
+		local accel = e.acceleration.accel
+		local col = e.collider_circle
+		local z_index = e.z_index.z
 
 		local dx = pos.x + accel.x * dt
 		local dy = pos.y + accel.y * dt
+
 		pos.x = dx
 		pos.y = dy
 
@@ -116,8 +122,7 @@ function RainIntro:update(dt)
 	end
 
 	for _, e in ipairs(self.pool_splash_tilted) do
-		local pos = e:get("position").pos
-
+		local pos = e.position.pos
 		local dx = pos.x + self.scroll_speed * dt
 
 		pos.x = dx
