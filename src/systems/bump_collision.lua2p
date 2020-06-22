@@ -5,20 +5,22 @@ local BumpCollision = Concord.system({
 	pool = {"collider", "position", "bump"},
 })
 
-function BumpCollision:init()
-	self.world = Bump.newWorld()
+function BumpCollision:init(world)
+	self.world = world
+	self.bump_world = Bump.newWorld()
 
 	self.pool.onEntityAdded = function(pool, e)
 		local collider = e:get("collider")
 		local pos = e:get("position").pos
 		local size = collider.size
-		self.world:add(collider, pos.x, pos.y, size.x, size.y)
+		self.bump_world:add(e, pos.x, pos.y, size.x, size.y)
 	end
 end
 
 local filter = function(item, other)
-	if other.filter then
-		return other.filter
+	local other_col = other:get("collider")
+	if other_col.filter then
+		return other_col.filter
 	else
 		return "slide"
 	end
@@ -27,13 +29,14 @@ end
 function BumpCollision:preupdate(dt)
 	for _, e in ipairs(self.pool) do
 		local collider = e:get("collider")
+
 		collider.is_hit = false
+		-- collider.normal.x = 0
+		-- collider.normal.y = 0
 	end
 end
 
 function BumpCollision:update(dt)
-	self:preupdate(dt)
-
 	for _, e in ipairs(self.pool) do
 		local collider = e:get("collider")
 		local body = e:get("body")
@@ -42,15 +45,30 @@ function BumpCollision:update(dt)
 		if body then
 			if body.vel_x ~= 0 or body.vel_y ~= 0 then
 				local cols, len
-				pos.x, pos.y, cols, len = self.world:move(collider, pos.x + body.vel_x, pos.y + body.vel_y, filter)
+				pos.x, pos.y, cols, len = self.bump_world:move(e, pos.x + body.vel_x, pos.y + body.vel_y, filter)
 
 				for i = 1, len do
 					local c = cols[i]
 					local other = c.other
-					other.is_hit = true
+					local other_col = other:get("collider")
+					local other_id = other:get("bump").id
+
+					other_col.is_hit = true
+					other_col.normal.x = c.normalX
+					other_col.normal.y = c.normalY
+
+					collider.is_hit = true
+					collider.normal.x = c.normalX
+					collider.normal.y = c.normalY
+
+					if other_id then
+						if other_id == "wall" then
+							self.world:emit("collision_wall", e, other)
+							return
+						end
+					end
 				end
 			end
-
 		end
 	end
 end

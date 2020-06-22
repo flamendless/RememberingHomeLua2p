@@ -4,7 +4,7 @@ local Bump = require("modules.bump.bump")
 local Keybinds = require("keybinds")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body"},
+	pool = {"player_controller", "body", "collider"},
 })
 
 function PlayerController:init(world)
@@ -15,8 +15,11 @@ function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		local player_controller = e:get("player_controller")
 		local body = e:get("body")
+		local collider = e:get("collider")
 
 		if e:has("override_animation") then return end
+		if not body.can_move then return end
+
 		if Keybinds.is_down_player("move_left") then
 			body.is_run = love.keyboard.isDown("lshift")
 			body.dir = -1
@@ -31,6 +34,7 @@ function PlayerController:update(dt)
 
 		local animation_name
 		local animation_variance
+
 		if body.dx ~= 0 then
 			if body.is_run then
 				animation_name = "run"
@@ -90,6 +94,12 @@ function PlayerController:face_right()
 		body.dir = 1
 		body.dx = 1
 	end
+end
+
+function PlayerController:collision_wall(player, wall)
+	--TODO hit wall animation
+	player:get("body").can_move = false
+	self.world:emit("switch_animation_tag", "idle")
 end
 
 return PlayerController

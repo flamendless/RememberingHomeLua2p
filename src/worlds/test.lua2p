@@ -61,13 +61,13 @@ function StateTest:start()
 	self.camera = Gamera.new(0, 0, ww, wh)
 	self.camera:setWindow(0, 0, ww, wh)
 
+	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.BumpCollision)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Item)
 	self.world:addSystem(Systems.DebugSlab)
 
@@ -80,7 +80,7 @@ function StateTest:start()
 	local left_wall = Concord.entity(self.world)
 		:give("position", vec2:new(230, 284))
 		:give("collider", vec2:new(64, 128))
-		:give("bump")
+		:give("bump", "wall")
 		:give("debug_slab", "left_wall")
 
 	local right_wall = Concord.entity(self.world)
@@ -117,6 +117,7 @@ end
 
 function StateTest:update(dt)
 	if not self.is_ready then return end
+	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 
 	local mx, my = love.mouse.getPosition()
