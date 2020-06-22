@@ -10,7 +10,7 @@ local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
 	pool_z = {"animation", "animation_data", "position", "z_index"},
 	pool_multi = {"multiple_animation_data", "animation", "position"},
-	pool_pause = {"animation", "animation_data", "animation_pause_at"}
+	pool_pause = {"animation", "animation_data", "animation_pause_at"},
 })
 
 local setup_on_end = function(e, animation)

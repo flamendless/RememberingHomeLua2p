@@ -1,9 +1,14 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local filters = Enum("slide", "cross")
+local filters = Enum("slide", "cross", "bounce", "cross")
 
-Concord.component("bump", function(c)
+Concord.component("bump", function(c, id)
+	!if _ASSERT then
+	Assert.safe_should_string(id)
+	!end
+
+	c.id = id
 end)
 
 Concord.component("collider", function(c, size, offset, filter)
@@ -17,6 +22,7 @@ Concord.component("collider", function(c, size, offset, filter)
 	c.offset = offset
 	c.is_hit = false
 	c.filter = nil
+	c.normal = vec2:new()
 
 	if filter then
 		c.filter = filters[filter]

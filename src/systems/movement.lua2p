@@ -10,15 +10,17 @@ function Movement:update(dt)
 		local speed = e:get("speed").speed
 		local gravity = e:get("gravity").gravity
 
-		local vel_x = 0
-		local vel_y = gravity * dt
+		if body.can_move then
+			local vel_x = 0
+			local vel_y = gravity * dt
 
-		if body.dx ~= 0 then
-			vel_x = speed * body.dir * dt
+			if body.dx ~= 0 then
+				vel_x = speed * body.dir * dt
+			end
+
+			body.vel_x = vel_x
+			body.vel_y = vel_y
 		end
-
-		body.vel_x = vel_x
-		body.vel_y = vel_y
 	end
 end
 
