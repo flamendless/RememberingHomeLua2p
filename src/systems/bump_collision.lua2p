@@ -1,5 +1,5 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump")
+local Bump = require("modules.bump.bump-niji")
 
 local BumpCollision = Concord.system({
 	pool = {"collider", "position", "bump"},
@@ -50,6 +50,7 @@ function BumpCollision:update(dt)
 
 				for i = 1, len do
 					local c = cols[i]
+
 					local other = c.other
 					local other_col = other.collider
 					local other_id = other.bump.id
@@ -58,9 +59,12 @@ function BumpCollision:update(dt)
 					other_col.normal.x = c.normalX
 					other_col.normal.y = c.normalY
 
-					collider.is_hit = true
-					collider.normal.x = c.normalX
-					collider.normal.y = c.normalY
+					local item = c.item
+					local item_col = item.collider
+
+					item_col.is_hit = true
+					item_col.normal.x = c.normalX
+					item_col.normal.y = c.normalY
 
 					if other_id then
 						if other_id == "wall" then
@@ -69,6 +73,8 @@ function BumpCollision:update(dt)
 						end
 					end
 				end
+
+				self.bump_world:freeCollisions(cols)
 			end
 		end
 	end

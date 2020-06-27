@@ -1,5 +1,5 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump")
+local Bump = require("modules.bump.bump-niji")
 
 local Keybinds = require("keybinds")
 
