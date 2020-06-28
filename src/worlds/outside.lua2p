@@ -79,20 +79,14 @@ function StateOutside:start()
 	self.entities.bg = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg, resources.images.bg)
 
-	-- self.entities.left_wall = Concord.entity(self.world)
-	-- 	:give("position", vec2:new(0, 0))
-	-- 	:give("collider", vec2:new(32, h))
-	-- 	:give("bump")
-    --
-	-- self.entities.right_wall = Concord.entity(self.world)
-	-- 	:give("position", vec2:new(w, 0))
-	-- 	:give("collider", vec2:new(32, h))
-	-- 	:give("bump")
+	self.entities.left_wall = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.left_wall)
+
+	self.entities.right_wall = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.right_wall)
 
 	self.entities.ground = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.ground,
-			vec2:new(0, 350),
-			vec2:new(w, 64))
+		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
 
 	self.entities.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base,
@@ -133,6 +127,7 @@ end
 function StateOutside:update(dt)
 	if not self.is_ready then return end
 
+	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
 end

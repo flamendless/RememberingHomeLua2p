@@ -32,8 +32,6 @@ function BumpCollision:preupdate(dt)
 		local collider = e.collider
 
 		collider.is_hit = false
-		-- collider.normal.x = 0
-		-- collider.normal.y = 0
 	end
 end
 
