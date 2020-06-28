@@ -1,9 +1,19 @@
 local WindowMode = {}
 
+local insert = table.insert
+
 WindowMode.current = 1
 WindowMode.modes = {
 	{ width = !(_GAME_SIZE.x), height = !(_GAME_SIZE.y) },
 }
+WindowMode.list = {}
+
+function WindowMode.initialize()
+	for i, t in ipairs(WindowMode.modes) do
+		local str = t.width .. "x" .. t.height
+		insert(WindowMode.list, str)
+	end
+end
 
 function WindowMode.getCurrent()
 	return WindowMode.modes[WindowMode.current]

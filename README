@@ -1,3 +1,2 @@
-To test the game:
-
-Run `make clean && make` in your terminal
+Run `./build init` to compile
+Then `./build run` to run

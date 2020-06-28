@@ -7,11 +7,19 @@ local worlds = {
 	Splash = req("splash"),
 	Menu = req("menu"),
 	Intro = req("intro"),
+	Outside = req("outside"),
 }
 
+!if not _RELEASE then
+worlds.Test = req("test")
+!end
+
+!if _ASSERT and not _RELEASE then
 local format = string.format
 for k, v in pairs(worlds) do
 	assert(v.id, format("'%s' must have an `id`", k))
+	assert(type(v.new) == "function", format("'%s' must have a `new` method", k))
 end
+!end
 
 return worlds

@@ -2,9 +2,10 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("typewriter", function(c, target_text, every)
 	!if _ASSERT then
-	assert(type(target_text) == "string", "Passed argument1 must be of type 'string'")
-	assert(type(every) == "number", "Passed argument2 must be of type 'number'")
+	Assert.should_string(target_text)
+	Assert.should_number(every)
 	!end
+
 	c.target_text = target_text
 	c.every = every
 	c.timer = nil

@@ -13,12 +13,32 @@ Keybinds.ui = {
 	right = { "right", "d" },
 	up = { "up", "w" },
 	down = { "down", "s" },
-	enter = { "e", "return", },
-	escape = { "escape", "backspace" }
+	interact = { "e", "return", },
+	back = { "escape", "backspace" },
+	skip = { "escape", "return" },
+}
+
+Keybinds.player = {
+	move_left = { "a" },
+	move_right = { "d" },
+	interact = { "e" },
 }
 
 Keybinds.ui_default = {}
+Keybinds.player_default = {}
 table.copy(Keybinds.ui, Keybinds.ui_default)
+table.copy(Keybinds.player, Keybinds.player_default)
+
+function Keybinds.set_from_settings(t)
+	!if _ASSERT then
+	Assert.should_table(t)
+	Assert.should_exists(t.ui)
+	Assert.should_exists(t.player)
+	!end
+
+	table.copy(t.ui, Keybinds.ui)
+	table.copy(t.player, Keybinds.player)
+end
 
 function Keybinds.check_for_conflicts_ui(key_name, key_to_check)
 	local t = Keybinds.ui
@@ -37,14 +57,34 @@ end
 function Keybinds.pressed_ui(ui_key, key)
 	local keys = Keybinds.ui
 	!if _ASSERT then
-	assert(keys[ui_key], "Passed 'ui_key' does not exist")
+	Assert.should_exists(keys[ui_key])
 	!end
+
 	for i, k in ipairs(keys[ui_key]) do
 		if k == key then
 			return true
 		end
 	end
 	return false
+end
+
+function Keybinds.pressed_player(key, p)
+	local keys = Keybinds.player
+	!if _ASSERT then
+	Assert.should_exists(keys[p])
+	!end
+
+	for i, k in ipairs(keys[p]) do
+		if k == key then
+			return true
+		end
+	end
+	return false
+end
+
+function Keybinds.is_down_player(id)
+	local keys = Keybinds.player[id]
+	return love.keyboard.isDown(Keybinds.player[id])
 end
 
 return Keybinds

@@ -1,57 +1,133 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
-local min = math.min
+local floor = math.floor
+local insert = table.insert
+local remove = table.remove
+local cache_multi_animation = {}
 
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
-	pool_pause = {"animation", "animation_data", "animation_pause_at"}
+	pool_z = {"animation", "animation_data", "position", "z_index"},
+	pool_multi = {"multiple_animation_data", "animation", "position"},
+	pool_pause = {"animation", "animation_data", "animation_pause_at"},
 })
 
-function Animation:init()
-	self.pool.onEntityAdded = function(pool, e)
-		local data = e:get("animation_data")
-		local animation = e:get("animation")
-		local auto_scale = e:get("auto_scale")
-		if auto_scale then
-			local transform = e:get("transform")
-			if auto_scale.is_proportion then
-				local scale = min(auto_scale.target_width/data.frame_width, auto_scale.target_height/data.frame_height)
-				transform.sx = scale
-				transform.sy = scale
-			else
-				transform.sx = auto_scale.target_width/data.frame_width
-				transform.sy = auto_scale.target_height/data.frame_height
-			end
-		end
+local setup_on_end = function(e, animation)
+	!if _ASSERT then
+	Assert.should_component(animation)
+	!end
 
-		local cb = e:get("animation_on_complete")
-		local on_end
-		if cb then
-			on_end = function()
-				cb.callback()
+	local cb = e.animation_on_complete
+	local on_end
+
+	if cb then
+		on_end = function()
+			cb.callback()
+			if cb.event then
 				animation.is_playing = false
-				if cb.event then
-					animation.animation[cb.event](animation.animation)
-				end
-			end
-		else
-			on_end = function()
-				if animation.stop_on_last then
-					animation.is_playing = false
-					animation.animation:pauseAtEnd()
+				animation.animation[cb.event](animation.animation)
+				if cb.remove_at_end then
+					e:remove("animation_on_complete")
 				end
 			end
 		end
+	else
+		on_end = function()
+			if animation.stop_on_last then
+				animation.is_playing = false
+				animation.animation:pauseAtEnd()
+			end
+		end
+	end
+	return on_end
+end
 
-		animation.grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-		animation.animation = Anim8.newAnimation(animation.grid(unpack(data.frames)), data.durations or data.delay, on_end)
+local setup_animation = function(e, data, on_end)
+	local animation = e.animation
+	local multi = e.multiple_animation_data
+
+	local obj_grid
+	local obj_animation
+
+	if not multi then
+		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
+		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_end)
+	else
+		if cache_multi_animation[animation.current_tag] then
+			local cached = cache_multi_animation[animation.current_tag]
+
+			obj_grid = cached.grid
+			obj_animation = cached.animation
+		else
+			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
+			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_end)
+			cache_multi_animation[animation.current_tag] = {
+				grid = obj_grid,
+				animation = obj_animation
+			}
+			if data.is_flipped then
+				obj_animation:flipH()
+			end
+		end
+	end
+
+	animation.grid = obj_grid
+	animation.animation = obj_animation
+
+	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
+	e:give("sprite", data.spritesheet)
+	e:give("quad", quad)
+
+	if data.is_flipped then
+		e:give("quad_transform", r, sx, sy, ox, oy)
+	else
+		e:remove("quad_transform")
+	end
+end
+
+function Animation:init()
+	self.custom_pool_z = {}
+
+	self.pool.onEntityAdded = function(pool, e)
+		local data = e.animation_data
+		local animation = e.animation
+		local on_end = setup_on_end(e, animation)
+
+		setup_animation(e, data, on_end)
+	end
+
+	self.pool_z.onEntityAdded = function(pool, e)
+		insert(self.custom_pool_z, e)
+		table.insertion_sort(self.custom_pool_z, function(a, b)
+			local a_z = a.z_index.z
+			local b_z = b.z_index.z
+
+			return a_z < b_z
+		end)
+	end
+
+	self.pool_z.onEntityRemoved = function(pool, e)
+		for i = #self.custom_pool_z, 1, -1 do
+			local ent = self.custom_pool_z[i]
+			if e == ent then remove(self.custom_pool_z, i) end
+		end
+	end
+
+	self.pool_multi.onEntityAdded = function(pool, e)
+		local multi = e.multiple_animation_data
+		local animation = e.animation
+		local on_end = setup_on_end(e, animation)
+		local data = multi.data[multi.first]
+
+		animation.current_tag = multi.first
+		e:give("animation_data", data)
 	end
 
 	self.pool_pause.onEntityAdded = function(pool, e)
-		local data = e:get("animation_data")
-		local animation = e:get("animation")
-		local pause_at = e:get("animation_pause_at")
+		local data = e.animation_data
+		local animation = e.animation
+		local pause_at = e.animation_pause_at
 
 		if type(pause_at.at_frame) == "string" then
 			if pause_at.at_frame == "first" then
@@ -67,62 +143,91 @@ function Animation:init()
 	end
 
 	self.pool_pause.onEntityRemoved = function(pool, e)
-		local animation = e:get("animation")
+		local animation = e.animation
+
 		animation.animation:resume()
 	end
 end
 
-function Animation:update(dt)
-	for _, e in ipairs(self.pool) do
-		local animation = e:get("animation")
-		local stop = e:get("animation_stop")
-		local dt_multiplier = e:get("dt_multiplier")
+function Animation:switch_animation_tag(new_tag)
+	!if _ASSERT then
+	Assert.should_string(new_tag)
+	!end
 
-		if dt_multiplier then
-			dt = dt * dt_multiplier.mul
-		end
+	for _, e in ipairs(self.pool_multi) do
+		local multi = e.multiple_animation_data
 
-		if animation.is_playing then
-			if stop then
-				animation.is_playing = false
-				animation.animation[stop.event](animation.animation)
-				local cb = e:get("animation_on_complete")
-				if cb then
-					cb.callback()
-				end
-			end
-			animation.animation:update(dt)
+		!if _ASSERT then
+		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
+		!end
+
+		local animation = e.animation
+		local on_end = setup_on_end(e, animation)
+
+		if not (new_tag == animation.current_tag) then
+			local data = multi.data[new_tag]
+
+			animation.current_tag = new_tag
+			e:remove("animation_data")
+			e:give("animation_data", data)
+			setup_animation(e, data, on_end)
 		end
 	end
 end
 
-function Animation:draw()
+function Animation:update_animation_data(e, data)
+	!if _ASSERT then
+	Assert.should_entity(e)
+	Assert.should_table(data)
+	!end
+
+	local anim_data = e.animation_data
+	local animation = e.animation
+
+	anim_data.spritesheet = data.spritesheet
+	anim_data.frames = data.frames
+	anim_data.delay = data.delay
+	anim_data.rows_count = data.rows_count
+	anim_data.columns_count = data.columns_count
+	anim_data.durations = data.durations
+	anim_data.n_frames = data.n_frames
+
+	anim_data.sheet_height = anim_data.spritesheet:getHeight()
+	anim_data.frame_width = floor(anim_data.sheet_width/anim_data.columns_count)
+	anim_data.frame_height = floor(anim_data.sheet_height/anim_data.rows_count)
+
+	local on_end = setup_on_end(e, animation)
+	setup_animation(e, anim_data, on_end)
+end
+
+function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
-		local data = e:get("animation_data")
-		local animation = e:get("animation")
-		local pos = e:get("position")
-		local color = e:get("color")
-		local transform = e:get("transform")
-		local hidden = e:get("hidden")
+		local animation = e.animation
 
-		if not hidden then
-			if color then
-				love.graphics.setColor(color.color)
+		if animation.animation then
+			local stop = e.animation_stop
+			local dt_multiplier = e.dt_multiplier
+			local quad = e.quad
+
+			if dt_multiplier then
+				dt = dt * dt_multiplier.mul
 			end
 
-			local rotation, sx, sy, ox, oy
-			if transform then
-				rotation = transform.rotation
-				sx = transform.sx
-				sy = transform.sy
-				if transform.ox == 0.5 then
-					ox = data.frame_width/2
+			if animation.is_playing then
+				if stop then
+					animation.is_playing = false
+					animation.animation[stop.event](animation.animation)
+
+					local cb = e.animation_on_complete
+					if cb then
+						cb.callback()
+					end
 				end
-				if transform.oy == 0.5 then
-					oy = data.frame_height/2
-				end
+				animation.animation:update(dt)
 			end
-			animation.animation:draw(data.spritesheet, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+
+			local current_quad = animation.animation:getFrameInfo()
+			quad.quad = current_quad
 		end
 	end
 end

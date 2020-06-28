@@ -4,17 +4,15 @@ local floor = math.floor
 
 Concord.component("animation_data", function(c, data)
 	!if _ASSERT then
-	assert(type(data) == "table", "Passed argument must be of type 'table'")
-	assert(data.spritesheet:type() == "Image", "Passed argument must be of type 'Image'")
-	assert(type(data.frames) == "table", "Passed argument must be of type 'table'")
-	assert(type(data.rows_count) == "number", "Passed argument must be of type 'number'")
-	assert(type(data.columns_count) == "number", "Passed argument must be of type 'number'")
-	assert(type(data.n_frames) == "number", "Passed argument must be of type 'number'")
-	if data.durations then
-		assert(type(data.durations) == "table", "Passed argument must be of type 'table'")
-	elseif data.delay then
-		assert(type(data.delay) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_table(data)
+	Assert.should_image(data.spritesheet)
+	Assert.should_table(data.frames)
+	Assert.should_number(data.rows_count)
+	Assert.should_number(data.columns_count)
+	Assert.safe_should_number(data.n_frames)
+	Assert.should_atleast(data.durations, data.delay)
+	Assert.safe_should_table(data.durations)
+	Assert.safe_should_number(data.delay)
 	!end
 
 	c.spritesheet = data.spritesheet

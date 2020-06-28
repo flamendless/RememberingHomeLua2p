@@ -2,13 +2,10 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("sdf", function(c, scale_x, scale_y)
 	!if _ASSERT then
-	if scale_x then
-		assert(type(scale_x) == "number", "Passed argument must be of type 'number'")
-	end
-	if scale_y then
-		assert(type(scale_y) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.safe_should_number(scale_x)
+	Assert.safe_should_number(scale_y)
 	!end
+
 	c.scale_x = scale_x or 1
 	c.scale_y = scale_y or 1
 end)

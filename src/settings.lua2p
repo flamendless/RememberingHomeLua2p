@@ -1,0 +1,174 @@
+local Enum = require("modules.enum.enum")
+local Inspect = require("modules.inspect.inspect")
+local JSON = require("modules.json.json")
+local Log = require("modules.log.log")
+
+local Keybinds = require("keybinds")
+local WindowMode = require("window_mode")
+
+local insert = table.insert
+local format = string.format
+local sub = string.sub
+
+local Settings = {
+	current = {}
+}
+
+local filename = !(_SETTINGS_FILENAME)
+local filename_key = !(_SETTINGS_FILENAME_KEY)
+local graphics_quality = Enum("Low", "High")
+local cached_gq = {}
+
+function Settings.initialize()
+	local file = Settings.check_file()
+	if file then
+		local valid = Settings.validate_file()
+		if valid then
+			Settings.current = Settings.parse_file()
+			Keybinds.set_from_settings(Settings.current.keybindings)
+		else
+			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", filename, filename_key, love.filesystem.getSaveDirectory())
+			error(error_msg)
+		end
+	else
+		Settings.create_new()
+	end
+
+	Log.info(Inspect(Settings.current))
+end
+
+function Settings.create_new()
+	local renderer_name, renderer_version, renderer_vendor, renderer_device = love.graphics.getRendererInfo()
+	local gl_version = sub(renderer_version, 1, 3)
+
+	if gl_version == !(_MIN_GL_VERSION) then
+		Settings.current.graphics_quality = graphics_quality.Low
+	else
+		Settings.current.graphics_quality = graphics_quality.High
+	end
+
+	Settings.current.current_wm = 1
+	Settings.current.splash_done = false
+	Settings.current.intro_done = false
+	Settings.current.game_sounds = true
+	Settings.current.game_music = true
+	Settings.current.keybindings = {
+		ui = {},
+		player = {},
+	}
+
+	table.copy(Keybinds.ui_default, Settings.current.keybindings.ui)
+	table.copy(Keybinds.player_default, Settings.current.keybindings.player)
+
+	local to_write = JSON.encode(Settings.current)
+	Settings.overwrite(to_write)
+end
+
+function Settings.check_file()
+	local file = love.filesystem.getInfo(filename)
+	local key = love.filesystem.getInfo(filename_key)
+
+	Log.info(format("'%s' exists: %s", filename, file ~= nil))
+	Log.info(format("'%s' exists: %s", filename_key, key ~= nil))
+
+	return file and key
+end
+
+function Settings.validate_file()
+	local content = love.filesystem.read(filename)
+	local key = love.filesystem.read(filename_key)
+	local hashed = love.data.hash("sha256", content)
+
+	return hashed == key
+end
+
+function Settings.parse_file()
+	local content = love.filesystem.read(filename)
+	local save_data = JSON.decode(content)
+
+	return save_data
+end
+
+function Settings.overwrite(to_write)
+	local to_write = to_write or JSON.encode(Settings.current)
+	love.filesystem.write(filename, to_write)
+	Log.info(format("'%s' written", filename))
+
+	local hashed = love.data.hash("sha256", to_write)
+	love.filesystem.write(filename_key, hashed)
+	Log.info(format("'%s' updated", filename_key))
+end
+
+function Settings.update_graphics_quality(str, should_overwrite)
+	Settings.current.graphics_quality = graphics_quality[str]
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.update_window_mode(i, should_overwrite)
+	Settings.current.current_wm = i
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_splash_done(should_overwrite)
+	Settings.current.splash_done = true
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_intro_done(should_overwrite)
+	Settings.current.intro_done = true
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.set_game_sounds(flag, should_overwrite)
+	local prev = Settings.current_game_sounds
+	if prev ~= flag then
+		Settings.current.game_sounds = flag
+		if should_overwrite then
+			Settings.overwrite()
+		end
+	end
+end
+
+function Settings.set_game_music(flag, should_overwrite)
+	local prev = Settings.current_game_musoc
+	if prev ~= flag then
+		Settings.current.game_music = flag
+		if should_overwrite then
+			Settings.overwrite()
+		end
+	end
+end
+
+function Settings.update_keybindings(should_overwrite)
+	Settings.current.keybindings = {
+		ui = {},
+		player = {},
+	}
+	table.copy(Keybinds.ui, Settings.current.keybindings.ui)
+	table.copy(Keybinds.player, Settings.current.keybindings.player)
+	if should_overwrite then
+		Settings.overwrite()
+	end
+end
+
+function Settings.get_gq_list()
+	if #cached_gq == 0 then
+		for k, v in pairs(graphics_quality) do
+			if type(v) == "string" then
+				insert(cached_gq, v)
+			end
+		end
+	end
+
+	return cached_gq
+end
+
+return Settings

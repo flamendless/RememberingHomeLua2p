@@ -7,19 +7,21 @@ local HoverEffect = Concord.system({
 
 function HoverEffect:change_color(mx, my)
 	for _, e in ipairs(self.pool_change_color) do
-		local color = e:get("color")
-		local new_color = e:get("hover_change_color")
-		local box = e:get("bounding_box")
-		local hoverable = e:get("hoverable")
-		local camera = e:get("camera")
+		local color = e.color
+		local new_color = e.hover_change_color
+		local box = e.bounding_box
+		local hoverable = e.hoverable
+		local camera = e.camera
 		local bx = box.x
 		local by = box.y
 		local bw = box.w
 		local bh = box.h
+
 		if camera then
 			bx = box.screen_x
 			by = box.screen_y
 		end
+
 		if mx > bx and mx < bx + bw and my > by and my < by + bh then
 			if not hoverable.is_hovered then
 				hoverable.is_hovered = true

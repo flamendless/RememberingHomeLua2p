@@ -2,12 +2,11 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("clickable", function(c, mb, on_click)
 	!if _ASSERT then
-	assert(type(mb) == "number", "Passed argument must be of type 'number'")
-	if mb > 3 or mb < 1 then
-		error("Mouse Button must either be 1, 2, 3")
-	end
-	assert(type(on_click) == "function", "Passed argument must be of type 'function'")
+	Assert.should_number(mb)
+	Assert.within_range(mb, 1, 3)
+	Assert.should_function(on_click)
 	!end
+
 	c.mb = mb
 	c.on_click = on_click
 end)

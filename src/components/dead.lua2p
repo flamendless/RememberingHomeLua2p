@@ -1,0 +1,4 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("dead", function(c)
+end)

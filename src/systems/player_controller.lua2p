@@ -1,0 +1,106 @@
+local Concord = require("modules.concord.concord")
+local Bump = require("modules.bump.bump-niji")
+
+local Keybinds = require("keybinds")
+
+local PlayerController = Concord.system({
+	pool = {"player_controller", "body", "collider"},
+})
+
+function PlayerController:init(world)
+	self.world = world
+end
+
+function PlayerController:update(dt)
+	for _, e in ipairs(self.pool) do
+		local player_controller = e.player_controller
+		local body = e.body
+		local collider = e.collider
+
+		if e:has("override_animation") then return end
+		if not body.can_move then return end
+
+		if Keybinds.is_down_player("move_left") then
+			body.is_run = love.keyboard.isDown("lshift")
+			body.dir = -1
+			body.dx = -1
+		elseif Keybinds.is_down_player("move_right") then
+			body.is_run = love.keyboard.isDown("lshift")
+			body.dir = 1
+			body.dx = 1
+		else
+			body.dx = 0
+		end
+
+		local animation_name
+		local animation_variance
+
+		if body.dx ~= 0 then
+			if body.is_run then
+				animation_name = "run"
+			else
+				animation_name = "walk"
+			end
+		else
+			animation_name = "idle"
+		end
+
+		if body.dir == -1 then
+			animation_variance = "_left"
+		end
+
+		if animation_name then
+			if animation_variance then
+				self.world:emit("switch_animation_tag", animation_name .. animation_variance)
+			else
+				self.world:emit("switch_animation_tag", animation_name)
+			end
+		end
+
+		local speed = e.speed
+		local speed_data = e.speed_data
+
+		if speed and speed_data then
+			local old_speed = speed.speed
+			local new_speed = speed_data.speed_data[animation_name]
+			if body.dx ~= 0 then
+				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
+				speed.speed = speed_dt
+			else
+				speed.speed = new_speed
+			end
+		end
+	end
+end
+
+function PlayerController:face_left()
+	for _, e in ipairs(self.pool) do
+		local player_controller = e.player_controller
+		local body = e.body
+
+		if e:has("override_animation") then return end
+		body.is_run = love.keyboard.isDown("lshift")
+		body.dir = -1
+		body.dx = -1
+	end
+end
+
+function PlayerController:face_right()
+	for _, e in ipairs(self.pool) do
+		local player_controller = e.player_controller
+		local body = e.body
+
+		if e:has("override_animation") then return end
+		body.is_run = love.keyboard.isDown("lshift")
+		body.dir = 1
+		body.dx = 1
+	end
+end
+
+function PlayerController:collision_wall(player, wall)
+	--TODO hit wall animation
+	player.body.can_move = false
+	self.world:emit("switch_animation_tag", "idle")
+end
+
+return PlayerController

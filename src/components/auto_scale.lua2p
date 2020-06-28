@@ -4,8 +4,8 @@ local floor = math.floor
 
 Concord.component("auto_scale", function(c, target_width, target_height, is_proportion)
 	!if _ASSERT then
-	assert(type(target_width) == "number", "Passed argument must be of type 'number'")
-	assert(type(target_height) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(target_width)
+	Assert.should_number(target_height)
 	!end
 
 	c.target_width = target_width

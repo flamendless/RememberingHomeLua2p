@@ -1,0 +1,38 @@
+local Concord = require("modules.concord.concord")
+
+local Keybinds = require("keybinds")
+
+local Item = Concord.system({
+	pool = {"item", "collider"},
+})
+
+function Item:init(world)
+	self.id_map = unique_mapping:new()
+	self.id = {}
+
+	self.pool.onEntityAdded = function(pool, e)
+		local item_id = e.item.id
+		local i = self.id_map:map(item_id)
+
+		!if _ASSERT then
+		Assert.should_nil(self.id[i])
+		!end
+
+		self.id[i] = item_id
+	end
+end
+
+function Item:keypressed(key)
+	if Keybinds.pressed_player(key, "interact") then
+		for _, e in ipairs(self.pool) do
+			local item = e.item
+			local collider = e.collider
+
+			if collider.is_hit then
+				print(item.id)
+			end
+		end
+	end
+end
+
+return Item

@@ -1,0 +1,10 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("acceleration", function(c, accel)
+	!if _ASSERT then
+	Assert.should_vec2(accel)
+	!end
+
+	c.accel = accel
+end)
+

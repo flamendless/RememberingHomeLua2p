@@ -4,12 +4,11 @@ local floor = math.floor
 
 Concord.component("animation", function(c, stop_on_last)
 	!if _ASSERT then
-	if stop_on_last then
-		assert(type(stop_on_last) == "boolean", "Passed argument must be of type 'boolean'")
-	end
+	Assert.safe_should_boolean(stop_on_last)
 	!end
 	c.grid = nil
 	c.animation = nil
+	c.current_tag = "default"
 	c.is_playing = true
 	c.stop_on_last = (stop_on_last == true) and true or false
 end)
@@ -29,4 +28,7 @@ Concord.component("animation_stop", function(c, event)
 	assert(event == "pauseAtEnd" or event == "pauseAtStart", "Passed argument must be either be 'pauseAtEnd' or 'pauseAtStart'")
 	!end
 	c.event = event
+end)
+
+Concord.component("override_animation", function(c)
 end)

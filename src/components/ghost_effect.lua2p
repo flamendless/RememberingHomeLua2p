@@ -3,11 +3,11 @@ local Concord = require("modules.concord.concord")
 Concord.component("ghost_effect", function(c, props)
 	local properties = {}
 	!if _ASSERT then
-	if props then
-		assert(type(props) == "table", "Passed argument must be of type 'table'")
+	if Assert.safe_should_table(props) then
 		properties = props
 	end
 	!end
+
 	c.is_ghost = false
 	c.ghost = {
 		x = 0, y = 0,

@@ -1,0 +1,27 @@
+local Concord = require("modules.concord.concord")
+
+local Movement = Concord.system({
+	pool = {"speed", "gravity", "body"},
+})
+
+function Movement:update(dt)
+	for _, e in ipairs(self.pool) do
+		local body = e.body
+		local speed = e.speed.speed
+		local gravity = e.gravity.gravity
+
+		if body.can_move then
+			local vel_x = 0
+			local vel_y = gravity * dt
+
+			if body.dx ~= 0 then
+				vel_x = speed * body.dir * dt
+			end
+
+			body.vel_x = vel_x
+			body.vel_y = vel_y
+		end
+	end
+end
+
+return Movement

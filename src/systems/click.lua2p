@@ -6,14 +6,15 @@ local Click = Concord.system({
 
 function Click:mousepressed(mb, mx, my)
 	for _, e in ipairs(self.pool) do
-		local box = e:get("bounding_box")
-		local clickable = e:get("clickable")
-		local camera = e:get("camera")
+		local box = e.bounding_box
+		local clickable = e.clickable
+		local camera = e.camera
 
 		local bx = box.x
 		local by = box.y
 		local bw = box.w
 		local bh = box.h
+
 		if camera then
 			bx = box.screen_x
 			by = box.screen_y

@@ -1,46 +1,118 @@
 local Concord = require("modules.concord.concord")
 
+local insert = table.insert
+local remove = table.remove
+
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
+	pool_z = {"position", "sprite", "z_index"},
+	pool_ui = {"position", "sprite", "ui_element"},
 })
 
-function RenderSprite:draw()
-	for _, e in ipairs(self.pool) do
-		local hidden = e:get("hidden")
-		if not hidden then
-			local pos = e:get("position")
-			local color = e:get("color")
-			local sprite = e:get("sprite")
-			local transform = e:get("transform")
-			love.graphics.setColor(1, 1, 1, 1)
+function RenderSprite:init()
+	self.custom_pool_z = {}
 
-			if color then
-				love.graphics.setColor(e.color.color)
+	self.pool_z.onEntityAdded = function(pool, e)
+		insert(self.custom_pool_z, e)
+		table.insertion_sort(self.custom_pool_z, function(a, b)
+			local a_z = a.z_index.z
+			local b_z = b.z_index.z
+
+			return a_z < b_z
+		end)
+	end
+
+	self.pool_z.onEntityRemoved = function(pool, e)
+		for i = #self.custom_pool_z, 1, -1 do
+			if e == self.custom_pool_z[i] then
+				remove(self.custom_pool_z, i)
+				break
 			end
+		end
+	end
+end
 
-			local rotation, sx, sy, ox, oy
-			if transform then
-				rotation = transform.rotation
-				sx = transform.sx
-				sy = transform.sy
+function RenderSprite:internal_draw(e)
+	local hidden = e.hidden
+	if not hidden then
+		local pos = e.position
+		local quad = e.quad
+		local color = e.color
+		local sprite = e.sprite
+		local transform = e.transform
+		local quad_transform = e.quad_transform
+		local animation_data = e.animation_data
+
+		love.graphics.setColor(1, 1, 1, 1)
+		if color then
+			love.graphics.setColor(e.color.color)
+		end
+
+		local rotation, sx, sy, ox, oy
+		if transform then
+			rotation = transform.rotation
+			sx = transform.sx
+			sy = transform.sy
+
+			if animation_data then
+				if transform.ox == 0.5 then
+					ox = animation_data.frame_width/2
+				elseif transform.ox == 1 then
+					ox = animation_data.frame_width
+				end
+
+				if transform.oy == 0.5 then
+					oy = animation_data.frame_height/2
+				elseif transform.oy == 1 then
+					oy = animation_data.frame_height
+				end
+			else
 				if transform.ox == 0.5 then
 					ox = sprite.sprite:getWidth()/2
 				else
-					if type(transform.ox) == "number" then
-						ox = transform.ox
-					end
+					ox = transform.ox
 				end
+
 				if transform.oy == 0.5 then
 					oy = sprite.sprite:getHeight()/2
 				else
-					if type(transform.oy) == "number" then
-						oy = transform.oy
-					end
+					oy = transform.oy
 				end
 			end
+		end
 
+		if quad then
+			if quad_transform then
+				rotation = quad_transform.rotation
+				sx = quad_transform.sx
+				sy = quad_transform.sy
+				ox = quad_transform.ox
+				oy = quad_transform.oy
+			end
+			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		else
 			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		end
+	end
+end
+
+function RenderSprite:draw()
+	for _, e in ipairs(self.pool) do
+		if not e:has("z_index") and not e:has("ui_element") then
+			self:internal_draw(e)
+		end
+	end
+end
+
+function RenderSprite:draw_z()
+	for _, e in ipairs(self.custom_pool_z) do
+		self:internal_draw(e)
+	end
+end
+
+function RenderSprite:draw_ui()
+	for _, e in ipairs(self.pool_ui) do
+		self:internal_draw(e)
 	end
 end
 

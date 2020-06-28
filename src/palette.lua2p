@@ -6,7 +6,8 @@ local Palette = {}
 Palette.colors = {
 	white = { 1, 1, 1, 1 },
 	red = { 1, 0, 0, 1 },
-	disabled = { 0.2, 0.2, 0.2, 1 }
+	disabled = { 0.2, 0.2, 0.2, 1 },
+	ui_red = { 1, 0, 0, 1 },
 }
 
 Palette.windows = {
@@ -22,11 +23,10 @@ Palette.color_glitches = {
 
 function Palette:get_color(color, alpha)
 	!if _ASSERT then
-	assert(self.colors[color], "Passed 'color' does not exist in 'Palette.colors' list")
-	if alpha then
-		assert(type(alpha) == "number", "Passed argument must be of type 'number'")
-	end
+	Assert.should_exists(self.colors[color])
+	Assert.safe_should_number(alpha)
 	!end
+
 	local color = self.colors[color]
 	return {
 		color[1],

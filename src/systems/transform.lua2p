@@ -1,26 +1,65 @@
 local Concord = require("modules.concord.concord")
 
+local min = math.min
+
 local Transform = Concord.system({
 	pool = {"transform"},
 	pool_anchor = {"position", "anchor"},
 	pool_camera = {"position", "camera"},
+	pool_attach = {"position", "attach_to"},
+	pool_auto_scale = {"transform", "auto_scale"},
 })
 
 function Transform:init()
 	self.pool_anchor.onEntityAdded = function(pool, e)
 		self:update_anchor(e)
 	end
+
+	self.pool_attach.onEntityAdded = function(pool, e)
+		local attach = e.attach_to
+		local target = attach.target_e
+
+		!if _ASSERT then
+		if not target:has("position") then
+			error("Target entity must have a position component")
+		end
+		!end
+	end
+
+	self.pool_auto_scale.onEntityAdded = function(pool, e)
+		local auto_scale = e.auto_scale
+		local transform = e.transform
+		local anim_data = e.animation_data
+
+		if anim_data then
+			local dsx = auto_scale.target_width/anim_data.frame_width
+			local dsy = auto_scale.target_height/anim_data.frame_height
+
+			if auto_scale.is_proportion then
+				local scale = min(dsx, dsy)
+
+				transform.sx = transform.sx * scale
+				transform.sy = transform.sy * scale
+			else
+				transform.sx = transform.sx * dsx
+				transform.sy = transform.sy * dsy
+			end
+		end
+	end
 end
 
 function Transform:update_anchor(e)
-	local anchor = e:get("anchor")
-	local pos = e:get("position")
+	local anchor = e.anchor
+	local pos = e.position
 
-	local target_pos = anchor.entity:get("position")
-	local target_sprite = anchor.entity:get("sprite")
-	assert(target_sprite, "Anchor.entity must have a sprite component")
+	local target_pos = anchor.entity.position
+	local target_sprite = anchor.entity.sprite
 
-	local target_transform = anchor.entity:get("transform")
+	!if _ASSERT then
+	Assert.should_image(target_sprite)
+	!end
+
+	local target_transform = anchor.entity.transform
 	local sx = target_transform.sx or 1
 	local sy = target_transform.sy or 1
 	local ox = target_transform.ox or 0
@@ -59,7 +98,7 @@ end
 
 function Transform:canvas_resize(ww, wh, scale)
 	for _, e in ipairs(self.pool) do
-		local transform = e:get("transform")
+		local transform = e.transform
 		if transform then
 			transform.sx = scale
 			transform.sy = scale
@@ -69,16 +108,31 @@ end
 
 function Transform:update_position(l, t)
 	for _, e in ipairs(self.pool_camera) do
-		local pos = e:get("position")
+		local pos = e.position
+
 		pos.pos.x = pos.pos.x + l
 		pos.pos.y = pos.pos.y + t
 		pos.original_pos = pos.pos:copy()
 	end
 end
 
+function Transform:update_attachment(e)
+	local attach = e.attach_to
+	local pos = e.position
+
+	local target = attach.target_e
+	local t_pos = target.position
+
+	pos.pos = t_pos.pos:copy()
+end
+
 function Transform:update(dt)
 	for _, e in ipairs(self.pool_anchor) do
 		self:update_anchor(e)
+	end
+
+	for _,e in ipairs(self.pool_attach) do
+		self:update_attachment(e)
 	end
 end
 

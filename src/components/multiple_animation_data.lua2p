@@ -1,0 +1,50 @@
+local Concord = require("modules.concord.concord")
+
+local floor = math.floor
+
+Concord.component("multiple_animation_data", function(c, first, data, modifier)
+	!if _ASSERT then
+	Assert.should_string(first)
+	Assert.should_table(data)
+	Assert.should_exists(data[first])
+
+	for k, v in pairs(data) do
+		Assert.should_exists(v.spritesheet)
+		Assert.should_image(v.spritesheet)
+		Assert.should_number(v.delay)
+		Assert.should_number(v.rows_count)
+		Assert.should_number(v.columns_count)
+		Assert.should_number(v.n_frames)
+	end
+	if Assert.safe_should_table(modifier) then
+		for id, v in pairs(modifier) do
+			local target = v[1]
+			local action = v[2]
+			Assert.should_exists(data[id])
+			Assert.should_string(target)
+			Assert.should_string(action)
+		end
+	end
+	!end
+
+	for id, v in pairs(data) do
+		v.sheet_width = v.spritesheet:getWidth()
+		v.sheet_height = v.spritesheet:getHeight()
+		v.frame_width = floor(v.sheet_width/v.columns_count)
+		v.frame_height = floor(v.sheet_height/v.rows_count)
+	end
+
+	if modifier then
+		for id, v in pairs(modifier) do
+			local target = v[1]
+			local action = v[2]
+			data[target] = {}
+			table.copy(data[id], data[target])
+			data[target].is_flipped = true
+		end
+	end
+
+	c.first = first
+	c.data = data
+	c.modifier = modifier
+end)

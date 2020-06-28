@@ -1,0 +1,159 @@
+local Concord = require("modules.concord.concord")
+
+local Palette = require("palette")
+
+local Intro = {}
+
+local speed = {
+	building = 32,
+	road = 512,
+	post = 512,
+	grass1 = 640,
+	grass2 = 656,
+	grass_back = 48,
+	grass_front = 496,
+	bg_trees1 = 400,
+	bg_trees2 = 316,
+	bg_trees3 = 232,
+	fg_tree = -672,
+}
+
+local z_index = {
+	building = 1,
+	grass_back = 2,
+	bg_trees3 = 3,
+	bg_trees2 = 4,
+	bg_trees1 = 5,
+	bg_trees0 = 6,
+	grass_front = 7,
+	road = 8,
+	post = 9,
+	grass1 = 10,
+	car = 11,
+	fg_tree = 12,
+	grass2 = 13,
+}
+
+function Intro.parallax(e, sprite, quad_width, tag)
+	!if _ASSERT then
+	Assert.should_exists(speed[tag])
+	Assert.should_exists(z_index[tag])
+	Assert.should_number(quad_width)
+	!end
+
+	local w, h = sprite:getDimensions()
+	local quad = love.graphics.newQuad(0, 0, quad_width, h, w, h)
+	local x = 0
+	local y = 0
+
+	if tag == "bg_trees1" or tag == "bg_trees2" or tag == "bg_trees3" then
+		x = love.graphics.getWidth()
+		y = 90
+		e:give("parallax_stop")
+		e:give("bg_tree")
+	end
+
+	e:give("sprite", sprite)
+	:give("quad", quad)
+	:give("position", vec2:new(x, y))
+	:give("parallax", vec2:new(speed[tag], 0))
+	:give("z_index", z_index[tag])
+end
+
+function Intro.bg_tree_cover(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(love.graphics.getWidth(), 90))
+	:give("transform", 0, 1, 1, sprite:getWidth()/2)
+	:give("z_index", z_index.bg_trees0)
+	:give("bg_tree", true)
+end
+
+function Intro.fg_tree_data(e, images, max_width)
+	e:give("tree_data", {
+		images = images,
+		max_width = max_width,
+		parallax = vec2:new(speed.fg_tree, 0),
+		z_index = z_index.fg_tree,
+		chance = { yes = 0.2, no = 0.8 },
+	})
+end
+
+function Intro.tree(e, sprite, pos, index, parallax, z_index)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("tree", index)
+	:give("parallax", parallax)
+	:give("z_index", z_index)
+end
+
+function Intro.car(e, spritesheet)
+	local data = {
+		spritesheet = spritesheet,
+		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		delay = 0.2,
+		rows_count = 4,
+		columns_count = 3,
+		n_frames = 12
+	}
+
+	local car_init_pos = vec2:new(16, 325)
+	e:give("animation_data", data)
+	:give("position", car_init_pos)
+	:give("animation", false)
+	:give("z_index", z_index.car)
+end
+
+function Intro.car_reflect(e, spritesheet, car)
+	local data = {
+		spritesheet = spritesheet,
+		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		delay = 0.2,
+		rows_count = 4,
+		columns_count = 3,
+		n_frames = 12
+	}
+	e:give("animation_data", data)
+	:give("position", car:get("position").pos:copy())
+	:give("animation", false)
+	:give("attach_to", car)
+	:give("z_index", z_index.car)
+end
+
+function Intro.ui_text(e, text, font, pos)
+	e:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette:get_color("white", 0))
+	:give("ui_text")
+	:give("hidden")
+end
+
+function Intro.dialogue_text(e, text, font, pos)
+	e:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("color", Palette:get_color("white", 0))
+	:give("ui_text")
+	:give("hidden")
+	--TODO add voice acting dialogue
+	-- :give("sound", sound_voice)
+end
+
+function Intro.bg_paint(e, data, pos)
+	e:give("animation_data", data)
+	:give("ui_element")
+	:give("position", pos)
+	:give("animation", true)
+end
+
+function Intro.title(e, sprite, pos)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("hidden")
+	:give("transform", 0, 6, 6, 0.5, 0.5)
+	:give("color", { 1, 1, 1, 0 })
+	:give("ui_element")
+end
+
+return Intro

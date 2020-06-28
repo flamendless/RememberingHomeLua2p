@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("z_index", function(c, z)
+	!if _ASSERT then
+	Assert.should_number(z)
+	!end
+
+	c.z = z
+end)

@@ -1,0 +1,81 @@
+local Concord = require("modules.concord.concord")
+local Bump = require("modules.bump.bump-niji")
+
+local BumpCollision = Concord.system({
+	pool = {"collider", "position", "bump"},
+})
+
+function BumpCollision:init(world)
+	self.world = world
+	self.bump_world = Bump.newWorld()
+
+	self.pool.onEntityAdded = function(pool, e)
+		local collider = e.collider
+		local pos = e.position.pos
+		local size = collider.size
+
+		self.bump_world:add(e, pos.x, pos.y, size.x, size.y)
+	end
+end
+
+local filter = function(item, other)
+	local other_col = other.collider
+	if other_col.filter then
+		return other_col.filter
+	else
+		return "slide"
+	end
+end
+
+function BumpCollision:preupdate(dt)
+	for _, e in ipairs(self.pool) do
+		local collider = e.collider
+
+		collider.is_hit = false
+	end
+end
+
+function BumpCollision:update(dt)
+	for _, e in ipairs(self.pool) do
+		local collider = e.collider
+		local body = e.body
+		local pos = e.position.pos
+
+		if body then
+			if body.vel_x ~= 0 or body.vel_y ~= 0 then
+				local cols, len
+				pos.x, pos.y, cols, len = self.bump_world:move(e, pos.x + body.vel_x, pos.y + body.vel_y, filter)
+
+				for i = 1, len do
+					local c = cols[i]
+
+					local other = c.other
+					local other_col = other.collider
+					local other_id = other.bump.id
+
+					other_col.is_hit = true
+					other_col.normal.x = c.normalX
+					other_col.normal.y = c.normalY
+
+					local item = c.item
+					local item_col = item.collider
+
+					item_col.is_hit = true
+					item_col.normal.x = c.normalX
+					item_col.normal.y = c.normalY
+
+					if other_id then
+						if other_id == "wall" then
+							self.world:emit("collision_wall", e, other)
+							return
+						end
+					end
+				end
+
+				self.bump_world.freeCollisions(cols)
+			end
+		end
+	end
+end
+
+return BumpCollision

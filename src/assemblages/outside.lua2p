@@ -1,0 +1,55 @@
+local Concord = require("modules.concord.concord")
+
+local Outside = {}
+
+local z_index = {
+	bg = 1,
+	-- player = 2,
+	fence = 3
+}
+
+function Outside.bg(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(0, 0))
+	:give("z_index", z_index.bg)
+end
+
+function Outside.ground(e, size)
+	e:give("position", vec2:new(0, 350))
+	:give("collider", size)
+	:give("bump")
+
+	!if not _RELEASE then
+	e:give("debug_slab", "ground")
+	!end
+end
+
+function Outside.left_wall(e)
+	e:give("position", vec2:new(55, 303))
+	:give("collider", vec2:new(90, 64))
+	:give("bump")
+end
+
+function Outside.right_wall(e)
+	e:give("position", vec2:new(1190, 300))
+	:give("collider", vec2:new(72, 64))
+	:give("bump")
+end
+
+function Outside.fence(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(-47, 330))
+	:give("z_index", z_index.fence)
+end
+
+function Outside.car(e)
+	e:give("position", vec2:new(934, 281))
+	:give("collider", vec2:new(78, 49), nil, "cross")
+	:give("bump")
+
+	!if not _RELEASE then
+	e:give("debug_slab", "car")
+	!end
+end
+
+return Outside

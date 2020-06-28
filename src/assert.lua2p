@@ -1,0 +1,305 @@
+local Assert = {}
+
+local concat = table.concat
+local format = string.format
+
+local T_BOOLEAN = "boolean"
+local T_CUSTOM_CANVAS = "CustomCanvas"
+local T_FONT = "Font"
+local T_FONT_SDF = "fontsdf"
+local T_FUNCTION = "function"
+local T_IMAGE = "Image"
+local T_IMAGEDATA = "ImageData"
+local T_NUMBER = "number"
+local T_QUAD = "Quad"
+local T_SHADER = "Shader"
+local T_STRING = "string"
+local T_TABLE = "table"
+local T_VEC2 = "vec2"
+
+local msg_nil = "Passed argument is 'nil'"
+local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_component = "Passed argument must not be of type 'Component'"
+local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
+local msg_should_entity = "Passed argument must not be of type 'Entity'"
+local msg_should_exists = "Passed argument must not be nil"
+local msg_should_font = "Passed argument must be of type 'Font'"
+local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
+local msg_should_function = "Passed argument must be of type 'function'"
+local msg_should_image = "Passed argument must be of type 'Image'"
+local msg_should_imagedata = "Passed argument must be of type 'ImageData'"
+local msg_should_image_or_imagedata = "Passed argument must be of type 'Image' or 'ImageData'"
+local msg_should_nil = "Passed argument must be nil"
+local msg_should_number = "Passed argument must be of type 'number'"
+local msg_should_quad = "Passed argument must be of type 'Quad'"
+local msg_should_shader = "Passed argument must be of type 'Shader'"
+local msg_should_string = "Passed argument must be of type 'string'"
+local msg_should_system = "Passed argument must be of type 'System'"
+local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_vec2 = "Passed argument must be of type 'vec2'"
+local msg_should_world = "Passed argument must not be of type 'World'"
+
+function Assert.should_all_image_i(arg)
+	Assert.should_table(arg)
+	for i, v in ipairs(arg) do
+		Assert.should_image(v)
+	end
+end
+
+function Assert.should_boolean(arg)
+	if type(arg) ~= T_BOOLEAN then
+		error(msg_should_boolean, 2)
+	end
+end
+
+function Assert.should_exists(arg)
+	if not arg then
+		error(msg_should_exists, 2)
+	end
+end
+
+function Assert.should_function(arg)
+	if type(arg) ~= T_FUNCTION then
+		error(msg_should_function, 2)
+	end
+end
+
+function Assert.should_nil(arg)
+	if arg ~= nil then
+		error(msg_should_nil, 2)
+	end
+end
+
+function Assert.should_number(arg)
+	if type(arg) ~= T_NUMBER then
+		error(msg_should_number, 2)
+	end
+end
+
+function Assert.should_string(arg)
+	if type(arg) ~= T_STRING then
+		error(msg_should_string, 2)
+	end
+end
+
+function Assert.should_table(arg)
+	if type(arg) ~= T_TABLE then
+		error(msg_should_table, 2)
+	end
+end
+
+--CUSTOM
+function Assert.either_type(arg, ...)
+	local args = {...}
+	local pass = false
+	for _, v in ipairs(args) do
+		if type(arg) == v then
+			pass = true
+			break
+		end
+	end
+	if not pass then
+		local msg = "Passed argument must be either of types: " .. concat(args, ", ")
+		error(msg, 2)
+	end
+end
+
+function Assert.either_value(arg, ...)
+	local args = {...}
+	local pass = false
+	for _, v in ipairs(args) do
+		if arg == v then
+			pass = true
+			break
+		end
+	end
+	if not pass then
+		local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+		error(msg, 2)
+	end
+end
+
+function Assert.should_atleast(...)
+	local args = {...}
+	local pass = false
+	for i = 1, #args do
+		if args[i] ~= nil then
+			pass = true
+			break
+		end
+	end
+	if not pass then
+		local msg = "Passed arguments must have atleast one true"
+		error(msg, 2)
+	end
+end
+
+function Assert.should_custom_canvas(arg)
+	if arg:type() ~= T_CUSTOM_CANVAS then
+		error(msg_should_custom_canvas, 2)
+	end
+end
+
+function Assert.should_vec2(arg)
+	if arg == nil then
+		error(msg_nil, 2)
+	end
+	if arg.type ~= T_VEC2 then
+		error(msg_should_vec2, 2)
+	end
+end
+
+function Assert.within_range(arg, min, max)
+	if (arg > max) or (arg < min) then
+		local msg = format("Passed argument must be within the range: %i - %i", min, max)
+		error(msg, 2)
+	end
+end
+
+--ECS (Concord)
+function Assert.should_component(arg)
+	if not arg.__isComponent then
+		error(msg_should_component, 2)
+	end
+end
+
+function Assert.should_entity(arg)
+	if not arg.__isEntity then
+		error(msg_should_entity, 2)
+	end
+end
+
+function Assert.should_system(arg)
+	if not arg.__isSystem then
+		error(msg_should_system, 2)
+	end
+end
+
+function Assert.should_world(arg)
+	if not arg.__isWorld then
+		error(msg_should_world, 2)
+	end
+end
+
+--LOVE
+function Assert.should_font(arg)
+	if arg:type() ~= T_FONT then
+		error(msg_should_font, 2)
+	end
+end
+
+function Assert.should_font_or_sdf(arg)
+	local t = arg:type()
+	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+		error(msg_should_font_or_sdf)
+	end
+end
+
+function Assert.should_image(arg)
+	if arg:type() ~= T_IMAGE then
+		error(msg_should_image, 2)
+	end
+end
+
+function Assert.should_imagedata(arg)
+	if arg:type() ~= T_IMAGEDATA then
+		error(msg_should_imagedata, 2)
+	end
+end
+
+function Assert.should_image_or_imagedata(arg)
+	local t = arg:type()
+	if (t ~= T_IMAGE) and (t ~= T_IMAGEDATA) then
+		error(msg_should_image_or_imagedata)
+	end
+end
+
+function Assert.should_quad(arg)
+	if arg:type() ~= T_QUAD then
+		error(msg_should_quad, 2)
+	end
+end
+function Assert.should_shader(arg)
+	if arg:type() ~= T_SHADER then
+		error(msg_should_shader, 2)
+	end
+end
+
+--SAFE
+function Assert.safe_either_value(arg, ...)
+	if arg then
+		local args = {...}
+		local pass = false
+		for _, v in ipairs(args) do
+			if arg == v then
+				pass = true
+				break
+			end
+		end
+		if not pass then
+			local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+			error(msg, 2)
+		end
+	end
+end
+
+function Assert.safe_should_boolean(arg)
+	if arg then
+		Assert.should_boolean(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_font(arg)
+	if arg then
+		Assert.should_font(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_font_or_sdf(arg)
+	if arg then
+		local t = arg:type()
+		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+			error(msg_should_font_or_sdf)
+		end
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_number(arg)
+	if arg then
+		Assert.should_number(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_string(arg)
+	if arg then
+		Assert.should_string(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_table(arg)
+	if arg then
+		Assert.should_table(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_vec2(arg)
+	if arg then
+		Assert.should_vec2(arg)
+		return true
+	end
+	return false
+end
+
+return Assert

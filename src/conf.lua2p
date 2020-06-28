@@ -1,10 +1,11 @@
 function love.conf(t)
-	local title = !(_GAME_TITLE)
 	local size = !(_GAME_SIZE)
-	t.window.title = title
+
+	t.window.title = !(_GAME_TITLE)
 	t.window.width = size.x
 	t.window.height = size.y
 	t.window.resizable = false
-	t.identity = "goinghomerevisit"
-	t.version = "11.3"
+
+	t.identity = !(_IDENTITY)
+	t.version = !(_LOVE_VERSION)
 end

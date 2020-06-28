@@ -1,0 +1,26 @@
+local Dialogues = {}
+
+local dialogues = {
+	intro_rain = {
+		"Hey, latest reports came in a few minutes ago.",
+		"Apparently another case occured.",
+		"This one's more disturbing.",
+		"Anyways, I know you are on the road.",
+		"I'll send the files over as soon as them",
+		"investigators are done in the crime scene.",
+		"I know you're on the road so yeah,",
+		"make sure to check it when you got home okay?",
+		"Man! Things keep getting worse and wor--"
+	}
+}
+
+function Dialogues.get(id)
+	!if _ASSERT then
+	Assert.should_string(id)
+	Assert.should_exists(dialogues[id])
+	!end
+
+	return dialogues[id]
+end
+
+return Dialogues

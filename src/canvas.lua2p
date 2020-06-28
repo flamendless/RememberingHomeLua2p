@@ -1,5 +1,7 @@
 local Canvas = class()
 
+local color_red = {1, 0, 0, 1}
+
 function Canvas:new_default(x, y, width, height, rotation, scale)
 	local _canvas = love.graphics.newCanvas(width, height)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
@@ -8,7 +10,8 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 		flags = _flags,
 		canvas = _canvas,
 		x = x, y = y,
-		width = w, height = h,
+		width = width, height = height,
+		rotation = rotation,
 		scale = scale,
 	})
 end
@@ -18,6 +21,7 @@ function Canvas:new_from_table(tbl)
 	local _y = tbl.y
 	local _w = tbl.width
 	local _h = tbl.height
+	local _rotation = tbl.rotation
 	local _scale = tbl.scale or 1
 
 	local _canvas = love.graphics.newCanvas(_w, _h)
@@ -28,6 +32,7 @@ function Canvas:new_from_table(tbl)
 		canvas = _canvas,
 		x = _x, y = _y,
 		width = _w, height = _h,
+		rotation = _rotation,
 		scale = _scale,
 	})
 end
@@ -41,6 +46,7 @@ function Canvas:new_from_canvas(source)
 		canvas = _canvas,
 		x = source.x, y = source.y,
 		width = source.width, height = source.height,
+		rotation = source.rotation,
 		scale = source.scale,
 	})
 end
@@ -68,16 +74,18 @@ function Canvas:new(x, y, width, height, rotation, scale)
 	 	c = self:new_default(x, y, width, height, rotation, scale)
 		c.flags = _flags
 	end
+
 	return c
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
-	local _x, _y, _w, _h, _scale
+	local _x, _y, _w, _h, _rotation, _scale
 	if (type(x) == "number") then
 		_x = x
 		_y = y
 		_w = width
 		_h = height
+		_rotation = rotation
 		_scale = scale or 1
 	elseif (type(x) == "table") then
 		if x.type and x:type() == "Canvas" then
@@ -86,6 +94,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 			_y = c.y
 			_w = c.width
 			_h = c.height
+			_rotation = c.rotation
 			_scale = c.scale
 		else
 			local tbl = x
@@ -93,6 +102,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 			_y = tbl.y
 			_w = tbl.width
 			_h = tbl.height
+			_rotation = tbl.rotation
 			_scale = tbl.scale or 1
 		end
 	end
@@ -100,6 +110,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 	self.height = _h
 	self.x = _x
 	self.y = _y
+	self.rotation = _rotation
 	self.scale = _scale
 end
 
@@ -128,7 +139,7 @@ end
 function Canvas:render()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.canvas, self.x, self.y)
+	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale, self.scale)
 	love.graphics.setBlendMode("alpha")
 
 	!if not _RELEASE then
@@ -140,14 +151,14 @@ end
 !if not _RELEASE then
 function Canvas:draw_bounds()
 	if not self.flags.draw_bounds then return end
-	love.graphics.setColor(self.debug_color)
+	love.graphics.setColor(self.debug_color or color_red)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
 
 function Canvas:draw_cross()
 	if not self.flags.draw_cross then return end
-	love.graphics.setColor(self.debug_color)
+	love.graphics.setColor(self.debug_color or color_red)
 	love.graphics.setLineWidth(1)
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
@@ -157,7 +168,7 @@ end
 !end
 
 function Canvas:type()
-	return "Canvas"
+	return "CustomCanvas"
 end
 
 return Canvas

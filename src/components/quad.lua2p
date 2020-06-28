@@ -1,0 +1,11 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("quad", function(c, quad, info)
+	!if _ASSERT then
+	Assert.should_quad(quad)
+	Assert.safe_should_table(info)
+	!end
+
+	c.quad = quad
+	c.info = info
+end)

@@ -1,0 +1,17 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("speed", function(c, speed)
+	!if _ASSERT then
+	Assert.safe_should_number(speed)
+	!end
+
+	c.speed = speed or 0
+end)
+
+Concord.component("speed_data", function(c, speed_data)
+	!if _ASSERT then
+	Assert.safe_should_table(speed)
+	!end
+
+	c.speed_data = speed_data
+end)

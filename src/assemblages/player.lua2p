@@ -1,0 +1,56 @@
+local Concord = require("modules.concord.concord")
+
+local Player = {}
+
+function Player.base(e, pos, collider, speed_data, gravity, resources)
+	e:give("position", pos)
+	:give("collider", collider)
+	:give("bump")
+	:give("speed")
+	:give("speed_data", speed_data)
+	:give("gravity", gravity)
+	:give("animation")
+	:give("player_controller")
+	:give("body")
+	:give("multiple_animation_data", "idle",
+		{
+			idle = {
+				-- spritesheet = resources.images.sheet_player_idle,
+				spritesheet = resources.sheet_idle,
+				frames = {"1-5", 1, "1-5", 2},
+				delay = 0.1,
+				rows_count = 2,
+				columns_count = 5,
+				n_frames = 10,
+			},
+			walk = {
+				-- spritesheet = resources.images.sheet_player_walk,
+				spritesheet = resources.sheet_walk,
+				frames = {"1-4", 1, "1-4", 2},
+				delay = 0.1,
+				rows_count = 2,
+				columns_count = 4,
+				n_frames = 8,
+			},
+			run = {
+				-- spritesheet = resources.images.sheet_player_run,
+				spritesheet = resources.sheet_run,
+				frames = {"1-6", 1},
+				delay = 0.1,
+				rows_count = 1,
+				columns_count = 6,
+				n_frames = 6,
+			},
+		},
+		{
+			--copy (1) as (2) applying (3)
+			idle = { "idle_left",  "flipH"},
+			walk = { "walk_left",  "flipH"},
+			run = { "run_left", "flipH"},
+		})
+	!if not _RELEASE then
+	e:give("debug_slab", "player")
+	!end
+end
+
+return Player
