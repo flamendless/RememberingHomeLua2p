@@ -2,8 +2,9 @@ local Image = {}
 
 function Image.resize_image(image, width, height)
 	!if _ASSERT then
-	assert(image:type() == "Image" or image:type() == "ImageData", "Passed argument must be of type 'Image' or 'ImageData'")
+	Assert.should_image_or_imagedata(image)
 	!end
+
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
 
@@ -26,14 +27,16 @@ end
 
 function Image.generate_noise(w, h)
 	!if _ASSERT then
-	assert(type(w) == "number", "Passed argument must be of type 'number'")
-	assert(type(h) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(w)
+	Assert.should_number(h)
 	!end
+
 	local data = love.image.newImageData(w, h)
 	data:mapPixel(function(x, y, r, g, b, a)
 		local n = love.math.noise(x, y)
 		return n, n, n, 1
 	end)
+
 	return data
 end
 

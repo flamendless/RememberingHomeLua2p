@@ -38,8 +38,7 @@ end
 
 function GameStates:switch(next_id)
 	!if _ASSERT then
-	local str_err = format("State '%s' does not exist in 'Worlds'", next_id)
-	assert(Worlds[next_id], str_err)
+	Assert.should_exists(Worlds[next_id])
 	!end
 
 	self.prev_world = self.current_world
@@ -73,6 +72,7 @@ function GameStates:resize(override_mode)
 	if WindowMode.current > #WindowMode.modes then
 		WindowMode.current = 1
 	end
+
 	local mode = WindowMode.getCurrent()
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)

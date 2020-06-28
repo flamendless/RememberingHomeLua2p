@@ -24,15 +24,17 @@ end
 
 function MotionBlur:set_angle(angle)
 	!if _ASSERT then
-	assert(type(angle) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(angle)
 	!end
+
 	self.shader_code:send("angle", angle)
 end
 
 function MotionBlur:set_strength(strength)
 	!if _ASSERT then
-	assert(type(strength) == "number", "Passed argument must be of type 'number'")
+	Assert.should_number(strength)
 	!end
+
 	self.shader_code:send("strength", strength)
 end
 

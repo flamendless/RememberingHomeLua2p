@@ -10,11 +10,12 @@ local Reporter = require("reporter")
 local Utf8 = require("utf8")
 local insert = table.insert
 local concat = table.concat
+local traceback = debug.traceback
 
 local font, p
 
 local error_printer = function(msg, layer)
-	local err_msg = (debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", ""))
+	local err_msg = (traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", ""))
 	print(err_msg)
 end
 
@@ -83,7 +84,7 @@ function ErrorHandler.callback(msg)
 	font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 	love.graphics.setFont(font)
 	love.graphics.setColor(1, 1, 1, 1)
-	local trace = debug.traceback()
+	local trace = traceback()
 	love.graphics.origin()
 	local sanitized_msg = {}
 	for char in msg:gmatch(Utf8.charpattern) do
@@ -123,6 +124,7 @@ function ErrorHandler.callback(msg)
 		for e, a, b, c in love.event.poll() do
 			if e == "quit" then
 				return 1
+
 			!if _PLATFORM == "desktop" then
 			elseif e == "keypressed" and a == "escaped" then
 				return 1
@@ -130,15 +132,18 @@ function ErrorHandler.callback(msg)
 				copy_to_clipboard(text_full)
 			end
 			!else
+
 			if e == "touchpressed" then
 				local name = love.window.getTitle()
 				if #name == 0 or name == "Untitled" then
 					name = "Game"
 				end
+
 				local buttons = {"OK", "Cancel"}
 				if love.system then
 					buttons[3] = "Copy to clipboard"
 				end
+
 				local pressed = love.window.showMessageBox("Quit " .. name .. "?", "", buttons)
 				if presssed == 1 then
 					return 1
@@ -146,6 +151,7 @@ function ErrorHandler.callback(msg)
 					copy_to_clipboard(text_full)
 				end
 			end
+
 			!end
 		end
 

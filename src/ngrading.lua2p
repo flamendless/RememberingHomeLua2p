@@ -35,7 +35,10 @@ local NGrading = class()
 local default_setting = {linear = true, dpiscale = 1}
 
 function NGrading:new_single(img, cell_size)
-	assert(img:type() == "ImageData")
+	!if _ASSERT then
+	Assert.should_imagedata(img)
+	!end
+
 	local data = img
 	local tw = floor(data:getWidth() / cell_size)
 	local th = floor(data:getHeight() / cell_size)
@@ -78,8 +81,12 @@ function NGrading:new_single(img, cell_size)
 end
 
 function NGrading:new_multi(img, img2, cell_size)
-	assert(img:type() == "ImageData")
-	assert(img2:type() == "ImageData")
+	!if _ASSERT then
+	Assert.should_imagedata(img)
+	Assert.should_imagedata(img2)
+	Assert.should_number(cell_size)
+	!end
+
 	local data = img
 	local data2 = img2
 	local tw = floor(data:getWidth() / cell_size)

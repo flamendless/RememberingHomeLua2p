@@ -74,6 +74,7 @@ function Canvas:new(x, y, width, height, rotation, scale)
 	 	c = self:new_default(x, y, width, height, rotation, scale)
 		c.flags = _flags
 	end
+
 	return c
 end
 
@@ -138,8 +139,7 @@ end
 function Canvas:render()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.canvas, self.x, self.y,
-		self.rotation, self.scale, self.scale)
+	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale, self.scale)
 	love.graphics.setBlendMode("alpha")
 
 	!if not _RELEASE then
