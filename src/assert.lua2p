@@ -36,6 +36,7 @@ local msg_should_shader = "Passed argument must be of type 'Shader'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_true = "Passed argument must be true"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
 local msg_should_world = "Passed argument must not be of type 'World'"
 
@@ -85,6 +86,12 @@ end
 function Assert.should_table(arg)
 	if type(arg) ~= T_TABLE then
 		error(msg_should_table, 2)
+	end
+end
+
+function Assert.should_true(arg)
+	if arg == false then
+		error(msg_should_true, 2)
 	end
 end
 
