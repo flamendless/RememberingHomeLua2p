@@ -1,0 +1,7 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("movement_topdown", function(c)
+end)
+
+Concord.component("movement_platformer", function(c)
+end)

@@ -89,7 +89,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
 
 	self.entities.player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.base,
+		:assemble(Assemblages.Player.base, "platformer",
 			vec2:new(920, 300), vec2:new(64, 64),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
@@ -99,7 +99,7 @@ function StateOutside:start()
 			})
 		:give("z_index", 2)
 		:give("camera_follow")
-	self.world:emit("face_left")
+	self.world:emit("face_left", self.entities.player)
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car)
@@ -128,6 +128,7 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
+	self.world:emit("update_platformer", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
 end

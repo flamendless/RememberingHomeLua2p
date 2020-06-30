@@ -2,7 +2,11 @@ local Concord = require("modules.concord.concord")
 
 local Player = {}
 
-function Player.base(e, pos, collider, speed_data, gravity, resources)
+function Player.base(e, movement, pos, collider, speed_data, gravity, resources)
+	!if _ASSERT then
+	Assert.either_value(movement, "platformer", "topdown")
+	!end
+
 	e:give("position", pos)
 	:give("collider", collider)
 	:give("bump")
@@ -48,6 +52,13 @@ function Player.base(e, pos, collider, speed_data, gravity, resources)
 			walk = { "walk_left",  "flipH"},
 			run = { "run_left", "flipH"},
 		})
+
+	if movement == "platformer" then
+		e:give("movement_platformer")
+	elseif movement == "topdown" then
+		e:give("movement_topdown")
+	end
+
 	!if not _RELEASE then
 	e:give("debug_slab", "player")
 	!end

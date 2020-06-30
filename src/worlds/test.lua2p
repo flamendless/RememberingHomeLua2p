@@ -96,7 +96,7 @@ function StateTest:start()
 		:assemble(Assemblages.Common.item, "item2", vec2:new(560, 360), vec2:new(32, 32))
 
 	self.player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.base,
+		:assemble(Assemblages.Player.base, "topdown",
 			vec2:new(496, 256), vec2:new(64, 64),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
@@ -118,6 +118,7 @@ end
 function StateTest:update(dt)
 	if not self.is_ready then return end
 	self.world:emit("preupdate", dt)
+	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 
 	local mx, my = love.mouse.getPosition()
