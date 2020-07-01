@@ -4,6 +4,7 @@ local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
 local min = math.min
+local random = love.math.random
 
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -21,6 +22,7 @@ local Systems = {
 	BumpCollision = require("systems.bump_collision"),
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
+	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
 	RenderSprite = require("systems.render_sprite"),
@@ -67,6 +69,7 @@ function StateOutside:start()
 
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.BumpCollision)
+	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
@@ -90,7 +93,7 @@ function StateOutside:start()
 
 	self.entities.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base, "platformer",
-			vec2:new(920, 300), vec2:new(64, 64),
+			vec2:new(920, 300),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
 				sheet_idle = resources.images.sheet_player_idle,
@@ -98,7 +101,7 @@ function StateOutside:start()
 				sheet_run = resources.images.sheet_player_run,
 			})
 		:give("z_index", 2)
-		:give("camera_follow")
+		:give("camera_follow", vec2:new(0, 32))
 	self.world:emit("face_left", self.entities.player)
 
 	self.entities.car = Concord.entity(self.world)
@@ -106,6 +109,11 @@ function StateOutside:start()
 
 	self.entities.fence = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence, resources.images.fence)
+
+	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+		vec2:new(670, 222), vec2:new(922, 298))
+	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+		vec2:new(1030, 230), vec2:new(1136, 286))
 
 	local lut_size, lut_night
 	if Settings.current.graphics_quality == "Low" then
@@ -120,7 +128,7 @@ function StateOutside:start()
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
-		-- self.camera:setScale(3)
+		self.camera:setScale(2.5)
 	end)
 end
 

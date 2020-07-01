@@ -86,6 +86,7 @@ Resources.data.outside = {
 		{ "sheet_player_idle", "res/images/player/player_idle.png" },
 		{ "sheet_player_walk", "res/images/player/player_walk.png" },
 		{ "sheet_player_run", "res/images/player/player_run.png" },
+		{ "firefly", "res/images/house_outside/firefly.png" },
 	},
 
 	image_data = {

@@ -18,9 +18,10 @@ end
 
 function Camera:camera_follow()
 	for _, e in ipairs(self.pool_follow) do
-		local pos = e.position.pos
+		local x = e.position.pos.x + e.camera_follow.offset.x
+		local y = e.position.pos.y + e.camera_follow.offset.y
 
-		self.camera:setPosition(pos.x, pos.y)
+		self.camera:setPosition(x, y)
 	end
 end
 
