@@ -226,6 +226,7 @@ function Assert.should_quad(arg)
 		error(msg_should_quad, 2)
 	end
 end
+
 function Assert.should_shader(arg)
 	if arg:type() ~= T_SHADER then
 		error(msg_should_shader, 2)

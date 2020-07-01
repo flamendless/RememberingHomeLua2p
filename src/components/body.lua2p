@@ -4,6 +4,7 @@ Concord.component("body", function(c)
 	c.is_run = false
 	c.can_move = true
 	c.dx = 0
+	c.dy = 0
 	c.dir = 1
 	c.vel_x = 0
 	c.vel_y = 0

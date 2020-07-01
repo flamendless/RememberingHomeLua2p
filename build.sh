@@ -91,7 +91,9 @@ function init()
 function rebuild()
 {
 	clean
-	init
+	create_output_dir
+	copy_modules
+	copy_res
 }
 
 function run()
