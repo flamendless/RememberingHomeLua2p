@@ -19,7 +19,7 @@ Concord.component("collider", function(c, size, offset, filter)
 	!end
 
 	c.size = size
-	c.offset = offset
+	c.offset = offset or vec2:new()
 	c.is_hit = false
 	c.filter = nil
 	c.normal = vec2:new()

@@ -10,11 +10,10 @@ function BumpCollision:init(world)
 	self.bump_world = Bump.newWorld()
 
 	self.pool.onEntityAdded = function(pool, e)
-		local collider = e.collider
-		local pos = e.position.pos
-		local size = collider.size
+		local x = e.position.pos.x + e.collider.offset.x
+		local y = e.position.pos.y + e.collider.offset.y
 
-		self.bump_world:add(e, pos.x, pos.y, size.x, size.y)
+		self.bump_world:add(e, x, y, e.collider.size.x, e.collider.size.y)
 	end
 end
 
@@ -77,5 +76,23 @@ function BumpCollision:update(dt)
 		end
 	end
 end
+
+!if not _RELEASE then
+function BumpCollision:draw_debug()
+	local items, len = self.bump_world:getItems()
+	for i = 1, len do
+		local e = items[i]
+		local x, y, w, h = self.bump_world:getRect(e)
+
+		if e.collider.is_hit then
+			love.graphics.setColor(1, 0, 0, 0.5)
+		else
+			love.graphics.setColor(0, 1, 0, 0.5)
+		end
+
+		love.graphics.rectangle("line", x, y, w, h)
+	end
+end
+!end
 
 return BumpCollision

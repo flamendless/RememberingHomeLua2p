@@ -109,6 +109,8 @@ end
 !if not _RELEASE then
 function Collision:draw_debug()
 	for _, e in ipairs(self.pool) do
+		if e:has("bump") then return end
+
 		local pos = e.position.pos
 		local col_r = e.collider
 		local size = col_r.size

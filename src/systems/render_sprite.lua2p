@@ -59,12 +59,16 @@ function RenderSprite:internal_draw(e)
 					ox = animation_data.frame_width/2
 				elseif transform.ox == 1 then
 					ox = animation_data.frame_width
+				else
+					ox = transform.ox
 				end
 
 				if transform.oy == 0.5 then
 					oy = animation_data.frame_height/2
 				elseif transform.oy == 1 then
 					oy = animation_data.frame_height
+				else
+					oy = transform.oy
 				end
 			else
 				if transform.ox == 0.5 then
@@ -81,6 +85,10 @@ function RenderSprite:internal_draw(e)
 			end
 		end
 
+		if e.firefly then
+			love.graphics.setShader(e.firefly.shader)
+		end
+
 		if quad then
 			if quad_transform then
 				rotation = quad_transform.rotation
@@ -92,6 +100,10 @@ function RenderSprite:internal_draw(e)
 			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
 			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		end
+
+		if e.firefly then
+			love.graphics.setShader()
 		end
 	end
 end

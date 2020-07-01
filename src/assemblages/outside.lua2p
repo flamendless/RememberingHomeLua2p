@@ -15,7 +15,7 @@ function Outside.bg(e, sprite)
 end
 
 function Outside.ground(e, size)
-	e:give("position", vec2:new(0, 350))
+	e:give("position", vec2:new(0, 332))
 	:give("collider", size)
 	:give("bump")
 
@@ -26,13 +26,13 @@ end
 
 function Outside.left_wall(e)
 	e:give("position", vec2:new(55, 303))
-	:give("collider", vec2:new(90, 64))
+	:give("collider", vec2:new(90, 32))
 	:give("bump")
 end
 
 function Outside.right_wall(e)
 	e:give("position", vec2:new(1190, 300))
-	:give("collider", vec2:new(72, 64))
+	:give("collider", vec2:new(72, 32))
 	:give("bump")
 end
 
