@@ -5,6 +5,11 @@ local BumpCollision = Concord.system({
 	pool = {"collider", "position", "bump"},
 })
 
+local filter = function(item, other)
+	local other_col = other.collider
+	return other_col.filter or "slide"
+end
+
 function BumpCollision:init(world)
 	self.world = world
 	self.bump_world = Bump.newWorld()
@@ -17,32 +22,22 @@ function BumpCollision:init(world)
 	end
 end
 
-local filter = function(item, other)
-	local other_col = other.collider
-	if other_col.filter then
-		return other_col.filter
-	else
-		return "slide"
-	end
-end
-
 function BumpCollision:preupdate(dt)
 	for _, e in ipairs(self.pool) do
-		local collider = e.collider
-
-		collider.is_hit = false
+		e.collider.is_hit = false
 	end
 end
 
 function BumpCollision:update(dt)
 	for _, e in ipairs(self.pool) do
-		local collider = e.collider
 		local body = e.body
-		local pos = e.position.pos
 
 		if body then
 			if body.vel_x ~= 0 or body.vel_y ~= 0 then
+				local collider = e.collider
+				local pos = e.position.pos
 				local cols, len
+
 				pos.x, pos.y, cols, len = self.bump_world:move(e, pos.x + body.vel_x, pos.y + body.vel_y, filter)
 
 				for i = 1, len do

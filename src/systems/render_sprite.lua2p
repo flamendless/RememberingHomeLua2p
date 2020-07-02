@@ -32,6 +32,15 @@ function RenderSprite:init()
 	end
 end
 
+function RenderSprite:sort_z()
+	table.stable_sort(self.custom_pool_z, function(a, b)
+		local a_z = a.z_index.z
+		local b_z = b.z_index.z
+
+		return a_z < b_z
+	end)
+end
+
 function RenderSprite:internal_draw(e)
 	local hidden = e.hidden
 	if not hidden then

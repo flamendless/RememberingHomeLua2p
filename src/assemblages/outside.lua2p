@@ -40,6 +40,15 @@ function Outside.fence(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(-47, 330))
 	:give("z_index", z_index.fence)
+	:give("collider3d", vec2:new(850, 8), 61)
+	:give("bump3d")
+end
+
+function Outside.fence_right(e)
+	e:give("position", vec2:new(1000, 330))
+	:give("z_index", z_index.fence)
+	:give("collider3d", vec2:new(407, 8), 61)
+	:give("bump3d")
 end
 
 function Outside.car(e)

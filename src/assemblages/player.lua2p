@@ -8,9 +8,9 @@ function Player.base(e, movement, pos, speed_data, gravity, resources)
 	!end
 
 	e:give("position", pos)
-	:give("collider", vec2:new(36, 64))
 	:give("transform", 0, 1, 1, 12, 0)
-	:give("bump")
+	:give("collider3d", vec2:new(36, 16), 64)
+	:give("bump3d")
 	:give("speed")
 	:give("speed_data", speed_data)
 	:give("gravity", gravity)

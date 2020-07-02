@@ -20,6 +20,7 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
 	BumpCollision = require("systems.bump_collision"),
+	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
 	Fireflies = require("systems.fireflies"),
@@ -68,7 +69,8 @@ function StateOutside:start()
 	self.camera:setScale(self.scale)
 
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.BumpCollision)
+	-- self.world:addSystem(Systems.BumpCollision)
+	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
@@ -92,7 +94,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
 
 	self.entities.player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.base, "platformer",
+		:assemble(Assemblages.Player.base, "topdown",
 			vec2:new(920, 300),
 			{ idle = 0, walk = 128, run = 180 }, 320,
 			{
@@ -109,6 +111,9 @@ function StateOutside:start()
 
 	self.entities.fence = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence, resources.images.fence)
+
+	self.entities.fence_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.fence_right)
 
 	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 		vec2:new(670, 222), vec2:new(922, 298))
@@ -128,7 +133,7 @@ function StateOutside:start()
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
-		self.camera:setScale(2.5)
+		-- self.camera:setScale(2.5)
 	end)
 end
 
@@ -136,7 +141,7 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
-	self.world:emit("update_platformer", dt)
+	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
 end

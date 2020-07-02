@@ -4,7 +4,7 @@ local Bump = require("modules.bump.bump-niji")
 local Keybinds = require("keybinds")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body", "collider"},
+	pool = {"player_controller", "body"},
 })
 
 function PlayerController:init(world)
