@@ -34,37 +34,4 @@ function BoundingBox:on_camera_move(camera)
 	end
 end
 
-!if not _RELEASE then
-function BoundingBox:draw_debug()
-	for _, e in ipairs(self.pool) do
-		local box = e.bounding_box
-		local pos = e.position
-		local item = e.item
-
-		local color = color_default
-		if item then
-			color = color_item
-		end
-
-		love.graphics.setColor(color)
-		love.graphics.rectangle("line", box.x, box.y, box.w, box.h)
-
-		local ds = e.debug_slab
-		if ds then
-			love.graphics.setColor(1, 1, 0, 1)
-			love.graphics.print(ds.id, box.x, box.y + box.h - 16)
-		end
-	end
-
-	for _, e in ipairs(self.pool_highlight) do
-		local box = e.bounding_box
-		local pos = e.position
-		local color = e.bounding_box_color.color
-
-		love.graphics.setColor(color)
-		love.graphics.rectangle("line", pos.pos.x, pos.pos.y, box.w, box.h)
-	end
-end
-!end
-
 return BoundingBox

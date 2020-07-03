@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local Bump3D = require("modules.bump3d.bump-3dpd")
 
 local Bump3DCollision = Concord.system({
-	pool = {"collider3d", "position", "bump3d", "z_index"}
+	pool = {"collider3d", "position", "bump3d"}
 })
 
 local filter = function(item, other)
@@ -18,7 +18,7 @@ function Bump3DCollision:init(world)
 		local x = e.position.pos.x + e.collider3d.offset.x
 		local y = e.position.pos.y + e.collider3d.offset.y
 
-		self.bump3d_world:add(e, x, y, e.z_index.z, e.collider3d.size.x, e.collider3d.size.y, e.collider3d.depth)
+		self.bump3d_world:add(e, x, y, 0, e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
 	end
 end
 
@@ -38,9 +38,7 @@ function Bump3DCollision:update(dt)
 				pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
 					pos.x + e.body.vel_x,
 					pos.y + e.body.vel_y,
-					e.z_index.z, filter)
-
-				self.world:emit("sort_z")
+					0, filter)
 
 				for i = 1, len do
 					local c = cols[i]
@@ -60,6 +58,8 @@ function Bump3DCollision:update(dt)
 					item_col.normal.y = c.normalY
 				end
 
+				self.world:emit("sort_z")
+
 				self.bump3d_world.freeCollisionTable(cols)
 			end
 		end
@@ -67,6 +67,87 @@ function Bump3DCollision:update(dt)
 end
 
 !if not _RELEASE then
+local format = string.format
+local win_col3d = false
+local current_item
+
+function Bump3DCollision:inspector(dt)
+	Slab.BeginWindow("Bump3DCollision", {Title = "Bump3DCollision"})
+	local items, len = self.bump3d_world:getItems()
+	for i = 1, len do
+		local e = items[i]
+		Slab.Text(e.bump3d.id)
+		Slab.Indent()
+
+		if Slab.Button("edit") then
+			win_col3d = true
+			current_item = e
+		end
+
+		Slab.Unindent()
+	end
+	Slab.EndWindow()
+
+	if win_col3d then
+		Slab.BeginWindow("EditCollider", {Title = "Collider3d"})
+		local e = current_item
+		local id = e.bump3d.id
+
+		Slab.Text(id)
+		Slab.Indent()
+
+		local x = e.position.pos.x
+		local y = e.position.pos.y
+		local w = e.collider3d.size.x
+		local h = e.collider3d.size.y
+		local d = e.collider3d.size.z
+
+		Slab.Text("x: ")
+		Slab.SameLine()
+		if Slab.Input("input_x", {Text = tostring(x), ReturnOnText = false, NumbersOnly = true}) then
+			x = tonumber(Slab.GetInputText())
+		end
+
+		Slab.Text("y: ")
+		Slab.SameLine()
+		if Slab.Input("input_y", {Text = tostring(y), ReturnOnText = false, NumbersOnly = true}) then
+			y = tonumber(Slab.GetInputText())
+		end
+
+		Slab.Text("w: ")
+		Slab.SameLine()
+		if Slab.Input("input_w", {Text = tostring(w), ReturnOnText = false, NumbersOnly = true}) then
+			w = tonumber(Slab.GetInputText())
+		end
+
+		Slab.Text("h: ")
+		Slab.SameLine()
+		if Slab.Input("input_h", {Text = tostring(h), ReturnOnText = false, NumbersOnly = true}) then
+			h = tonumber(Slab.GetInputText())
+		end
+
+		Slab.Text("d: ")
+		Slab.SameLine()
+		if Slab.Input("input_d", {Text = tostring(d), ReturnOnText = false, NumbersOnly = true}) then
+			d = tonumber(Slab.GetInputText())
+		end
+
+		e.position.pos.x = x
+		e.position.pos.y = y
+		e.collider3d.size.x = w
+		e.collider3d.size.y = h
+		e.collider3d.size.z = d
+		self.bump3d_world:update(e, x, y, 0, w, h, d)
+
+		if Slab.Button("print") then
+			print(id, x, y, w, h, d)
+		end
+
+		Slab.Unindent()
+		Slab.EndWindow()
+	end
+end
+
 function Bump3DCollision:draw_debug()
 	local items, len = self.bump3d_world:getItems()
 	for i = 1, len do
@@ -82,6 +163,7 @@ function Bump3DCollision:draw_debug()
 		love.graphics.rectangle("line", x, y + z + h, w, d)
 		love.graphics.rectangle("line", x, y + z, w, h)
 	end
+	self:inspector(dt)
 end
 !end
 

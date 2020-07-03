@@ -19,7 +19,6 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	Item = require("systems.item"),
-	DebugSlab = require("systems.debug_slab"),
 }
 
 local Assemblages = {
@@ -69,25 +68,21 @@ function StateTest:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Item)
-	self.world:addSystem(Systems.DebugSlab)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
 		:give("collider", vec2:new(512, 128))
 		:give("bump")
-		:give("debug_slab", "ground")
 
 	local left_wall = Concord.entity(self.world)
 		:give("position", vec2:new(230, 284))
 		:give("collider", vec2:new(64, 128))
 		:give("bump", "wall")
-		:give("debug_slab", "left_wall")
 
 	local right_wall = Concord.entity(self.world)
 		:give("position", vec2:new(768, 284))
 		:give("collider", vec2:new(64, 128))
 		:give("bump")
-		:give("debug_slab", "right_wall")
 
 	self.item1 = Concord.entity(self.world)
 		:assemble(Assemblages.Common.item, "item1", vec2:new(512, 360), vec2:new(32, 32))
@@ -104,7 +99,6 @@ function StateTest:start()
 				sheet_walk = resources.images.sheet_player_walk,
 				sheet_run = resources.images.sheet_player_run,
 			})
-		:give("debug_slab", "player")
 
 	self.test_rect = Concord.entity(self.world)
 		:give("position", vec2:new(512, 128))

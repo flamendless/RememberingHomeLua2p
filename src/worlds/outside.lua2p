@@ -90,6 +90,15 @@ function StateOutside:start()
 	self.entities.right_wall = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.right_wall)
 
+	self.entities.wood = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.wood)
+
+	self.entities.house = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house)
+
+	self.entities.house_side = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house_side)
+
 	self.entities.ground = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
 
@@ -107,18 +116,21 @@ function StateOutside:start()
 	self.world:emit("face_left", self.entities.player)
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.car)
+		:assemble(Assemblages.Outside.car, resources.images.car)
 
 	self.entities.fence = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence, resources.images.fence)
 
+	self.entities.fence_mid = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.fence_mid)
+
 	self.entities.fence_right = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence_right)
 
-	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
-		vec2:new(670, 222), vec2:new(922, 298))
-	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
-		vec2:new(1030, 230), vec2:new(1136, 286))
+	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+	-- 	vec2:new(670, 222), vec2:new(922, 298))
+	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+	-- 	vec2:new(1030, 230), vec2:new(1136, 286))
 
 	local lut_size, lut_night
 	if Settings.current.graphics_quality == "Low" then
@@ -144,6 +156,10 @@ function StateOutside:update(dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
+
+	!if not _RELEASE then
+	self.world:emit("update_debug", dt)
+	!end
 end
 
 function StateOutside:draw()
