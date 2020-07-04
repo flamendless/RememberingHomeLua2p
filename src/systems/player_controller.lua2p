@@ -17,11 +17,15 @@ function PlayerController:update(dt)
 		if not e.body.can_move then return end
 
 		if Keybinds.is_down_player("move_left") then
-			e.body.is_run = love.keyboard.isDown("lshift")
+			if e.body.can_run then
+				e.body.is_run = love.keyboard.isDown("lshift")
+			end
 			e.body.dir = -1
 			e.body.dx = -1
 		elseif Keybinds.is_down_player("move_right") then
-			e.body.is_run = love.keyboard.isDown("lshift")
+			if e.body.can_run then
+				e.body.is_run = love.keyboard.isDown("lshift")
+			end
 			e.body.dir = 1
 			e.body.dx = 1
 		else
@@ -79,14 +83,18 @@ end
 
 function PlayerController:face_left(e)
 	if e:has("override_animation") then return end
-	e.body.is_run = love.keyboard.isDown("lshift")
+	if e.body.can_run then
+		e.body.is_run = love.keyboard.isDown("lshift")
+	end
 	e.body.dir = -1
 	e.body.dx = -1
 end
 
 function PlayerController:face_right(e)
 	if e:has("override_animation") then return end
-	e.body.is_run = love.keyboard.isDown("lshift")
+	if e.body.can_run then
+		e.body.is_run = love.keyboard.isDown("lshift")
+	end
 	e.body.dir = 1
 	e.body.dx = 1
 end

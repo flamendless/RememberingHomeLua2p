@@ -2,9 +2,17 @@ local Concord = require("modules.concord.concord")
 
 local Player = {}
 
-function Player.base(e, movement, pos, speed_data, gravity, resources)
+function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
+	local can_move, can_run
+
 	!if _ASSERT then
 	Assert.either_value(movement, "platformer", "topdown")
+	if Assert.safe_should_table(defaults) then
+		Assert.safe_should_boolean(defaults.can_move)
+		Assert.safe_should_boolean(defaults.can_run)
+		can_move = defaults.can_move
+		can_run = defaults.can_run
+	end
 	!end
 
 	e:give("position", pos)
@@ -16,7 +24,7 @@ function Player.base(e, movement, pos, speed_data, gravity, resources)
 	:give("gravity", gravity)
 	:give("animation")
 	:give("player_controller")
-	:give("body")
+	:give("body", can_move, can_run)
 	:give("multiple_animation_data", "idle",
 		{
 			idle = {
