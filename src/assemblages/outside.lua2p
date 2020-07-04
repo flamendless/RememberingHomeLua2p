@@ -21,21 +21,21 @@ function Outside.ground(e, size)
 	:give("bump")
 end
 
-function Outside.left_wall(e)
+function Outside.left_bounds(e)
 	e:give("position", vec2:new(80, 260))
-	:give("collider3d", vec3:new(110, 100, 16))
-	:give("bump3d", "left_wall")
+	:give("collider3d", vec3:new(92, 100, 16))
+	:give("bump3d", "left_bounds")
 end
 
-function Outside.right_wall(e)
-	e:give("position", vec2:new(1160, 260))
+function Outside.right_bounds(e)
+	e:give("position", vec2:new(1160, 250))
 	:give("collider3d", vec3:new(32, 100, 32))
-	:give("bump3d", "right_wall")
+	:give("bump3d", "right_bounds")
 end
 
 function Outside.wood(e)
-	e:give("position", vec2:new(200, 270))
-	:give("collider3d", vec3:new(48, 24, 16))
+	e:give("position", vec2:new(210, 270))
+	:give("collider3d", vec3:new(50, 10, 16))
 	:give("bump3d", "wood")
 end
 
@@ -61,9 +61,10 @@ end
 
 function Outside.car(e, sprite)
 	e:give("sprite", sprite)
-	:give("position", vec2:new(934, 278))
-	:give("collider3d", vec3:new(78, 16, 50))
+	:give("position", vec2:new(934, 270))
+	:give("collider3d", vec3:new(78, 8, 50))
 	:give("bump3d", "car")
+	:give("transform", 0, 1, 1, 0, -8)
 	:give("z_index", z_index.car)
 end
 
@@ -77,6 +78,18 @@ function Outside.house_side(e)
 	e:give("position", vec2:new(580, 200))
 	:give("collider3d", vec3:new(60, 60, 64))
 	:give("bump3d", "house_side")
+end
+
+function Outside.left_wall(e)
+	e:give("position", vec2:new(96, 160))
+	:give("collider3d", vec3:new(120, 100, 64))
+	:give("bump3d", "left_wall")
+end
+
+function Outside.right_wall(e)
+	e:give("position", vec2:new(640, 185))
+	:give("collider3d", vec3:new(520, 60, 64))
+	:give("bump3d", "right_wall")
 end
 
 return Outside

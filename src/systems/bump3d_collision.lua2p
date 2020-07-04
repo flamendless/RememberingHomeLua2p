@@ -15,8 +15,8 @@ function Bump3DCollision:init(world)
 	self.bump3d_world = Bump3D.newWorld()
 
 	self.pool.onEntityAdded = function(pool, e)
-		local x = e.position.pos.x + e.collider3d.offset.x
-		local y = e.position.pos.y + e.collider3d.offset.y
+		local x = e.position.pos.x
+		local y = e.position.pos.y
 
 		self.bump3d_world:add(e, x, y, 0, e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
 	end
@@ -60,7 +60,7 @@ function Bump3DCollision:update(dt)
 
 				self.world:emit("sort_z")
 
-				self.bump3d_world.freeCollisionTable(cols)
+				self.bump3d_world.freeCollisions(cols)
 			end
 		end
 	end
@@ -72,19 +72,21 @@ local win_col3d = false
 local current_item
 
 function Bump3DCollision:inspector(dt)
-	Slab.BeginWindow("Bump3DCollision", {Title = "Bump3DCollision"})
+	Slab.BeginWindow("b3d", {Title = "Bump3DCollision"})
 	local items, len = self.bump3d_world:getItems()
 	for i = 1, len do
+	Slab.BeginLayout("b3d_layout", {Columns = 2})
 		local e = items[i]
+		Slab.SetLayoutColumn(1)
 		Slab.Text(e.bump3d.id)
-		Slab.Indent()
+		Slab.SameLine()
 
+		Slab.SetLayoutColumn(2)
 		if Slab.Button("edit") then
 			win_col3d = true
 			current_item = e
 		end
-
-		Slab.Unindent()
+		Slab.EndLayout()
 	end
 	Slab.EndWindow()
 
@@ -132,15 +134,40 @@ function Bump3DCollision:inspector(dt)
 			d = tonumber(Slab.GetInputText())
 		end
 
+		local ox, oy
+		if e.transform then
+			ox = e.transform.ox
+			oy = e.transform.oy
+
+			Slab.Text("ox: ")
+			Slab.SameLine()
+			if Slab.Input("input_ox", {Text = tostring(ox), ReturnOnText = false, NumbersOnly = true}) then
+				ox = tonumber(Slab.GetInputText())
+			end
+
+			Slab.Text("oy: ")
+			Slab.SameLine()
+			if Slab.Input("input_oy", {Text = tostring(oy), ReturnOnText = false, NumbersOnly = true}) then
+				oy = tonumber(Slab.GetInputText())
+			end
+
+			e.transform.ox = ox
+			e.transform.oy = oy
+		end
+
 		e.position.pos.x = x
 		e.position.pos.y = y
 		e.collider3d.size.x = w
 		e.collider3d.size.y = h
 		e.collider3d.size.z = d
+
 		self.bump3d_world:update(e, x, y, 0, w, h, d)
 
 		if Slab.Button("print") then
 			print(id, x, y, w, h, d)
+			if ox or oy then
+				print(id, ox, oy)
+			end
 		end
 
 		Slab.Unindent()

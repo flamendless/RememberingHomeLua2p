@@ -11,15 +11,13 @@ Concord.component("bump3d", function(c, id)
 	c.id = id
 end)
 
-Concord.component("collider3d", function(c, size, offset, filter)
+Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
 	Assert.should_vec3(size)
-	Assert.safe_should_vec2(offset)
 	Assert.safe_should_string(filter)
 	!end
 
 	c.size = size
-	c.offset = offset or vec2:new()
 	c.is_hit = false
 	c.filter = nil
 	c.normal = vec2:new()

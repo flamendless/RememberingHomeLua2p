@@ -84,6 +84,12 @@ function StateOutside:start()
 	self.entities.bg = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg, resources.images.bg)
 
+	self.entities.left_bounds = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.left_bounds)
+
+	self.entities.right_bounds = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.right_bounds)
+
 	self.entities.left_wall = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_wall)
 
