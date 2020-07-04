@@ -127,11 +127,11 @@ function StateOutside:start()
 	self.entities.fence = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence, resources.images.fence)
 
-	self.entities.fence_mid = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.fence_mid)
-
 	self.entities.fence_right = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence_right)
+
+	self.entities.gate = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.gate, resources.images.gate)
 
 	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 	-- 	vec2:new(670, 222), vec2:new(922, 298))
@@ -151,7 +151,7 @@ function StateOutside:start()
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
-		-- self.camera:setScale(2.5)
+		-- self.camera:setScale(2)
 	end)
 end
 

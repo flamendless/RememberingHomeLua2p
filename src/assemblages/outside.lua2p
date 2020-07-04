@@ -47,10 +47,13 @@ function Outside.fence(e, sprite)
 	:give("bump3d", "fence")
 end
 
-function Outside.fence_mid(e)
-	e:give("position", vec2:new(800, 352))
+function Outside.gate(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(800, 330))
+	:give("transform", 0, 1, 1, 0, 16)
 	:give("collider3d", vec3:new(200, 8, 32))
-	:give("bump3d", "fence_mid")
+	:give("bump3d", "gate")
+	:give("z_index", z_index.fence)
 end
 
 function Outside.fence_right(e)
