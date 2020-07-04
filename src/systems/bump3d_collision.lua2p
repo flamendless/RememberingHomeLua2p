@@ -164,9 +164,10 @@ function Bump3DCollision:inspector(dt)
 		self.bump3d_world:update(e, x, y, 0, w, h, d)
 
 		if Slab.Button("print") then
-			print(id, x, y, w, h, d)
+			print(id, "position:", x, y)
+			print(id, "collider3d: ", w, h, d)
 			if ox or oy then
-				print(id, ox, oy)
+				print(id, "offset:", ox, oy)
 			end
 		end
 

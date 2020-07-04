@@ -116,7 +116,7 @@ function StateOutside:start()
 				sheet_idle = resources.images.sheet_player_idle,
 				sheet_walk = resources.images.sheet_player_walk,
 				sheet_run = resources.images.sheet_player_run,
-			})
+			}, { can_run = false })
 		:give("z_index", 2)
 		:give("camera_follow", vec2:new(0, 32))
 	self.world:emit("face_left", self.entities.player)
@@ -138,20 +138,20 @@ function StateOutside:start()
 	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 	-- 	vec2:new(1030, 230), vec2:new(1136, 286))
 
-	local lut_size, lut_night
+	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
 		lut_size = 16
-		lut_night = resources.image_data.lut_night_16
+		lut_dusk = resources.image_data.lut_dusk_16
 	else
 		lut_size = 64
-		lut_night = resources.image_data.lut_night_64
+		lut_dusk = resources.image_data.lut_dusk_64
 	end
 
-	effect = NGrading:new(lut_night, lut_size)
+	effect = NGrading:new(lut_dusk, lut_size)
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
-		-- self.camera:setScale(2)
+		self.camera:setScale(3)
 	end)
 end
 

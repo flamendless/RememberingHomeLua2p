@@ -64,10 +64,10 @@ end
 
 function Outside.car(e, sprite)
 	e:give("sprite", sprite)
-	:give("position", vec2:new(934, 270))
+	:give("position", vec2:new(934, 260))
 	:give("collider3d", vec3:new(78, 8, 50))
 	:give("bump3d", "car")
-	:give("transform", 0, 1, 1, 0, -8)
+	:give("transform", 0, 1, 1, 0, -16)
 	:give("z_index", z_index.car)
 end
 
