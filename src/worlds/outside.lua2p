@@ -27,6 +27,7 @@ local Systems = {
 	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
+	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 }
@@ -73,6 +74,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
+	self.world:addSystem(Systems.RainOutside)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
@@ -105,9 +107,6 @@ function StateOutside:start()
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
 
-	self.entities.ground = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
-
 	-- self.entities.player = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Player.outside_house,
 	-- 		resources.images.sheet_player_idle,
@@ -136,20 +135,27 @@ function StateOutside:start()
 	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 	-- 	vec2:new(1030, 230), vec2:new(1136, 286))
 
-	local lut_size, lut_dusk
+	self.entities.rain_data = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.rain, ww, wh,
+			resources.images.rain_drop,
+			resources.images.rain_drop2,
+			resources.images.rain_splash,
+			resources.images.rain_splash2)
+
+	local lut_size, lut_night
 	if Settings.current.graphics_quality == "Low" then
 		lut_size = 16
-		lut_dusk = resources.image_data.lut_dusk_16
+		lut_night = resources.image_data.lut_night_16
 	else
 		lut_size = 64
-		lut_dusk = resources.image_data.lut_dusk_64
+		lut_night = resources.image_data.lut_night_64
 	end
 
-	effect = NGrading:new(lut_dusk, lut_size)
+	effect = NGrading:new(lut_night, lut_size)
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
-		self.camera:setScale(3)
+		-- self.camera:setScale(3)
 	end)
 end
 
@@ -157,6 +163,7 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
+	self.world:emit("emit_rain", 128, 256)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")

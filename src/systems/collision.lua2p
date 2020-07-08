@@ -109,25 +109,25 @@ end
 !if not _RELEASE then
 function Collision:draw_debug()
 	for _, e in ipairs(self.pool) do
-		if e:has("bump") then return end
+		if not e.bump then
+			local pos = e.position.pos
+			local col_r = e.collider
+			local size = col_r.size
 
-		local pos = e.position.pos
-		local col_r = e.collider
-		local size = col_r.size
+			local x = pos.x
+			local y = pos.y
 
-		local x = pos.x
-		local y = pos.y
+			if col_r.offset then
+				x = x + col_r.offset.x
+				y = y + col_r.offset.y
+			end
 
-		if col_r.offset then
-			x = x + col_r.offset.x
-			y = y + col_r.offset.y
+			love.graphics.setColor(1, 0, 0, 1)
+			if col_r.is_hit then
+				love.graphics.setColor(0, 1, 0, 1)
+			end
+			love.graphics.rectangle("line", x, y, size.x, size.y)
 		end
-
-		love.graphics.setColor(1, 0, 0, 1)
-		if col_r.is_hit then
-			love.graphics.setColor(0, 1, 0, 1)
-		end
-		love.graphics.rectangle("line", x, y, size.x, size.y)
 	end
 
 	for _, e in ipairs(self.pool_circle) do
