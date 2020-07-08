@@ -107,31 +107,31 @@ function Bump3DCollision:inspector(dt)
 		Slab.Text("x: ")
 		Slab.SameLine()
 		if Slab.Input("input_x", {Text = tostring(x), ReturnOnText = false, NumbersOnly = true}) then
-			x = tonumber(Slab.GetInputText())
+			x = Slab.GetInputNumber()
 		end
 
 		Slab.Text("y: ")
 		Slab.SameLine()
 		if Slab.Input("input_y", {Text = tostring(y), ReturnOnText = false, NumbersOnly = true}) then
-			y = tonumber(Slab.GetInputText())
+			y = Slab.GetInputNumber()
 		end
 
 		Slab.Text("w: ")
 		Slab.SameLine()
 		if Slab.Input("input_w", {Text = tostring(w), ReturnOnText = false, NumbersOnly = true}) then
-			w = tonumber(Slab.GetInputText())
+			w = Slab.GetInputNumber()
 		end
 
 		Slab.Text("h: ")
 		Slab.SameLine()
 		if Slab.Input("input_h", {Text = tostring(h), ReturnOnText = false, NumbersOnly = true}) then
-			h = tonumber(Slab.GetInputText())
+			h = Slab.GetInputNumber()
 		end
 
 		Slab.Text("d: ")
 		Slab.SameLine()
 		if Slab.Input("input_d", {Text = tostring(d), ReturnOnText = false, NumbersOnly = true}) then
-			d = tonumber(Slab.GetInputText())
+			d = Slab.GetInputNumber()
 		end
 
 		local ox, oy
@@ -142,13 +142,13 @@ function Bump3DCollision:inspector(dt)
 			Slab.Text("ox: ")
 			Slab.SameLine()
 			if Slab.Input("input_ox", {Text = tostring(ox), ReturnOnText = false, NumbersOnly = true}) then
-				ox = tonumber(Slab.GetInputText())
+				ox = Slab.GetInputNumber()
 			end
 
 			Slab.Text("oy: ")
 			Slab.SameLine()
 			if Slab.Input("input_oy", {Text = tostring(oy), ReturnOnText = false, NumbersOnly = true}) then
-				oy = tonumber(Slab.GetInputText())
+				oy = Slab.GetInputNumber()
 			end
 
 			e.transform.ox = ox
@@ -176,7 +176,7 @@ function Bump3DCollision:inspector(dt)
 	end
 end
 
-function Bump3DCollision:draw_debug()
+function Bump3DCollision:draw_debug(scale)
 	local items, len = self.bump3d_world:getItems()
 	for i = 1, len do
 		local e = items[i]
@@ -188,6 +188,7 @@ function Bump3DCollision:draw_debug()
 			love.graphics.setColor(0, 1, 0, 0.3)
 		end
 
+		love.graphics.setLineWidth(1/scale)
 		love.graphics.rectangle("line", x, y + z + h, w, d)
 		love.graphics.rectangle("line", x, y + z, w, h)
 	end

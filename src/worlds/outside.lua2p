@@ -5,6 +5,7 @@ local TLE = require("modules.tle.timeline")
 
 local min = math.min
 local random = love.math.random
+local format = string.format
 
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -69,7 +70,6 @@ function StateOutside:start()
 	self.camera:setScale(self.scale)
 
 	self.world:addSystem(Systems.Animation)
-	-- self.world:addSystem(Systems.BumpCollision)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
@@ -108,18 +108,16 @@ function StateOutside:start()
 	self.entities.ground = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
 
-	self.entities.player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.base, "topdown",
-			vec2:new(920, 300),
-			{ idle = 0, walk = 128, run = 180 }, 320,
-			{
-				sheet_idle = resources.images.sheet_player_idle,
-				sheet_walk = resources.images.sheet_player_walk,
-				sheet_run = resources.images.sheet_player_run,
-			}, { can_run = false })
-		:give("z_index", 2)
-		:give("camera_follow", vec2:new(0, 32))
-	self.world:emit("face_left", self.entities.player)
+	-- self.entities.player = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Player.outside_house,
+	-- 		resources.images.sheet_player_idle,
+	-- 		resources.images.sheet_player_walk,
+	-- 		resources.images.sheet_player_run)
+	-- self.world:emit("face_left", self.entities.player)
+
+	self.entities.camera = Concord.entity(self.world)
+		:give("camera_follow")
+		:give("camera_position", vec2:new(920, 300))
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, resources.images.car)
@@ -178,7 +176,7 @@ function StateOutside:draw()
 
 		!if not _RELEASE then
 		if self.draw_debug then
-			self.world:emit("draw_debug")
+			self.world:emit("draw_debug", self.camera:getScale())
 		end
 		!end
 
