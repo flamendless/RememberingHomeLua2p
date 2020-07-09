@@ -94,16 +94,6 @@ function RenderSprite:internal_draw(e)
 			end
 		end
 
-		if e.camera_bounds then
-			local l = e.camera_bounds.l
-			local t = e.camera_bounds.t
-			local w = e.camera_bounds.w
-			local h = e.camera_bounds.h
-
-			love.graphics.push()
-			love.graphics.translate(l, t, w, h)
-		end
-
 		if quad then
 			if quad_transform then
 				rotation = quad_transform.rotation
@@ -112,13 +102,13 @@ function RenderSprite:internal_draw(e)
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
-			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
+				love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			end
 		else
-			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
-		end
-
-		if e.camera_bounds then
-			love.graphics.pop()
+			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
+				love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			end
 		end
 	end
 end
@@ -141,6 +131,18 @@ function RenderSprite:draw_ui()
 	for _, e in ipairs(self.pool_ui) do
 		self:internal_draw(e)
 	end
+end
+
+function RenderSprite:check_camera_bounds(camera_bounds, pos)
+	local l = camera_bounds.l
+	local t = camera_bounds.t
+	local w = camera_bounds.w
+	local h = camera_bounds.h
+	local x = pos.x
+	local y = pos.y
+
+	local out_of_bounds = (x < l) or (x > w) or (y < t) or (y > h)
+	return out_of_bounds
 end
 
 !if not _RELEASE then

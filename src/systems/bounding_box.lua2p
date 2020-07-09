@@ -2,15 +2,12 @@ local Concord = require("modules.concord.concord")
 
 local BoundingBox = Concord.system({
 	pool = {"bounding_box", "position"},
-	pool_highlight = {"bounding_box", "position", "bounding_box_color"}
 })
 
 local color_default = { 1, 0, 0, 0.5 }
 local color_item = { 0, 0, 1, 0.5 }
 
 function BoundingBox:init()
-	self.pool_highlight.onEntityAdded = function(pool, e)
-	end
 end
 
 function BoundingBox:update(dt)
