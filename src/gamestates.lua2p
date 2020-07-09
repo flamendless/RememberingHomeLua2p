@@ -119,7 +119,6 @@ function GameStates:canvas_resize()
 		main_canvas = Canvas:new(main_canvas_prop)
 		!if not _RELEASE then
 		main_canvas.debug_color = color_red
-		main_canvas.flags.draw_cross = false
 		!end
 	else main_canvas:set(main_canvas_prop)
 	end
