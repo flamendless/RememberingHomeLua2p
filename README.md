@@ -1,12 +1,17 @@
 # Going Home: Revisited
 
 ![](https://img.shields.io/badge/lua-on%20development-green.svg)
+
 Made with [LOVE](https://love2d.org)
 
 ## Building:
 
 Run `./build init` to compile
 Then `./build run` to run
+
+When changing files in the `res/`, you should update with `./build rebuild`
+
+For cleaning files and logs `./build clean && ./build clean_logs`
 
 (see [buid.sh](build.sh) for more info)
 
@@ -33,6 +38,12 @@ Then `./build run` to run
 * [Slab](https://github.com/coding-jackalope/Slab) - for GUI and in-game editor tools
 * [splashes](https://github.com/love2d-community/splashes) - for löve splash screen
 * [TimelineEvents](https://github.com/flamendless/TimelineEvents) - for coroutine based event system
+
+## Tools:
+
+* [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
+* [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
+* [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
 
 ## LICENSE:
 
