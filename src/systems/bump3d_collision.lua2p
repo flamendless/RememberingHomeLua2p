@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Bump3D = require("modules.bump3d.bump-3dpd")
+local Timer = require("modules.hump.timer")
 
 local Bump3DCollision = Concord.system({
 	pool = {"collider3d", "position", "bump3d"}
@@ -14,11 +15,26 @@ function Bump3DCollision:init(world)
 	self.world = world
 	self.bump3d_world = Bump3D.newWorld()
 
+	!if not _RELEASE then
+	self.bump3d_bodies = {}
+	!end
+
 	self.pool.onEntityAdded = function(pool, e)
 		local x = e.position.pos.x
 		local y = e.position.pos.y
 
 		self.bump3d_world:add(e, x, y, 0, e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
+
+		!if not _RELEASE then
+		local id = e.bump3d.id
+		if id then
+			self.bump3d_bodies[id] = e
+		end
+		!end
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		self.bump3d_world:remove(e)
 	end
 end
 
@@ -69,32 +85,42 @@ end
 !if not _RELEASE then
 local format = string.format
 local win_col3d = false
-local current_item
+local current_item, current_item_id
 
 function Bump3DCollision:inspector(dt)
 	Slab.BeginWindow("b3d", {Title = "Bump3DCollision"})
 	local items, len = self.bump3d_world:getItems()
-	for i = 1, len do
-	Slab.BeginLayout("b3d_layout", {Columns = 2})
-		local e = items[i]
+	Slab.Text("number:")
+	Slab.SameLine()
+	Slab.Text(len)
+	for id, e in pairs(self.bump3d_bodies) do
+		Slab.BeginLayout("b3d_layout", {Columns = 2})
 		Slab.SetLayoutColumn(1)
-		Slab.Text(e.bump3d.id)
+		Slab.Text(id)
 		Slab.SameLine()
 
 		Slab.SetLayoutColumn(2)
 		if Slab.Button("edit") then
 			win_col3d = true
 			current_item = e
+			current_item_id = id
+		end
+		Slab.SameLine()
+		if Slab.Button("highlight") then
+			e.collider3d.highlight = true
+			Timer.after(1, function()
+				e.collider3d.highlight = false
+			end)
 		end
 		Slab.EndLayout()
 	end
 	Slab.EndWindow()
 
 	if win_col3d then
-		Slab.BeginWindow("EditCollider", {Title = "Collider3d"})
 		local e = current_item
-		local id = e.bump3d.id
+		local id = current_item_id
 
+		Slab.BeginWindow("EditCollider", {Title = "Collider3d"})
 		Slab.Text(id)
 		Slab.Indent()
 
@@ -182,8 +208,10 @@ function Bump3DCollision:draw_debug(scale)
 		local e = items[i]
 		local x, y, z, w, h, d = self.bump3d_world:getCube(e)
 
-		if e.collider3d.is_hit then
-			love.graphics.setColor(1, 0, 0, 0.3)
+		if e.collider3d.highlight then
+			love.graphics.setColor(1, 0, 1, 1)
+		elseif e.collider3d.is_hit then
+			love.graphics.setColor(1, 0, 0, 0.8)
 		else
 			love.graphics.setColor(0, 1, 0, 0.3)
 		end
