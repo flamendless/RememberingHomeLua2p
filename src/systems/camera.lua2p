@@ -3,6 +3,7 @@ local Concord = require("modules.concord.concord")
 local Camera = Concord.system({
 	pool_follow_pos = {"camera_follow", "position"},
 	pool_follow_camera_pos = {"camera_follow", "camera_position"},
+	pool_camera_bounds = {"camera_bounds"},
 })
 
 function Camera:init(world)
@@ -15,6 +16,18 @@ function Camera:camera_set(camera)
 	!end
 
 	self.camera = camera
+end
+
+function Camera:update(dt)
+	if not self.camera then return end
+	for _, e in ipairs(self.pool_camera_bounds) do
+		local l, t, w, h = self.camera:getVisible()
+		local camera_bounds = e.camera_bounds
+		camera_bounds.l = l
+		camera_bounds.t = t
+		camera_bounds.w = w
+		camera_bounds.h = h
+	end
 end
 
 function Camera:camera_follow()
@@ -44,8 +57,8 @@ end
 local floor = math.floor
 local format = string.format
 
-local min_speed = 32
-local max_speed = 200
+local min_speed = 64
+local max_speed = 260
 
 function Camera:update_debug(dt)
 	for _, e in ipairs(self.pool_follow_camera_pos) do

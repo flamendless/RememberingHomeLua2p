@@ -94,6 +94,16 @@ function RenderSprite:internal_draw(e)
 			end
 		end
 
+		if e.camera_bounds then
+			local l = e.camera_bounds.l
+			local t = e.camera_bounds.t
+			local w = e.camera_bounds.w
+			local h = e.camera_bounds.h
+
+			love.graphics.push()
+			love.graphics.translate(l, t, w, h)
+		end
+
 		if quad then
 			if quad_transform then
 				rotation = quad_transform.rotation
@@ -105,6 +115,10 @@ function RenderSprite:internal_draw(e)
 			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
 			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+		end
+
+		if e.camera_bounds then
+			love.graphics.pop()
 		end
 	end
 end
@@ -133,13 +147,11 @@ end
 function RenderSprite:draw_debug()
 	Slab.BeginWindow("ZIndex", {Title = "Z Index"})
 	for _, e in ipairs(self.custom_pool_z) do
-		local id = _
 		if e.bump3d and e.bump3d.id then
-			id = e.bump3d.id
+			Slab.Text(e.bump3d.id)
+			Slab.SameLine()
+			Slab.Text("z: " .. e.z_index.z)
 		end
-		Slab.Text(id)
-		Slab.SameLine()
-		Slab.Text("z: " .. e.z_index.z)
 	end
 	Slab.EndWindow()
 end
