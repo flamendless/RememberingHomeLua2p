@@ -5,7 +5,7 @@ local random = love.math.random
 local RainOutside = Concord.system({
 	pool_empty = {"empty_rain"},
 	pool_data = {"rain_data", "screen_size"},
-	pool_drop = {"rain_drop", "position", "acceleration", "collider_circle"},
+	pool_drop = {"rain_drop", "position", "acceleration", "collider3d", "bump3d"},
 	pool_splash = {"rain_splash", "position"}
 })
 
@@ -26,25 +26,28 @@ function RainOutside:init(world)
 	end
 end
 
-function RainOutside:emit_rain(amount, max_amount)
+function RainOutside:emit_rain(amount, max_amount, x_start, max_width)
 	if (#self.pool_drop > max_amount) or (amount > #self.pool_empty) then
 		return
 	end
 
 	local drop = self.data.drop
 	local random_amount = random(amount/2, amount * 1.5)
+	local x_start = x_start or 0
+	local max_width = x_start + (max_width or self.max_width)
 
 	for i = 1, random_amount do
 		local r = random(1, #drop)
 		local img = drop[r]
-		local x = random(1, self.max_width)
+		local x = random(x_start, max_width)
 		local pos = vec2:new(x, -64)
 		local anim_data = {}
 
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
 
-		local ay = random(320, 1280)
+		-- local ay = random(320, 1280)
+		local ay = 128
 		local accel = vec2:new(0, ay)
 		local alpha = random(10, 100)/100
 		local z = random(1, 10)
@@ -59,8 +62,10 @@ function RainOutside:emit_rain(amount, max_amount)
 			:give("acceleration", accel)
 			:give("z_index", z)
 			:give("color", {1, 1, 1, alpha})
-			:give("transform", 0, scale, scale)
-			:give("collider_circle", 4, vec2:new(9, 32))
+			:give("transform", 0, scale, scale, 9, 24)
+			:give("collider3d", vec3:new(4, 4, 4))
+			:give("bump3d")
+			:give("body")
 			:remove("empty_rain")
 		end
 	end
@@ -84,7 +89,9 @@ function RainOutside:emit_splash(e)
 		:remove("transform")
 		:remove("z_index")
 		:remove("color")
-		:remove("collider_circle")
+		:remove("collider3d")
+		:remove("bump3d")
+		:remove("body")
 		:give("empty_rain")
 	end, "pauseAtEnd", true)
 	self.world:emit("update_animation_data", e, anim_data)
@@ -94,16 +101,19 @@ function RainOutside:update(dt)
 	for _, e in ipairs(self.pool_drop) do
 		local pos = e.position.pos
 		local accel = e.acceleration.accel
-		local col = e.collider_circle
 		local z_index = e.z_index.z
 
-		local dy = pos.y + accel.y * dt
+		local dy = accel.y * dt
+		e.body.vel_y = dy
+		e.body.dy = 1
+	end
+	self:post_update(dt)
+end
 
-		pos.y = dy
-
-		self.world:emit("check_collision", e)
-
-		if col.is_hit or (pos.y > self.max_height) then
+function RainOutside:post_update(dt)
+	for _, e in ipairs(self.pool_drop) do
+		local pos = e.position.pos
+		if e.collider3d.is_hit or (pos.y > self.max_height) then
 			e:remove("rain_drop")
 			:remove("acceleration")
 			self:emit_splash(e)

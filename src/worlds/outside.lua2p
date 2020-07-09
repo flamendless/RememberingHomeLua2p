@@ -163,10 +163,12 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
-	self.world:emit("emit_rain", 128, 256)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
+
+	local cx, cy, cw, ch = self.camera:getVisible()
+	self.world:emit("emit_rain", 8, 24, cx, cw)
 
 	!if not _RELEASE then
 	self.world:emit("update_debug", dt)
