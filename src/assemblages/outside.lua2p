@@ -89,34 +89,34 @@ function Outside.right_wall(e)
 	:give("bump3d", "right_wall")
 end
 
-function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)
-	local buffer = 512
-
-	e:give("screen_size", ww, wh)
-	:give("rain_data", {
-		metadata = {
-			drop = {
-				frames = {"1-3", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 3,
-			},
-			splash = {
-				frames = {"1-5", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 5,
-			}
-		},
-		drop = {
-			rain_drop,
-			rain_drop2,
-		},
-		splash = {
-			rain_splash,
-			rain_splash2,
-		}
-	}, buffer)
-end
+-- function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)
+-- 	local buffer = 512
+--
+-- 	e:give("screen_size", ww, wh)
+-- 	:give("rain_data", {
+-- 		metadata = {
+-- 			drop = {
+-- 				frames = {"1-3", 1},
+-- 				delay = 0.1,
+-- 				rows_count = 1,
+-- 				columns_count = 3,
+-- 			},
+-- 			splash = {
+-- 				frames = {"1-5", 1},
+-- 				delay = 0.1,
+-- 				rows_count = 1,
+-- 				columns_count = 5,
+-- 			}
+-- 		},
+-- 		drop = {
+-- 			rain_drop,
+-- 			rain_drop2,
+-- 		},
+-- 		splash = {
+-- 			rain_splash,
+-- 			rain_splash2,
+-- 		}
+-- 	}, buffer)
+-- end
 
 return Outside
