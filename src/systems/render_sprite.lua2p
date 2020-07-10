@@ -32,6 +32,15 @@ function RenderSprite:init()
 	end
 end
 
+function RenderSprite:sort_z()
+	table.stable_sort(self.custom_pool_z, function(a, b)
+		local a_pos = a.position.pos.y
+		local b_pos = b.position.pos.y
+
+		return a_pos < b_pos
+	end)
+end
+
 function RenderSprite:internal_draw(e)
 	local hidden = e.hidden
 	if not hidden then
@@ -59,12 +68,16 @@ function RenderSprite:internal_draw(e)
 					ox = animation_data.frame_width/2
 				elseif transform.ox == 1 then
 					ox = animation_data.frame_width
+				else
+					ox = transform.ox
 				end
 
 				if transform.oy == 0.5 then
 					oy = animation_data.frame_height/2
 				elseif transform.oy == 1 then
 					oy = animation_data.frame_height
+				else
+					oy = transform.oy
 				end
 			else
 				if transform.ox == 0.5 then
@@ -89,9 +102,13 @@ function RenderSprite:internal_draw(e)
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
-			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
+				love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			end
 		else
-			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
+				love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			end
 		end
 	end
 end
@@ -115,5 +132,31 @@ function RenderSprite:draw_ui()
 		self:internal_draw(e)
 	end
 end
+
+function RenderSprite:check_camera_bounds(camera_bounds, pos)
+	local l = camera_bounds.l
+	local t = camera_bounds.t
+	local w = camera_bounds.w
+	local h = camera_bounds.h
+	local x = pos.x
+	local y = pos.y
+
+	local out_of_bounds = (x < l) or (x > w) or (y < t) or (y > h)
+	return out_of_bounds
+end
+
+!if not _RELEASE then
+function RenderSprite:draw_debug()
+	Slab.BeginWindow("ZIndex", {Title = "Z Index"})
+	for _, e in ipairs(self.custom_pool_z) do
+		if e.bump3d and e.bump3d.id then
+			Slab.Text(e.bump3d.id)
+			Slab.SameLine()
+			Slab.Text("z: " .. e.z_index.z)
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return RenderSprite

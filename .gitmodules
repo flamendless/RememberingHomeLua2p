@@ -58,3 +58,6 @@
 [submodule "modules/bump"]
 	path = modules/bump
 	url = https://github.com/oniietzschan/bump-niji
+[submodule "modules/bump3d"]
+	path = modules/bump3d
+	url = https://github.com/oniietzschan/bump-3dpd/

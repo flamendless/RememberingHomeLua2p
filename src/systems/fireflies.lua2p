@@ -1,0 +1,34 @@
+local Concord = require("modules.concord.concord")
+
+local random = love.math.random
+
+local Fireflies = Concord.system({
+	pool = {"firefly"},
+})
+
+function Fireflies:init(world)
+	self.world = world
+end
+
+function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
+	!if _ASSERT then
+	Assert.should_number(n)
+	Assert.should_image(sprite)
+	Assert.should_vec2(min_pos)
+	Assert.should_vec2(max_pos)
+	!end
+
+	for i = 1, n do
+		local x = random(min_pos.x, max_pos.x)
+		local y = random(min_pos.y, max_pos.y)
+		local shader = love.graphics.newShader("shaders/test.glsl")
+
+		local e = Concord.entity(self.world)
+			:give("sprite", sprite)
+			:give("position", vec2:new(x, y))
+			:give("z_index", 10)
+			:give("firefly", shader)
+	end
+end
+
+return Fireflies

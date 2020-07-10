@@ -80,6 +80,10 @@ local setup_animation = function(e, data, on_end)
 	e:give("quad", quad)
 
 	if data.is_flipped then
+		if e.transform then
+			ox = ox - e.transform.ox
+			oy = oy - e.transform.oy
+		end
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else
 		e:remove("quad_transform")
@@ -136,7 +140,9 @@ function Animation:init()
 				animation.animation:pauseAtEnd()
 			end
 		elseif type(pause_at.at_frame) == "number" then
-			assert(pause_at.at_frame <= data.n_frames, "Passed 'at_frames' must not exceed number of total frames in 'animation_data'")
+			!if _ASSERT then
+			Assert.should_true(pause_at.at_frame <= data.n_frames)
+			!end
 			animation.animation:gotoFrame(pause_at.at_frame)
 			animation.animation:pause()
 		end
@@ -158,7 +164,7 @@ function Animation:switch_animation_tag(new_tag)
 		local multi = e.multiple_animation_data
 
 		!if _ASSERT then
-		assert(multi.data[new_tag], "'new_tag' must exist in the 'data' table")
+		Assert.should_exists(multi.data[new_tag])
 		!end
 
 		local animation = e.animation

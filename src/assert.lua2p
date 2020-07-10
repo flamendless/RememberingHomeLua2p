@@ -16,6 +16,7 @@ local T_SHADER = "Shader"
 local T_STRING = "string"
 local T_TABLE = "table"
 local T_VEC2 = "vec2"
+local T_VEC3 = "vec3"
 
 local msg_nil = "Passed argument is 'nil'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
@@ -36,7 +37,9 @@ local msg_should_shader = "Passed argument must be of type 'Shader'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_true = "Passed argument must be true"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
+local msg_should_vec3 = "Passed argument must be of type 'vec3'"
 local msg_should_world = "Passed argument must not be of type 'World'"
 
 function Assert.should_all_image_i(arg)
@@ -85,6 +88,12 @@ end
 function Assert.should_table(arg)
 	if type(arg) ~= T_TABLE then
 		error(msg_should_table, 2)
+	end
+end
+
+function Assert.should_true(arg)
+	if arg == false then
+		error(msg_should_true, 2)
 	end
 end
 
@@ -146,6 +155,15 @@ function Assert.should_vec2(arg)
 	end
 	if arg.type ~= T_VEC2 then
 		error(msg_should_vec2, 2)
+	end
+end
+
+function Assert.should_vec3(arg)
+	if arg == nil then
+		error(msg_nil, 2)
+	end
+	if arg.type ~= T_VEC3 then
+		error(msg_should_vec3, 2)
 	end
 end
 
@@ -219,6 +237,7 @@ function Assert.should_quad(arg)
 		error(msg_should_quad, 2)
 	end
 end
+
 function Assert.should_shader(arg)
 	if arg:type() ~= T_SHADER then
 		error(msg_should_shader, 2)

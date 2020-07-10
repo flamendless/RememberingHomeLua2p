@@ -2,15 +2,12 @@ local Concord = require("modules.concord.concord")
 
 local BoundingBox = Concord.system({
 	pool = {"bounding_box", "position"},
-	pool_highlight = {"bounding_box", "position", "bounding_box_color"}
 })
 
 local color_default = { 1, 0, 0, 0.5 }
 local color_item = { 0, 0, 1, 0.5 }
 
 function BoundingBox:init()
-	self.pool_highlight.onEntityAdded = function(pool, e)
-	end
 end
 
 function BoundingBox:update(dt)
@@ -33,38 +30,5 @@ function BoundingBox:on_camera_move(camera)
 		box.screen_y = by
 	end
 end
-
-!if not _RELEASE then
-function BoundingBox:draw_debug()
-	for _, e in ipairs(self.pool) do
-		local box = e.bounding_box
-		local pos = e.position
-		local item = e.item
-
-		local color = color_default
-		if item then
-			color = color_item
-		end
-
-		love.graphics.setColor(color)
-		love.graphics.rectangle("line", box.x, box.y, box.w, box.h)
-
-		local ds = e.debug_slab
-		if ds then
-			love.graphics.setColor(1, 1, 0, 1)
-			love.graphics.print(ds.id, box.x, box.y + box.h - 16)
-		end
-	end
-
-	for _, e in ipairs(self.pool_highlight) do
-		local box = e.bounding_box
-		local pos = e.position
-		local color = e.bounding_box_color.color
-
-		love.graphics.setColor(color)
-		love.graphics.rectangle("line", pos.pos.x, pos.pos.y, box.w, box.h)
-	end
-end
-!end
 
 return BoundingBox

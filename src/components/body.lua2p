@@ -1,9 +1,16 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("body", function(c)
+Concord.component("body", function(c, can_move, can_run)
+	!if _ASSERT then
+	Assert.safe_should_boolean(can_move)
+	Assert.safe_should_boolean(can_run)
+	!end
+
+	c.can_move = can_move ~= false
+	c.can_run = can_run ~= false
 	c.is_run = false
-	c.can_move = true
 	c.dx = 0
+	c.dy = 0
 	c.dir = 1
 	c.vel_x = 0
 	c.vel_y = 0

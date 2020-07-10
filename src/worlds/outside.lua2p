@@ -4,6 +4,8 @@ local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
 local min = math.min
+local random = love.math.random
+local format = string.format
 
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -19,10 +21,13 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {
 	Animation = require("systems.animation"),
 	BumpCollision = require("systems.bump_collision"),
+	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
+	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
+	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 }
@@ -66,8 +71,10 @@ function StateOutside:start()
 	self.camera:setScale(self.scale)
 
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.BumpCollision)
+	self.world:addSystem(Systems.Bump3DCollision)
+	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
+	self.world:addSystem(Systems.RainOutside)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
@@ -79,33 +86,61 @@ function StateOutside:start()
 	self.entities.bg = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg, resources.images.bg)
 
+	self.entities.left_bounds = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.left_bounds)
+
+	self.entities.right_bounds = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.right_bounds)
+
 	self.entities.left_wall = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_wall)
 
 	self.entities.right_wall = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.right_wall)
 
-	self.entities.ground = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.ground, vec2:new(w, 64))
+	self.entities.wood = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.wood)
 
-	self.entities.player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.base,
-			vec2:new(920, 300), vec2:new(64, 64),
-			{ idle = 0, walk = 128, run = 180 }, 320,
-			{
-				sheet_idle = resources.images.sheet_player_idle,
-				sheet_walk = resources.images.sheet_player_walk,
-				sheet_run = resources.images.sheet_player_run,
-			})
-		:give("z_index", 2)
+	self.entities.house = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house)
+
+	self.entities.house_side = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house_side)
+
+	-- self.entities.player = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Player.outside_house,
+	-- 		resources.images.sheet_player_idle,
+	-- 		resources.images.sheet_player_walk,
+	-- 		resources.images.sheet_player_run)
+	-- self.world:emit("face_left", self.entities.player)
+
+	self.entities.camera = Concord.entity(self.world)
 		:give("camera_follow")
-	self.world:emit("face_left")
+		:give("camera_position", vec2:new(920, 300))
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.car)
+		:assemble(Assemblages.Outside.car, resources.images.car)
 
 	self.entities.fence = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence, resources.images.fence)
+
+	self.entities.fence_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.fence_right)
+
+	self.entities.gate = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.gate, resources.images.gate)
+
+	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+	-- 	vec2:new(670, 222), vec2:new(922, 298))
+	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+	-- 	vec2:new(1030, 230), vec2:new(1136, 286))
+
+	self.entities.rain_data = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.rain, ww, wh,
+			resources.images.rain_drop,
+			resources.images.rain_drop2,
+			resources.images.rain_splash,
+			resources.images.rain_splash2)
 
 	local lut_size, lut_night
 	if Settings.current.graphics_quality == "Low" then
@@ -128,8 +163,16 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
+	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
+
+	local cx, cy, cw, ch = self.camera:getVisible()
+	self.world:emit("emit_rain", 8, 24, cx, cw)
+
+	!if not _RELEASE then
+	self.world:emit("update_debug", dt)
+	!end
 end
 
 function StateOutside:draw()
@@ -142,7 +185,7 @@ function StateOutside:draw()
 
 		!if not _RELEASE then
 		if self.draw_debug then
-			self.world:emit("draw_debug")
+			self.world:emit("draw_debug", self.camera:getScale())
 		end
 		!end
 

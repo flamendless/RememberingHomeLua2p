@@ -4,7 +4,7 @@ local Bump = require("modules.bump.bump-niji")
 local Keybinds = require("keybinds")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body", "collider"},
+	pool = {"player_controller", "body"},
 })
 
 function PlayerController:init(world)
@@ -13,30 +13,38 @@ end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		local player_controller = e.player_controller
-		local body = e.body
-		local collider = e.collider
-
 		if e:has("override_animation") then return end
-		if not body.can_move then return end
+		if not e.body.can_move then return end
 
 		if Keybinds.is_down_player("move_left") then
-			body.is_run = love.keyboard.isDown("lshift")
-			body.dir = -1
-			body.dx = -1
+			if e.body.can_run then
+				e.body.is_run = love.keyboard.isDown("lshift")
+			end
+			e.body.dir = -1
+			e.body.dx = -1
 		elseif Keybinds.is_down_player("move_right") then
-			body.is_run = love.keyboard.isDown("lshift")
-			body.dir = 1
-			body.dx = 1
+			if e.body.can_run then
+				e.body.is_run = love.keyboard.isDown("lshift")
+			end
+			e.body.dir = 1
+			e.body.dx = 1
 		else
-			body.dx = 0
+			e.body.dx = 0
+		end
+
+		if Keybinds.is_down_player("move_up") then
+			e.body.dy = -1
+		elseif Keybinds.is_down_player("move_down") then
+			e.body.dy = 1
+		else
+			e.body.dy = 0
 		end
 
 		local animation_name
 		local animation_variance
 
-		if body.dx ~= 0 then
-			if body.is_run then
+		if e.body.dx ~= 0 or e.body.dy ~= 0 then
+			if e.body.is_run then
 				animation_name = "run"
 			else
 				animation_name = "walk"
@@ -45,7 +53,7 @@ function PlayerController:update(dt)
 			animation_name = "idle"
 		end
 
-		if body.dir == -1 then
+		if e.body.dir == -1 then
 			animation_variance = "_left"
 		end
 
@@ -63,7 +71,7 @@ function PlayerController:update(dt)
 		if speed and speed_data then
 			local old_speed = speed.speed
 			local new_speed = speed_data.speed_data[animation_name]
-			if body.dx ~= 0 then
+			if e.body.dx ~= 0 or e.body.dy ~= 0 then
 				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
 				speed.speed = speed_dt
 			else
@@ -73,28 +81,22 @@ function PlayerController:update(dt)
 	end
 end
 
-function PlayerController:face_left()
-	for _, e in ipairs(self.pool) do
-		local player_controller = e.player_controller
-		local body = e.body
-
-		if e:has("override_animation") then return end
-		body.is_run = love.keyboard.isDown("lshift")
-		body.dir = -1
-		body.dx = -1
+function PlayerController:face_left(e)
+	if e:has("override_animation") then return end
+	if e.body.can_run then
+		e.body.is_run = love.keyboard.isDown("lshift")
 	end
+	e.body.dir = -1
+	e.body.dx = -1
 end
 
-function PlayerController:face_right()
-	for _, e in ipairs(self.pool) do
-		local player_controller = e.player_controller
-		local body = e.body
-
-		if e:has("override_animation") then return end
-		body.is_run = love.keyboard.isDown("lshift")
-		body.dir = 1
-		body.dx = 1
+function PlayerController:face_right(e)
+	if e:has("override_animation") then return end
+	if e.body.can_run then
+		e.body.is_run = love.keyboard.isDown("lshift")
 	end
+	e.body.dir = 1
+	e.body.dx = 1
 end
 
 function PlayerController:collision_wall(player, wall)

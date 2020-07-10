@@ -9,6 +9,7 @@ local Info = {
 
 local min = math.min
 local concat = table.concat
+local insert = table.insert
 local format = string.format
 local filename = !(_LOG_INFO)
 
@@ -16,27 +17,73 @@ function Info.initialize()
 	Log.info("System information checking...")
 
 	Info.data.info_os = love.system.getOS()
-	Info.data.state, Info.data.percent, Info.data.seconds = love.system.getPowerInfo()
 	Info.data.processor_count = love.system.getProcessorCount()
-	Info.data.has_bgm = love.system.hasBackgroundMusic()
-	Info.data.limits = love.graphics.getSystemLimits()
 	Info.data.name, Info.data.version, Info.data.vendor, Info.data.device = love.graphics.getRendererInfo()
 	Info.data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+
+	Info.data.limits = love.graphics.getSystemLimits()
+	Info.data.canvasformats = love.graphics.getCanvasFormats()
+	Info.data.imageformats = love.graphics.getImageFormats()
+	Info.data.texturetypes = love.graphics.getTextureTypes()
+	Info.data.supported = love.graphics.getSupported()
+
+	local system_limits = {}
+	for k, v in pairs(Info.data.limits) do
+		local str = format("\t%s: %s\n", k, v)
+		insert(system_limits, str)
+	end
+
+	local canvas_formats = {}
+	for k, v in pairs(Info.data.canvasformats) do
+		local str = format("\t%s: %s\n", k, v)
+		insert(canvas_formats, str)
+	end
+
+	local image_formats = {}
+	for k, v in pairs(Info.data.imageformats) do
+		local str = format("\t%s: %s\n", k, v)
+		insert(image_formats, str)
+	end
+
+	local texture_types = {}
+	for k, v in pairs(Info.data.texturetypes) do
+		local str = format("\t%s: %s\n", k, v)
+		insert(texture_types, str)
+	end
+
+	local supported = {}
+	for k, v in pairs(Info.data.supported) do
+		local str = format("\t%s: %s\n", k, v)
+		insert(supported, str)
+	end
 
 	local str = {
 		format("Game Version: %s", Info.data.game_version),
 		format("OS: %s", Info.data.info_os),
-		"Power Info:",
-		format("\tState: %s", Info.data.state),
-		format("\tPercent: %s", Info.data.percent),
-		format("\tSeconds: %s", Info.data.seconds or "not available"),
+
 		format("Processor Count: %s", Info.data.processor_count),
-		format("Has BGM: %s", tostring(Info.data.has_bgm)),
+
 		"Renderer Info:",
 		format("\tName: %s", Info.data.name),
 		format("\tVersion: %s", Info.data.version),
 		format("\tVendor: %s", Info.data.vendor),
 		format("\tDevice: %s", Info.data.device),
+
+		"System Limits:",
+		concat(system_limits),
+
+		"Canvas Formats:",
+		concat(canvas_formats),
+
+		"Image Formats:",
+		concat(image_formats),
+
+		"Texture Types:",
+		concat(texture_types),
+
+		"Supported:",
+		concat(supported),
+
 		"Other Info:",
 		format("Release Mode: %s", !(_RELEASE)),
 		format("Assert Mode: %s", !(_ASSERT)),

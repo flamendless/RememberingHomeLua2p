@@ -5,7 +5,8 @@ local Outside = {}
 local z_index = {
 	bg = 1,
 	-- player = 2,
-	fence = 3
+	car = 3,
+	fence = 4,
 }
 
 function Outside.bg(e, sprite)
@@ -14,42 +15,108 @@ function Outside.bg(e, sprite)
 	:give("z_index", z_index.bg)
 end
 
-function Outside.ground(e, size)
-	e:give("position", vec2:new(0, 350))
-	:give("collider", size)
-	:give("bump")
-
-	!if not _RELEASE then
-	e:give("debug_slab", "ground")
-	!end
+function Outside.left_bounds(e)
+	e:give("position", vec2:new(80, 260))
+	:give("collider3d", vec3:new(92, 100, 16))
+	:give("bump3d", "left_bounds")
 end
 
-function Outside.left_wall(e)
-	e:give("position", vec2:new(55, 303))
-	:give("collider", vec2:new(90, 64))
-	:give("bump")
+function Outside.right_bounds(e)
+	e:give("position", vec2:new(1160, 250))
+	:give("collider3d", vec3:new(32, 100, 32))
+	:give("bump3d", "right_bounds")
 end
 
-function Outside.right_wall(e)
-	e:give("position", vec2:new(1190, 300))
-	:give("collider", vec2:new(72, 64))
-	:give("bump")
+function Outside.wood(e)
+	e:give("position", vec2:new(210, 270))
+	:give("collider3d", vec3:new(50, 10, 16))
+	:give("bump3d", "wood")
 end
 
 function Outside.fence(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(-47, 330))
+	:give("collider3d", vec3:new(850, 16, 61))
+	:give("z_index", z_index.fence)
+	:give("bump3d", "fence")
+end
+
+function Outside.gate(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(800, 330))
+	:give("transform", 0, 1, 1, 0, 16)
+	:give("collider3d", vec3:new(200, 8, 32))
+	:give("bump3d", "gate")
 	:give("z_index", z_index.fence)
 end
 
-function Outside.car(e)
-	e:give("position", vec2:new(934, 281))
-	:give("collider", vec2:new(78, 49), nil, "cross")
-	:give("bump")
+function Outside.fence_right(e)
+	e:give("position", vec2:new(1000, 330))
+	:give("collider3d", vec3:new(407, 16, 61))
+	:give("bump3d", "fence_right")
+end
 
-	!if not _RELEASE then
-	e:give("debug_slab", "car")
-	!end
+function Outside.car(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(934, 260))
+	:give("collider3d", vec3:new(78, 8, 50))
+	:give("bump3d", "car")
+	:give("transform", 0, 1, 1, 0, -16)
+	:give("z_index", z_index.car)
+end
+
+function Outside.house(e)
+	e:give("position", vec2:new(240, 128))
+	:give("collider3d", vec3:new(350, 140, 64))
+	:give("bump3d", "house")
+end
+
+function Outside.house_side(e)
+	e:give("position", vec2:new(580, 200))
+	:give("collider3d", vec3:new(60, 60, 64))
+	:give("bump3d", "house_side")
+end
+
+function Outside.left_wall(e)
+	e:give("position", vec2:new(96, 160))
+	:give("collider3d", vec3:new(120, 100, 64))
+	:give("bump3d", "left_wall")
+end
+
+function Outside.right_wall(e)
+	e:give("position", vec2:new(640, 185))
+	:give("collider3d", vec3:new(520, 60, 64))
+	:give("bump3d", "right_wall")
+end
+
+function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)
+	local buffer = 512
+
+	e:give("screen_size", ww, wh)
+	:give("rain_data", {
+		metadata = {
+			drop = {
+				frames = {"1-3", 1},
+				delay = 0.1,
+				rows_count = 1,
+				columns_count = 3,
+			},
+			splash = {
+				frames = {"1-5", 1},
+				delay = 0.1,
+				rows_count = 1,
+				columns_count = 5,
+			}
+		},
+		drop = {
+			rain_drop,
+			rain_drop2,
+		},
+		splash = {
+			rain_splash,
+			rain_splash2,
+		}
+	}, buffer)
 end
 
 return Outside

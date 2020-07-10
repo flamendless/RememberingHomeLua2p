@@ -2,16 +2,29 @@ local Concord = require("modules.concord.concord")
 
 local Player = {}
 
-function Player.base(e, pos, collider, speed_data, gravity, resources)
+function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
+	local can_move, can_run
+
+	!if _ASSERT then
+	Assert.either_value(movement, "platformer", "topdown")
+	if Assert.safe_should_table(defaults) then
+		Assert.safe_should_boolean(defaults.can_move)
+		Assert.safe_should_boolean(defaults.can_run)
+		can_move = defaults.can_move
+		can_run = defaults.can_run
+	end
+	!end
+
 	e:give("position", pos)
-	:give("collider", collider)
-	:give("bump")
+	:give("transform", 0, 1, 1, 18, 0)
+	:give("collider3d", vec3:new(28, 12, 64))
+	:give("bump3d", "player")
 	:give("speed")
 	:give("speed_data", speed_data)
 	:give("gravity", gravity)
 	:give("animation")
 	:give("player_controller")
-	:give("body")
+	:give("body", can_move, can_run)
 	:give("multiple_animation_data", "idle",
 		{
 			idle = {
@@ -48,9 +61,25 @@ function Player.base(e, pos, collider, speed_data, gravity, resources)
 			walk = { "walk_left",  "flipH"},
 			run = { "run_left", "flipH"},
 		})
-	!if not _RELEASE then
-	e:give("debug_slab", "player")
-	!end
+
+	if movement == "platformer" then
+		e:give("movement_platformer")
+	elseif movement == "topdown" then
+		e:give("movement_topdown")
+	end
+end
+
+function Player.outside_house(e, sheet_idle, sheet_walk, sheet_run)
+	e:assemble(Player.base, "topdown",
+		vec2:new(920, 300),
+		{ idle = 0, walk = 128, run = 180 }, 320,
+		{
+			sheet_idle = sheet_idle,
+			sheet_walk = sheet_walk,
+			sheet_run = sheet_run,
+		}, { can_run = false })
+	:give("z_index", 2)
+	:give("camera_follow", vec2:new(0, 32))
 end
 
 return Player

@@ -39,10 +39,6 @@ function Common.item(e, id, pos, size)
 	:give("position", pos)
 	:give("collider", size, nil, "cross")
 	:give("bump")
-
-	!if not _RELEASE then
-	e:give("debug_slab", id)
-	!end
 end
 
 return Common

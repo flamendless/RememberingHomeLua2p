@@ -7,7 +7,6 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
-		flags = _flags,
 		canvas = _canvas,
 		x = x, y = y,
 		width = width, height = height,
@@ -28,7 +27,6 @@ function Canvas:new_from_table(tbl)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
-		flags = _flags,
 		canvas = _canvas,
 		x = _x, y = _y,
 		width = _w, height = _h,
@@ -42,7 +40,6 @@ function Canvas:new_from_canvas(source)
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
-		flags = _flags,
 		canvas = _canvas,
 		x = source.x, y = source.y,
 		width = source.width, height = source.height,
@@ -52,27 +49,15 @@ function Canvas:new_from_canvas(source)
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
-	local _flags = {}
-	!if not _RELEASE then
-	_flags.draw_bounds = true
-	_flags.draw_cross = true
-	!else
-	_flags.draw_bounds = false
-	_flags.draw_cross = false
-	!end
-
 	local c
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			c = self:new_from_canvas(x)
-			c.flags = _flags
 		else
 			c = self:new_from_table(x)
-			c.flags = _flags
 		end
 	elseif type(x) == "number" then
 	 	c = self:new_default(x, y, width, height, rotation, scale)
-		c.flags = _flags
 	end
 
 	return c
@@ -122,11 +107,6 @@ function Canvas:attach()
 end
 
 function Canvas:detach()
-	!if not _RELEASE then
-	if self.flags.draw_bounds and self.custom_color_bounds then
-		self:draw_bounds(self.custom_color_bounds)
-	end
-	!end
 	love.graphics.setCanvas()
 end
 
@@ -141,31 +121,7 @@ function Canvas:render()
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale, self.scale)
 	love.graphics.setBlendMode("alpha")
-
-	!if not _RELEASE then
-	self:draw_bounds()
-	self:draw_cross()
-	!end
 end
-
-!if not _RELEASE then
-function Canvas:draw_bounds()
-	if not self.flags.draw_bounds then return end
-	love.graphics.setColor(self.debug_color or color_red)
-	love.graphics.setLineWidth(4)
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
-end
-
-function Canvas:draw_cross()
-	if not self.flags.draw_cross then return end
-	love.graphics.setColor(self.debug_color or color_red)
-	love.graphics.setLineWidth(1)
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
-	love.graphics.line(w/2, 0, w/2, h)
-	love.graphics.line(0, h/2, w, h/2)
-end
-!end
 
 function Canvas:type()
 	return "CustomCanvas"

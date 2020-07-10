@@ -3,5 +3,25 @@ local Concord = require("modules.concord.concord")
 Concord.component("camera", function(c)
 end)
 
-Concord.component("camera_follow", function(c)
+Concord.component("camera_bounds", function(c)
+	c.l = 0
+	c.t = 0
+	c.w = 0
+	c.h = 0
+end)
+
+Concord.component("camera_position", function(c, pos)
+	!if _ASSERT then
+	Assert.safe_should_vec2(pos)
+	!end
+
+	c.pos = pos or vec2:new()
+end)
+
+Concord.component("camera_follow", function(c, offset)
+	!if _ASSERT then
+	Assert.safe_should_vec2(offset)
+	!end
+
+	c.offset = offset or vec2:new()
 end)
