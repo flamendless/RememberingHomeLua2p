@@ -69,8 +69,6 @@ Resources.data.intro = {
 		{ "lut_afternoon_64", "res/lut/lut_afternoon_64.png" },
 		{ "lut_dusk_16", "res/lut/lut_dusk_16.png" },
 		{ "lut_dusk_64", "res/lut/lut_dusk_64.png" },
-		{ "lut_night_16", "res/lut/lut_night_16.png" },
-		{ "lut_night_64", "res/lut/lut_night_64.png" },
 	},
 
 	font = {
@@ -96,8 +94,8 @@ Resources.data.outside = {
 	},
 
 	image_data = {
-		{ "lut_night_16", "res/lut/lut_night_16.png" },
-		{ "lut_night_64", "res/lut/lut_night_64.png" },
+		{ "lut_dusk_16", "res/lut/lut_dusk_16.png" },
+		{ "lut_dusk_64", "res/lut/lut_dusk_64.png" },
 	},
 
 	font = {}

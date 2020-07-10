@@ -74,6 +74,8 @@ local dialogues = Dialogues.get("intro_rain")
 
 local duration_in = 3
 local duration_out = 2
+local fade_duration = 4
+
 local show_dialogue
 show_dialogue = function(timeline)
 	if current_dialogue > #e_dialogues then
@@ -254,28 +256,22 @@ function StateIntro:start()
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
 	local lut_size
-	local lut_afternoon, lut_dusk, lut_night
+	local lut_afternoon, lut_dusk
 
 	if Settings.current.graphics_quality == "Low" then
 		lut_size = 16
 		lut_afternoon = resources.image_data.lut_afternoon_16
 		lut_dusk = resources.image_data.lut_dusk_16
-		lut_night = resources.image_data.lut_night_16
 	else
 		lut_size = 64
 		lut_afternoon = resources.image_data.lut_afternoon_64
 		lut_dusk = resources.image_data.lut_dusk_64
-		lut_night = resources.image_data.lut_night_64
 	end
 
 	effect.single = NGrading:new(lut_afternoon, lut_size)
 	effect.single:setup_data()
-	effect.single2 = NGrading:new(lut_night, lut_size)
-	effect.single2:setup_data()
 	effect.multi = NGrading:new(lut_afternoon, lut_dusk, lut_size)
 	effect.multi:setup_data()
-	effect.multi2 = NGrading:new(lut_dusk, lut_night, lut_size)
-	effect.multi2:setup_data()
 	current_effect = effect.single
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
@@ -311,7 +307,6 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { scale = 10 })
 
 		TLE.Event.Wait(2)
-		local fade_duration = 4
 		self.world:emit("fade_text", self.entities.intro_txt1, fade_duration, self.timeline)
 		self.timeline:Pause()
 
@@ -341,14 +336,6 @@ function StateIntro:start()
 		self.timeline:Pause()
 
 		update_rain(1)
-
-		effect.status = 3
-		current_effect = effect.multi2
-		Flux.to(effect, 25, { dt2 = 1 })
-			:oncomplete(function()
-				effect.status = 4
-				current_effect = effect.single2
-			end)
 
 		--TODO play intro radio
 		-- TLE.Event.Wait(3)
@@ -399,7 +386,8 @@ function StateIntro:start()
 		end, fade_out_duration)
 	end)
 
-	self.timeline:Pause()
+	--TODO: remove for release
+	-- self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
@@ -418,8 +406,6 @@ function StateIntro:update(dt)
 
 	if effect.status == 2 then
 		effect.multi:set_dt(effect.dt)
-	elseif effect.status == 3 then
-		effect.multi2:set_dt(effect.dt2)
 	end
 
 	self.world:emit("update", dt)
@@ -436,10 +422,6 @@ function StateIntro:draw()
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
-		!if not _RELEASE then
-		-- self.world:emit("draw_debug")
-		!end
-
 		love.graphics.setShader()
 	end)
 
@@ -452,7 +434,7 @@ function StateIntro:keypressed(key)
 		if Keybinds.pressed_ui("skip", key) then
 			Fade.fade_out(function()
 				Settings.set_intro_done()
-				self.gamestate:switch("MainGame")
+				self.gamestate:switch("Outside")
 			end, 2)
 		end
 	end
