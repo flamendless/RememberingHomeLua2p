@@ -7,10 +7,11 @@ Made with [LOVE](https://love2d.org)
 
 ## Building:
 
-Run `./build init` to compile
-Then `./build run` to run
+1. Run `./generate_fonts generate_fonts`, `./generate_fonts convert_fonts`, and `./generate_fonts copy_fonts` first. This is only required once.
+2. Then run `./build init` to setup the directories and copy the assets to the output directory.
+3. Then `./build run` to preprocess and run the game.
 
-When changing files in the `res/`, you should update with `./build rebuild`
+When modifying files in the `res/`, you should update with `./build rebuild`
 
 For cleaning files and logs `./build clean && ./build clean_logs`
 
