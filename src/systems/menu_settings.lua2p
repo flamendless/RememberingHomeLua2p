@@ -89,7 +89,7 @@ function MenuSettings:update_desktop(dt)
 			Slab.EndComboBox()
 		end
 
-		--TODO add sliders here
+		-- TODO add sliders here
 		Slab.Text("Volume Game Sounds")
 		Slab.Text("Volume Game Music")
 	Slab.EndLayout()

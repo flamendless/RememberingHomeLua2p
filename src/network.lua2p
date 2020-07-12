@@ -19,7 +19,7 @@ local request = require("modules.https.luajit-request")
 -- local ssl = require("ssl")
 -- local https = require("ssl.https")
 
---TODO replace this
+-- TODO replace this
 local github_url = "https://github.com/aseprite/aseprite/releases/latest"
 -- local github_url = !(_GITHUB_URL_LATEST)
 
@@ -41,7 +41,7 @@ function Network.get_response()
 		end
 
 		!elseif _OS == "Windows" then
-		--TODO bug here, after changing libcurl version, the return value is different
+		-- TODO bug here, after changing libcurl version, the return value is different
 		local res = {request.send(github_url, { follow_redirects = false })}
 		!end
 	end

@@ -102,7 +102,7 @@ function RenderSprite:internal_draw(e)
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
-			--TODO implement camera_bounds drawing
+			-- TODO implement camera_bounds drawing
 			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
 			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)

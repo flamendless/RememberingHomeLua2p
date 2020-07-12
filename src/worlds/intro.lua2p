@@ -290,7 +290,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.title, resources.images.title, vec2:new(ww/2, wh/2))
 
 	for i, str in ipairs(dialogues) do
-		--TODO add voice acting dialogue
+		-- TODO add voice acting dialogue
 		local e = Concord.entity(self.world)
 			:assemble(Assemblages.Intro.dialogue_text, str, resources.fonts.dialogue, vec2:new(ww/2, 64))
 		insert(e_dialogues, e)
@@ -337,7 +337,7 @@ function StateIntro:start()
 
 		update_rain(1)
 
-		--TODO play intro radio
+		-- TODO play intro radio
 		-- TLE.Event.Wait(3)
 
 		update_rain(2)
@@ -378,7 +378,7 @@ function StateIntro:start()
 		self.world:emit("stop_parallax")
 		Flux.to(car_pos, 5, { x = ww * 1.5 })
 
-		--TODO implement lightning to quickly black out scene
+		-- TODO implement lightning to quickly black out scene
 		Fade.fade_out(function()
 			Settings.set_intro_done()
 			is_raining = false
@@ -386,7 +386,7 @@ function StateIntro:start()
 		end, fade_out_duration)
 	end)
 
-	--TODO: remove for release
+	-- TODO: remove for release
 	-- self.timeline:Pause()
 
 	if Settings.current.intro_done or not !(_RELEASE) then

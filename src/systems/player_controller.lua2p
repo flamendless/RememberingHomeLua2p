@@ -100,7 +100,7 @@ function PlayerController:face_right(e)
 end
 
 function PlayerController:collision_wall(player, wall)
-	--TODO hit wall animation
+	-- TODO hit wall animation
 	player.body.can_move = false
 	self.world:emit("switch_animation_tag", "idle")
 end
