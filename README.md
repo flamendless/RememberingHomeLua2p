@@ -49,6 +49,11 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
 
+## Dependencies:
+
+* [Curl](https://curl.haxx.se/download.html) - For Windows, version 7.38.0 is needed to work with luajit-request
+* [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
+
 ## LICENSE:
 
 * Assets have a commercial license and thus can not be used without the permission from the artist
