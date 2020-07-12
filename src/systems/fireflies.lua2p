@@ -1,10 +1,31 @@
 local Concord = require("modules.concord.concord")
 
+local insert = table.insert
 local random = love.math.random
 
 local Fireflies = Concord.system({
 	pool = {"firefly"},
 })
+
+local generate_path = function(x, y, n, offset)
+	local offset = offset or 8
+	local points = {x, y}
+	local prev_x = x
+	local prev_y = y
+
+	for i = 1, n do
+		local px = random(prev_x + -offset, prev_x + offset)
+		local py = random(prev_y + -offset, prev_y + offset)
+		prev_x = px
+		prev_y = py
+		insert(points, px)
+		insert(points, py)
+	end
+	insert(points, x)
+	insert(points, y)
+
+	return love.math.newBezierCurve(unpack(points))
+end
 
 function Fireflies:init(world)
 	self.world = world
@@ -22,13 +43,26 @@ function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 		local x = random(min_pos.x, max_pos.x)
 		local y = random(min_pos.y, max_pos.y)
 		local shader = love.graphics.newShader("shaders/test.glsl")
+		local path = generate_path(x, y, 32, 8)
 
 		local e = Concord.entity(self.world)
 			:give("sprite", sprite)
 			:give("position", vec2:new(x, y))
 			:give("z_index", 10)
 			:give("firefly", shader)
+			:give("bezier_path", path)
 	end
 end
+
+!if not _RELEASE then
+function Fireflies:draw_debug()
+	-- TODO this errors (core dumped)
+	-- probably due to love.graphics.line
+	-- love.graphics.setColor(1, 0, 0, 0.5)
+	-- for _, e in ipairs(self.pool) do
+	-- 	love.graphics.line(e.bezier_path.bezier_path:render())
+	-- end
+end
+!end
 
 return Fireflies

@@ -3,6 +3,7 @@ local Assert = {}
 local concat = table.concat
 local format = string.format
 
+local T_BEZIER_CURVE = "BezierCurve"
 local T_BOOLEAN = "boolean"
 local T_CUSTOM_CANVAS = "CustomCanvas"
 local T_FONT = "Font"
@@ -19,6 +20,7 @@ local T_VEC2 = "vec2"
 local T_VEC3 = "vec3"
 
 local msg_nil = "Passed argument is 'nil'"
+local msg_should_bezier_curve = "Passed argument must be of type 'BezierCurve'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
 local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
@@ -46,6 +48,12 @@ function Assert.should_all_image_i(arg)
 	Assert.should_table(arg)
 	for i, v in ipairs(arg) do
 		Assert.should_image(v)
+	end
+end
+
+function Assert.should_bezier_curve(arg)
+	if arg:type() ~= T_BEZIER_CURVE then
+		error(msg_should_bezier_curve, 2)
 	end
 end
 

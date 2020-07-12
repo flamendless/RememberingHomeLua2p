@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("bezier_path", function(c, bezier_path)
+	!if _ASSERT then
+	Assert.should_bezier_curve(bezier_path)
+	!end
+
+	c.bezier_path = bezier_path
+end)
