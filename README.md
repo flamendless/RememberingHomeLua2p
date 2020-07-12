@@ -2,6 +2,8 @@
 
 ![](https://img.shields.io/badge/lua-on%20development-green.svg)
 ![Lua](https://img.shields.io/badge/Lua-JIT%2C%205.1-blue.svg)
+![](https://img.shields.io/badge/made%20with-l%C3%B6ve-blueviolet)
+![](https://img.shields.io/twitter/follow/flamendless?style=social)
 
 Made with [LOVE](https://love2d.org)
 
