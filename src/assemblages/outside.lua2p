@@ -7,6 +7,7 @@ local z_index = {
 	-- player = 2,
 	car = 3,
 	fence = 4,
+	splashes = 11,
 }
 
 function Outside.bg(e, sprite)
@@ -48,6 +49,24 @@ function Outside.gate(e, sprite)
 	:give("collider3d", vec3:new(200, 8, 32))
 	:give("bump3d", "gate")
 	:give("z_index", z_index.fence)
+end
+
+function Outside.splashes(e, spritesheet, is_compatible)
+	e:give("position", vec2:new())
+	:give("z_index", z_index.splashes)
+	:give("animation")
+	:give("animation_data",
+		{
+			spritesheet = spritesheet,
+			frames = { "1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4 },
+			delay = 0.2,
+			rows_count = 4,
+			columns_count = 2
+		})
+
+	if not is_compatible then
+		e:give("transform", 0, 2, 2)
+	end
 end
 
 function Outside.fence_right(e)

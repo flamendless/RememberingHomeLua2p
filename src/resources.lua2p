@@ -87,10 +87,10 @@ Resources.data.outside = {
 		{ "sheet_player_walk", "res/images/player/player_walk.png" },
 		{ "sheet_player_run", "res/images/player/player_run.png" },
 		{ "firefly", "res/images/house_outside/firefly.png" },
+		{ "splashes", "res/images/house_outside/splashes.png" },
+		{ "splashes_low", "res/images/house_outside/splashes_low.png" },
 		{ "rain_drop", "res/images/rain/rain_drop.png" },
 		{ "rain_drop2", "res/images/rain/rain_drop2.png" },
-		{ "rain_splash", "res/images/rain/rain_splash.png" },
-		{ "rain_splash2", "res/images/rain/rain_splash2.png" },
 	},
 
 	image_data = {

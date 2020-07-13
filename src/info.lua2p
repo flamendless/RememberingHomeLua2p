@@ -121,4 +121,9 @@ function Info.create_new(to_write)
 	Log.info(format("'%s' written", filename))
 end
 
+function Info.is_texturesize_compatible(size)
+	local max_size = Info.data.limits.texturesize
+	return size <= max_size
+end
+
 return Info
