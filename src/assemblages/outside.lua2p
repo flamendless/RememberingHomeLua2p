@@ -4,7 +4,7 @@ local Outside = {}
 
 local z_index = {
 	bg = 1,
-	-- player = 2,
+	firefly = 2,
 	car = 3,
 	fence = 4,
 	splashes = 11,
@@ -106,6 +106,14 @@ function Outside.right_wall(e)
 	e:give("position", vec2:new(640, 185))
 	:give("collider3d", vec3:new(520, 60, 64))
 	:give("bump3d", "right_wall")
+end
+
+function Outside.firefly(e, sprite, pos, shader, points)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("firefly", shader)
+	:give("path", points)
+	:give("z_index", z_index.firefly)
 end
 
 -- function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)

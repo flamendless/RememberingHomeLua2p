@@ -141,10 +141,12 @@ function StateOutside:start()
 
 	self.entities.splashes = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.splashes, splashes, is_compatible)
+
 	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 		vec2:new(670, 222), vec2:new(922, 298))
 	self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
 		vec2:new(1030, 230), vec2:new(1136, 286))
+	self.world:emit("move_fireflies")
 
 	-- self.entities.rain_data = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Outside.rain, ww, wh,
