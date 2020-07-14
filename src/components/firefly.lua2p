@@ -1,9 +1,4 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("firefly", function(c, shader)
-	!if _ASSERT then
-	Assert.should_shader(shader)
-	!end
-
-	c.shader = shader
+Concord.component("firefly", function(c)
 end)

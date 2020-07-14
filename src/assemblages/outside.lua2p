@@ -108,12 +108,12 @@ function Outside.right_wall(e)
 	:give("bump3d", "right_wall")
 end
 
-function Outside.firefly(e, sprite, pos, shader, points)
+function Outside.firefly(e, sprite, pos, points)
 	e:give("sprite", sprite)
 	:give("position", pos)
-	:give("firefly", shader)
 	:give("path", points)
 	:give("z_index", z_index.firefly)
+	:give("firefly")
 end
 
 -- function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)

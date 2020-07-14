@@ -79,11 +79,10 @@ function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 	for i = 1, n do
 		local x = random(min_pos.x, max_pos.x)
 		local y = random(min_pos.y, max_pos.y)
-		local shader = love.graphics.newShader("shaders/test.glsl")
 		local points = generate_points(x, y, 64)
 
 		local e = Concord.entity(self.world)
-			:assemble(Outside.firefly, sprite, vec2:new(x, y), shader, points)
+			:assemble(Outside.firefly, sprite, vec2:new(x, y), points)
 	end
 end
 
