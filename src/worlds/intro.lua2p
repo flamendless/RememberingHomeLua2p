@@ -26,6 +26,7 @@ Concord.utils.loadNamespace("components", Components)
 
 local Systems = {
 	Animation = require("systems.animation"),
+	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Parallax = require("systems.parallax"),
@@ -121,6 +122,7 @@ function StateIntro:load()
 end
 
 function StateIntro:start()
+	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.IntroText)
 	self.world:addSystem(Systems.Transform)
@@ -142,6 +144,8 @@ function StateIntro:start()
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, wh)
 	self.camera:setScale(self.scale)
+	self.world:emit("camera_set", self.camera)
+	self.world:emit("set_camera_clip", w, h, { 0, 0, 0, 1 })
 
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", resources.images.bg)
@@ -425,6 +429,7 @@ function StateIntro:draw()
 		love.graphics.setShader()
 	end)
 
+	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()
 end
