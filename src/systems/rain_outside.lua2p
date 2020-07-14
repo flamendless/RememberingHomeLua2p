@@ -5,8 +5,7 @@ local random = love.math.random
 local RainOutside = Concord.system({
 	pool_empty = {"empty_rain"},
 	pool_data = {"rain_data", "screen_size"},
-	pool_drop = {"rain_drop", "position", "acceleration", "collider3d", "bump3d"},
-	pool_splash = {"rain_splash", "position"}
+	pool_drop = {"rain_drop", "position", "acceleration"},
 })
 
 function RainOutside:init(world)
@@ -46,8 +45,7 @@ function RainOutside:emit_rain(amount, max_amount, x_start, max_width)
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
 
-		-- local ay = random(320, 1280)
-		local ay = 128
+		local ay = random(320, 1280)
 		local accel = vec2:new(0, ay)
 		local alpha = random(10, 100)/100
 		local z = random(1, 10)
@@ -63,60 +61,30 @@ function RainOutside:emit_rain(amount, max_amount, x_start, max_width)
 			:give("z_index", z)
 			:give("color", {1, 1, 1, alpha})
 			:give("transform", 0, scale, scale, 9, 24)
-			:give("collider3d", vec3:new(4, 4, 4))
-			:give("bump3d")
-			:give("body")
 			:remove("empty_rain")
 		end
 	end
-end
-
-function RainOutside:emit_splash(e)
-	local splash = self.data.splash
-	local r = random(1, #splash)
-	local img = splash[r]
-	local anim_data = {}
-
-	table.copy(self.metadata.splash, anim_data)
-	anim_data.spritesheet = img
-
-	e:give("rain_splash")
-	:give("animation_on_complete", function()
-		e:remove("animation_data")
-		:remove("animation")
-		:remove("rain_splash")
-		:remove("position")
-		:remove("transform")
-		:remove("z_index")
-		:remove("color")
-		:remove("collider3d")
-		:remove("bump3d")
-		:remove("body")
-		:give("empty_rain")
-	end, "pauseAtEnd", true)
-	self.world:emit("update_animation_data", e, anim_data)
 end
 
 function RainOutside:update(dt)
 	for _, e in ipairs(self.pool_drop) do
 		local pos = e.position.pos
 		local accel = e.acceleration.accel
-		local z_index = e.z_index.z
 
-		local dy = accel.y * dt
-		e.body.vel_y = dy
-		e.body.dy = 1
-	end
-	self:post_update(dt)
-end
-
-function RainOutside:post_update(dt)
-	for _, e in ipairs(self.pool_drop) do
-		local pos = e.position.pos
-		if e.collider3d.is_hit or (pos.y > self.max_height) then
+		pos.y = pos.y + accel.y * dt
+		if pos.y > self.max_height then
 			e:remove("rain_drop")
 			:remove("acceleration")
-			self:emit_splash(e)
+			:remove("animation_data")
+			:remove("animation")
+			:remove("rain_splash")
+			:remove("position")
+			:remove("transform")
+			:remove("z_index")
+			:remove("color")
+			:remove("collider3d")
+			:remove("bump3d")
+			:give("empty_rain")
 		end
 	end
 end

@@ -28,7 +28,7 @@ local Systems = {
 	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
-	-- RainOutside = require("systems.rain_outside"),
+	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 }
@@ -40,6 +40,7 @@ local Assemblages = {
 }
 
 local resources = { images = {}, image_data = {}, fonts = {} }
+local rain_state = { current = 0, max_amount = 0 }
 local effect
 
 function StateOutside:new()
@@ -75,7 +76,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
-	-- self.world:addSystem(Systems.RainOutside)
+	self.world:addSystem(Systems.RainOutside)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
@@ -148,12 +149,9 @@ function StateOutside:start()
 		vec2:new(1030, 230), vec2:new(1136, 286))
 	self.world:emit("move_fireflies")
 
-	-- self.entities.rain_data = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Outside.rain, ww, wh,
-	-- 		resources.images.rain_drop,
-	-- 		resources.images.rain_drop2,
-	-- 		resources.images.rain_splash,
-	-- 		resources.images.rain_splash2)
+	self.entities.rain_data = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.rain, ww, wh,
+			resources.images.rain_drop, resources.images.rain_drop2)
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
@@ -168,6 +166,8 @@ function StateOutside:start()
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
+		rain_state.current = 16
+		rain_state.max_amount = 64
 		-- self.camera:setScale(3)
 	end)
 end
@@ -180,8 +180,8 @@ function StateOutside:update(dt)
 	self.world:emit("update", dt)
 	self.world:emit("camera_follow")
 
-	-- local cx, cy, cw, ch = self.camera:getVisible()
-	-- self.world:emit("emit_rain", 8, 24, cx, cw)
+	local cx, cy, cw, ch = self.camera:getVisible()
+	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx, cw)
 
 	!if not _RELEASE then
 	self.world:emit("update_debug", dt)
