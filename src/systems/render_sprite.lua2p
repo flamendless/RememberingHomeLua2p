@@ -9,6 +9,11 @@ local RenderSprite = Concord.system({
 	pool_ui = {"position", "sprite", "ui_element"},
 })
 
+local draw = function(sprite, ...)
+	-- TODO implement camera_bounds drawing
+	love.graphics.draw(sprite, ...)
+end
+
 function RenderSprite:init()
 	self.custom_pool_z = {}
 
@@ -102,10 +107,10 @@ function RenderSprite:internal_draw(e)
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
-			-- TODO implement camera_bounds drawing
-			love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+
+			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
-			love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		end
 	end
 end

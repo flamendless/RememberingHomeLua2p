@@ -1,12 +1,12 @@
 local Log = require("modules.log.log")
 
-local Canvas = require("canvas")
-local WindowMode = require("window_mode")
-local Worlds = require("worlds")
-
 local format = string.format
 local min = math.min
 local floor = math.floor
+
+local Canvas = require("canvas")
+local WindowMode = require("window_mode")
+local Worlds = require("worlds")
 
 local window_size = !(_GAME_SIZE)
 
@@ -19,9 +19,6 @@ local GameStates = {
 local mid_canvas, bot_canvas, top_canvas, main_canvas
 
 !if not _RELEASE then
-local color_red = {1, 0, 0, 1}
-local color_green = {0, 1, 0, 1}
-local color_blue = {0, 0, 1, 1}
 local last_scale = 1
 !end
 
@@ -117,33 +114,21 @@ function GameStates:canvas_resize()
 
 	if main_canvas == nil then
 		main_canvas = Canvas:new(main_canvas_prop)
-		!if not _RELEASE then
-		main_canvas.debug_color = color_red
-		!end
 	else main_canvas:set(main_canvas_prop)
 	end
 
 	if top_canvas == nil then
 		top_canvas = Canvas:new(top_canvas_prop)
-		!if not _RELEASE then
-		top_canvas.debug_color = color_red
-		!end
 	else top_canvas:set(top_canvas_prop)
 	end
 
 	if mid_canvas == nil then
 		mid_canvas = Canvas:new(mid_canvas_prop)
-		!if not _RELEASE then
-		mid_canvas.debug_color = color_green
-		!end
 	else mid_canvas:set(mid_canvas_prop)
 	end
 
 	if bot_canvas == nil then
 		bot_canvas = Canvas:new(bot_canvas_prop)
-		!if not _RELEASE then
-		bot_canvas.debug_color = color_blue
-		!end
 	else bot_canvas:set(bot_canvas_prop)
 	end
 

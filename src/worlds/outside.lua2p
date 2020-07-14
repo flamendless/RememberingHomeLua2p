@@ -84,6 +84,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Movement)
 
 	self.world:emit("camera_set", self.camera)
+	self.world:emit("set_camera_clip", w, h, { 0, 0, 0, 1 })
 
 	self.entities.bg = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg, resources.images.bg)
@@ -204,6 +205,8 @@ function StateOutside:draw()
 
 		love.graphics.setShader()
 	end)
+
+	self.world:emit("draw_clip")
 end
 
 function StateOutside:keypressed(key)

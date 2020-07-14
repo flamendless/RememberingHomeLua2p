@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Camera = Concord.system({
 	pool_follow_pos = {"camera_follow", "position"},
 	pool_follow_camera_pos = {"camera_follow", "camera_position"},
-	pool_camera_bounds = {"camera_bounds"},
+	pool_bounds = {"camera_bounds"},
 })
 
 function Camera:init(world)
@@ -18,9 +18,24 @@ function Camera:camera_set(camera)
 	self.camera = camera
 end
 
+function Camera:set_camera_clip(width, height, color)
+	!if _ASSERT then
+	Assert.should_exists(self.camera)
+	Assert.should_number(width)
+	Assert.should_number(height)
+	Assert.safe_should_color(color)
+	!end
+
+	self.clip = {
+		width = width,
+		height = height,
+		color = color or { 1, 0, 0, 1 }
+	}
+end
+
 function Camera:update(dt)
 	if not self.camera then return end
-	for _, e in ipairs(self.pool_camera_bounds) do
+	for _, e in ipairs(self.pool_bounds) do
 		local l, t, w, h = self.camera:getVisible()
 		local camera_bounds = e.camera_bounds
 		camera_bounds.l = l
@@ -93,6 +108,15 @@ function Camera:update_debug(dt)
 		pos.x = x
 		pos.y = y
 	end
+end
+
+function Camera:draw_clip()
+	local cx, cy, cw, ch = self.camera:getWindow()
+
+	local diff = (ch - self.clip.height)/2
+	love.graphics.setColor(self.clip.color)
+	love.graphics.rectangle("fill", cx, cy, cw, diff)
+	love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
 end
 
 function Camera:draw_debug()

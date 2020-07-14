@@ -22,6 +22,8 @@ local T_VEC3 = "vec3"
 local msg_nil = "Passed argument is 'nil'"
 local msg_should_bezier_curve = "Passed argument must be of type 'BezierCurve'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_color = "Passed argument must not be of type 'Table (Color)'"
+local msg_should_color_range = "Passed argument must between [0.0, 1.0] range"
 local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
 local msg_should_entity = "Passed argument must not be of type 'Entity'"
@@ -60,6 +62,25 @@ end
 function Assert.should_boolean(arg)
 	if type(arg) ~= T_BOOLEAN then
 		error(msg_should_boolean, 2)
+	end
+end
+
+function Assert.should_color(arg)
+	if type(arg) ~= T_TABLE then
+		error(msg_should_color, 2)
+	end
+	Assert.should_color_range(arg[1])
+	Assert.should_color_range(arg[2])
+	Assert.should_color_range(arg[3])
+	Assert.safe_should_color_range(arg[4])
+end
+
+function Assert.should_color_range(arg)
+	if type(arg) ~= T_NUMBER then
+		error(msg_should_number, 2)
+	end
+	if arg < 0 or arg > 1 then
+		error(msg_should_color_range, 2)
 	end
 end
 
@@ -273,6 +294,22 @@ end
 function Assert.safe_should_boolean(arg)
 	if arg then
 		Assert.should_boolean(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_color(arg)
+	if arg then
+		Assert.should_color(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_color_range(arg)
+	if arg then
+		Assert.should_color_range(arg)
 		return true
 	end
 	return false
