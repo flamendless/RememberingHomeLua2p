@@ -60,6 +60,9 @@ function StateOutside:load()
 		function()
 			self.is_ready = true
 			self:start()
+			!if not _RELEASE then
+			Slab.Initialize()
+			!end
 		end)
 end
 
@@ -185,6 +188,7 @@ function StateOutside:update(dt)
 	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx, cw)
 
 	!if not _RELEASE then
+	Slab.Update(dt)
 	self.world:emit("update_debug", dt)
 	!end
 end
@@ -207,6 +211,9 @@ function StateOutside:draw()
 	end)
 
 	self.world:emit("draw_clip")
+	!if not _RELEASE then
+	Slab.Draw()
+	!end
 end
 
 function StateOutside:keypressed(key)

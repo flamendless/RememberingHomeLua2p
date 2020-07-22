@@ -82,15 +82,10 @@ function love.load()
 	GameStates:switch("Splash")
 	!else
 	GameStates:switch("Outside")
-	Slab.Initialize()
 	!end
 end
 
 function love.update(dt)
-	!if not _RELEASE then
-	Slab.Update(dt)
-	!end
-
 	Timer.update(dt)
 	Flux.update(dt)
 	GameStates:update(dt)
@@ -108,15 +103,12 @@ function love.draw()
 	love.graphics.setFont(font_default)
 	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.print(love.timer.getFPS(), 8, 8)
-	Slab.Draw()
 	!end
 end
 
 function love.keypressed(key)
 	!if not _RELEASE then
-	if key == "f" then
-		GameStates:resize()
-	elseif key == "t" then
+	if key == "t" then
 		if GameStates:getID() == "Test" then
 			GameStates:switch_to_previous()
 		else
