@@ -77,9 +77,9 @@ local tools = {
 local libs = {
 	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
 	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
-	"HUMP", "Inspect", "JSON", "Lily", "Log",
-	"Luapreprocessor", "Lume", "NGrading", "SDF", "Semver",
-	"Slab", "Splashes", "TimelineEvents",
+	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
+	"Lume", "NGrading", "SDF", "Semver", "Slab",
+	"Splashes", "TimelineEvents",
 }
 
 !if not _RELEASE and _ASSERT then

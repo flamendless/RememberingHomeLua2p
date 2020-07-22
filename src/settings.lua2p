@@ -1,5 +1,4 @@
 local Enum = require("modules.enum.enum")
-local Inspect = require("modules.inspect.inspect")
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
@@ -35,7 +34,7 @@ function Settings.initialize()
 		Settings.create_new()
 	end
 
-	Log.info(Inspect(Settings.current))
+	Log.info(string.pretty(Settings.current, 2))
 end
 
 function Settings.create_new()
