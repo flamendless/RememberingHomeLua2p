@@ -34,6 +34,10 @@ function Inputs.initialize()
 	if exists_def then
 		for id, key in pairs(content_def) do
 			Inputs.register(id, key, "defaults")
+			if not exists then
+				local tag = Utils.get_substring(id, "_")
+				Inputs.register(id, key, tag)
+			end
 		end
 	end
 end

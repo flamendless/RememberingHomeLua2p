@@ -12,5 +12,5 @@
 	"player_move_up": "w",
 	"player_move_down": "s",
 	"player_interact": "e",
-	"player_run_mod": "shift"
+	"player_run_mod": "lshift"
 }
