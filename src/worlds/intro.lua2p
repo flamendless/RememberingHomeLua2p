@@ -12,7 +12,7 @@ local sub = string.sub
 
 local Dialogues = require("dialogues")
 local Fade = require("fade")
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Preloader = require("preloader")
@@ -436,7 +436,7 @@ end
 
 function StateIntro:keypressed(key)
 	if Settings.current.intro_done or not !(_RELEASE) then
-		if Keybinds.pressed_ui("skip", key) then
+		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()
 				Settings.set_intro_done()
 				self.gamestate:switch("Outside")

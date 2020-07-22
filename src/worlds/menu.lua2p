@@ -20,7 +20,7 @@ local Dissolve = require("dissolve")
 local Fade = require("fade")
 local Image = require("image")
 local Info = require("info")
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
@@ -291,7 +291,7 @@ function StateMenu:setup_menu()
 		:give("color", {1, 1, 1, 0.4})
 		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
 
-	local sdf_menu = love.graphics.newFontMSDF("resources/fonts/Jamboree.fnt", "resources/fonts/Jamboree.png")
+	local sdf_menu = love.graphics.newFontMSDF("res/fonts/Jamboree.fnt", "res/fonts/Jamboree.png")
 	local font_menu = resources.fonts.menu
 	local str_target_h = font_menu:getHeight()
 	local str_h = sdf_menu:getHeight()
@@ -542,7 +542,7 @@ function StateMenu:draw()
 			if current_state == states.settings and not self.mb_main.flag_process then
 				love.graphics.push()
 				love.graphics.translate(l, t)
-				Slab.Draw()
+				self.world:emit("draw_settings")
 				love.graphics.pop()
 			end
 			Fade.draw()
@@ -569,17 +569,17 @@ function StateMenu:keypressed(key)
 	if not self.is_ready then return end
 	local dt = 0
 	-- TODO add keypress sounds (up = down, enter, disabled, escape)
-	if Keybinds.pressed_ui("down", key) then
+	if Inputs.is_pressed("ui_down", key) then
 		dt = 1
-	elseif Keybinds.pressed_ui("up", key) then
+	elseif Inputs.is_pressed("ui_up", key) then
 		dt = -1
 	end
-	if Keybinds.pressed_ui("interact", key) and not is_transition then
+	if Inputs.is_pressed("ui_interact", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
 	self.world:emit("update_cursor", dt)
 
-	if Keybinds.pressed_ui("back", key) then
+	if Inputs.is_pressed("ui_back", key) then
 		if current_state == states.play and is_sub_menu and not is_transition then
 				is_transition = true
 				is_sub_menu = false

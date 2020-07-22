@@ -10,7 +10,7 @@ local floor = math.floor
 local min = math.min
 
 local Resources = require("resources")
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
@@ -195,7 +195,7 @@ end
 function StateSplash:keypressed(key)
 	if not self.is_ready then return end
 	if Settings.current.splash_done then
-		if Keybinds.pressed_ui("skip", key) then
+		if Inputs.is_pressed("ui_skip", key) then
 			if splash_love and splash_love_skippable then
 				splash_love:skip()
 			end

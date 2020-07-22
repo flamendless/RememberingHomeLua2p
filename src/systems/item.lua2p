@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 
 local Item = Concord.system({
 	pool = {"item", "collider"},
@@ -23,7 +23,7 @@ function Item:init(world)
 end
 
 function Item:keypressed(key)
-	if Keybinds.pressed_player(key, "interact") then
+	if Inputs.is_pressed(key, "player_interact") then
 		for _, e in ipairs(self.pool) do
 			local item = e.item
 			local collider = e.collider

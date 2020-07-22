@@ -1,0 +1,141 @@
+local JSON = require("modules.json.json")
+local Log = require("modules.log.log")
+
+local concat = table.concat
+local insert = table.insert
+local format = string.format
+
+local Utils = require("utils")
+
+local Inputs = {
+	keys = {},
+	defaults = {},
+	tags = {},
+}
+
+Inputs.key_constants = {
+	"q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+	"a", "s", "d", "f", "g", "h", "i", "j", "k", "l",
+	"z", "x", "c", "v", "b", "n", "m",
+	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+	"escape", "return", "backspace", "space"
+}
+
+function Inputs.initialize()
+	local content, exists = Utils.parse_json(!(_KEYBINDINGS_FILENAME))
+	if exists then
+		for id, key in pairs(content) do
+			local tag = Utils.get_substring(id, "_")
+			Inputs.register(id, key, tag)
+		end
+	end
+
+	local content_def, exists_def = Utils.parse_json(!(_KEYBINDINGS_DEF_FILENAME))
+	if exists_def then
+		for id, key in pairs(content_def) do
+			Inputs.register(id, key, "defaults")
+		end
+	end
+end
+
+function Inputs.register(id, key, tag)
+	!if _ASSERT then
+	Assert.should_string(id)
+	Assert.safe_should_string(tag)
+	if not (tag and tag == "defaults") then
+		Assert.should_nil(Inputs.keys[id])
+	end
+	!end
+
+	local storage = Inputs.keys
+	if tag and tag == "defaults" then
+		storage = Inputs.defaults
+	end
+	storage[id] = key
+
+	if tag then
+		local t = Inputs.tags[tag]
+		if not t then
+			Inputs.tags[tag] = {}
+		end
+		insert(Inputs.tags[tag], id)
+	end
+end
+
+function Inputs.unregister(id)
+	!if _ASSERT then
+	Assert.should_string(id)
+	!end
+
+	Inputs.keys[id] = nil
+end
+
+function Inputs.unregister_all()
+	for id, v in pairs(Inputs.keys) do
+		Inputs.keys[id] = nil
+	end
+end
+
+function Inputs.is_pressed(id, key)
+	!if not _RELEASE then
+	if Inputs.keys[id] == nil then
+		Log.warn(format("Key ID '%s' was not registered", id))
+	end
+	!end
+
+	local keys = Inputs.keys[id]
+	if keys then
+		for i, v in ipairs(keys) do
+			if v == key then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function Inputs.is_down(id)
+	local keys = Inputs.keys[id]
+	return love.keyboard.isDown(keys)
+end
+
+function Inputs.save_keybindings()
+	local to_write = JSON.encode(Inputs.keys)
+	Utils.write_to_file(!(_KEYBINDINGS_FILENAME), to_write)
+end
+
+function Inputs.update_keybindings(new_keys)
+	!if _ASSERT then
+	Assert.should_table(new_keys)
+	!end
+	table.copy(new_keys, Inputs.keys)
+end
+
+function Inputs.get_by_tag(tag)
+	!if _ASSERT then
+	Assert.should_string(tag)
+	!end
+
+	local t = {}
+	local keys = Inputs.keys
+	for i, id in ipairs(Inputs.tags[tag]) do
+		t[id] = keys[id]
+	end
+	return t
+end
+
+function Inputs.reset_by_tag(tag)
+	!if _ASSERT then
+	Assert.should_string(tag)
+	!end
+
+	local tags = Inputs.tags[tag]
+
+	for _, id in ipairs(tags) do
+		local def = Inputs.defaults[id]
+		local reg = Inputs.keys[id]
+		table.copy(def, reg)
+	end
+end
+
+return Inputs

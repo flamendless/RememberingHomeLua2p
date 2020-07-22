@@ -1,6 +1,7 @@
 local Log = require("modules.log.log")
 
 local WindowMode = require("window_mode")
+local Utils = require("utils")
 
 local Info = {
 	data = {},
@@ -90,35 +91,24 @@ function Info.initialize()
 	}
 
 	local to_write = concat(str, "\n")
-	local file = Info.check_file()
-	if file then
-		Info.validate_file(to_write)
+	local content, exists = Utils.read_file(filename)
+
+	if exists then
+		Info.validate_file(content, to_write)
 	else
-		Info.create_new(to_write)
+		Utils.write_to_file(filename, to_write)
 		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES", "Editing any files in this directory will invalidate all your progress")
 	end
 	Log.info(to_write)
 end
 
-function Info.check_file()
-	local file = love.filesystem.getInfo(filename)
-	Log.info(format("'%s' exists: %s", filename, file or false))
-	return file
-end
-
-function Info.validate_file(to_write)
-	local content = love.filesystem.read(filename)
-	if (content ~= to_write) then
+function Info.validate_file(content, to_write)
+	if content ~= to_write then
 		love.filesystem.write(filename, to_write)
 		Log.info(format("'%s' overwritten", filename))
 	else
 		Log.info(format("'%s' untouched", filename))
 	end
-end
-
-function Info.create_new(to_write)
-	love.filesystem.write(filename, to_write)
-	Log.info(format("'%s' written", filename))
 end
 
 function Info.is_texturesize_compatible(size)

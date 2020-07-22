@@ -1,0 +1,56 @@
+local JSON = require("modules.json.json")
+local Log = require("modules.log.log")
+
+local find = string.find
+local format = string.format
+local sub = string.sub
+
+local Utils = {}
+
+function Utils.read_file(filename)
+	local file = love.filesystem.getInfo(filename)
+	Log.info(format("'%s' exists: %s", filename, file ~= nil))
+
+	if file then
+		local content = love.filesystem.read(filename)
+		return content, true
+	end
+
+	return false
+end
+
+function Utils.write_to_file(filename, to_write)
+	love.filesystem.write(filename, to_write)
+	Log.info(format("'%s' written", filename))
+end
+
+function Utils.parse_json(filename)
+	local content, exists = Utils.read_file(filename)
+
+	if exists then
+		local parsed = JSON.decode(content)
+		return parsed, true
+	end
+
+	return false
+end
+
+function Utils.compare_hash_key(a, key)
+	local a = love.data.hash("sha256", a)
+	return a == key
+end
+
+function Utils.hash_and_compare(a, b)
+	local hashed_a = love.data.hash("md5", a)
+	local hashed_b = love.data.hash("md5", b)
+
+	return hashed_a == hashed_b
+end
+
+function Utils.get_substring(str, sep)
+	local n = find(str, sep)
+	local s = sub(str, 1, n - 1)
+	return s
+end
+
+return Utils

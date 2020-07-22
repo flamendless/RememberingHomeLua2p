@@ -1,0 +1,16 @@
+{
+	"ui_left": [ "left", "a" ],
+	"ui_right": [ "right", "d" ],
+	"ui_up": [ "up", "w" ],
+	"ui_down": [ "down", "s" ],
+	"ui_interact": [ "e", "return" ],
+	"ui_back": [ "escape", "backspace" ],
+	"ui_skip": [ "escape", "return" ],
+
+	"player_move_left": "a",
+	"player_move_right": "d",
+	"player_move_up": "w",
+	"player_move_down": "s",
+	"player_interact": "e",
+	"player_run_mod": "shift"
+}

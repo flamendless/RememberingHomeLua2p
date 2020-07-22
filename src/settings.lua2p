@@ -3,12 +3,12 @@ local Inspect = require("modules.inspect.inspect")
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
-local Keybinds = require("keybinds")
-local WindowMode = require("window_mode")
-
 local insert = table.insert
 local format = string.format
 local sub = string.sub
+
+local WindowMode = require("window_mode")
+local Utils = require("utils")
 
 local Settings = {
 	current = {}
@@ -20,12 +20,13 @@ local graphics_quality = Enum("Low", "High")
 local cached_gq = {}
 
 function Settings.initialize()
-	local file = Settings.check_file()
-	if file then
-		local valid = Settings.validate_file()
+	local content, exists = Utils.read_file(filename)
+	local key, exists_key = Utils.read_file(filename_key)
+
+	if exists and exists_key then
+		local valid = Utils.compare_hash_key(content, key)
 		if valid then
-			Settings.current = Settings.parse_file()
-			Keybinds.set_from_settings(Settings.current.keybindings)
+			Settings.current = JSON.decode(content)
 		else
 			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", filename, filename_key, love.filesystem.getSaveDirectory())
 			error(error_msg)
@@ -52,26 +53,9 @@ function Settings.create_new()
 	Settings.current.intro_done = false
 	Settings.current.game_sounds = true
 	Settings.current.game_music = true
-	Settings.current.keybindings = {
-		ui = {},
-		player = {},
-	}
-
-	table.copy(Keybinds.ui_default, Settings.current.keybindings.ui)
-	table.copy(Keybinds.player_default, Settings.current.keybindings.player)
 
 	local to_write = JSON.encode(Settings.current)
 	Settings.overwrite(to_write)
-end
-
-function Settings.check_file()
-	local file = love.filesystem.getInfo(filename)
-	local key = love.filesystem.getInfo(filename_key)
-
-	Log.info(format("'%s' exists: %s", filename, file ~= nil))
-	Log.info(format("'%s' exists: %s", filename_key, key ~= nil))
-
-	return file and key
 end
 
 function Settings.validate_file()
@@ -82,21 +66,12 @@ function Settings.validate_file()
 	return hashed == key
 end
 
-function Settings.parse_file()
-	local content = love.filesystem.read(filename)
-	local save_data = JSON.decode(content)
-
-	return save_data
-end
-
 function Settings.overwrite(to_write)
 	local to_write = to_write or JSON.encode(Settings.current)
-	love.filesystem.write(filename, to_write)
-	Log.info(format("'%s' written", filename))
+	Utils.write_to_file(filename, to_write)
 
 	local hashed = love.data.hash("sha256", to_write)
-	love.filesystem.write(filename_key, hashed)
-	Log.info(format("'%s' updated", filename_key))
+	Utils.write_to_file(filename_key, hashed)
 end
 
 function Settings.update_graphics_quality(str, should_overwrite)
@@ -144,18 +119,6 @@ function Settings.set_game_music(flag, should_overwrite)
 		if should_overwrite then
 			Settings.overwrite()
 		end
-	end
-end
-
-function Settings.update_keybindings(should_overwrite)
-	Settings.current.keybindings = {
-		ui = {},
-		player = {},
-	}
-	table.copy(Keybinds.ui, Settings.current.keybindings.ui)
-	table.copy(Keybinds.player, Settings.current.keybindings.player)
-	if should_overwrite then
-		Settings.overwrite()
 	end
 end
 

@@ -21,15 +21,6 @@ local font_default = love.graphics.newFont(18)
 font_default:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 !end
 
-local ErrorHandler = require("error_handler")
-love.errhand = ErrorHandler.callback
-local GameStates = require("gamestates")
-local Info = require("info")
-local Network = require("network")
-local Preloader = require("preloader")
-local Settings = require("settings")
-local WindowMode = require("window_mode")
-
 local format = string.format
 
 local Flux = require("modules.flux.flux")
@@ -41,6 +32,16 @@ local Semver = require("modules.semver.semver")
 local SDF = require("modules.sdf").mount()
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
+
+local ErrorHandler = require("error_handler")
+love.errhand = ErrorHandler.callback
+local GameStates = require("gamestates")
+local Info = require("info")
+local Inputs = require("inputs")
+local Network = require("network")
+local Preloader = require("preloader")
+local Settings = require("settings")
+local WindowMode = require("window_mode")
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
@@ -73,6 +74,7 @@ function love.load()
 	Info.initialize()
 	WindowMode.initialize()
 	Settings.initialize()
+	Inputs.initialize()
 	TLE.Attach()
 	GameStates:canvas_resize()
 
