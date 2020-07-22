@@ -133,7 +133,8 @@ function GameStates:canvas_resize()
 	end
 
 	if self.current_world and self.current_world.canvas_resize then
-		self.current_world:canvas_resize(w, h, scale)
+		-- TODO needs testing
+		self.current_world:canvas_resize(window_w, window_h, scale)
 	end
 end
 
