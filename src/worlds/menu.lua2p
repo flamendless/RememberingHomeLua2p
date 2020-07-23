@@ -120,7 +120,7 @@ end
 
 function StateMenu:show_sub_menu(duration)
 	local next_cursor = 0
-	if Save:exists() then
+	if Save.exists then
 		next_cursor = 1
 	else
 		next_cursor = 2

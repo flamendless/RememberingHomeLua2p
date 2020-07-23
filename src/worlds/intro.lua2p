@@ -384,7 +384,7 @@ function StateIntro:start()
 
 		-- TODO implement lightning to quickly black out scene
 		Fade.fade_out(function()
-			Settings.set_intro_done()
+			Save.set_intro_done()
 			is_raining = false
 			self.gamestate:switch("Outside")
 		end, fade_out_duration)
@@ -393,7 +393,7 @@ function StateIntro:start()
 	-- TODO: remove for release
 	-- self.timeline:Pause()
 
-	if Settings.current.intro_done or not !(_RELEASE) then
+	if Save.data.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
 			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
 	end
@@ -435,7 +435,7 @@ function StateIntro:draw()
 end
 
 function StateIntro:keypressed(key)
-	if Settings.current.intro_done or not !(_RELEASE) then
+	if Save.data.intro_done or not !(_RELEASE) then
 		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()
 				Settings.set_intro_done()

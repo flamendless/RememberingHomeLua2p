@@ -1,9 +1,56 @@
-local Save = {}
+local Utils = require("utils")
+
+local format = string.format
+
+local Save = {
+	data = {
+		splash_done = false,
+		intro_done = false
+	},
+	exists = false,
+}
 
 local save_filename = !(_SAVE_FILENAME)
+local key_filename = !(_SAVE_KEY)
 
-function Save:exists()
-	return love.filesystem.getInfo(save_filename)
+function Save.initialize()
+	local content, exists = Utils.read_file(save_filename)
+	local key, exists_key = Utils.read_file(key_filename)
+
+	if exists and exists_key then
+		local hashed = love.data.hash("sha256", content)
+		if key == hashed then
+			Save.data = Utils.deserialize(content)
+		else
+			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", save_filename, key_filename, love.filesystem.getSaveDirectory())
+			error(error_msg)
+		end
+	else
+		Save.overwrite()
+	end
+
+	Save.exists = exists
+	print(string.pretty(Save.data, 2))
+end
+
+function Save.overwrite()
+	local data = Utils.serialize_to_file(save_filename, Save.data)
+	local hashed = love.data.hash("sha256", data)
+	Utils.write_to_file(key_filename, hashed)
+end
+
+function Save.set_splash_done(should_overwrite)
+	Save.data.splash_done = true
+	if should_overwrite then
+		Save.overwrite()
+	end
+end
+
+function Save.set_intro_done(should_overwrite)
+	Save.data.intro_done = true
+	if should_overwrite then
+		Save.overwrite()
+	end
 end
 
 return Save
