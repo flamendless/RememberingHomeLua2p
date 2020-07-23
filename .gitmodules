@@ -58,3 +58,6 @@
 [submodule "modules/bump3d"]
 	path = modules/bump3d
 	url = https://github.com/oniietzschan/bump-3dpd/
+[submodule "modules/bitser"]
+	path = modules/bitser
+	url = https://github.com/gvx/bitser
