@@ -15,6 +15,7 @@ local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
+local Tracker = require("tracker")
 
 local StateSplash = class()
 StateSplash.id = "Splash"
@@ -30,6 +31,11 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	Typewriter = require("systems.typewriter"),
 }
+
+!if not _RELEASE then
+local Systems = Tracker.track(Systems)
+!end
+
 local Assemblages = {
 	Common = require("assemblages.common")
 }
@@ -103,6 +109,10 @@ function StateSplash:start()
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
+
+	!if not _RELEASE then
+	Tracker.warn_on_ref_count(Systems, 0)
+	!end
 
 	local ww, wh = love.graphics.getDimensions()
 	self.entities.splash_wits = Concord.entity(self.world)

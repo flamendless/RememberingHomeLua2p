@@ -7,6 +7,7 @@ StateTest.id = "Test"
 
 local Resources = require("resources")
 local Preloader = require("preloader")
+local Tracker = require("tracker")
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
@@ -20,6 +21,10 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	Item = require("systems.item"),
 }
+
+!if not _RELEASE then
+Systems = Tracker.track(Systems)
+!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -51,7 +56,6 @@ function StateTest:load()
 		function()
 			self.is_ready = true
 			self:start()
-			Slab.Initialize()
 		end)
 end
 
@@ -68,6 +72,8 @@ function StateTest:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Item)
+
+	Tracker.error_on_ref_count(Systems, 0)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))

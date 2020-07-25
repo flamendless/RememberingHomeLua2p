@@ -25,6 +25,7 @@ local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
+local Tracker = require("tracker")
 
 local StateMenu = class()
 StateMenu.id = "Menu"
@@ -44,6 +45,11 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	Transform = require("systems.transform"),
 }
+
+!if not _RELEASE then
+local Systems = Tracker.track(Systems)
+!end
+
 local Assemblages = {
 	Common = require("assemblages.common")
 }
@@ -501,6 +507,11 @@ function StateMenu:start()
 	self.world:addSystems(Systems.Transform)
 	self.world:addSystems(Systems.Move)
 	self.world:addSystems(Systems.MenuSettings)
+
+	!if not _RELEASE then
+	Tracker.warn_on_ref_count(Systems, 0)
+	!end
+
 	self:setup_menu()
 
 	self:hide_main_menu(0.1)
