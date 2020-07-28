@@ -16,6 +16,7 @@ local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Preloader = require("preloader")
+local Save = require("save")
 local Settings = require("settings")
 local Tracker = require("tracker")
 
@@ -30,6 +31,7 @@ local Systems = {
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
+	Dialogues = require("systems.dialogues"),
 	Parallax = require("systems.parallax"),
 	RainIntro = require("systems.rain_intro"),
 	RandomTree = require("systems.random_tree"),
@@ -74,37 +76,9 @@ local update_rain = function(i)
 	current_rain_max = rain_amount[i][2]
 end
 
-local current_dialogue = 1
-local e_dialogues = {}
-local dialogues = Dialogues.get("intro_rain")
-
-local duration_in = 3
-local duration_out = 2
+local dur_in = 3
+local dur_out = 2
 local fade_duration = 4
-
-local show_dialogue
-show_dialogue = function(timeline)
-	if current_dialogue > #e_dialogues then
-		timeline:Unpause()
-	else
-		local e = e_dialogues[current_dialogue]
-		local world = e:getWorld()
-		world:emit("generate_paint", e, duration_in, duration_out)
-
-		e:remove("hidden")
-		local color = e:get("color")
-		Flux.to(color.color, duration_in, { [4] = 1 })
-			:oncomplete(function()
-				Flux.to(color.color, duration_out, { [4] = 0 })
-					:oncomplete(function()
-						e:give("hidden")
-						e:destroy()
-						current_dialogue = current_dialogue + 1
-						show_dialogue(timeline)
-					end)
-			end)
-	end
-end
 
 function StateIntro:new()
 	return self:init({
@@ -139,6 +113,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Collision)
+	self.world:addSystem(Systems.Dialogues)
 
 	!if not _RELEASE then
 	Tracker.warn_on_ref_count(Systems, 0)
@@ -302,12 +277,8 @@ function StateIntro:start()
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title, resources.images.title, vec2:new(ww/2, wh/2))
 
-	for i, str in ipairs(dialogues) do
-		-- TODO add voice acting dialogue
-		local e = Concord.entity(self.world)
-			:assemble(Assemblages.Intro.dialogue_text, str, resources.fonts.dialogue, vec2:new(ww/2, 64))
-		insert(e_dialogues, e)
-	end
+	self.entities.dialogue = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.dialogues, "dialogue_intro", Dialogues.get("intro_rain"), resources.fonts.dialogue, vec2:new(ww/2, 64))
 
 	self.timeline = TLE.Do(function()
 		local car_pos = self.entities.car:get("position").pos
@@ -356,7 +327,7 @@ function StateIntro:start()
 		update_rain(2)
 
 		TLE.Event.Wait(3)
-		show_dialogue(self.timeline)
+		self.world:emit("start_dialogue", "dialogue_intro", self.timeline, dur_in, dur_out)
 		self.timeline:Pause()
 
 		update_rain(3)
@@ -398,9 +369,6 @@ function StateIntro:start()
 			self.gamestate:switch("Outside")
 		end, fade_out_duration)
 	end)
-
-	-- TODO: remove for release
-	-- self.timeline:Pause()
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
@@ -463,7 +431,6 @@ function StateIntro:exit()
 	effect.dt2 = 0
 	effect.status = 1
 	current_effect = nil
-	current_dialogue = 1
 	is_raining = false
 	current_rain = rain_amount[1][1]
 	current_rain_max = rain_amount[1][2]

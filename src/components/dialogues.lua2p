@@ -1,0 +1,13 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("dialogues", function(c, id, dialogues)
+	!if _ASSERT then
+	Assert.should_string(id)
+	Assert.should_table(dialogues)
+	!end
+
+	c.id = id
+	c.dialogues = dialogues
+	c.current = 1
+	c.max_n = #dialogues
+end)

@@ -128,6 +128,12 @@ function Intro.ui_text(e, text, font, pos)
 	:give("hidden")
 end
 
+function Intro.dialogues(e, id, dialogues, font, pos)
+	e:give("dialogues", id, dialogues)
+	:give("font", font)
+	:give("position", pos)
+end
+
 function Intro.dialogue_text(e, text, font, pos)
 	e:give("static_text", text)
 	:give("font", font)
