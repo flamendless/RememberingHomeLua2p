@@ -16,6 +16,7 @@ local T_QUAD = "Quad"
 local T_SHADER = "Shader"
 local T_STRING = "string"
 local T_TABLE = "table"
+local T_TIMELINEEVENT = "TLE"
 local T_VEC2 = "vec2"
 local T_VEC3 = "vec3"
 
@@ -41,6 +42,7 @@ local msg_should_shader = "Passed argument must be of type 'Shader'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_timelineevent = "Passed argument must be of type 'TLE'"
 local msg_should_true = "Passed argument must be true"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
 local msg_should_vec3 = "Passed argument must be of type 'vec3'"
@@ -117,6 +119,12 @@ end
 function Assert.should_table(arg)
 	if type(arg) ~= T_TABLE then
 		error(msg_should_table, 2)
+	end
+end
+
+function Assert.should_timelineevent(arg)
+	if type(arg) ~= T_TIMELINEEVENT then
+		error(msg_should_timelineevent, 2)
 	end
 end
 
