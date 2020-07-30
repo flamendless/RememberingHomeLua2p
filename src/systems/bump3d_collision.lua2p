@@ -83,11 +83,12 @@ function Bump3DCollision:update(dt)
 end
 
 !if not _RELEASE then
+local Slab = require("modules.slab")
 local format = string.format
 local win_col3d = false
 local current_item, current_item_id
 
-function Bump3DCollision:inspector(dt)
+function Bump3DCollision:draw_slab(dt)
 	Slab.BeginWindow("b3d", {Title = "Bump3DCollision"})
 	local items, len = self.bump3d_world:getItems()
 	Slab.Text("number:")
@@ -220,7 +221,6 @@ function Bump3DCollision:draw_debug(scale)
 		love.graphics.rectangle("line", x, y + z + h, w, d)
 		love.graphics.rectangle("line", x, y + z, w, h)
 	end
-	self:inspector(dt)
 end
 !end
 

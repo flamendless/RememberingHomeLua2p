@@ -6,7 +6,6 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 
 !if not _RELEASE then
 io.stdout:setvbuf("no")
-Slab = require("modules.slab")
 !end
 
 require("modules.batteries"):export()

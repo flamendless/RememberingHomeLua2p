@@ -148,6 +148,7 @@ function RenderSprite:check_camera_bounds(camera_bounds, pos)
 end
 
 !if not _RELEASE then
+local Slab = require("modules.slab")
 function RenderSprite:draw_debug()
 	Slab.BeginWindow("ZIndex", {Title = "Z Index"})
 	for _, e in ipairs(self.custom_pool_z) do

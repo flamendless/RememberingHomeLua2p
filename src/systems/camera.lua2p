@@ -68,7 +68,18 @@ function Camera:update_camera_pos(x, y)
 	end
 end
 
+function Camera:draw_clip()
+	local cx, cy, cw, ch = self.camera:getWindow()
+	local scale = self.camera:getScale()
+
+	local diff = (ch - self.clip.height * scale)/2
+	love.graphics.setColor(self.clip.color)
+	love.graphics.rectangle("fill", cx, cy, cw, diff)
+	love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
+end
+
 !if not _RELEASE then
+local Slab = require("modules.slab")
 local floor = math.floor
 local format = string.format
 
@@ -108,16 +119,6 @@ function Camera:update_debug(dt)
 		pos.x = x
 		pos.y = y
 	end
-end
-
-function Camera:draw_clip()
-	local cx, cy, cw, ch = self.camera:getWindow()
-	local scale = self.camera:getScale()
-
-	local diff = (ch - self.clip.height * scale)/2
-	love.graphics.setColor(self.clip.color)
-	love.graphics.rectangle("fill", cx, cy, cw, diff)
-	love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
 end
 
 function Camera:draw_debug()

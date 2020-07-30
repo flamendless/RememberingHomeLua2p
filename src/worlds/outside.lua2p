@@ -2,6 +2,9 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
+!if not _RELEASE then
+local Slab = require("modules.slab")
+!end
 
 local min = math.min
 local random = love.math.random
@@ -198,6 +201,9 @@ function StateOutside:update(dt)
 	!if not _RELEASE then
 	Slab.Update(dt)
 	self.world:emit("update_debug", dt)
+	if self.draw_debug then
+		self.world:emit("draw_slab", dt)
+	end
 	!end
 end
 
@@ -219,6 +225,7 @@ function StateOutside:draw()
 	end)
 
 	self.world:emit("draw_clip")
+
 	!if not _RELEASE then
 	Slab.Draw()
 	!end
