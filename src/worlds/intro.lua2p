@@ -52,10 +52,13 @@ local Assemblages = {
 }
 
 local resources = { images = {}, image_data = {}, fonts = {} }
+
 local effect = { dt = 0, dt2 = 0, status = 1 }
 local fade_out_duration = 0.1
+local dur_in = 3
+local dur_out = 2
+local fade_duration = 4
 local current_effect
-
 local is_raining = false
 local rain_amount = {
 	{ 8, 16 },
@@ -75,10 +78,6 @@ local update_rain = function(i)
 	current_rain = rain_amount[i][1]
 	current_rain_max = rain_amount[i][2]
 end
-
-local dur_in = 3
-local dur_out = 2
-local fade_duration = 4
 
 function StateIntro:new()
 	return self:init({
@@ -426,6 +425,9 @@ function StateIntro:exit()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
+	end
+	for k, v in pairs(self.entities) do
+		self.entities[k] = nil
 	end
 	effect.dt = 0
 	effect.dt2 = 0

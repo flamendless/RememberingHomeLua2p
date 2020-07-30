@@ -226,6 +226,17 @@ function StateSplash:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	current_state = states.splash_love
+	splash_love = nil
+	timer_flam_skip = nil
+	timer_wits_skip = nil
+	timer_love_skip = nil
+	splash_love_skippable = false
+	splash_wits_skippable = false
+	splash_flam_skippable = false
+	color_a = {0.898, 0.48627451, 0.074509804, 1}
+	color_b = {0.952941176, 0.952941176, 0.054901961, 1}
+	is_switching = false
 end
 
 return StateSplash

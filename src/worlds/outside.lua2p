@@ -237,6 +237,9 @@ function StateOutside:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	rain_state.current = 0
+	rain_state.max_amount = 0
+	effect = nil
 end
 
 return StateOutside

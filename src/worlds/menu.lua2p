@@ -664,6 +664,14 @@ function StateMenu:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	for i, e in ipairs(ent_options) do
+		e:destroy()
+		ent_options[i] = nil
+	end
+	for i, e in ipairs(ent_options_sub) do
+		e:destroy()
+		ent_options_sub[i] = nil
+	end
 	current_state = states.menu
 	is_sub_menu = false
 	is_transition = false
