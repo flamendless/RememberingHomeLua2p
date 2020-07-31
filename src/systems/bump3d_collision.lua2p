@@ -89,9 +89,10 @@ local Slab = require("modules.slab")
 local format = string.format
 local win_col3d = false
 local current_item, current_item_id
+local is_open = true
 
 function Bump3DCollision:draw_slab(dt)
-	Slab.BeginWindow("b3d", {Title = "Bump3DCollision"})
+	is_open = Slab.BeginWindow("b3d", {Title = "Bump3DCollision", IsOpen = is_open})
 	local items, len = self.bump3d_world:getItems()
 	Slab.Text("number:")
 	Slab.SameLine()

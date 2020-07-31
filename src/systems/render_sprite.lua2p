@@ -59,7 +59,7 @@ function RenderSprite:internal_draw(e)
 
 		love.graphics.setColor(1, 1, 1, 1)
 		if color then
-			love.graphics.setColor(e.color.color)
+			love.graphics.setColor(color.color)
 		end
 
 		local rotation, sx, sy, ox, oy
@@ -135,11 +135,12 @@ function RenderSprite:draw_ui()
 	end
 end
 
-
 !if not _RELEASE then
 local Slab = require("modules.slab")
+local is_open = true
+
 function RenderSprite:draw_debug()
-	Slab.BeginWindow("ZIndex", {Title = "Z Index"})
+	is_open = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = is_open})
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)
