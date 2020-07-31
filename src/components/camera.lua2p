@@ -1,21 +1,35 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("camera", function(c)
-end)
-
-Concord.component("camera_bounds", function(c)
-	c.l = 0
-	c.t = 0
-	c.w = 0
-	c.h = 0
-end)
-
-Concord.component("camera_position", function(c, pos)
+Concord.component("camera", function(c, camera, is_main)
 	!if _ASSERT then
-	Assert.safe_should_vec2(pos)
+	Assert.should_gamera(camera)
+	Assert.safe_should_boolean(is_main)
 	!end
 
-	c.pos = pos or vec2:new()
+	c.camera = camera
+	c.is_main = is_main
+end)
+
+Concord.component("camera_transform", function(c, rot, scale)
+	!if _ASSERT then
+	Assert.should_number(rot)
+	Assert.should_number(scale)
+	!end
+
+	c.rot = rot
+	c.scale = scale
+end)
+
+Concord.component("camera_clip", function(c, w, h, color)
+	!if _ASSERT then
+	Assert.should_number(w)
+	Assert.should_number(h)
+	Assert.should_color(color)
+	!end
+
+	c.w = w
+	c.h = h
+	c.color = color
 end)
 
 Concord.component("camera_follow", function(c, offset)

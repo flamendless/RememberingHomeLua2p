@@ -135,17 +135,6 @@ function RenderSprite:draw_ui()
 	end
 end
 
-function RenderSprite:check_camera_bounds(camera_bounds, pos)
-	local l = camera_bounds.l
-	local t = camera_bounds.t
-	local w = camera_bounds.w
-	local h = camera_bounds.h
-	local x = pos.x
-	local y = pos.y
-
-	local out_of_bounds = (x < l) or (x > w) or (y < t) or (y > h)
-	return out_of_bounds
-end
 
 !if not _RELEASE then
 local Slab = require("modules.slab")

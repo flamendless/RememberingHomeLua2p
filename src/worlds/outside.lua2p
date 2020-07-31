@@ -74,13 +74,6 @@ function StateOutside:load()
 end
 
 function StateOutside:start()
-	local ww, wh = love.graphics.getDimensions()
-	local w, h = resources.images.bg:getDimensions()
-
-	self.scale = min(ww/w, wh/h)
-	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, wh)
-	self.camera:setScale(self.scale)
 
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
@@ -97,8 +90,16 @@ function StateOutside:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	self.world:emit("camera_set", self.camera)
-	self.world:emit("set_camera_clip", w, h, { 0, 0, 0, 1 })
+	local ww, wh = love.graphics.getDimensions()
+	local w, h = resources.images.bg:getDimensions()
+	self.scale = min(ww/w, wh/h)
+
+	self.camera = Gamera.new(0, 0, w, h)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.entities.camera = Concord.entity(self.world)
+		:give("camera", self.camera, true)
+		:give("camera_transform", 0, self.scale)
+		:give("camera_clip", w, h, { 0, 0, 0, 1 })
 
 	self.entities.bg = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg, resources.images.bg)
@@ -131,9 +132,6 @@ function StateOutside:start()
 	-- 		resources.images.sheet_player_run)
 	-- self.world:emit("face_left", self.entities.player)
 
-	self.entities.camera = Concord.entity(self.world)
-		:give("camera_follow")
-		:give("camera_position", vec2:new(920, 300))
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, resources.images.car)
