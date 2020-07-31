@@ -33,7 +33,7 @@
 	url = https://github.com/kikito/semver.lua
 [submodule "modules/gamera"]
 	path = modules/gamera
-	url = https://github.com/kikito/gamera
+	url = https://github.com/flamendless/gamera
 [submodule "modules/slab"]
 	path = modules/slab
 	url = https://github.com/coding-jackalope/Slab
