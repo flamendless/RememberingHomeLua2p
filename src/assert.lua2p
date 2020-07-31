@@ -23,7 +23,8 @@ local T_VEC3 = "vec3"
 local msg_nil = "Passed argument is 'nil'"
 local msg_should_bezier_curve = "Passed argument must be of type 'BezierCurve'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
-local msg_should_color = "Passed argument must not be of type 'Table (Color)'"
+local msg_should_gamera = "Passed argument must be an instance of 'Gamera'"
+local msg_should_color = "Passed argument must be of type 'Table (Color)'"
 local msg_should_color_range = "Passed argument must between [0.0, 1.0] range"
 local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
@@ -237,6 +238,13 @@ end
 function Assert.should_world(arg)
 	if not arg.__isWorld then
 		error(msg_should_world, 2)
+	end
+end
+
+--GAMERA
+function Assert.should_gamera(arg)
+	if not arg:isCamera() then
+		error(msg_should_gamera, 2)
 	end
 end
 
