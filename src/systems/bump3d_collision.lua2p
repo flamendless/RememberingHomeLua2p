@@ -74,7 +74,9 @@ function Bump3DCollision:update(dt)
 					item_col.normal.y = c.normalY
 				end
 
-				self.world:emit("sort_z")
+				if e.z_index.sortable then
+					self.world:emit("sort_z")
+				end
 
 				self.bump3d_world.freeCollisions(cols)
 			end
