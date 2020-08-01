@@ -104,7 +104,7 @@ end
 function StateMenu:show_main_menu(duration)
 	for i, e in ipairs(ent_options) do
 			e:remove("hidden")
-			:give("target_color", Palette:get_color("white", 1), duration or duration_show)
+			:give("target_color", Palette.get_color("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
 				self:on_menu()
 				is_transition = false
@@ -116,7 +116,7 @@ end
 function StateMenu:hide_main_menu(duration)
 	for i, e in ipairs(ent_options) do
 			e
-			:give("target_color", Palette:get_color("white", 0), duration or duration_hide)
+			:give("target_color", Palette.get_color("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
 				e:give("hidden")
 			end)
@@ -135,7 +135,7 @@ function StateMenu:show_sub_menu(duration)
 	for i, e in ipairs(ent_options_sub) do
 			e
 			:remove("hidden")
-			:give("target_color", Palette:get_color("white", 1), duration or duration_show)
+			:give("target_color", Palette.get_color("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
 				self.world:emit("allow_cursor", true)
 				self.world:emit("set_cursor", next_cursor)
@@ -152,7 +152,7 @@ end
 function StateMenu:hide_sub_menu(duration)
 	for i, e in ipairs(ent_options_sub) do
 			e
-			:give("target_color", Palette:get_color("white", 0), duration or duration_hide)
+			:give("target_color", Palette.get_color("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
 				e:give("hidden")
 			end)
@@ -170,9 +170,9 @@ function StateMenu:turn_off_lamp()
 	self:hide_sub_menu()
 	self.entities.desk:give("hidden")
 	self.entities.title
-		:give("target_color", Palette:get_color("white", 0), duration)
+		:give("target_color", Palette.get_color("white", 0), duration)
 	self.entities.subtitle
-		:give("target_color", Palette:get_color("white", 0), duration)
+		:give("target_color", Palette.get_color("white", 0), duration)
 
 	self.entities.desk_fast = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
@@ -313,7 +313,7 @@ function StateMenu:setup_menu()
 
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.get_color("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i, 1)
 			:give("on_enter", function()
@@ -333,7 +333,7 @@ function StateMenu:setup_menu()
 
 		local id = "text_sub_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette:get_color("white", 1))
+			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.get_color("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i, 2)
 			:give("on_enter", function()
@@ -663,6 +663,9 @@ function StateMenu:exit()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
+	end
+	for k, e in pairs(self.entities) do
+		self.entities[k] = nil
 	end
 	for i, e in ipairs(ent_options) do
 		e:destroy()

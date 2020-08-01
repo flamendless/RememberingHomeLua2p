@@ -21,13 +21,13 @@ Palette.color_glitches = {
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 }
 
-function Palette:get_color(color, alpha)
+function Palette.get_color(color, alpha)
 	!if _ASSERT then
-	Assert.should_exists(self.colors[color])
+	Assert.should_exists(Palette.colors[color])
 	Assert.safe_should_number(alpha)
 	!end
 
-	local color = self.colors[color]
+	local color = Palette.colors[color]
 	return {
 		color[1],
 		color[2],

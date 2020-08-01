@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
+
 local Outside = {}
 
 local z_index = {
@@ -113,7 +115,8 @@ function Outside.firefly(e, sprite, pos, points)
 	:give("position", pos)
 	:give("path", points)
 	:give("z_index", z_index.firefly)
-	:give("firefly")
+	:give("firefly", {Palette.get_color("firefly_start"), Palette.get_color("firefly_end")})
+	:give("color", Palette.get_color("firefly_start"))
 end
 
 function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
