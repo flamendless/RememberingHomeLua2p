@@ -57,6 +57,14 @@ local overlay_flag = false
 local overlay = { 0, 0, 0, 1 }
 local fireflies_flag = true
 
+local current_tle_id = 1
+local tle_log = function(msg)
+	!if not _RELEASE then
+	Log.debug(format("Timeline #%i: %s", current_tle_id, msg))
+	current_tle_id = current_tle_id + 1
+	!end
+end
+
 function StateOutside:new()
 	return self:init({
 		is_ready = false,
@@ -182,18 +190,24 @@ function StateOutside:start()
 		rain_state.max_amount = 64
 		overlay_flag = true
 
-		self.camera:setScale(9)
+		tle_log("begin timeline")
+		self.camera:setScale(11)
 		self.camera:setPosition(1353, 87)
 
+		tle_log("start camera pan and zoom")
 		local dur_cam_intro = 10
 		Flux.to(overlay, dur_cam_intro, { [4] = 0 })
 		Flux.to(self.camera, dur_cam_intro, { x = 960, y = 296, scale = 9 })
 			:oncomplete(function()
 				self.timeline:Unpause()
 				overlay_flag = false
+					tle_log("end camera pan and zoom")
+				tle_log("resumed")
 			end)
+		tle_log("paused")
 		self.timeline:Pause()
 
+		tle_log("begin rain fade")
 		local dur_fade_rain = 8
 		Flux.to(rain_state, dur_fade_rain,
 			{
@@ -203,20 +217,26 @@ function StateOutside:start()
 			:onupdate(function()
 				if not self.entities.splashes then return end
 				if rain_state.current <= 12 then
+					tle_log("splashes stopped")
 					self.entities.splashes:destroy()
 					self.entities.splashes = nil
 					if fireflies_flag then
+						tle_log("fireflies generated")
 						self.world:emit("generate_fireflies", random(5, 20), resources.images.firefly,
 							vec2:new(670, 222), vec2:new(1136, 286))
-						self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
-							vec2:new(1030, 230), vec2:new(1136, 286))
 						self.world:emit("move_fireflies")
 						self.world:emit("flicker_fireflies", 3, 5)
 						fireflies_flag = false
 					end
 				end
 			end)
-			:oncomplete(function() self.timeline:Unpause() end)
+			:oncomplete(
+				function()
+					self.timeline:Unpause()
+					tle_log("end rain fade")
+					tle_log("resumed")
+				end)
+		tle_log("paused")
 		self.timeline:Pause()
 	end)
 
