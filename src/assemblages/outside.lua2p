@@ -116,7 +116,8 @@ function Outside.firefly(e, sprite, pos, points)
 	:give("path", points)
 	:give("z_index", z_index.firefly)
 	:give("firefly", {Palette.get_color("firefly_start"), Palette.get_color("firefly_end")})
-	:give("color", Palette.get_color("firefly_start"))
+	:give("color", Palette.get_color("firefly_start", 0))
+	:give("target_color", Palette.get_color("firefly_start", 1), 5)
 end
 
 function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
