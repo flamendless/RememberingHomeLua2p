@@ -660,11 +660,13 @@ function StateMenu:MB_return()
 end
 
 function StateMenu:exit()
+	Timer.clear()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
 	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
 		self.entities[k] = nil
 	end
 	for i, e in ipairs(ent_options) do

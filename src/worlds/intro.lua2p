@@ -3,6 +3,7 @@ local Gamera = require("modules.gamera.gamera")
 local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
+local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local insert = table.insert
@@ -422,11 +423,13 @@ function StateIntro:keypressed(key)
 end
 
 function StateIntro:exit()
+	Timer.clear()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
-	for k, v in pairs(self.entities) do
+	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
 		self.entities[k] = nil
 	end
 	effect.dt = 0

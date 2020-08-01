@@ -158,6 +158,10 @@ function StateTest:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
+		self.entities[k] = nil
+	end
 end
 
 return StateTest

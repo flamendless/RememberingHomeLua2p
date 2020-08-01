@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
+local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 !if not _RELEASE then
@@ -280,11 +281,13 @@ function StateOutside:keypressed(key)
 end
 
 function StateOutside:exit()
+	Timer.clear()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
 	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
 		self.entities[k] = nil
 	end
 	rain_state.current = 0
