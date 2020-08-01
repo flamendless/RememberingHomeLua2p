@@ -100,7 +100,7 @@ function Color:start_colors_lerp()
 			end
 
 			local next_color = lc.colors[next_value]
-			Flux.to(color.color, duration, {
+			lc.flux = Flux.to(color.color, duration, {
 				[1] = next_color[1],
 				[2] = next_color[2],
 				[3] = next_color[3],
@@ -117,5 +117,13 @@ function Color:start_colors_lerp()
 	end
 end
 
+function Color:stop_colors_lerp()
+	for _, e in ipairs(self.pool_colors) do
+		local flux = e.lerp_colors.flux
+		if flux then
+			flux:stop()
+		end
+	end
+end
 
 return Color

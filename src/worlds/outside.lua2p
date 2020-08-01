@@ -30,6 +30,7 @@ local Systems = {
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
+	Color = require("systems.color"),
 	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
 	Movement = require("systems.movement"),
@@ -51,8 +52,9 @@ local Assemblages = {
 local resources = { images = {}, image_data = {}, fonts = {} }
 local rain_state = { current = 0, max_amount = 0 }
 local effect
-local overlay_flag = true
+local overlay_flag = false
 local overlay = { 0, 0, 0, 1 }
+local fireflies_flag = true
 
 function StateOutside:new()
 	return self:init({
@@ -86,6 +88,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
+	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Movement)
 
@@ -158,12 +161,6 @@ function StateOutside:start()
 	self.entities.splashes = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.splashes, splashes, is_compatible)
 
-	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
-	-- 	vec2:new(670, 222), vec2:new(922, 298))
-	-- self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
-	-- 	vec2:new(1030, 230), vec2:new(1136, 286))
-	-- self.world:emit("move_fireflies")
-
 	self.entities.rain_data = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.rain, ww, wh, resources.images.rain_drop, resources.images.rain_drop2)
 
@@ -182,14 +179,47 @@ function StateOutside:start()
 	self.timeline = TLE.Do(function()
 		rain_state.current = 32
 		rain_state.max_amount = 64
+		overlay_flag = true
 
 		self.camera:setScale(9)
 		self.camera:setPosition(1353, 87)
-		local dur = 10
-		Flux.to(overlay, dur, { [4] = 0 })
-		TLE.Event.Wait(2)
-		Flux.to(self.camera, dur, { x = 960, y = 296, scale = 9 })
+
+		local dur_cam_intro = 10
+		Flux.to(overlay, dur_cam_intro, { [4] = 0 })
+		Flux.to(self.camera, dur_cam_intro, { x = 960, y = 296, scale = 9 })
+			:oncomplete(function()
+				self.timeline:Unpause()
+				overlay_flag = false
+			end)
+		self.timeline:Pause()
+
+		local dur_fade_rain = 8
+		Flux.to(rain_state, dur_fade_rain,
+			{
+				current = 0,
+				max_amount = 0,
+			})
+			:onupdate(function()
+				if not self.entities.splashes then return end
+				if rain_state.current <= 12 then
+					self.entities.splashes:destroy()
+					self.entities.splashes = nil
+					if fireflies_flag then
+						self.world:emit("generate_fireflies", random(5, 20), resources.images.firefly,
+							vec2:new(670, 222), vec2:new(1136, 286))
+						self.world:emit("generate_fireflies", random(5, 10), resources.images.firefly,
+							vec2:new(1030, 230), vec2:new(1136, 286))
+						self.world:emit("move_fireflies")
+						self.world:emit("flicker_fireflies", 3, 5)
+						fireflies_flag = false
+					end
+				end
+			end)
+			:oncomplete(function() self.timeline:Unpause() end)
+		self.timeline:Pause()
 	end)
+
+	-- self.timeline:Pause()
 end
 
 function StateOutside:update(dt)
@@ -201,7 +231,7 @@ function StateOutside:update(dt)
 	self.world:emit("camera_follow")
 
 	local cx, cy, cw, ch = self.camera:getVisible()
-	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx, cw)
+	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx - 128, cw + 128)
 
 	!if not _RELEASE then
 	Slab.Update(dt)
@@ -254,10 +284,14 @@ function StateOutside:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	for k, e in pairs(self.entities) do
+		self.entities[k] = nil
+	end
 	rain_state.current = 0
 	rain_state.max_amount = 0
 	effect = nil
-	overlay_flag = true
+	overlay_flag = false
+	fireflies_flag = true
 end
 
 return StateOutside

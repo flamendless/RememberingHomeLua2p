@@ -45,7 +45,7 @@ function RainOutside:emit_rain(amount, max_amount, x_start, max_width)
 		table.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
 
-		local ay = random(1000, 3000)
+		local ay = random(500, 3000)
 		local accel = vec2:new(0, ay)
 		local alpha = random(10, 100)/100
 		local z = random(1, 10)
