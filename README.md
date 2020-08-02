@@ -5,10 +5,6 @@
 ![](https://img.shields.io/badge/made%20with-l%C3%B6ve-blueviolet)
 ![](https://img.shields.io/twitter/follow/flamendless?style=social)
 
-![flamendless' github stats](https://github-readme-stats.vercel.app/api?username=flamendless&show_icons=true&theme=gruvbox)
-
-[![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=flamendless&layout=compact)](https://github.com/anuraghazra/github-readme-stats)
-
 Made with [LOVE](https://love2d.org)
 
 ## Building:
