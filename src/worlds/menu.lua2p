@@ -204,7 +204,7 @@ end
 
 function StateMenu:on_newgame()
 	self:turn_off_lamp()
-	self.gamestate:switch("Intro")
+	self.gamestate.switch("Intro")
 end
 
 function StateMenu:on_continue()
@@ -474,7 +474,7 @@ end
 
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources:getData("menu")
+	local resources_data = Resources.getData("menu")
 	Preloader.start(resources_data, resources,
 		function()
 			-- TODO play BGM

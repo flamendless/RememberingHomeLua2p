@@ -76,26 +76,26 @@ function love.load()
 	Settings.initialize()
 	Inputs.initialize()
 	TLE.Attach()
-	GameStates:canvas_resize()
+	GameStates.canvas_resize()
 
 	!if _RELEASE then
-	GameStates:switch("Splash")
+	GameStates.switch("Splash")
 	!else
-	GameStates:switch("Outside")
+	GameStates.switch("Outside")
 	!end
 end
 
 function love.update(dt)
 	Timer.update(dt)
 	Flux.update(dt)
-	GameStates:update(dt)
+	GameStates.update(dt)
 end
 
 function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
-	GameStates:draw()
+	GameStates.draw()
 
-	if not GameStates:is_ready() then
+	if not GameStates.is_ready() then
 		custom_loading_screen()
 	end
 
@@ -109,29 +109,29 @@ end
 function love.keypressed(key)
 	!if not _RELEASE then
 	if key == "t" then
-		if GameStates:getID() == "Test" then
-			GameStates:switch_to_previous()
+		if GameStates.getID() == "Test" then
+			GameStates.switch_to_previous()
 		else
-			GameStates:switch("Test")
+			GameStates.switch("Test")
 		end
 	elseif key == "r" then
 		love.event.quit("restart")
 	end
 	!end
 
-	GameStates:keypressed(key)
+	GameStates.keypressed(key)
 end
 
 function love.keyreleased(key)
-	GameStates:keyreleased(key)
+	GameStates.keyreleased(key)
 end
 
 function love.mousepressed(mx, my, mb)
-	GameStates:mousepressed(mx, my, mb)
+	GameStates.mousepressed(mx, my, mb)
 end
 
 function love.mousereleased(mx, my, mb)
-	GameStates:mousereleased(mx, my, mb)
+	GameStates.mousereleased(mx, my, mb)
 end
 
 function love.quit()

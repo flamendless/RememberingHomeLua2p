@@ -77,7 +77,7 @@ end
 
 function StateOutside:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources:getData("outside")
+	local resources_data = Resources.getData("outside")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true

@@ -22,9 +22,9 @@ local mid_canvas, bot_canvas, top_canvas, main_canvas
 local last_scale = 1
 !end
 
-function GameStates:init()
-	if self.current_world.canvases then
-		self.current_world.canvases = {
+function GameStates.init()
+	if GameStates.current_world.canvases then
+		GameStates.current_world.canvases = {
 			main_canvas = main_canvas,
 			mid_canvas = mid_canvas,
 			top_canvas = top_canvas,
@@ -33,32 +33,32 @@ function GameStates:init()
 	end
 end
 
-function GameStates:switch(next_id)
+function GameStates.switch(next_id)
 	!if _ASSERT then
 	Assert.should_exists(Worlds[next_id])
 	!end
 
-	self.prev_world = self.current_world
-	if self.prev_world then
-		self.prev_world:exit()
+	GameStates.prev_world = GameStates.current_world
+	if GameStates.prev_world then
+		GameStates.prev_world:exit()
 	end
 
-	self.current_world = Worlds[next_id]:new()
-	self.current_id = next_id
+	GameStates.current_world = Worlds[next_id]:new()
+	GameStates.current_id = next_id
 
-	local str = format("Switched from %s to %s", (self.prev_world and self.prev_world.id) or "", self.current_id)
+	local str = format("Switched from %s to %s", (GameStates.prev_world and GameStates.prev_world.id) or "", GameStates.current_id)
 	Log.trace(str)
 
-	self:init()
-	self.current_world:load()
-	self.current_world.gamestate = self
+	GameStates.init()
+	GameStates.current_world:load()
+	GameStates.current_world.gamestate = self
 end
 
-function GameStates:switch_to_previous()
-	self:switch(self.prev_world.id)
+function GameStates.switch_to_previous()
+	GameStates.switch(GameStates.prev_world.id)
 end
 
-function GameStates:resize(override_mode)
+function GameStates.resize(override_mode)
 	WindowMode.current = override_mode or (WindowMode.current + 1)
 	if WindowMode.current > #WindowMode.modes then
 		WindowMode.current = 1
@@ -68,10 +68,10 @@ function GameStates:resize(override_mode)
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)
 	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
-	self:canvas_resize()
+	GameStates.canvas_resize()
 end
 
-function GameStates:canvas_resize()
+function GameStates.canvas_resize()
 	local game_size = !(_GAME_BASE_SIZE)
 	local window_w = love.graphics.getWidth()
 	local window_h = love.graphics.getHeight()
@@ -126,89 +126,89 @@ function GameStates:canvas_resize()
 	else bot_canvas:set(bot_canvas_prop)
 	end
 
-	if self.current_world and self.current_world.canvas_resize then
+	if GameStates.current_world and GameStates.current_world.canvas_resize then
 		-- TODO needs testing
-		self.current_world:canvas_resize(window_w, window_h, scale)
+		GameStates.current_world:canvas_resize(window_w, window_h, scale)
 	end
 end
 
-function GameStates:getID()
-	return self.current_id
+function GameStates.getID()
+	return GameStates.current_id
 end
 
-function GameStates:is_ready()
-	return self.current_world.is_ready
+function GameStates.is_ready()
+	return GameStates.current_world.is_ready
 end
 
-function GameStates:update(dt)
-	self.current_world:update(dt)
+function GameStates.update(dt)
+	GameStates.current_world:update(dt)
 
 	!if not _RELEASE then
-	if self.current_world.scale then
-		if last_scale ~= self.current_world.scale then
-			last_scale = self.current_world.scale
+	if GameStates.current_world.scale then
+		if last_scale ~= GameStates.current_world.scale then
+			last_scale = GameStates.current_world.scale
 		end
 	end
 	!end
 end
 
-function GameStates:draw()
-	if self.current_world.top_draw then
+function GameStates.draw()
+	if GameStates.current_world.top_draw then
 		top_canvas:attach()
-		self.current_world:top_draw(top_canvas)
+		GameStates.current_world:top_draw(top_canvas)
 		top_canvas:detach()
 		top_canvas:render()
 	end
 
-	if self.current_world.game_draw then
+	if GameStates.current_world.game_draw then
 		mid_canvas:attach()
-		self.current_world:game_draw(mid_canvas)
+		GameStates.current_world:game_draw(mid_canvas)
 		mid_canvas:detach()
 		mid_canvas:render()
 	end
 
-	if self.current_world.bot_draw then
+	if GameStates.current_world.bot_draw then
 		bot_canvas:attach()
-		self.current_world:bot_draw(bot_canvas)
+		GameStates.current_world:bot_draw(bot_canvas)
 		bot_canvas:detach()
 		bot_canvas:render()
 	end
 
-	if self.current_world.draw then
+	if GameStates.current_world.draw then
 		main_canvas:attach()
-		self.current_world:draw(main_canvas)
+		GameStates.current_world:draw(main_canvas)
 		main_canvas:detach()
 		main_canvas:render()
 	end
 end
 
-function GameStates:keypressed(key)
-	if self.current_world.keypressed then
-		self.current_world:keypressed(key)
+function GameStates.keypressed(key)
+	if GameStates.current_world.keypressed then
+		GameStates.current_world:keypressed(key)
 	end
 end
 
-function GameStates:keyreleased(key)
-	if self.current_world.keyreleased then
-		self.current_world:keyreleased(key)
+function GameStates.keyreleased(key)
+	if GameStates.current_world.keyreleased then
+		GameStates.current_world:keyreleased(key)
 	end
 end
 
-function GameStates:mousepressed(mx, my, mb)
-	if self.current_world.mousepressed then
-		self.current_world:mousepressed(mx, my, mb)
+function GameStates.mousepressed(mx, my, mb)
+	if GameStates.current_world.mousepressed then
+		GameStates.current_world:mousepressed(mx, my, mb)
 	end
 end
 
-function GameStates:mousereleased(mx, my, mb)
-	if self.current_world.mousereleased then
-		self.current_world:mousereleased(mx, my, mb)
+function GameStates.mousereleased(mx, my, mb)
+	if GameStates.current_world.mousereleased then
+		GameStates.current_world:mousereleased(mx, my, mb)
 	end
 end
 
-function GameStates:quit()
-	if self.current_world.exit then
-		self.current_world:exit()
+function GameStates.quit()
+	if GameStates.current_world.exit then
+		GameStates.current_world:exit()
 	end
 end
 

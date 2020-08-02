@@ -101,7 +101,7 @@ Resources.data.outside = {
 	font = {}
 }
 
-function Resources:getData(key)
+function Resources.getData(key)
 	!if _ASSERT then
 	Assert.should_string(key)
 	Assert.should_exists(self.data[key])

@@ -92,7 +92,7 @@ end
 
 function StateIntro:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources:getData("intro")
+	local resources_data = Resources.getData("intro")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true
@@ -366,7 +366,7 @@ function StateIntro:start()
 		Fade.fade_out(function()
 			Save.set_intro_done()
 			is_raining = false
-			self.gamestate:switch("Outside")
+			self.gamestate.switch("Outside")
 		end, fade_out_duration)
 	end)
 
@@ -416,7 +416,7 @@ function StateIntro:keypressed(key)
 		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()
 				Settings.set_intro_done()
-				self.gamestate:switch("Outside")
+				self.gamestate.switch("Outside")
 			end, 2)
 		end
 	end
