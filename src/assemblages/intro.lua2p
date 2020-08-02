@@ -146,13 +146,6 @@ function Intro.dialogue_text(e, text, font, pos)
 	-- :give("sound", sound_voice)
 end
 
-function Intro.bg_paint(e, data, pos)
-	e:give("animation_data", data)
-	:give("ui_element")
-	:give("position", pos)
-	:give("animation", true)
-end
-
 function Intro.title(e, sprite, pos)
 	e:give("sprite", sprite)
 	:give("position", pos)

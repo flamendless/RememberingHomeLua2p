@@ -2,13 +2,11 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
-local IntroText = Concord.system({
+local TextPaintFade = Concord.system({
 	pool = {"text_paint_data"}
 })
 
-Intro = require("assemblages.intro")
-
-function IntroText:init(world)
+function TextPaintFade:init(world)
 	self.world = world
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -16,7 +14,7 @@ function IntroText:init(world)
 	end
 end
 
-function IntroText:fade_text(e, dur, timeline)
+function TextPaintFade:fade_text(e, dur, timeline)
 	self:generate_paint(e, dur)
 	e:remove("hidden")
 
@@ -32,7 +30,7 @@ function IntroText:fade_text(e, dur, timeline)
 		end)
 end
 
-function IntroText:generate_paint(e, dur_in, dur_out)
+function TextPaintFade:generate_paint(e, dur_in, dur_out)
 	!if _ASSERT then
 	Assert.should_entity(e)
 	Assert.should_number(dur_in)
@@ -57,7 +55,10 @@ function IntroText:generate_paint(e, dur_in, dur_out)
 	local sx = chance == true and -1 or 1
 
 	local paint = Concord.entity(self.world)
-		:assemble(Intro.bg_paint, self.paint_data, pos)
+		:give("animation_data", self.paint_data)
+		:give("ui_element")
+		:give("position", pos)
+		:give("animation", true)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, nil, 0.5, 0.5)
 		:give("color", {1, 1, 1, 0})
@@ -73,4 +74,4 @@ function IntroText:generate_paint(e, dur_in, dur_out)
 		end)
 end
 
-return IntroText
+return TextPaintFade
