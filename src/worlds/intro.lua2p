@@ -38,7 +38,7 @@ local Systems = {
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	IntroText = require("systems.intro_text"),
+	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
 	Move = require("systems.move"),
 }
@@ -103,7 +103,7 @@ end
 function StateIntro:start()
 	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Color)
-	self.world:addSystem(Systems.IntroText)
+	self.world:addSystem(Systems.TextPaintFade)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.RainIntro)

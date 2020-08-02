@@ -38,6 +38,8 @@ local Systems = {
 	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	TextPaintFade = require("systems.text_paint_fade"),
+	Transform = require("systems.transform"),
 }
 
 !if not _RELEASE then
@@ -55,7 +57,6 @@ local rain_state = { current = 0, max_amount = 0 }
 local effect
 local overlay_flag = false
 local overlay = { 0, 0, 0, 1 }
-local fireflies_flag = true
 
 local current_tle_id = 1
 local tle_log = function(msg)
@@ -64,6 +65,9 @@ local tle_log = function(msg)
 	current_tle_id = current_tle_id + 1
 	!end
 end
+
+local tle_log_pause = function() tle_log("paused") end
+local tle_log_resume = function() tle_log("resumed") end
 
 function StateOutside:new()
 	return self:init({
@@ -100,6 +104,8 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Movement)
+	self.world:addSystem(Systems.TextPaintFade)
+	self.world:addSystem(Systems.Transform)
 
 	!if not _RELEASE then
 	Tracker.warn_on_ref_count(Systems, 0)
@@ -159,6 +165,20 @@ function StateOutside:start()
 	self.entities.gate = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.gate, resources.images.gate)
 
+	self.entities.paint_data = Concord.entity(self.world)
+		:give("text_paint_data", {
+			spritesheet = resources.images.sheet_paint,
+			frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
+			delay = 0.1,
+			rows_count = 3,
+			columns_count = 7,
+			n_frames = 21
+		})
+
+	self.entities.txt1 = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.ui_text, "Get out of the car",
+			resources.fonts.ui, vec2:new(36, 36))
+
 	local splashes = resources.images.splashes
 	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
 
@@ -172,6 +192,10 @@ function StateOutside:start()
 
 	self.entities.rain_data = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.rain, ww, wh, resources.images.rain_drop, resources.images.rain_drop2)
+
+	self.world:emit("generate_fireflies",
+		random(5, 20), resources.images.firefly,
+		vec2:new(670, 222), vec2:new(1136, 286))
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
@@ -191,24 +215,40 @@ function StateOutside:start()
 		overlay_flag = true
 
 		tle_log("begin timeline")
-		self.camera:setScale(11)
-		self.camera:setPosition(1353, 87)
+		self.camera:setScale(6)
+		self.camera:setPosition(262, 61)
+
+		tle_log("start fade in")
+		Flux.to(overlay, 4, { [4] = 0 })
+			:oncomplete(function()
+				overlay_flag = false
+				tle_log("end fade in")
+			end)
 
 		tle_log("start camera pan and zoom")
-		local dur_cam_intro = 10
-		Flux.to(overlay, dur_cam_intro, { [4] = 0 })
-		Flux.to(self.camera, dur_cam_intro, { x = 960, y = 296, scale = 9 })
+		Flux.to(self.camera, 6, { x = 520, y = 193 })
+			:oncomplete(function()
+				tle_log("fireflies start")
+				self.world:emit("move_fireflies")
+				self.world:emit("flicker_fireflies", 3, 5)
+				self.timeline:Unpause()
+				tle_log_resume()
+			end)
+			:delay(2)
+		tle_log_pause()
+		self.timeline:Pause()
+
+		Flux.to(self.camera, 10, { x = 960, y = 296, scale = 4 })
 			:oncomplete(function()
 				self.timeline:Unpause()
-				overlay_flag = false
-					tle_log("end camera pan and zoom")
-				tle_log("resumed")
+				tle_log("end camera pan and zoom")
+				tle_log_resume()
 			end)
-		tle_log("paused")
+		tle_log_pause()
 		self.timeline:Pause()
 
 		tle_log("begin rain fade")
-		local dur_fade_rain = 8
+		local dur_fade_rain = 6
 		Flux.to(rain_state, dur_fade_rain,
 			{
 				current = 0,
@@ -220,27 +260,20 @@ function StateOutside:start()
 					tle_log("splashes stopped")
 					self.entities.splashes:destroy()
 					self.entities.splashes = nil
-					if fireflies_flag then
-						tle_log("fireflies generated")
-						self.world:emit("generate_fireflies", random(5, 20), resources.images.firefly,
-							vec2:new(670, 222), vec2:new(1136, 286))
-						self.world:emit("move_fireflies")
-						self.world:emit("flicker_fireflies", 3, 5)
-						fireflies_flag = false
-					end
 				end
 			end)
-			:oncomplete(
-				function()
-					self.timeline:Unpause()
-					tle_log("end rain fade")
-					tle_log("resumed")
-				end)
-		tle_log("paused")
+			:oncomplete(function()
+				self.timeline:Unpause()
+				tle_log("end rain fade")
+				tle_log_resume()
+			end)
+		tle_log_pause()
 		self.timeline:Pause()
-	end)
 
-	-- self.timeline:Pause()
+		tle_log("start action")
+		local fade_duration = 3
+		self.world:emit("fade_text", self.entities.txt1, fade_duration, self.timeline)
+	end)
 end
 
 function StateOutside:update(dt)
@@ -286,6 +319,7 @@ function StateOutside:draw()
 	end)
 
 	self.world:emit("draw_clip")
+	self.world:emit("draw_ui")
 
 	!if not _RELEASE then
 	Slab.Draw()
@@ -314,7 +348,6 @@ function StateOutside:exit()
 	rain_state.max_amount = 0
 	effect = nil
 	overlay_flag = false
-	fireflies_flag = true
 end
 
 return StateOutside

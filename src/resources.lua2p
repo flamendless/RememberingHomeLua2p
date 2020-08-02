@@ -91,6 +91,7 @@ Resources.data.outside = {
 		{ "splashes_low", "res/images/house_outside/splashes_low.png" },
 		{ "rain_drop", "res/images/rain/rain_drop.png" },
 		{ "rain_drop2", "res/images/rain/rain_drop2.png" },
+		{ "sheet_paint", "res/images/intro/sheet_paint.png" },
 	},
 
 	image_data = {
@@ -98,16 +99,18 @@ Resources.data.outside = {
 		{ "lut_dusk_64", "res/lut/lut_dusk_64.png" },
 	},
 
-	font = {}
+	font = {
+		{ "ui", "res/fonts/Jamboree.ttf", 32, "default" },
+	},
 }
 
 function Resources.getData(key)
 	!if _ASSERT then
 	Assert.should_string(key)
-	Assert.should_exists(self.data[key])
+	Assert.should_exists(Resources.data[key])
 	!end
 
-	return self.data[key]
+	return Resources.data[key]
 end
 
 function Resources.clean(res)

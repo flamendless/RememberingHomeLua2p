@@ -93,6 +93,7 @@ end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
+		e:remove("hidden")
 		move_to_next_point(e.path, e.position.pos)
 	end
 end
@@ -127,8 +128,8 @@ function Fireflies:flicker_fireflies(start_time, end_time)
 				local next_run = random(start_time, end_time)
 				local timer2 = Timer.after(next_run,
 					function()
-						self:flicker_fireflies(start_time, end_time)
 						Timer.clear()
+						self:flicker_fireflies(start_time, end_time)
 					end)
 			end)
 	end

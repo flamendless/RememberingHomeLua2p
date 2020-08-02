@@ -118,6 +118,7 @@ function Outside.firefly(e, sprite, pos, points)
 	:give("firefly", {Palette.get_color("firefly_start"), Palette.get_color("firefly_end")})
 	:give("color", Palette.get_color("firefly_start", 0))
 	:give("target_color", Palette.get_color("firefly_start", 1), 5)
+	:give("hidden")
 end
 
 function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
@@ -138,6 +139,15 @@ function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
 			rain_drop2,
 		},
 	}, buffer)
+end
+
+function Outside.ui_text(e, text, font, pos)
+	e:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get_color("white", 0))
+	:give("ui_text")
+	:give("hidden")
 end
 
 return Outside
