@@ -79,7 +79,8 @@ Resources.data.intro = {
 
 Resources.data.outside = {
 	image = {
-		{ "bg", "res/images/house_outside/house_bg.png" },
+		{ "bg_sky", "res/images/house_outside/bg_sky.png" },
+		{ "bg_house", "res/images/house_outside/bg_house.png" },
 		{ "car", "res/images/house_outside/car.png" },
 		{ "fence", "res/images/house_outside/fence.png" },
 		{ "gate", "res/images/house_outside/gate.png" },

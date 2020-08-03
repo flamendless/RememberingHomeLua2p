@@ -5,17 +5,24 @@ local Palette = require("palette")
 local Outside = {}
 
 local z_index = {
-	bg = 1,
+	bg_sky = 0,
+	bg_house = 1,
 	firefly = 2,
 	car = 3,
 	fence = 4,
 	splashes = 11,
 }
 
-function Outside.bg(e, sprite)
+function Outside.bg_sky(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(0, 0))
-	:give("z_index", z_index.bg)
+	:give("z_index", z_index.bg_sky)
+end
+
+function Outside.bg_house(e, sprite)
+	e:give("sprite", sprite)
+	:give("position", vec2:new(0, 0))
+	:give("z_index", z_index.bg_house)
 end
 
 function Outside.left_bounds(e)

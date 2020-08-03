@@ -112,7 +112,7 @@ function StateOutside:start()
 	!end
 
 	local ww, wh = love.graphics.getDimensions()
-	local w, h = resources.images.bg:getDimensions()
+	local w, h = resources.images.bg_house:getDimensions()
 	self.scale = min(ww/w, wh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
@@ -122,8 +122,11 @@ function StateOutside:start()
 		:give("camera_transform", 0, self.scale)
 		:give("camera_clip", w, h, { 0, 0, 0, 1 })
 
-	self.entities.bg = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.bg, resources.images.bg)
+	self.entities.bg_sky = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.bg_sky, resources.images.bg_sky)
+
+	self.entities.bg_house = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.bg_house, resources.images.bg_house)
 
 	self.entities.left_bounds = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_bounds)
