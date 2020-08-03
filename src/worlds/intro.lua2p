@@ -134,7 +134,7 @@ function StateIntro:start()
 
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", resources.images.bg)
-		:give("position", vec2:new(0, 0))
+		:give("position", vec2:new())
 
 	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, resources.images.parallax_buildings, ww * 2, "building")

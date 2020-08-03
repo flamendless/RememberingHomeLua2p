@@ -12,6 +12,7 @@ local z_index = {
 	fence = 4,
 	splashes = 11,
 }
+local rain_buffer_max = 512
 
 function Outside.bg_sky(e, sprite)
 	e:give("sprite", sprite)
@@ -19,9 +20,10 @@ function Outside.bg_sky(e, sprite)
 	:give("z_index", z_index.bg_sky)
 end
 
-function Outside.bg_house(e, sprite)
+function Outside.bg_house(e, sprite, pos, quad)
 	e:give("sprite", sprite)
-	:give("position", vec2:new(0, 0))
+	:give("position", pos)
+	:give("quad", quad)
 	:give("z_index", z_index.bg_house)
 end
 
@@ -129,8 +131,6 @@ function Outside.firefly(e, sprite, pos, points)
 end
 
 function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
-	local buffer = 512
-
 	e:give("screen_size", ww, wh)
 	:give("rain_data", {
 		metadata = {
@@ -145,7 +145,7 @@ function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
 			rain_drop,
 			rain_drop2,
 		},
-	}, buffer)
+	}, rain_buffer_max)
 end
 
 function Outside.ui_text(e, text, font, pos)
