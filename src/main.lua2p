@@ -6,6 +6,8 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 
 !if not _RELEASE then
 io.stdout:setvbuf("no")
+local stats = {}
+stats = love.graphics.getStats(stats)
 !end
 
 require("modules.batteries"):export()
@@ -102,7 +104,10 @@ function love.draw()
 	!if not _RELEASE then
 	love.graphics.setFont(font_default)
 	love.graphics.setColor(1, 0, 0, 1)
-	love.graphics.print(love.timer.getFPS(), 8, 8)
+	love.graphics.print("FPS:" .. love.timer.getFPS(), 8, 8)
+	love.graphics.print("Drawcalls:" .. stats.drawcalls, 8, 24)
+
+	stats = love.graphics.getStats(stats)
 	!end
 end
 

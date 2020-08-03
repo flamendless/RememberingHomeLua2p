@@ -89,4 +89,10 @@ function RainOutside:update(dt)
 	end
 end
 
+function RainOutside:cleanup_rain()
+	for _, e in ipairs(self.pool_empty) do
+		e:destroy()
+	end
+end
+
 return RainOutside

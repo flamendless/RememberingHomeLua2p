@@ -1,0 +1,50 @@
+local Concord = require("modules.concord.concord")
+
+local Debugging = Concord.system({
+	pool = {},
+	pool_log = {"log"}
+})
+
+!if not _RELEASE then
+
+function Debugging:init(world)
+	self.ent_count = 0
+
+	self.pool.onEntityAdded = function(pool, e)
+		self.ent_count = self.ent_count + 1
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		self.ent_count = self.ent_count - 1
+	end
+end
+
+local Slab = require("modules.slab")
+local is_open = true
+local is_open_e = true
+local is_open_log = true
+
+function Debugging:draw_slab()
+	is_open = Slab.BeginWindow("debugging", {Title = "log", IsOpen = is_open})
+	if Slab.CheckBox(is_open_e, "ECS") then
+		is_open_e = not is_open_e
+	end
+	if Slab.CheckBox(is_open_log, "Logs") then
+		is_open_log = not is_open_log
+	end
+	Slab.EndWindow()
+
+	is_open_e = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = is_open_e})
+	Slab.Text("# of entities: " .. self.ent_count)
+	Slab.EndWindow()
+
+	is_open_log = Slab.BeginWindow("log", {Title = "log", IsOpen = is_open_log, AutoSizeWindow = false})
+	for _, e in ipairs(self.pool_log) do
+		Slab.Text(e.log.log)
+		print(e.log.log)
+	end
+	Slab.EndWindow()
+end
+!end
+
+return Debugging

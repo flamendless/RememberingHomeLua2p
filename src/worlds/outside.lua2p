@@ -9,6 +9,7 @@ local TLE = require("modules.tle.timeline")
 local Slab = require("modules.slab")
 !end
 
+local floor = math.floor
 local min = math.min
 local random = love.math.random
 local format = string.format
@@ -40,10 +41,14 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
+	!if not _RELEASE then
+	Debugging = require("systems.debugging"),
+	!end
 }
 
 !if not _RELEASE then
 local Systems = Tracker.track(Systems)
+local world
 !end
 
 local Assemblages = {
@@ -59,11 +64,12 @@ local effect
 local overlay_flag = false
 local overlay = { 0, 0, 0, 1 }
 
-local current_tle_id = 1
 local tle_log = function(msg)
+	local str = format("TLE: %s", msg)
 	!if not _RELEASE then
-	Log.debug(format("Timeline #%i: %s", current_tle_id, msg))
-	current_tle_id = current_tle_id + 1
+	local e = Concord.entity(world):give("log", str)
+	!else
+	Log.debug(str)
 	!end
 end
 
@@ -89,6 +95,7 @@ function StateOutside:load()
 			self:start()
 			!if not _RELEASE then
 			Slab.Initialize()
+			world = self.world
 			!end
 		end)
 end
@@ -107,6 +114,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaintFade)
 	self.world:addSystem(Systems.Transform)
+	self.world:addSystem(Systems.Debugging)
 
 	!if not _RELEASE then
 	Tracker.warn_on_ref_count(Systems, 0)
@@ -126,8 +134,22 @@ function StateOutside:start()
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, resources.images.bg_sky)
 
-	self.entities.bg_house = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.bg_house, resources.images.bg_house)
+	local bg_house = resources.images.bg_house
+	local bg_house_w, bg_house_h = bg_house:getDimensions()
+	local div = 2
+	local qw = bg_house_w/div
+	local qh = bg_house_h/div
+
+	for i = 1, div * div do
+		local id = "bg_house_" .. i
+		local x = bg_house_w * ((i - 1) % div)/div
+		local y = bg_house_h * floor((i - 1)/div)/div
+		local pos = vec2:new(x, y)
+		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
+
+		self.entities[id] = Concord.entity(self.world)
+			:assemble(Assemblages.Outside.bg_house, bg_house, pos, quad)
+	end
 
 	self.entities.left_bounds = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_bounds)
@@ -207,6 +229,10 @@ function StateOutside:start()
 	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
+		!if not _RELEASE then
+		self.timeline:Pause()
+		!end
+
 		rain_state.current = 32
 		rain_state.max_amount = 64
 		overlay_flag = true
@@ -237,23 +263,19 @@ function StateOutside:start()
 
 		Flux.to(self.camera, 10, { x = 960, y = 296, scale = 4 })
 			:oncomplete(function()
-				self.timeline:Unpause()
 				tle_log("end camera pan and zoom")
-				tle_log_resume()
 			end)
-		tle_log_pause()
-		self.timeline:Pause()
 
 		tle_log("begin rain fade")
-		local dur_fade_rain = 6
-		Flux.to(rain_state, dur_fade_rain,
-			{
+		TLE.Event.Wait(3)
+		local dur_fade_rain = 8
+		Flux.to(rain_state, dur_fade_rain, {
 				current = 0,
 				max_amount = 0,
 			})
 			:onupdate(function()
 				if not self.entities.splashes then return end
-				if rain_state.current <= 12 then
+				if rain_state.current <= 4 then
 					tle_log("splashes stopped")
 					self.entities.splashes:destroy()
 					self.entities.splashes = nil
@@ -261,6 +283,7 @@ function StateOutside:start()
 			end)
 			:oncomplete(function()
 				self.timeline:Unpause()
+				self.world:emit("cleanup_rain")
 				tle_log("end rain fade")
 				tle_log_resume()
 			end)
@@ -327,6 +350,8 @@ function StateOutside:keypressed(key)
 	!if not _RELEASE then
 	if key == "`" then
 		self.draw_debug = not self.draw_debug
+	elseif key == "space" then
+		self.timeline:Unpause()
 	end
 	!end
 end

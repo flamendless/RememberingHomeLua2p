@@ -5,6 +5,7 @@ local remove = table.remove
 
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
+	pool_quad = {"position", "sprite", "quad"},
 	pool_z = {"position", "sprite", "z_index"},
 	pool_ui = {"position", "sprite", "ui_element"},
 })
@@ -138,9 +139,20 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local is_open = true
+local is_open_z = false
+local is_open_quad = false
 
 function RenderSprite:draw_debug()
-	is_open = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = is_open})
+	is_open = Slab.BeginWindow("RenderSprite", {Title = "RenderSprite", IsOpen = is_open})
+	if Slab.CheckBox(is_open_z, "ZIndex") then
+		is_open_z = not is_open_z
+	end
+	if Slab.CheckBox(is_open_quad, "Quad") then
+		is_open_quad = not is_open_quad
+	end
+	Slab.EndWindow()
+
+	is_open_z = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = is_open_z})
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)
@@ -149,6 +161,15 @@ function RenderSprite:draw_debug()
 		end
 	end
 	Slab.EndWindow()
+
+	if is_open_quad then
+		for _, e in ipairs(self.pool_quad) do
+			local qx, qy, qw, qh = e.quad.quad:getViewport()
+
+			love.graphics.setColor(1, 0, 0, 1)
+			love.graphics.rectangle("line", qx, qy, qw, qh)
+		end
+	end
 end
 !end
 
