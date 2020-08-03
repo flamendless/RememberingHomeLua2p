@@ -50,6 +50,7 @@ local Systems = Tracker.track(Systems)
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Intro = require("assemblages.intro"),
+	UI = require("assemblages.ui"),
 }
 
 local resources = { images = {}, image_data = {}, fonts = {} }
@@ -231,14 +232,7 @@ function StateIntro:start()
 		}, 512)
 
 	self.entities.paint_data = Concord.entity(self.world)
-		:give("text_paint_data", {
-			spritesheet = resources.images.sheet_paint,
-			frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
-			delay = 0.1,
-			rows_count = 3,
-			columns_count = 7,
-			n_frames = 21
-		})
+		:assemble(Assemblages.UI.paint_data, resources.images.sheet_paint)
 
 	self.world:emit("validate_tree", self.entities.fg_tree_data)
 	self.world:emit("generate_tree", self.entities.fg_tree_data)
@@ -291,7 +285,7 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { scale = 10 })
 
 		TLE.Event.Wait(2)
-		self.world:emit("fade_text", self.entities.intro_txt1, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt1, fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		local cx, cy = self.camera:getPosition()
@@ -299,7 +293,7 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 160, y = cy - 32 })
 		Flux.to(car_pos, 5, { x = 128 })
 
-		self.world:emit("fade_text", self.entities.intro_txt2, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt2, fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		--Enter forest
@@ -313,10 +307,10 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 72, y = cy - 32 })
 		Flux.to(car_pos, 3, { x = 160 })
 
-		self.world:emit("fade_text", self.entities.intro_txt3, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt3, fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
-		self.world:emit("fade_text", self.entities.intro_txt4, fade_duration, self.timeline)
+		self.world:emit("fade_text", self.entities.intro_txt4, fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		update_rain(1)

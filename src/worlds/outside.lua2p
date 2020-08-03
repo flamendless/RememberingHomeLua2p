@@ -50,6 +50,7 @@ local Assemblages = {
 	Common = require("assemblages.common"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
+	UI = require("assemblages.ui"),
 }
 
 local resources = { images = {}, image_data = {}, fonts = {} }
@@ -168,15 +169,8 @@ function StateOutside:start()
 	self.entities.gate = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.gate, resources.images.gate)
 
-	self.entities.paint_data = Concord.entity(self.world)
-		:give("text_paint_data", {
-			spritesheet = resources.images.sheet_paint,
-			frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
-			delay = 0.1,
-			rows_count = 3,
-			columns_count = 7,
-			n_frames = 21
-		})
+	self.entities.splat_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.splat_data, resources.images.sheet_splat)
 
 	self.entities.txt1 = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.ui_text, "Get out of the car",

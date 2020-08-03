@@ -56,7 +56,7 @@ Resources.data.intro = {
 		{ "parallax_grass_front", "res/images/intro/parallax_grass_front.png" },
 		{ "sheet_car", "res/images/intro/sheet_car.png" },
 		{ "sheet_car_reflect", "res/images/intro/sheet_car_reflect.png" },
-		{ "sheet_paint", "res/images/intro/sheet_paint.png" },
+		{ "sheet_paint", "res/ui/sheet_paint.png" },
 		{ "title", "res/images/menu/title.png" },
 		{ "rain_drop_tilted", "res/images/rain/rain_drop_tilted.png" },
 		{ "rain_drop_tilted2", "res/images/rain/rain_drop_tilted2.png" },
@@ -92,7 +92,7 @@ Resources.data.outside = {
 		{ "splashes_low", "res/images/house_outside/splashes_low.png" },
 		{ "rain_drop", "res/images/rain/rain_drop.png" },
 		{ "rain_drop2", "res/images/rain/rain_drop2.png" },
-		{ "sheet_paint", "res/images/intro/sheet_paint.png" },
+		{ "sheet_splat", "res/ui/sheet_splat.png" },
 	},
 
 	image_data = {
