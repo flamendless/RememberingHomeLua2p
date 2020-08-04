@@ -20,25 +20,24 @@ function Debugging:init(world)
 end
 
 local Slab = require("modules.slab")
+local Flags = require("debug_flags")
 local is_open = true
-local is_open_e = true
-local is_open_log = true
 
 function Debugging:draw_slab()
-	is_open = Slab.BeginWindow("debugging", {Title = "log", IsOpen = is_open})
-	if Slab.CheckBox(is_open_e, "ECS") then
-		is_open_e = not is_open_e
-	end
-	if Slab.CheckBox(is_open_log, "Logs") then
-		is_open_log = not is_open_log
-	end
+	is_open = Slab.BeginWindow("debugging", {Title = "Debugging", IsOpen = is_open})
+	if Slab.CheckBox(Flags.ent_count, "ECS") then Flags.ent_count = not Flags.ent_count end
+	if Slab.CheckBox(Flags.logs, "Logs") then Flags.logs = not Flags.logs end
+	if Slab.CheckBox(Flags.z_index, "ZIndex") then Flags.z_index = not Flags.z_index end
+	if Slab.CheckBox(Flags.quad_bounds, "Quad") then Flags.quad_bounds = not Flags.quad_bounds end
+	if Slab.CheckBox(Flags.b3d_list, "B3D") then Flags.b3d_list = not Flags.b3d_list end
+	if Slab.CheckBox(Flags.camera, "Camera") then Flags.camera = not Flags.camera end
 	Slab.EndWindow()
 
-	is_open_e = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = is_open_e})
+	Flags.ent_count = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = Flags.ent_count})
 	Slab.Text("# of entities: " .. self.ent_count)
 	Slab.EndWindow()
 
-	is_open_log = Slab.BeginWindow("log", {Title = "log", IsOpen = is_open_log, AutoSizeWindow = false})
+	Flags.logs = Slab.BeginWindow("log", {Title = "log", IsOpen = Flags.logs, AutoSizeWindow = false})
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
 	end

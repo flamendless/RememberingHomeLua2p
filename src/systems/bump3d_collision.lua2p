@@ -86,13 +86,14 @@ end
 
 !if not _RELEASE then
 local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+
 local format = string.format
 local win_col3d = false
 local current_item, current_item_id
-local is_open_list = true
 
 function Bump3DCollision:draw_slab(dt)
-	is_open_list = Slab.BeginWindow("b3d", {Title = "Bump3DCollision", IsOpen = is_open_list})
+	DebugFlags.b3d_list = Slab.BeginWindow("b3d", {Title = "Bump3DCollision", IsOpen = DebugFlags.b3d_list})
 	local items, len = self.bump3d_world:getItems()
 	Slab.Text("number:")
 	Slab.SameLine()
