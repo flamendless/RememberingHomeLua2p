@@ -6,6 +6,7 @@ local RainOutside = Concord.system({
 	pool_empty = {"empty_rain"},
 	pool_data = {"rain_data", "screen_size"},
 	pool_drop = {"rain_drop", "position", "acceleration"},
+	pool_splashes = {"rain_splashes"},
 })
 
 function RainOutside:init(world)
@@ -86,6 +87,15 @@ function RainOutside:update(dt)
 			:remove("bump3d")
 			:give("empty_rain")
 		end
+	end
+end
+
+function RainOutside:fade_splashes(dur)
+	for _, e in ipairs(self.pool_splashes) do
+		e:give("target_color", {1, 1, 1, 0}, dur)
+		:give("lerp_on_complete", function()
+				e:destroy()
+			end)
 	end
 end
 

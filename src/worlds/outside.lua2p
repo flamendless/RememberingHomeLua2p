@@ -206,8 +206,17 @@ function StateOutside:start()
 		Log.warn("Texture size for splashes use 'low' version")
 	end
 
-	self.entities.splashes = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.splashes, splashes, is_compatible)
+	self.splashes = {}
+	for i = 1, 3 do
+		local x = (i == 1) and 0 or random(-16, 0)
+		local y = (i == 1) and 0 or random(-8, 8)
+		local pos = vec2:new(x, y)
+
+		local e = Concord.entity(self.world)
+			:assemble(Assemblages.Outside.splashes, splashes, pos, is_compatible)
+
+		insert(self.splashes, e)
+	end
 
 	self.entities.rain_data = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.rain, ww, wh, resources.images.rain_drop, resources.images.rain_drop2)

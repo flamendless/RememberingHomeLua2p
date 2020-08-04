@@ -29,3 +29,6 @@ end)
 
 Concord.component("rain_tilted", function(c)
 end)
+
+Concord.component("rain_splashes", function(c)
+end)

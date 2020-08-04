@@ -62,9 +62,11 @@ function Outside.gate(e, sprite)
 	:give("z_index", z_index.fence)
 end
 
-function Outside.splashes(e, spritesheet, is_compatible)
-	e:give("position", vec2:new())
+function Outside.splashes(e, spritesheet, pos, is_compatible)
+	e:give("position", pos)
 	:give("z_index", z_index.splashes)
+	:give("rain_splashes")
+	:give("color", {1, 1, 1, 1})
 	:give("animation")
 	:give("animation_data",
 		{
@@ -72,7 +74,9 @@ function Outside.splashes(e, spritesheet, is_compatible)
 			frames = { "1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4 },
 			delay = 0.2,
 			rows_count = 4,
-			columns_count = 2
+			columns_count = 2,
+			n_frames = 8,
+			start_frame = random(1, 8),
 		})
 
 	if not is_compatible then
