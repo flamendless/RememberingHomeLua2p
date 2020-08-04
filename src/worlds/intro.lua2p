@@ -120,14 +120,12 @@ function StateIntro:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	local ww, wh = love.graphics.getDimensions()
 	local w, h = resources.images.bg:getDimensions()
+	self.screen_size = vec2:new(love.graphics.getDimensions())
+	self.scale = min(self.screen_size.x/w, self.screen_size.y/h)
 
-	self.scale = min(ww/w, wh/h)
-	-- self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
-	-- self.camera:setWindow(0, (wh - h * self.scale)/2, ww, wh)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, wh)
+	self.camera:setWindow(0, 0, self.screen_size.x, self.screen_size.y)
 	self.camera:setScale(self.scale)
 	self.world:emit("camera_set", self.camera)
 	self.world:emit("set_camera_clip", w, h, { 0, 0, 0, 1 })
@@ -137,38 +135,38 @@ function StateIntro:start()
 		:give("position", vec2:new())
 
 	self.entities.parallax_building = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_buildings, ww * 2, "building")
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_buildings, self.screen_size.x * 2, "building")
 
 	self.entities.bg_trees3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees3, ww * 2 , "bg_trees3")
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees3, self.screen_size.x * 2 , "bg_trees3")
 
 	self.entities.bg_trees2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees2, ww * 2 , "bg_trees2")
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees2, self.screen_size.x * 2 , "bg_trees2")
 
 	self.entities.bg_trees1 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees1, ww * 2 , "bg_trees1")
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_trees1, self.screen_size.x * 2 , "bg_trees1")
 
 	self.entities.bg_trees0 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_cover, resources.images.bg_trees0)
 
 	self.entities.parallax_road = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_road, ww * 2, "road")
-		:give("collider", vec2:new(ww, 64), vec2:new(0, 354))
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_road, self.screen_size.x * 2, "road")
+		:give("collider", vec2:new(self.screen_size.x, 64), vec2:new(0, 354))
 
 	self.entities.parallax_grass = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass, ww * 2, "grass1")
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass, self.screen_size.x * 2, "grass1")
 
 	self.entities.parallax_grass2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass2, ww * 2, "grass2")
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass2, self.screen_size.x * 2, "grass2")
 
 	self.entities.parallax_grass_back = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass_back, ww * 2, "grass_back")
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass_back, self.screen_size.x * 2, "grass_back")
 
 	self.entities.parallax_grass_front = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass_front, ww * 2, "grass_front")
+		:assemble(Assemblages.Intro.parallax, resources.images.parallax_grass_front, self.screen_size.x * 2, "grass_front")
 
 	self.entities.post = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, resources.images.bg_post, ww * 2, "post")
+		:assemble(Assemblages.Intro.parallax, resources.images.bg_post, self.screen_size.x * 2, "post")
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, resources.images.sheet_car)
@@ -203,7 +201,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.fg_tree_data, {resources.images.fg_tree1, resources.images.fg_tree2}, w)
 
 	self.entities.rain_data = Concord.entity(self.world)
-		:give("screen_size", ww, wh)
+		:give("screen_size", self.screen_size.x, self.screen_size.y)
 		:give("rain_tilted")
 		:give("rain_data", {
 			metadata = {
@@ -269,10 +267,10 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.ui_text, "music by ???", resources.fonts.ui, vec2:new(32, 32))
 
 	self.entities.title = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.title, resources.images.title, vec2:new(ww/2, wh/2))
+		:assemble(Assemblages.Intro.title, resources.images.title, vec2:new(self.screen_size.x/2, self.screen_size.y/2))
 
 	self.entities.dialogue = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.dialogues, "dialogue_intro", Dialogues.get("intro_rain"), resources.fonts.dialogue, vec2:new(ww/2, 64))
+		:assemble(Assemblages.Intro.dialogues, "dialogue_intro", Dialogues.get("intro_rain"), resources.fonts.dialogue, vec2:new(self.screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
 		local car_pos = self.entities.car:get("position").pos
@@ -328,7 +326,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("slow_parallax", 0.75)
-		Flux.to(car_pos, 3, { x = ww/2 })
+		Flux.to(car_pos, 3, { x = self.screen_size.x/2 })
 
 		TLE.Event.Wait(2)
 		Flux.to(self.camera, 5, { scale = self.scale })
@@ -354,7 +352,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("stop_parallax")
-		Flux.to(car_pos, 5, { x = ww * 1.5 })
+		Flux.to(car_pos, 5, { x = self.screen_size.x * 1.5 })
 
 		-- TODO implement lightning to quickly black out scene
 		Fade.fade_out(function()
@@ -366,7 +364,7 @@ function StateIntro:start()
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
+			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(self.screen_size.x/2, self.screen_size.y - 8))
 	end
 end
 

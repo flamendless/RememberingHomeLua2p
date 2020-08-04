@@ -120,12 +120,12 @@ function StateOutside:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	local ww, wh = love.graphics.getDimensions()
 	local w, h = resources.images.bg_house:getDimensions()
-	self.scale = min(ww/w, wh/h)
+	self.screen_size = vec2:new(love.graphics.getDimensions())
+	self.scale = min(self.screen_size.x/w, self.screen_size.y/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, wh)
+	self.camera:setWindow(0, 0, self.screen_size.x, self.screen_size.y)
 	self.entities.camera = Concord.entity(self.world)
 		:give("camera", self.camera, true)
 		:give("camera_transform", 0, self.scale)
@@ -219,7 +219,8 @@ function StateOutside:start()
 	end
 
 	self.entities.rain_data = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.rain, ww, wh, resources.images.rain_drop, resources.images.rain_drop2)
+		:assemble(Assemblages.Outside.rain, self.screen_size.x, self.screen_size.y,
+			resources.images.rain_drop, resources.images.rain_drop2)
 
 	self.world:emit("generate_fireflies",
 		random(5, 20), resources.images.firefly,
