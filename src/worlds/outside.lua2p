@@ -13,6 +13,7 @@ local floor = math.floor
 local min = math.min
 local random = love.math.random
 local format = string.format
+local insert = table.insert
 
 local Info = require("info")
 local NGrading = require("ngrading")
@@ -35,6 +36,7 @@ local Systems = {
 	Color = require("systems.color"),
 	Fireflies = require("systems.fireflies"),
 	PlayerController = require("systems.player_controller"),
+	Move = require("systems.move"),
 	Movement = require("systems.movement"),
 	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
@@ -61,8 +63,13 @@ local Assemblages = {
 local resources = { images = {}, image_data = {}, fonts = {} }
 local rain_state = { current = 0, max_amount = 0 }
 local effect
+local fireflies_flag = false
 local overlay_flag = false
 local overlay = { 0, 0, 0, 1 }
+
+local tasks = {
+	"Get out of the car",
+}
 
 local tle_log = function(msg)
 	local str = format("TLE: %s", msg)
@@ -72,9 +79,6 @@ local tle_log = function(msg)
 	Log.debug(str)
 	!end
 end
-
-local tle_log_pause = function() tle_log("paused") end
-local tle_log_resume = function() tle_log("resumed") end
 
 function StateOutside:new()
 	return self:init({
@@ -111,6 +115,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)
+	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaintFade)
 	self.world:addSystem(Systems.Transform)
@@ -194,13 +199,17 @@ function StateOutside:start()
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, resources.images.sheet_splat)
 
-	self.entities.txt1 = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.ui_text, "Get out of the car",
-			resources.fonts.ui, vec2:new(36, 36))
+	local font_ui = resources.fonts.ui
+	local pos_ui = vec2:new(self.screen_size.x/2, h * 0.95)
+	for i, str in ipairs(tasks) do
+		local id = "task" .. i
+		self.entities[id] = Concord.entity(self.world)
+			:assemble(Assemblages.Outside.ui_text, str, font_ui, pos_ui:copy())
+			:give("transform", 0, 1, 1, 0.5, 0.5)
+	end
 
 	local splashes = resources.images.splashes
 	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
-
 	if not is_compatible then
 		splashes = resources.images.splashes_low
 		Log.warn("Texture size for splashes use 'low' version")
@@ -245,6 +254,7 @@ function StateOutside:start()
 
 		rain_state.current = 32
 		rain_state.max_amount = 64
+		fireflies_flag = true
 		overlay_flag = true
 
 		tle_log("begin timeline")
@@ -261,14 +271,9 @@ function StateOutside:start()
 		tle_log("start camera pan and zoom")
 		Flux.to(self.camera, 6, { x = 520, y = 193 })
 			:oncomplete(function()
-				tle_log("fireflies start")
-				self.world:emit("move_fireflies")
-				self.world:emit("flicker_fireflies", 3, 5)
 				self.timeline:Unpause()
-				tle_log_resume()
 			end)
 			:delay(2)
-		tle_log_pause()
 		self.timeline:Pause()
 
 		Flux.to(self.camera, 10, { x = 960, y = 296, scale = 4 })
@@ -279,30 +284,42 @@ function StateOutside:start()
 		tle_log("begin rain fade")
 		TLE.Event.Wait(3)
 		local dur_fade_rain = 8
+		self.world:emit("fade_splashes", dur_fade_rain)
 		Flux.to(rain_state, dur_fade_rain, {
 				current = 0,
 				max_amount = 0,
 			})
 			:onupdate(function()
-				if not self.entities.splashes then return end
 				if rain_state.current <= 4 then
-					tle_log("splashes stopped")
-					self.entities.splashes:destroy()
-					self.entities.splashes = nil
+					if fireflies_flag then
+						self.world:emit("move_fireflies")
+						self.world:emit("show_fireflies", 5, function()
+								self.world:emit("flicker_fireflies", 3, 5)
+							end)
+						fireflies_flag = false
+						tle_log("fireflies start")
+					end
 				end
 			end)
 			:oncomplete(function()
+				for i, e in ipairs(self.splashes) do
+					e:destroy()
+					self.splashes[i] = nil
+				end
+				tle_log("splashes stopped")
+
 				self.timeline:Unpause()
 				self.world:emit("cleanup_rain")
 				tle_log("end rain fade")
-				tle_log_resume()
 			end)
-		tle_log_pause()
 		self.timeline:Pause()
 
-		tle_log("start action")
-		local fade_duration = 3
-		self.world:emit("fade_text", self.entities.txt1, fade_duration, self.timeline)
+		local dur_fade_task = 3
+		tle_log("task: " .. tasks[1])
+		self.world:emit("fade_text", self.entities.task1, dur_fade_task, self.timeline)
+		self.timeline:Pause()
+
+		tle_log("wait for action")
 	end)
 end
 
@@ -372,13 +389,14 @@ function StateOutside:exit()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
-	for k, e in pairs(self.entities) do
-		self.entities[k]:destroy()
+	for k, v in pairs(self.entities) do
+		v:destroy()
 		self.entities[k] = nil
 	end
 	rain_state.current = 0
 	rain_state.max_amount = 0
 	effect = nil
+	fireflies_flag = false
 	overlay_flag = false
 end
 

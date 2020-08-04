@@ -91,9 +91,24 @@ function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 	end
 end
 
-function Fireflies:move_fireflies()
+function Fireflies:show_fireflies(dur, fn)
+	!if _ASSERT then
+	Assert.should_number(dur)
+	Assert.should_function(fn)
+	!end
+
 	for _, e in ipairs(self.pool) do
 		e:remove("hidden")
+		Flux.to(e.color.color, dur, { [4] = 1 })
+			:oncomplete(function()
+				e.firefly.can_flicker = true
+				fn()
+			end)
+	end
+end
+
+function Fireflies:move_fireflies()
+	for _, e in ipairs(self.pool) do
 		move_to_next_point(e.path, e.position.pos)
 	end
 end
@@ -105,33 +120,35 @@ function Fireflies:flicker_fireflies(start_time, end_time)
 	!end
 
 	for _, e in ipairs(self.pool) do
-		local color = e.color.color
-		local colors = e.firefly.colors
-		local time = random(start_time, end_time)
+		if e.firefly.can_flicker then
+			local color = e.color.color
+			local colors = e.firefly.colors
+			local time = random(start_time, end_time)
 
-		local timer = Timer.during(time,
-			function()
-				local chance = Lume.weightedchoice({ yes = 0.25, no = 0.75 })
-				if chance == "yes" then
-					local target = colors[random(1, #colors)]
+			local timer = Timer.during(time,
+				function()
+					local chance = Lume.weightedchoice({ yes = 0.25, no = 0.75 })
+					if chance == "yes" then
+						local target = colors[random(1, #colors)]
 
-					Flux.to(color, 0.25,
-						{
-							[1] = target[1],
-							[2] = target[2],
-							[3] = target[3],
-							[4] = target[4],
-						})
-				end
-			end,
-			function()
-				local next_run = random(start_time, end_time)
-				local timer2 = Timer.after(next_run,
-					function()
-						Timer.clear()
-						self:flicker_fireflies(start_time, end_time)
-					end)
-			end)
+						Flux.to(color, 0.25,
+							{
+								[1] = target[1],
+								[2] = target[2],
+								[3] = target[3],
+								[4] = target[4],
+							})
+					end
+				end,
+				function()
+					local next_run = random(start_time, end_time)
+					local timer2 = Timer.after(next_run,
+						function()
+							Timer.clear()
+							self:flicker_fireflies(start_time, end_time)
+						end)
+				end)
+		end
 	end
 end
 

@@ -9,4 +9,5 @@ Concord.component("firefly", function(c, colors)
 	!end
 
 	c.colors = colors
+	c.can_flicker = false
 end)

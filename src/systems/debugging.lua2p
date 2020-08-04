@@ -41,7 +41,6 @@ function Debugging:draw_slab()
 	is_open_log = Slab.BeginWindow("log", {Title = "log", IsOpen = is_open_log, AutoSizeWindow = false})
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
-		print(e.log.log)
 	end
 	Slab.EndWindow()
 end

@@ -2,6 +2,8 @@ local Concord = require("modules.concord.concord")
 
 local Palette = require("palette")
 
+local random = love.math.random
+
 local Outside = {}
 
 local z_index = {
@@ -130,7 +132,6 @@ function Outside.firefly(e, sprite, pos, points)
 	:give("z_index", z_index.firefly)
 	:give("firefly", {Palette.get_color("firefly_start"), Palette.get_color("firefly_end")})
 	:give("color", Palette.get_color("firefly_start", 0))
-	:give("target_color", Palette.get_color("firefly_start", 1), 5)
 	:give("hidden")
 end
 
