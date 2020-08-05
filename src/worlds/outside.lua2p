@@ -204,7 +204,7 @@ function StateOutside:start()
 	for i, str in ipairs(tasks) do
 		local id = "task" .. i
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Outside.ui_text, str, font_ui, pos_ui:copy())
+			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
 			:give("transform", 0, 1, 1, 0.5, 0.5)
 	end
 

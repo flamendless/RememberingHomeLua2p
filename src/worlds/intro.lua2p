@@ -255,16 +255,16 @@ function StateIntro:start()
 	current_effect = effect.single
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "flamendless studio presents", resources.fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "flamendless studio presents", resources.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "a game by Brandon", resources.fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "a game by Brandon", resources.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "arts by Conrad", resources.fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "arts by Conrad", resources.fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.ui_text, "music by ???", resources.fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "music by ???", resources.fonts.ui, vec2:new(32, 32))
 
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title, resources.images.title, vec2:new(self.screen_size.x/2, self.screen_size.y/2))

@@ -153,13 +153,4 @@ function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
 	}, rain_buffer_max)
 end
 
-function Outside.ui_text(e, text, font, pos)
-	e:give("static_text", text)
-	:give("font", font)
-	:give("position", pos)
-	:give("color", Palette.get_color("white", 0))
-	:give("ui_text")
-	:give("hidden")
-end
-
 return Outside

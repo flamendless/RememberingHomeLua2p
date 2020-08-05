@@ -119,15 +119,6 @@ function Intro.car_reflect(e, spritesheet, car)
 	:give("z_index", z_index.car)
 end
 
-function Intro.ui_text(e, text, font, pos)
-	e:give("static_text", text)
-	:give("font", font)
-	:give("position", pos)
-	:give("color", Palette.get_color("white", 0))
-	:give("ui_text")
-	:give("hidden")
-end
-
 function Intro.dialogues(e, id, dialogues, font, pos)
 	e:give("dialogues", id, dialogues)
 	:give("font", font)
