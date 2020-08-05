@@ -9,6 +9,7 @@ local Camera = Concord.system({
 function Camera:init(world)
 	self.world = world
 	self.main_camera = nil
+	self.to_follow = nil
 
 	self.pool.onEntityAdded = function(pool, e)
 		local cam = e.camera.camera
@@ -22,6 +23,46 @@ function Camera:init(world)
 		if e.camera.is_main then
 			self.main_camera = cam
 		end
+	end
+end
+
+function Camera:get_follow_coords(target)
+	!if _ASSERT then
+	Assert.should_entity(target)
+	!end
+
+	local pos = target.position.pos
+	local x = pos.x
+	local y = pos.y
+
+	if target.camera_follow_offset then
+		local offset = target.camera_follow_offset.offset
+		x = x + offset.x
+		y = y + offset.y
+	end
+
+	return x, y
+end
+
+function Camera:camera_follow(target, dur)
+	!if _assert then
+	Assert.should_entity(target)
+	Assert.safe_should_number(dur)
+	!end
+
+	local x, y = self:get_follow_coords(target)
+
+	Flux.to(self.main_camera, dur or 1, { x = x, y = y, })
+		:oncomplete(function()
+			self.to_follow = target
+		end)
+end
+
+function Camera:update(dt)
+	if self.to_follow then
+		local x, y = self:get_follow_coords(self.to_follow)
+
+		self.main_camera:setPosition(x, y)
 	end
 end
 
