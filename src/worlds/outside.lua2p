@@ -180,13 +180,6 @@ function StateOutside:start()
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
 
-	-- self.entities.player = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Player.outside_house,
-	-- 		resources.images.sheet_player_idle,
-	-- 		resources.images.sheet_player_walk,
-	-- 		resources.images.sheet_player_run)
-	-- self.world:emit("face_left", self.entities.player)
-
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, resources.images.car)
 
@@ -203,7 +196,7 @@ function StateOutside:start()
 		:assemble(Assemblages.UI.splat_data, resources.images.sheet_splat)
 
 	local font_ui = resources.fonts.ui
-	local pos_ui = vec2:new(self.screen_size.x/2, h * 0.95)
+	local pos_ui = vec2:new(self.screen_size.x/2, self.screen_size.y * 0.9)
 	for i, str in ipairs(tasks) do
 		local id = "task" .. i
 		self.entities[id] = Concord.entity(self.world)
@@ -281,9 +274,6 @@ function StateOutside:start()
 		self.timeline:Pause()
 
 		Flux.to(self.camera, 10, { x = 960, y = 296, scale = 4 })
-			:oncomplete(function()
-				tle_log("end camera pan and zoom")
-			end)
 
 		tle_log("begin rain fade")
 		TLE.Event.Wait(3)
@@ -359,7 +349,6 @@ function StateOutside:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
-	self.world:emit("camera_follow")
 
 	local cx, cy, cw, ch = self.camera:getVisible()
 	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx - 128, cw + 128)

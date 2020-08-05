@@ -65,14 +65,14 @@ end
 
 function Canvas:set(x, y, width, height, rotation, scale)
 	local _x, _y, _w, _h, _rotation, _scale
-	if (type(x) == "number") then
+	if type(x) == "number" then
 		_x = x
 		_y = y
 		_w = width
 		_h = height
 		_rotation = rotation
 		_scale = scale or 1
-	elseif (type(x) == "table") then
+	elseif type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			local c = x
 			_x = c.x
@@ -91,6 +91,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 			_scale = tbl.scale or 1
 		end
 	end
+
 	self.width = _w
 	self.height = _h
 	self.x = _x

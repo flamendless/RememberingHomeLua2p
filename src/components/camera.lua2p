@@ -32,7 +32,7 @@ Concord.component("camera_clip", function(c, w, h, color)
 	c.color = color
 end)
 
-Concord.component("camera_follow", function(c, offset)
+Concord.component("camera_follow_offset", function(c, offset)
 	!if _ASSERT then
 	Assert.safe_should_vec2(offset)
 	!end
