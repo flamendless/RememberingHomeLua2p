@@ -44,7 +44,7 @@ local Systems = {
 	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	TextPaintFade = require("systems.text_paint_fade"),
+	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 	!if not _RELEASE then
 	Debugging = require("systems.debugging"),
@@ -120,7 +120,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Movement)
-	self.world:addSystem(Systems.TextPaintFade)
+	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Debugging)
 
@@ -209,6 +209,7 @@ function StateOutside:start()
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
 			:give("transform", 0, 1, 1, 0.5, 0.5)
+			:give("text_with_paint")
 	end
 
 	local splashes = resources.images.splashes
@@ -317,10 +318,10 @@ function StateOutside:start()
 			end)
 		self.timeline:Pause()
 
-		local dur_fade_task = 3
+		local timer_hold_key = 1.25
+		local dur_fade_task = 2
 		tle_log("task: " .. tasks[1])
-		self.world:emit("fade_text", self.entities.task1, dur_fade_task, self.timeline)
-		self.timeline:Pause()
+		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
 		local event1 = Event:new("hold_key_e", { timer = 0 })
