@@ -129,9 +129,9 @@ function Assert.should_table(arg)
 	end
 end
 
-function Assert.should_timelineevent(arg)
-	if type(arg) ~= T_TIMELINEEVENT then
-		error(msg_should_timelineevent, 2)
+function Assert.should_event(arg)
+	if arg:type() ~= T_EVENT then
+		error(msg_should_event, 2)
 	end
 end
 
@@ -231,6 +231,14 @@ function Assert.should_entity(arg)
 	end
 end
 
+function Assert.safe_should_entity(arg)
+	if arg then
+		Assert.should_entity(arg)
+		return true
+	end
+	return false
+end
+
 function Assert.should_system(arg)
 	if not arg.__isSystem then
 		error(msg_should_system, 2)
@@ -295,6 +303,23 @@ function Assert.should_shader(arg)
 	end
 end
 
+--TLE
+function Assert.should_timelineevent(arg)
+	if type(arg) ~= T_TIMELINEEVENT then
+		error(msg_should_timelineevent, 2)
+	end
+end
+
+function Assert.safe_should_timelineevent(arg)
+	if arg then
+		if type(arg) ~= T_TIMELINEEVENT then
+			error(msg_should_timelineevent, 2)
+		end
+		return true
+	end
+	return false
+end
+
 --SAFE
 function Assert.safe_either_value(arg, ...)
 	if arg then
@@ -351,6 +376,14 @@ function Assert.safe_should_font_or_sdf(arg)
 		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
 			error(msg_should_font_or_sdf)
 		end
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_function(arg)
+	if arg then
+		Assert.should_function(arg)
 		return true
 	end
 	return false
