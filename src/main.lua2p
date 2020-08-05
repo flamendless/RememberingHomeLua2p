@@ -42,6 +42,7 @@ local Network = require("network")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
+local EventManager = require("event_manager")
 local WindowMode = require("window_mode")
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
@@ -90,6 +91,7 @@ end
 function love.update(dt)
 	Timer.update(dt)
 	Flux.update(dt)
+	EventManager.update(dt)
 	GameStates.update(dt)
 end
 

@@ -1,0 +1,18 @@
+local Event = class()
+
+function Event:new(id, data)
+	!if _ASSERT then
+	Assert.should_string(id)
+	Assert.safe_should_table(data)
+	!end
+
+	return self:init({
+		id = id,
+		is_done = false,
+		data = data or {},
+	})
+end
+
+function Event:type() return "Event" end
+
+return Event
