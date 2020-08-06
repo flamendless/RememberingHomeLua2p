@@ -128,7 +128,10 @@ function StateOutside:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	local w, h = resources.images.bg_house:getDimensions()
+	local res_images = resources.images
+	local res_fonts = resources.fonts
+
+	local w, h = res_images.bg_house:getDimensions()
 	self.screen_size = vec2:new(love.graphics.getDimensions())
 	self.scale = min(self.screen_size.x/w, self.screen_size.y/h)
 
@@ -140,9 +143,9 @@ function StateOutside:start()
 		:give("camera_clip", w, h, { 0, 0, 0, 1 })
 
 	self.entities.bg_sky = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.bg_sky, resources.images.bg_sky)
+		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
 
-	local bg_house = resources.images.bg_house
+	local bg_house = res_images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
 	local div = 2
 	local qw = bg_house_w/div
@@ -181,21 +184,21 @@ function StateOutside:start()
 		:assemble(Assemblages.Outside.house_side)
 
 	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.car, resources.images.car)
+		:assemble(Assemblages.Outside.car, res_images.car)
 
 	self.entities.fence = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.fence, resources.images.fence)
+		:assemble(Assemblages.Outside.fence, res_images.fence)
 
 	self.entities.fence_right = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.fence_right)
 
 	self.entities.gate = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.gate, resources.images.gate)
+		:assemble(Assemblages.Outside.gate, res_images.gate)
 
 	self.entities.splat_data = Concord.entity(self.world)
-		:assemble(Assemblages.UI.splat_data, resources.images.sheet_splat)
+		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
 
-	local font_ui = resources.fonts.ui
+	local font_ui = res_fonts.ui
 	local pos_ui = vec2:new(self.screen_size.x/2, self.screen_size.y * 0.9)
 	for i, str in ipairs(tasks) do
 		local id = "task" .. i
@@ -206,10 +209,10 @@ function StateOutside:start()
 			:give("task", Palette.get("task_on_complete"))
 	end
 
-	local splashes = resources.images.splashes
+	local splashes = res_images.splashes
 	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
 	if not is_compatible then
-		splashes = resources.images.splashes_low
+		splashes = res_images.splashes_low
 		Log.warn("Texture size for splashes use 'low' version")
 	end
 
@@ -227,10 +230,10 @@ function StateOutside:start()
 
 	self.entities.rain_data = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.rain, self.screen_size.x, self.screen_size.y,
-			resources.images.rain_drop, resources.images.rain_drop2)
+			res_images.rain_drop, res_images.rain_drop2)
 
 	self.world:emit("generate_fireflies",
-		random(5, 20), resources.images.firefly,
+		random(5, 20), res_images.firefly,
 		vec2:new(670, 222), vec2:new(1136, 286))
 
 	local lut_size, lut_dusk
@@ -280,10 +283,7 @@ function StateOutside:start()
 		TLE.Event.Wait(3)
 		local dur_fade_rain = 8
 		self.world:emit("fade_splashes", dur_fade_rain)
-		Flux.to(rain_state, dur_fade_rain, {
-				current = 0,
-				max_amount = 0,
-			})
+		Flux.to(rain_state, dur_fade_rain, { current = 0, max_amount = 0 })
 			:onupdate(function()
 				if rain_state.current <= 4 then
 					if fireflies_flag then
@@ -311,6 +311,8 @@ function StateOutside:start()
 
 		local timer_hold_key = 1.25
 		local dur_fade_task = 2
+		local dur_camera_follow = 1.5
+
 		tle_log("task: " .. tasks[1])
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
@@ -324,11 +326,12 @@ function StateOutside:start()
 
 			self.entities.player = Concord.entity(self.world)
 				:assemble(Assemblages.Player.outside_house,
-					resources.images.sheet_player_idle,
-					resources.images.sheet_player_walk,
-					resources.images.sheet_player_run)
+					res_images.sheet_player_idle,
+					res_images.sheet_player_walk,
+					res_images.sheet_player_run)
 			self.world:emit("face_left", self.entities.player)
-			self.world:emit("camera_follow", self.entities.player, 1.5)
+			self.world:emit("camera_follow", self.entities.player, dur_camera_follow)
+			Flux.to(self.camera, 1, { scale = 3 })
 			tle_log("player created")
 		end
 
