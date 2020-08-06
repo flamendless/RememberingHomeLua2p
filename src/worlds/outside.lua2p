@@ -15,14 +15,14 @@ local random = love.math.random
 local format = string.format
 local insert = table.insert
 
+local EventsList = require("data.events_list")
+local EventManager = require("event_manager")
 local Info = require("info")
-local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
+local Palette = require("palette")
 local Preloader = require("preloader")
 local Settings = require("settings")
-local Event = require("event")
-local EventManager = require("event_manager")
 local Tracker = require("tracker")
 
 local StateOutside = class()
@@ -203,6 +203,7 @@ function StateOutside:start()
 			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
 			:give("transform", 0, 1, 1, 0.5, 0.5)
 			:give("text_with_paint")
+			:give("task", Palette.get("task_on_complete"))
 	end
 
 	local splashes = resources.images.splashes
@@ -314,15 +315,8 @@ function StateOutside:start()
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		local event1 = Event:new("hold_key_e", { timer = 0 })
-		event1.update = function(task, dt)
-			local data = task.data
-			if Inputs.is_down("player_interact") then
-				data.timer = data.timer + 1 * dt
-			end
-			return data.timer >= timer_hold_key
-		end
-		event1.on_complete = function(task)
+		local event1 = EventsList.hold_key("e", "player_interact", timer_hold_key)
+		event1.on_complete = function()
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
 					self.timeline:Unpause()

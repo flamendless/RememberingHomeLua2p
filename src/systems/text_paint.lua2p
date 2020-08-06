@@ -6,6 +6,9 @@ local TextPaint = Concord.system({
 	pool = {"text_paint_data"}
 })
 
+local def_delay_paint = 1
+local def_delay_task = 2
+
 function TextPaint:init(world)
 	self.world = world
 
@@ -37,7 +40,19 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 	Assert.safe_should_function(on_complete)
 	!end
 
+	local delay
+	if e.task then
+		local target = e.task.color
+		Flux.to(e.color.color, dur, {
+				[1] = target[1],
+				[2] = target[2],
+				[3] = target[3],
+			})
+		delay = def_delay_task
+	end
+
 	local f = Flux.to(e.color.color, dur, { [4] = 0 })
+		:delay(delay)
 	f:oncomplete(function()
 			if on_complete then
 				on_complete()
@@ -45,7 +60,7 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 			e:give("hidden")
 			e:destroy()
 		end)
-	self:fade_paint(e.text_with_paint.paint, dur)
+	self:fade_paint(e.text_with_paint.paint, dur, delay)
 end
 
 function TextPaint:show_paint(e, dur_in)
@@ -86,18 +101,19 @@ function TextPaint:show_paint(e, dur_in)
 	Flux.to(paint.color.color, dur_in, { [4] = 1 })
 end
 
-function TextPaint:fade_paint(paint, dur)
+function TextPaint:fade_paint(paint, dur, delay)
 	!if _ASSERT then
 	Assert.should_entity(paint)
 	Assert.should_exists(paint.paint)
 	Assert.should_number(dur)
+	Assert.safe_should_number(delay)
 	!end
 
 	Flux.to(paint.color.color, dur, { [4] = 0 })
 		:oncomplete(function()
 			paint:destroy()
 		end)
-		:delay(1)
+		:delay(delay or def_delay_paint)
 end
 
 return TextPaint

@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("task", function(c, color)
+	!if _ASSERT then
+	Assert.should_color(color)
+	!end
+
+	c.color = color
+end)
