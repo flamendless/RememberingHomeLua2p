@@ -23,7 +23,7 @@ Palette.color_glitches = {
 	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
 }
 
-function Palette.get_color(color, alpha)
+function Palette.get(color, alpha)
 	!if _ASSERT then
 	Assert.should_exists(Palette.colors[color])
 	Assert.safe_should_number(alpha)

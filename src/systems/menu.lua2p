@@ -16,8 +16,8 @@ local Menu = Concord.system({
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
-local color_red = Palette.get_color("red", 1)
-local color_disabled = Palette.get_color("disabled", 1)
+local color_red = Palette.get("red", 1)
+local color_disabled = Palette.get("disabled", 1)
 
 local color_to_red = function(color)
 	Flux.to(color.color, dur_in, {

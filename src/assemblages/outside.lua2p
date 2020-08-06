@@ -7,9 +7,10 @@ local random = love.math.random
 local Outside = {}
 
 local z_index = {
-	bg_sky = 0,
-	bg_house = 1,
-	firefly = 2,
+	bg_sky = -1,
+	bg_house = 0,
+	firefly = 1,
+	--player = 2,
 	car = 3,
 	fence = 4,
 	splashes = 11,
@@ -130,8 +131,8 @@ function Outside.firefly(e, sprite, pos, points)
 	:give("position", pos)
 	:give("path", points)
 	:give("z_index", z_index.firefly)
-	:give("firefly", {Palette.get_color("firefly_start"), Palette.get_color("firefly_end")})
-	:give("color", Palette.get_color("firefly_start", 0))
+	:give("firefly", {Palette.get("firefly_start"), Palette.get("firefly_end")})
+	:give("color", Palette.get("firefly_start", 0))
 	:give("hidden")
 end
 

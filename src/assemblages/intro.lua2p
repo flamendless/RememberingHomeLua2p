@@ -130,7 +130,7 @@ function Intro.dialogue_text(e, text, font, pos)
 	:give("font", font)
 	:give("position", pos)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", Palette.get_color("white", 0))
+	:give("color", Palette.get("white", 0))
 	:give("ui_text")
 	:give("hidden")
 	-- TODO add voice acting dialogue
