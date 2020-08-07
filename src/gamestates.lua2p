@@ -51,7 +51,7 @@ function GameStates.switch(next_id)
 
 	GameStates.init()
 	GameStates.current_world:load()
-	GameStates.current_world.gamestate = self
+	GameStates.current_world.gamestate = GameStates
 end
 
 function GameStates.switch_to_previous()
