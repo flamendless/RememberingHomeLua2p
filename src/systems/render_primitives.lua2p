@@ -1,0 +1,41 @@
+local Concord = require("modules.concord.concord")
+
+local RenderPrimitives = Concord.system({
+	pool_arc = {"position", "hold", "arc"},
+})
+
+local pi = math.pi
+local pi_half = pi/2
+
+function RenderPrimitives:internal_draw_arc(e)
+	local pos = e.position.pos
+	local arc = e.arc
+	local hold = e.hold
+
+	local a = -pi_half
+	local b = a + (hold.current_time * 2 * pi/hold.max_time)
+
+	if e.color then
+		love.graphics.setColor(e.color.color)
+	end
+
+	love.graphics.arc("line", "open", pos.x, pos.y, arc.radius, a, b, arc.segments)
+end
+
+function RenderPrimitives:draw()
+	for _, e in ipairs(self.pool_arc) do
+		if not e.ui_element then
+			self:internal_draw_arc(e)
+		end
+	end
+end
+
+function RenderPrimitives:draw_ui()
+	for _, e in ipairs(self.pool_arc) do
+		if e.ui_element then
+			self:internal_draw_arc(e)
+		end
+	end
+end
+
+return RenderPrimitives

@@ -1,0 +1,10 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("hold", function(c, max_time)
+	!if _ASSERT then
+	Assert.should_number(max_time)
+	!end
+
+	c.current_time = 0
+	c.max_time = max_time
+end)

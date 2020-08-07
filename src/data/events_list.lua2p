@@ -3,29 +3,27 @@ local Inputs = require("inputs")
 
 local EventsList = {}
 
-function EventsList.hold_key(key, input_id, timer, on_complete)
+function EventsList.hold_key(key, input_id, timer, e)
 	!if _ASSERT then
 	Assert.should_string(key)
 	Assert.should_string(input_id)
 	Assert.should_number(timer)
 	if timer <= 0 then error("timer must not be zero or negative") end
-	Assert.safe_should_function(on_complete)
+	Assert.should_entity(e)
 	!end
 
 	local id = "hold_key_" .. key
 	local event = Event:new(id, { timer = 0 })
+
 	event.update = function(task, dt)
 		local data = task.data
-		if Inputs.is_down(input_id) then
-			data.timer = data.timer + 1 * dt
-		end
-		return data.timer >= timer
-	end
 
-	if on_complete then
-		event.on_complete = function(task)
-			on_complete()
+		if Inputs.is_down(input_id) then
+			data.timer = data.timer + dt
+			e.hold.current_time = data.timer
 		end
+
+		return data.timer >= timer
 	end
 
 	return event

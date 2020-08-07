@@ -46,6 +46,8 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
+	RenderPrimitives = require("systems.render_primitives"),
+
 	!if not _RELEASE then
 	Debugging = require("systems.debugging"),
 	!end
@@ -124,6 +126,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Debugging)
+	self.world:addSystem(Systems.RenderPrimitives)
 
 	!if not _RELEASE then
 	Tracker.warn_on_ref_count(Systems, 0)
@@ -316,8 +319,14 @@ function StateOutside:start()
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		local event1 = EventsList.hold_key("e", "player_interact", timer_hold_key)
+		self.entities.hold_progress = Concord.entity(self.world)
+			:assemble(Assemblages.UI.hold_progress,
+				vec2:new(self.screen_size.x/2, self.screen_size.y/2),
+				timer_hold_key, 64, 32)
+
+		local event1 = EventsList.hold_key("e", "player_interact", timer_hold_key, self.entities.hold_progress)
 		event1.on_complete = function()
+			self.entities.hold_progress:destroy()
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
 					self.timeline:Unpause()

@@ -35,4 +35,11 @@ function UI.ui_text(e, text, font, pos)
 	:give("hidden")
 end
 
+function UI.hold_progress(e, pos, timer, radius, segments)
+	e:give("position", pos)
+	:give("hold", timer)
+	:give("arc", radius, segments)
+	:give("ui_element")
+end
+
 return UI
