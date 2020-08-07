@@ -8,18 +8,26 @@ local worlds = {
 	Menu = req("menu"),
 	Intro = req("intro"),
 	Outside = req("outside"),
-}
 
-!if not _RELEASE then
-worlds.Test = req("test")
-!end
+	!if not _RELEASE then
+	Test = req("test"),
+	!end
+}
 
 !if _ASSERT and not _RELEASE then
 local format = string.format
+
+local req_methods = {"new", "load", "start", "exit"}
+local assert_method = function(id, world, method)
+	local msg = format("'%s' must have a '%s' method", id, method)
+	local m = world[method]
+	assert(m, msg)
+	assert(type(m) == "function", msg)
+end
+
 for k, v in pairs(worlds) do
-	assert(v.id, format("'%s' must have an `id`", k))
-	assert(type(v.new) == "function", format("'%s' must have a `new` method", k))
-	assert(type(v.exit) == "function", format("'%s' must have an `exit` method", k))
+	assert(v.id, k .. " must have an 'id' property")
+	for i, method in ipairs(req_methods) do assert_method(k, v, method) end
 end
 !end
 
