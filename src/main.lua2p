@@ -6,8 +6,7 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 
 !if not _RELEASE then
 io.stdout:setvbuf("no")
-local stats = {}
-stats = love.graphics.getStats(stats)
+local getStats = love.graphics.getStats
 !end
 
 require("modules.batteries"):export()
@@ -15,13 +14,6 @@ require("modules.batteries"):export()
 !if _ASSERT then
 Assert = require("assert")
 !end
-
-!if not _RELEASE then
-local font_default = love.graphics.newFont(18)
-font_default:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-!end
-
-local format = string.format
 
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
@@ -35,6 +27,7 @@ local TLE = require("modules.tle.timeline")
 
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
+local DebugFlags = require("debug_flags")
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")
@@ -44,6 +37,8 @@ local Save = require("save")
 local Settings = require("settings")
 local EventManager = require("event_manager")
 local WindowMode = require("window_mode")
+
+local format = string.format
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
@@ -104,12 +99,7 @@ function love.draw()
 	end
 
 	!if not _RELEASE then
-	love.graphics.setFont(font_default)
-	love.graphics.setColor(1, 0, 0, 1)
-	love.graphics.print("FPS:" .. love.timer.getFPS(), 8, 8)
-	love.graphics.print("Drawcalls:" .. stats.drawcalls, 8, 24)
-
-	stats = love.graphics.getStats(stats)
+	DebugFlags.t_stats = getStats()
 	!end
 end
 

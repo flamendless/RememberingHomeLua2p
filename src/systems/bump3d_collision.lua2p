@@ -208,6 +208,8 @@ function Bump3DCollision:draw_slab(dt)
 end
 
 function Bump3DCollision:draw_debug(scale)
+	if not DebugFlags.b3d_bounds then return end
+
 	local items, len = self.bump3d_world:getItems()
 	for i = 1, len do
 		local e = items[i]
