@@ -305,16 +305,14 @@ end
 
 --TLE
 function Assert.should_timelineevent(arg)
-	if type(arg) ~= T_TIMELINEEVENT then
+	if arg:type() ~= T_TIMELINEEVENT then
 		error(msg_should_timelineevent, 2)
 	end
 end
 
 function Assert.safe_should_timelineevent(arg)
 	if arg then
-		if type(arg) ~= T_TIMELINEEVENT then
-			error(msg_should_timelineevent, 2)
-		end
+		Assert.should_timelineevent(arg)
 		return true
 	end
 	return false
