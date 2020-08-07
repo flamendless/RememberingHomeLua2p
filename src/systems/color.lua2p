@@ -17,29 +17,27 @@ function Color:init()
 		local fn_out, fn_in
 
 		fn_out = function()
-			f = Flux.to(color.color, f_in_out.duration, {
-				[4] = 0
-			}):oncomplete(function()
-				fn_in()
-				count = count + 1
-				if count == f_in_out.count then
-					f:stop()
-					e:remove("color_fade_in_out")
-				end
-			end)
+			f = Flux.to(color.color, f_in_out.duration, { [4] = 0 })
+				:oncomplete(function()
+					fn_in()
+					count = count + 1
+					if count == f_in_out.count then
+						f:stop()
+						e:remove("color_fade_in_out")
+					end
+				end)
 		end
 
 		fn_in = function()
-			f = Flux.to(color.color, f_in_out.duration, {
-				[4] = 1
-			}):oncomplete(function()
-				fn_out()
-				count = count + 1
-				if count == f_in_out.count then
-					f:stop()
-					e:remove("color_fade_in_out")
-				end
-			end)
+			f = Flux.to(color.color, f_in_out.duration, { [4] = 1 })
+				:oncomplete(function()
+					fn_out()
+					count = count + 1
+					if count == f_in_out.count then
+						f:stop()
+						e:remove("color_fade_in_out")
+					end
+				end)
 		end
 
 		if color.color[4] == 1 then
@@ -54,20 +52,21 @@ function Color:init()
 		local target = e.target_color
 		local on_complete = e.lerp_on_complete
 
-		Flux.to(color.color, target.duration, {
-			[1] = target.target_color[1],
-			[2] = target.target_color[2],
-			[3] = target.target_color[3],
-			[4] = target.target_color[4],
-		})
-		:delay(target.delay)
-		:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("lerp_on_complete")
-			end
-			e:remove("target_color")
-		end)
+		Flux.to(color.color, target.duration,
+			{
+				[1] = target.target_color[1],
+				[2] = target.target_color[2],
+				[3] = target.target_color[3],
+				[4] = target.target_color[4],
+			})
+			:delay(target.delay)
+			:oncomplete(function()
+				if on_complete then
+					on_complete.callback()
+					e:remove("lerp_on_complete")
+				end
+				e:remove("target_color")
+			end)
 	end
 end
 
@@ -76,12 +75,14 @@ function Color:start_fade()
 		local color = e.color
 		local fade = e.fade_to_black
 
-		Flux.to(color.color, fade.duration, {
-			[1] = 0,
-			[2] = 0,
-			[3] = 0,
-			[4] = 0,
-		}):delay(fade.delay)
+		Flux.to(color.color, fade.duration,
+			{
+				[1] = 0,
+				[2] = 0,
+				[3] = 0,
+				[4] = 0,
+			})
+			:delay(fade.delay)
 	end
 end
 
@@ -100,18 +101,21 @@ function Color:start_colors_lerp()
 			end
 
 			local next_color = lc.colors[next_value]
-			lc.flux = Flux.to(color.color, duration, {
-				[1] = next_color[1],
-				[2] = next_color[2],
-				[3] = next_color[3],
-				[4] = next_color[4],
-			}):delay(delay):oncomplete(function()
-				lc.current_color = next_value
-				if lc.current_color > #lc.colors then
-					lc.current_color = 1
-				end
-				lerp_colors(duration, delay)
-			end)
+			lc.flux = Flux.to(color.color, duration,
+				{
+					[1] = next_color[1],
+					[2] = next_color[2],
+					[3] = next_color[3],
+					[4] = next_color[4],
+				})
+				:delay(delay)
+				:oncomplete(function()
+					lc.current_color = next_value
+					if lc.current_color > #lc.colors then
+						lc.current_color = 1
+					end
+					lerp_colors(duration, delay)
+				end)
 		end
 		lerp_colors(lc.duration, lc.delay)
 	end

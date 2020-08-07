@@ -72,6 +72,7 @@ local overlay = { 0, 0, 0, 1 }
 
 local tasks = {
 	"Get out of the car",
+	"Get inside the house",
 }
 
 local tle_log = function(msg)
@@ -269,10 +270,10 @@ function StateOutside:start()
 
 		tle_log("start camera pan and zoom")
 		Flux.to(self.camera, 6, { x = 520, y = 193 })
+			:delay(2)
 			:oncomplete(function()
 				self.timeline:Unpause()
 			end)
-			:delay(2)
 		self.timeline:Pause()
 
 		Flux.to(self.camera, 10, { x = 960, y = 296, scale = 4 })
@@ -334,6 +335,11 @@ function StateOutside:start()
 		end
 
 		EventManager.add(event1)
+		self.timeline:Pause()
+
+		tle_log("task: " .. tasks[2])
+		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task)
+
 		self.timeline:Pause()
 	end)
 end

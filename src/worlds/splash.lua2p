@@ -1,9 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
-local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
-local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
 local floor = math.floor
