@@ -3,6 +3,7 @@ local Assert = {}
 local concat = table.concat
 local format = string.format
 
+local T_BEZIER_CURVE = "BezierCurve"
 local T_BOOLEAN = "boolean"
 local T_CUSTOM_CANVAS = "CustomCanvas"
 local T_FONT = "Font"
@@ -15,11 +16,17 @@ local T_QUAD = "Quad"
 local T_SHADER = "Shader"
 local T_STRING = "string"
 local T_TABLE = "table"
+local T_EVENT = "Event"
+local T_TIMELINEEVENT = "TLE"
 local T_VEC2 = "vec2"
 local T_VEC3 = "vec3"
 
 local msg_nil = "Passed argument is 'nil'"
+local msg_should_bezier_curve = "Passed argument must be of type 'BezierCurve'"
 local msg_should_boolean = "Passed argument must be of type 'boolean'"
+local msg_should_gamera = "Passed argument must be an instance of 'Gamera'"
+local msg_should_color = "Passed argument must be of type 'Table (Color)'"
+local msg_should_color_range = "Passed argument must between [0.0, 1.0] range"
 local msg_should_component = "Passed argument must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
 local msg_should_entity = "Passed argument must not be of type 'Entity'"
@@ -37,6 +44,9 @@ local msg_should_shader = "Passed argument must be of type 'Shader'"
 local msg_should_string = "Passed argument must be of type 'string'"
 local msg_should_system = "Passed argument must be of type 'System'"
 local msg_should_table = "Passed argument must be of type 'table'"
+local msg_should_event = "Passed argument must be of type 'Event'"
+local msg_should_table_not_empty = "Passed table must not be empty"
+local msg_should_timelineevent = "Passed argument must be of type 'TLE'"
 local msg_should_true = "Passed argument must be true"
 local msg_should_vec2 = "Passed argument must be of type 'vec2'"
 local msg_should_vec3 = "Passed argument must be of type 'vec3'"
@@ -44,14 +54,42 @@ local msg_should_world = "Passed argument must not be of type 'World'"
 
 function Assert.should_all_image_i(arg)
 	Assert.should_table(arg)
+	if #arg == 0 then
+		error(msg_should_table_not_empty, 2)
+	end
 	for i, v in ipairs(arg) do
 		Assert.should_image(v)
+	end
+end
+
+function Assert.should_bezier_curve(arg)
+	if arg:type() ~= T_BEZIER_CURVE then
+		error(msg_should_bezier_curve, 2)
 	end
 end
 
 function Assert.should_boolean(arg)
 	if type(arg) ~= T_BOOLEAN then
 		error(msg_should_boolean, 2)
+	end
+end
+
+function Assert.should_color(arg)
+	if type(arg) ~= T_TABLE then
+		error(msg_should_color, 2)
+	end
+	Assert.should_color_range(arg[1])
+	Assert.should_color_range(arg[2])
+	Assert.should_color_range(arg[3])
+	Assert.safe_should_color_range(arg[4])
+end
+
+function Assert.should_color_range(arg)
+	if type(arg) ~= T_NUMBER then
+		error(msg_should_number, 2)
+	end
+	if arg < 0 or arg > 1 then
+		error(msg_should_color_range, 2)
 	end
 end
 
@@ -88,6 +126,12 @@ end
 function Assert.should_table(arg)
 	if type(arg) ~= T_TABLE then
 		error(msg_should_table, 2)
+	end
+end
+
+function Assert.should_event(arg)
+	if arg:type() ~= T_EVENT then
+		error(msg_should_event, 2)
 	end
 end
 
@@ -187,6 +231,14 @@ function Assert.should_entity(arg)
 	end
 end
 
+function Assert.safe_should_entity(arg)
+	if arg then
+		Assert.should_entity(arg)
+		return true
+	end
+	return false
+end
+
 function Assert.should_system(arg)
 	if not arg.__isSystem then
 		error(msg_should_system, 2)
@@ -196,6 +248,13 @@ end
 function Assert.should_world(arg)
 	if not arg.__isWorld then
 		error(msg_should_world, 2)
+	end
+end
+
+--GAMERA
+function Assert.should_gamera(arg)
+	if not arg:isCamera() then
+		error(msg_should_gamera, 2)
 	end
 end
 
@@ -244,6 +303,21 @@ function Assert.should_shader(arg)
 	end
 end
 
+--TLE
+function Assert.should_timelineevent(arg)
+	if arg:type() ~= T_TIMELINEEVENT then
+		error(msg_should_timelineevent, 2)
+	end
+end
+
+function Assert.safe_should_timelineevent(arg)
+	if arg then
+		Assert.should_timelineevent(arg)
+		return true
+	end
+	return false
+end
+
 --SAFE
 function Assert.safe_either_value(arg, ...)
 	if arg then
@@ -270,6 +344,22 @@ function Assert.safe_should_boolean(arg)
 	return false
 end
 
+function Assert.safe_should_color(arg)
+	if arg then
+		Assert.should_color(arg)
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_color_range(arg)
+	if arg then
+		Assert.should_color_range(arg)
+		return true
+	end
+	return false
+end
+
 function Assert.safe_should_font(arg)
 	if arg then
 		Assert.should_font(arg)
@@ -284,6 +374,14 @@ function Assert.safe_should_font_or_sdf(arg)
 		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
 			error(msg_should_font_or_sdf)
 		end
+		return true
+	end
+	return false
+end
+
+function Assert.safe_should_function(arg)
+	if arg then
+		Assert.should_function(arg)
 		return true
 	end
 	return false

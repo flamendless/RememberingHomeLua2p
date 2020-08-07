@@ -1,9 +1,13 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("firefly", function(c, shader)
+Concord.component("firefly", function(c, colors)
 	!if _ASSERT then
-	Assert.should_shader(shader)
+	Assert.should_table(colors)
+	for i, v in ipairs(colors) do
+		Assert.should_color(v)
+	end
 	!end
 
-	c.shader = shader
+	c.colors = colors
+	c.can_flicker = false
 end)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 os=$(uname)
-lpp_path=./luapreprocess/preprocess-cl.lua
+lpp_path=./libs/luapreprocess/preprocess-cl.lua
 handler=handler_dev.lua
 
 dir_modules=modules
@@ -12,7 +12,7 @@ dir_source=src
 dir_sub=(assemblages components shaders systems worlds)
 appdata=~/.local/share/love/goinghomerevisited
 
-meta_exclude_modules=(spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml changelog.txt README.md MakeSingle.mak bench CHANGELOG.md *.rockspec config.ld performance_test.lua img)
+meta_exclude_modules=(spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml changelog.txt README.md MakeSingle.mak bench CHANGELOG.md *.rockspec config.ld performance_test.lua USAGE.md img)
 exclude_modules=()
 for e in "${meta_exclude_modules[@]}"; do
 	exclude_modules+=("--exclude=$e")

@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Bump = require("modules.bump.bump-niji")
 
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
 	pool = {"player_controller", "body"},
@@ -16,15 +16,15 @@ function PlayerController:update(dt)
 		if e:has("override_animation") then return end
 		if not e.body.can_move then return end
 
-		if Keybinds.is_down_player("move_left") then
+		if Inputs.is_down("player_move_left") then
 			if e.body.can_run then
-				e.body.is_run = love.keyboard.isDown("lshift")
+				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
 			e.body.dir = -1
 			e.body.dx = -1
-		elseif Keybinds.is_down_player("move_right") then
+		elseif Inputs.is_down("player_move_right") then
 			if e.body.can_run then
-				e.body.is_run = love.keyboard.isDown("lshift")
+				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
 			e.body.dir = 1
 			e.body.dx = 1
@@ -32,9 +32,9 @@ function PlayerController:update(dt)
 			e.body.dx = 0
 		end
 
-		if Keybinds.is_down_player("move_up") then
+		if Inputs.is_down("player_move_up") then
 			e.body.dy = -1
-		elseif Keybinds.is_down_player("move_down") then
+		elseif Inputs.is_down("player_move_down") then
 			e.body.dy = 1
 		else
 			e.body.dy = 0
@@ -84,7 +84,7 @@ end
 function PlayerController:face_left(e)
 	if e:has("override_animation") then return end
 	if e.body.can_run then
-		e.body.is_run = love.keyboard.isDown("lshift")
+		e.body.is_run = Inputs.is_down("player_run_mod")
 	end
 	e.body.dir = -1
 	e.body.dx = -1
@@ -93,14 +93,14 @@ end
 function PlayerController:face_right(e)
 	if e:has("override_animation") then return end
 	if e.body.can_run then
-		e.body.is_run = love.keyboard.isDown("lshift")
+		e.body.is_run = Inputs.is_down("player_run_mod")
 	end
 	e.body.dir = 1
 	e.body.dx = 1
 end
 
 function PlayerController:collision_wall(player, wall)
-	--TODO hit wall animation
+	-- TODO hit wall animation
 	player.body.can_move = false
 	self.world:emit("switch_animation_tag", "idle")
 end

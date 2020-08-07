@@ -33,7 +33,7 @@
 	url = https://github.com/kikito/semver.lua
 [submodule "modules/gamera"]
 	path = modules/gamera
-	url = https://github.com/kikito/gamera
+	url = https://github.com/flamendless/gamera
 [submodule "modules/slab"]
 	path = modules/slab
 	url = https://github.com/coding-jackalope/Slab
@@ -43,9 +43,6 @@
 [submodule "modules/https"]
 	path = modules/https
 	url = https://github.com/LPGhatguy/luajit-request.git
-[submodule "modules/inspect"]
-	path = modules/inspect
-	url = https://github.com/kikito/inspect.lua
 [submodule "modules/tle"]
 	path = modules/tle
 	url = https://github.com/flamendless/TimelineEvents
@@ -61,3 +58,6 @@
 [submodule "modules/bump3d"]
 	path = modules/bump3d
 	url = https://github.com/oniietzschan/bump-3dpd/
+[submodule "modules/bitser"]
+	path = modules/bitser
+	url = https://github.com/gvx/bitser

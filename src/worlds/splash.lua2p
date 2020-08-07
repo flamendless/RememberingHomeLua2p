@@ -1,20 +1,21 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
-local Flux = require("modules.flux.flux")
 local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
-local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local floor = math.floor
-local min = math.min
-
 local Resources = require("resources")
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
-local Settings = require("settings")
+local Save = require("save")
+!if not _RELEASE then
+local Tracker = require("tracker")
+!end
+
+local floor = math.floor
+local min = math.min
 
 local StateSplash = class()
 StateSplash.id = "Splash"
@@ -30,6 +31,11 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	Typewriter = require("systems.typewriter"),
 }
+
+!if not _RELEASE then
+local Systems = Tracker.track(Systems)
+!end
+
 local Assemblages = {
 	Common = require("assemblages.common")
 }
@@ -55,7 +61,7 @@ local switch = function(gamestate)
 	if is_switching then return end
 	is_switching = true
 	Fade.fade_out(function()
-		Settings.set_splash_done()
+		Save.set_splash_done()
 		gamestate:switch("Menu")
 	end)
 end
@@ -71,7 +77,7 @@ end
 
 function StateSplash:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources:getData("splash")
+	local resources_data = Resources.get("splash")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true
@@ -103,6 +109,10 @@ function StateSplash:start()
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
+
+	!if not _RELEASE then
+	Tracker.warn_on_ref_count(Systems, 0)
+	!end
 
 	local ww, wh = love.graphics.getDimensions()
 	self.entities.splash_wits = Concord.entity(self.world)
@@ -158,7 +168,7 @@ function StateSplash:start()
 			switch(self.gamestate)
 		end, 2)
 
-	if Settings.current.splash_done then
+	if Save.data.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
 			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
 	end
@@ -194,8 +204,8 @@ end
 
 function StateSplash:keypressed(key)
 	if not self.is_ready then return end
-	if Settings.current.splash_done then
-		if Keybinds.pressed_ui("skip", key) then
+	if Save.data.splash_done then
+		if Inputs.is_pressed("ui_skip", key) then
 			if splash_love and splash_love_skippable then
 				splash_love:skip()
 			end
@@ -213,9 +223,25 @@ end
 
 function StateSplash:exit()
 	Resources.clean(resources)
+	Timer.clear()
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
+		self.entities[k] = nil
+	end
+	current_state = states.splash_love
+	splash_love = nil
+	timer_flam_skip = nil
+	timer_wits_skip = nil
+	timer_love_skip = nil
+	splash_love_skippable = false
+	splash_wits_skippable = false
+	splash_flam_skippable = false
+	color_a = {0.898, 0.48627451, 0.074509804, 1}
+	color_b = {0.952941176, 0.952941176, 0.054901961, 1}
+	is_switching = false
 end
 
 return StateSplash

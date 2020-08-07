@@ -1,0 +1,14 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("path", function(c, points)
+	!if _ASSERT then
+	Assert.should_table(points)
+	for i, v in ipairs(points) do
+		Assert.should_vec2(v)
+	end
+	!end
+
+	c.points = points
+	c.n_points = #points
+	c.current_point = 1
+end)

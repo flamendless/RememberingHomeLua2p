@@ -1,9 +1,11 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("z_index", function(c, z)
+Concord.component("z_index", function(c, z, sortable)
 	!if _ASSERT then
 	Assert.should_number(z)
+	Assert.safe_should_boolean(sortable)
 	!end
 
 	c.z = z
+	c.sortable = sortable ~= false
 end)

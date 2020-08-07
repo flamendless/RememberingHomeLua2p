@@ -21,8 +21,7 @@ function RenderText:init()
 end
 
 function RenderText:internal_draw(e)
-	local hidden = e.hidden
-	if not hidden then
+	if not e.hidden then
 		local pos = e.position
 		local color = e.color
 		local text = e.text
@@ -33,7 +32,7 @@ function RenderText:internal_draw(e)
 
 		love.graphics.setColor(1, 1, 1, 1)
 		if color then
-			love.graphics.setColor(e.color.color)
+			love.graphics.setColor(color.color)
 		end
 
 		if font then

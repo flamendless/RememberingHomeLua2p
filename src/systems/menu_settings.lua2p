@@ -1,13 +1,12 @@
 local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
 
-local Keybinds = require("keybinds")
+local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
 local WindowMode = require("window_mode")
 
-local MenuSettings = Concord.system({
-})
+local MenuSettings = Concord.system({})
 
 function MenuSettings:init(world)
 	self.world = world
@@ -15,7 +14,6 @@ end
 
 function MenuSettings:init_settings()
 	self.show_message_box_reset = false
-	self.show_message_box_conflict = {}
 	self.current_gq = Settings.current.graphics_quality
 	self.current_wm = WindowMode.list[Settings.current.current_wm]
 	self.flags = {
@@ -26,6 +24,7 @@ function MenuSettings:init_settings()
 	self.list_gq = Settings.get_gq_list()
 	self.ww = love.graphics.getWidth()
 	self.wh = love.graphics.getHeight()
+	self.inputs_ui = Inputs.get_by_tag("ui")
 end
 
 function MenuSettings:update_settings(dt)
@@ -89,7 +88,7 @@ function MenuSettings:update_desktop(dt)
 			Slab.EndComboBox()
 		end
 
-		--TODO add sliders here
+		-- TODO add sliders here
 		Slab.Text("Volume Game Sounds")
 		Slab.Text("Volume Game Music")
 	Slab.EndLayout()
@@ -97,20 +96,16 @@ function MenuSettings:update_desktop(dt)
 
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
 	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
-		for key_name, key_table in pairs(Keybinds.ui) do
-			local id = "ui_" .. key_name
+		for key_name, key_table in pairs(self.inputs_ui) do
+			local id = key_name
 			Slab.SetLayoutColumn(1)
 			Slab.Text(id)
 			for i, key_ui in ipairs(key_table) do
 				Slab.SetLayoutColumn(i + 1)
 				local id2 = id .. "_" .. i
-				if Slab.BeginComboBox(id2, { Selected =  key_ui}) then
-					for j, new_key_ui in ipairs(Keybinds.key_constants) do
+				if Slab.BeginComboBox(id2, { Selected =  key_ui }) then
+					for j, new_key_ui in ipairs(Inputs.key_constants) do
 						if Slab.TextSelectable(new_key_ui) then
-							local is_conflict, conflict_key_name = Keybinds.check_for_conflicts_ui(key_name, new_key_ui)
-							if is_conflict then
-								self.show_message_box_conflict = { true, conflict_key_name }
-							end
 							key_table[i] = new_key_ui
 						end
 					end
@@ -135,8 +130,9 @@ function MenuSettings:update_desktop(dt)
 			Settings.update_window_mode(self.current_wm)
 			Settings.set_game_sounds(self.flag_game_sounds)
 			Settings.set_game_music(self.flag_game_music)
-			Settings.update_keybindings()
 			Settings.overwrite()
+			Inputs.update_keybindings(self.inputs_ui)
+			Inputs.save_keybindings()
 		end
 
 		if Slab.Button("Return to Main Menu") then
@@ -147,22 +143,19 @@ function MenuSettings:update_desktop(dt)
 	if show_message_box_reset then
 		local res = Slab.MessageBox("Alert", "Are you sure you want to reset the settings to default?", { Buttons = { "Confirm", "Cancel" } })
 		if res ~= "" then
-			table.copy(Keybinds.ui_default, Keybinds.ui)
+			Inputs.reset_by_tag("ui")
+			Inputs.save_keybindings()
 			Settings.create_new()
-			self.world:emit("init_settings")
+			self:init_settings()
 			show_message_box_reset = false
 		end
 	end
 
-	if self.show_message_box_conflict[1] then
-		local res = Slab.MessageBox("Alert", "There's a conflict with button " .. self.show_message_box_conflict[2], { Buttons = { "Confirm" } })
-		if res ~= "" then
-			self.show_message_box_conflict[1] = false
-			self.show_message_box_conflict[2] = nil
-		end
-	end
-
 	Slab.EndWindow()
+end
+
+function MenuSettings:draw_settings()
+	Slab.Draw()
 end
 !end
 

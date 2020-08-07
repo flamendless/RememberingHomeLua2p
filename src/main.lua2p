@@ -6,7 +6,7 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 
 !if not _RELEASE then
 io.stdout:setvbuf("no")
-Slab = require("modules.slab")
+local getStats = love.graphics.getStats
 !end
 
 require("modules.batteries"):export()
@@ -14,23 +14,6 @@ require("modules.batteries"):export()
 !if _ASSERT then
 Assert = require("assert")
 !end
-
-!if not _RELEASE then
-Inspect = require("modules.inspect.inspect")
-local font_default = love.graphics.newFont(18)
-font_default:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-!end
-
-local ErrorHandler = require("error_handler")
-love.errhand = ErrorHandler.callback
-local GameStates = require("gamestates")
-local Info = require("info")
-local Network = require("network")
-local Preloader = require("preloader")
-local Settings = require("settings")
-local WindowMode = require("window_mode")
-
-local format = string.format
 
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
@@ -41,6 +24,21 @@ local Semver = require("modules.semver.semver")
 local SDF = require("modules.sdf").mount()
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
+
+local ErrorHandler = require("error_handler")
+love.errhand = ErrorHandler.callback
+local DebugFlags = require("debug_flags")
+local GameStates = require("gamestates")
+local Info = require("info")
+local Inputs = require("inputs")
+local Network = require("network")
+local Preloader = require("preloader")
+local Save = require("save")
+local Settings = require("settings")
+local EventManager = require("event_manager")
+local WindowMode = require("window_mode")
+
+local format = string.format
 
 local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 local this_semver = Semver(this_version)
@@ -72,72 +70,65 @@ function love.load()
 
 	Info.initialize()
 	WindowMode.initialize()
+	Save.initialize()
 	Settings.initialize()
+	Inputs.initialize()
 	TLE.Attach()
-	GameStates:canvas_resize()
+	GameStates.canvas_resize()
 
 	!if _RELEASE then
-	GameStates:switch("Splash")
+	GameStates.switch("Splash")
 	!else
-	GameStates:switch("Outside")
-	Slab.Initialize()
+	GameStates.switch("Outside")
 	!end
 end
 
 function love.update(dt)
-	!if not _RELEASE then
-	Slab.Update(dt)
-	!end
-
 	Timer.update(dt)
 	Flux.update(dt)
-	GameStates:update(dt)
+	EventManager.update(dt)
+	GameStates.update(dt)
 end
 
 function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
-	GameStates:draw()
+	GameStates.draw()
 
-	if not GameStates:is_ready() then
+	if not GameStates.is_ready() then
 		custom_loading_screen()
 	end
 
 	!if not _RELEASE then
-	love.graphics.setFont(font_default)
-	love.graphics.setColor(1, 0, 0, 1)
-	love.graphics.print(love.timer.getFPS(), 8, 8)
-	Slab.Draw()
+	DebugFlags.t_stats = getStats()
 	!end
 end
 
 function love.keypressed(key)
 	!if not _RELEASE then
-	if key == "f" then
-		GameStates:resize()
-	elseif key == "t" then
-		if GameStates:getID() == "Test" then
-			GameStates:switch_to_previous()
+	if key == "t" then
+		if GameStates.getID() == "Test" then
+			GameStates.switch_to_previous()
 		else
-			GameStates:switch("Test")
+			GameStates.switch("Test")
 		end
 	elseif key == "r" then
 		love.event.quit("restart")
 	end
 	!end
 
-	GameStates:keypressed(key)
+	GameStates.keypressed(key)
 end
 
 function love.keyreleased(key)
-	GameStates:keyreleased(key)
+	GameStates.keyreleased(key)
 end
 
 function love.mousepressed(mx, my, mb)
-	GameStates:mousepressed(mx, my, mb)
+	GameStates.mousepressed(mx, my, mb)
 end
 
 function love.mousereleased(mx, my, mb)
-	GameStates:mousereleased(mx, my, mb)
+	GameStates.mousereleased(mx, my, mb)
 end
 
 function love.quit()

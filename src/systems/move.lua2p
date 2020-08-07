@@ -13,18 +13,19 @@ function Move:init()
 		local move_by = e.move_by
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, move_by.duration, {
+		local f = Flux.to(pos.pos, move_by.duration,
+			{
 				x = pos.pos.x + move_by.pos.x,
 				y = pos.pos.y + move_by.pos.y
 			})
-		:delay(move_by.delay)
-		:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("move_on_complete")
-			end
-			e:remove("move_by")
-		end)
+			:delay(move_by.delay)
+			:oncomplete(function()
+				if on_complete then
+					on_complete.callback()
+					e:remove("move_on_complete")
+				end
+				e:remove("move_by")
+			end)
 	end
 
 	self.pool_move_x.onEntityAdded = function(pool, e)
@@ -32,17 +33,15 @@ function Move:init()
 		local target = e.move_to_x
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, target.duration, {
-				x = target.target_x,
-			})
-		:delay(target.delay)
-		:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("move_on_complete")
-			end
-			e:remove("move_to_x")
-		end)
+		local f = Flux.to(pos.pos, target.duration, { x = target.target_x, })
+			:delay(target.delay)
+			:oncomplete(function()
+				if on_complete then
+					on_complete.callback()
+					e:remove("move_on_complete")
+				end
+				e:remove("move_to_x")
+			end)
 	end
 
 	self.pool_original.onEntityAdded = function(pool, e)
@@ -50,18 +49,19 @@ function Move:init()
 		local move = e.move_to_original
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, move.duration, {
-			x = pos.original_pos.x,
-			y = pos.original_pos.y,
-		})
+		local f = Flux.to(pos.pos, move.duration,
+			{
+				x = pos.original_pos.x,
+				y = pos.original_pos.y,
+			})
 		:delay(move.delay)
-		:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("move_on_complete")
-			end
-			e:remove("move_to_original")
-		end)
+			:oncomplete(function()
+				if on_complete then
+					on_complete.callback()
+					e:remove("move_on_complete")
+				end
+				e:remove("move_to_original")
+			end)
 	end
 end
 

@@ -2,11 +2,12 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Slab = require("modules.slab")
 
-local StateTest = class()
-StateTest.id = "Test"
-
 local Resources = require("resources")
 local Preloader = require("preloader")
+local Tracker = require("tracker")
+
+local StateTest = class()
+StateTest.id = "Test"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
@@ -20,6 +21,10 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	Item = require("systems.item"),
 }
+
+!if not _RELEASE then
+Systems = Tracker.track(Systems)
+!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -68,6 +73,8 @@ function StateTest:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Item)
+
+	Tracker.error_on_ref_count(Systems, 0)
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
@@ -119,8 +126,9 @@ function StateTest:update(dt)
 	local mpos = self.ent_mouse:get("position").pos
 	mpos.x = mx
 	mpos.y = my
-	Slab.Update(dt)
 	self.world:emit("check_collision", self.test_rect)
+
+	Slab.Update(dt)
 	self.world:emit("draw_slab")
 end
 
@@ -149,6 +157,10 @@ function StateTest:exit()
 	Resources.clean(resources)
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
+	end
+	for k, e in pairs(self.entities) do
+		self.entities[k]:destroy()
+		self.entities[k] = nil
 	end
 end
 

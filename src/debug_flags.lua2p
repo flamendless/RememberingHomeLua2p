@@ -1,0 +1,18 @@
+!if not _RELEASE then
+local DebugFlags
+
+DebugFlags = {
+	b3d_bounds = false,
+	b3d_list = false,
+	camera = true,
+	ent_count = true,
+	logs = true,
+	quad_bounds = false,
+	stats = true,
+	z_index = false,
+
+	t_stats = {}
+}
+
+return DebugFlags
+!end

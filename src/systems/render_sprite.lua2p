@@ -5,9 +5,15 @@ local remove = table.remove
 
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
+	pool_quad = {"position", "sprite", "quad"},
 	pool_z = {"position", "sprite", "z_index"},
 	pool_ui = {"position", "sprite", "ui_element"},
 })
+
+local draw = function(sprite, ...)
+	-- TODO implement camera_bounds drawing
+	love.graphics.draw(sprite, ...)
+end
 
 function RenderSprite:init()
 	self.custom_pool_z = {}
@@ -54,7 +60,7 @@ function RenderSprite:internal_draw(e)
 
 		love.graphics.setColor(1, 1, 1, 1)
 		if color then
-			love.graphics.setColor(e.color.color)
+			love.graphics.setColor(color.color)
 		end
 
 		local rotation, sx, sy, ox, oy
@@ -102,13 +108,10 @@ function RenderSprite:internal_draw(e)
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
-			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
-				love.graphics.draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
-			end
+
+			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		else
-			if not self:check_camera_bounds(e.camera_bounds, pos.pos) then
-				love.graphics.draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
-			end
+			draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 		end
 	end
 end
@@ -133,21 +136,12 @@ function RenderSprite:draw_ui()
 	end
 end
 
-function RenderSprite:check_camera_bounds(camera_bounds, pos)
-	local l = camera_bounds.l
-	local t = camera_bounds.t
-	local w = camera_bounds.w
-	local h = camera_bounds.h
-	local x = pos.x
-	local y = pos.y
-
-	local out_of_bounds = (x < l) or (x > w) or (y < t) or (y > h)
-	return out_of_bounds
-end
-
 !if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+
 function RenderSprite:draw_debug()
-	Slab.BeginWindow("ZIndex", {Title = "Z Index"})
+	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = DebugFlags.z_index})
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)
@@ -156,6 +150,15 @@ function RenderSprite:draw_debug()
 		end
 	end
 	Slab.EndWindow()
+
+	if DebugFlags.quad_bounds then
+		for _, e in ipairs(self.pool_quad) do
+			local qx, qy, qw, qh = e.quad.quad:getViewport()
+
+			love.graphics.setColor(1, 0, 0, 1)
+			love.graphics.rectangle("line", qx, qy, qw, qh)
+		end
+	end
 end
 !end
 

@@ -16,34 +16,37 @@ local Menu = Concord.system({
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
-local color_red = Palette:get_color("red", 1)
-local color_disabled = Palette:get_color("disabled", 1)
+local color_red = Palette.get("red", 1)
+local color_disabled = Palette.get("disabled", 1)
 
 local color_to_red = function(color)
-	Flux.to(color.color, dur_in, {
-		[1] = color_red[1],
-		[2] = color_red[2],
-		[3] = color_red[3],
-		[4] = color_red[4]
-	})
+	Flux.to(color.color, dur_in,
+		{
+			[1] = color_red[1],
+			[2] = color_red[2],
+			[3] = color_red[3],
+			[4] = color_red[4]
+		})
 end
 
 local color_to_white = function(color)
-	Flux.to(color.color, dur_out, {
-		[1] = color.original_color[1],
-		[2] = color.original_color[2],
-		[3] = color.original_color[3],
-		[4] = color.original_color[4],
-	})
+	Flux.to(color.color, dur_out,
+		{
+			[1] = color.original_color[1],
+			[2] = color.original_color[2],
+			[3] = color.original_color[3],
+			[4] = color.original_color[4],
+		})
 end
 
 local color_to_disabled = function(color)
-	Flux.to(color.color, dur_out, {
-		[1] = color_disabled[1],
-		[2] = color_disabled[2],
-		[3] = color_disabled[3],
-		[4] = color_disabled[4]
-	})
+	Flux.to(color.color, dur_out,
+		{
+			[1] = color_disabled[1],
+			[2] = color_disabled[2],
+			[3] = color_disabled[3],
+			[4] = color_disabled[4]
+		})
 end
 
 function Menu:init()
@@ -139,14 +142,10 @@ function Menu:update_cursor_color()
 			else
 				if self.cursor == option_key.id then
 					color_to_red(color)
-					Flux.to(pos.pos, dur_in, {
-						x = pos.original_pos.x - offset_x
-					})
+					Flux.to(pos.pos, dur_in, { x = pos.original_pos.x - offset_x })
 				else
 					color_to_white(color)
-					Flux.to(pos.pos, dur_out, {
-						x = pos.original_pos.x
-					})
+					Flux.to(pos.pos, dur_out, { x = pos.original_pos.x })
 				end
 			end
 		end

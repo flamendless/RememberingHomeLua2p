@@ -10,6 +10,13 @@ Concord.component("animation_data", function(c, data)
 	Assert.should_number(data.rows_count)
 	Assert.should_number(data.columns_count)
 	Assert.safe_should_number(data.n_frames)
+	if Assert.safe_should_number(data.start_frame) then
+		if data.start_frame > data.n_frames then
+			error("start_frame should not exceed n_frames")
+		elseif data.start_frame <= 0 then
+			error("start_frame should not be less than 0")
+		end
+	end
 	Assert.should_atleast(data.durations, data.delay)
 	Assert.safe_should_table(data.durations)
 	Assert.safe_should_number(data.delay)
@@ -22,6 +29,7 @@ Concord.component("animation_data", function(c, data)
 	c.columns_count = data.columns_count
 	c.durations = data.durations
 	c.n_frames = data.n_frames
+	c.start_frame = data.start_frame
 
 	c.sheet_width = c.spritesheet:getWidth()
 	c.sheet_height = c.spritesheet:getHeight()

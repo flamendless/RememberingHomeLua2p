@@ -5,12 +5,15 @@ Concord.component("rain_data", function(c, data, buffer)
 	Assert.should_table(data)
 	Assert.should_table(data.metadata)
 	Assert.should_table(data.metadata.drop)
-	Assert.should_table(data.metadata.splash)
 	Assert.should_table(data.drop)
 	Assert.safe_should_number(data.scroll_speed)
 	Assert.should_all_image_i(data.drop)
-	Assert.should_table(data.splash)
-	Assert.should_all_image_i(data.splash)
+
+	if Assert.safe_should_table(data.splash) then
+		Assert.should_all_image_i(data.splash)
+		Assert.should_table(data.metadata.splash)
+	end
+
 	Assert.should_number(buffer)
 	!end
 
@@ -25,4 +28,7 @@ Concord.component("rain_splash", function(c)
 end)
 
 Concord.component("rain_tilted", function(c)
+end)
+
+Concord.component("rain_splashes", function(c)
 end)

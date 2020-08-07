@@ -1,59 +1,88 @@
 local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
 
 local Camera = Concord.system({
-	pool_follow_pos = {"camera_follow", "position"},
-	pool_follow_camera_pos = {"camera_follow", "camera_position"},
-	pool_camera_bounds = {"camera_bounds"},
+	pool = {"camera"},
+	pool_clip = {"camera", "camera_clip"},
 })
 
 function Camera:init(world)
-	self.camera = nil
+	self.world = world
+	self.main_camera = nil
+	self.to_follow = nil
+
+	self.pool.onEntityAdded = function(pool, e)
+		local cam = e.camera.camera
+
+		if e.camera_transform then
+			local t = e.camera_transform
+			cam:setAngle(t.rot)
+			cam:setScale(t.scale)
+		end
+
+		if e.camera.is_main then
+			self.main_camera = cam
+		end
+	end
 end
 
-function Camera:camera_set(camera)
+function Camera:get_follow_coords(target)
 	!if _ASSERT then
-	Assert.should_exists(camera)
+	Assert.should_entity(target)
 	!end
 
-	self.camera = camera
+	local pos = target.position.pos
+	local x = pos.x
+	local y = pos.y
+
+	if target.camera_follow_offset then
+		local offset = target.camera_follow_offset.offset
+		x = x + offset.x
+		y = y + offset.y
+	end
+
+	return x, y
+end
+
+function Camera:camera_follow(target, dur)
+	!if _assert then
+	Assert.should_entity(target)
+	Assert.safe_should_number(dur)
+	!end
+
+	local x, y = self:get_follow_coords(target)
+
+	Flux.to(self.main_camera, dur or 1, { x = x, y = y, })
+		:oncomplete(function()
+			self.to_follow = target
+		end)
 end
 
 function Camera:update(dt)
-	if not self.camera then return end
-	for _, e in ipairs(self.pool_camera_bounds) do
-		local l, t, w, h = self.camera:getVisible()
-		local camera_bounds = e.camera_bounds
-		camera_bounds.l = l
-		camera_bounds.t = t
-		camera_bounds.w = w
-		camera_bounds.h = h
+	if self.to_follow then
+		local x, y = self:get_follow_coords(self.to_follow)
+
+		self.main_camera:setPosition(x, y)
 	end
 end
 
-function Camera:camera_follow()
-	for _, e in ipairs(self.pool_follow_pos) do
-		local x = e.position.pos.x + e.camera_follow.offset.x
-		local y = e.position.pos.y + e.camera_follow.offset.y
+function Camera:draw_clip()
+	for _, e in ipairs(self.pool_clip) do
+		local cam = e.camera.camera
+		local cx, cy, cw, ch = cam:getWindow()
+		local scale = cam:getScale()
+		local diff = (ch - e.camera_clip.h * scale)/2
 
-		self.camera:setPosition(x, y)
-	end
-
-	for _, e in ipairs(self.pool_follow_camera_pos) do
-		local x = e.camera_position.pos.x + e.camera_follow.offset.x
-		local y = e.camera_position.pos.y + e.camera_follow.offset.y
-
-		self.camera:setPosition(x, y)
-	end
-end
-
-function Camera:update_camera_pos(x, y)
-	for _, e in ipairs(self.pool_follow_camera_pos) do
-		e.camera_position.pos:sset(x, y)
-		self.camera:setPosition(x, y)
+		love.graphics.setColor(e.camera_clip.color)
+		love.graphics.rectangle("fill", cx, cy, cw, diff)
+		love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
 	end
 end
 
 !if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+
 local floor = math.floor
 local format = string.format
 
@@ -61,10 +90,9 @@ local min_speed = 64
 local max_speed = 260
 
 function Camera:update_debug(dt)
-	for _, e in ipairs(self.pool_follow_camera_pos) do
-		local pos = e.camera_position.pos
-		local x = pos.x
-		local y = pos.y
+	if not self.main_camera then return end
+	for _, e in ipairs(self.pool) do
+		local x, y = self.main_camera:getPosition()
 
 		local dx = 0
 		local dy = 0
@@ -90,34 +118,34 @@ function Camera:update_debug(dt)
 		x = x + speed * dx * dt
 		y = y + speed * dy * dt
 
-		pos.x = x
-		pos.y = y
+		self.main_camera:setPosition(x, y)
 	end
 end
 
 function Camera:draw_debug()
-	Slab.BeginWindow("camera", {Title = "Camera"})
+	if not self.main_camera then return end
+	DebugFlags.camera = Slab.BeginWindow("camera", {Title = "Camera", IsOpen = DebugFlags.camera})
 
-	local scale = self.camera:getScale()
+	local scale = self.main_camera:getScale()
 	Slab.Text("scale: ")
 	Slab.SameLine()
 	if Slab.Input("input_scale", {Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
 		scale = Slab.GetInputNumber()
-		self.camera:setScale(scale)
+		self.main_camera:setScale(scale)
 	end
 
 	if Slab.Button("-") then
 		scale = scale - 1
-		self.camera:setScale(scale)
+		self.main_camera:setScale(scale)
 	end
 
 	Slab.SameLine()
 	if Slab.Button("+") then
 		scale = scale + 1
-		self.camera:setScale(scale)
+		self.main_camera:setScale(scale)
 	end
 
-	local x, y = self.camera:getPosition()
+	local x, y = self.main_camera:getPosition()
 	local str_pos = format("position: (%i, %i)", x, y)
 	Slab.Text(str_pos)
 

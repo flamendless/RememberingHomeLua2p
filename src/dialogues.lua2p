@@ -11,7 +11,7 @@ local dialogues = {
 		"I know you're on the road so yeah,",
 		"make sure to check it when you got home okay?",
 		"Man! Things keep getting worse and wor--"
-	}
+	},
 }
 
 function Dialogues.get(id)

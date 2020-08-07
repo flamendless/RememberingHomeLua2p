@@ -1,0 +1,73 @@
+!if not _RELEASE then
+local Log = require("modules.log.log")
+
+local format = string.format
+
+local Tracker = {}
+
+local index = {}
+local mt = {
+	__index = function(t, k)
+		t[index][k].__ref = t[index][k].__ref + 1
+		return t[index][k]
+	end
+}
+
+function Tracker.track(t)
+	!if _ASSERT then
+	Assert.should_table(t)
+	!end
+
+	local proxy = {}
+	proxy[index] = t
+
+	for k, v in pairs(t) do
+		v.__ref = 0
+	end
+
+	setmetatable(proxy, mt)
+	return proxy
+end
+
+function Tracker.perform(t, fn)
+	!if _ASSERT then
+	Assert.should_table(t)
+	Assert.should_function(fn)
+	!end
+
+	for _, tbl in pairs(t) do
+		for k, v in pairs(tbl) do
+			fn(k, v.__ref)
+		end
+	end
+end
+
+function Tracker.error_on_ref_count(t, ref_count)
+	!if _ASSERT then
+	Assert.should_table(t)
+	Assert.should_number(ref_count)
+	!end
+
+	Tracker.perform(t, function(id, ref)
+		if ref <= ref_count then
+			error(id .. " has a ref count of " .. ref)
+		end
+	end)
+end
+
+function Tracker.warn_on_ref_count(t, ref_count)
+	!if _ASSERT then
+	Assert.should_table(t)
+	Assert.should_number(ref_count)
+	!end
+
+	Tracker.perform(t, function(id, ref)
+		if ref <= ref_count then
+			local msg = format("%s ref count: %i", id, ref)
+			Log.fatal(msg)
+		end
+	end)
+end
+
+return Tracker
+!end

@@ -1,0 +1,38 @@
+local Concord = require("modules.concord.concord")
+
+local Palette = require("palette")
+
+local UI = {}
+
+function UI.paint_data(e, sheet)
+	e:give("text_paint_data", {
+		spritesheet = sheet,
+		frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
+		delay = 0.1,
+		rows_count = 3,
+		columns_count = 7,
+		n_frames = 21
+	})
+end
+
+function UI.splat_data(e, sheet)
+	e:give("text_paint_data", {
+		spritesheet = sheet,
+		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5 },
+		delay = 0.1,
+		rows_count = 5,
+		columns_count = 3,
+		n_frames = 13
+	})
+end
+
+function UI.ui_text(e, text, font, pos)
+	e:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("white", 0))
+	:give("ui_text")
+	:give("hidden")
+end
+
+return UI

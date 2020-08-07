@@ -1,18 +1,33 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
+
+local random = love.math.random
+
 local Outside = {}
 
 local z_index = {
-	bg = 1,
-	-- player = 2,
+	bg_sky = -1,
+	bg_house = 0,
+	firefly = 1,
+	--player = 2,
 	car = 3,
 	fence = 4,
+	splashes = 11,
 }
+local rain_buffer_max = 512
 
-function Outside.bg(e, sprite)
+function Outside.bg_sky(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(0, 0))
-	:give("z_index", z_index.bg)
+	:give("z_index", z_index.bg_sky)
+end
+
+function Outside.bg_house(e, sprite, pos, quad)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("quad", quad)
+	:give("z_index", z_index.bg_house)
 end
 
 function Outside.left_bounds(e)
@@ -48,6 +63,28 @@ function Outside.gate(e, sprite)
 	:give("collider3d", vec3:new(200, 8, 32))
 	:give("bump3d", "gate")
 	:give("z_index", z_index.fence)
+end
+
+function Outside.splashes(e, spritesheet, pos, is_compatible)
+	e:give("position", pos)
+	:give("z_index", z_index.splashes)
+	:give("rain_splashes")
+	:give("color", {1, 1, 1, 1})
+	:give("animation")
+	:give("animation_data",
+		{
+			spritesheet = spritesheet,
+			frames = { "1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4 },
+			delay = 0.2,
+			rows_count = 4,
+			columns_count = 2,
+			n_frames = 8,
+			start_frame = random(1, 8),
+		})
+
+	if not is_compatible then
+		e:give("transform", 0, 2, 2)
+	end
 end
 
 function Outside.fence_right(e)
@@ -89,9 +126,17 @@ function Outside.right_wall(e)
 	:give("bump3d", "right_wall")
 end
 
-function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash2)
-	local buffer = 512
+function Outside.firefly(e, sprite, pos, points)
+	e:give("sprite", sprite)
+	:give("position", pos)
+	:give("path", points)
+	:give("z_index", z_index.firefly)
+	:give("firefly", {Palette.get("firefly_start"), Palette.get("firefly_end")})
+	:give("color", Palette.get("firefly_start", 0))
+	:give("hidden")
+end
 
+function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
 	e:give("screen_size", ww, wh)
 	:give("rain_data", {
 		metadata = {
@@ -101,22 +146,12 @@ function Outside.rain(e, ww, wh, rain_drop, rain_drop2, rain_splash, rain_splash
 				rows_count = 1,
 				columns_count = 3,
 			},
-			splash = {
-				frames = {"1-5", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 5,
-			}
 		},
 		drop = {
 			rain_drop,
 			rain_drop2,
 		},
-		splash = {
-			rain_splash,
-			rain_splash2,
-		}
-	}, buffer)
+	}, rain_buffer_max)
 end
 
 return Outside

@@ -1,0 +1,8 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("paint", function(c)
+end)
+
+Concord.component("text_with_paint", function(c)
+	c.paint = nil
+end)

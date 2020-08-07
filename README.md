@@ -2,15 +2,18 @@
 
 ![](https://img.shields.io/badge/lua-on%20development-green.svg)
 ![Lua](https://img.shields.io/badge/Lua-JIT%2C%205.1-blue.svg)
+![](https://img.shields.io/badge/made%20with-l%C3%B6ve-blueviolet)
+![](https://img.shields.io/twitter/follow/flamendless?style=social)
 
 Made with [LOVE](https://love2d.org)
 
 ## Building:
 
-Run `./build init` to compile
-Then `./build run` to run
+1. Run `./generate_fonts generate_fonts`, `./generate_fonts convert_fonts`, and `./generate_fonts copy_fonts` first. This is only required once.
+2. Then run `./build init` to setup the directories and copy the assets to the output directory.
+3. Then `./build run` to preprocess and run the game.
 
-When changing files in the `res/`, you should update with `./build rebuild`
+When modifying files in the `res/`, you should update with `./build rebuild`
 
 For cleaning files and logs `./build clean && ./build clean_logs`
 
@@ -45,6 +48,11 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
+
+## Dependencies:
+
+* [Curl](https://curl.haxx.se/download.html) - For Windows, version 7.38.0 is needed to work with luajit-request
+* [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
 
 ## LICENSE:
 

@@ -4,6 +4,7 @@ local Concord = require("modules.concord.concord")
 local floor = math.floor
 local insert = table.insert
 local remove = table.remove
+
 local cache_multi_animation = {}
 
 local Animation = Concord.system({
@@ -87,6 +88,10 @@ local setup_animation = function(e, data, on_end)
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else
 		e:remove("quad_transform")
+	end
+
+	if data.start_frame then
+		obj_animation:gotoFrame(data.start_frame)
 	end
 end
 

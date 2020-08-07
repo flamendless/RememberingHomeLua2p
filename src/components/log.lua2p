@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("log", function(c, log)
+	!if _ASSERT then
+	Assert.should_string(log)
+	!end
+
+	c.log = log
+end)

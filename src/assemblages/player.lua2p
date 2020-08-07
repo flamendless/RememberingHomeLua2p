@@ -71,7 +71,7 @@ end
 
 function Player.outside_house(e, sheet_idle, sheet_walk, sheet_run)
 	e:assemble(Player.base, "topdown",
-		vec2:new(920, 300),
+		vec2:new(910, 270),
 		{ idle = 0, walk = 128, run = 180 }, 320,
 		{
 			sheet_idle = sheet_idle,
@@ -79,7 +79,7 @@ function Player.outside_house(e, sheet_idle, sheet_walk, sheet_run)
 			sheet_run = sheet_run,
 		}, { can_run = false })
 	:give("z_index", 2)
-	:give("camera_follow", vec2:new(0, 32))
+	:give("camera_follow_offset", vec2:new(0, 32))
 end
 
 return Player
