@@ -231,9 +231,9 @@ function StateIntro:start()
 	end
 
 	effect.single = NGrading:new(lut_afternoon, lut_size)
-	effect.single:setup_data()
+	-- effect.single:setup_data()
 	effect.multi = NGrading:new(lut_afternoon, lut_dusk, lut_size)
-	effect.multi:setup_data()
+	-- effect.multi:setup_data()
 	current_effect = effect.single
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
@@ -389,7 +389,7 @@ function StateIntro:keypressed(key)
 	if Save.data.intro_done or not !(_RELEASE) then
 		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()
-				Settings.set_intro_done()
+				Save.set_intro_done()
 				self.gamestate.switch("Outside")
 			end, 2)
 		end

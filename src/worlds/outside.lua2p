@@ -244,9 +244,7 @@ function StateOutside:start()
 		lut_size = 64
 		lut_dusk = resources.image_data.lut_dusk_64
 	end
-
 	effect = NGrading:new(lut_dusk, lut_size)
-	effect:setup_data()
 
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then
