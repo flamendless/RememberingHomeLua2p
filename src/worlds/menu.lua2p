@@ -15,7 +15,9 @@ local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
+!if not _RELEASE then
 local Tracker = require("tracker")
+!end
 
 local max = math.max
 local min = math.min
@@ -473,7 +475,7 @@ end
 
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources.getData("menu")
+	local resources_data = Resources.get("menu")
 	Preloader.start(resources_data, resources,
 		function()
 			-- TODO play BGM

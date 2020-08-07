@@ -14,7 +14,9 @@ local Resources = require("resources")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
+!if not _RELEASE then
 local Tracker = require("tracker")
+!end
 
 local min = math.min
 
@@ -90,7 +92,7 @@ end
 
 function StateIntro:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources.getData("intro")
+	local resources_data = Resources.get("intro")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true

@@ -10,7 +10,9 @@ local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
+!if not _RELEASE then
 local Tracker = require("tracker")
+!end
 
 local floor = math.floor
 local min = math.min
@@ -75,7 +77,7 @@ end
 
 function StateSplash:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources.getData("splash")
+	local resources_data = Resources.get("splash")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true

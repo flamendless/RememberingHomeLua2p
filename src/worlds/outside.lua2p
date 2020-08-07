@@ -7,6 +7,7 @@ local TLE = require("modules.tle.timeline")
 
 !if not _RELEASE then
 local Slab = require("modules.slab")
+local Tracker = require("tracker")
 !end
 
 local EventsList = require("data.events_list")
@@ -17,7 +18,6 @@ local Resources = require("resources")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Settings = require("settings")
-local Tracker = require("tracker")
 
 local floor = math.floor
 local min = math.min
@@ -96,7 +96,7 @@ end
 
 function StateOutside:load()
 	Log.info("State Load: ", self.id)
-	local resources_data = Resources.getData("outside")
+	local resources_data = Resources.get("outside")
 	Preloader.start(resources_data, resources,
 		function()
 			self.is_ready = true

@@ -68,8 +68,6 @@ function Tracker.warn_on_ref_count(t, ref_count)
 		end
 	end)
 end
-return Tracker
 
-!else
-return {}
+return Tracker
 !end
