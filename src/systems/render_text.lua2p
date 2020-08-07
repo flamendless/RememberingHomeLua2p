@@ -89,12 +89,12 @@ end
 
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
-		if not e:has("ui_text") then
+		if not e.ui_text then
 			self:internal_draw(e)
 		end
 	end
 	for _, e in ipairs(self.pool_static) do
-		if not e:has("ui_text") then
+		if not e.ui_text then
 			self:internal_draw(e)
 		end
 	end

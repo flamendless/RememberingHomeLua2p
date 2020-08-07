@@ -118,7 +118,7 @@ end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e:has("z_index") and not e:has("ui_element") then
+		if not e.z_index and not e.ui_element then
 			self:internal_draw(e)
 		end
 	end

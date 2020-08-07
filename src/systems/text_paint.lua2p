@@ -80,7 +80,7 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 
 	local f = Flux.to(e.color.color, dur, { [4] = 0 })
 		:delay(delay)
-		oncomplete(function()
+		:oncomplete(function()
 			if on_complete then
 				on_complete()
 			end
@@ -137,10 +137,10 @@ function TextPaint:fade_paint(paint, dur, delay)
 	!end
 
 	Flux.to(paint.color.color, dur, { [4] = 0 })
+		:delay(delay or def_delay_paint)
 		:oncomplete(function()
 			paint:destroy()
 		end)
-		:delay(delay or def_delay_paint)
 end
 
 return TextPaint

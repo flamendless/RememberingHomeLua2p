@@ -125,10 +125,10 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
-	self.world:addSystem(Systems.Debugging)
 	self.world:addSystem(Systems.RenderPrimitives)
 
 	!if not _RELEASE then
+	self.world:addSystem(Systems.Debugging)
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
