@@ -2,12 +2,12 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Slab = require("modules.slab")
 
-local StateTest = class()
-StateTest.id = "Test"
-
 local Resources = require("resources")
 local Preloader = require("preloader")
 local Tracker = require("tracker")
+
+local StateTest = class()
+StateTest.id = "Test"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)

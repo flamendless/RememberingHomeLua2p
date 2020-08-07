@@ -6,14 +6,6 @@ local Log = require("modules.log.log")
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
-local max = math.max
-local min = math.min
-local format = string.format
-local lower = string.lower
-local upper = string.upper
-local gsub = string.gsub
-local insert = table.insert
-
 local Resources = require("resources")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
@@ -24,6 +16,14 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
 local Tracker = require("tracker")
+
+local max = math.max
+local min = math.min
+local format = string.format
+local lower = string.lower
+local upper = string.upper
+local gsub = string.gsub
+local insert = table.insert
 
 local StateMenu = class()
 StateMenu.id = "Menu"

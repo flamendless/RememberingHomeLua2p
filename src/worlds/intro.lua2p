@@ -6,11 +6,6 @@ local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
-local insert = table.insert
-local floor = math.floor
-local min = math.min
-local sub = string.sub
-
 local Dialogues = require("dialogues")
 local Fade = require("fade")
 local Inputs = require("inputs")
@@ -20,6 +15,8 @@ local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
 local Tracker = require("tracker")
+
+local min = math.min
 
 local StateIntro = class()
 StateIntro.id = "Intro"

@@ -4,6 +4,7 @@ local Concord = require("modules.concord.concord")
 local floor = math.floor
 local insert = table.insert
 local remove = table.remove
+
 local cache_multi_animation = {}
 
 local Animation = Concord.system({

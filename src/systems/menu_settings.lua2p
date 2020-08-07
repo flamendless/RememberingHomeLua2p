@@ -6,8 +6,7 @@ local Palette = require("palette")
 local Settings = require("settings")
 local WindowMode = require("window_mode")
 
-local MenuSettings = Concord.system({
-})
+local MenuSettings = Concord.system({})
 
 function MenuSettings:init(world)
 	self.world = world

@@ -4,9 +4,6 @@ local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Timer = require("modules.hump.timer")
 
-local floor = math.floor
-local min = math.min
-
 local Resources = require("resources")
 local Inputs = require("inputs")
 local Fade = require("fade")
@@ -14,6 +11,9 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
 local Tracker = require("tracker")
+
+local floor = math.floor
+local min = math.min
 
 local StateSplash = class()
 StateSplash.id = "Splash"

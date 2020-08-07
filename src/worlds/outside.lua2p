@@ -9,12 +9,6 @@ local TLE = require("modules.tle.timeline")
 local Slab = require("modules.slab")
 !end
 
-local floor = math.floor
-local min = math.min
-local random = love.math.random
-local format = string.format
-local insert = table.insert
-
 local EventsList = require("data.events_list")
 local EventManager = require("event_manager")
 local Info = require("info")
@@ -24,6 +18,12 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Settings = require("settings")
 local Tracker = require("tracker")
+
+local floor = math.floor
+local min = math.min
+local random = love.math.random
+local format = string.format
+local insert = table.insert
 
 local StateOutside = class()
 StateOutside.id = "Outside"
