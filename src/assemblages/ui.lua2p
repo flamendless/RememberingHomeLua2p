@@ -48,24 +48,37 @@ function UI.hold_progress(e, pos, timer, radius, segments)
 	:give("ui_element")
 end
 
-function UI.keypress(e, key, is_hold, sheet, pos)
+function UI.keypress(e, is_hold, sheet, target)
 	!if _ASSERT then
-	Assert.should_string(key)
 	Assert.should_boolean(is_hold)
 	!end
 
-	e:give("position", pos)
+	local delay = is_hold and { 0.5, 0.5, 2 } or 0.5
+
+	e:give("ui_element")
 	:give("animation_data",
 		{
 			spritesheet = sheet,
 			frames = { "1-3", 1 },
-			delay = 0.1,
+			delay = delay,
 			rows_count = 1,
 			columns_count = 3,
 			n_frames = 3,
 		})
-	:give("animation", is_hold)
-	:give("ui_element")
+	:give("animation")
+	:give("position", vec2:new())
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	e:give("attach_to", target)
+end
+
+function UI.key(e, key, font, target)
+	e:give("text", key)
+	:give("font", font)
+	:give("attach_to", target)
+	:give("position", vec2:new())
+	:give("color", Palette.get("ui_key"))
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("ui_text")
 end
 
 return UI

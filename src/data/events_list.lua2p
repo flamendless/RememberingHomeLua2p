@@ -10,6 +10,7 @@ function EventsList.hold_key(key, input_id, timer, e)
 	Assert.should_number(timer)
 	if timer <= 0 then error("timer must not be zero or negative") end
 	Assert.should_entity(e)
+	Assert.should_exists(e.hold)
 	!end
 
 	local id = "hold_key_" .. key
@@ -19,9 +20,11 @@ function EventsList.hold_key(key, input_id, timer, e)
 		local data = task.data
 
 		if Inputs.is_down(input_id) then
-			data.timer = data.timer + dt
-			e.hold.current_time = data.timer
+			data.timer = math.lerp(data.timer, data.timer + dt, 0.75)
+		else
+			data.timer = math.lerp(data.timer, 0, 0.25)
 		end
+		e.hold.current_time = data.timer
 
 		return data.timer >= timer
 	end

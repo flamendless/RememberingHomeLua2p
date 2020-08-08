@@ -312,7 +312,7 @@ function StateOutside:start()
 			end)
 		self.timeline:Pause()
 
-		local timer_hold_key = 1.25
+		local timer_hold_key = 1
 		local dur_fade_task = 2
 		local dur_camera_follow = 1.5
 		local p_interact_id = "player_interact"
@@ -322,14 +322,19 @@ function StateOutside:start()
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		self.entities.hold_progress = Concord.entity(self.world)
+		self.entities.ui_hold_progress = Concord.entity(self.world)
 			:assemble(Assemblages.UI.hold_progress,
-				vec2:new(self.screen_size.x/2, self.screen_size.y/2),
-				timer_hold_key, 48)
+				vec2:new(self.screen_size.x/2, self.screen_size.y/2), timer_hold_key, 64)
 
-		local event1 = EventsList.hold_key(key_hold, p_interact_id, timer_hold_key, self.entities.hold_progress)
+		self.entities.ui_keypress = Concord.entity(self.world)
+			:assemble(Assemblages.UI.keypress, true, res_images.sheet_keypress, self.entities.ui_hold_progress)
+
+		self.entities.ui_key = Concord.entity(self.world)
+			:assemble(Assemblages.UI.key, "e", res_fonts.ui, self.entities.ui_keypress)
+
+		local event1 = EventsList.hold_key(key_hold, p_interact_id, timer_hold_key, self.entities.ui_hold_progress)
 		event1.on_complete = function()
-			self.entities.hold_progress:destroy()
+			self.entities.ui_hold_progress:destroy()
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
 					self.timeline:Unpause()
