@@ -142,4 +142,12 @@ function Inputs.reset_by_tag(tag)
 	end
 end
 
+function Inputs.get(id)
+	!if _ASSERT then
+	Assert.should_string(id)
+	!end
+
+	return Inputs.keys[id]
+end
+
 return Inputs

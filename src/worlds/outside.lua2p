@@ -13,6 +13,7 @@ local Tracker = require("tracker")
 local EventsList = require("data.events_list")
 local EventManager = require("event_manager")
 local Info = require("info")
+local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Palette = require("palette")
@@ -314,6 +315,8 @@ function StateOutside:start()
 		local timer_hold_key = 1.25
 		local dur_fade_task = 2
 		local dur_camera_follow = 1.5
+		local p_interact_id = "player_interact"
+		local key_hold = Inputs.get(p_interact_id)
 
 		tle_log("task: " .. tasks[1])
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
@@ -324,7 +327,7 @@ function StateOutside:start()
 				vec2:new(self.screen_size.x/2, self.screen_size.y/2),
 				timer_hold_key, 64, 32)
 
-		local event1 = EventsList.hold_key("e", "player_interact", timer_hold_key, self.entities.hold_progress)
+		local event1 = EventsList.hold_key(key_hold, p_interact_id, timer_hold_key, self.entities.hold_progress)
 		event1.on_complete = function()
 			self.entities.hold_progress:destroy()
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
