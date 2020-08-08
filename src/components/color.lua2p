@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("color", function(c, color)
 	!if _ASSERT then
-	Assert.should_table(color)
+	Assert.should_color(color)
 	!end
 
 	c.original_color = { unpack(color) }
@@ -31,7 +31,7 @@ end)
 
 Concord.component("lerp_colors", function(c, colors, duration, delay)
 	!if _ASSERT then
-	Assert.should_table(colors)
+	Assert.should_color(colors)
 	Assert.safe_should_number(duration)
 	Assert.safe_should_number(delay)
 	!end
@@ -45,12 +45,22 @@ end)
 
 Concord.component("target_color", function(c, target_color, duration, delay)
 	!if _ASSERT then
-	Assert.should_table(target_color)
+	Assert.should_color(target_color)
 	Assert.should_number(duration)
 	Assert.safe_should_number(delay)
 	!end
 
 	c.target_color = { target_color[1], target_color[2], target_color[3], target_color[4] }
+	c.duration = duration
+	c.delay = delay or 0
+end)
+
+Concord.component("color_fade_out", function(c, duration, delay)
+	!if _ASSERT then
+	Assert.should_number(duration)
+	Assert.safe_should_number(delay)
+	!end
+
 	c.duration = duration
 	c.delay = delay or 0
 end)

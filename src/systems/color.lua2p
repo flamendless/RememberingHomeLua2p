@@ -4,11 +4,20 @@ local Flux = require("modules.flux.flux")
 local Color = Concord.system({
 	pool_fade_to_black = {"color", "fade_to_black"},
 	pool_fade_in_out = {"color", "color_fade_in_out"},
+	pool_fade_out = {"color", "color_fade_out"},
 	pool_colors = {"color", "lerp_colors"},
 	pool_color = {"color", "target_color"},
 })
 
 function Color:init()
+	self.pool_fade_out.onEntityAdded = function(pool, e)
+		Flux.to(e.color.color, e.color_fade_out.duration, { [4] = 0 })
+			:delay(e.color_fade_out.delay)
+			:oncomplete(function()
+				e:remove("color_fade_out")
+			end)
+	end
+
 	self.pool_fade_in_out.onEntityAdded = function(pool, e)
 		local color = e.color
 		local f_in_out = e.color_fade_in_out
