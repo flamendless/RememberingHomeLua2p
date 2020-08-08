@@ -1,13 +1,30 @@
 local Concord = require("modules.concord.concord")
 
 local RenderCircle = Concord.system({
-	pool = {"position", "arc", "draw_mode"},
-	pool_hold = {"position", "hold", "arc", "draw_mode"},
+	pool = {"position", "circle", "draw_mode"},
+	pool_arc = {"position", "arc", "draw_mode"},
 })
 
 local pi = math.pi
 
 function RenderCircle:internal_draw(e)
+	local pos = e.position.pos
+	local circle = e.circle
+	local color = e.color
+	local line_width = e.line_width
+
+	if color then
+		love.graphics.setColor(color.color)
+	end
+
+	if line_width then
+		love.graphics.setLineWidth(line_width.line_width)
+	end
+
+	love.graphics.circle(e.draw_mode.draw_mode, pos.x, pos.y, circle.radius, circle.segments)
+end
+
+function RenderCircle:internal_draw_arc(e)
 	local pos = e.position.pos
 	local arc = e.arc
 	local arc_type = e.arc_type
@@ -24,7 +41,8 @@ function RenderCircle:internal_draw(e)
 	end
 
 	local a = arc.start_angle
-	local b
+	local b = arc.end_angle
+
 	if hold then
 		b = a + (hold.current_time * 2 * pi/hold.max_time)
 	end
@@ -37,17 +55,29 @@ function RenderCircle:internal_draw(e)
 end
 
 function RenderCircle:draw()
-	for _, e in ipairs(self.pool_hold) do
+	for _, e in ipairs(self.pool) do
 		if not e.ui_element then
 			self:internal_draw(e)
+		end
+	end
+
+	for _, e in ipairs(self.pool_arc) do
+		if not e.ui_element then
+			self:internal_draw_arc(e)
 		end
 	end
 end
 
 function RenderCircle:draw_ui()
-	for _, e in ipairs(self.pool_hold) do
+	for _, e in ipairs(self.pool) do
 		if e.ui_element then
 			self:internal_draw(e)
+		end
+	end
+
+	for _, e in ipairs(self.pool_arc) do
+		if e.ui_element then
+			self:internal_draw_arc(e)
 		end
 	end
 end
