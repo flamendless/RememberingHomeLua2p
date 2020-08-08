@@ -143,11 +143,14 @@ function Inputs.reset_by_tag(tag)
 end
 
 function Inputs.get(id)
+	local keys = Inputs.keys
+
 	!if _ASSERT then
 	Assert.should_string(id)
+	Assert.should_exists(keys[id])
 	!end
 
-	return Inputs.keys[id]
+	return keys[id]
 end
 
 return Inputs

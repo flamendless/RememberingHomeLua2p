@@ -17,9 +17,10 @@ Concord.component("animation_data", function(c, data)
 			error("start_frame should not be less than 0")
 		end
 	end
+
+	Assert.either_type(data.delay, "number", "table")
 	Assert.should_atleast(data.durations, data.delay)
 	Assert.safe_should_table(data.durations)
-	Assert.safe_should_number(data.delay)
 	!end
 
 	c.spritesheet = data.spritesheet
