@@ -325,21 +325,20 @@ function StateOutside:start()
 
 		tle_log("wait for action")
 		local pos = vec2:new(self.screen_size.x/2, self.screen_size.y/2)
-		local e_progress, e_keypress, e_key = Factory.hold_key(self.world,
-			key_id, pos, timer_hold_key, 64, res_images.sheet_keypress, res_fonts.ui)
+		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key, 64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
-		local event1 = EventsList.hold_key(key_id, p_interact_id, timer_hold_key, e_progress)
+		local event1 = EventsList.hold_key(key_id, p_interact_id, timer_hold_key, e_hold_key.progress)
 		event1.on_complete = function()
 			tle_log("action completed")
-			e_progress:give("color_fade_out", dur_fade_hold)
-			e_keypress:give("color_fade_out", dur_fade_hold)
-			e_key:give("color_fade_out", dur_fade_hold)
+			for id, e in pairs(e_hold_key) do
+				e:give("color_fade_out", dur_fade_hold)
+			end
 
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
-					e_progress:destroy()
-					e_keypress:destroy()
-					e_key:destroy()
+					for id, e in pairs(e_hold_key) do
+						e:destroy()
+					end
 					self.timeline:Unpause()
 				end)
 
