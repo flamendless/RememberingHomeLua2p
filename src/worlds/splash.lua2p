@@ -129,7 +129,7 @@ function StateSplash:start()
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)
-		:give("animation_on_complete", function()
+		:give("animation_on_loop", function()
 			self.world:emit("start_fade")
 			Timer.after(2, function()
 				current_state = states.splash_flam

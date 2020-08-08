@@ -83,7 +83,7 @@ function RainIntro:emit_splash(e)
 	anim_data.spritesheet = img
 
 	e:give("rain_splash")
-	:give("animation_on_complete", function()
+	:give("animation_on_loop", function()
 		e:remove("animation_data")
 		:remove("animation")
 		:remove("rain_splash")

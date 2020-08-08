@@ -190,7 +190,7 @@ function StateIntro:start()
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect, res_images.sheet_car_reflect, self.entities.car)
-		:give("animation_on_complete", function()
+		:give("animation_on_loop", function()
 			local chance = Lume.randomchoice({true, false})
 			if chance then
 				self.entities.car_reflect:remove("hidden")
