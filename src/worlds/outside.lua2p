@@ -12,6 +12,7 @@ local Tracker = require("tracker")
 
 local EventsList = require("data.events_list")
 local EventManager = require("event_manager")
+local Factory = require("factory")
 local Info = require("info")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
@@ -313,36 +314,32 @@ function StateOutside:start()
 		self.timeline:Pause()
 
 		local timer_hold_key = 1
-		local dur_fade_task = 2
+		local dur_fade_task = 1.25
+		local dur_fade_hold = 0.75
 		local dur_camera_follow = 1.5
 		local p_interact_id = "player_interact"
-		local key_hold = Inputs.get(p_interact_id)
+		local key_id = Inputs.get(p_interact_id)
 
 		tle_log("task: " .. tasks[1])
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		self.entities.ui_hold_progress = Concord.entity(self.world)
-			:assemble(Assemblages.UI.hold_progress,
-				vec2:new(self.screen_size.x/2, self.screen_size.y/2), timer_hold_key, 64)
+		local pos = vec2:new(self.screen_size.x/2, self.screen_size.y/2)
+		local e_progress, e_keypress, e_key = Factory.hold_key(self.world,
+			key_id, pos, timer_hold_key, 64, res_images.sheet_keypress, res_fonts.ui)
 
-		self.entities.ui_keypress = Concord.entity(self.world)
-			:assemble(Assemblages.UI.keypress, true, res_images.sheet_keypress, self.entities.ui_hold_progress)
-
-		self.entities.ui_key = Concord.entity(self.world)
-			:assemble(Assemblages.UI.key, key_hold, res_fonts.ui, self.entities.ui_keypress)
-
-		local event1 = EventsList.hold_key(key_hold, p_interact_id, timer_hold_key, self.entities.ui_hold_progress)
+		local event1 = EventsList.hold_key(key_id, p_interact_id, timer_hold_key, e_progress)
 		event1.on_complete = function()
 			tle_log("action completed")
-			self.entities.ui_hold_progress:give("color_fade_out", dur_fade_task)
-			self.entities.ui_keypress:give("color_fade_out", dur_fade_task)
-			self.entities.ui_key:give("color_fade_out", dur_fade_task)
+			e_progress:give("color_fade_out", dur_fade_hold)
+			e_keypress:give("color_fade_out", dur_fade_hold)
+			e_key:give("color_fade_out", dur_fade_hold)
+
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
-					self.entities.ui_hold_progress:destroy()
-					self.entities.ui_keypress:destroy()
-					self.entities.ui_key:destroy()
+					e_progress:destroy()
+					e_keypress:destroy()
+					e_key:destroy()
 					self.timeline:Unpause()
 				end)
 

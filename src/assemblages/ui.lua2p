@@ -72,11 +72,10 @@ function UI.keypress(e, is_hold, sheet, target)
 	:give("attach_to", target)
 end
 
-function UI.key(e, key, font, target)
+function UI.key(e, key, pos, font)
 	e:give("text", key)
 	:give("font", font)
-	:give("attach_to", target)
-	:give("position", vec2:new())
+	:give("position", pos)
 	:give("color", Palette.get("ui_key"))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_text")
