@@ -7,9 +7,12 @@ Concord.component("move_by", function(c, pos, duration, delay)
 	Assert.safe_should_number(delay)
 	!end
 
-	c.pos = pos:copy()
+	c.pos = pos
 	c.duration = duration
 	c.delay = delay or 0
+end)
+
+Concord.component("move_repeat", function(c)
 end)
 
 Concord.component("move_to_x", function(c, x_pos, duration, delay)
