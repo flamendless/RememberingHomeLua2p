@@ -325,7 +325,7 @@ function StateOutside:start()
 		self.entities.hold_progress = Concord.entity(self.world)
 			:assemble(Assemblages.UI.hold_progress,
 				vec2:new(self.screen_size.x/2, self.screen_size.y/2),
-				timer_hold_key, 64, 32)
+				timer_hold_key, 48)
 
 		local event1 = EventsList.hold_key(key_hold, p_interact_id, timer_hold_key, self.entities.hold_progress)
 		event1.on_complete = function()
@@ -349,6 +349,7 @@ function StateOutside:start()
 		EventManager.add(event1)
 		self.timeline:Pause()
 
+		TLE.Event.Wait(1.5)
 		tle_log("task: " .. tasks[2])
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task)
 

@@ -14,9 +14,7 @@ function RenderText:init()
 		end
 		!end
 
-		local static_text = e.static_text
-		local font = e.font
-		static_text.text_obj = love.graphics.newText(font.font, static_text.text)
+		e.static_text.text_obj = love.graphics.newText(e.font.font, e.static_text.text)
 	end
 end
 
@@ -39,7 +37,7 @@ function RenderText:internal_draw(e)
 			love.graphics.setFont(font.font)
 		end
 
-		local font = love.graphics.getFont()
+		local current_font = love.graphics.getFont()
 		local rotation, sx, sy, ox, oy
 
 		if transform then
@@ -53,20 +51,20 @@ function RenderText:internal_draw(e)
 				if static_text then
 					ox = static_text.text_obj:getWidth()/2
 				else
-					ox = font:getWidth(text.text)/2
+					ox = current_font:getWidth(text.text)/2
 				end
 			end
 			if transform.oy == 0.5 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()/2
 				else
-					oy = font:getHeight(text.text)/2
+					oy = current_font:getHeight(text.text)/2
 				end
 			elseif transform.oy == 1 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()
 				else
-					oy = font:getHeight(text.text)
+					oy = current_font:getHeight(text.text)
 				end
 			end
 		end
