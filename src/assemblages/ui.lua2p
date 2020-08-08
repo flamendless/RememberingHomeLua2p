@@ -4,6 +4,8 @@ local Palette = require("palette")
 
 local UI = {}
 
+local line_width = 6
+
 function UI.paint_data(e, sheet)
 	e:give("text_paint_data",
 		{
@@ -37,12 +39,22 @@ function UI.ui_text(e, text, font, pos)
 	:give("hidden")
 end
 
+function UI.hold_progress_bg(e, pos, radius, segments)
+	e:give("position", pos)
+	:give("arc", radius, segments)
+	:give("line_width", line_width * 2)
+	:give("color", Palette.get("ui_hold_progress", 0))
+	:give("draw_mode", "line")
+	:give("arc_type", "open")
+	:give("ui_element")
+end
+
 function UI.hold_progress(e, pos, timer, radius, segments)
 	e:give("position", pos)
 	:give("hold", timer)
 	:give("arc", radius, segments)
-	:give("line_width", 6)
-	:give("color", Palette.get("ui_hold_progress"))
+	:give("line_width", line_width)
+	:give("color", Palette.get("ui_hold_progress", 0))
 	:give("draw_mode", "line")
 	:give("arc_type", "open")
 	:give("ui_element")
@@ -68,7 +80,7 @@ function UI.keypress(e, is_hold, sheet, target)
 	:give("animation")
 	:give("position", vec2:new())
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", { 1, 1, 1, 1 })
+	:give("color", { 1, 1, 1, 0 })
 	:give("attach_to", target)
 end
 
@@ -76,7 +88,7 @@ function UI.key(e, key, pos, font)
 	e:give("text", key)
 	:give("font", font)
 	:give("position", pos)
-	:give("color", Palette.get("ui_key"))
+	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_text")
 end

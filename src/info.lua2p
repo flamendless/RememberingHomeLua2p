@@ -99,7 +99,10 @@ function Info.initialize()
 		Utils.write_to_file(filename, to_write)
 		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES", "Editing any files in this directory will invalidate all your progress")
 	end
-	Log.info(to_write)
+
+	!if not _RELEASE then
+	print(to_write)
+	!end
 end
 
 function Info.validate_file(content, to_write)
