@@ -46,7 +46,7 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
-	RenderPrimitives = require("systems.render_primitives"),
+	RenderCircle = require("systems.render_circle"),
 
 	!if not _RELEASE then
 	Debugging = require("systems.debugging"),
@@ -125,7 +125,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
-	self.world:addSystem(Systems.RenderPrimitives)
+	self.world:addSystem(Systems.RenderCircle)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)

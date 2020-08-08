@@ -1,11 +1,28 @@
 local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
 
-Concord.component("arc", function(c, radius, segments)
+local modes = Enum("fill", "line")
+local types = Enum("pie", "open", "closed")
+
+local pi = math.pi
+local pi_half = pi/2
+
+Concord.component("arc", function(c, radius, segments, start_angle)
 	!if _ASSERT then
 	Assert.should_number(radius)
-	Assert.should_number(segments)
+	Assert.safe_should_number(segments)
+	Assert.safe_should_number(start_angle)
 	!end
 
 	c.radius = radius
-	c.segments = segments
+	c.segments = segments or radius
+	c.start_angle = start_angle or -pi_half
+end)
+
+Concord.component("arc_type", function(c, arc_type)
+	!if _ASSERT then
+	Assert.safe_should_string(arc_type)
+	!end
+
+	c.arc_type = types[arc_type]
 end)
