@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("animation_on_update", function(c, on_update)
+	!if _ASSERT then
+	Assert.should_function(on_update)
+	!end
+
+	c.on_update = on_update
+end)

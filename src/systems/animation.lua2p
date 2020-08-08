@@ -101,9 +101,9 @@ function Animation:init()
 	self.pool.onEntityAdded = function(pool, e)
 		local data = e.animation_data
 		local animation = e.animation
-		local on_end = setup_on_end(e, animation)
+		local on_loop = setup_on_loop(e, animation)
 
-		setup_animation(e, data, on_end)
+		setup_animation(e, data, on_loop)
 	end
 
 	self.pool_z.onEntityAdded = function(pool, e)
@@ -216,6 +216,7 @@ function Animation:update(dt)
 		local animation = e.animation
 
 		if animation.animation then
+			local on_update = e.animation_on_update
 			local stop = e.animation_stop
 			local dt_multiplier = e.dt_multiplier
 			local quad = e.quad
@@ -234,7 +235,12 @@ function Animation:update(dt)
 						cb.callback()
 					end
 				end
+
 				animation.animation:update(dt)
+
+				if on_update then
+					on_update.on_update(dt, animation.animation.position)
+				end
 			end
 
 			local current_quad = animation.animation:getFrameInfo()
