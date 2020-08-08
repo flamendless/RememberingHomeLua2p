@@ -30,6 +30,7 @@ function Debugging:draw_slab()
 	if Slab.CheckBox(DebugFlags.b3d_bounds, "B3D Bounds") then DebugFlags.b3d_bounds = not DebugFlags.b3d_bounds end
 	if Slab.CheckBox(DebugFlags.b3d_list, "B3D List") then DebugFlags.b3d_list = not DebugFlags.b3d_list end
 	if Slab.CheckBox(DebugFlags.camera, "Camera") then DebugFlags.camera = not DebugFlags.camera end
+	if Slab.CheckBox(DebugFlags.cross, "Cross") then DebugFlags.cross = not DebugFlags.cross end
 	if Slab.CheckBox(DebugFlags.ent_count, "ECS") then DebugFlags.ent_count = not DebugFlags.ent_count end
 	if Slab.CheckBox(DebugFlags.logs, "Logs") then DebugFlags.logs = not DebugFlags.logs end
 	if Slab.CheckBox(DebugFlags.quad_bounds, "Quad") then DebugFlags.quad_bounds = not DebugFlags.quad_bounds end
@@ -53,6 +54,16 @@ function Debugging:draw_slab()
 		Slab.Text(k .. ": " .. v)
 	end
 	Slab.EndWindow()
+end
+
+function Debugging:draw_debug(l, t, w, h)
+	if not DebugFlags.cross then return end
+	local hw, hh = w/2, h/2
+
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.setLineWidth(1)
+	love.graphics.line(hw, 0, hw, h)
+	love.graphics.line(0, hh, w, hh)
 end
 
 return Debugging

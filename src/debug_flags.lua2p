@@ -5,6 +5,7 @@ DebugFlags = {
 	b3d_bounds = false,
 	b3d_list = false,
 	camera = true,
+	cross = false,
 	ent_count = true,
 	logs = true,
 	quad_bounds = false,

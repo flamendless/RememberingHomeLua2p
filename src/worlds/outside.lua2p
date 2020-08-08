@@ -386,7 +386,7 @@ function StateOutside:draw()
 
 		!if not _RELEASE then
 		if self.draw_debug then
-			self.world:emit("draw_debug", self.camera:getScale())
+			self.world:emit("draw_debug", l, t, w, h)
 		end
 		!end
 
