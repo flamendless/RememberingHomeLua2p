@@ -70,12 +70,12 @@ end
 
 function Canvas:new(x, y, width, height, rotation, scale)
 	!if _ASSERT then
-	Assert.should_number(x)
-	Assert.should_number(y)
-	Assert.should_number(width)
-	Assert.should_number(height)
-	Assert.should_number(rotation)
-	Assert.should_number(scale)
+	Assert.either_type(x, Assert.types.T_NUMBER, Assert.types.T_TABLE)
+	Assert.safe_should_number(y)
+	Assert.safe_should_number(width)
+	Assert.safe_should_number(height)
+	Assert.safe_should_number(rotation)
+	Assert.safe_should_number(scale)
 	!end
 
 	local c
@@ -99,8 +99,8 @@ function Canvas:set(x, y, width, height, rotation, scale)
 	Assert.should_number(y)
 	Assert.should_number(width)
 	Assert.should_number(height)
-	Assert.should_number(rotation)
-	Assert.should_number(scale)
+	Assert.safe_should_number(rotation)
+	Assert.safe_should_number(scale)
 	!end
 
 	local _x, _y, _w, _h, _rotation, _scale

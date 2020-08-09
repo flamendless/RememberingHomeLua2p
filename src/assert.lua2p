@@ -272,6 +272,15 @@ function Assert.should_gamera(arg)
 	end
 end
 
+function Assert.safe_should_gamera(arg)
+	if arg then
+		Assert.should_gamera(arg)
+		return true
+	end
+
+	return false
+end
+
 --LOVE
 function Assert.should_font(arg)
 	if arg:type() ~= Assert.types.T_FONT then

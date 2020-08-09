@@ -18,7 +18,10 @@ Concord.component("animation_data", function(c, data)
 		end
 	end
 
-	Assert.either_type(data.delay, Assert.types.T_NUMBER, Assert.types.T_TABLE)
+	if data.delay then
+		Assert.either_type(data.delay, Assert.types.T_NUMBER, Assert.types.T_TABLE)
+	end
+
 	Assert.should_atleast(data.durations, data.delay)
 	Assert.safe_should_table(data.durations)
 	!end

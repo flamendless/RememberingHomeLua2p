@@ -354,7 +354,7 @@ function StateIntro:start()
 
 		-- TODO implement lightning to quickly black out scene
 		Fade.fade_out(function()
-			Save.set_intro_done()
+			Save.set_intro_done(true)
 			is_raining = false
 			self.gamestate.switch("Outside")
 		end, fade_out_duration)
@@ -406,7 +406,7 @@ function StateIntro:keypressed(key)
 	if Save.data.intro_done or not !(_RELEASE) then
 		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()
-				Save.set_intro_done()
+				Save.set_intro_done(true)
 				self.gamestate.switch("Outside")
 			end, 2)
 		end

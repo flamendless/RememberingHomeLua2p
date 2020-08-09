@@ -37,7 +37,8 @@ function Save.initialize()
 		Save.overwrite()
 	end
 
-	Save.exists = exists
+	--TODO this should look for proper saves
+	-- Save.exists = exists
 	print(stringx.pretty(Save.data, 2))
 end
 

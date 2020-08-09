@@ -10,6 +10,36 @@ local Color = Concord.system({
 	pool_color = {"color", "target_color"},
 })
 
+local lerp_colors
+lerp_colors = function(lc, color)
+	local duration = lc.duration
+	local delay = lc.delay
+	local next_value = lc.current_color + 1
+
+	if next_value > #lc.colors then
+		next_value = 1
+	end
+
+	local next_color = lc.colors[next_value]
+
+	lc.flux = Flux.to(color.color, duration, {
+			[1] = next_color[1],
+			[2] = next_color[2],
+			[3] = next_color[3],
+			[4] = next_color[4],
+		})
+		:delay(delay)
+		:oncomplete(function()
+			lc.current_color = next_value
+
+			if lc.current_color > #lc.colors then
+				lc.current_color = 1
+			end
+
+			lerp_colors(lc, color)
+		end)
+end
+
 function Color:init()
 	self.pool_fade_in.onEntityAdded = function(pool, e)
 		Flux.to(e.color.color, e.color_fade_in.duration, {[4] = 1})
@@ -103,35 +133,6 @@ function Color:start_fade()
 			})
 			:delay(fade.delay)
 	end
-end
-
-local lerp_colors = function(lc, color)
-	local duration = lc.duration
-	local delay = lc.delay
-	local next_value = lc.current_color + 1
-
-	if next_value > #lc.colors then
-		next_value = 1
-	end
-
-	local next_color = lc.colors[next_value]
-
-	lc.flux = Flux.to(color.color, duration, {
-			[1] = next_color[1],
-			[2] = next_color[2],
-			[3] = next_color[3],
-			[4] = next_color[4],
-		})
-		:delay(delay)
-		:oncomplete(function()
-			lc.current_color = next_value
-
-			if lc.current_color > #lc.colors then
-				lc.current_color = 1
-			end
-
-			lerp_colors(lc, color)
-		end)
 end
 
 function Color:start_colors_lerp()

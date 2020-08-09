@@ -5,8 +5,8 @@ Concord.component("color", function(c, color)
 	Assert.should_color(color)
 	!end
 
-	c.original_color = { unpack(color) }
-	c.color = { unpack(color) }
+	c.original_color = {unpack(color)}
+	c.color = {unpack(color)}
 end)
 
 Concord.component("color_fade_in_out", function(c, duration, count)
@@ -31,7 +31,10 @@ end)
 
 Concord.component("lerp_colors", function(c, colors, duration, delay)
 	!if _ASSERT then
-	Assert.should_color(colors)
+	Assert.should_table(colors)
+	for i, v in ipairs(colors) do
+		Assert.should_color(v)
+	end
 	Assert.safe_should_number(duration)
 	Assert.safe_should_number(delay)
 	!end
@@ -50,7 +53,7 @@ Concord.component("target_color", function(c, target_color, duration, delay)
 	Assert.safe_should_number(delay)
 	!end
 
-	c.target_color = { target_color[1], target_color[2], target_color[3], target_color[4] }
+	c.target_color = {unpack(target_color)}
 	c.duration = duration
 	c.delay = delay or 0
 end)

@@ -17,7 +17,7 @@ Palette.colors = {
 }
 
 Palette.windows = {
-	settings = {0.2, 0.2, 0.2, 0. }
+	settings = {0.2, 0.2, 0.2, 0.3}
 }
 
 Palette.color_glitches = {

@@ -10,3 +10,13 @@ Concord.component("typewriter", function(c, target_text, every)
 	c.every = every
 	c.timer = nil
 end)
+
+Concord.component("typewriter_on_finish", function(c, callback, delay)
+	!if _ASSERT then
+	Assert.should_function(callback)
+	Assert.safe_should_number(delay)
+	!end
+
+	c.callback = callback
+	c.delay = delay or 0
+end)

@@ -116,8 +116,7 @@ end
 
 function StateMenu:hide_main_menu(duration)
 	for i, e in ipairs(ent_options) do
-			e
-			:give("target_color", Palette.get("white", 0), duration or duration_hide)
+			e:give("target_color", Palette.get("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
 					e:give("hidden")
 				end)
@@ -126,7 +125,7 @@ function StateMenu:hide_main_menu(duration)
 end
 
 function StateMenu:show_sub_menu(duration)
-	local next_cursor = Save.exists == true and 1 or 2
+	local next_cursor = (Save.exists == true) and 1 or 2
 
 	for i, e in ipairs(ent_options_sub) do
 			e:remove("hidden")
@@ -276,16 +275,14 @@ function StateMenu:setup_menu()
 		:give("transform", 0, scale_hallway, scale_hallway, bg_hw_w/2, bg_hw_h/2)
 
 	self.entities.desk = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite,
-			{
+		:assemble(Assemblages.Common.animated_sprite, {
 				spritesheet = res_images.sheet_desk,
 				frames = {"1-3", 1, "1-3", 2, "1-1", 3},
 				durations = {1, 0.1, 1, 0.1, 0.1, 0.1, 1},
 				rows_count = 3,
 				columns_count = 3,
 				n_frames = 7
-			},
-			vec2:new(ww/2, wh/2), false)
+			}, vec2:new(ww/2, wh/2), false)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("color", {1, 1, 1, 1})
@@ -506,19 +503,17 @@ function StateMenu:load()
 end
 
 function StateMenu:start()
-	local ww = love.graphics.getWidth()
-	local wh = love.graphics.getHeight()
-
 	res_images = resources.images
 	res_fonts = resources.fonts
+
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+	local img_ff = Image.resize_image(res_images.flowfield)
 
 	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 	self.camera:setWindow(0, 0, ww, wh)
 	self.canvas_main = self.canvases.main_canvas
 	self.mb_main = MotionBlur:new(self.canvas_main)
-
-	local img_ff = Image.resize_image(res_images.flowfield)
-
 	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self.world:addSystem(Systems.Animation)

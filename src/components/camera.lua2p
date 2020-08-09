@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("camera", function(c, camera, is_main)
 	!if _ASSERT then
-	Assert.should_gamera(camera)
+	Assert.safe_should_gamera(camera)
 	Assert.safe_should_boolean(is_main)
 	!end
 
