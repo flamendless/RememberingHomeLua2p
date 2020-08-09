@@ -16,7 +16,7 @@ end)
 
 Concord.component("animation_pause_at", function(c, at_frame)
 	!if _ASSERT then
-	Assert.either_type(at_frame, "number", "string")
+	Assert.either_type(at_frame, Assert.types.T_NUMBER, Assert.types.T_STRING)
 	if type(at_frame) == "string" then
 		Assert.either_value(at_frame, "first", "last")
 	end
