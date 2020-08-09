@@ -21,6 +21,7 @@ local req_methods = {"new", "load", "start", "exit"}
 local assert_method = function(id, world, method)
 	local msg = format("'%s' must have a '%s' method", id, method)
 	local m = world[method]
+
 	assert(m, msg)
 	assert(type(m) == "function", msg)
 end

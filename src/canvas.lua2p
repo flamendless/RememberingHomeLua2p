@@ -5,6 +5,7 @@ local type_id = "CustomCanvas"
 
 function Canvas:new_default(x, y, width, height, rotation, scale)
 	local _canvas = love.graphics.newCanvas(width, height)
+
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
@@ -23,8 +24,8 @@ function Canvas:new_from_table(tbl)
 	local _h = tbl.height
 	local _rotation = tbl.rotation
 	local _scale = tbl.scale or 1
-
 	local _canvas = love.graphics.newCanvas(_w, _h)
+
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
@@ -38,6 +39,7 @@ end
 
 function Canvas:new_from_canvas(source)
 	local _canvas = love.graphics.newCanvas(source.width, source.height)
+
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 
 	return self:init({
@@ -51,6 +53,7 @@ end
 
 function Canvas:new(x, y, width, height, rotation, scale)
 	local c
+
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			c = self:new_from_canvas(x)
@@ -66,6 +69,7 @@ end
 
 function Canvas:set(x, y, width, height, rotation, scale)
 	local _x, _y, _w, _h, _rotation, _scale
+
 	if type(x) == "number" then
 		_x = x
 		_y = y
@@ -76,6 +80,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 	elseif type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			local c = x
+
 			_x = c.x
 			_y = c.y
 			_w = c.width
@@ -84,6 +89,7 @@ function Canvas:set(x, y, width, height, rotation, scale)
 			_scale = c.scale
 		else
 			local tbl = x
+
 			_x = tbl.x
 			_y = tbl.y
 			_w = tbl.width

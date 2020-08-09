@@ -33,17 +33,19 @@ function Save.initialize()
 	end
 
 	Save.exists = exists
-	print(string.pretty(Save.data, 2))
+	print(stringx.pretty(Save.data, 2))
 end
 
 function Save.overwrite()
 	local data = Utils.serialize_to_file(save_filename, Save.data)
 	local hashed = love.data.hash("sha256", data)
+
 	Utils.write_to_file(key_filename, hashed)
 end
 
 function Save.set_splash_done(should_overwrite)
 	Save.data.splash_done = true
+
 	if should_overwrite then
 		Save.overwrite()
 	end
@@ -51,6 +53,7 @@ end
 
 function Save.set_intro_done(should_overwrite)
 	Save.data.intro_done = true
+
 	if should_overwrite then
 		Save.overwrite()
 	end

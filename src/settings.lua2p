@@ -63,6 +63,7 @@ end
 
 function Settings.set_game_sounds(flag, should_overwrite)
 	local prev = Settings.current_game_sounds
+
 	if prev ~= flag then
 		Settings.current.game_sounds = flag
 		if should_overwrite then
@@ -73,6 +74,7 @@ end
 
 function Settings.set_game_music(flag, should_overwrite)
 	local prev = Settings.current_game_musoc
+
 	if prev ~= flag then
 		Settings.current.game_music = flag
 		if should_overwrite then

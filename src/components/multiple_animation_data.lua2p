@@ -39,7 +39,7 @@ Concord.component("multiple_animation_data", function(c, first, data, modifier)
 			local target = v[1]
 			local action = v[2]
 			data[target] = {}
-			table.copy(data[id], data[target])
+			tablex.copy(data[id], data[target])
 			data[target].is_flipped = true
 		end
 	end

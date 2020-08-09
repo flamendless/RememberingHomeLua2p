@@ -39,7 +39,6 @@ function Reporter.send(msg)
 			user = user,
 			password = password,
 		}
-
 		local extra_info = {
 			Version = game_version,
 			OS = platform,

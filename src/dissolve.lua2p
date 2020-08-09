@@ -15,6 +15,7 @@ function Dissolve:new(texture, duration)
 	!end
 
 	local shader_code = love.graphics.newShader("shaders/dissolve.glsl")
+
 	shader_code:send("tex", texture)
 
 	return self:init({
@@ -31,19 +32,24 @@ function Dissolve:set_kind(kind)
 	!if _ASSERT then
 	Assert.should_number(kind)
 	!end
+
 	self.kind = kind
 end
 
 function Dissolve:update(dt)
 	if self.shader_code and self.flag_process then
 		self.time = self.time + dt * self.dir
+
 		local n = self.kind + smootherstep(max(0, min(self.time/self.duration, 1)))
+
 		self.shader_code:send("time", abs(n))
+
 		if self.time > self.duration then
 			if self.on_complete then
 				self.on_complete()
 				self.on_complete = nil
 			end
+
 			self.flag_process = false
 		end
 	end

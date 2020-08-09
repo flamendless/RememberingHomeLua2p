@@ -55,6 +55,7 @@ local custom_loading_screen = function()
 	local str_loading = format("LOADING: %i%%", Preloader.percent)
 	local ox = font_preload:getWidth(str_loading)/2
 	local oy = font_preload:getHeight(str_loading)/2
+
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setFont(font_preload)
 	love.graphics.print(str_loading, w/2, h * 0.75, 0, 1, 1, ox, oy)

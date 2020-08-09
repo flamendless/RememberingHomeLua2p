@@ -112,7 +112,7 @@ function Camera:update_debug(dt)
 		end
 
 		if fast then
-			speed = math.lerp(speed, max_speed, 0.5)
+			speed = mathx.lerp(speed, max_speed, 0.5)
 		end
 
 		x = x + speed * dx * dt

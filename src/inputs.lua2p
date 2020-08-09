@@ -23,19 +23,23 @@ Inputs.key_constants = {
 
 function Inputs.initialize()
 	local content, exists = Utils.parse_json(!(_KEYBINDINGS_FILENAME))
+
 	if exists then
 		for id, key in pairs(content) do
 			local tag = Utils.get_substring(id, "_")
+
 			Inputs.register(id, key, tag)
 		end
 	end
 
 	local content_def, exists_def = Utils.parse_json(!(_KEYBINDINGS_DEF_FILENAME))
+
 	if exists_def then
 		for id, key in pairs(content_def) do
 			Inputs.register(id, key, "defaults")
 			if not exists then
 				local tag = Utils.get_substring(id, "_")
+
 				Inputs.register(id, key, tag)
 			end
 		end
@@ -52,16 +56,20 @@ function Inputs.register(id, key, tag)
 	!end
 
 	local storage = Inputs.keys
+
 	if tag and tag == "defaults" then
 		storage = Inputs.defaults
 	end
+
 	storage[id] = key
 
 	if tag then
 		local t = Inputs.tags[tag]
+
 		if not t then
 			Inputs.tags[tag] = {}
 		end
+
 		insert(Inputs.tags[tag], id)
 	end
 end
@@ -88,6 +96,7 @@ function Inputs.is_pressed(id, key)
 	!end
 
 	local keys = Inputs.keys[id]
+
 	if keys then
 		for i, v in ipairs(keys) do
 			if v == key then
@@ -95,11 +104,13 @@ function Inputs.is_pressed(id, key)
 			end
 		end
 	end
+
 	return false
 end
 
 function Inputs.is_down(id)
 	local keys = Inputs.keys[id]
+
 	return love.keyboard.isDown(keys)
 end
 
@@ -112,7 +123,8 @@ function Inputs.update_keybindings(new_keys)
 	!if _ASSERT then
 	Assert.should_table(new_keys)
 	!end
-	table.copy(new_keys, Inputs.keys)
+
+	tablex.copy(new_keys, Inputs.keys)
 end
 
 function Inputs.get_by_tag(tag)
@@ -122,9 +134,11 @@ function Inputs.get_by_tag(tag)
 
 	local t = {}
 	local keys = Inputs.keys
+
 	for i, id in ipairs(Inputs.tags[tag]) do
 		t[id] = keys[id]
 	end
+
 	return t
 end
 
@@ -138,7 +152,8 @@ function Inputs.reset_by_tag(tag)
 	for _, id in ipairs(tags) do
 		local def = Inputs.defaults[id]
 		local reg = Inputs.keys[id]
-		table.copy(def, reg)
+
+		tablex.copy(def, reg)
 	end
 end
 

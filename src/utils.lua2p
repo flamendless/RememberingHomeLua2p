@@ -14,6 +14,7 @@ function Utils.read_file(filename)
 
 	if file then
 		local content = love.filesystem.read(filename)
+
 		return content, true
 	end
 
@@ -27,18 +28,22 @@ end
 
 function Utils.write_to_file_json(filename, data)
 	local to_write = JSON.encode(data)
+
 	Utils.write_to_file(filename, to_write)
 end
 
 function Utils.serialize_to_file(filename, data)
 	local to_write = Bitser.dumps(data)
+
 	Utils.write_to_file(filename, to_write)
+
 	return to_write
 end
 
 function Utils.deserialize_from_file(filename)
 	local content, exists = Utils.read_file(filename)
 	local data = Bitser.loads(content)
+
 	return data, exists
 end
 
@@ -51,6 +56,7 @@ function Utils.parse_json(filename)
 
 	if exists then
 		local parsed = JSON.decode(content)
+
 		return parsed, true
 	end
 
@@ -59,6 +65,7 @@ end
 
 function Utils.compare_hash_key(a, key)
 	local a = love.data.hash("sha256", a)
+
 	return a == key
 end
 
@@ -72,6 +79,7 @@ end
 function Utils.get_substring(str, sep)
 	local n = find(str, sep)
 	local s = sub(str, 1, n - 1)
+
 	return s
 end
 

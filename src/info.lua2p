@@ -14,16 +14,26 @@ local insert = table.insert
 local format = string.format
 local filename = !(_LOG_INFO)
 
+local insert_str = function(src, dest)
+	!if _ASSERT then
+	Assert.should_table(src)
+	!end
+
+	for k, v in pairs(src) do
+		local str = format("\t%s: %s\n", k, v)
+
+		insert(dest, str)
+	end
+end
+
 function Info.initialize()
 	Log.info("System information checking...")
-
 	local data = Info.data
 
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
 	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
 	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
-
 	data.limits = love.graphics.getSystemLimits()
 	data.canvasformats = love.graphics.getCanvasFormats()
 	data.imageformats = love.graphics.getImageFormats()
@@ -31,34 +41,16 @@ function Info.initialize()
 	data.supported = love.graphics.getSupported()
 
 	local system_limits = {}
-	for k, v in pairs(data.limits) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(system_limits, str)
-	end
-
 	local canvas_formats = {}
-	for k, v in pairs(data.canvasformats) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(canvas_formats, str)
-	end
-
 	local image_formats = {}
-	for k, v in pairs(data.imageformats) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(image_formats, str)
-	end
-
 	local texture_types = {}
-	for k, v in pairs(data.texturetypes) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(texture_types, str)
-	end
-
 	local supported = {}
-	for k, v in pairs(data.supported) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(supported, str)
-	end
+
+	insert_str(data.limits, system_limits)
+	insert_str(data.canvasformats, canvas_formats)
+	insert_str(data.imageformats, image_formats)
+	insert_str(data.texturetypes, texture_types)
+	insert_str(data.supported, supported)
 
 	local str = {
 		format("Game Version: %s", data.game_version),
@@ -117,7 +109,8 @@ function Info.validate_file(content, to_write)
 end
 
 function Info.is_texturesize_compatible(size)
-	local max_size = data.limits.texturesize
+	local max_size = Info.data.limits.texturesize
+
 	return size <= max_size
 end
 

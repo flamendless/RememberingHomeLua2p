@@ -53,11 +53,13 @@ function GameStates.switch(next_id)
 	!end
 
 	GameStates.prev_world = GameStates.current_world
+
 	if GameStates.prev_world then
 		GameStates.prev_world:exit()
 	end
 
 	local current_world = Worlds[next_id]:new()
+
 	GameStates.current_world = current_world
 	GameStates.current_id = next_id
 
@@ -80,12 +82,14 @@ end
 
 function GameStates.resize(override_mode)
 	WindowMode.current = override_mode or (WindowMode.current + 1)
+
 	if WindowMode.current > #WindowMode.modes then
 		WindowMode.current = 1
 	end
 
 	local mode = WindowMode.getCurrent()
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
+
 	love.window.setMode(mode.width, mode.height)
 	Log.info(format("Current Mode: [%i] %ix%i - scale:%f",
 		WindowMode.current, mode.width, mode.height, scale))
@@ -99,13 +103,16 @@ function GameStates.canvas_resize()
 	local scale = min(window_w/game_size.x, window_h/game_size.y)
 
 	local main_canvas_prop = {}
+	local mid_canvas_prop = {}
+	local top_canvas_prop = {}
+	local bot_canvas_prop = {}
+
 	main_canvas_prop.width = window_w
 	main_canvas_prop.height = window_h
 	main_canvas_prop.x = 0
 	main_canvas_prop.y = 0
 	main_canvas_prop.scale = 1
 
-	local mid_canvas_prop = {}
 	mid_canvas_prop.width = game_size.x * scale
 	mid_canvas_prop.height = game_size.y * scale
 	mid_canvas_prop.x = 0
@@ -113,14 +120,13 @@ function GameStates.canvas_resize()
 	mid_canvas_prop.scale = scale
 
 	local rem_height = window_h - mid_canvas_prop.height
-	local top_canvas_prop = {}
+
 	top_canvas_prop.width = window_w
 	top_canvas_prop.height = floor(rem_height/2)
 	top_canvas_prop.x = 0
 	top_canvas_prop.y = 0
 	top_canvas_prop.scale = scale
 
-	local bot_canvas_prop = {}
 	bot_canvas_prop.width = window_w
 	bot_canvas_prop.height = floor(rem_height/2)
 	bot_canvas_prop.x = 0
@@ -129,22 +135,26 @@ function GameStates.canvas_resize()
 
 	if main_canvas == nil then
 		main_canvas = Canvas:new(main_canvas_prop)
-	else main_canvas:set(main_canvas_prop)
+	else
+		main_canvas:set(main_canvas_prop)
 	end
 
 	if top_canvas == nil then
 		top_canvas = Canvas:new(top_canvas_prop)
-	else top_canvas:set(top_canvas_prop)
+	else
+		top_canvas:set(top_canvas_prop)
 	end
 
 	if mid_canvas == nil then
 		mid_canvas = Canvas:new(mid_canvas_prop)
-	else mid_canvas:set(mid_canvas_prop)
+	else
+		mid_canvas:set(mid_canvas_prop)
 	end
 
 	if bot_canvas == nil then
 		bot_canvas = Canvas:new(bot_canvas_prop)
-	else bot_canvas:set(bot_canvas_prop)
+	else
+		bot_canvas:set(bot_canvas_prop)
 	end
 
 	if GameStates.current_world and GameStates.current_world.canvas_resize then

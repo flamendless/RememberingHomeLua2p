@@ -33,6 +33,7 @@ function Palette.get(color, alpha)
 	!end
 
 	local color = Palette.colors[color]
+
 	return {
 		color[1],
 		color[2],

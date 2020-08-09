@@ -8,6 +8,7 @@ local Factory = {}
 
 function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fade_in)
 	local t = {}
+
 	t.progress_bg = Concord.entity(world)
 		:assemble(UI.hold_progress_bg, pos, radius)
 		:give("target_color", Palette.get("ui_hold_progress", 0.3), dur_fade_in)
@@ -36,7 +37,7 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 		end)
 		:give("color_fade_in", dur_fade_in)
 
-		return t
+	return t
 end
 
 return Factory

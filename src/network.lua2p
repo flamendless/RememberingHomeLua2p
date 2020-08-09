@@ -34,6 +34,7 @@ function Network.get_response()
 	else
 		!if _OS == "Linux" then
 		local res = request.send(github_url, { follow_redirects = false })
+
 		if res then
 			return res.code, res.headers, res.headers.status
 		else
@@ -49,6 +50,7 @@ end
 
 function Network.check_latest_version(current_semver)
 	local c, h, s = Network.get_response()
+
 	if not c then
 		Log.warn("Failed to connect to network")
 		return
@@ -65,10 +67,12 @@ function Network.check_latest_version(current_semver)
 		if use_luasec then
 			local parsed_url = socket.url.parse(new_url)
 			local path = socket.url.parse_path(parsed_url.path)
+
 			latest_ver = path[#path]
 			latest_ver = sub(latest_ver, 2)
 		else
 			local parsed_url = match(new_url, "/([^/]+)$")
+
 			latest_ver = sub(parsed_url, 2)
 		end
 

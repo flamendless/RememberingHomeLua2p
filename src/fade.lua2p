@@ -13,8 +13,9 @@ function Fade.fade_out(on_complete, duration, delay)
 	Assert.safe_should_number(delay)
 	!end
 
-	local f = Flux.to(f_color, duration or f_duration, { [4] = 1 })
+	local f = Flux.to(f_color, duration or f_duration, {[4] = 1})
 		:delay(delay or f_delay)
+
 	if on_complete then
 		f:oncomplete(on_complete)
 	end
@@ -27,8 +28,9 @@ function Fade.fade_in(on_complete, duration, delay)
 	Assert.safe_should_number(delay)
 	!end
 
-	local f = Flux.to(f_color, duration or f_duration, { [4] = 0 })
+	local f = Flux.to(f_color, duration or f_duration, {[4] = 0})
 		:delay(delay or f_delay)
+
 	if on_complete then
 		f:oncomplete(on_complete)
 	end

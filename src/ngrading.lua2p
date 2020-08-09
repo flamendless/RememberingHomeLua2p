@@ -42,19 +42,22 @@ function NGrading:new_single(img, cs)
 	local data = img
 	local tw = floor(data:getWidth() / cs)
 	local th = floor(data:getHeight() / cs)
+	local used_shader = love.graphics.getTextureTypes().volume
 	local volume_img, image
 	local shader
 
-	local used_shader = love.graphics.getTextureTypes().volume
 	if used_shader == 0 then used_shader = false end
+
 	used_shader = used_shader and "volume" or "old"
 
 	if used_shader == "volume" then
 		local imgs = {}
 		local fmt = data:getFormat()
+
 		for j = 0, th - 1 do
 			for i = 0, tw - 1 do
 				local nimg = love.image.newImageData(cs, cs, fmt)
+
 				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
 				imgs[#imgs + 1] = nimg
 			end
@@ -95,7 +98,9 @@ function NGrading:new_multi(img, img2, cs)
 	local volume_img2, image2
 
 	local used_shader = love.graphics.getTextureTypes().volume
+
 	if used_shader == 0 then used_shader = false end
+
 	used_shader = used_shader and "volume_multi" or "old_multi"
 
 	if used_shader == "volume_multi" then
@@ -103,10 +108,12 @@ function NGrading:new_multi(img, img2, cs)
 		local imgs2 = {}
 		local fmt = data:getFormat()
 		local fmt2 = data2:getFormat()
+
 		for j = 0, th - 1 do
 			for i = 0, tw - 1 do
 				local nimg = love.image.newImageData(cs, cs, fmt)
 				local nimg2 = love.image.newImageData(cs, cs, fmt2)
+
 				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
 				nimg2:paste(data2, 0, 0, i * cs, j * cs, cs, cs)
 				imgs[#imgs + 1] = nimg
@@ -148,11 +155,15 @@ end
 function NGrading:new(arg1, arg2, arg3)
 	if type(arg2) == "number" then
 		local effect = self:new_single(arg1, arg2)
+
 		effect:setup_data()
+
 		return effect
 	else
 		local effect = self:new_multi(arg1, arg2, arg3)
+
 		effect:setup_data()
+
 		return effect
 	end
 end

@@ -112,7 +112,7 @@ function Animation:init()
 
 	self.pool_z.onEntityAdded = function(pool, e)
 		insert(self.custom_pool_z, e)
-		table.insertion_sort(self.custom_pool_z, function(a, b)
+		tablex.insertion_sort(self.custom_pool_z, function(a, b)
 			local a_z = a.z_index.z
 			local b_z = b.z_index.z
 

@@ -63,7 +63,7 @@ move_to_next_point = function(path, pos)
 		path.current_point = high
 		if path.current_point >= path.n_points then
 			path.current_point = 1
-			table.reverse(path.points)
+			tablex.reverse(path.points)
 		end
 		move_to_next_point(path, pos)
 	end)

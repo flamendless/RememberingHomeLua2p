@@ -9,6 +9,7 @@ local index = {}
 local mt = {
 	__index = function(t, k)
 		t[index][k].__ref = t[index][k].__ref + 1
+
 		return t[index][k]
 	end
 }
@@ -19,6 +20,7 @@ function Tracker.track(t)
 	!end
 
 	local proxy = {}
+
 	proxy[index] = t
 
 	for k, v in pairs(t) do
@@ -26,6 +28,7 @@ function Tracker.track(t)
 	end
 
 	setmetatable(proxy, mt)
+
 	return proxy
 end
 

@@ -54,13 +54,13 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local resources = { images = {}, sources = {}, fonts = {} }
+local resources = {images = {}, sources = {}, fonts = {}}
 local res_images, res_fonts
 
 local states = Enum("menu", "play", "settings", "about", "exit")
 local current_state = states.menu
-local options = { "Play", "Settings", "About", "Exit" }
-local options_sub = { "Continue", "New Game" }
+local options = {"Play", "Settings", "About", "Exit"}
+local options_sub = {"Continue", "New Game"}
 local is_sub_menu = false
 local is_transition = false
 local ent_options = {}
@@ -107,9 +107,9 @@ function StateMenu:show_main_menu(duration)
 			e:remove("hidden")
 			:give("target_color", Palette.get("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
-				self:on_menu()
-				is_transition = false
-			end)
+					self:on_menu()
+					is_transition = false
+				end)
 			:give("move_to_original", duration or duration_pos)
 	end
 end
@@ -119,41 +119,36 @@ function StateMenu:hide_main_menu(duration)
 			e
 			:give("target_color", Palette.get("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
-				e:give("hidden")
-			end)
+					e:give("hidden")
+				end)
 			:give("move_by", vec2:new(tx, 0), duration or duration_pos)
 	end
 end
 
 function StateMenu:show_sub_menu(duration)
-	local next_cursor = 0
-	if Save.exists then
-		next_cursor = 1
-	else
-		next_cursor = 2
-	end
+	local next_cursor = Save.exists == true and 1 or 2
 
 	for i, e in ipairs(ent_options_sub) do
-			e
-			:remove("hidden")
+			e:remove("hidden")
 			:give("target_color", Palette.get("white", 1), duration or duration_show)
 			:give("lerp_on_complete", function()
-				self.world:emit("allow_cursor", true)
-				self.world:emit("set_cursor", next_cursor)
-				is_transition = false
-			end)
+					self.world:emit("allow_cursor", true)
+					self.world:emit("set_cursor", next_cursor)
+					is_transition = false
+				end)
 			:give("move_to_original", duration or duration_pos)
+
 			if next_cursor == 2 and i == 1 then
 				e:give("option_disabled")
 			end
 	end
+
 	self.world:emit("set_page", 2)
 end
 
 function StateMenu:hide_sub_menu(duration)
 	for i, e in ipairs(ent_options_sub) do
-			e
-			:give("target_color", Palette.get("white", 0), duration or duration_hide)
+			e:give("target_color", Palette.get("white", 0), duration or duration_hide)
 			:give("lerp_on_complete", function()
 				e:give("hidden")
 			end)
@@ -179,7 +174,7 @@ function StateMenu:turn_off_lamp()
 		:assemble(Assemblages.Common.animated_sprite,
 			{
 				spritesheet = res_images.sheet_desk,
-				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
+				frames = {"1-3", 1, "1-3", 2, "1-1", 3},
 				delay = 0.001,
 				rows_count = 3,
 				columns_count = 3,
@@ -213,18 +208,20 @@ function StateMenu:on_continue()
 end
 
 function StateMenu:on_settings()
-	self.world:emit("allow_cursor", false)
 	local l, t, w, h = self.camera:getWorld()
-	local cworld = { x = l, y = t, w = w, h = h }
+	local cworld = {x = l, y = t, w = w, h = h}
+
+	self.world:emit("allow_cursor", false)
 	self.world:emit("init_settings")
 	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
 end
 
 function StateMenu:on_about()
+	local l, t, w, h = self.camera:getWorld()
+	local cworld = {x = l, y = t, w = w, h = h}
+
 	self:setup_about()
 	self.world:emit("allow_cursor", false)
-	local l, t, w, h = self.camera:getWorld()
-	local cworld = { x = l, y = t, w = w, h = h }
 	self:MB_move(nil, cworld.h, ANGLE_UP)
 end
 
@@ -233,7 +230,8 @@ function StateMenu:on_exit()
 	!if _PLATFORM == "desktop" then
 		local btn = love.window.showMessageBox("Alert",
 			"Are you sure you want to exit the game?",
-			{ "Exit", "Cancel", escapebutton = 2 })
+			{"Exit", "Cancel", escapebutton = 2})
+
 		if btn == 1 then
 			self:hide_main_menu()
 			self.dissolve_ff.flag_process = true
@@ -281,8 +279,8 @@ function StateMenu:setup_menu()
 		:assemble(Assemblages.Common.animated_sprite,
 			{
 				spritesheet = res_images.sheet_desk,
-				frames = { "1-3", 1, "1-3", 2, "1-1", 3 },
-				durations = { 1, 0.1, 1, 0.1, 0.1, 0.1, 1  },
+				frames = {"1-3", 1, "1-3", 2, "1-1", 3},
+				durations = {1, 0.1, 1, 0.1, 0.1, 0.1, 1},
 				rows_count = 3,
 				columns_count = 3,
 				n_frames = 7
@@ -320,8 +318,8 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
-
 		local id = "text_" .. lstr
+
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Common.text,
 				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
@@ -341,8 +339,8 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
-
 		local id = "text_sub_" .. lstr
+
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Common.text,
 				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
@@ -357,47 +355,48 @@ end
 
 local function generate_about()
 	local t = {
-		{ upper(!(_GAME_TITLE)), res_fonts.about_64, 12},
-		{ "A Game By:" },
-		{ "Brandon Blanker Lim-it @flamendless" },
-		{ "Arts By:" },
-		{ "Conrad Reyes @wits" },
+		{upper(!(_GAME_TITLE)), res_fonts.about_64, 12},
+		{"A Game By:"},
+		{"Brandon Blanker Lim-it @flamendless"},
+		{"Arts By:"},
+		{"Conrad Reyes @wits"},
 
-		{ "@LAYOUT:LEFT" },
-		{ "TOOLS USED:" },
+		{"@LAYOUT:LEFT"},
+		{"TOOLS USED:"},
 	}
 
 	for i = 1, #tools, 2 do
 		local a = tools[i]
 		local b = tools[i + 1] or ""
-		local subt = { format("%s, %s", a, b) }
+		local subt = {format("%s, %s", a, b)}
+
 		insert(t, subt)
 	end
 
-	insert(t, { "@LAYOUT:RIGHT" })
-	insert(t, { "LIBRARIES USED:" })
+	insert(t, {"@LAYOUT:RIGHT"})
+	insert(t, {"LIBRARIES USED:"})
 
 	for i = 1, #libs, 3 do
 		local a = libs[i]
 		local b = libs[i + 1] or ""
 		local c = libs[i + 2] or ""
-		local subt = { format("%s, %s, %s", a, b, c) }
+		local subt = {format("%s, %s, %s", a, b, c)}
+
 		insert(t, subt)
 	end
 
-	insert(t, { "@LAYOUT:CENTER" })
-	insert(t, { "" })
-	insert(t, { "SPECIAL THANKS to the people at the Löve Discord server:" })
-	insert(t, { "" })
-	insert(t, { res_images.twitter, res_images.website, res_images.mail })
+	insert(t, {"@LAYOUT:CENTER"})
+	insert(t, {""})
+	insert(t, {"SPECIAL THANKS to the people at the Löve Discord server:"})
+	insert(t, {""})
+	insert(t, {res_images.twitter, res_images.website, res_images.mail})
 
 	return t
 end
 
 function StateMenu:setup_about()
 	local about = generate_about()
-	local about_links = { !(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL), }
-
+	local about_links = {!(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL)}
 	local l, t, w, h = self.camera:getVisible()
 	local font_about = res_fonts.about_24
 	local base_x = w/2
@@ -405,6 +404,7 @@ function StateMenu:setup_about()
 	local layout = false
 	local layout_base_y = 0
 	local largest = 0
+
 	for i, el in ipairs(about) do
 		if type(el[1]) == "string" then
 			local str = el[1]
@@ -414,7 +414,9 @@ function StateMenu:setup_about()
 			local str_h = font:getHeight(str)
 			local x = base_x - str_w/2
 			local y = base_y
+
 			if space then base_y = base_y + space end
+
 			if str == "@LAYOUT:LEFT" then
 				base_x = w * 0.25
 				layout_base_y = base_y
@@ -433,7 +435,9 @@ function StateMenu:setup_about()
 					layout_base_y = layout_base_y + str_h
 					largest = max(largest, layout_base_y)
 				end
+
 				local id = "about_text_" .. i
+
 				self.entities[id] = Concord.entity(self.world)
 					:assemble(Assemblages.Common.static_text,
 						vec2:new(x, y), str, font, Palette.colors.white)
@@ -442,15 +446,16 @@ function StateMenu:setup_about()
 
 				if not layout then base_y = base_y + str_h end
 			end
-
 		elseif el[1].type and el[1]:type() == "Image" then
 			local pad = 32
 			local img_h
+
 			for i2, image in ipairs(el) do
 				local id = "about_image_" .. (i + i2)
 				local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
 				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
 				local y = base_y + image:getHeight()/2 - pad
+
 				img_h = image:getHeight()
 				self.entities[id] = Concord.entity(self.world)
 					:give("sprite", image)
@@ -460,6 +465,7 @@ function StateMenu:setup_about()
 					:give("bounding_box", x, y, image:getWidth(), image:getHeight())
 					:give("clickable", 1, function()
 						local url = about_links[i2]
+
 						love.system.openURL(url)
 					end)
 					:give("hoverable")
@@ -469,6 +475,7 @@ function StateMenu:setup_about()
 					self.entities[id]:give("bounding_box_color", {1, 0, 0, 0.5})
 					!end
 			end
+
 			base_y = base_y + img_h + pad
 		end
 	end
@@ -488,6 +495,7 @@ end
 function StateMenu:load()
 	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("menu")
+
 	Preloader.start(resources_data, resources,
 		function()
 			-- TODO play BGM
@@ -510,6 +518,7 @@ function StateMenu:start()
 	self.mb_main = MotionBlur:new(self.canvas_main)
 
 	local img_ff = Image.resize_image(res_images.flowfield)
+
 	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self.world:addSystem(Systems.Animation)
@@ -529,7 +538,6 @@ function StateMenu:start()
 	!end
 
 	self:setup_menu()
-
 	self:hide_main_menu(0.1)
 	self:hide_sub_menu(0.1)
 
@@ -544,7 +552,9 @@ end
 
 function StateMenu:update(dt)
 	if not self.is_ready then return end
+
 	local mx, my = love.mouse.getPosition()
+
 	self.world:emit("update", dt)
 	self.world:emit("change_color", mx, my)
 
@@ -557,6 +567,7 @@ end
 
 function StateMenu:draw()
 	if not self.is_ready then return end
+
 	love.graphics.setColor(1, 1, 1, 1)
 
 	if current_state == states.menu or
@@ -566,12 +577,14 @@ function StateMenu:draw()
 		self.canvas_main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
+
 			if current_state == states.settings and not self.mb_main.flag_process then
 				love.graphics.push()
 				love.graphics.translate(l, t)
 				self.world:emit("draw_settings")
 				love.graphics.pop()
 			end
+
 			Fade.draw()
 		end)
 		self.canvas_main:detach()
@@ -585,16 +598,19 @@ end
 
 function StateMenu:keypressed(key)
 	if not self.is_ready then return end
-	local dt = 0
+
 	-- TODO add keypress sounds (up = down, enter, disabled, escape)
+	local dt = 0
 	if Inputs.is_pressed("ui_down", key) then
 		dt = 1
 	elseif Inputs.is_pressed("ui_up", key) then
 		dt = -1
 	end
+
 	if Inputs.is_pressed("ui_interact", key) and not is_transition then
 		self.world:emit("enter_option")
 	end
+
 	self.world:emit("update_cursor", dt)
 
 	if Inputs.is_pressed("ui_back", key) then
@@ -612,25 +628,26 @@ end
 
 function StateMenu:mousepressed(mx, my, mb)
 	if not self.is_ready then return end
+
 	self.world:emit("mousepressed", mb, mx, my)
 end
 
 function StateMenu:MB_move(tx, ty, angle)
 	-- TODO add motion blur sound
-	self.mb_main.flag_process = true
 	local l, t, w, h = self.camera:getWorld()
 	local cx, cy = self.camera:getPosition()
-	local cworld = { x = l, y = t, w = w, h = h }
+	local cworld = {x = l, y = t, w = w, h = h}
 	local cpos = vec2:new(cx, cy)
 	local duration = 1
-	local distance = { 1.0 }
+	local distance = {1.0}
 	local prev_angle = (angle + 180) % 360
 
-	Flux.to(cpos, duration, { x = tx, y = ty })
+	self.mb_main.flag_process = true
+	Flux.to(cpos, duration, {x = tx, y = ty})
 		:onstart(function()
 			self.mb_main:store_previous(cx, cy, prev_angle)
 			self.mb_main:set_angle(angle)
-			Flux.to(distance, duration, { [1] = 0.0 })
+			Flux.to(distance, duration, {[1] = 0.0})
 				:onupdate(function()
 					self.mb_main:set_strength(distance[1])
 				end)
@@ -646,19 +663,19 @@ end
 
 function StateMenu:MB_return()
 	-- TODO add motion blur sound
-	self.mb_main.flag_process = true
 	local l, t, w, h = self.camera:getWorld()
 	local cx, cy = self.camera:getPosition()
-	local cworld = { x = l, y = t, w = w, h = h }
+	local cworld = {x = l, y = t, w = w, h = h}
 	local cpos = vec2:new(cx, cy)
 	local duration = 1
-	local distance = { 1.0 }
+	local distance = {1.0}
 	local temp_mb = self.mb_main.previous
 
-	Flux.to(cpos, duration, { x = temp_mb.target.x, y = temp_mb.target.y })
+	self.mb_main.flag_process = true
+	Flux.to(cpos, duration, {x = temp_mb.target.x, y = temp_mb.target.y})
 		:onstart(function()
 			self.mb_main:set_angle(temp_mb.angle)
-			Flux.to(distance, duration, { [1] = 0.0 })
+			Flux.to(distance, duration, {[1] = 0.0})
 				:onupdate(function()
 					self.mb_main:set_strength(distance[1])
 				end)
@@ -678,21 +695,26 @@ end
 function StateMenu:exit()
 	Timer.clear()
 	Resources.clean(resources)
+
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+
 	for k, e in pairs(self.entities) do
 		self.entities[k]:destroy()
 		self.entities[k] = nil
 	end
+
 	for i, e in ipairs(ent_options) do
 		e:destroy()
 		ent_options[i] = nil
 	end
+
 	for i, e in ipairs(ent_options_sub) do
 		e:destroy()
 		ent_options_sub[i] = nil
 	end
+
 	current_state = states.menu
 	is_sub_menu = false
 	is_transition = false

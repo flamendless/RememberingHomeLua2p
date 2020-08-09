@@ -62,6 +62,7 @@ end
 
 function StateTest:start()
 	local ww, wh = love.graphics.getDimensions()
+
 	self.camera = Gamera.new(0, 0, ww, wh)
 	self.camera:setWindow(0, 0, ww, wh)
 
@@ -74,7 +75,9 @@ function StateTest:start()
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Item)
 
+	!if not _RELEASE then
 	Tracker.error_on_ref_count(Systems, 0)
+	!end
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
@@ -120,12 +123,14 @@ end
 
 function StateTest:update(dt)
 	if not self.is_ready then return end
+
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 
 	local mx, my = love.mouse.getPosition()
 	local mpos = self.ent_mouse:get("position").pos
+
 	mpos.x = mx
 	mpos.y = my
 	self.world:emit("check_collision", self.test_rect)
@@ -141,8 +146,10 @@ function StateTest:draw()
 		self.world:emit("draw_debug")
 
 		love.graphics.setColor(1, 0, 0, 1)
+
 		local cx, cy = self.camera:getPosition()
 		local l, t, w, h = self.camera:getVisible()
+
 		love.graphics.circle("fill", cx, cy, 8)
 		love.graphics.circle("fill", l, t, 16)
 		love.graphics.circle("fill", w, h, 16)
@@ -152,14 +159,17 @@ end
 
 function StateTest:keypressed(key)
 	if not self.is_ready then return end
+
 	self.world:emit("keypressed", key)
 end
 
 function StateTest:exit()
 	Resources.clean(resources)
+
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+
 	for k, e in pairs(self.entities) do
 		self.entities[k]:destroy()
 		self.entities[k] = nil

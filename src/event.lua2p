@@ -1,5 +1,7 @@
 local Event = class()
 
+local type_id = "Event"
+
 function Event:new(id, data)
 	!if _ASSERT then
 	Assert.should_string(id)
@@ -13,6 +15,6 @@ function Event:new(id, data)
 	})
 end
 
-function Event:type() return "Event" end
+function Event:type() return type_id end
 
 return Event

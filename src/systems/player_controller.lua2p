@@ -72,7 +72,7 @@ function PlayerController:update(dt)
 			local old_speed = speed.speed
 			local new_speed = speed_data.speed_data[anim_name]
 			if e.body.dx ~= 0 or e.body.dy ~= 0 then
-				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
+				local speed_dt = mathx.lerp(old_speed, new_speed, 0.5)
 				speed.speed = speed_dt
 			else
 				speed.speed = new_speed

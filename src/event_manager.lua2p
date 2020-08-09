@@ -17,7 +17,6 @@ function EventManager.add(event)
 	!end
 
 	EventManager.pool[id] = event
-
 	Log.info(format("event %s added", id))
 end
 
@@ -32,7 +31,6 @@ function EventManager.update(dt)
 				event.is_done = true
 				event:on_complete()
 				pool[id] = nil
-
 				Log.info(format("event %s done", id))
 			end
 		end

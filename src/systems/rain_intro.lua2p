@@ -49,7 +49,7 @@ function RainIntro:emit_rain(amount, max_amount)
 		local pos = vec2:new(x, -64)
 		local anim_data = {}
 
-		table.copy(self.metadata.drop, anim_data)
+		tablex.copy(self.metadata.drop, anim_data)
 		anim_data.spritesheet = img
 
 		local ax = random(320, 640)
@@ -82,7 +82,7 @@ function RainIntro:emit_splash(e)
 	local img = splash[r]
 	local anim_data = {}
 
-	table.copy(self.metadata.splash, anim_data)
+	tablex.copy(self.metadata.splash, anim_data)
 	anim_data.spritesheet = img
 
 	e:give("rain_splash")
