@@ -28,8 +28,8 @@ function Settings.initialize()
 end
 
 function Settings.create_new()
-	local renderer_name, renderer_version, renderer_vendor, renderer_device = love.graphics.getRendererInfo()
-	local gl_version = sub(renderer_version, 1, 3)
+	local ren_name, ren_version, ren_vendor, ren_device = love.graphics.getRendererInfo()
+	local gl_version = sub(ren_version, 1, 3)
 
 	if gl_version == !(_MIN_GL_VERSION) then
 		Settings.current.graphics_quality = graphics_quality.Low

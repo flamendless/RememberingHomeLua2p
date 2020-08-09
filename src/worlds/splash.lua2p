@@ -41,6 +41,7 @@ local Assemblages = {
 }
 
 local resources = { images = {}, fonts = {} }
+local res_images, res_fonts
 
 local states = Enum("splash_love", "splash_wits", "splash_flam")
 local current_state = states.splash_love
@@ -114,11 +115,14 @@ function StateSplash:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
+	local res_images = resources.images
+	local res_fonts = resources.fonts
+
 	local ww, wh = love.graphics.getDimensions()
 	self.entities.splash_wits = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
 			{
-				spritesheet = resources.images.sheet_wits,
+				spritesheet = res_images.sheet_wits,
 				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, },
 				delay = 0.15,
 				rows_count = 4,
@@ -141,7 +145,7 @@ function StateSplash:start()
 			end)
 		end, "pauseAtEnd")
 
-	local font = resources.fonts.firefly_256
+	local font = res_fonts.firefly_256
 	self.entities.ghost_effect = Concord.entity(self.world)
 		:give("random_text", "flamendless")
 		:give("font", font)
@@ -154,15 +158,15 @@ function StateSplash:start()
 		:give("glitch_colors", Palette.color_glitches)
 		:give("color", color_a)
 		:give("lerp_colors", {color_a, color_b})
-		:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2))
+		:give("position", vec2:new(ww/2, wh/2))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	self.entities.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
-		:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight() * 0.3))
+		:give("position", vec2:new(ww/2, wh * 0.3))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
-		:give("font", resources.fonts.uncle_type_32)
+		:give("font", res_fonts.uncle_type_32)
 		:give("typewriter", "a game by", 0.4)
 		:give("typewriter_on_finish", function()
 			switch(self.gamestate)
@@ -170,7 +174,7 @@ function StateSplash:start()
 
 	if Save.data.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
+			:assemble(Assemblages.Common.skip, res_fonts.ui, vec2:new(ww/2, wh - 8))
 	end
 end
 

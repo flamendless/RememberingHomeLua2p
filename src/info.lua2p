@@ -17,58 +17,60 @@ local filename = !(_LOG_INFO)
 function Info.initialize()
 	Log.info("System information checking...")
 
-	Info.data.info_os = love.system.getOS()
-	Info.data.processor_count = love.system.getProcessorCount()
-	Info.data.name, Info.data.version, Info.data.vendor, Info.data.device = love.graphics.getRendererInfo()
-	Info.data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+	local data = Info.data
 
-	Info.data.limits = love.graphics.getSystemLimits()
-	Info.data.canvasformats = love.graphics.getCanvasFormats()
-	Info.data.imageformats = love.graphics.getImageFormats()
-	Info.data.texturetypes = love.graphics.getTextureTypes()
-	Info.data.supported = love.graphics.getSupported()
+	data.info_os = love.system.getOS()
+	data.processor_count = love.system.getProcessorCount()
+	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
+	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+
+	data.limits = love.graphics.getSystemLimits()
+	data.canvasformats = love.graphics.getCanvasFormats()
+	data.imageformats = love.graphics.getImageFormats()
+	data.texturetypes = love.graphics.getTextureTypes()
+	data.supported = love.graphics.getSupported()
 
 	local system_limits = {}
-	for k, v in pairs(Info.data.limits) do
+	for k, v in pairs(data.limits) do
 		local str = format("\t%s: %s\n", k, v)
 		insert(system_limits, str)
 	end
 
 	local canvas_formats = {}
-	for k, v in pairs(Info.data.canvasformats) do
+	for k, v in pairs(data.canvasformats) do
 		local str = format("\t%s: %s\n", k, v)
 		insert(canvas_formats, str)
 	end
 
 	local image_formats = {}
-	for k, v in pairs(Info.data.imageformats) do
+	for k, v in pairs(data.imageformats) do
 		local str = format("\t%s: %s\n", k, v)
 		insert(image_formats, str)
 	end
 
 	local texture_types = {}
-	for k, v in pairs(Info.data.texturetypes) do
+	for k, v in pairs(data.texturetypes) do
 		local str = format("\t%s: %s\n", k, v)
 		insert(texture_types, str)
 	end
 
 	local supported = {}
-	for k, v in pairs(Info.data.supported) do
+	for k, v in pairs(data.supported) do
 		local str = format("\t%s: %s\n", k, v)
 		insert(supported, str)
 	end
 
 	local str = {
-		format("Game Version: %s", Info.data.game_version),
-		format("OS: %s", Info.data.info_os),
+		format("Game Version: %s", data.game_version),
+		format("OS: %s", data.info_os),
 
-		format("Processor Count: %s", Info.data.processor_count),
+		format("Processor Count: %s", data.processor_count),
 
 		"Renderer Info:",
-		format("\tName: %s", Info.data.name),
-		format("\tVersion: %s", Info.data.version),
-		format("\tVendor: %s", Info.data.vendor),
-		format("\tDevice: %s", Info.data.device),
+		format("\tName: %s", data.name),
+		format("\tVersion: %s", data.version),
+		format("\tVendor: %s", data.vendor),
+		format("\tDevice: %s", data.device),
 
 		"System Limits:",
 		concat(system_limits),
@@ -115,7 +117,7 @@ function Info.validate_file(content, to_write)
 end
 
 function Info.is_texturesize_compatible(size)
-	local max_size = Info.data.limits.texturesize
+	local max_size = data.limits.texturesize
 	return size <= max_size
 end
 

@@ -12,6 +12,7 @@ function RenderCircle:internal_draw(e)
 	local circle = e.circle
 	local color = e.color
 	local line_width = e.line_width
+	local mode = e.draw_mode.draw_mode
 
 	if color then
 		love.graphics.setColor(color.color)
@@ -21,7 +22,7 @@ function RenderCircle:internal_draw(e)
 		love.graphics.setLineWidth(line_width.line_width)
 	end
 
-	love.graphics.circle(e.draw_mode.draw_mode, pos.x, pos.y, circle.radius, circle.segments)
+	love.graphics.circle(mode, pos.x, pos.y, circle.radius, circle.segments)
 end
 
 function RenderCircle:internal_draw_arc(e)
@@ -31,6 +32,7 @@ function RenderCircle:internal_draw_arc(e)
 	local hold = e.hold
 	local color = e.color
 	local line_width = e.line_width
+	local mode = e.draw_mode.draw_mode
 
 	if color then
 		love.graphics.setColor(color.color)
@@ -48,9 +50,10 @@ function RenderCircle:internal_draw_arc(e)
 	end
 
 	if arc_type then
-		love.graphics.arc(e.draw_mode.draw_mode, arc_type.arc_type, pos.x, pos.y, arc.radius, a, b, arc.segments)
+		love.graphics.arc(mode, arc_type.arc_type,
+			pos.x, pos.y, arc.radius, a, b, arc.segments)
 	else
-		love.graphics.arc(e.draw_mode.draw_mode, pos.x, pos.y, arc.radius, a, b, arc.segments)
+		love.graphics.arc(mode, pos.x, pos.y, arc.radius, a, b, arc.segments)
 	end
 end
 

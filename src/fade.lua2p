@@ -35,8 +35,10 @@ function Fade.fade_in(on_complete, duration, delay)
 end
 
 function Fade.draw()
+	local w, h = love.graphics.getDimensions()
+
 	love.graphics.setColor(Fade.getColor())
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+	love.graphics.rectangle("fill", 0, 0, w, h)
 end
 
 function Fade.set_color(color)

@@ -6,6 +6,7 @@ Concord.component("animation", function(c, stop_on_last)
 	!if _ASSERT then
 	Assert.safe_should_boolean(stop_on_last)
 	!end
+
 	c.grid = nil
 	c.animation = nil
 	c.current_tag = "default"
@@ -15,18 +16,20 @@ end)
 
 Concord.component("animation_pause_at", function(c, at_frame)
 	!if _ASSERT then
-	assert(type(at_frame) == "number" or type(at_frame) == "string", "Passed argument must be of type 'string' or 'number'")
+	Assert.either_type(at_frame, "number", "string")
 	if type(at_frame) == "string" then
-		assert(at_frame == "first" or at_frame == "last", "Passed argument must be either be 'first' or 'last'")
+		Assert.either_value(at_frame, "first", "last")
 	end
 	!end
+
 	c.at_frame = at_frame
 end)
 
 Concord.component("animation_stop", function(c, event)
 	!if _ASSERT then
-	assert(event == "pauseAtEnd" or event == "pauseAtStart", "Passed argument must be either be 'pauseAtEnd' or 'pauseAtStart'")
+	Assert.either_value(event, "pauseAtEnd", "pauseAtStart")
 	!end
+
 	c.event = event
 end)
 

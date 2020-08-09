@@ -1,6 +1,7 @@
 local Canvas = class()
 
 local color_red = {1, 0, 0, 1}
+local type_id = "CustomCanvas"
 
 function Canvas:new_default(x, y, width, height, rotation, scale)
 	local _canvas = love.graphics.newCanvas(width, height)
@@ -118,14 +119,14 @@ function Canvas:override_draw(fn)
 end
 
 function Canvas:render()
+	local scale = self.scale
+
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale, self.scale)
+	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, scale, scale)
 	love.graphics.setBlendMode("alpha")
 end
 
-function Canvas:type()
-	return "CustomCanvas"
-end
+function Canvas:type() return type_id end
 
 return Canvas

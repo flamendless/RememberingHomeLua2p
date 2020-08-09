@@ -83,9 +83,9 @@ function Network.check_latest_version(current_semver)
 end
 
 function Network.show_latest_dialogbox(url)
-	local pressed = love.window.showMessageBox("Alert", "There is a newer version available! Do you want to check it?", {
-		"OK", "No", escapebutton = 2
-	})
+	local pressed = love.window.showMessageBox("Alert",
+		"There is a newer version available! Do you want to check it?",
+		{"OK", "No", escapebutton = 2})
 
 	if pressed == 1 then
 		love.system.openURL(url)

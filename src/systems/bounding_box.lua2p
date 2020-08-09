@@ -4,9 +4,6 @@ local BoundingBox = Concord.system({
 	pool = {"bounding_box", "position"},
 })
 
-local color_default = { 1, 0, 0, 0.5 }
-local color_item = { 0, 0, 1, 0.5 }
-
 function BoundingBox:init()
 end
 

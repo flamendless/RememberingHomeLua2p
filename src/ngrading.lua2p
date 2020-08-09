@@ -34,14 +34,14 @@ local shaders = {
 local NGrading = class()
 local default_setting = {linear = true, dpiscale = 1}
 
-function NGrading:new_single(img, cell_size)
+function NGrading:new_single(img, cs)
 	!if _ASSERT then
 	Assert.should_imagedata(img)
 	!end
 
 	local data = img
-	local tw = floor(data:getWidth() / cell_size)
-	local th = floor(data:getHeight() / cell_size)
+	local tw = floor(data:getWidth() / cs)
+	local th = floor(data:getHeight() / cs)
 	local volume_img, image
 	local shader
 
@@ -54,8 +54,8 @@ function NGrading:new_single(img, cell_size)
 		local fmt = data:getFormat()
 		for j = 0, th - 1 do
 			for i = 0, tw - 1 do
-				local nimg = love.image.newImageData(cell_size, cell_size, fmt)
-				nimg:paste(data, 0, 0, i * cell_size, j * cell_size, cell_size, cell_size)
+				local nimg = love.image.newImageData(cs, cs, fmt)
+				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
 				imgs[#imgs + 1] = nimg
 			end
 		end
@@ -73,24 +73,24 @@ function NGrading:new_single(img, cell_size)
 
 	return self:init({
 		tile_size = {tw, th},
-		cell_size = cell_size,
+		cell_size = cs,
 		volume_img = volume_img,
 		image = image,
 		shader = default_shader_obj,
 	})
 end
 
-function NGrading:new_multi(img, img2, cell_size)
+function NGrading:new_multi(img, img2, cs)
 	!if _ASSERT then
 	Assert.should_imagedata(img)
 	Assert.should_imagedata(img2)
-	Assert.should_number(cell_size)
+	Assert.should_number(cs)
 	!end
 
 	local data = img
 	local data2 = img2
-	local tw = floor(data:getWidth() / cell_size)
-	local th = floor(data:getHeight() / cell_size)
+	local tw = floor(data:getWidth() / cs)
+	local th = floor(data:getHeight() / cs)
 	local volume_img, image
 	local volume_img2, image2
 
@@ -105,10 +105,10 @@ function NGrading:new_multi(img, img2, cell_size)
 		local fmt2 = data2:getFormat()
 		for j = 0, th - 1 do
 			for i = 0, tw - 1 do
-				local nimg = love.image.newImageData(cell_size, cell_size, fmt)
-				local nimg2 = love.image.newImageData(cell_size, cell_size, fmt2)
-				nimg:paste(data, 0, 0, i * cell_size, j * cell_size, cell_size, cell_size)
-				nimg2:paste(data2, 0, 0, i * cell_size, j * cell_size, cell_size, cell_size)
+				local nimg = love.image.newImageData(cs, cs, fmt)
+				local nimg2 = love.image.newImageData(cs, cs, fmt2)
+				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
+				nimg2:paste(data2, 0, 0, i * cs, j * cs, cs, cs)
 				imgs[#imgs + 1] = nimg
 				imgs2[#imgs2 + 1] = nimg2
 			end
@@ -136,7 +136,7 @@ function NGrading:new_multi(img, img2, cell_size)
 	return self:init({
 		is_multi = true,
 		tile_size = {tw, th},
-		cell_size = cell_size,
+		cell_size = cs,
 		volume_img = volume_img,
 		volume_img2 = volume_img2,
 		image = image,

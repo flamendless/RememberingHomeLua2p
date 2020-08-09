@@ -65,7 +65,8 @@ function GameStates.switch(next_id)
 	for i, method in ipairs(methods) do check_state(current_world, method) end
 	!end
 
-	local str = format("Switched from %s to %s", (GameStates.prev_world and GameStates.prev_world.id) or "", GameStates.current_id)
+	local prev_id = (GameStates.prev_world and GameStates.prev_world.id) or ""
+	local str = format("Switched from %s to %s", prev_id, GameStates.current_id)
 	Log.trace(str)
 
 	GameStates.init()
@@ -86,7 +87,8 @@ function GameStates.resize(override_mode)
 	local mode = WindowMode.getCurrent()
 	local scale = min(window_size.x/mode.width, window_size.y/mode.height)
 	love.window.setMode(mode.width, mode.height)
-	Log.info(format("Current Mode: [%i] %ix%i - scale:%f", WindowMode.current, mode.width, mode.height, scale))
+	Log.info(format("Current Mode: [%i] %ix%i - scale:%f",
+		WindowMode.current, mode.width, mode.height, scale))
 	GameStates.canvas_resize()
 end
 

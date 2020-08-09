@@ -52,8 +52,10 @@ local setup_animation = function(e, data, on_loop)
 	local obj_animation
 
 	if not multi then
-		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_loop)
+		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
+			data.sheet_width, data.sheet_height)
+		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
+			data.durations or data.delay, on_loop)
 	else
 		if cache_multi_animation[animation.current_tag] then
 			local cached = cache_multi_animation[animation.current_tag]
@@ -61,8 +63,10 @@ local setup_animation = function(e, data, on_loop)
 			obj_grid = cached.grid
 			obj_animation = cached.animation
 		else
-			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height, data.sheet_width, data.sheet_height)
-			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)), data.durations or data.delay, on_loop)
+			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
+				data.sheet_width, data.sheet_height)
+			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
+				data.durations or data.delay, on_loop)
 			cache_multi_animation[animation.current_tag] = {
 				grid = obj_grid,
 				animation = obj_animation

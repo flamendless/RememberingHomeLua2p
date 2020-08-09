@@ -77,7 +77,8 @@ function RandomTree:generate_tree(e)
 			local x = i * data.largest_w
 			local y = 0
 			local tree = Concord.entity(self.world)
-				:assemble(Assemblages.Intro.tree, img, vec2:new(x, y), index, data.tree_data.parallax, data.tree_data.z_index)
+				:assemble(Assemblages.Intro.tree, img, vec2:new(x, y),
+					index, data.tree_data.parallax, data.tree_data.z_index)
 		end
 		i = i + 1
 	end

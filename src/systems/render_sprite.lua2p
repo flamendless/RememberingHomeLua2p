@@ -63,9 +63,9 @@ function RenderSprite:internal_draw(e)
 			love.graphics.setColor(color.color)
 		end
 
-		local rotation, sx, sy, ox, oy
+		local rot, sx, sy, ox, oy
 		if transform then
-			rotation = transform.rotation
+			rot = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
 
@@ -102,16 +102,16 @@ function RenderSprite:internal_draw(e)
 
 		if quad then
 			if quad_transform then
-				rotation = quad_transform.rotation
+				rot = quad_transform.rotation
 				sx = quad_transform.sx
 				sy = quad_transform.sy
 				ox = quad_transform.ox
 				oy = quad_transform.oy
 			end
 
-			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy)
 		else
-			draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			draw(sprite.sprite, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy)
 		end
 	end
 end
@@ -141,7 +141,8 @@ local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 
 function RenderSprite:draw_debug()
-	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = DebugFlags.z_index})
+	DebugFlags.z_index = Slab.BeginWindow("ZIndex",
+		{Title = "Z Index", IsOpen = DebugFlags.z_index})
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)

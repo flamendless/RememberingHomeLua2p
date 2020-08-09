@@ -25,7 +25,7 @@ end
 function GhostEffect:toggle_effect(c)
 	local r = randomf(c.range_trigger.x, c.range_trigger.y)
 	c.timer_ghost:during(r, function()
-		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
+		local chance = weightedchoice({yes = c.range_chance.x, no = c.range_chance.y})
 		if chance == "yes" then
 			local width = love.graphics.getWidth()
 			local height = love.graphics.getHeight()

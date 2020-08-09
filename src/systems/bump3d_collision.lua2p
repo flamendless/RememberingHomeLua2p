@@ -23,7 +23,8 @@ function Bump3DCollision:init(world)
 		local x = e.position.pos.x
 		local y = e.position.pos.y
 
-		self.bump3d_world:add(e, x, y, 0, e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
+		self.bump3d_world:add(e, x, y, 0,
+			e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
 
 		!if not _RELEASE then
 		local id = e.bump3d.id
@@ -93,7 +94,8 @@ local win_col3d = false
 local current_item, current_item_id
 
 function Bump3DCollision:draw_slab(dt)
-	DebugFlags.b3d_list = Slab.BeginWindow("b3d", {Title = "Bump3DCollision", IsOpen = DebugFlags.b3d_list})
+	DebugFlags.b3d_list = Slab.BeginWindow("b3d",
+		{Title = "Bump3DCollision", IsOpen = DebugFlags.b3d_list})
 	local items, len = self.bump3d_world:getItems()
 	Slab.Text("number:")
 	Slab.SameLine()
@@ -137,31 +139,36 @@ function Bump3DCollision:draw_slab(dt)
 
 		Slab.Text("x: ")
 		Slab.SameLine()
-		if Slab.Input("input_x", {Text = tostring(x), ReturnOnText = false, NumbersOnly = true}) then
+		if Slab.Input("input_x",
+				{Text = tostring(x), ReturnOnText = false, NumbersOnly = true}) then
 			x = Slab.GetInputNumber()
 		end
 
 		Slab.Text("y: ")
 		Slab.SameLine()
-		if Slab.Input("input_y", {Text = tostring(y), ReturnOnText = false, NumbersOnly = true}) then
+		if Slab.Input("input_y",
+				{Text = tostring(y), ReturnOnText = false, NumbersOnly = true}) then
 			y = Slab.GetInputNumber()
 		end
 
 		Slab.Text("w: ")
 		Slab.SameLine()
-		if Slab.Input("input_w", {Text = tostring(w), ReturnOnText = false, NumbersOnly = true}) then
+		if Slab.Input("input_w",
+				{Text = tostring(w), ReturnOnText = false, NumbersOnly = true}) then
 			w = Slab.GetInputNumber()
 		end
 
 		Slab.Text("h: ")
 		Slab.SameLine()
-		if Slab.Input("input_h", {Text = tostring(h), ReturnOnText = false, NumbersOnly = true}) then
+		if Slab.Input("input_h",
+				{Text = tostring(h), ReturnOnText = false, NumbersOnly = true}) then
 			h = Slab.GetInputNumber()
 		end
 
 		Slab.Text("d: ")
 		Slab.SameLine()
-		if Slab.Input("input_d", {Text = tostring(d), ReturnOnText = false, NumbersOnly = true}) then
+		if Slab.Input("input_d",
+				{Text = tostring(d), ReturnOnText = false, NumbersOnly = true}) then
 			d = Slab.GetInputNumber()
 		end
 
@@ -172,13 +179,15 @@ function Bump3DCollision:draw_slab(dt)
 
 			Slab.Text("ox: ")
 			Slab.SameLine()
-			if Slab.Input("input_ox", {Text = tostring(ox), ReturnOnText = false, NumbersOnly = true}) then
+			if Slab.Input("input_ox",
+					{Text = tostring(ox), ReturnOnText = false, NumbersOnly = true}) then
 				ox = Slab.GetInputNumber()
 			end
 
 			Slab.Text("oy: ")
 			Slab.SameLine()
-			if Slab.Input("input_oy", {Text = tostring(oy), ReturnOnText = false, NumbersOnly = true}) then
+			if Slab.Input("input_oy",
+					{Text = tostring(oy), ReturnOnText = false, NumbersOnly = true}) then
 				oy = Slab.GetInputNumber()
 			end
 

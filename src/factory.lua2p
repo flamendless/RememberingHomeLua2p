@@ -20,18 +20,18 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 		:assemble(UI.key, key_id, vec2:new(pos.x, pos.y - 4), font)
 		:give("color_fade_in", dur_fade_in)
 
-	local pos = t.key.position.pos
+	local key_pos = t.key.position.pos
 	local orig = t.key.position.original_pos
 
 	t.keypress = Concord.entity(world)
 		:assemble(UI.keypress, true, sheet, t.progress)
 		:give("animation_on_update", function(dt, current_frame)
 			if current_frame == 1 then
-				pos.y = orig.y
+				key_pos.y = orig.y
 			elseif current_frame == 2 then
-				pos.y = orig.y + 4
+				key_pos.y = orig.y + 4
 			elseif current_frame == 3 then
-				pos.y = orig.y + 8
+				key_pos.y = orig.y + 8
 			end
 		end)
 		:give("color_fade_in", dur_fade_in)

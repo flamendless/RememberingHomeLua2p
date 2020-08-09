@@ -231,7 +231,9 @@ end
 function StateMenu:on_exit()
 	self.world:emit("allow_cursor", false)
 	!if _PLATFORM == "desktop" then
-		local btn = love.window.showMessageBox("Alert", "Are you sure you want to exit the game?", { "Exit", "Cancel", escapebutton = 2 })
+		local btn = love.window.showMessageBox("Alert",
+			"Are you sure you want to exit the game?",
+			{ "Exit", "Cancel", escapebutton = 2 })
 		if btn == 1 then
 			self:hide_main_menu()
 			self.dissolve_ff.flag_process = true
@@ -254,21 +256,26 @@ function StateMenu:setup_menu()
 	local title = res_images.title
 	local subtitle = res_images.subtitle
 
-	local scale = min(ww/bg_door:getWidth(), wh/bg_door:getHeight())
-	local scale_hallway = min(ww/bg_hallway:getWidth(), wh/bg_hallway:getHeight())
-	local scale_title = min((bg_door:getWidth() * scale)/title:getWidth(), (bg_door:getHeight() * scale)/title:getHeight())
-	local scale_subtitle = min((title:getWidth() * scale_title)/subtitle:getWidth(), (title:getHeight() * scale)/subtitle:getHeight())
-	scale_subtitle = scale_subtitle * 0.75
+	local bg_hw_w, bg_hw_h = bg_hallway:getDimensions()
+	local bg_door_w, bg_door_h = bg_door:getDimensions()
+	local title_w, title_h = title:getDimensions()
+	local subt_w, subt_h = subtitle:getDimensions()
+
+	local scale = min(ww/bg_door_w, wh/bg_door_h)
+	local scale_hallway = min(ww/bg_hw_w, wh/bg_hw_h)
+	local scale_title = min((bg_door_w * scale)/title_w, (bg_door_h * scale)/title_h)
+	local scale_subt = min((title_w * scale_title)/subt_w, (title_h * scale)/subt_h)
+	scale_subt = scale_subt * 0.75
 
 	self.entities.bg_door = Concord.entity(self.world)
 		:give("position", vec2:new(ww * 1.5, wh/2))
 		:give("sprite", bg_door)
-		:give("transform", 0, scale, scale, bg_door:getWidth()/2, bg_door:getHeight()/2)
+		:give("transform", 0, scale, scale, bg_door_w/2, bg_door_h/2)
 
 	self.entities.bg_hallway = Concord.entity(self.world)
 		:give("position", vec2:new(ww/2, wh * 1.5))
 		:give("sprite", bg_hallway)
-		:give("transform", 0, scale_hallway, scale_hallway, bg_hallway:getWidth()/2, bg_hallway:getHeight()/2)
+		:give("transform", 0, scale_hallway, scale_hallway, bg_hw_w/2, bg_hw_h/2)
 
 	self.entities.desk = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite,
@@ -288,7 +295,7 @@ function StateMenu:setup_menu()
 	self.entities.title = Concord.entity(self.world)
 		:give("position", vec2:new(ww * 0.25, wh/2 - 36))
 		:give("sprite", title)
-		:give("transform", 0, scale_title, scale_title, title:getWidth()/2, title:getHeight()/2)
+		:give("transform", 0, scale_title, scale_title, title_w/2, title_h/2)
 		:give("color", {1, 1, 1, 0.4})
 
 	self.entities.subtitle = Concord.entity(self.world)
@@ -296,9 +303,11 @@ function StateMenu:setup_menu()
 		:give("anchor", self.entities.title, "center", "bottom")
 		:give("sprite", subtitle)
 		:give("color", {1, 1, 1, 0.4})
-		:give("transform", 0, scale_subtitle, scale_subtitle, subtitle:getWidth()/2, subtitle:getHeight()/2)
+		:give("transform", 0, scale_subt, scale_subt, subt_w/2, subt_h/2)
 
-	local sdf_menu = love.graphics.newFontMSDF("res/fonts/Jamboree.fnt", "res/fonts/Jamboree.png")
+	local jamboree_fnt = "res/fonts/Jamboree.fnt"
+	local jamboree_png = "res/fonts/Jamboree.png"
+	local sdf_menu = love.graphics.newFontMSDF(jamboree_fnt, jamboree_png)
 	local font_menu = res_fonts.menu
 	local str_target_h = font_menu:getHeight()
 	local str_h = sdf_menu:getHeight()
@@ -314,7 +323,8 @@ function StateMenu:setup_menu()
 
 		local id = "text_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
+			:assemble(Assemblages.Common.text,
+				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i, 1)
 			:give("on_enter", function()
@@ -334,7 +344,8 @@ function StateMenu:setup_menu()
 
 		local id = "text_sub_" .. lstr
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text, vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
+			:assemble(Assemblages.Common.text,
+				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
 			:give("sdf", scale, scale)
 			:give("option_key", i, 2)
 			:give("on_enter", function()
@@ -424,7 +435,8 @@ function StateMenu:setup_about()
 				end
 				local id = "about_text_" .. i
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Common.static_text, vec2:new(x, y), str, font, Palette.colors.white)
+					:assemble(Assemblages.Common.static_text,
+						vec2:new(x, y), str, font, Palette.colors.white)
 					:give("position", vec2:new(x, y))
 					:give("camera")
 

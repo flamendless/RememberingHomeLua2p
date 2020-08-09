@@ -92,10 +92,12 @@ function StateTest:start()
 		:give("bump")
 
 	self.item1 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item1", vec2:new(512, 360), vec2:new(32, 32))
+		:assemble(Assemblages.Common.item, "item1",
+			vec2:new(512, 360), vec2:new(32, 32))
 
 	self.item2 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item2", vec2:new(560, 360), vec2:new(32, 32))
+		:assemble(Assemblages.Common.item, "item2",
+			vec2:new(560, 360), vec2:new(32, 32))
 
 	self.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base, "topdown",

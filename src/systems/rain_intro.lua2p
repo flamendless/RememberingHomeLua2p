@@ -5,7 +5,10 @@ local random = love.math.random
 local RainIntro = Concord.system({
 	pool_empty = {"empty_rain"},
 	pool_data_tilted = {"rain_data", "rain_tilted", "screen_size"},
-	pool_drop_tilted = { "rain_drop", "rain_tilted", "position", "acceleration", "collider_circle"},
+	pool_drop_tilted = {
+		"rain_drop", "rain_tilted",
+		"position", "acceleration", "collider_circle"
+	},
 	pool_splash_tilted = {"rain_splash", "rain_tilted", "position"},
 })
 

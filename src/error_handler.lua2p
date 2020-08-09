@@ -15,7 +15,8 @@ local traceback = debug.traceback
 local font, p
 
 local error_printer = function(msg, layer)
-	local err_msg = (traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", ""))
+	local err_msg = (traceback("Error: " .. tostring(msg),
+		1 + (layer or 1)):gsub("\n[^\n]+$", ""))
 	print(err_msg)
 end
 
@@ -26,6 +27,7 @@ local draw = function()
 	!else
 	local pos_y = love.graphics.getHeight()/2
 	!end
+
 	love.graphics.clear()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.printf(p, pos_x, pos_y, love.graphics.getWidth(), "center")
@@ -128,7 +130,8 @@ function ErrorHandler.callback(msg)
 			!if _PLATFORM == "desktop" then
 			elseif e == "keypressed" and a == "escaped" then
 				return 1
-			elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
+			elseif e == "keypressed" and a == "c" and
+				love.keyboard.isDown("lctrl", "rctrl") then
 				copy_to_clipboard(text_full)
 			end
 			!else
@@ -144,7 +147,8 @@ function ErrorHandler.callback(msg)
 					buttons[3] = "Copy to clipboard"
 				end
 
-				local pressed = love.window.showMessageBox("Quit " .. name .. "?", "", buttons)
+				local pressed = love.window.showMessageBox("Quit " .. name .. "?",
+					"", buttons)
 				if presssed == 1 then
 					return 1
 				elseif pressed == 3 then

@@ -38,7 +38,8 @@ function BumpCollision:update(dt)
 				local pos = e.position.pos
 				local cols, len
 
-				pos.x, pos.y, cols, len = self.bump_world:move(e, pos.x + body.vel_x, pos.y + body.vel_y, filter)
+				pos.x, pos.y, cols, len = self.bump_world:move(e,
+					pos.x + body.vel_x, pos.y + body.vel_y, filter)
 
 				for i = 1, len do
 					local c = cols[i]

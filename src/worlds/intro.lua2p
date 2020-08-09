@@ -136,39 +136,40 @@ function StateIntro:start()
 		:give("sprite", res_images.bg)
 		:give("position", vec2:new())
 
+	local ssx2 = self.screen_size.x * 2
 	self.entities.parallax_building = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_buildings, self.screen_size.x * 2, "building")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_buildings, ssx2, "building")
 
 	self.entities.bg_trees3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees3, self.screen_size.x * 2 , "bg_trees3")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_trees3, ssx2 , "bg_trees3")
 
 	self.entities.bg_trees2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees2, self.screen_size.x * 2 , "bg_trees2")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_trees2, ssx2 , "bg_trees2")
 
 	self.entities.bg_trees1 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees1, self.screen_size.x * 2 , "bg_trees1")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_trees1, ssx2 , "bg_trees1")
 
 	self.entities.bg_trees0 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_cover, res_images.bg_trees0)
 
 	self.entities.parallax_road = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, self.screen_size.x * 2, "road")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road")
 		:give("collider", vec2:new(self.screen_size.x, 64), vec2:new(0, 354))
 
 	self.entities.parallax_grass = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, self.screen_size.x * 2, "grass1")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1")
 
 	self.entities.parallax_grass2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, self.screen_size.x * 2, "grass2")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, ssx2, "grass2")
 
 	self.entities.parallax_grass_back = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, self.screen_size.x * 2, "grass_back")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, ssx2, "grass_back")
 
 	self.entities.parallax_grass_front = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, self.screen_size.x * 2, "grass_front")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front")
 
 	self.entities.post = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_post, self.screen_size.x * 2, "post")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post")
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
@@ -189,7 +190,8 @@ function StateIntro:start()
 		:give("collider", vec2:new(47, 32), vec2:new(81, 16))
 
 	self.entities.car_reflect = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.car_reflect, res_images.sheet_car_reflect, self.entities.car)
+		:assemble(Assemblages.Intro.car_reflect,
+			res_images.sheet_car_reflect, self.entities.car)
 		:give("animation_on_loop", function()
 			local chance = Lume.randomchoice({true, false})
 			if chance then
@@ -200,7 +202,8 @@ function StateIntro:start()
 		end)
 
 	self.entities.fg_tree_data = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.fg_tree_data, {res_images.fg_tree1, res_images.fg_tree2}, w)
+		:assemble(Assemblages.Intro.fg_tree_data,
+			{ res_images.fg_tree1, res_images.fg_tree2 }, w)
 
 	self.entities.rain_data = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.rain_data,
@@ -236,22 +239,29 @@ function StateIntro:start()
 	current_effect = effect.single
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "flamendless studio presents", res_fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "flamendless studio presents",
+			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "a game by Brandon", res_fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "a game by Brandon",
+			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "arts by Conrad", res_fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "arts by Conrad",
+			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "music by ???", res_fonts.ui, vec2:new(32, 32))
+		:assemble(Assemblages.UI.ui_text, "music by ???",
+			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.title = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.title, res_images.title, vec2:new(self.screen_size.x/2, self.screen_size.y/2))
+		:assemble(Assemblages.Intro.title,
+			res_images.title, vec2:new(self.screen_size.x/2, self.screen_size.y/2))
 
 	self.entities.dialogue = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.dialogues, "dialogue_intro", Dialogues.get("intro_rain"), res_fonts.dialogue, vec2:new(self.screen_size.x/2, 64))
+		:assemble(Assemblages.Intro.dialogues, "dialogue_intro",
+			Dialogues.get("intro_rain"), res_fonts.dialogue,
+			vec2:new(self.screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
 		local car_pos = self.entities.car:get("position").pos
@@ -264,7 +274,8 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { scale = 10 })
 
 		TLE.Event.Wait(2)
-		self.world:emit("fade_text", self.entities.intro_txt1, fade_duration, self.timeline, true)
+		self.world:emit("fade_text", self.entities.intro_txt1,
+			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		local cx, cy = self.camera:getPosition()
@@ -272,7 +283,8 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 160, y = cy - 32 })
 		Flux.to(car_pos, 5, { x = 128 })
 
-		self.world:emit("fade_text", self.entities.intro_txt2, fade_duration, self.timeline, true)
+		self.world:emit("fade_text", self.entities.intro_txt2,
+			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		--Enter forest
@@ -286,10 +298,12 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, { x = cx + 72, y = cy - 32 })
 		Flux.to(car_pos, 3, { x = 160 })
 
-		self.world:emit("fade_text", self.entities.intro_txt3, fade_duration, self.timeline, true)
+		self.world:emit("fade_text", self.entities.intro_txt3,
+			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
-		self.world:emit("fade_text", self.entities.intro_txt4, fade_duration, self.timeline, true)
+		self.world:emit("fade_text", self.entities.intro_txt4,
+			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
 		update_rain(1)
@@ -300,7 +314,8 @@ function StateIntro:start()
 		update_rain(2)
 
 		TLE.Event.Wait(3)
-		self.world:emit("start_dialogue", "dialogue_intro", self.timeline, dur_in, dur_out)
+		self.world:emit("start_dialogue", "dialogue_intro",
+			self.timeline, dur_in, dur_out)
 		self.timeline:Pause()
 
 		update_rain(3)
@@ -345,7 +360,8 @@ function StateIntro:start()
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, res_fonts.ui, vec2:new(self.screen_size.x/2, self.screen_size.y - 8))
+			:assemble(Assemblages.Common.skip, res_fonts.ui,
+				vec2:new(self.screen_size.x/2, self.screen_size.y - 8))
 	end
 end
 

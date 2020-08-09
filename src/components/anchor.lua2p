@@ -1,18 +1,18 @@
 local Concord = require("modules.concord.concord")
 local Type = require("modules.concord.concord.type")
 
-Concord.component("anchor", function(c, entity, anchor_x, anchor_y, padding_x, padding_y)
+Concord.component("anchor", function(c, entity, a_x, a_y, padding_x, padding_y)
 	!if _ASSERT then
 	Assert.should_entity(entity)
-	Assert.should_string(anchor_x)
-	Assert.should_string(anchor_y)
+	Assert.should_string(a_x)
+	Assert.should_string(a_y)
 	Assert.safe_should_number(padding_x)
 	Assert.safe_should_number(padding_y)
 	!end
 
 	c.entity = entity
-	c.anchor_x = anchor_x
-	c.anchor_y = anchor_y
+	c.anchor_x = a_x
+	c.anchor_y = a_y
 	c.padding_x = padding_x
 	c.padding_y = padding_y
 end)

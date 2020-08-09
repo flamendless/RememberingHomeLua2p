@@ -325,9 +325,11 @@ function StateOutside:start()
 
 		tle_log("wait for action")
 		local pos = vec2:new(self.screen_size.x/2, self.screen_size.y/2)
-		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key, 64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
+		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key,
+			64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
-		local event1 = EventsList.hold_key(key_id, p_interact_id, timer_hold_key, e_hold_key.progress)
+		local event1 = EventsList.hold_key(key_id, p_interact_id,
+			timer_hold_key, e_hold_key.progress)
 		event1.on_complete = function()
 			tle_log("action completed")
 			for id, e in pairs(e_hold_key) do
@@ -356,7 +358,7 @@ function StateOutside:start()
 		EventManager.add(event1)
 		self.timeline:Pause()
 
-		TLE.Event.Wait(1.5)
+		TLE.Event.Wait(0.75)
 		tle_log("task: " .. tasks[2])
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task)
 
@@ -372,7 +374,9 @@ function StateOutside:update(dt)
 	self.world:emit("update", dt)
 
 	local cx, cy, cw, ch = self.camera:getVisible()
-	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, cx - 128, cw + 128)
+	local x = cx - 128
+	local x2 = cw + 128
+	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, x, x2)
 
 	!if not _RELEASE then
 	Slab.Update(dt)

@@ -40,28 +40,28 @@ function PlayerController:update(dt)
 			e.body.dy = 0
 		end
 
-		local animation_name
-		local animation_variance
+		local anim_name
+		local anim_variance
 
 		if e.body.dx ~= 0 or e.body.dy ~= 0 then
 			if e.body.is_run then
-				animation_name = "run"
+				anim_name = "run"
 			else
-				animation_name = "walk"
+				anim_name = "walk"
 			end
 		else
-			animation_name = "idle"
+			anim_name = "idle"
 		end
 
 		if e.body.dir == -1 then
-			animation_variance = "_left"
+			anim_variance = "_left"
 		end
 
-		if animation_name then
-			if animation_variance then
-				self.world:emit("switch_animation_tag", animation_name .. animation_variance)
+		if anim_name then
+			if anim_variance then
+				self.world:emit("switch_animation_tag", anim_name .. anim_variance)
 			else
-				self.world:emit("switch_animation_tag", animation_name)
+				self.world:emit("switch_animation_tag", anim_name)
 			end
 		end
 
@@ -70,7 +70,7 @@ function PlayerController:update(dt)
 
 		if speed and speed_data then
 			local old_speed = speed.speed
-			local new_speed = speed_data.speed_data[animation_name]
+			local new_speed = speed_data.speed_data[anim_name]
 			if e.body.dx ~= 0 or e.body.dy ~= 0 then
 				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
 				speed.speed = speed_dt

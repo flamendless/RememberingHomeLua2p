@@ -124,12 +124,14 @@ end
 
 function Camera:draw_debug()
 	if not self.main_camera then return end
-	DebugFlags.camera = Slab.BeginWindow("camera", {Title = "Camera", IsOpen = DebugFlags.camera})
+	DebugFlags.camera = Slab.BeginWindow("camera",
+		{Title = "Camera", IsOpen = DebugFlags.camera})
 
 	local scale = self.main_camera:getScale()
 	Slab.Text("scale: ")
 	Slab.SameLine()
-	if Slab.Input("input_scale", {Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
+	if Slab.Input("input_scale",
+			{Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
 		scale = Slab.GetInputNumber()
 		self.main_camera:setScale(scale)
 	end
