@@ -7,6 +7,7 @@ local BumpCollision = Concord.system({
 
 local filter = function(item, other)
 	local other_col = other.collider
+
 	return other_col.filter or "slide"
 end
 
@@ -60,8 +61,10 @@ function BumpCollision:update(dt)
 					item_col.normal.y = c.normalY
 
 					if other_id then
+						--TODO wall collision animation
 						if other_id == "wall" then
 							self.world:emit("collision_wall", e, other)
+
 							return
 						end
 					end

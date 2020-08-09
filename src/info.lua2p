@@ -3,15 +3,16 @@ local Log = require("modules.log.log")
 local WindowMode = require("window_mode")
 local Utils = require("utils")
 
+local min = math.min
+local concat = table.concat
+local insert = table.insert
+local format = string.format
+
 local Info = {
 	data = {},
 	options = {},
 }
 
-local min = math.min
-local concat = table.concat
-local insert = table.insert
-local format = string.format
 local filename = !(_LOG_INFO)
 
 local insert_str = function(src, dest)
@@ -29,6 +30,11 @@ end
 function Info.initialize()
 	Log.info("System information checking...")
 	local data = Info.data
+	local system_limits = {}
+	local canvas_formats = {}
+	local image_formats = {}
+	local texture_types = {}
+	local supported = {}
 
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
@@ -39,12 +45,6 @@ function Info.initialize()
 	data.imageformats = love.graphics.getImageFormats()
 	data.texturetypes = love.graphics.getTextureTypes()
 	data.supported = love.graphics.getSupported()
-
-	local system_limits = {}
-	local canvas_formats = {}
-	local image_formats = {}
-	local texture_types = {}
-	local supported = {}
 
 	insert_str(data.limits, system_limits)
 	insert_str(data.canvasformats, canvas_formats)

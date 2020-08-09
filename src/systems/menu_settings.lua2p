@@ -35,9 +35,11 @@ function MenuSettings:update_settings(dt)
 end
 
 function MenuSettings:slab_title(title, text)
-	Slab.BeginLayout(title, { AlignX = "center", AlignY = "top", Columns = 1 })
+	Slab.BeginLayout(title, {AlignX = "center", AlignY = "top", Columns = 1})
 	Slab.SetLayoutColumn(1)
+
 	if text then Slab.Text(text) end
+
 	Slab.EndLayout()
 	Slab.Separator()
 end
@@ -49,12 +51,13 @@ function MenuSettings:update_desktop(dt)
 	local y = 64
 	local width = self.ww - (x * 2)
 	local height = self.wh - (y * 2)
+
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
-		X = x, Y = y, W = width, H = height,
-		AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
-		BgColor = Palette.windows.settings
-	})
+			X = x, Y = y, W = width, H = height,
+			AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
+			BgColor = Palette.windows.settings
+		})
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
 	Slab.BeginLayout("GeneralSettingsLayout", {
@@ -67,26 +70,30 @@ function MenuSettings:update_desktop(dt)
 		if Slab.CheckBox(self.flags.game_sounds, "Game Sounds") then
 			self.flags.game_sounds = not self.flags.game_sounds
 		end
+
 		if Slab.CheckBox(self.flags.game_music, "Game Music") then
 			self.flags.game_music = not self.flags.game_music
 		end
 
 		Slab.SetLayoutColumn(2)
-		if Slab.BeginComboBox("WindowMode", { Selected = self.current_wm }) then
+
+		if Slab.BeginComboBox("WindowMode", {Selected = self.current_wm}) then
 			for i, str in ipairs(self.wm_list) do
 				if Slab.TextSelectable(str) then
 					self.current_wm = str
 				end
 			end
+
 			Slab.EndComboBox()
 		end
 
-		if Slab.BeginComboBox("GraphicsQuality", { Selected = self.current_gq }) then
+		if Slab.BeginComboBox("GraphicsQuality", {Selected = self.current_gq}) then
 			for i, str in ipairs(self.list_gq) do
 				if Slab.TextSelectable(str) then
 					self.current_gq = str
 				end
 			end
+
 			Slab.EndComboBox()
 		end
 
@@ -97,34 +104,42 @@ function MenuSettings:update_desktop(dt)
 	Slab.Separator()
 
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
-	Slab.BeginLayout("KeybindingsLayout", { AlignX = "center", AlignY = "top", Columns = 3 })
+	Slab.BeginLayout("KeybindingsLayout", {AlignX = "center", AlignY = "top", Columns = 3})
 		for key_name, key_table in pairs(self.inputs_ui) do
 			local id = key_name
+
 			Slab.SetLayoutColumn(1)
 			Slab.Text(id)
+
 			for i, key_ui in ipairs(key_table) do
 				Slab.SetLayoutColumn(i + 1)
+
 				local id2 = id .. "_" .. i
+
 				if Slab.BeginComboBox(id2, { Selected =  key_ui }) then
 					for j, new_key_ui in ipairs(Inputs.key_constants) do
 						if Slab.TextSelectable(new_key_ui) then
 							key_table[i] = new_key_ui
 						end
 					end
+
 					Slab.EndComboBox()
 				end
 			end
+
 			if #key_table == 1 then
 				Slab.SetLayoutColumn(3)
 				Slab.NewLine()
 			end
 		end
+
 	Slab.EndLayout()
 	Slab.Separator()
 
 	Slab.BeginLayout("GeneralOptionsLayout", {
 			AlignX = "center", AlignY = "bottom", Columns = 1
 		})
+
 		if Slab.Button("Reset to defaults") then
 			show_message_box_reset = true
 		end
@@ -142,12 +157,14 @@ function MenuSettings:update_desktop(dt)
 		if Slab.Button("Return to Main Menu") then
 			love.keypressed("escape")
 		end
+
 	Slab.EndLayout()
 
 	if show_message_box_reset then
 		local res = Slab.MessageBox("Alert",
 			"Are you sure you want to reset the settings to default?",
-			{ Buttons = { "Confirm", "Cancel" } })
+			{Buttons = {"Confirm", "Cancel"}})
+
 		if res ~= "" then
 			Inputs.reset_by_tag("ui")
 			Inputs.save_keybindings()

@@ -14,18 +14,21 @@ end
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e:has("override_animation") then return end
+
 		if not e.body.can_move then return end
 
 		if Inputs.is_down("player_move_left") then
 			if e.body.can_run then
 				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
+
 			e.body.dir = -1
 			e.body.dx = -1
 		elseif Inputs.is_down("player_move_right") then
 			if e.body.can_run then
 				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
+
 			e.body.dir = 1
 			e.body.dx = 1
 		else
@@ -71,8 +74,10 @@ function PlayerController:update(dt)
 		if speed and speed_data then
 			local old_speed = speed.speed
 			local new_speed = speed_data.speed_data[anim_name]
+
 			if e.body.dx ~= 0 or e.body.dy ~= 0 then
 				local speed_dt = mathx.lerp(old_speed, new_speed, 0.5)
+
 				speed.speed = speed_dt
 			else
 				speed.speed = new_speed
@@ -83,18 +88,22 @@ end
 
 function PlayerController:face_left(e)
 	if e:has("override_animation") then return end
+
 	if e.body.can_run then
 		e.body.is_run = Inputs.is_down("player_run_mod")
 	end
+
 	e.body.dir = -1
 	e.body.dx = -1
 end
 
 function PlayerController:face_right(e)
 	if e:has("override_animation") then return end
+
 	if e.body.can_run then
 		e.body.is_run = Inputs.is_down("player_run_mod")
 	end
+
 	e.body.dir = 1
 	e.body.dx = 1
 end

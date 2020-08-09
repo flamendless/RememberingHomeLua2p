@@ -9,6 +9,10 @@ local sub = string.sub
 local Utils = {}
 
 function Utils.read_file(filename)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	local file = love.filesystem.getInfo(filename)
 	Log.info(format("'%s' exists: %s", filename, file ~= nil))
 
@@ -22,17 +26,29 @@ function Utils.read_file(filename)
 end
 
 function Utils.write_to_file(filename, data)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	love.filesystem.write(filename, data)
 	Log.info(format("'%s' written", filename))
 end
 
 function Utils.write_to_file_json(filename, data)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	local to_write = JSON.encode(data)
 
 	Utils.write_to_file(filename, to_write)
 end
 
 function Utils.serialize_to_file(filename, data)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	local to_write = Bitser.dumps(data)
 
 	Utils.write_to_file(filename, to_write)
@@ -41,6 +57,10 @@ function Utils.serialize_to_file(filename, data)
 end
 
 function Utils.deserialize_from_file(filename)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	local content, exists = Utils.read_file(filename)
 	local data = Bitser.loads(content)
 
@@ -52,6 +72,10 @@ function Utils.deserialize(content)
 end
 
 function Utils.parse_json(filename)
+	!if _ASSERT then
+	Assert.should_string(filename)
+	!end
+
 	local content, exists = Utils.read_file(filename)
 
 	if exists then
@@ -64,12 +88,22 @@ function Utils.parse_json(filename)
 end
 
 function Utils.compare_hash_key(a, key)
+	!if _ASSERT then
+	Assert.should_string(a)
+	Assert.should_string(key)
+	!end
+
 	local a = love.data.hash("sha256", a)
 
 	return a == key
 end
 
 function Utils.hash_and_compare(a, b)
+	!if _ASSERT then
+	Assert.should_string(a)
+	Assert.should_string(b)
+	!end
+
 	local hashed_a = love.data.hash("md5", a)
 	local hashed_b = love.data.hash("md5", b)
 
@@ -77,6 +111,11 @@ function Utils.hash_and_compare(a, b)
 end
 
 function Utils.get_substring(str, sep)
+	!if _ASSERT then
+	Assert.should_string(str)
+	Assert.should_string(sep)
+	!end
+
 	local n = find(str, sep)
 	local s = sub(str, 1, n - 1)
 

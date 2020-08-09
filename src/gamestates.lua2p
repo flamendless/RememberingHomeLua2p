@@ -1,14 +1,12 @@
 local Log = require("modules.log.log")
 
-local format = string.format
-local min = math.min
-local floor = math.floor
-
 local Canvas = require("canvas")
 local WindowMode = require("window_mode")
 local Worlds = require("worlds")
 
-local window_size = !(_GAME_SIZE)
+local format = string.format
+local min = math.min
+local floor = math.floor
 
 local GameStates = {
 	prev_world = nil,
@@ -16,6 +14,7 @@ local GameStates = {
 	current_id = nil,
 }
 
+local window_size = !(_GAME_SIZE)
 local mid_canvas, bot_canvas, top_canvas, main_canvas
 
 !if not _RELEASE then

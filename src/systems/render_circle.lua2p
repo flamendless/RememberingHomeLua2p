@@ -1,11 +1,11 @@
 local Concord = require("modules.concord.concord")
 
+local pi = math.pi
+
 local RenderCircle = Concord.system({
 	pool = {"position", "circle", "draw_mode"},
 	pool_arc = {"position", "arc", "draw_mode"},
 })
-
-local pi = math.pi
 
 function RenderCircle:internal_draw(e)
 	local pos = e.position.pos

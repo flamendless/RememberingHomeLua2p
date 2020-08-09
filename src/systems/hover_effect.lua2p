@@ -25,8 +25,7 @@ function HoverEffect:change_color(mx, my)
 		if mx > bx and mx < bx + bw and my > by and my < by + bh then
 			if not hoverable.is_hovered then
 				hoverable.is_hovered = true
-				Flux.to(color.color, new_color.duration,
-					{
+				Flux.to(color.color, new_color.duration, {
 						[1] = new_color.color[1],
 						[2] = new_color.color[2],
 						[3] = new_color.color[3],
@@ -36,8 +35,7 @@ function HoverEffect:change_color(mx, my)
 		else
 			if hoverable.is_hovered then
 				hoverable.is_hovered = false
-				Flux.to(color.color, new_color.duration,
-					{
+				Flux.to(color.color, new_color.duration, {
 						[1] = color.original_color[1],
 						[2] = color.original_color[2],
 						[3] = color.original_color[3],

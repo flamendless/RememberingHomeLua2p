@@ -5,14 +5,14 @@ local floor = math.floor
 local insert = table.insert
 local remove = table.remove
 
-local cache_multi_animation = {}
-
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
 	pool_z = {"animation", "animation_data", "position", "z_index"},
 	pool_multi = {"multiple_animation_data", "animation", "position"},
 	pool_pause = {"animation", "animation_data", "animation_pause_at"},
 })
+
+local cache_multi_animation = {}
 
 local setup_on_loop = function(e, animation)
 	!if _ASSERT then
@@ -28,6 +28,7 @@ local setup_on_loop = function(e, animation)
 			if cb.event then
 				animation.is_playing = false
 				animation.animation[cb.event](animation.animation)
+
 				if cb.remove_at_end then
 					e:remove("animation_on_loop")
 				end
@@ -47,7 +48,6 @@ end
 local setup_animation = function(e, data, on_loop)
 	local animation = e.animation
 	local multi = e.multiple_animation_data
-
 	local obj_grid
 	local obj_animation
 
@@ -81,6 +81,7 @@ local setup_animation = function(e, data, on_loop)
 	animation.animation = obj_animation
 
 	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
+
 	e:give("sprite", data.spritesheet)
 	e:give("quad", quad)
 
@@ -89,6 +90,7 @@ local setup_animation = function(e, data, on_loop)
 			ox = ox - e.transform.ox
 			oy = oy - e.transform.oy
 		end
+
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else
 		e:remove("quad_transform")
@@ -123,6 +125,7 @@ function Animation:init()
 	self.pool_z.onEntityRemoved = function(pool, e)
 		for i = #self.custom_pool_z, 1, -1 do
 			local ent = self.custom_pool_z[i]
+
 			if e == ent then remove(self.custom_pool_z, i) end
 		end
 	end
@@ -212,6 +215,7 @@ function Animation:update_animation_data(e, data)
 	anim_data.frame_height = floor(anim_data.sheet_height/anim_data.rows_count)
 
 	local on_loop = setup_on_loop(e, animation)
+
 	setup_animation(e, anim_data, on_loop)
 end
 
@@ -235,6 +239,7 @@ function Animation:update(dt)
 					animation.animation[stop.event](animation.animation)
 
 					local cb = e.animation_on_loop
+
 					if cb then
 						cb.callback()
 					end
@@ -248,6 +253,7 @@ function Animation:update(dt)
 			end
 
 			local current_quad = animation.animation:getFrameInfo()
+
 			quad.quad = current_quad
 		end
 	end

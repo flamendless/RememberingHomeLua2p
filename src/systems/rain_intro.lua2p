@@ -28,8 +28,7 @@ function RainIntro:init(world)
 		self.max_height = e.screen_size.height
 
 		for i = 1, e.rain_data.buffer do
-			local empty = Concord.entity(self.world)
-				:give("empty_rain")
+			local empty = Concord.entity(self.world):give("empty_rain")
 		end
 	end
 end
@@ -43,24 +42,25 @@ function RainIntro:emit_rain(amount, max_amount)
 	local random_amount = random(amount/2, amount * 1.5)
 
 	for i = 1, random_amount do
-		local r = random(1, #drop)
-		local img = drop[r]
-		local x = random(1, self.max_width)
-		local pos = vec2:new(x, -64)
-		local anim_data = {}
-
-		tablex.copy(self.metadata.drop, anim_data)
-		anim_data.spritesheet = img
-
-		local ax = random(320, 640)
-		local ay = random(320, 640)
-		local accel = vec2:new(-ax, ay)
-		local alpha = random(10, 100)/100
-		local z = random(1, 10)
-		local scale = random(20, 70)/100 + (z/10)
-
 		local e = self.pool_empty[i]
+
 		if e then
+			local r = random(1, #drop)
+			local img = drop[r]
+			local x = random(1, self.max_width)
+			local pos = vec2:new(x, -64)
+			local anim_data = {}
+
+			tablex.copy(self.metadata.drop, anim_data)
+			anim_data.spritesheet = img
+
+			local ax = random(320, 640)
+			local ay = random(320, 640)
+			local accel = vec2:new(-ax, ay)
+			local alpha = random(10, 100)/100
+			local z = random(1, 10)
+			local scale = random(20, 70)/100 + (z/10)
+
 			e:give("animation_data", anim_data)
 			:give("position", pos)
 			:give("animation")
@@ -107,7 +107,6 @@ function RainIntro:update(dt)
 		local accel = e.acceleration.accel
 		local col = e.collider_circle
 		local z_index = e.z_index.z
-
 		local dx = pos.x + accel.x * dt
 		local dy = pos.y + accel.y * dt
 

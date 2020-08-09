@@ -29,6 +29,7 @@ function RenderText:internal_draw(e)
 		local sdf = e.sdf
 
 		love.graphics.setColor(1, 1, 1, 1)
+
 		if color then
 			love.graphics.setColor(color.color)
 		end
@@ -54,6 +55,7 @@ function RenderText:internal_draw(e)
 					ox = current_font:getWidth(text.text)/2
 				end
 			end
+
 			if transform.oy == 0.5 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()/2
@@ -91,6 +93,7 @@ function RenderText:draw()
 			self:internal_draw(e)
 		end
 	end
+
 	for _, e in ipairs(self.pool_static) do
 		if not e.ui_text then
 			self:internal_draw(e)
@@ -102,6 +105,7 @@ function RenderText:draw_ui()
 	for _, e in ipairs(self.pool_ui) do
 		self:internal_draw(e)
 	end
+
 	for _, e in ipairs(self.pool_static) do
 		self:internal_draw(e)
 	end

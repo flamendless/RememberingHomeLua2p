@@ -7,9 +7,7 @@ local Parallax = Concord.system({
 
 function Parallax:init()
 	self.pool.onEntityAdded = function(pool, e)
-		local sprite = e.sprite
-
-		sprite.sprite:setWrap("repeat")
+		e.sprite.sprite:setWrap("repeat")
 	end
 end
 

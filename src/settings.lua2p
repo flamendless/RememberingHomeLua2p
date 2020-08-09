@@ -2,12 +2,12 @@ local Enum = require("modules.enum.enum")
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
+local WindowMode = require("window_mode")
+local Utils = require("utils")
+
 local insert = table.insert
 local format = string.format
 local sub = string.sub
-
-local WindowMode = require("window_mode")
-local Utils = require("utils")
 
 local Settings = {
 	current = {}
@@ -48,6 +48,11 @@ function Settings.overwrite()
 end
 
 function Settings.update_graphics_quality(str, should_overwrite)
+	!if _ASSERT then
+	Assert.should_string(str)
+	Assert.safe_should_boolean(should_overwrite)
+	!end
+
 	Settings.current.graphics_quality = graphics_quality[str]
 	if should_overwrite then
 		Settings.overwrite()
@@ -55,6 +60,11 @@ function Settings.update_graphics_quality(str, should_overwrite)
 end
 
 function Settings.update_window_mode(i, should_overwrite)
+	!if _ASSERT then
+	Assert.should_number(i)
+	Assert.safe_should_boolean(should_overwrite)
+	!end
+
 	Settings.current.current_wm = i
 	if should_overwrite then
 		Settings.overwrite()
@@ -62,6 +72,11 @@ function Settings.update_window_mode(i, should_overwrite)
 end
 
 function Settings.set_game_sounds(flag, should_overwrite)
+	!if _ASSERT then
+	Assert.should_boolean(flag)
+	Assert.safe_should_boolean(should_overwrite)
+	!end
+
 	local prev = Settings.current_game_sounds
 
 	if prev ~= flag then
@@ -73,6 +88,11 @@ function Settings.set_game_sounds(flag, should_overwrite)
 end
 
 function Settings.set_game_music(flag, should_overwrite)
+	!if _ASSERT then
+	Assert.should_boolean(flag)
+	Assert.safe_should_boolean(should_overwrite)
+	!end
+
 	local prev = Settings.current_game_musoc
 
 	if prev ~= flag then

@@ -25,13 +25,13 @@
 local floor = math.floor
 local format = string.format
 
+local NGrading = class()
+
 local shaders = {
 	old = "shaders/ngrading_old.glsl",
 	volume = "shaders/ngrading_volume.glsl",
 	volume_multi = "shaders/ngrading_volume_multi.glsl",
 }
-
-local NGrading = class()
 local default_setting = {linear = true, dpiscale = 1}
 
 function NGrading:new_single(img, cs)
@@ -96,7 +96,6 @@ function NGrading:new_multi(img, img2, cs)
 	local th = floor(data:getHeight() / cs)
 	local volume_img, image
 	local volume_img2, image2
-
 	local used_shader = love.graphics.getTextureTypes().volume
 
 	if used_shader == 0 then used_shader = false end

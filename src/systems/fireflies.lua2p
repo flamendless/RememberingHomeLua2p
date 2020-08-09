@@ -3,10 +3,10 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
+local Palette = require("palette")
+
 local insert = table.insert
 local random = love.math.random
-
-local Palette = require("palette")
 
 local Fireflies = Concord.system({
 	pool = {"firefly", "color"},
@@ -16,8 +16,9 @@ local Color = require("systems.color")
 local Outside = require("assemblages.outside")
 
 local offset = 8
+
 local generate_points = function(x, y, n)
-	local points = { vec2:new(x, y) }
+	local points = {vec2:new(x, y)}
 	local prev_x = x
 	local prev_y = y
 
@@ -25,6 +26,7 @@ local generate_points = function(x, y, n)
 		local px = random(prev_x - offset, prev_x + offset)
 		local py = random(prev_y - offset, prev_y + offset)
 		local pv = vec2:new(px, py)
+
 		prev_x = px
 		prev_y = py
 		insert(points, pv)
@@ -38,33 +40,38 @@ move_to_next_point = function(path, pos)
 	local low = path.current_point
 	local dur = random(2, 8)
 	local high = low + dur
+	local points = {}
 
 	if high > path.n_points then
 		high = path.n_points
 	end
 
-	local points = {}
 	for i = low, high do
 		local nx, ny = path.points[i]:unpack()
+
 		insert(points, nx)
 		insert(points, ny)
 	end
 
 	local b = love.math.newBezierCurve(unpack(points))
-	local state = { time = 0 }
+	local state = {time = 0}
+	local f = Flux.to(state, dur, {time = 1})
 
-	local f = Flux.to(state, dur, { time = 1 })
 	f:onupdate(function()
 		local dx, dy = b:evaluate(state.time)
+
 		pos.x = dx
 		pos.y = dy
 	end)
+
 	f:oncomplete(function()
 		path.current_point = high
+
 		if path.current_point >= path.n_points then
 			path.current_point = 1
 			tablex.reverse(path.points)
 		end
+
 		move_to_next_point(path, pos)
 	end)
 end
@@ -99,7 +106,7 @@ function Fireflies:show_fireflies(dur, fn)
 
 	for _, e in ipairs(self.pool) do
 		e:remove("hidden")
-		Flux.to(e.color.color, dur, { [4] = 1 })
+		Flux.to(e.color.color, dur, {[4] = 1})
 			:oncomplete(function()
 				e.firefly.can_flicker = true
 				fn()
@@ -125,29 +132,28 @@ function Fireflies:flicker_fireflies(start_time, end_time)
 			local colors = e.firefly.colors
 			local time = random(start_time, end_time)
 
-			local timer = Timer.during(time,
-				function()
-					local chance = Lume.weightedchoice({ yes = 0.25, no = 0.75 })
+			local timer = Timer.during(time, function()
+					local chance = Lume.weightedchoice({yes = 0.25, no = 0.75})
+
 					if chance == "yes" then
 						local target = colors[random(1, #colors)]
 
-						Flux.to(color, 0.25,
-							{
+						Flux.to(color, 0.25, {
 								[1] = target[1],
 								[2] = target[2],
 								[3] = target[3],
 								[4] = target[4],
 							})
 					end
-				end,
-				function()
-					local next_run = random(start_time, end_time)
-					local timer2 = Timer.after(next_run,
-						function()
-							Timer.clear()
-							self:flicker_fireflies(start_time, end_time)
-						end)
+			end,
+			function()
+				local next_run = random(start_time, end_time)
+
+				local timer2 = Timer.after(next_run, function()
+					Timer.clear()
+					self:flicker_fireflies(start_time, end_time)
 				end)
+			end)
 		end
 	end
 end

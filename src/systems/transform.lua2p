@@ -51,7 +51,6 @@ end
 function Transform:update_anchor(e)
 	local anchor = e.anchor
 	local pos = e.position
-
 	local target_pos = anchor.entity.position
 	local target_sprite = anchor.entity.sprite
 
@@ -99,6 +98,7 @@ end
 function Transform:canvas_resize(ww, wh, scale)
 	for _, e in ipairs(self.pool) do
 		local transform = e.transform
+
 		if transform then
 			transform.sx = scale
 			transform.sy = scale
@@ -119,7 +119,6 @@ end
 function Transform:update_attachment(e)
 	local attach = e.attach_to
 	local pos = e.position
-
 	local target = attach.target_e
 	local t_pos = target.position
 

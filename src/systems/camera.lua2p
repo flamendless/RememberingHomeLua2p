@@ -16,6 +16,7 @@ function Camera:init(world)
 
 		if e.camera_transform then
 			local t = e.camera_transform
+
 			cam:setAngle(t.rot)
 			cam:setScale(t.scale)
 		end
@@ -37,6 +38,7 @@ function Camera:get_follow_coords(target)
 
 	if target.camera_follow_offset then
 		local offset = target.camera_follow_offset.offset
+
 		x = x + offset.x
 		y = y + offset.y
 	end
@@ -52,7 +54,7 @@ function Camera:camera_follow(target, dur)
 
 	local x, y = self:get_follow_coords(target)
 
-	Flux.to(self.main_camera, dur or 1, { x = x, y = y, })
+	Flux.to(self.main_camera, dur or 1, {x = x, y = y})
 		:oncomplete(function()
 			self.to_follow = target
 		end)
@@ -93,7 +95,6 @@ function Camera:update_debug(dt)
 	if not self.main_camera then return end
 	for _, e in ipairs(self.pool) do
 		local x, y = self.main_camera:getPosition()
-
 		local dx = 0
 		local dy = 0
 		local speed = min_speed
@@ -124,14 +125,17 @@ end
 
 function Camera:draw_debug()
 	if not self.main_camera then return end
+
 	DebugFlags.camera = Slab.BeginWindow("camera",
 		{Title = "Camera", IsOpen = DebugFlags.camera})
 
 	local scale = self.main_camera:getScale()
+
 	Slab.Text("scale: ")
 	Slab.SameLine()
-	if Slab.Input("input_scale",
-			{Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
+
+	if Slab.Input("input_scale", {
+			Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
 		scale = Slab.GetInputNumber()
 		self.main_camera:setScale(scale)
 	end
@@ -149,6 +153,7 @@ function Camera:draw_debug()
 
 	local x, y = self.main_camera:getPosition()
 	local str_pos = format("position: (%i, %i)", x, y)
+
 	Slab.Text(str_pos)
 
 	if Slab.Button("print") then

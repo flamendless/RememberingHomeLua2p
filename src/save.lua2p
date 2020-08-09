@@ -19,13 +19,18 @@ function Save.initialize()
 
 	if exists and exists_key then
 		local hashed = love.data.hash("sha256", content)
+
 		if key == hashed then
 			Save.data = Utils.deserialize(content)
 		else
-			local error_msg = format("Data integrity is not valid.\n
-				Please do not modify the files: '%s' and '%s'.\n
-				Please delete the files in '%s' and restart the game",
-				save_filename, key_filename, love.filesystem.getSaveDirectory())
+			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", save_filename, key_filename, love.filesystem.getSaveDirectory())
+
+			---TODO luapreprocess fails to parse this because of the string literals?
+			-- local error_msg = format("Data integrity is not valid.\n
+			-- 	Please do not modify the files: '%s' and '%s'.\n
+			-- 	Please delete the files in '%s' and restart the game",
+			-- 	save_filename, key_filename, love.filesystem.getSaveDirectory())
+
 			error(error_msg)
 		end
 	else

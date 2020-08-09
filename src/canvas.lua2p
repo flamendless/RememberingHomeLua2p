@@ -4,6 +4,15 @@ local color_red = {1, 0, 0, 1}
 local type_id = "CustomCanvas"
 
 function Canvas:new_default(x, y, width, height, rotation, scale)
+	!if _ASSERT then
+	Assert.should_number(x)
+	Assert.should_number(y)
+	Assert.should_number(width)
+	Assert.should_number(height)
+	Assert.should_number(rotation)
+	Assert.should_number(scale)
+	!end
+
 	local _canvas = love.graphics.newCanvas(width, height)
 
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
@@ -18,6 +27,10 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 end
 
 function Canvas:new_from_table(tbl)
+	!if _ASSERT then
+	Assert.should_table(tbl)
+	!end
+
 	local _x = tbl.x
 	local _y = tbl.y
 	local _w = tbl.width
@@ -38,6 +51,10 @@ function Canvas:new_from_table(tbl)
 end
 
 function Canvas:new_from_canvas(source)
+	!if _ASSERT then
+	Assert.should_custom_canvas(source)
+	!end
+
 	local _canvas = love.graphics.newCanvas(source.width, source.height)
 
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
@@ -52,6 +69,15 @@ function Canvas:new_from_canvas(source)
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
+	!if _ASSERT then
+	Assert.should_number(x)
+	Assert.should_number(y)
+	Assert.should_number(width)
+	Assert.should_number(height)
+	Assert.should_number(rotation)
+	Assert.should_number(scale)
+	!end
+
 	local c
 
 	if type(x) == "table" then
@@ -68,6 +94,15 @@ function Canvas:new(x, y, width, height, rotation, scale)
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
+	!if _ASSERT then
+	Assert.should_number(x)
+	Assert.should_number(y)
+	Assert.should_number(width)
+	Assert.should_number(height)
+	Assert.should_number(rotation)
+	Assert.should_number(scale)
+	!end
+
 	local _x, _y, _w, _h, _rotation, _scale
 
 	if type(x) == "number" then

@@ -3,23 +3,25 @@ local Assert = {}
 local concat = table.concat
 local format = string.format
 
-local T_BEZIER_CURVE = "BezierCurve"
-local T_BOOLEAN = "boolean"
-local T_CUSTOM_CANVAS = "CustomCanvas"
-local T_FONT = "Font"
-local T_FONT_SDF = "fontsdf"
-local T_FUNCTION = "function"
-local T_IMAGE = "Image"
-local T_IMAGEDATA = "ImageData"
-local T_NUMBER = "number"
-local T_QUAD = "Quad"
-local T_SHADER = "Shader"
-local T_STRING = "string"
-local T_TABLE = "table"
-local T_EVENT = "Event"
-local T_TIMELINEEVENT = "TLE"
-local T_VEC2 = "vec2"
-local T_VEC3 = "vec3"
+Assert.types = {
+	T_BEZIER_CURVE = "BezierCurve",
+	T_BOOLEAN = "boolean",
+	T_CUSTOM_CANVAS = "CustomCanvas",
+	T_FONT = "Font",
+	T_FONT_SDF = "fontsdf",
+	T_FUNCTION = "function",
+	T_IMAGE = "Image",
+	T_IMAGEDATA = "ImageData",
+	T_NUMBER = "number",
+	T_QUAD = "Quad",
+	T_SHADER = "Shader",
+	T_STRING = "string",
+	T_TABLE = "table",
+	T_EVENT = "Event",
+	T_TIMELINEEVENT = "TLE",
+	T_VEC2 = "vec2",
+	T_VEC3 = "vec3",
+}
 
 local msg_nil = "Passed arg is 'nil'"
 local msg_should_bezier_curve = "Passed arg must be of type 'BezierCurve'"
@@ -64,19 +66,19 @@ function Assert.should_all_image_i(arg)
 end
 
 function Assert.should_bezier_curve(arg)
-	if arg:type() ~= T_BEZIER_CURVE then
+	if arg:type() ~= Assert.types.T_BEZIER_CURVE then
 		error(msg_should_bezier_curve, 2)
 	end
 end
 
 function Assert.should_boolean(arg)
-	if type(arg) ~= T_BOOLEAN then
+	if type(arg) ~= Assert.types.T_BOOLEAN then
 		error(msg_should_boolean, 2)
 	end
 end
 
 function Assert.should_color(arg)
-	if type(arg) ~= T_TABLE then
+	if type(arg) ~= Assert.types.T_TABLE then
 		error(msg_should_color, 2)
 	end
 
@@ -87,7 +89,7 @@ function Assert.should_color(arg)
 end
 
 function Assert.should_color_range(arg)
-	if type(arg) ~= T_NUMBER then
+	if type(arg) ~= Assert.types.T_NUMBER then
 		error(msg_should_number, 2)
 	end
 
@@ -103,7 +105,7 @@ function Assert.should_exists(arg)
 end
 
 function Assert.should_function(arg)
-	if type(arg) ~= T_FUNCTION then
+	if type(arg) ~= Assert.types.T_FUNCTION then
 		error(msg_should_function, 2)
 	end
 end
@@ -115,25 +117,25 @@ function Assert.should_nil(arg)
 end
 
 function Assert.should_number(arg)
-	if type(arg) ~= T_NUMBER then
+	if type(arg) ~= Assert.types.T_NUMBER then
 		error(msg_should_number, 2)
 	end
 end
 
 function Assert.should_string(arg)
-	if type(arg) ~= T_STRING then
+	if type(arg) ~= Assert.types.T_STRING then
 		error(msg_should_string, 2)
 	end
 end
 
 function Assert.should_table(arg)
-	if type(arg) ~= T_TABLE then
+	if type(arg) ~= Assert.types.T_TABLE then
 		error(msg_should_table, 2)
 	end
 end
 
 function Assert.should_event(arg)
-	if arg:type() ~= T_EVENT then
+	if arg:type() ~= Assert.types.T_EVENT then
 		error(msg_should_event, 2)
 	end
 end
@@ -197,7 +199,7 @@ function Assert.should_atleast(...)
 end
 
 function Assert.should_custom_canvas(arg)
-	if arg:type() ~= T_CUSTOM_CANVAS then
+	if arg:type() ~= Assert.types.T_CUSTOM_CANVAS then
 		error(msg_should_custom_canvas, 2)
 	end
 end
@@ -207,7 +209,7 @@ function Assert.should_vec2(arg)
 		error(msg_nil, 2)
 	end
 
-	if arg.type ~= T_VEC2 then
+	if arg.type ~= Assert.types.T_VEC2 then
 		error(msg_should_vec2, 2)
 	end
 end
@@ -217,7 +219,7 @@ function Assert.should_vec3(arg)
 		error(msg_nil, 2)
 	end
 
-	if arg.type ~= T_VEC3 then
+	if arg.type ~= Assert.types.T_VEC3 then
 		error(msg_should_vec3, 2)
 	end
 end
@@ -272,7 +274,7 @@ end
 
 --LOVE
 function Assert.should_font(arg)
-	if arg:type() ~= T_FONT then
+	if arg:type() ~= Assert.types.T_FONT then
 		error(msg_should_font, 2)
 	end
 end
@@ -280,19 +282,19 @@ end
 function Assert.should_font_or_sdf(arg)
 	local t = arg:type()
 
-	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+	if (t ~= Assert.types.T_FONT) and (t ~= Assert.types.T_FONT_SDF) then
 		error(msg_should_font_or_sdf)
 	end
 end
 
 function Assert.should_image(arg)
-	if arg:type() ~= T_IMAGE then
+	if arg:type() ~= Assert.types.T_IMAGE then
 		error(msg_should_image, 2)
 	end
 end
 
 function Assert.should_imagedata(arg)
-	if arg:type() ~= T_IMAGEDATA then
+	if arg:type() ~= Assert.types.T_IMAGEDATA then
 		error(msg_should_imagedata, 2)
 	end
 end
@@ -300,26 +302,26 @@ end
 function Assert.should_image_or_imagedata(arg)
 	local t = arg:type()
 
-	if (t ~= T_IMAGE) and (t ~= T_IMAGEDATA) then
+	if (t ~= Assert.types.T_IMAGE) and (t ~= Assert.types.T_IMAGEDATA) then
 		error(msg_should_image_or_imagedata)
 	end
 end
 
 function Assert.should_quad(arg)
-	if arg:type() ~= T_QUAD then
+	if arg:type() ~= Assert.types.T_QUAD then
 		error(msg_should_quad, 2)
 	end
 end
 
 function Assert.should_shader(arg)
-	if arg:type() ~= T_SHADER then
+	if arg:type() ~= Assert.types.T_SHADER then
 		error(msg_should_shader, 2)
 	end
 end
 
 --TLE
 function Assert.should_timelineevent(arg)
-	if arg:type() ~= T_TIMELINEEVENT then
+	if arg:type() ~= Assert.types.T_TIMELINEEVENT then
 		error(msg_should_timelineevent, 2)
 	end
 end
@@ -397,7 +399,7 @@ function Assert.safe_should_font_or_sdf(arg)
 	if arg then
 		local t = arg:type()
 
-		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
+		if (t ~= Assert.types.T_FONT) and (t ~= Assert.types.T_FONT_SDF) then
 			error(msg_should_font_or_sdf)
 		end
 

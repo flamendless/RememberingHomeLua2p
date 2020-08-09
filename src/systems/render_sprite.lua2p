@@ -59,11 +59,13 @@ function RenderSprite:internal_draw(e)
 		local animation_data = e.animation_data
 
 		love.graphics.setColor(1, 1, 1, 1)
+
 		if color then
 			love.graphics.setColor(color.color)
 		end
 
 		local rot, sx, sy, ox, oy
+
 		if transform then
 			rot = transform.rotation
 			sx = transform.sx
@@ -141,8 +143,9 @@ local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 
 function RenderSprite:draw_debug()
-	DebugFlags.z_index = Slab.BeginWindow("ZIndex",
-		{Title = "Z Index", IsOpen = DebugFlags.z_index})
+	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {
+			Title = "Z Index", IsOpen = DebugFlags.z_index
+		})
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)

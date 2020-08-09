@@ -42,9 +42,11 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 	!end
 
 	local d = data.dialogues
+
 	if d.current > d.max_n then
 		timeline:Unpause()
 		data:destroy()
+
 		return
 	end
 
@@ -54,7 +56,7 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 
 	self.world:emit("generate_paint", e, dur_in, dur_out)
 	e:remove("hidden")
-	Flux.to(e.color.color, dur_in, { [4] = 1 })
+	Flux.to(e.color.color, dur_in, {[4] = 1})
 		:oncomplete(function()
 			e:give("hidden")
 			e:destroy()

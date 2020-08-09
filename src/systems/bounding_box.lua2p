@@ -21,8 +21,8 @@ function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
 		local box = e.bounding_box
 		local pos = e.position
-
 		local bx, by = camera:toScreen(pos.pos.x, pos.pos.y)
+
 		box.screen_x = bx
 		box.screen_y = by
 	end
