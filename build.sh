@@ -1,7 +1,7 @@
 #!/bin/bash
 
 os=$(uname)
-lpp_path=./libs/luapreprocess/preprocess-cl.lua
+lpp_path=./libs/Luapreprocess/preprocess-cl.lua
 handler=handler_dev.lua
 
 dir_modules=modules

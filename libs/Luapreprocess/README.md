@@ -27,7 +27,8 @@ A separate [command line program](preprocess-cl.lua) is available too.
 
 
 ## Example Program
-The exclamation mark (!) is used to indicate what code is part of the metaprogram. ([See screenshot with highlighting](misc/example.png))
+The exclamation mark (!) is used to indicate what code is part of the metaprogram.
+([See screenshot of processing steps with highlighting](https://raw.githubusercontent.com/ReFreezed/LuaPreprocess/master/misc/processingSteps.png))
 
 ```lua
 -- Normal Lua.
@@ -39,6 +40,8 @@ doSomething()
 initGame()
 !if IS_DEVELOPER then
 	enableCheats()
+!else
+	enableTelemetry()
 !end
 
 function newArrayOfThreeBits()
@@ -160,7 +163,7 @@ and [preprocess.lua](preprocess.lua), for the options and more documentation.
 
 
 ## Documentation
-- [Wiki](https://github.com/ReFreezed/LuaPreprocess/wiki/Command-Line)
+- [Wiki](https://github.com/ReFreezed/LuaPreprocess/wiki)
 - Library: See the top of [preprocess.lua](preprocess.lua)
 - Command line: See the top of [preprocess-cl.lua](preprocess-cl.lua)
 

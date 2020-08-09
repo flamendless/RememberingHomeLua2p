@@ -7,6 +7,8 @@ exec lua "$0" "$@"
 --=  LuaPreprocess command line program
 --=  by Marcus 'ReFreezed' Thunström
 --=
+--=  Requires preprocess.lua!
+--=
 --=  License: MIT (see the bottom of this file)
 --=  Website: https://github.com/ReFreezed/LuaPreprocess
 --=
@@ -19,13 +21,18 @@ exec lua "$0" "$@"
 		OR
 		lua preprocess-cl.lua --outputpaths [options] [--] inputpath1 outputpath1 [inputpath2 outputpath2 ...]
 
+	Examples:
+		lua preprocess-cl.lua --saveinfo=misc/info.lua --silent src/main.lua2p src/network.lua2p
+		lua preprocess-cl.lua --debug src/main.lua2p src/network.lua2p
+		lua preprocess-cl.lua --outputpaths --linenumbers src/main.lua2p output/main.lua src/network.lua2p output/network.lua
+
 	Options:
-		--data="Any data."
+		--data|-d="Any data."
 			A string with any data. If the option is present then the value
 			will be available through the global 'dataFromCommandLine' in the
 			processed files (and the message handler, if you have one).
 
-		--handler=pathToMessageHandler
+		--handler|-h=pathToMessageHandler
 			Path to a Lua file that's expected to return a function or a
 			table of functions. If it returns a function then it will be
 			called with various messages as it's first argument. If it's
@@ -47,11 +54,11 @@ exec lua "$0" "$@"
 			default is "lua". If any input files end in .lua then you must
 			specify another file extension.
 
-		--outputpaths
+		--outputpaths|-o
 			This flag makes every other specified path be the output path
 			for the previous path.
 
-		--saveinfo=pathToSaveProcessingInfoTo
+		--saveinfo|-i=pathToSaveProcessingInfoTo
 			Processing information includes what files had any preprocessor
 			code in them, and things like that. The format of the file is a
 			lua module that returns a table. Search this file for 'SavedInfo'
@@ -76,8 +83,14 @@ exec lua "$0" "$@"
 	"init"
 		Sent before any other message.
 		Arguments:
-			paths: Array of file paths to process. Paths can be added or removed freely.
+			inputPaths: Array of file paths to process. Paths can be added or removed freely.
 			outputPaths: If the --outputpaths option is present this is an array of output paths for the respective path in inputPaths, otherwise it's nil.
+
+	"insert"
+		Sent for each @insert statement. The handler is expected to return a Lua string.
+		Arguments:
+			path: The file being processed.
+			name: The name of the resource to be inserted (could be a file path or anything).
 
 	"beforemeta"
 		Sent before a file's metaprogram runs.
@@ -149,11 +162,11 @@ local printf, printfNoise
 F = string.format
 function formatBytes(n)
 	if     n >= 1024*1024*1024 then
-		return F("%.2f GB", n/(1024*1024*1024))
+		return F("%.2f GiB", n/(1024*1024*1024))
 	elseif n >= 1024*1024 then
-		return F("%.2f MB", n/(1024*1024))
+		return F("%.2f MiB", n/(1024*1024))
 	elseif n >= 1024 then
-		return F("%.2f kB", n/(1024))
+		return F("%.2f KiB", n/(1024))
 	elseif n == 1 then
 		return F("1 byte", n)
 	else
@@ -217,15 +230,15 @@ for _, arg in ipairs(args) do
 	elseif arg == "--" then
 		processOptions = false
 
-	elseif arg:find"^%-%-data=" then
-		customData = arg:match"^%-%-data=(.*)$"
+	elseif arg:find"^%-%-data=" or arg:find"^%-d=" then
+		customData = arg:match"^%-%-data=(.*)$" or arg:match"^%-d=(.*)$"
 
 	elseif arg == "--debug" then
 		isDebug    = true
 		outputMeta = true
 
-	elseif arg:find"^%-%-handler=" then
-		messageHandlerPath = arg:match"^%-%-handler=(.*)$"
+	elseif arg:find"^%-%-handler=" or arg:find"^%-h=" then
+		messageHandlerPath = arg:match"^%-%-handler=(.*)$" or arg:match"^%-h=(.*)$"
 
 	elseif arg == "--linenumbers" then
 		addLineNumbers = true
@@ -240,7 +253,7 @@ for _, arg in ipairs(args) do
 		hasOutputExtension = true
 		outputExtension    = arg:match"^%-%-outputextension=(.*)$"
 
-	elseif arg == "--outputpaths" then
+	elseif arg == "--outputpaths" or arg == "-o" then
 		if hasOutputExtension then
 			errorline("Cannot specify both --outputpaths and --outputextension")
 		elseif pathsIn[1] then
@@ -248,14 +261,14 @@ for _, arg in ipairs(args) do
 		end
 		hasOutputPaths = true
 
-	elseif arg:find"^%-%-saveinfo=" then
-		processingInfoPath = arg:match"^%-%-saveinfo=(.*)$"
+	elseif arg:find"^%-%-saveinfo=" or arg:find"^%-i=" then
+		processingInfoPath = arg:match"^%-%-saveinfo=(.*)$" or arg:match"^%-i=(.*)$"
 
 	elseif arg == "--silent" then
 		silent = true
 
 	else
-		errorline("Unknown option '"..arg.."'.")
+		errorline("Unknown option '"..arg:gsub("=.*", "").."'.")
 	end
 end
 
@@ -281,6 +294,21 @@ pp.metaEnvironment.dataFromCommandLine = customData -- May be nil.
 
 -- Load message handler.
 local messageHandler = nil
+
+local function hasMessageHandler(message)
+	if not messageHandler then
+		return false
+
+	elseif type(messageHandler) == "function" then
+		return true
+
+	elseif type(messageHandler) == "table" then
+		return messageHandler[message] ~= nil
+
+	else
+		assert(false)
+	end
+end
 
 local function sendMessage(message, ...)
 	if not messageHandler then
@@ -323,7 +351,7 @@ if messageHandlerPath ~= "" then
 			end
 		end
 	else
-		errorline(messageHandlerPath..": File did not return a function or table.")
+		errorline(messageHandlerPath..": File did not return a table or a function.")
 	end
 end
 
@@ -388,6 +416,23 @@ for i, pathIn in ipairs(pathsIn) do
 
 		debug          = isDebug,
 		addLineNumbers = addLineNumbers,
+
+		onInsert = (hasMessageHandler("insert") or nil) and function(name)
+			local lua = sendMessage("insert", pathIn, name)
+
+			-- onInsert() is expected to return a Lua string and so is the message handler.
+			-- However, if the handler is a single catch-all function we allow the message
+			-- to not be handled and we fall back to the default behavior of treating 'name'
+			-- as a path to a file to be inserted. If we didn't allow this then it would be
+			-- required for the "insert" message to be handled. I think it's better if the
+			-- user can choose whether to handle a message or not!
+			--
+			if lua == nil and type(messageHandler) == "function" then
+				return assert(pp.getFileContents(name))
+			end
+
+			return lua
+		end,
 
 		onBeforeMeta = messageHandler and function()
 			sendMessage("beforemeta", pathIn)

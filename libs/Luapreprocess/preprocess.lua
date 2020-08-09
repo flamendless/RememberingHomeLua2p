@@ -23,7 +23,7 @@
 	- toLua, serialize
 	Only during processing:
 	- getCurrentPathIn, getCurrentPathOut
-	- outputValue, outputLua
+	- outputValue, outputLua, outputLuaTemplate
 	Search this file for 'EnvironmentTable' for more info.
 
 	Exported stuff from the library:
@@ -122,7 +122,9 @@ setmetatable(_G, {__newindex=function(_G, k, v)
 end})
 --]]
 
-local VERSION = "1.8.0"
+local VERSION = "1.11.0"
+
+local MAX_DUPLICATE_FILE_INSERTS = 1000 -- @Incomplete: mak this a parameter for processFile()/processString().
 
 local KEYWORDS = {
 	"and","break","do","else","elseif","end","false","for","function","if","in",
@@ -187,6 +189,7 @@ local currentPathIn            = ""
 local currentPathOut           = ""
 local metaPathForErrorMessages = ""
 local outputFromMeta           = nil
+local canOutputNil             = true
 
 --==============================================================
 --= Local Functions ============================================
@@ -195,7 +198,7 @@ local assertarg
 local concatTokens
 local copyTable
 local countString
-local error, errorline, errorOnLine, errorInFile
+local error, errorline, errorOnLine, errorInFile, errorAtToken
 local errorIfNotRunningMeta
 local escapePattern
 local F, tryToFormatError
@@ -208,7 +211,6 @@ local isToken
 local loadLuaString, loadLuaFile
 local outputLineNumber, maybeOutputLineNumber
 local pack, unpack
-local parseStringlike
 local printf, printTokens, printTraceback
 local pushErrorHandler, pushErrorHandlerIfOverridingDefault, popErrorHandler
 local serialize, toLua
@@ -270,6 +272,7 @@ function printTraceback(message, level)
 end
 
 function error(err, level)
+	-- @Check: Should we prepend the path? And, in all or just some cases?
 	level = 1+(level or 1)
 	printTraceback(tryToFormatError(err), level)
 	currentErrorHandler(err, level)
@@ -281,9 +284,9 @@ end
 function errorOnLine(path, ln, agent, s, ...)
 	s = s:format(...)
 	if agent then
-		printf("Error @ %s:%d: [%s] %s", path, ln, agent, s)
+		printf("Error @ %s:%d: [%s] %s\n", path, ln, agent, s)
 	else
-		printf("Error @ %s:%d: %s",      path, ln,        s)
+		printf("Error @ %s:%d: %s\n",      path, ln,        s)
 	end
 	currentErrorHandler(s, 2)
 	return s
@@ -317,8 +320,12 @@ function errorInFile(contents, path, ptr, agent, s, ...)
 
 	return s
 end
+-- errorAtToken( fileBuffers, token, position=token.position, agent, s, ... )
+function errorAtToken(fileBuffers, tok, pos, agent, s, ...)
+	errorInFile(fileBuffers[tok.file], tok.file, pos or tok.position, agent, s, ...)
+end
 
-function parseStringlike(s, ptr)
+local function parseStringlike(s, ptr)
 	local reprStart = ptr
 	local reprEnd
 
@@ -365,14 +372,14 @@ function parseStringlike(s, ptr)
 	return tok, ptr
 end
 
-local NUM_HEX_FRAC_EXP = ("^( 0x ([%dA-Fa-f]*) %.([%dA-Fa-f]+) [Pp]([-+]?[%dA-Fa-f]+) )"):gsub(" +", "")
-local NUM_HEX_FRAC     = ("^( 0x ([%dA-Fa-f]*) %.([%dA-Fa-f]+)                        )"):gsub(" +", "")
-local NUM_HEX_EXP      = ("^( 0x ([%dA-Fa-f]+)                 [Pp]([-+]?[%dA-Fa-f]+) )"):gsub(" +", "")
-local NUM_HEX          = ("^( 0x  [%dA-Fa-f]+                                         )"):gsub(" +", "")
-local NUM_DEC_FRAC_EXP = ("^(     %d*          %.%d+           [Ee][-+]?%d+           )"):gsub(" +", "")
-local NUM_DEC_FRAC     = ("^(     %d*          %.%d+                                  )"):gsub(" +", "")
-local NUM_DEC_EXP      = ("^(     %d+                          [Ee][-+]?%d+           )"):gsub(" +", "")
-local NUM_DEC          = ("^(     %d+                                                 )"):gsub(" +", "")
+local NUM_HEX_FRAC_EXP = ("^( 0[Xx] ([%dA-Fa-f]*) %.([%dA-Fa-f]+) [Pp]([-+]?[%dA-Fa-f]+) )"):gsub(" +", "")
+local NUM_HEX_FRAC     = ("^( 0[Xx] ([%dA-Fa-f]*) %.([%dA-Fa-f]+)                        )"):gsub(" +", "")
+local NUM_HEX_EXP      = ("^( 0[Xx] ([%dA-Fa-f]+)                 [Pp]([-+]?[%dA-Fa-f]+) )"):gsub(" +", "")
+local NUM_HEX          = ("^( 0[Xx]  [%dA-Fa-f]+                                         )"):gsub(" +", "")
+local NUM_DEC_FRAC_EXP = ("^(        %d*          %.%d+           [Ee][-+]?%d+           )"):gsub(" +", "")
+local NUM_DEC_FRAC     = ("^(        %d*          %.%d+                                  )"):gsub(" +", "")
+local NUM_DEC_EXP      = ("^(        %d+                          [Ee][-+]?%d+           )"):gsub(" +", "")
+local NUM_DEC          = ("^(        %d+                                                 )"):gsub(" +", "")
 
 -- tokens = tokenize( lua, filePath, allowBacktickStrings [, allowPreprocessorTokens=false ] )
 function tokenize(s, path, allowBacktickStrings, allowMetaTokens)
@@ -577,7 +584,6 @@ function tokenize(s, path, allowBacktickStrings, allowMetaTokens)
 			tok = {type="whitespace", representation=whitespace, value=whitespace}
 
 		-- Punctuation etc.
-		-- "//", ">>", "<<",
 		elseif s:find("^%.%.%.", ptr) then
 			local repr = s:sub(ptr, ptr+2)
 			tok = {type="punctuation", representation=repr, value=repr}
@@ -598,12 +604,19 @@ function tokenize(s, path, allowBacktickStrings, allowMetaTokens)
 			tok = {type="pp_entry", representation=repr, value=repr, double=double}
 			ptr = ptr+#repr
 
+		-- Preprocessor: Keyword.
+		elseif allowMetaTokens and s:find("^@", ptr) then
+			local i1, i2, repr, word = s:find("^(@([%a_][%w_]*))", ptr)
+			ptr = i2+1
+			tok = {type="pp_keyword", representation=repr, value=word}
+
 		else
 			return nil, errorInFile(s, path, ptr, "Tokenizer", "Unknown character.")
 		end
 
 		tok.line     = ln
 		tok.position = tokenPos
+		tok.file     = path
 
 		ln = ln+countString(tok.representation, "\n", true)
 		tok.lineEnd = ln
@@ -748,11 +761,14 @@ function serialize(buffer, v)
 		table.insert(buffer, "}")
 
 	elseif vType == "string" then
-		local s = F("%q", v)
-		if isDebug then
-			s = s:gsub("\\\n", "\\n")
-		end
-		table.insert(buffer, s)
+		-- @Incomplete: Add an option specifically for nice string serialization?
+		local s = v:gsub("[%c\128-\255\"\\]", function(c)
+			local str           = ESCAPE_SEQUENCES[c] or F("\\%03d", c:byte())
+			ESCAPE_SEQUENCES[c] = str
+			return str
+		end)
+
+		table.insert(buffer, '"'..s..'"')
 
 	elseif v == math.huge then
 		table.insert(buffer, "math.huge")
@@ -1045,6 +1061,12 @@ function metaFuncs.outputValue(...)
 
 	for i = 1, argCount do
 		local v = select(i, ...)
+
+		if v == nil and not canOutputNil then
+			local ln = debug.getinfo(2, "l").currentline
+			errorOnLine(metaPathForErrorMessages, ln, "MetaProgram", "Trying to output nil which is disallowed through params.canOutputNil")
+		end
+
 		local ok, err = serialize(outputFromMeta, v)
 
 		if not ok then
@@ -1074,6 +1096,35 @@ function metaFuncs.outputLua(...)
 	end
 end
 
+-- outputLuaTemplate()
+--   Use a string as a template for outputting Lua code with values.
+--   Question marks (?) are replaced with the values.
+--   outputLuaTemplate( luaStringTemplate, value1, ... )
+--   Examples:
+--     outputLuaTemplate("local name, age = ?, ?", "Harry", 48)
+--     outputLuaTemplate("dogs[?] = ?", "greyhound", {italian=false, count=5})
+function metaFuncs.outputLuaTemplate(lua, ...)
+	errorIfNotRunningMeta(2)
+	assertarg(1, lua, "string")
+
+	local args = {...}
+	local n    = 0
+	local v, err
+
+	lua = lua:gsub("%?", function()
+		n      = n+1
+		v, err = toLua(args[n])
+
+		if not v then
+			error(F("Bad argument %d: %s", 1+n, err), 3)
+		end
+
+		return assert(v)
+	end)
+
+	table.insert(outputFromMeta, lua)
+end
+
 -- getCurrentPathIn()
 --   Get what file is currently being processed, if any.
 --   path = getCurrentPathIn( )
@@ -1093,7 +1144,7 @@ end
 --   tokens, error = tokenize( luaString [, allowPreprocessorTokens=false ] )
 --   token = {
 --     type=tokenType, representation=representation, value=value,
---     line=lineNumber, lineEnd=lineNumber, position=bytePosition,
+--     line=lineNumber, lineEnd=lineNumber, position=bytePosition, file=filePath,
 --     ...
 --   }
 function metaFuncs.tokenize(lua, allowMetaTokens)
@@ -1173,23 +1224,25 @@ end
 --   Create a new token. Different token types take different arguments.
 --   token = newToken( tokenType, ... )
 --
---   commentToken      = newToken( "comment",     contents [, forceLongForm=false ] )
---   identifierToken   = newToken( "identifier",  identifier )
---   keywordToken      = newToken( "keyword",     keyword )
---   numberToken       = newToken( "number",      number [, numberFormat="auto" ] )
---   punctuationToken  = newToken( "punctuation", symbol )
---   stringToken       = newToken( "string",      contents [, longForm=false ] )
---   whitespaceToken   = newToken( "whitespace",  contents )
---   preprocessorToken = newToken( "pp_entry",    isDouble )
+--   commentToken     = newToken( "comment",     contents [, forceLongForm=false ] )
+--   identifierToken  = newToken( "identifier",  identifier )
+--   keywordToken     = newToken( "keyword",     keyword )
+--   numberToken      = newToken( "number",      number [, numberFormat="auto" ] )
+--   punctuationToken = newToken( "punctuation", symbol )
+--   stringToken      = newToken( "string",      contents [, longForm=false ] )
+--   whitespaceToken  = newToken( "whitespace",  contents )
+--   ppEntryToken     = newToken( "pp_entry",    isDouble )
+--   ppKeywordToken   = newToken( "pp_keyword",  keyword )
 --
---   commentToken      = { type="comment",     representation=string, value=string, long=isLongForm }
---   identifierToken   = { type="identifier",  representation=string, value=string }
---   keywordToken      = { type="keyword",     representation=string, value=string }
---   numberToken       = { type="number",      representation=string, value=number }
---   punctuationToken  = { type="punctuation", representation=string, value=string }
---   stringToken       = { type="string",      representation=string, value=string, long=isLongForm }
---   whitespaceToken   = { type="whitespace",  representation=string, value=string }
---   preprocessorToken = { type="pp_entry",    representation=string, value=string, double=isDouble }
+--   commentToken     = { type="comment",     representation=string, value=string, long=isLongForm }
+--   identifierToken  = { type="identifier",  representation=string, value=string }
+--   keywordToken     = { type="keyword",     representation=string, value=string }
+--   numberToken      = { type="number",      representation=string, value=number }
+--   punctuationToken = { type="punctuation", representation=string, value=string }
+--   stringToken      = { type="string",      representation=string, value=string, long=isLongForm }
+--   whitespaceToken  = { type="whitespace",  representation=string, value=string }
+--   ppEntryToken     = { type="pp_entry",    representation=string, value=string, double=isDouble }
+--   ppKeywordToken   = { type="pp_keyword",  representation=string, value=string }
 --
 -- Number formats:
 --   "integer"      E.g. 42
@@ -1308,6 +1361,15 @@ function metaFuncs.newToken(tokType, ...)
 		local symbol = double and "!!" or "!"
 		return {type="pp_entry", representation=symbol, value=symbol, double=double}
 
+	elseif tokType == "pp_keyword" then
+		local keyword = ...
+
+		if keyword ~= "insert" then
+			error(F("Bad preprocessor keyword '%s'.", keyword))
+		end
+
+		return {type="pp_keyword", representation="@"..keyword, value=keyword}
+
 	else
 		error(F("Invalid token type '%s'.", tokType))
 	end
@@ -1371,31 +1433,133 @@ local function _processFileOrString(params, isFile)
 		luaUnprocessed = params.code
 	end
 
+	local fileBuffers = {[pathIn]=luaUnprocessed} -- Doesn't have to be the contents of files if params.onInsert() is defined.
+
 	local specialFirstLine, rest = luaUnprocessed:match"^(#[^\r\n]*\r?\n?)(.*)$"
 	if specialFirstLine then
 		luaUnprocessed = rest
 	end
 
-	local tokens    = tokenize(luaUnprocessed, pathIn, params.backtickStrings, true)
-	local lastToken = tokens[#tokens]
-	-- printTokens(tokens)
+	local tokensRaw = tokenize(luaUnprocessed, pathIn, params.backtickStrings, true)
+	-- printTokens(tokensRaw)
 
 	-- Info variables.
+	local lastToken           = tokensRaw[#tokensRaw]
+
 	local processedByteCount  = #luaUnprocessed
 	local lineCount           = (specialFirstLine and 1 or 0) + (lastToken and lastToken.line + countString(lastToken.representation, "\n") or 0)
-	local lineCountCode       = getLineCountWithCode(tokens)
-	local tokenCount          = #tokens
-	local hasPreprocessorCode = false
+	local lineCountCode       = getLineCountWithCode(tokensRaw)
+	local tokenCount          = 0     -- Set later.
+	local hasPreprocessorCode = false -- Set later.
+	local insertedNames       = {}
 
-	-- Generate metaprogram.
-	--==============================================================
+	-- Do preprocessor keyword stuff.
+	local tokenStack  = {}
+	local tokens      = {}
+	local insertCount = 0
+
+	for i = #tokensRaw, 1, -1 do
+		table.insert(tokenStack, tokensRaw[i])
+	end
+
+	while tokenStack[1] do
+		local tok = tokenStack[#tokenStack]
+
+		if isToken(tok, "pp_keyword") then
+			if tok.value == "file" then
+				table.insert(tokens, {type="string", value=tok.file, representation=F("%q",tok.file)})
+				tokenStack[#tokenStack] = nil
+
+			elseif tok.value == "line" then
+				table.insert(tokens, {type="number", value=tok.line, representation=F("%d",tok.line)})
+				tokenStack[#tokenStack] = nil
+
+			elseif tok.value == "insert" then
+				local tokNext, iNext = getNextUsableToken(tokenStack, #tokenStack-1, nil, -1)
+				if not (tokNext and isToken(tokNext, "string")) then
+					errorAtToken(
+						fileBuffers, tok, (tokNext and tokNext.position or tok.position+#tok.representation),
+						"Parser", "Expected a string after @insert."
+					)
+				end
+
+				for i = #tokenStack, iNext, -1 do
+					tokenStack[i] = nil
+				end
+
+				local toInsertName = tokNext.value
+				local toInsertLua  = fileBuffers[toInsertName]
+
+				if not toInsertLua then
+					if params.onInsert then
+						toInsertLua = params.onInsert(toInsertName)
+
+						if type(toInsertLua) ~= "string" then
+							errorAtToken(
+								fileBuffers, tokNext, tokNext.position+1,
+								nil, "Expected a string from params.onInsert(). (Got %s)", type(toInsertLua)
+							)
+						end
+
+					else
+						local err
+						toInsertLua, err = getFileContents(toInsertName)
+
+						if not toInsertLua then
+							errorAtToken(
+								fileBuffers, tokNext, tokNext.position+1,
+								"Parser", "Could not read file: %s", tostring(err)
+							)
+						end
+					end
+
+					fileBuffers[toInsertName] = toInsertLua
+					table.insert(insertedNames, toInsertName)
+
+				else
+					insertCount = insertCount+1 -- Note: We don't count insertions of newly encountered files.
+
+					if insertCount > MAX_DUPLICATE_FILE_INSERTS then
+						errorAtToken(
+							fileBuffers, tokNext, tokNext.position+1, "Parser",
+							"Too many duplicate inserts. We may be stuck in a recursive loop."
+								.." (Unique files inserted so far: %s)",
+							table.concat(insertedNames, ", ")
+						)
+					end
+				end
+
+				local toInsertTokens = tokenize(toInsertLua, toInsertName, params.backtickStrings, true)
+				for i = #toInsertTokens, 1, -1 do
+					table.insert(tokenStack, toInsertTokens[i])
+				end
+
+				local lastToken     = toInsertTokens[#toInsertTokens]
+				processedByteCount  = processedByteCount + #toInsertLua
+				lineCount           = lineCount          + (lastToken and lastToken.line + countString(lastToken.representation, "\n") or 0)
+				lineCountCode       = lineCountCode      + getLineCountWithCode(toInsertTokens)
+
+			else
+				errorAtToken(fileBuffers, tok, tok.position+1, "Parser", "Unknown preprocessor keyword '%s'.", tok.value)
+			end
+
+		else
+			table.insert(tokens, tok)
+			tokenStack[#tokenStack] = nil
+		end
+	end
+
+	tokenCount = #tokens
 
 	for _, tok in ipairs(tokens) do
-		if isToken(tok, "pp_entry") then
+		if isToken(tok, "pp_entry") or isToken(tok, "pp_keyword") then
 			hasPreprocessorCode = true
 			break
 		end
 	end
+
+	-- Generate metaprogram.
+	--==============================================================
 
 	local tokensToProcess = {}
 	local metaParts       = {}
@@ -1429,8 +1593,8 @@ local function _processFileOrString(params, isFile)
 		-- Check whether local or not.
 		local tok, i = getNextUsableToken(tokens, metaLineIndexStart, metaLineIndexEnd)
 		if not tok then
-			errorInFile(
-				luaUnprocessed, pathIn, tokens[metaLineIndexStart].position, "Parser",
+			errorAtToken(
+				fileBuffers, tokens[metaLineIndexStart], nil, "Parser/DualCodeLine",
 				"Unexpected end of preprocessor line."
 			)
 		end
@@ -1440,8 +1604,8 @@ local function _processFileOrString(params, isFile)
 		if isLocal then
 			tok, i = getNextUsableToken(tokens, i+1, metaLineIndexEnd)
 			if not tok then
-				errorInFile(
-					luaUnprocessed, pathIn, tokens[metaLineIndexStart].position, "Parser",
+				errorAtToken(
+					fileBuffers, tokens[metaLineIndexStart], nil, "Parser/DualCodeLine",
 					"Unexpected end of preprocessor line."
 				)
 			end
@@ -1450,49 +1614,40 @@ local function _processFileOrString(params, isFile)
 		-- Check for identifier.
 		-- @Incomplete: Support multiple assignments. :MultipleAssignments
 		if not isToken(tok, "identifier") then
-			errorInFile(
-				luaUnprocessed, pathIn, tok.position, "Parser",
-				"Expected an identifier."
-			)
+			errorAtToken(fileBuffers, tok, nil, "Parser/DualCodeLine", "Expected an identifier.")
 		end
 
-		local ident = tok.value
+		local identTok = tok
+		local ident    = identTok.value
 
 		-- Check for "=".
 		tok, i = getNextUsableToken(tokens, i+1, metaLineIndexEnd)
 		if not tok then
-			errorInFile(
-				luaUnprocessed, pathIn, tokens[metaLineIndexStart].position, "Parser",
+			errorAtToken(
+				fileBuffers, tokens[metaLineIndexStart], nil, "Parser/DualCodeLine",
 				"Unexpected end of preprocessor line."
 			)
 		elseif isToken(tok, "punctuation", ",") then
 			-- :MultipleAssignments
-			errorInFile(
-				luaUnprocessed, pathIn, tok.position, "Parser",
+			errorAtToken(
+				fileBuffers, identTok, nil, "Parser/DualCodeLine",
 				"Preprocessor line must be a single assignment. (Multiple assignments are not supported.)"
 			)
 		elseif not isToken(tok, "punctuation", "=") then
-			errorInFile(
-				luaUnprocessed, pathIn, tok.position, "Parser",
-				"Preprocessor line must be an assignment."
-			)
+			errorAtToken(fileBuffers, identTok, nil, "Parser/DualCodeLine", "Preprocessor line must be an assignment.")
 		end
 
 		local indexAfterEqualSign = i+1
 
 		if not getNextUsableToken(tokens, indexAfterEqualSign, metaLineIndexEnd) then
-			errorInFile(
-				luaUnprocessed, pathIn, tok.position, "Parser",
-				"Unexpected end of preprocessor line."
-			)
+			errorAtToken(fileBuffers, tok, nil, "Parser/DualCodeLine", "Unexpected end of preprocessor line.")
 		end
 
 		-- Check if the rest of the line is an expression.
 		if true then
-			local lastUsableToken, lastUsableIndex = getNextUsableToken(tokens, metaLineIndexEnd+1, 1, -1)
-			local parts = {}
+			local lastUsableToken, lastUsableIndex = getNextUsableToken(tokens, metaLineIndexEnd, 1, -1)
 
-			table.insert(parts, "return (")
+			local parts = {"return ("}
 			if isToken(lastUsableToken, "punctuation", ";") then
 				insertTokenRepresentations(parts, tokens, indexAfterEqualSign, lastUsableIndex-1)
 			else
@@ -1500,15 +1655,31 @@ local function _processFileOrString(params, isFile)
 			end
 			table.insert(parts, "\n)")
 
-			if not loadLuaString(table.concat(parts)) then
-				errorInFile(
-					luaUnprocessed, pathIn, tokens[metaLineIndexStart].position, "Parser",
-					"Dual code line must be a single assignment statement."
-				)
+			if not loadLuaString(table.concat(parts), "@") then
+				parts = {"testValue = "}
+				if isToken(lastUsableToken, "punctuation", ";") then
+					insertTokenRepresentations(parts, tokens, indexAfterEqualSign, lastUsableIndex-1)
+				else
+					insertTokenRepresentations(parts, tokens, indexAfterEqualSign, metaLineIndexEnd)
+				end
+
+				if loadLuaString(table.concat(parts), "@") then
+					errorAtToken(
+						fileBuffers, tokens[metaLineIndexStart], nil, "Parser/DualCodeLine",
+						"Preprocessor line must be a single assignment statement."
+					)
+				else
+					-- void  (A normal Lua error will trigger later.)
+				end
 			end
 		end
 
 		-- Output.
+		local s = metaParts[#metaParts]
+		if s and s:sub(#s) ~= "\n" then
+			table.insert(metaParts, "\n")
+		end
+
 		if isDebug then
 			table.insert(metaParts, '__LUA("')
 
@@ -1539,16 +1710,34 @@ local function _processFileOrString(params, isFile)
 		end
 
 		flushTokensToProcess()
-	end
+	end--outputFinalDualValueStatement()
 
 	-- Note: Can be multiple lines if extended.
-	local function processMetaLine(isDual, metaStartLine)
+	local function processMetaLine(isDual, metaStartFile, metaStartLine)
 		local metaLineIndexStart = tokenIndex
 		local bracketBalance     = 0
 
 		while true do
 			local tok = tokens[tokenIndex]
-			if not tok then  return  end
+
+			if not tok then
+				if bracketBalance ~= 0 then
+					errorAtToken(
+						fileBuffers, tokens[tokenIndex-1], #fileBuffers[tokens[tokenIndex-1].file], "Parser",
+						"Unexpected end-of-data. Preprocessor line"..(
+							tokens[tokenIndex-1].file == metaStartFile and tokens[tokenIndex-1].line == metaStartLine
+							and ""
+							or  " (starting at %s:%d)"
+						).." has unbalanced brackets.",
+						metaStartFile, metaStartLine
+					)
+
+				elseif isDual then
+					outputFinalDualValueStatement(metaLineIndexStart, tokenIndex-1)
+				end
+
+				return
+			end
 
 			local tokType = tok.type
 			if
@@ -1569,23 +1758,29 @@ local function _processFileOrString(params, isFile)
 
 				-- Fix whitespace after the line.
 				local tokNext = tokens[tokenIndex]
-				if not isDual and tokType == "whitespace" and not (tokNext and isToken(tokNext, "pp_entry")) then
+				if isDual or (tokNext and isToken(tokNext, "pp_entry")) then
+					-- void
+
+				elseif tokType == "whitespace" then
 					local tokExtra          = copyTable(tok)
 					tokExtra.value          = tok.value:gsub("^[^\n]+", "")
 					tokExtra.representation = tokExtra.value
 					tokExtra.position       = tokExtra.position+#tok.value-#tokExtra.value
+					table.insert(tokensToProcess, tokExtra)
 
+				elseif tokType == "comment" and not tok.long then
+					local tokExtra = {type="whitespace", representation="\n", value="\n", line=tok.line, position=tok.position}
 					table.insert(tokensToProcess, tokExtra)
 				end
 
 				return
 
 			elseif tokType == "pp_entry" then
-				errorInFile(
-					luaUnprocessed, pathIn, tok.position, "Parser",
+				errorAtToken(
+					fileBuffers, tok, nil, "Parser",
 					"Preprocessor token inside metaprogram"
-						..(tok.line == metaStartLine and "." or " (starting at line %d)."),
-					metaStartLine
+						..(tok.file == metaStartFile and tok.line == metaStartLine and "." or " (starting at %s:%d)."),
+					metaStartFile, metaStartLine
 				)
 
 			else
@@ -1597,12 +1792,12 @@ local function _processFileOrString(params, isFile)
 					bracketBalance = bracketBalance-1
 
 					if bracketBalance < 0 then
-						errorInFile(
-							luaUnprocessed, pathIn, tok.position, "Parser",
+						errorAtToken(
+							fileBuffers, tok, nil, "Parser",
 							"Unexpected '%s'. Preprocessor line"
-								..(tok.line == metaStartLine and "" or " (starting at line %d)")
+								..(tok.file == metaStartFile and tok.line == metaStartLine and "" or " (starting at %s:%d)")
 								.." has unbalanced brackets.",
-							tok.value, metaStartLine
+							tok.value, metaStartFile, metaStartLine
 						)
 					end
 				end
@@ -1627,9 +1822,7 @@ local function _processFileOrString(params, isFile)
 		-- _G.!!("myRandomGlobal"..math.random(5)) = 99
 		if tokType == "pp_entry" and tokens[tokenIndex+1] and isToken(tokens[tokenIndex+1], "punctuation", "(") then
 			local startToken  = tok
-			local startPos    = tok.position
-			local startLine   = tok.line
-			local doOutputLua = tok.double
+			local doOutputLua = startToken.double
 			tokenIndex = tokenIndex+2 -- Jump past "!(" or "!!(".
 
 			flushTokensToProcess()
@@ -1640,7 +1833,7 @@ local function _processFileOrString(params, isFile)
 			while true do
 				tok = tokens[tokenIndex]
 				if not tok then
-					errorInFile(luaUnprocessed, pathIn, startPos, "Parser", "Missing end of preprocessor block.")
+					errorAtToken(fileBuffers, startToken, nil, "Parser", "Missing end of preprocessor block.")
 				end
 
 				tokType = tok.type
@@ -1653,10 +1846,15 @@ local function _processFileOrString(params, isFile)
 					if depth == 0 then  break  end
 
 				elseif tokType == "pp_entry" then
-					errorInFile(
-						luaUnprocessed, pathIn, tok.position, "Parser",
-						"Preprocessor token inside metaprogram"..(tok.line == startLine and "." or " (starting at line %d)."),
-						startLine
+					errorAtToken(
+						fileBuffers, tok, nil, "Parser",
+						"Preprocessor token inside metaprogram"..(
+							tok.file == startToken.file and tok.line == startToken.line
+							and "."
+							or " (starting at %s:%d)."
+						),
+						startToken.file,
+						startToken.line
 					)
 				end
 
@@ -1673,8 +1871,8 @@ local function _processFileOrString(params, isFile)
 
 			elseif doOutputLua then
 				-- We could do something other than error here. Room for more functionality.
-				errorInFile(
-					luaUnprocessed, pathIn, startPos+3, "Parser",
+				errorAtToken(
+					fileBuffers, startToken, startToken.position+3, "Parser",
 					"Preprocessor block variant does not contain a valid expression that results in a value."
 				)
 
@@ -1702,7 +1900,7 @@ local function _processFileOrString(params, isFile)
 			flushTokensToProcess()
 
 			tokenIndex = tokenIndex+1
-			processMetaLine(tok.double, tok.line)
+			processMetaLine(tok.double, tok.file, tok.line)
 
 		-- Non-meta.
 		--------------------------------
@@ -1728,6 +1926,7 @@ local function _processFileOrString(params, isFile)
 
 	metaPathForErrorMessages = params.pathMeta or "<meta>"
 	outputFromMeta           = {}
+	canOutputNil             = params.canOutputNil ~= false
 
 	if params.pathMeta then
 		local file = assert(io.open(params.pathMeta, "wb"))
@@ -1760,6 +1959,7 @@ local function _processFileOrString(params, isFile)
 
 	metaPathForErrorMessages = ""
 	outputFromMeta           = nil
+	canOutputNil             = true
 
 	if params.onAfterMeta then
 		local luaModified = params.onAfterMeta(lua)
@@ -1788,7 +1988,8 @@ local function _processFileOrString(params, isFile)
 	-- @Incomplete: Maybe add an option to disable this? It might be useful if
 	-- e.g. Lua 5.1 is used to generate Lua 5.3 code (for whatever reason).
 	--
-	local mainChunk, err = loadLuaString(lua, (isFile and params.pathMeta and "@" or "")..pathOut)
+	local luaToCheck     = lua:gsub("^#![^\n]*", "")
+	local mainChunk, err = loadLuaString(luaToCheck, (isFile and params.pathMeta and "@" or "")..pathOut)
 	if not mainChunk then
 		local ln, _err = err:match'^.-:(%d+): (.*)'
 		errorOnLine(pathOut, (tonumber(ln) or 0), nil, "%s", (_err or err))
@@ -1803,6 +2004,7 @@ local function _processFileOrString(params, isFile)
 		linesOfCode         = lineCountCode,
 		tokenCount          = tokenCount,
 		hasPreprocessorCode = hasPreprocessorCode,
+		insertedFiles       = insertedNames,
 	}
 
 	if params.onDone then  params.onDone(info)  end
@@ -1820,12 +2022,15 @@ local function _processFileOrString(params, isFile)
 	end
 end
 
+local ERROR_REDIRECTION = setmetatable({}, {__tostring=function()return"Internal redirection of error."end})
+
 local function processFileOrString(params, isFile)
 	local returnValues  = nil
 	local errorToReturn = nil
 
-	isDebug = params.debug
-	pushErrorHandler(function(err, levelFromOurError)
+	local function errHand(err, levelFromOurError)
+		if err == ERROR_REDIRECTION then  return  end
+
 		errorToReturn = err
 
 		if not levelFromOurError then
@@ -1833,9 +2038,14 @@ local function processFileOrString(params, isFile)
 		end
 
 		if params.onError then  params.onError(errorToReturn)  end
-	end)
 
-	xpcall(
+		if levelFromOurError then  _error(ERROR_REDIRECTION)  end
+	end
+
+	isDebug = params.debug
+	pushErrorHandler(errHand)
+
+	local xpcallOk, xpcallErr = xpcall(
 		function()
 			returnValues = pack(_processFileOrString(params, isFile))
 		end,
@@ -1851,9 +2061,18 @@ local function processFileOrString(params, isFile)
 	currentPathOut           = ""
 	metaPathForErrorMessages = ""
 	outputFromMeta           = nil
+	canOutputNil             = true
 
+	-- Unhandled error.
+	if not (returnValues or errorToReturn) then
+		pcall(errHand, (not xpcallOk and xpcallErr or "Unknown processing error."))
+	end
+
+	-- Handled error.
 	if errorToReturn then
 		return nil, errorToReturn
+
+	-- Success.
 	else
 		return unpack(returnValues, 1, returnValues.n)
 	end
@@ -1892,10 +2111,12 @@ local lib = {
 	--   addLineNumbers  = boolean               -- [Optional] Add comments with line numbers to the output.
 	--   debug           = boolean               -- [Optional] Debug mode. The metaprogram file is formatted more nicely and does not get deleted automatically.
 	--
-	--   backtickStrings = boolean               -- [Optional] Enable the backtick (`) to be used as string literal delimiters. Backtick strings don't interpret any escape sequences and can't contain backticks.
+	--   backtickStrings = boolean               -- [Optional] Enable the backtick (`) to be used as string literal delimiters. Backtick strings don't interpret any escape sequences and can't contain backticks. (Default: false)
+	--   canOutputNil    = boolean               -- [Optional] Allow !() and outputValue() to output nil. (Default: true)
 	--
-	--   onAfterMeta     = function( luaString ) -- [Optional] Here you can modify and return the Lua code before it's written to 'pathOut'.
+	--   onInsert        = function( name )      -- [Optional] Called for each @insert statement. It's expected to return a Lua string. By default 'name' is a path to a file to be inserted.
 	--   onBeforeMeta    = function( )           -- [Optional] Called before the metaprogram runs.
+	--   onAfterMeta     = function( luaString ) -- [Optional] Here you can modify and return the Lua code before it's written to 'pathOut'.
 	--   onError         = function( error )     -- [Optional] You can use this to get traceback information. 'error' is the same value as what is returned from processFile().
 	--
 	processFile = processFile,
@@ -1913,8 +2134,10 @@ local lib = {
 	--   addLineNumbers  = boolean               -- [Optional] Add comments with line numbers to the output.
 	--   debug           = boolean               -- [Optional] Debug mode. The metaprogram file is formatted more nicely and does not get deleted automatically.
 	--
-	--   backtickStrings = boolean               -- [Optional] Enable the backtick (`) to be used as string literal delimiters. Backtick strings don't interpret any escape sequences and can't contain backticks.
+	--   backtickStrings = boolean               -- [Optional] Enable the backtick (`) to be used as string literal delimiters. Backtick strings don't interpret any escape sequences and can't contain backticks. (Default: false)
+	--   canOutputNil    = boolean               -- [Optional] Allow !() and outputValue() to output nil. (Default: true)
 	--
+	--   onInsert        = function( name )      -- [Optional] Called for each @insert statement. It's expected to return a Lua string. By default 'name' is a path to a file to be inserted.
 	--   onBeforeMeta    = function( )           -- [Optional] Called before the metaprogram runs.
 	--   onError         = function( error )     -- [Optional] You can use this to get traceback information. 'error' is the same value as the second returned value from processString().
 	--
