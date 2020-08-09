@@ -46,7 +46,7 @@ local this_semver = Semver(this_version)
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 
-local custom_loading_screen = function()
+local function custom_loading_screen()
 	local w, h = love.graphics.getDimensions()
 
 	love.graphics.setColor(0, 0, 0, 0.5)

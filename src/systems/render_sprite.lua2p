@@ -10,7 +10,7 @@ local RenderSprite = Concord.system({
 	pool_ui = {"position", "sprite", "ui_element"},
 })
 
-local draw = function(sprite, ...)
+local function draw(sprite, ...)
 	-- TODO implement camera_bounds drawing
 	love.graphics.draw(sprite, ...)
 end

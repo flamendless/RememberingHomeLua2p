@@ -19,7 +19,7 @@ local dur_out = 0.5
 local color_red = Palette.get("red", 1)
 local color_disabled = Palette.get("disabled", 1)
 
-local color_to_red = function(color)
+local function color_to_red(color)
 	Flux.to(color.color, dur_in, {
 			[1] = color_red[1],
 			[2] = color_red[2],
@@ -28,7 +28,7 @@ local color_to_red = function(color)
 		})
 end
 
-local color_to_white = function(color)
+local function color_to_white(color)
 	Flux.to(color.color, dur_out, {
 			[1] = color.original_color[1],
 			[2] = color.original_color[2],
@@ -37,7 +37,7 @@ local color_to_white = function(color)
 		})
 end
 
-local color_to_disabled = function(color)
+local function color_to_disabled(color)
 	Flux.to(color.color, dur_out, {
 			[1] = color_disabled[1],
 			[2] = color_disabled[2],

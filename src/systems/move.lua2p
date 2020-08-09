@@ -7,8 +7,7 @@ local Move = Concord.system({
 	pool_original = {"position", "move_to_original"},
 })
 
-local internal_move_by
-internal_move_by = function(e, is_repeat)
+local function internal_move_by(e, is_repeat)
 	local pos = e.position.pos
 	local move_by = e.move_by
 	local mb_pos = move_by.pos

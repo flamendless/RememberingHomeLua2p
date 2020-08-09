@@ -28,7 +28,8 @@ local methods = {
 	"touchpressed", "touchreleased"
 	!end
 }
-local check_state = function(cw, method)
+
+local function check_state(cw, method)
 	if (cw[method] == nil) or type(cw[method]) ~= "function" then
 		Log.fatal(format("'%s' does not have a '%s' method", cw.id, method))
 	end

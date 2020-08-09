@@ -14,13 +14,13 @@ local traceback = debug.traceback
 
 local font, p
 
-local error_printer = function(msg, layer)
+local function error_printer(msg, layer)
 	local err_msg = (traceback("Error: " .. tostring(msg),
 		1 + (layer or 1)):gsub("\n[^\n]+$", ""))
 	print(err_msg)
 end
 
-local draw = function()
+local function draw()
 	local pos_x = 0
 	!if not _RELEASE then
 	local pos_y = 24
@@ -34,7 +34,7 @@ local draw = function()
 	love.graphics.present()
 end
 
-local copy_to_clipboard = function(arg)
+local function copy_to_clipboard(arg)
 	if not love.system then
 		return
 	end

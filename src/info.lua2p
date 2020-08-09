@@ -15,7 +15,7 @@ local Info = {
 
 local filename = !(_LOG_INFO)
 
-local insert_str = function(src, dest)
+local function insert_str(src, dest)
 	!if _ASSERT then
 	Assert.should_table(src)
 	!end

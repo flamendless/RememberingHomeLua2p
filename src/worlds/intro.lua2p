@@ -70,7 +70,7 @@ local rain_amount = {
 local current_rain = rain_amount[1][1]
 local current_rain_max = rain_amount[1][2]
 
-local update_rain = function(i)
+local function update_rain(i)
 	!if _ASSERT then
 	Assert.should_exists(rain_amount[i])
 	!end

@@ -8,7 +8,7 @@ local Collision = Concord.system({
 	pool_circle = {"position", "collider_circle"},
 })
 
-local circle_rect = function(cx, cy, cr, rx, ry, rw, rh)
+local function circle_rect(cx, cy, cr, rx, ry, rw, rh)
 	local dx = cx - max(rx, min(cx, rx + rw))
 	local dy = cy - max(ry, min(cy, ry + rh))
 

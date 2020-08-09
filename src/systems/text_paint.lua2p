@@ -10,8 +10,7 @@ local def_delay_paint = 1
 local def_delay_task = 1
 local dur_flash = 0.1
 
-local flash_to_color
-flash_to_color = function(source, target_a, target_b, dur, count, current)
+local function flash_to_color(source, target_a, target_b, dur, count, current)
 	local n = current or 0
 
 	Flux.to(source, dur, {

@@ -5,7 +5,7 @@ local BumpCollision = Concord.system({
 	pool = {"collider", "position", "bump"},
 })
 
-local filter = function(item, other)
+local function filter(item, other)
 	local other_col = other.collider
 
 	return other_col.filter or "slide"

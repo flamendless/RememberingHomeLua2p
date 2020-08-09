@@ -10,8 +10,7 @@ local Color = Concord.system({
 	pool_color = {"color", "target_color"},
 })
 
-local lerp_colors
-lerp_colors = function(lc, color)
+local function lerp_colors(lc, color)
 	local duration = lc.duration
 	local delay = lc.delay
 	local next_value = lc.current_color + 1
@@ -140,7 +139,7 @@ function Color:start_colors_lerp()
 		local color = e.color
 		local lc = e.lerp_colors
 
-		lerp_colors(lc, color, lc.duration, lc.delay)
+		lerp_colors(lc, color)
 	end
 end
 

@@ -17,7 +17,7 @@ local Outside = require("assemblages.outside")
 
 local offset = 8
 
-local generate_points = function(x, y, n)
+local function generate_points(x, y, n)
 	local points = {vec2:new(x, y)}
 	local prev_x = x
 	local prev_y = y
@@ -35,8 +35,7 @@ local generate_points = function(x, y, n)
 	return points
 end
 
-local move_to_next_point
-move_to_next_point = function(path, pos)
+local function move_to_next_point(path, pos)
 	local low = path.current_point
 	local dur = random(2, 8)
 	local high = low + dur
