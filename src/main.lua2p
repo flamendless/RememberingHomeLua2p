@@ -14,6 +14,10 @@ Assert = require("assert")
 
 require("modules.batteries"):export()
 
+!if not _RELEASE then
+require("modules.strict")
+!end
+
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")

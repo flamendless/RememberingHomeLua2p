@@ -41,7 +41,7 @@ function Save.initialize()
 	end
 
 	Save.exists = exists
-	Log.info(stringx.pretty(Save.data, 2))
+	Log.info("Save Data: " .. stringx.pretty(Save.data))
 end
 
 function Save.validate_checkpoints(data)
