@@ -57,20 +57,18 @@ function Save.overwrite()
 	Utils.write_to_file(key_filename, hashed)
 end
 
-!(
-local test = {"splash_done", "intro_done"}
-for i, flag in ipairs(test) do
-	local method = "set_" .. flag
-	outputLua("function Save." .. method .. "(should_overwrite)\n")
-	if _ASSERT then
-		outputLua("\tAssert.safe_should_boolean(should_overwrite)\n")
+function Save.set_flag(id, should_overwrite)
+	!if _ASSERT then
+	Assert.should_string(id)
+	Assert.should_exists(Save.data[id])
+	Assert.safe_should_exists(should_overwrite)
+	!end
+
+	Save.data[id] = true
+
+	if should_overwrite then
+		Save.overwrite()
 	end
-	outputLua("\tSave.data." .. flag .. " = true\n")
-	outputLua("\tif should_overwrite then\n")
-	outputLua("\t\tSave.overwrite()\n")
-	outputLua("\tend\n")
-	outputLua("end\n")
 end
-)
 
 return Save

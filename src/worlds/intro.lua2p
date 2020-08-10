@@ -360,7 +360,7 @@ function StateIntro:start()
 
 		-- TODO implement lightning to quickly black out scene
 		Fade.fade_out(function()
-			Save.set_intro_done(true)
+			Save.set_flag("intro_done", true)
 			is_raining = false
 			self.gamestate.switch("Outside")
 		end, fade_out_duration)
