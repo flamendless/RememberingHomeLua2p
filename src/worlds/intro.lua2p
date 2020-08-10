@@ -14,7 +14,9 @@ local Resources = require("resources")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
+
 !if not _RELEASE then
+local Slab = require("modules.slab")
 local Tracker = require("tracker")
 !end
 
@@ -40,6 +42,10 @@ local Systems = {
 	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
 	Move = require("systems.move"),
+
+	!if not _RELEASE then
+	Debugging = require("systems.debugging"),
+	!end
 }
 
 !if not _RELEASE then
@@ -98,6 +104,10 @@ function StateIntro:load()
 		function()
 			self.is_ready = true
 			self:start()
+
+			!if not _RELEASE then
+			Slab.Initialize()
+			!end
 		end)
 end
 
@@ -117,6 +127,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Dialogues)
 
 	!if not _RELEASE then
+	self.world:addSystem(Systems.Debugging)
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
@@ -376,12 +387,20 @@ function StateIntro:update(dt)
 	end
 
 	self.world:emit("update", dt)
+
+	!if not _RELEASE then
+	Slab.Update(dt)
+	self.world:emit("update_debug", dt)
+	if self.draw_debug then
+		self.world:emit("draw_slab", dt)
+	end
+	!end
 end
 
 function StateIntro:draw()
 	if not self.is_ready then return end
 
-	self.camera:draw(function()
+	self.camera:draw(function(l, t, w, h)
 		if current_effect then
 			current_effect:apply()
 		end
@@ -390,14 +409,33 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 
 		love.graphics.setShader()
+
+		!if not _RELEASE then
+		if self.draw_debug then
+			self.world:emit("draw_debug", l, t, w, h)
+		end
+		!end
 	end)
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
+
 	Fade.draw()
+
+	!if not _RELEASE then
+	Slab.Draw()
+	!end
 end
 
 function StateIntro:keypressed(key)
+	!if not _RELEASE then
+	if key == "`" then
+		self.draw_debug = not self.draw_debug
+	elseif key == "space" then
+		self.timeline:Unpause()
+	end
+	!end
+
 	if Save.data.intro_done or not !(_RELEASE) then
 		if Inputs.is_pressed("ui_skip", key) then
 			Fade.fade_out(function()

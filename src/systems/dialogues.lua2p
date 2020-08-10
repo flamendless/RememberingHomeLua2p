@@ -56,13 +56,26 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 
 	self.world:emit("generate_paint", e, dur_in, dur_out)
 	e:remove("hidden")
-	Flux.to(e.color.color, dur_in, {[4] = 1})
-		:oncomplete(function()
+
+	e:give("color_fade_in", dur_in, nil, function()
+		e:give("color_fade_out", dur_out, nil, function()
 			e:give("hidden")
 			e:destroy()
 			d.current = d.current + 1
 			self:start_dialogue(id, timeline, dur_in, dur_out)
 		end)
+	end)
+
+	-- Flux.to(e.color.color, dur_in, {[4] = 1})
+	-- 	:oncomplete(function()
+	-- 		e:give("color_fade_out", dur_out)
+	-- 		:give("color_on_complete", function()
+	-- 			e:give("hidden")
+	-- 			e:destroy()
+	-- 			d.current = d.current + 1
+	-- 			self:start_dialogue(id, timeline, dur_in, dur_out)
+	-- 		end)
+	-- 	end)
 end
 
 return Dialogue

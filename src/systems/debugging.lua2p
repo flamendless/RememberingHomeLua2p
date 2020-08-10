@@ -40,6 +40,10 @@ function Debugging:draw_slab()
 		DebugFlags.camera = not DebugFlags.camera
 	end
 
+	if Slab.CheckBox(DebugFlags.colliders, "Colliders") then
+		DebugFlags.colliders = not DebugFlags.colliders
+	end
+
 	if Slab.CheckBox(DebugFlags.cross, "Cross") then
 		DebugFlags.cross = not DebugFlags.cross
 	end

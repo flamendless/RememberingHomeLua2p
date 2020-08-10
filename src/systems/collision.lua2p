@@ -113,7 +113,11 @@ function Collision:check_collision(e)
 end
 
 !if not _RELEASE then
+local DebugFlags = require("debug_flags")
+
 function Collision:draw_debug()
+	if not DebugFlags.colliders then return end
+
 	for _, e in ipairs(self.pool) do
 		if not e.bump then
 			local pos = e.position.pos

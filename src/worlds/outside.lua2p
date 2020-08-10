@@ -106,6 +106,7 @@ function StateOutside:load()
 		function()
 			self.is_ready = true
 			self:start()
+
 			!if not _RELEASE then
 			Slab.Initialize()
 			world = self.world
@@ -403,18 +404,18 @@ function StateOutside:draw()
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
-		!if not _RELEASE then
-		if self.draw_debug then
-			self.world:emit("draw_debug", l, t, w, h)
-		end
-		!end
-
 		love.graphics.setShader()
 
 		if overlay_flag then
 			love.graphics.setColor(overlay)
 			love.graphics.rectangle("fill", l, t, w, h)
 		end
+
+		!if not _RELEASE then
+		if self.draw_debug then
+			self.world:emit("draw_debug", l, t, w, h)
+		end
+		!end
 	end)
 
 	self.world:emit("draw_clip")
