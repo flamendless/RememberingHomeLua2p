@@ -44,6 +44,12 @@ function Color:init()
 		Flux.to(e.color.color, e.color_fade_in.duration, {[4] = 1})
 			:delay(e.color_fade_in.delay)
 			:oncomplete(function()
+				local on_complete = e.color_fade_in.on_complete
+
+				if on_complete then
+					on_complete()
+				end
+
 				e:remove("color_fade_in")
 			end)
 	end
@@ -52,6 +58,12 @@ function Color:init()
 		Flux.to(e.color.color, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
+				local on_complete = e.color_fade_out.on_complete
+
+				if on_complete then
+					on_complete()
+				end
+
 				e:remove("color_fade_out")
 			end)
 	end

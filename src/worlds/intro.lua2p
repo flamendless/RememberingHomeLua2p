@@ -56,8 +56,8 @@ local resources = {images = {}, image_data = {}, fonts = {}}
 
 local effect = {dt = 0, dt2 = 0, status = 1}
 local fade_out_duration = 0.1
-local dur_in = 3
-local dur_out = 2
+local dur_in = 2.5
+local dur_out = 1.5
 local fade_duration = 4
 local current_effect
 local is_raining = false
@@ -339,11 +339,6 @@ function StateIntro:start()
 		self.entities.title:remove("hidden")
 		Flux.to(color.color, 4, {[4] = 1})
 			:oncomplete(function()
-				Flux.to(color.color, 4, {[4] = 0})
-					:oncomplete(function()
-						self.entities.title:give("hidden")
-						self.entities.title:destroy()
-					end)
 				self.timeline:Unpause()
 			end)
 		self.timeline:Pause()

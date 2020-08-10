@@ -58,22 +58,26 @@ Concord.component("target_color", function(c, target_color, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("color_fade_in", function(c, duration, delay)
+Concord.component("color_fade_in", function(c, duration, delay, on_complete)
 	!if _ASSERT then
 	Assert.should_number(duration)
 	Assert.safe_should_number(delay)
+	Assert.safe_should_function(on_complete)
 	!end
 
 	c.duration = duration
 	c.delay = delay or 0
+	c.on_complete = on_complete
 end)
 
-Concord.component("color_fade_out", function(c, duration, delay)
+Concord.component("color_fade_out", function(c, duration, delay, on_complete)
 	!if _ASSERT then
 	Assert.should_number(duration)
 	Assert.safe_should_number(delay)
+	Assert.safe_should_function(on_complete)
 	!end
 
 	c.duration = duration
 	c.delay = delay or 0
+	c.on_complete = on_complete
 end)
