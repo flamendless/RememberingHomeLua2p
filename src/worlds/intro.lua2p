@@ -243,15 +243,15 @@ function StateIntro:start()
 			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "a game by Brandon",
+		:assemble(Assemblages.UI.ui_text, !("a game by " .. _NAME_DEVELOPER),
 			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "arts by Conrad",
+		:assemble(Assemblages.UI.ui_text, !("arts by " .. _NAME_ARTIST),
 			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
-		:assemble(Assemblages.UI.ui_text, "music by ???",
+		:assemble(Assemblages.UI.ui_text, !("music by " .. _NAME_MUSICIAN),
 			res_fonts.ui, vec2:new(32, 32))
 
 	self.entities.title = Concord.entity(self.world)

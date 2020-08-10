@@ -76,18 +76,8 @@ local duration_hide = 0.75
 local duration_pos = 0.75
 local tx = 176
 
-local tools = {
-	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",
-	"Vim", "Trello", "Aseprite", "Audacity",
-}
-
-local libs = {
-	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
-	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
-	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "SDF", "Semver", "Slab",
-	"Splashes", "TimelineEvents",
-}
+local tools = !(_TOOLS)
+local libs = !(_LIBS)
 
 !if not _RELEASE and _ASSERT then
 for i, str in ipairs(options) do
@@ -354,9 +344,10 @@ local function generate_about()
 	local t = {
 		{upper(!(_GAME_TITLE)), res_fonts.about_64, 12},
 		{"A Game By:"},
-		{"Brandon Blanker Lim-it @flamendless"},
+		{!(_FULL_NAME_DEVELOPER .. " " .. _TWITTER_DEVELOPER)},
 		{"Arts By:"},
-		{"Conrad Reyes @wits"},
+		{!(_FULL_NAME_ARTIST .. " " .. _TWITTER_ARTIST)},
+		--TODO add musician here
 
 		{"@LAYOUT:LEFT"},
 		{"TOOLS USED:"},

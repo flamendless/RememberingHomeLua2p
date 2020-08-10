@@ -54,7 +54,7 @@ function process_file()
 	local out=$dir_output/$2/$file
 
 	if [ "$ext" == "lua2p" ]; then
-		lua "$lpp_path" --handler="$handler" --outputpaths "$1" "$out".lua
+		lua "$lpp_path" --handler="$handler" --outputpaths "$1" "$out".lua --silent
 	else
 		cp "$1" "$out"
 	fi

@@ -7,13 +7,12 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 !if not _RELEASE then
 io.stdout:setvbuf("no")
 local getStats = love.graphics.getStats
-!end
-
-require("modules.batteries"):export()
-
 !if _ASSERT then
 Assert = require("assert")
 !end
+!end
+
+require("modules.batteries"):export()
 
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
@@ -40,7 +39,7 @@ local WindowMode = require("window_mode")
 
 local format = string.format
 
-local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+local this_version = !(("%i.%i.%i"):format(unpack((_GAME_VERSION))))
 local this_semver = Semver(this_version)
 
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
@@ -82,8 +81,7 @@ function love.load()
 	!if _RELEASE then
 	GameStates.switch("Splash")
 	!else
-	-- GameStates.switch("Outside")
-	GameStates.switch("Intro")
+	GameStates.switch("Outside")
 	!end
 end
 

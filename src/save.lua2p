@@ -1,3 +1,5 @@
+local Log = require("modules.log.log")
+
 local Utils = require("utils")
 
 local format = string.format
@@ -7,6 +9,8 @@ local Save = {
 		splash_done = false,
 		intro_done = false
 	},
+	checkpoints = {},
+	valid_checkpoints = false,
 	exists = false,
 }
 
@@ -21,15 +25,14 @@ function Save.initialize()
 		local hashed = love.data.hash("sha256", content)
 
 		if key == hashed then
-			Save.data = Utils.deserialize(content)
+			local data = Utils.deserialize(content)
+			Save.data = data
+			Save.validate_checkpoints(data)
 		else
-			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", save_filename, key_filename, love.filesystem.getSaveDirectory())
-
-			---TODO luapreprocess fails to parse this because of the string literals?
-			-- local error_msg = format("Data integrity is not valid.\n
-			-- 	Please do not modify the files: '%s' and '%s'.\n
-			-- 	Please delete the files in '%s' and restart the game",
-			-- 	save_filename, key_filename, love.filesystem.getSaveDirectory())
+			local error_msg = format("Data integrity is not valid.\n\
+				Please do not modify the files: '%s' and '%s'.\n\
+				Please delete the files in '%s' and restart the game",
+				save_filename, key_filename, love.filesystem.getSaveDirectory())
 
 			error(error_msg)
 		end
@@ -37,9 +40,14 @@ function Save.initialize()
 		Save.overwrite()
 	end
 
-	--TODO this should look for proper saves
-	-- Save.exists = exists
-	print(stringx.pretty(Save.data, 2))
+	Save.exists = exists
+	Log.info(stringx.pretty(Save.data, 2))
+end
+
+function Save.validate_checkpoints(data)
+	!if _ASSERT then
+	Assert.should_table(data)
+	!end
 end
 
 function Save.overwrite()
@@ -49,20 +57,20 @@ function Save.overwrite()
 	Utils.write_to_file(key_filename, hashed)
 end
 
-function Save.set_splash_done(should_overwrite)
-	Save.data.splash_done = true
-
-	if should_overwrite then
-		Save.overwrite()
+!(
+local test = {"splash_done", "intro_done"}
+for i, flag in ipairs(test) do
+	local method = "set_" .. flag
+	outputLua("function Save." .. method .. "(should_overwrite)\n")
+	if _ASSERT then
+		outputLua("\tAssert.safe_should_boolean(should_overwrite)\n")
 	end
+	outputLua("\tSave.data." .. flag .. " = true\n")
+	outputLua("\tif should_overwrite then\n")
+	outputLua("\t\tSave.overwrite()\n")
+	outputLua("\tend\n")
+	outputLua("end\n")
 end
-
-function Save.set_intro_done(should_overwrite)
-	Save.data.intro_done = true
-
-	if should_overwrite then
-		Save.overwrite()
-	end
-end
+)
 
 return Save

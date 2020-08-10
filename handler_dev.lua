@@ -35,4 +35,27 @@ _URL_TWITTER = "https://twitter.com/@flamendless"
 _URL_WEBSITE = "https://flamendless.github.io/goinghomerevisited"
 _URL_MAIL = "mailto:flamendless8@gmail.com"
 
+_NAME_DEVELOPER = "Brandon"
+_NAME_ARTIST = "Conrad"
+_NAME_MUSICIAN = "???"
+
+_FULL_NAME_DEVELOPER = "Brandon Blanker Lim-it"
+_FULL_NAME_ARTIST = "Conrad Reyes"
+
+_TWITTER_DEVELOPER = "@flamendless"
+_TWITTER_ARTIST = "@wits"
+
+_TOOLS = {
+	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",
+	"Vim", "Trello", "Aseprite", "Audacity",
+}
+
+_LIBS = {
+	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
+	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
+	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
+	"Lume", "NGrading", "SDF", "Semver", "Slab",
+	"Splashes", "TimelineEvents",
+}
+
 return {}
