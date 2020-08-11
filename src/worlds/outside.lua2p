@@ -43,7 +43,6 @@ local Systems = {
 	PlayerController = require("systems.player_controller"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
-	RainOutside = require("systems.rain_outside"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
@@ -67,8 +66,13 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
+local ParticleSystems = {
+	RainOutside = require("particle_systems/rain_outside"),
+}
+
 local resources = {images = {}, image_data = {}, fonts = {}}
-local rain_state = {current = 0, max_amount = 0}
+local rain_state = {current = 128}
+local is_raining = false
 local effect
 local fireflies_flag = false
 local overlay_flag = false
@@ -119,7 +123,6 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.PlayerController)
-	self.world:addSystem(Systems.RainOutside)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Collision)
@@ -149,6 +152,16 @@ function StateOutside:start()
 		:give("camera", self.camera, true)
 		:give("camera_transform", 0, self.scale)
 		:give("camera_clip", w, h, {0, 0, 0, 1})
+
+	local cx, cy, cw, ch = self.camera:getVisible()
+
+	self.ps1 = ParticleSystems.RainOutside:new(res_images.rain_drop, 128, cw)
+	self.ps2 = ParticleSystems.RainOutside:new(res_images.rain_drop2, 128, cw)
+
+	!if not _RELEASE then
+	self.world:emit("debug_particle_system", self.ps1.system)
+	self.world:emit("debug_particle_system", self.ps2.system)
+	!end
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
@@ -239,10 +252,6 @@ function StateOutside:start()
 		insert(self.splashes, e)
 	end
 
-	self.entities.rain_data = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.rain, self.screen_size.x, self.screen_size.y,
-			res_images.rain_drop, res_images.rain_drop2)
-
 	self.world:emit("generate_fireflies",
 		random(5, 20), res_images.firefly,
 		vec2:new(670, 222), vec2:new(1136, 286))
@@ -264,8 +273,10 @@ function StateOutside:start()
 		self.timeline:Pause()
 		!end
 
-		rain_state.current = 32
-		rain_state.max_amount = 64
+		is_raining = true
+		self.ps1.system:setEmissionRate(rain_state.current)
+		self.ps2.system:setEmissionRate(rain_state.current)
+
 		fireflies_flag = true
 		overlay_flag = true
 
@@ -293,10 +304,17 @@ function StateOutside:start()
 		tle_log("begin rain fade")
 		TLE.Event.Wait(3)
 		local dur_fade_rain = 8
-		self.world:emit("fade_splashes", dur_fade_rain)
-		Flux.to(rain_state, dur_fade_rain, {current = 0, max_amount = 0})
+
+		for _, e in ipairs(self.splashes) do
+			e:give("color_fade_out", dur_fade_rain)
+		end
+
+		Flux.to(rain_state, dur_fade_rain, {current = 0})
 			:onupdate(function()
-				if rain_state.current <= 4 then
+				self.ps1.system:setEmissionRate(rain_state.current)
+				self.ps2.system:setEmissionRate(rain_state.current)
+
+				if rain_state.current <= 16 then
 					if fireflies_flag then
 						self.world:emit("move_fireflies")
 						self.world:emit("show_fireflies", 5, function()
@@ -314,6 +332,9 @@ function StateOutside:start()
 				end
 				tle_log("splashes stopped")
 
+				is_raining = false
+				self.ps1.system:stop()
+				self.ps2.system:stop()
 				self.timeline:Unpause()
 				self.world:emit("cleanup_rain")
 				tle_log("end rain fade")
@@ -380,11 +401,10 @@ function StateOutside:update(dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 
-	local cx, cy, cw, ch = self.camera:getVisible()
-	local x = cx - 128
-	local x2 = cw + 128
-
-	self.world:emit("emit_rain", rain_state.current, rain_state.max_amount, x, x2)
+	if is_raining then
+		self.ps1:update(dt)
+		self.ps2:update(dt)
+	end
 
 	!if not _RELEASE then
 	Slab.Update(dt)
@@ -401,8 +421,14 @@ function StateOutside:draw()
 
 	self.camera:draw(function(l, t, w, h)
 		effect:apply()
+
 		self.world:emit("draw")
 		self.world:emit("draw_z")
+
+		if is_raining then
+			self.ps1:draw(0, -16)
+			self.ps2:draw(0, -16)
+		end
 
 		love.graphics.setShader()
 
@@ -452,8 +478,8 @@ function StateOutside:exit()
 		self.entities[k] = nil
 	end
 
-	rain_state.current = 0
-	rain_state.max_amount = 0
+	-- rain_state.current = 0
+	-- rain_state.max_amount = 0
 	effect = nil
 	fireflies_flag = false
 	overlay_flag = false
