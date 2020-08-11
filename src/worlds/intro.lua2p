@@ -468,11 +468,15 @@ function StateIntro:keypressed(key)
 end
 
 function StateIntro:exit()
+	self.world:emit("cleanup")
+	self.world:clear()
+
 	Timer.clear()
 	Resources.clean(resources)
 
 	self.ps1 = nil
 	self.ps2 = nil
+
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end

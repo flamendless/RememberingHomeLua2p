@@ -437,6 +437,9 @@ function StateOutside:keypressed(key)
 end
 
 function StateOutside:exit()
+	self.world:emit("cleanup")
+	self.world:clear()
+
 	Timer.clear()
 	Resources.clean(resources)
 
