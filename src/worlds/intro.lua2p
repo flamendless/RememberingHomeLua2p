@@ -221,23 +221,8 @@ function StateIntro:start()
 			end
 		end)
 
-	self.entities.fg_tree_data = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.fg_tree_data,
-			{res_images.fg_tree1, res_images.fg_tree2}, w)
-
-	-- self.entities.rain_data = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Intro.rain_data,
-	-- 		res_images.rain_drop_tilted,
-	-- 		res_images.rain_drop_tilted2,
-	-- 		res_images.rain_splash_tilted,
-	-- 		res_images.rain_splash_tilted2)
-	-- 	:give("screen_size", self.screen_size.x, self.screen_size.y)
-
 	self.entities.paint_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.paint_data, res_images.sheet_paint)
-
-	self.world:emit("validate_tree", self.entities.fg_tree_data)
-	self.world:emit("generate_tree", self.entities.fg_tree_data)
 
 	local lut_size
 	local lut_afternoon, lut_dusk
@@ -419,8 +404,8 @@ function StateIntro:draw()
 		self.world:emit("draw_z")
 
 		if is_raining then
-			self.ps1:draw(0, 16)
-			self.ps2:draw(0, 16)
+			self.ps1:draw(0, -16)
+			self.ps2:draw(0, -16)
 		end
 
 		love.graphics.setShader()

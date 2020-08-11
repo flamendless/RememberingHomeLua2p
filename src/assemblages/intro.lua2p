@@ -13,7 +13,6 @@ local speed = {
 	bg_trees1 = 400,
 	bg_trees2 = 316,
 	bg_trees3 = 232,
-	fg_tree = -672,
 }
 
 local z_index = {
@@ -28,7 +27,6 @@ local z_index = {
 	post = 9,
 	grass1 = 10,
 	car = 11,
-	fg_tree = 12,
 	grass2 = 13,
 }
 
@@ -64,16 +62,6 @@ function Intro.bg_tree_cover(e, sprite)
 	:give("transform", 0, 1, 1, sprite:getWidth()/2)
 	:give("z_index", z_index.bg_trees0)
 	:give("bg_tree", true)
-end
-
-function Intro.fg_tree_data(e, images, max_width)
-	e:give("tree_data", {
-		images = images,
-		max_width = max_width,
-		parallax = vec2:new(speed.fg_tree, 0),
-		z_index = z_index.fg_tree,
-		chance = {yes = 0.2, no = 0.8},
-	})
 end
 
 function Intro.tree(e, sprite, pos, index, parallax, z_index)
