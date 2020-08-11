@@ -53,6 +53,7 @@ function Bump3DCollision:update(dt)
 			if e.body.vel_x ~= 0 or e.body.vel_y ~= 0 then
 				local pos = e.position.pos
 				local cols, len
+				local z
 
 				pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
 					pos.x + e.body.vel_x,

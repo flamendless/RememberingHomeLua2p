@@ -360,6 +360,7 @@ function StateOutside:start()
 			timer_hold_key, e_hold_key.progress)
 		event1.on_complete = function()
 			tle_log("action completed")
+
 			for id, e in pairs(e_hold_key) do
 				e:give("color_fade_out", dur_fade_hold)
 			end
@@ -376,7 +377,9 @@ function StateOutside:start()
 				:assemble(Assemblages.Player.outside_house,
 					res_images.sheet_player_idle,
 					res_images.sheet_player_walk,
-					res_images.sheet_player_run)
+					res_images.sheet_player_run,
+					false, false)
+
 			self.world:emit("face_left", self.entities.player)
 			self.world:emit("camera_follow", self.entities.player, dur_camera_follow)
 			Flux.to(self.camera, 1, {scale = 3})
@@ -385,6 +388,7 @@ function StateOutside:start()
 
 		EventManager.add(event1)
 		self.timeline:Pause()
+		self.entities.player.body.can_move = true
 
 		TLE.Event.Wait(0.75)
 		tle_log("task: " .. tasks[2])

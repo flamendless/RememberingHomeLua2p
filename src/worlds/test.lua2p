@@ -105,7 +105,8 @@ function StateTest:start()
 	self.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base, "topdown",
 			vec2:new(496, 256),
-			{idle = 0, walk = 128, run = 180}, 320,
+			{idle = vec2:new(), walk = vec2:new(128, 96), run = vec2:new(180, 148)},
+			320,
 			{
 				sheet_idle = resources.images.sheet_player_idle,
 				sheet_walk = resources.images.sheet_player_walk,

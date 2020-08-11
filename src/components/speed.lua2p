@@ -2,15 +2,19 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("speed", function(c, speed)
 	!if _ASSERT then
-	Assert.safe_should_number(speed)
+	Assert.safe_should_vec2(speed)
 	!end
 
-	c.speed = speed or 0
+	c.speed = speed or vec2:new()
 end)
 
 Concord.component("speed_data", function(c, speed_data)
 	!if _ASSERT then
-	Assert.safe_should_table(speed_data)
+	if Assert.safe_should_table(speed_data) then
+		for i, v in ipairs(speed_data) do
+			Assert.should_vec2(v)
+		end
+	end
 	!end
 
 	c.speed_data = speed_data
