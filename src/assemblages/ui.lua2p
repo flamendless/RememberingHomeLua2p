@@ -2,7 +2,7 @@ local Palette = require("palette")
 
 local UI = {}
 
-local line_width = 6
+local line_width = 7
 
 function UI.paint_data(e, sheet)
 	e:give("text_paint_data", {

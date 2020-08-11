@@ -1,4 +1,3 @@
-local insert = table.insert
 local lg = love.graphics
 
 local RainIntroParticles = class()

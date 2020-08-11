@@ -33,6 +33,7 @@ function RenderCircle:internal_draw_arc(e)
 	local color = e.color
 	local line_width = e.line_width
 	local mode = e.draw_mode.draw_mode
+	local temp_line_width = love.graphics.getLineWidth()
 
 	if color then
 		love.graphics.setColor(color.color)
@@ -55,6 +56,8 @@ function RenderCircle:internal_draw_arc(e)
 	else
 		love.graphics.arc(mode, pos.x, pos.y, arc.radius, a, b, arc.segments)
 	end
+
+	love.graphics.setLineWidth(temp_line_width)
 end
 
 function RenderCircle:draw()
