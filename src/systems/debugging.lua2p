@@ -5,6 +5,7 @@ local Slab = require("modules.slab")
 
 local DebugFlags = require("debug_flags")
 
+local insert = table.insert
 local getFPS = love.timer.getFPS
 
 local Debugging = Concord.system({
@@ -16,6 +17,9 @@ local is_open = true
 
 function Debugging:init(world)
 	self.ent_count = 0
+	self.ps = {}
+	self.ps_count = 0
+
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -25,6 +29,22 @@ function Debugging:init(world)
 	self.pool.onEntityRemoved = function(pool, e)
 		self.ent_count = self.ent_count - 1
 	end
+end
+
+function Debugging:debug_particle_system(ps)
+	!if _ASSERT then
+	Assert.should_particle_system(ps)
+	!end
+
+	insert(self.ps, ps)
+end
+
+function Debugging:update(dt)
+	local c = 0
+	for i, ps in ipairs(self.ps) do
+		c = c + ps:getCount()
+	end
+	self.ps_count = c
 end
 
 function Debugging:draw_slab()
@@ -88,6 +108,7 @@ function Debugging:draw_slab()
 	DebugFlags.stats = Slab.BeginWindow("stats",
 		{Title = "stats", IsOpen = DebugFlags.stats})
 	Slab.Text("FPS: " .. getFPS())
+	Slab.Text("Particle Count: " .. self.ps_count)
 	for k, v in pairs(DebugFlags.t_stats) do
 		Slab.Text(k .. ": " .. v)
 	end
@@ -104,6 +125,20 @@ function Debugging:draw_debug(l, t, w, h)
 	love.graphics.setLineWidth(1)
 	love.graphics.line(hw, 0, hw, h)
 	love.graphics.line(0, hh, w, hh)
+end
+
+function Debugging:cleanup()
+	self.ent_count = 0
+	self.ps_count = 0
+
+	for i, ps in ipairs(self.ps) do
+		self.ps[i] = nil
+	end
+
+	for _, e in ipairs(self.pool_log) do
+		e:remove("log")
+		e:destroy()
+	end
 end
 
 return Debugging

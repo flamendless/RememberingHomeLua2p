@@ -35,7 +35,6 @@ local Systems = {
 	Color = require("systems.color"),
 	Dialogues = require("systems.dialogues"),
 	Parallax = require("systems.parallax"),
-	RainIntro = require("systems.rain_intro"),
 	RandomTree = require("systems.random_tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
@@ -58,6 +57,10 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
+local ParticleSystems = {
+	RainIntro = require("particle_systems/rain_intro"),
+}
+
 local resources = {images = {}, image_data = {}, fonts = {}}
 
 local effect = {dt = 0, dt2 = 0, status = 1}
@@ -67,23 +70,19 @@ local dur_out = 1.5
 local fade_duration = 4
 local current_effect
 local is_raining = false
-local rain_amount = {
-	{8, 16},
-	{16, 32},
-	{32, 128},
-}
+local rain_amount = {16, 32, 96}
 
-local current_rain = rain_amount[1][1]
-local current_rain_max = rain_amount[1][2]
-
-local function update_rain(i)
+function StateIntro:update_rain(i)
 	!if _ASSERT then
+	Assert.should_number(i)
 	Assert.should_exists(rain_amount[i])
 	!end
 
+	local amount = rain_amount[i]
+
 	is_raining = true
-	current_rain = rain_amount[i][1]
-	current_rain_max = rain_amount[i][2]
+	self.ps1.system:setEmissionRate(amount)
+	self.ps2.system:setEmissionRate(amount)
 end
 
 function StateIntro:new()
@@ -117,7 +116,6 @@ function StateIntro:start()
 	self.world:addSystem(Systems.TextPaintFade)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
-	self.world:addSystem(Systems.RainIntro)
 	self.world:addSystem(Systems.RandomTree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
@@ -143,6 +141,14 @@ function StateIntro:start()
 	self.world:emit("camera_set", self.camera)
 	self.world:emit("set_camera_clip", w, h, {0, 0, 0, 1})
 
+	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
+	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)
+
+	!if not _RELEASE then
+	self.world:emit("debug_particle_system", self.ps1.system)
+	self.world:emit("debug_particle_system", self.ps2.system)
+	!end
+
 	self.entities.bg = Concord.entity(self.world)
 		:give("sprite", res_images.bg)
 		:give("position", vec2:new())
@@ -150,7 +156,8 @@ function StateIntro:start()
 	local ssx2 = self.screen_size.x * 2
 
 	self.entities.parallax_building = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_buildings, ssx2, "building")
+		:assemble(Assemblages.Intro.parallax,
+			res_images.parallax_buildings, ssx2, "building")
 
 	self.entities.bg_trees3 = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.bg_trees3, ssx2 , "bg_trees3")
@@ -218,13 +225,13 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.fg_tree_data,
 			{res_images.fg_tree1, res_images.fg_tree2}, w)
 
-	self.entities.rain_data = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.rain_data,
-			res_images.rain_drop_tilted,
-			res_images.rain_drop_tilted2,
-			res_images.rain_splash_tilted,
-			res_images.rain_splash_tilted2)
-		:give("screen_size", self.screen_size.x, self.screen_size.y)
+	-- self.entities.rain_data = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Intro.rain_data,
+	-- 		res_images.rain_drop_tilted,
+	-- 		res_images.rain_drop_tilted2,
+	-- 		res_images.rain_splash_tilted,
+	-- 		res_images.rain_splash_tilted2)
+	-- 	:give("screen_size", self.screen_size.x, self.screen_size.y)
 
 	self.entities.paint_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.paint_data, res_images.sheet_paint)
@@ -318,19 +325,19 @@ function StateIntro:start()
 			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
-		update_rain(1)
+		self:update_rain(1)
 
 		-- TODO play intro radio
 		-- TLE.Event.Wait(3)
 
-		update_rain(2)
+		self:update_rain(2)
 
 		TLE.Event.Wait(3)
 		self.world:emit("start_dialogue", "dialogue_intro",
 			self.timeline, dur_in, dur_out)
 		self.timeline:Pause()
 
-		update_rain(3)
+		self:update_rain(3)
 
 		TLE.Event.Wait(2)
 		self.world:emit("slow_parallax", 0.75)
@@ -362,6 +369,8 @@ function StateIntro:start()
 		Fade.fade_out(function()
 			Save.set_flag("intro_done", true)
 			is_raining = false
+			self.ps1.system:stop()
+			self.ps2.system:stop()
 			self.gamestate.switch("Outside")
 		end, fade_out_duration)
 	end)
@@ -377,7 +386,8 @@ function StateIntro:update(dt)
 	if not self.is_ready then return end
 
 	if is_raining then
-		self.world:emit("emit_rain", current_rain, current_rain_max)
+		self.ps1:update(dt)
+		self.ps2:update(dt)
 	end
 
 	self.world:emit("parallax_move_x", dt, 1)
@@ -408,6 +418,11 @@ function StateIntro:draw()
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
+		if is_raining then
+			self.ps1:draw(0, 16)
+			self.ps2:draw(0, 16)
+		end
+
 		love.graphics.setShader()
 
 		!if not _RELEASE then
@@ -431,8 +446,14 @@ function StateIntro:keypressed(key)
 	!if not _RELEASE then
 	if key == "`" then
 		self.draw_debug = not self.draw_debug
-	elseif key == "space" then
-		self.timeline:Unpause()
+	end
+
+	if key == "1" then
+		self:update_rain(1)
+	elseif key == "2" then
+		self:update_rain(2)
+	elseif key == "3" then
+		self:update_rain(3)
 	end
 	!end
 
@@ -450,6 +471,8 @@ function StateIntro:exit()
 	Timer.clear()
 	Resources.clean(resources)
 
+	self.ps1 = nil
+	self.ps2 = nil
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
@@ -464,8 +487,6 @@ function StateIntro:exit()
 	effect.status = 1
 	current_effect = nil
 	is_raining = false
-	current_rain = rain_amount[1][1]
-	current_rain_max = rain_amount[1][2]
 	self.timeline:Die()
 end
 
