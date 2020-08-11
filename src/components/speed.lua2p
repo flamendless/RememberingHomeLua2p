@@ -10,7 +10,7 @@ end)
 
 Concord.component("speed_data", function(c, speed_data)
 	!if _ASSERT then
-	Assert.safe_should_table(speed)
+	Assert.safe_should_table(speed_data)
 	!end
 
 	c.speed_data = speed_data

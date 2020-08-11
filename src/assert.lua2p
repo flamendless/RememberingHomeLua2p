@@ -7,17 +7,18 @@ Assert.types = {
 	T_BEZIER_CURVE = "BezierCurve",
 	T_BOOLEAN = "boolean",
 	T_CUSTOM_CANVAS = "CustomCanvas",
+	T_EVENT = "Event",
 	T_FONT = "Font",
 	T_FONT_SDF = "fontsdf",
 	T_FUNCTION = "function",
 	T_IMAGE = "Image",
 	T_IMAGEDATA = "ImageData",
 	T_NUMBER = "number",
+	T_PARTICLE_SYSTEM = "ParticleSystem",
 	T_QUAD = "Quad",
 	T_SHADER = "Shader",
 	T_STRING = "string",
 	T_TABLE = "table",
-	T_EVENT = "Event",
 	T_TIMELINEEVENT = "TLE",
 	T_VEC2 = "vec2",
 	T_VEC3 = "vec3",
@@ -32,6 +33,7 @@ local msg_should_color_range = "Passed arg must between [0.0, 1.0] range"
 local msg_should_component = "Passed arg must not be of type 'Component'"
 local msg_should_custom_canvas = "Passed arg must be of type 'CustomCanvas'"
 local msg_should_entity = "Passed arg must not be of type 'Entity'"
+local msg_should_event = "Passed arg must be of type 'Event'"
 local msg_should_exists = "Passed arg must not be nil"
 local msg_should_font = "Passed arg must be of type 'Font'"
 local msg_should_font_or_sdf = "Passed arg must be of type 'Font' or 'fontsdf'"
@@ -41,12 +43,12 @@ local msg_should_imagedata = "Passed arg must be of type 'ImageData'"
 local msg_should_image_or_imagedata = "Passed arg must be of type 'Image' or 'ImageData'"
 local msg_should_nil = "Passed arg must be nil"
 local msg_should_number = "Passed arg must be of type 'number'"
+local msg_should_particle_system = "Passed arg must be of type 'ParticleSystem'"
 local msg_should_quad = "Passed arg must be of type 'Quad'"
 local msg_should_shader = "Passed arg must be of type 'Shader'"
 local msg_should_string = "Passed arg must be of type 'string'"
 local msg_should_system = "Passed arg must be of type 'System'"
 local msg_should_table = "Passed arg must be of type 'table'"
-local msg_should_event = "Passed arg must be of type 'Event'"
 local msg_should_table_not_empty = "Passed table must not be empty"
 local msg_should_timelineevent = "Passed arg must be of type 'TLE'"
 local msg_should_true = "Passed arg must be true"
@@ -313,6 +315,12 @@ function Assert.should_image_or_imagedata(arg)
 
 	if (t ~= Assert.types.T_IMAGE) and (t ~= Assert.types.T_IMAGEDATA) then
 		error(msg_should_image_or_imagedata)
+	end
+end
+
+function Assert.should_particle_system(arg)
+	if arg:type() ~= Assert.types.T_PARTICLE_SYSTEM then
+		error(msg_should_particle_system, 2)
 	end
 end
 

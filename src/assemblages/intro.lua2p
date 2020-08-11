@@ -145,27 +145,4 @@ function Intro.title(e, sprite, pos)
 	:give("ui_element")
 end
 
-function Intro.rain_data(e, rdt, rdt2, rst, rst2)
-	e:give("rain_tilted")
-	:give("rain_data", {
-		metadata = {
-			drop = {
-				frames = {"1-3", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 3,
-			},
-			splash = {
-				frames = {"1-5", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 5,
-			}
-		},
-		drop = {rdt, rdt2},
-		splash = {rst, rst2},
-		scroll_speed = -360,
-	}, 512)
-end
-
 return Intro
