@@ -13,7 +13,7 @@ Made with [LOVE](https://love2d.org)
 2. Then run `./build init` to setup the directories and copy the assets to the output directory.
 3. Then `./build run` to preprocess and run the game.
 
-When modifying files in the `res/`, you should update with `./build rebuild`
+When modifying files in the `res/` or in the `modules/` directory, you should update with `./build rebuild` before running again.
 
 For cleaning files and logs `./build clean && ./build clean_logs`
 
@@ -53,6 +53,10 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 * [Curl](https://curl.haxx.se/download.html) - For Windows, version 7.38.0 is needed to work with luajit-request
 * [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
+
+## Coding Style Guide
+
+* [Look at my coding style guide for Lua](https://flamendless.github.io/lua-coding-style-guide/)
 
 ## LICENSE:
 
