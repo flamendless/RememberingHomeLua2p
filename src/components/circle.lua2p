@@ -10,6 +10,3 @@ Concord.component("circle", function(c, radius, segments)
 	c.radius = radius
 	c.segments = segments or radius
 end)
-
-Concord.component("ring", function(c)
-end)

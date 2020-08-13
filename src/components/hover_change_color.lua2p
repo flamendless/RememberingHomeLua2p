@@ -6,6 +6,6 @@ Concord.component("hover_change_color", function(c, color, duration)
 	Assert.should_number(duration)
 	!end
 
-	c.color = { color[1], color[2], color[3], color[4] }
+	c.color = {unpack(color)}
 	c.duration = duration
 end)

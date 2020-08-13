@@ -1,7 +1,6 @@
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
-local concat = table.concat
 local insert = table.insert
 local format = string.format
 

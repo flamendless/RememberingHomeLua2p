@@ -4,7 +4,7 @@ local Fade = {}
 
 local f_duration = 1
 local f_delay = 0.5
-local f_color = { 0, 0, 0, 0 }
+local f_color = {0, 0, 0, 0}
 
 function Fade.fade_out(on_complete, duration, delay)
 	!if _ASSERT then

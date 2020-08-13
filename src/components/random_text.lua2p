@@ -10,5 +10,6 @@ Concord.component("random_text", function(c, text)
 	elseif type(text) == "table" then
 		c.use_table = true
 	end
+
 	c.text = text
 end)

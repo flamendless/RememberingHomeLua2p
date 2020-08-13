@@ -1,8 +1,6 @@
 local Enum = require("modules.enum.enum")
 local JSON = require("modules.json.json")
-local Log = require("modules.log.log")
 
-local WindowMode = require("window_mode")
 local Utils = require("utils")
 
 local insert = table.insert

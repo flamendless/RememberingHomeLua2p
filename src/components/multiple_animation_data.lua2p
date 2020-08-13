@@ -16,6 +16,7 @@ Concord.component("multiple_animation_data", function(c, first, data, modifier)
 		Assert.should_number(v.columns_count)
 		Assert.should_number(v.n_frames)
 	end
+
 	if Assert.safe_should_table(modifier) then
 		for id, v in pairs(modifier) do
 			local target = v[1]

@@ -23,7 +23,6 @@
 --]]---------------------------------------------------------------------------
 
 local floor = math.floor
-local format = string.format
 
 local NGrading = class()
 

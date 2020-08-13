@@ -4,9 +4,6 @@ local BoundingBox = Concord.system({
 	pool = {"bounding_box", "position"},
 })
 
-function BoundingBox:init()
-end
-
 function BoundingBox:update(dt)
 	for _, e in ipairs(self.pool) do
 		local box = e.bounding_box

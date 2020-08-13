@@ -66,7 +66,6 @@ end
 function Outside.splashes(e, spritesheet, pos, is_compatible)
 	e:give("position", pos)
 	:give("z_index", z_index.splashes)
-	:give("rain_splashes")
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
 	:give("animation_data", {

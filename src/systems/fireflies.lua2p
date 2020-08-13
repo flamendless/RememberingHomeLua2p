@@ -12,7 +12,6 @@ local Fireflies = Concord.system({
 	pool = {"firefly", "color"},
 })
 
-local Color = require("systems.color")
 local Outside = require("assemblages.outside")
 
 local offset = 8

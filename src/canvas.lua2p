@@ -1,6 +1,5 @@
 local Canvas = class()
 
-local color_red = {1, 0, 0, 1}
 local type_id = "CustomCanvas"
 
 function Canvas:new_default(x, y, width, height, rotation, scale)

@@ -35,3 +35,23 @@ end)
 
 Concord.component("override_animation", function(c)
 end)
+
+Concord.component("animation_on_loop", function(c, callback, event, remove_at_end)
+	!if _ASSERT then
+	Assert.should_function(callback)
+	Assert.safe_either_value(event, "pauseAtEnd", "pauseAtStart")
+	Assert.safe_should_boolean(remove_at_end)
+	!end
+
+	c.callback = callback
+	c.event = event
+	c.remove_at_end = remove_at_end
+end)
+
+Concord.component("animation_on_update", function(c, on_update)
+	!if _ASSERT then
+	Assert.should_function(on_update)
+	!end
+
+	c.on_update = on_update
+end)

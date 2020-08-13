@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Type = require("modules.concord.concord.type")
 
 Concord.component("anchor", function(c, entity, a_x, a_y, padding_x, padding_y)
 	!if _ASSERT then

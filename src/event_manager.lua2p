@@ -1,7 +1,5 @@
 local Log = require("modules.log.log")
 
-local Event = require("event")
-
 local format = string.format
 
 local EventManager = {

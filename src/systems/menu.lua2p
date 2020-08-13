@@ -3,8 +3,6 @@ local Flux = require("modules.flux.flux")
 
 local Palette = require("palette")
 
-local min = math.min
-local max = math.max
 local insert = table.insert
 local remove = table.remove
 
@@ -75,6 +73,7 @@ function Menu:init()
 
 			if key == option_key.id then
 				remove(t, key)
+
 				break
 			end
 		end

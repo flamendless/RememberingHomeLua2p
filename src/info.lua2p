@@ -3,7 +3,6 @@ local Log = require("modules.log.log")
 local WindowMode = require("window_mode")
 local Utils = require("utils")
 
-local min = math.min
 local concat = table.concat
 local insert = table.insert
 local format = string.format

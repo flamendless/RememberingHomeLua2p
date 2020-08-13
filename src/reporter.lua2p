@@ -1,6 +1,5 @@
-local Reporter = {}
-
 !if _REPORTING then
+local Reporter = {}
 local Crush = require("modules.crush.crush")
 
 local format = string.format
@@ -49,6 +48,5 @@ function Reporter.send(msg)
 	end)
 end
 
-!end
-
 return Reporter
+!end

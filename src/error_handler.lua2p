@@ -1,6 +1,3 @@
-local ErrorHandler = {}
-
-local Log = require("modules.log.log")
 local Lily = require("modules.lily.lily")
 
 !if _REPORTING then
@@ -8,9 +5,12 @@ local Reporter = require("reporter")
 !end
 
 local Utf8 = require("utf8")
+
 local insert = table.insert
 local concat = table.concat
 local traceback = debug.traceback
+
+local ErrorHandler = {}
 
 local font, p
 

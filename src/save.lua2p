@@ -61,7 +61,7 @@ function Save.set_flag(id, should_overwrite)
 	!if _ASSERT then
 	Assert.should_string(id)
 	Assert.should_exists(Save.data[id])
-	Assert.safe_should_exists(should_overwrite)
+	Assert.safe_should_boolean(should_overwrite)
 	!end
 
 	Save.data[id] = true
