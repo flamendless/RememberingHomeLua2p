@@ -35,12 +35,12 @@ local Systems = {
 	Color = require("systems.color"),
 	Dialogues = require("systems.dialogues"),
 	Parallax = require("systems.parallax"),
-	RandomTree = require("systems.random_tree"),
+	Tree = require("systems.tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
-	Move = require("systems.move"),
+	-- Move = require("systems.move"),
 
 	!if not _RELEASE then
 	Debugging = require("systems.debugging"),
@@ -116,11 +116,11 @@ function StateIntro:start()
 	self.world:addSystem(Systems.TextPaintFade)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
-	self.world:addSystem(Systems.RandomTree)
+	self.world:addSystem(Systems.Tree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Move)
+	-- self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Dialogues)
 
@@ -159,18 +159,6 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.parallax,
 			res_images.parallax_buildings, ssx2, "building")
 
-	self.entities.bg_trees3 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees3, ssx2 , "bg_trees3")
-
-	self.entities.bg_trees2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees2, ssx2 , "bg_trees2")
-
-	self.entities.bg_trees1 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_trees1, ssx2 , "bg_trees1")
-
-	self.entities.bg_trees0 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.bg_tree_cover, res_images.bg_trees0)
-
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road")
 		:give("collider", vec2:new(self.screen_size.x, 64), vec2:new(0, 354))
@@ -186,6 +174,15 @@ function StateIntro:start()
 
 	self.entities.parallax_grass_front = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front")
+
+	self.entities.parallax_trees_bg = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_bg, ssx2, "bg_trees")
+
+	self.entities.bg_tree_cover = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.bg_tree_cover, res_images.bg_tree_cover)
+
+	self.entities.parallax_trees_fg = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_fg, ssx2, "fg_trees", 2, 2)
 
 	self.entities.post = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post")

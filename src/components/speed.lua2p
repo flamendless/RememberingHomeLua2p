@@ -19,3 +19,11 @@ Concord.component("speed_data", function(c, speed_data)
 
 	c.speed_data = speed_data
 end)
+
+Concord.component("hspeed", function(c, hspeed)
+	!if _ASSERT then
+	Assert.should_number(hspeed)
+	!end
+
+	c.hspeed = hspeed
+end)

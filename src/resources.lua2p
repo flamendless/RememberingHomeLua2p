@@ -48,13 +48,10 @@ Resources.data.intro = {
 	image = {
 		{"bg", path_images .. "intro/bg.png"},
 		{"bg_post", path_images .. "intro/bg_post.png"},
-		{"bg_trees0", path_images .. "intro/bg_trees0.png"},
-		{"bg_trees1", path_images .. "intro/bg_trees1.png"},
-		{"bg_trees2", path_images .. "intro/bg_trees2.png"},
-		{"bg_trees3", path_images .. "intro/bg_trees3.png"},
-		{"fg_tree1", path_images .. "intro/fg_tree1.png"},
-		{"fg_tree2", path_images .. "intro/fg_tree2.png"},
+		{"bg_tree_cover", path_images .. "intro/bg_tree_cover.png"},
 		{"parallax_buildings", path_images .. "intro/parallax_buildings.png"},
+		{"parallax_trees_bg", path_images .. "intro/parallax_trees_bg.png"},
+		{"parallax_trees_fg", path_images .. "intro/parallax_trees_fg.png"},
 		{"parallax_road", path_images .. "intro/parallax_road.png"},
 		{"parallax_grass", path_images .. "intro/parallax_grass.png"},
 		{"parallax_grass2", path_images .. "intro/parallax_grass2.png"},
@@ -66,8 +63,6 @@ Resources.data.intro = {
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
-		{"rain_splash_tilted", path_images .. "rain/rain_splash_tilted.png"},
-		{"rain_splash_tilted2", path_images .. "rain/rain_splash_tilted2.png"},
 	},
 
 	image_data = {

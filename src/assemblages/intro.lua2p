@@ -10,43 +10,49 @@ local speed = {
 	grass2 = 656,
 	grass_back = 48,
 	grass_front = 496,
-	bg_trees1 = 400,
-	bg_trees2 = 316,
-	bg_trees3 = 232,
+	bg_trees = 400,
+	fg_trees = 530,
 }
 
 local z_index = {
 	building = 1,
 	grass_back = 2,
-	bg_trees3 = 3,
-	bg_trees2 = 4,
-	bg_trees1 = 5,
-	bg_trees0 = 6,
+	bg_trees = 3,
+	bg_tree_cover = 4,
 	grass_front = 7,
 	road = 8,
 	post = 9,
 	grass1 = 10,
 	car = 11,
 	grass2 = 13,
+	fg_trees = 14,
 }
 
-function Intro.parallax(e, sprite, quad_width, tag)
+function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	!if _ASSERT then
 	Assert.should_exists(speed[tag])
 	Assert.should_exists(z_index[tag])
 	Assert.should_number(quad_width)
+	Assert.safe_should_number(sx)
+	Assert.safe_should_number(sy)
 	!end
 
+	local scale_x = sx or 1
+	local scale_y = sy or 1
 	local w, h = sprite:getDimensions()
-	local quad = love.graphics.newQuad(0, 0, quad_width, h, w, h)
+	local quad = love.graphics.newQuad(0, 0,
+		quad_width * scale_x, h * scale_y,
+		w * scale_x, h * scale_y)
 	local x = 0
 	local y = 0
 
-	if tag == "bg_trees1" or tag == "bg_trees2" or tag == "bg_trees3" then
+	if tag == "bg_trees" then
 		x = love.graphics.getWidth()
 		y = 90
 		e:give("parallax_stop")
-		e:give("bg_tree")
+		:give("bg_tree")
+	elseif tag == "fg_trees" then
+		y = 64
 	end
 
 	e:give("sprite", sprite)
@@ -60,16 +66,8 @@ function Intro.bg_tree_cover(e, sprite)
 	e:give("sprite", sprite)
 	:give("position", vec2:new(love.graphics.getWidth(), 90))
 	:give("transform", 0, 1, 1, sprite:getWidth()/2)
-	:give("z_index", z_index.bg_trees0)
+	:give("z_index", z_index.bg_tree_cover)
 	:give("bg_tree", true)
-end
-
-function Intro.tree(e, sprite, pos, index, parallax, z_index)
-	e:give("sprite", sprite)
-	:give("position", pos)
-	:give("tree", index)
-	:give("parallax", parallax)
-	:give("z_index", z_index)
 end
 
 function Intro.car(e, spritesheet)
