@@ -21,10 +21,22 @@ autocmd BufNewFile,BufRead *.log :AnsiEsc
 ```lua
 local Log = require("path-to-log.lua")
 Log.usecolor = false
-Log.outfile = "log.log" -- the filename to save in the love appdata
 Log.lovesave = true
 ```
 When you open the **log.log** file in your love appdata directory, that should be colorized :)
+
+Then call `log.quit(filename)` at `love.quit` to finally write file to the output file
+```lua
+local Log = require("path-to-log.lua")
+Log.lovesave = true
+
+Log.trace("Hello")
+Log.info("World")
+
+function love.quit()
+	Log.quit("log.txt")
+end
+```
 
 ## Installation
 The [log.lua](log.lua?raw=1) file should be dropped into an existing project

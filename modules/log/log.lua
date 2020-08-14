@@ -14,21 +14,22 @@
 
 local log = { _version = "0.1.0" }
 
+local insert = table.insert
 local floor = math.floor
 local ceil = math.ceil
 local concat = table.concat
 local getinfo = debug.getinfo
 local format = string.format
 local date = os.date
-local open = io.open
 
 log.usecolor = true
-log.outfile = nil
 log.lovesave = false
 log.useoutcolor = true
 log.level = "trace"
 log.intercept_fn = nil
 log.intercept_caller = nil
+
+log._logs = {}
 
 local modes = {
 	{ name = "trace", color = "\27[34m", },
@@ -88,24 +89,19 @@ for i, x in ipairs(modes) do
 			log.intercept_fn(str)
 		end
 
-		if log.outfile and not log.lovesave then
-			local fp = open(log.outfile, "a")
+		if log.lovesave then
 			local str = format("[%-6s%s] %s: %s\n",
 				nameupper, date(), lineinfo, msg)
-			fp:write(str)
-			fp:close()
+			insert(log._logs, str)
 		end
+	end
+end
 
-		if log.outfile and log.lovesave then
-			local str = format("[%-6s%s] %s: %s\n",
-				nameupper, date(), lineinfo, msg)
-			if not love.filesystem.getInfo(log.outfile) then
-				love.filesystem.newFile(log.outfile)
-				love.filesystem.write(log.outfile, str)
-			else
-				love.filesystem.append(log.outfile, str)
-			end
-		end
+function log.quit(out_filename)
+	local file = love.filesystem.newFile(out_filename , "a")
+
+	for _, str in ipairs(log._logs) do
+		file:write(str)
 	end
 end
 

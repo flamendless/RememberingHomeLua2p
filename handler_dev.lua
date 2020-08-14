@@ -2,6 +2,8 @@ _RELEASE = false
 _REPORTING = false
 _NETWORK = false
 _ASSERT = true
+_LOG_SAVE = false
+
 _OS = "Linux"
 _PLATFORM = "desktop"
 _GAME_TITLE  = "Going Home: Revisited"

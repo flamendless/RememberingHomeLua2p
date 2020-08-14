@@ -21,7 +21,6 @@ require("modules.strict")
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
-Log.outfile = !(_LOG_OUTPUT)
 Log.lovesave = true
 local Semver = require("modules.semver.semver")
 local SDF = require("modules.sdf").mount()
@@ -140,4 +139,8 @@ end
 function love.quit()
 	Lily.quit()
 	Log.info("Quitting...")
+
+	!if not _RELEASE and _LOG_SAVE then
+	Log.quit(!(_LOG_OUTPUT))
+	!end
 end
