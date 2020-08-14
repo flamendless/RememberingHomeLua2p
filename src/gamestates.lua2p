@@ -176,9 +176,7 @@ function GameStates.update(dt)
 
 	!if not _RELEASE then
 	if GameStates.current_world.scale then
-		if last_scale ~= GameStates.current_world.scale then
-			last_scale = GameStates.current_world.scale
-		end
+		last_scale = GameStates.current_world.scale
 	end
 	!end
 end

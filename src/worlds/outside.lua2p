@@ -6,7 +6,6 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 !if not _RELEASE then
-local Slab = require("modules.slab")
 local Tracker = require("tracker")
 !end
 
@@ -34,6 +33,10 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 
 local Systems = {
+	!if not _RELEASE then
+	Debugging = require("systems.debugging"),
+	!end
+
 	Animation = require("systems.animation"),
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
@@ -48,10 +51,6 @@ local Systems = {
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 	RenderCircle = require("systems.render_circle"),
-
-	!if not _RELEASE then
-	Debugging = require("systems.debugging"),
-	!end
 }
 
 !if not _RELEASE then
@@ -112,7 +111,6 @@ function StateOutside:load()
 			self:start()
 
 			!if not _RELEASE then
-			Slab.Initialize()
 			world = self.world
 			!end
 		end)
@@ -411,7 +409,6 @@ function StateOutside:update(dt)
 	end
 
 	!if not _RELEASE then
-	Slab.Update(dt)
 	self.world:emit("update_debug", dt)
 
 	if self.draw_debug then
@@ -452,7 +449,7 @@ function StateOutside:draw()
 	self.world:emit("draw_ui")
 
 	!if not _RELEASE then
-	Slab.Draw()
+	self.world:emit("post_draw")
 	!end
 end
 

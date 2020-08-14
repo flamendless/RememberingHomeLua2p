@@ -16,7 +16,6 @@ local Save = require("save")
 local Settings = require("settings")
 
 !if not _RELEASE then
-local Slab = require("modules.slab")
 local Tracker = require("tracker")
 !end
 
@@ -30,6 +29,10 @@ local Components = {}
 Concord.utils.loadNamespace("components", Components)
 
 local Systems = {
+	!if not _RELEASE then
+	Debugging = require("systems.debugging"),
+	!end
+
 	Animation = require("systems.animation"),
 	Camera = require("systems.camera"),
 	Collision = require("systems.collision"),
@@ -41,10 +44,6 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
-
-	!if not _RELEASE then
-	Debugging = require("systems.debugging"),
-	!end
 }
 
 !if not _RELEASE then
@@ -104,10 +103,6 @@ function StateIntro:load()
 		function()
 			self.is_ready = true
 			self:start()
-
-			!if not _RELEASE then
-			Slab.Initialize()
-			!end
 		end)
 end
 
@@ -371,8 +366,8 @@ function StateIntro:update(dt)
 	self.world:emit("update", dt)
 
 	!if not _RELEASE then
-	Slab.Update(dt)
 	self.world:emit("update_debug", dt)
+
 	if self.draw_debug then
 		self.world:emit("draw_slab", dt)
 	end
@@ -399,7 +394,7 @@ function StateIntro:draw()
 
 		!if not _RELEASE then
 		if self.draw_debug then
-			-- self.world:emit("draw_debug", l, t, w, h)
+			self.world:emit("draw_debug", l, t, w, h)
 		end
 		!end
 	end)
@@ -410,7 +405,7 @@ function StateIntro:draw()
 	Fade.draw()
 
 	!if not _RELEASE then
-	Slab.Draw()
+	self.world:emit("post_draw")
 	!end
 end
 

@@ -24,6 +24,8 @@ function Debugging:init(world)
 	self.ps_count = 0
 	self.ref_id = {}
 
+	Slab.Initialize()
+
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -64,6 +66,8 @@ function Debugging:debug_particle_system(ps)
 end
 
 function Debugging:update(dt)
+	Slab.Update(dt)
+
 	local c = 0
 
 	for i, ps in ipairs(self.ps) do
@@ -71,6 +75,10 @@ function Debugging:update(dt)
 	end
 
 	self.ps_count = c
+end
+
+function Debugging:post_draw()
+	Slab.Draw()
 end
 
 function Debugging:draw_slab()
