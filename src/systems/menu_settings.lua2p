@@ -13,12 +13,15 @@ function MenuSettings:init(world)
 end
 
 function MenuSettings:init_settings()
+	local settings_current = Settings.current
+
 	self.show_message_box_reset = false
-	self.current_gq = Settings.current.graphics_quality
-	self.current_wm = WindowMode.list[Settings.current.current_wm]
+	self.current_gq = settings_current.graphics_quality
+	self.current_wm = settings_current.window_mode
+	self.window_mode = WindowMode.list[self.current_wm]
 	self.flags = {
-		game_sounds = Settings.current.game_sounds,
-		game_music = Settings.current.game_music,
+		game_sounds = settings_current.game_sounds,
+		game_music = settings_current.game_music,
 	}
 	self.wm_list = WindowMode.list
 	self.list_gq = Settings.get_gq_list()
@@ -51,6 +54,7 @@ function MenuSettings:update_desktop(dt)
 	local y = 64
 	local width = self.ww - (x * 2)
 	local height = self.wh - (y * 2)
+	local flags = self.flags
 
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
@@ -67,20 +71,21 @@ function MenuSettings:update_desktop(dt)
 		Slab.Text("Window Resolution")
 		Slab.Text("Graphics Quality")
 
-		if Slab.CheckBox(self.flags.game_sounds, "Game Sounds") then
-			self.flags.game_sounds = not self.flags.game_sounds
+		if Slab.CheckBox(flags.game_sounds, "Game Sounds") then
+			flags.game_sounds = not flags.game_sounds
 		end
 
-		if Slab.CheckBox(self.flags.game_music, "Game Music") then
-			self.flags.game_music = not self.flags.game_music
+		if Slab.CheckBox(flags.game_music, "Game Music") then
+			flags.game_music = not flags.game_music
 		end
 
 		Slab.SetLayoutColumn(2)
 
-		if Slab.BeginComboBox("WindowMode", {Selected = self.current_wm}) then
+		if Slab.BeginComboBox("WindowMode", {Selected = self.window_mode}) then
 			for i, str in ipairs(self.wm_list) do
 				if Slab.TextSelectable(str) then
-					self.current_wm = str
+					self.current_wm = i
+					self.window_mode = str
 				end
 			end
 
@@ -141,15 +146,16 @@ function MenuSettings:update_desktop(dt)
 		})
 
 		if Slab.Button("Reset to defaults") then
-			show_message_box_reset = true
+			self.show_message_box_reset = true
 		end
 
 		if Slab.Button("Apply") then
-			Settings.update_graphics_quality(self.current_gq)
-			Settings.update_window_mode(self.current_wm)
-			Settings.set_game_sounds(self.flag_game_sounds)
-			Settings.set_game_music(self.flag_game_music)
-			Settings.overwrite()
+			Settings.set_from_table({
+					graphics_quality = self.current_gq,
+					window_mode = self.current_wm,
+					game_sounds = flags.game_sounds,
+					game_music = flags.game_music,
+				}, true)
 			Inputs.update_keybindings(self.inputs_ui)
 			Inputs.save_keybindings()
 		end
@@ -160,7 +166,7 @@ function MenuSettings:update_desktop(dt)
 
 	Slab.EndLayout()
 
-	if show_message_box_reset then
+	if self.show_message_box_reset then
 		local res = Slab.MessageBox("Alert",
 			"Are you sure you want to reset the settings to default?",
 			{Buttons = {"Confirm", "Cancel"}})
@@ -170,7 +176,7 @@ function MenuSettings:update_desktop(dt)
 			Inputs.save_keybindings()
 			Settings.create_new()
 			self:init_settings()
-			show_message_box_reset = false
+			self.show_message_box_reset = false
 		end
 	end
 

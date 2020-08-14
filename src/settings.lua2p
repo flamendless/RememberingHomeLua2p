@@ -1,5 +1,5 @@
-local Enum = require("modules.enum.enum")
 local JSON = require("modules.json.json")
+local Log = require("modules.log.log")
 
 local Utils = require("utils")
 
@@ -8,12 +8,16 @@ local format = string.format
 local sub = string.sub
 
 local Settings = {
-	current = {}
+	current = {
+		window_mode = 1,
+		game_sounds = true,
+		game_music = true,
+		graphics_quality = "high",
+	}
 }
 
 local filename = !(_SETTINGS_FILENAME)
-local graphics_quality = Enum("Low", "High")
-local cached_gq = {}
+local graphics_quality = {"low", "high"}
 
 function Settings.initialize()
 	local content, exists = Utils.read_file(filename)
@@ -30,12 +34,12 @@ function Settings.create_new()
 	local gl_version = sub(ren_version, 1, 3)
 
 	if gl_version == !(_MIN_GL_VERSION) then
-		Settings.current.graphics_quality = graphics_quality.Low
+		Settings.current.graphics_quality = "low"
 	else
-		Settings.current.graphics_quality = graphics_quality.High
+		Settings.current.graphics_quality = "high"
 	end
 
-	Settings.current.current_wm = 1
+	Settings.current.window_mode = 1
 	Settings.current.game_sounds = true
 	Settings.current.game_music = true
 	Settings.overwrite()
@@ -45,72 +49,50 @@ function Settings.overwrite()
 	Utils.write_to_file_json(filename, Settings.current)
 end
 
-function Settings.update_graphics_quality(str, should_overwrite)
+function Settings.set(id, value, should_overwrite)
+	local current = Settings.current
+
 	!if _ASSERT then
-	Assert.should_string(str)
+	Assert.should_string(id)
+	Assert.either_type(value, Assert.types.T_NUMBER, Assert.types.T_BOOLEAN)
+	Assert.should_exists(current[id])
 	Assert.safe_should_boolean(should_overwrite)
 	!end
 
-	Settings.current.graphics_quality = graphics_quality[str]
-	if should_overwrite then
-		Settings.overwrite()
-	end
-end
+	local prev = current[id]
 
-function Settings.update_window_mode(i, should_overwrite)
-	!if _ASSERT then
-	Assert.should_number(i)
-	Assert.safe_should_boolean(should_overwrite)
-	!end
+	if not (prev == value) then
+		current[id] = value
+		Log.info(format("set %s to %s", id, value))
 
-	Settings.current.current_wm = i
-	if should_overwrite then
-		Settings.overwrite()
-	end
-end
-
-function Settings.set_game_sounds(flag, should_overwrite)
-	!if _ASSERT then
-	Assert.should_boolean(flag)
-	Assert.safe_should_boolean(should_overwrite)
-	!end
-
-	local prev = Settings.current_game_sounds
-
-	if prev ~= flag then
-		Settings.current.game_sounds = flag
 		if should_overwrite then
 			Settings.overwrite()
 		end
 	end
 end
 
-function Settings.set_game_music(flag, should_overwrite)
+function Settings.set_from_table(t, should_overwrite)
 	!if _ASSERT then
-	Assert.should_boolean(flag)
+	Assert.should_table(t)
 	Assert.safe_should_boolean(should_overwrite)
 	!end
 
-	local prev = Settings.current_game_musoc
+	local current = Settings.current
 
-	if prev ~= flag then
-		Settings.current.game_music = flag
-		if should_overwrite then
-			Settings.overwrite()
-		end
+	for k, v in pairs(t) do
+		!if _ASSERT then
+		Assert.should_exists(current[k])
+		!end
+
+		current[k] = v
+		Log.info(format("set %s to %s", k, v))
+	end
+
+	if should_overwrite then
+		Settings.overwrite()
 	end
 end
 
-function Settings.get_gq_list()
-	if #cached_gq == 0 then
-		for k, v in pairs(graphics_quality) do
-			if type(v) == "string" then
-				insert(cached_gq, v)
-			end
-		end
-	end
-
-	return cached_gq
-end
+function Settings.get_gq_list() return graphics_quality end
 
 return Settings
