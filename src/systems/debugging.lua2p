@@ -1,6 +1,6 @@
 !if not _RELEASE then
 local Concord = require("modules.concord.concord")
-
+local Log = require("modules.log.log")
 local Slab = require("modules.slab")
 
 local DebugFlags = require("debug_flags")
@@ -10,15 +10,19 @@ local getFPS = love.timer.getFPS
 
 local Debugging = Concord.system({
 	pool = {},
+	pool_id = {"id"},
 	pool_log = {"log"}
 })
 
 local is_open = true
 
 function Debugging:init(world)
+	self.world = world
 	self.ent_count = 0
+	self.ent_id_count = 0
 	self.ps = {}
 	self.ps_count = 0
+	self.ref_id = {}
 
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
@@ -28,6 +32,26 @@ function Debugging:init(world)
 
 	self.pool.onEntityRemoved = function(pool, e)
 		self.ent_count = self.ent_count - 1
+	end
+
+	self.pool_id.onEntityAdded = function(pool, e)
+		local id = e.id
+		local ref_id = self.ref_id[id.id]
+
+		if ref_id then
+			self.ref_id[id.id] = self.ref_id[id.id] + 1
+			id.id = id.id .. self.ref_id[id.id]
+		else
+			self.ref_id[id.id] = 1
+		end
+
+		self.ent_id_count = self.ent_id_count + 1
+		Log.info("Added entity: " .. id.id)
+	end
+
+	self.pool_id.onEntityRemoved = function(pool, e)
+		self.ent_id_count = self.ent_id_count - 1
+		Log.info("Removed entity: " .. e.id.id)
 	end
 end
 
@@ -41,9 +65,11 @@ end
 
 function Debugging:update(dt)
 	local c = 0
+
 	for i, ps in ipairs(self.ps) do
 		c = c + ps:getCount()
 	end
+
 	self.ps_count = c
 end
 
@@ -95,6 +121,7 @@ function Debugging:draw_slab()
 	DebugFlags.ent_count = Slab.BeginWindow("ecs",
 		{Title = "ECS", IsOpen = DebugFlags.ent_count})
 	Slab.Text("# of entities: " .. self.ent_count)
+	Slab.Text("# of entities with id: " .. self.ent_id_count)
 	Slab.EndWindow()
 
 	DebugFlags.logs = Slab.BeginWindow("log",

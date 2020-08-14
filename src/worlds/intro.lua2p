@@ -150,6 +150,7 @@ function StateIntro:start()
 	!end
 
 	self.entities.bg = Concord.entity(self.world)
+		:give("id", "bg")
 		:give("sprite", res_images.bg)
 		:give("position", vec2:new())
 
@@ -189,21 +190,6 @@ function StateIntro:start()
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
-
-	self.entities.car_collider_left = Concord.entity(self.world)
-		:give("position", vec2:new())
-		:give("attach_to", self.entities.car)
-		:give("collider", vec2:new(36, 32), vec2:new(0, 16))
-
-	self.entities.car_collider_mid = Concord.entity(self.world)
-		:give("position", vec2:new())
-		:give("attach_to", self.entities.car)
-		:give("collider", vec2:new(45, 48), vec2:new(36, 0))
-
-	self.entities.car_collider_right = Concord.entity(self.world)
-		:give("position", vec2:new())
-		:give("attach_to", self.entities.car)
-		:give("collider", vec2:new(47, 32), vec2:new(81, 16))
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect,
@@ -264,7 +250,7 @@ function StateIntro:start()
 			vec2:new(self.screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
-		local car_pos = self.entities.car:get("position").pos
+		local car_pos = self.entities.car.position.pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
 
@@ -288,7 +274,7 @@ function StateIntro:start()
 		self.timeline:Pause()
 
 		--Enter forest
-		self.world:emit("start_bg_trees", 3)
+		self.world:emit("start_trees", -320)
 
 		local cx, cy = self.camera:getPosition()
 
@@ -334,13 +320,18 @@ function StateIntro:start()
 		end
 
 		TLE.Event.Wait(1)
-		local color = self.entities.title:get("color")
-
+		-- local color = self.entities.title.color
+        --
+		-- self.entities.title:remove("hidden")
+		-- Flux.to(color.color, 4, {[4] = 1})
+		-- 	:oncomplete(function()
+		-- 		self.timeline:Unpause()
+		-- 	end)
 		self.entities.title:remove("hidden")
-		Flux.to(color.color, 4, {[4] = 1})
-			:oncomplete(function()
+			:give("color_fade_in", 4, nil, function()
 				self.timeline:Unpause()
 			end)
+
 		self.timeline:Pause()
 
 		TLE.Event.Wait(2)
