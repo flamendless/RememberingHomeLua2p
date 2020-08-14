@@ -1,7 +1,10 @@
+local Enum = require("modules.enum.enum")
+
 local Palette = require("palette")
 
 local UI = {}
 
+local dirs = Enum("up", "down", "left", "right")
 local line_width = 7
 
 function UI.paint_data(e, sheet)
@@ -93,6 +96,32 @@ function UI.key(e, key, pos, font)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_text")
+end
+
+function UI.arrow(e, dir, sheet, pos)
+	!if _ASSERT then
+	Assert.should_string(dir)
+	!end
+
+	local d = dirs[dir]
+	local q
+
+	if d == "up" then
+		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
+	elseif d == "down" then
+		q = love.graphics.newQuad(192, 0, 64, 64, sheet:getDimensions())
+	elseif d == "left" then
+		q = love.graphics.newQuad(64, 0, 64, 64, sheet:getDimensions())
+	elseif d == "right" then
+		q = love.graphics.newQuad(0, 0, 64, 64, sheet:getDimensions())
+	end
+
+	e:give("id", "arrow_" .. dir)
+	:give("sprite", sheet)
+	:give("position", pos)
+	:give("quad", q)
+	:give("color", {1, 1, 1, 0})
+	:give("ui_element")
 end
 
 return UI

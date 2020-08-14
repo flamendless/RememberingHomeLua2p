@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 
+local Inputs = require("inputs")
 local Palette = require("palette")
 
 local UI = require("assemblages.ui")
@@ -36,6 +37,69 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 			end
 		end)
 		:give("color_fade_in", dur_fade_in)
+
+	return t
+end
+
+function Factory.arrows(world, sheet, pos, offset, scale)
+	!if _ASSERT then
+	Assert.should_image(sheet)
+	Assert.should_vec2(pos)
+	Assert.should_number(offset)
+	Assert.safe_should_number(scale)
+	!end
+
+	local t = {}
+
+	local size = sheet:getWidth()/4 + offset
+	local scale = scale or 1
+
+	t.left = Concord.entity(world)
+		:assemble(UI.arrow, "left", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size, size/2)
+
+	t.right = Concord.entity(world)
+		:assemble(UI.arrow, "right", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, 0, size/2)
+
+	t.up = Concord.entity(world)
+		:assemble(UI.arrow, "up", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size/2, size)
+
+	t.down = Concord.entity(world)
+		:assemble(UI.arrow, "down", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size/2, 0)
+
+	return t
+end
+
+function Factory.arrows_keys(world, arrows, font, pos)
+	!if _ASSERT then
+	Assert.should_world(world)
+	Assert.should_table(arrows)
+	Assert.should_font(font)
+	Assert.should_vec2(pos)
+	!end
+
+	local t = {}
+	local key_left = Inputs.get("player_move_left")
+	local key_right = Inputs.get("player_move_right")
+	local key_up = Inputs.get("player_move_up")
+	local key_down = Inputs.get("player_move_down")
+
+	-- local pos_key_left = vec2:new(pos_left.x)
+    --
+	-- t.key_left = Concord.entity(world)
+	-- 	:assemble(UI.key, key_left, pos_key_left, font)
+
+	-- t.key_right = Concord.entity(world)
+	-- 	:assemble(UI.key, key_right, pos:copy(), font)
+    --
+	-- t.key_up = Concord.entity(world)
+	-- 	:assemble(UI.key, key_up, pos:copy(), font)
+    --
+	-- t.key_down = Concord.entity(world)
+	-- 	:assemble(UI.key, key_down, pos:copy(), font)
 
 	return t
 end
