@@ -20,6 +20,7 @@ local Slab = require("modules.slab")
 local Tracker = require("tracker")
 !end
 
+local format = string.format
 local min = math.min
 
 local StateIntro = class()
@@ -40,7 +41,6 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaintFade = require("systems.text_paint_fade"),
 	Transform = require("systems.transform"),
-	-- Move = require("systems.move"),
 
 	!if not _RELEASE then
 	Debugging = require("systems.debugging"),
@@ -70,6 +70,7 @@ local dur_out = 1.5
 local fade_duration = 4
 local current_effect
 local is_raining = false
+local is_switching = false
 local rain_amount = {16, 32, 96}
 
 function StateIntro:update_rain(i)
@@ -120,7 +121,6 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
-	-- self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Dialogues)
 
@@ -316,17 +316,10 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, {x = w/2, y = h/2})
 
 		if self.entities.skip_intro then
-			self.entities.skip_intro:give("hidden")
+			self.entities.skip_intro:destroy()
 		end
 
 		TLE.Event.Wait(1)
-		-- local color = self.entities.title.color
-        --
-		-- self.entities.title:remove("hidden")
-		-- Flux.to(color.color, 4, {[4] = 1})
-		-- 	:oncomplete(function()
-		-- 		self.timeline:Unpause()
-		-- 	end)
 		self.entities.title:remove("hidden")
 			:give("color_fade_in", 4, nil, function()
 				self.timeline:Unpause()
@@ -339,18 +332,24 @@ function StateIntro:start()
 		Flux.to(car_pos, 5, {x = self.screen_size.x * 1.5})
 
 		-- TODO implement lightning to quickly black out scene
-		Fade.fade_out(function()
-			Save.set_flag("intro_done", true)
-			is_raining = false
-			self.ps1.system:stop()
-			self.ps2.system:stop()
-			self.gamestate.switch("Outside")
-		end, fade_out_duration)
+		if not is_switching then
+			Fade.fade_out(function()
+				Save.set_flag("intro_done", true)
+				is_raining = false
+				is_switching = true
+				self.ps1.system:stop()
+				self.ps2.system:stop()
+				self.gamestate.switch("Outside")
+			end, fade_out_duration)
+		end
 	end)
 
 	if Save.data.intro_done or not !(_RELEASE) then
+		local key_skip = Inputs.get("ui_skip")
+		local str_skip = format("Press %s/%s to skip", unpack(key_skip))
+
 		self.entities.skip_intro = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, res_fonts.ui,
+			:assemble(Assemblages.Common.skip, str_skip, res_fonts.ui,
 				vec2:new(self.screen_size.x/2, self.screen_size.y - 8))
 	end
 end
@@ -400,7 +399,7 @@ function StateIntro:draw()
 
 		!if not _RELEASE then
 		if self.draw_debug then
-			self.world:emit("draw_debug", l, t, w, h)
+			-- self.world:emit("draw_debug", l, t, w, h)
 		end
 		!end
 	end)
@@ -431,11 +430,19 @@ function StateIntro:keypressed(key)
 	!end
 
 	if Save.data.intro_done or not !(_RELEASE) then
-		if Inputs.is_pressed("ui_skip", key) then
-			Fade.fade_out(function()
-				Save.set_intro_done(true)
-				self.gamestate.switch("Outside")
-			end, 2)
+		if not is_switching then
+			self.entities.skip_intro:destroy()
+
+			if Inputs.is_pressed("ui_skip", key) then
+				Fade.fade_out(function()
+					Save.set_flag("intro_done", true)
+					is_raining = false
+					is_switching = true
+					self.ps1.system:stop()
+					self.ps2.system:stop()
+					self.gamestate.switch("Outside")
+				end, 2)
+			end
 		end
 	end
 end
@@ -447,8 +454,11 @@ function StateIntro:exit()
 	Timer.clear()
 	Resources.clean(resources)
 
+	self.ps1.system:stop()
+	self.ps2.system:stop()
 	self.ps1 = nil
 	self.ps2 = nil
+	self.timeline:Die()
 
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
@@ -464,7 +474,7 @@ function StateIntro:exit()
 	effect.status = 1
 	current_effect = nil
 	is_raining = false
-	self.timeline:Die()
+	is_switching = false
 end
 
 return StateIntro

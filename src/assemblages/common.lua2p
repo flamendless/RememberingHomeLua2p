@@ -25,9 +25,9 @@ function Common.animated_sprite(e, animation_data, pos, stop_on_last)
 	:give("animation", stop_on_last)
 end
 
-function Common.skip(e, font, pos)
+function Common.skip(e, text, font, pos)
 	e:give("id", "skip")
-	:give("static_text", "Press ESC/ENTER to skip")
+	:give("static_text", text)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("ui_red"))

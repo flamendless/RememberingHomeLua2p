@@ -159,13 +159,14 @@ end
 
 function Inputs.get(id)
 	local keys = Inputs.keys
+	local result = keys[id]
 
 	!if _ASSERT then
 	Assert.should_string(id)
-	Assert.should_exists(keys[id])
+	Assert.should_exists(result)
 	!end
 
-	return keys[id]
+	return result
 end
 
 return Inputs
