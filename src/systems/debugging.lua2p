@@ -66,8 +66,6 @@ function Debugging:debug_particle_system(ps)
 end
 
 function Debugging:update(dt)
-	Slab.Update(dt)
-
 	local c = 0
 
 	for i, ps in ipairs(self.ps) do
@@ -77,7 +75,20 @@ function Debugging:update(dt)
 	self.ps_count = c
 end
 
-function Debugging:post_draw()
+function Debugging:debugging_update(dt)
+	Slab.Update(dt)
+	self.world:emit("update_debug", dt)
+
+	if DebugFlags.draw_all then
+		self.world:emit("draw_slab", dt)
+	end
+end
+
+function Debugging:debugging_draw(l, t, w, h)
+	if not DebugFlags.draw_all then return end
+
+	self.world:emit("draw_debug", l, t, w, h)
+	self.world:emit("debug_draw_ui")
 	Slab.Draw()
 end
 
@@ -112,12 +123,20 @@ function Debugging:draw_slab()
 		DebugFlags.logs = not DebugFlags.logs
 	end
 
-	if Slab.CheckBox(DebugFlags.quad_bounds, "Quad") then
+	if Slab.CheckBox(DebugFlags.quad_bounds, "Quad Bounds") then
 		DebugFlags.quad_bounds = not DebugFlags.quad_bounds
+	end
+
+	if Slab.CheckBox(DebugFlags.quad_transform, "Quad Transform") then
+		DebugFlags.quad_transform = not DebugFlags.quad_transform
 	end
 
 	if Slab.CheckBox(DebugFlags.stats, "Stats") then
 		DebugFlags.stats = not DebugFlags.stats
+	end
+
+	if Slab.CheckBox(DebugFlags.transform, "Transform") then
+		DebugFlags.transform = not DebugFlags.transform
 	end
 
 	if Slab.CheckBox(DebugFlags.z_index, "ZIndex") then
@@ -160,6 +179,12 @@ function Debugging:draw_debug(l, t, w, h)
 	love.graphics.setLineWidth(1)
 	love.graphics.line(hw, 0, hw, h)
 	love.graphics.line(0, hh, w, hh)
+end
+
+function Debugging:keypress(key)
+	if key == "`" then
+		DebugFlags.draw_all = not DebugFlags.draw_all
+	end
 end
 
 function Debugging:cleanup()

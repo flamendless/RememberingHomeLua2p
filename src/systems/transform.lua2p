@@ -4,6 +4,7 @@ local min = math.min
 
 local Transform = Concord.system({
 	pool = {"transform"},
+	pool_quad = {"quad_transform"},
 	pool_anchor = {"position", "anchor"},
 	pool_camera = {"position", "camera"},
 	pool_attach = {"position", "attach_to"},
@@ -134,5 +135,144 @@ function Transform:update(dt)
 		self:update_attachment(e)
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local is_open_transform = false
+local t_comp = nil
+local selected_e
+
+function Transform:draw_debug()
+	DebugFlags.transform = Slab.BeginWindow("transform", {
+			Title = "Transform List", IsOpen = DebugFlags.transform
+		})
+	for _, e in ipairs(self.pool) do
+		local id = e.id
+
+		Slab.Text(id and id.id or _)
+		Slab.SameLine()
+
+		if Slab.Button("Modify") then
+			is_open_transform = true
+			selected_e = e
+			t_comp = e.transform
+
+			break
+		end
+	end
+	Slab.EndWindow()
+
+	DebugFlags.quad_transform = Slab.BeginWindow("quad_transform", {
+			Title = "Quad Transform List", IsOpen = DebugFlags.quad_transform})
+	for _, e in ipairs(self.pool_quad) do
+		local id = e.id
+
+		Slab.Text(id and id.id or _)
+		Slab.SameLine()
+
+		if Slab.Button("Modify") then
+			is_open_transform = true
+			selected_e = e
+			t_comp = e.quad_transform
+
+			break
+		end
+	end
+	Slab.EndWindow()
+
+	if not selected_e then return end
+
+	self:debug_modify()
+end
+
+function Transform:debug_modify()
+	is_open_transform = Slab.BeginWindow("transform_e", {
+			Title = "Transform", IsOpen = is_open_transform
+		})
+	local pos = selected_e.position
+
+	if pos then
+		pos = pos.pos
+		Slab.Text("Position:")
+		Slab.SameLine()
+
+		if Slab.Input("input_x", {
+				Text = tostring(pos.x), ReturnOnText = false, NumbersOnly = true
+			}) then
+			pos.x = Slab.GetInputNumber()
+		end
+
+		Slab.SameLine()
+
+		if Slab.Input("input_y", {
+				Text = tostring(pos.y), ReturnOnText = false, NumbersOnly = true
+			}) then
+			pos.y = Slab.GetInputNumber()
+		end
+	end
+
+	Slab.Text("Rotation:")
+	Slab.SameLine()
+
+	if Slab.Input("input_rotation", {
+			Text = tostring(t_comp.rotation), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.rotation = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale:")
+	Slab.SameLine()
+
+	if Slab.Input("input_sx", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+	end
+
+	Slab.SameLine()
+
+	if Slab.Input("input_sy", {
+			Text = tostring(t_comp.sy), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Offset:")
+	Slab.SameLine()
+
+	if Slab.Input("input_ox", {
+			Text = tostring(t_comp.ox), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.ox = Slab.GetInputNumber()
+	end
+
+	Slab.SameLine()
+
+	if Slab.Input("input_oy", {
+			Text = tostring(t_comp.oy), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.oy = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Shear:")
+	Slab.SameLine()
+
+	if Slab.Input("input_kx", {
+			Text = tostring(t_comp.kx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.kx = Slab.GetInputNumber()
+	end
+
+	Slab.SameLine()
+
+	if Slab.Input("input_ky", {
+			Text = tostring(t_comp.ky), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.ky = Slab.GetInputNumber()
+	end
+	Slab.EndWindow()
+end
+!end
 
 return Transform

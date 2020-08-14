@@ -16,6 +16,7 @@ local Save = require("save")
 local Settings = require("settings")
 
 !if not _RELEASE then
+local DebugFlags = require("debug_flags")
 local Tracker = require("tracker")
 !end
 
@@ -366,11 +367,7 @@ function StateIntro:update(dt)
 	self.world:emit("update", dt)
 
 	!if not _RELEASE then
-	self.world:emit("update_debug", dt)
-
-	if self.draw_debug then
-		self.world:emit("draw_slab", dt)
-	end
+	self.world:emit("debugging_update", dt)
 	!end
 end
 
@@ -393,9 +390,7 @@ function StateIntro:draw()
 		love.graphics.setShader()
 
 		!if not _RELEASE then
-		if self.draw_debug then
-			self.world:emit("draw_debug", l, t, w, h)
-		end
+		self.world:emit("debugging_draw", l, t, w, h)
 		!end
 	end)
 
@@ -403,18 +398,11 @@ function StateIntro:draw()
 	self.world:emit("draw_ui")
 
 	Fade.draw()
-
-	!if not _RELEASE then
-	self.world:emit("post_draw")
-	!end
 end
 
 function StateIntro:keypressed(key)
 	!if not _RELEASE then
-	if key == "`" then
-		self.draw_debug = not self.draw_debug
-	end
-
+	self.world:emit("keypress", key)
 	if key == "1" then
 		self:update_rain(1)
 	elseif key == "2" then

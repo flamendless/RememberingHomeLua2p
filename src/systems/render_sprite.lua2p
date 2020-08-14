@@ -64,12 +64,14 @@ function RenderSprite:internal_draw(e)
 			love.graphics.setColor(color.color)
 		end
 
-		local rot, sx, sy, ox, oy
+		local rot, sx, sy, ox, oy, kx, ky
 
 		if transform then
 			rot = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
+			kx = transform.kx
+			ky = transform.ky
 
 			if animation_data then
 				if transform.ox == 0.5 then
@@ -109,11 +111,13 @@ function RenderSprite:internal_draw(e)
 				sy = quad_transform.sy
 				ox = quad_transform.ox
 				oy = quad_transform.oy
+				kx = quad_transform.kx
+				ky = quad_transform.ky
 			end
 
-			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy)
+			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy, kx, ky)
 		else
-			draw(sprite.sprite, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy)
+			draw(sprite.sprite, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy, kx, ky)
 		end
 	end
 end
@@ -142,10 +146,11 @@ end
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 
-function RenderSprite:draw_debug()
+function RenderSprite:draw_debug(l, t, w, h)
 	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {
 			Title = "Z Index", IsOpen = DebugFlags.z_index
 		})
+
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)
@@ -153,17 +158,44 @@ function RenderSprite:draw_debug()
 			Slab.Text("z: " .. e.z_index.z)
 		end
 	end
-	Slab.EndWindow()
 
+	Slab.EndWindow()
+end
+
+function RenderSprite:debug_draw_ui()
 	if DebugFlags.quad_bounds then
 		for _, e in ipairs(self.pool_quad) do
 			local qx, qy, qw, qh = e.quad.quad:getViewport()
+			local pos = e.position.pos
+			local qt = e.quad_transform
+
+			local x = pos.x
+			local y = pos.y
+			local w = qw
+			local h = qh
+
+			if qt then
+				x = x - qt.ox * qt.sx
+				y = y - qt.oy * qt.sy
+				w = w * qt.sx
+				h = h * qt.sy
+			end
+
+			if e.ui_element then
+				love.graphics.push()
+				love.graphics.origin()
+			end
 
 			love.graphics.setColor(1, 0, 0, 1)
-			love.graphics.rectangle("line", qx, qy, qw, qh)
+			love.graphics.rectangle("line", x, y, w, h)
+
+			if e.ui_element then
+				love.graphics.pop()
+			end
 		end
 	end
 end
+
 !end
 
 return RenderSprite

@@ -10,10 +10,13 @@ DebugFlags = {
 	ent_count = true,
 	logs = true,
 	quad_bounds = false,
+	quad_transform = false,
 	stats = true,
+	transform = false,
 	z_index = false,
 
-	t_stats = {}
+	t_stats = {},
+	draw_all = false,
 }
 
 return DebugFlags
