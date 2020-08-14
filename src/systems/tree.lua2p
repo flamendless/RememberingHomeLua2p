@@ -9,9 +9,13 @@ function Tree:init()
 	self.world = self:getWorld()
 end
 
-function Tree:start_trees(dur)
+function Tree:start_trees(speed)
+	!if _ASSERT then
+	Assert.should_number(speed)
+	!end
+
 	for _, e in ipairs(self.pool_bg_tree) do
-		e:give("hspeed", -320)
+		e:give("hspeed", speed)
 	end
 end
 

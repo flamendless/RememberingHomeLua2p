@@ -115,6 +115,7 @@ end
 
 function Inputs.save_keybindings()
 	local to_write = JSON.encode(Inputs.keys)
+
 	Utils.write_to_file(!(_KEYBINDINGS_FILENAME), to_write)
 end
 
