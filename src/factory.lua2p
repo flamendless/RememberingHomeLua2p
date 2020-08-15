@@ -57,49 +57,79 @@ function Factory.arrows(world, sheet, pos, offset, scale)
 	t.left = Concord.entity(world)
 		:assemble(UI.arrow, "left", sheet, pos:copy())
 		:give("quad_transform", 0, scale, scale, size, size/2)
+		:give("quad_size", size)
 
 	t.right = Concord.entity(world)
 		:assemble(UI.arrow, "right", sheet, pos:copy())
 		:give("quad_transform", 0, scale, scale, 0, size/2)
+		:give("quad_size", size)
 
 	t.up = Concord.entity(world)
 		:assemble(UI.arrow, "up", sheet, pos:copy())
 		:give("quad_transform", 0, scale, scale, size/2, size)
+		:give("quad_size", size)
 
 	t.down = Concord.entity(world)
 		:assemble(UI.arrow, "down", sheet, pos:copy())
 		:give("quad_transform", 0, scale, scale, size/2, 0)
+		:give("quad_size", size)
 
 	return t
 end
 
-function Factory.arrows_keys(world, arrows, font, pos)
+function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	!if _ASSERT then
 	Assert.is(world, Types.T_WORLD)
 	Assert.must(arrows, Types.T_TABLE)
-	Assert.must(font, Types.T_FONT)
+	Assert.must(font_sdf, Types.T_FONT_SDF)
 	Assert.must(pos, Types.T_VEC2)
+	Assert.must(scale, Types.T_NUMBER)
 	!end
 
-	local t = {}
 	local key_left = Inputs.get("player_move_left")
 	local key_right = Inputs.get("player_move_right")
 	local key_up = Inputs.get("player_move_up")
 	local key_down = Inputs.get("player_move_down")
 
-	-- local pos_key_left = vec2:new(pos_left.x)
-    --
-	-- t.key_left = Concord.entity(world)
-	-- 	:assemble(UI.key, key_left, pos_key_left, font)
+	local size = arrows.left.quad_size.size
+	local lt = arrows.left.quad_transform
+	local rt = arrows.right.quad_transform
+	local ut = arrows.up.quad_transform
+	local dt = arrows.down.quad_transform
 
-	-- t.key_right = Concord.entity(world)
-	-- 	:assemble(UI.key, key_right, pos:copy(), font)
-    --
-	-- t.key_up = Concord.entity(world)
-	-- 	:assemble(UI.key, key_up, pos:copy(), font)
-    --
-	-- t.key_down = Concord.entity(world)
-	-- 	:assemble(UI.key, key_down, pos:copy(), font)
+	local pos_key_left = vec2:new(
+		pos.x - (lt.ox * lt.sx) * 0.65,
+		pos.y - (lt.oy * lt.sy) * 0.35)
+
+	local pos_key_right = vec2:new(
+		pos.x + size * 0.8,
+		pos.y - (rt.oy * rt.sy) * 0.35)
+
+	local pos_key_up = vec2:new(
+		pos.x - font_sdf:getWidth(key_up) * 0.35,
+		pos.y - (ut.oy * ut.sy) * 0.65)
+
+	local pos_key_down = vec2:new(
+		pos_key_up.x,
+		pos.y + size * 0.6)
+
+	local t = {}
+
+	t.key_left = Concord.entity(world)
+		:assemble(UI.key, key_left, pos_key_left, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_right = Concord.entity(world)
+		:assemble(UI.key, key_right, pos_key_right, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_up = Concord.entity(world)
+		:assemble(UI.key, key_up, pos_key_up, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_down = Concord.entity(world)
+		:assemble(UI.key, key_down, pos_key_down, font_sdf)
+		:give("sdf", scale, scale)
 
 	return t
 end
