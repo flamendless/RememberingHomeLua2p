@@ -9,3 +9,11 @@ Concord.component("quad", function(c, quad, info)
 	c.quad = quad
 	c.info = info
 end)
+
+Concord.component("quad_size", function(c, size)
+	!if _ASSERT then
+	Assert.must(size, Types.T_NUMBER)
+	!end
+
+	c.size = size
+end)

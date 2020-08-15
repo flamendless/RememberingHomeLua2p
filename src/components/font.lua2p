@@ -7,3 +7,13 @@ Concord.component("font", function(c, font)
 
 	c.font = font
 end)
+
+Concord.component("sdf", function(c, sx, sy)
+	!if _ASSERT then
+	Assert.safe.must(sx, Types.T_NUMBER)
+	Assert.safe.must(sy, Types.T_NUMBER)
+	!end
+
+	c.sx = sx or 1
+	c.sy = sy or 1
+end)
