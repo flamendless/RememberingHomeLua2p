@@ -83,7 +83,7 @@ end
 function Menu:set_page(page)
 	!if _ASSERT then
 	Assert.must(page, Types.T_NUMBER)
-	Assert.should(self.keys[page])
+	Assert.exists(self.keys[page])
 	!end
 
 	self.current_page = page

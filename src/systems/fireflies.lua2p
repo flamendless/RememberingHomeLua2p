@@ -99,7 +99,7 @@ end
 function Fireflies:show_fireflies(dur, fn)
 	!if _ASSERT then
 	Assert.must(dur, Types.T_NUMBER)
-	Assert.must(fb, Types.T_FUNCTION)
+	Assert.must(fn, Types.T_FUNCTION)
 	!end
 
 	for _, e in ipairs(self.pool) do

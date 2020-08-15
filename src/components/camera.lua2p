@@ -34,7 +34,7 @@ end)
 
 Concord.component("camera_follow_offset", function(c, offset)
 	!if _ASSERT then
-	Assert.safe.should(offset, Types.T_VEC2)
+	Assert.safe.must(offset, Types.T_VEC2)
 	!end
 
 	c.offset = offset or vec2:new()

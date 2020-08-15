@@ -176,7 +176,7 @@ function Animation:switch_animation_tag(new_tag)
 		local multi = e.multiple_animation_data
 
 		!if _ASSERT then
-		Assert.should_exists(multi.data[new_tag])
+		Assert.exists(multi.data[new_tag])
 		!end
 
 		local animation = e.animation

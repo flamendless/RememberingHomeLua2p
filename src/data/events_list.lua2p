@@ -5,12 +5,12 @@ local EventsList = {}
 
 function EventsList.hold_key(key, input_id, timer, e)
 	!if _ASSERT then
-	Assert.should_string(key)
-	Assert.should_string(input_id)
-	Assert.should_number(timer)
+	Assert.must(key, Types.T_STRING)
+	Assert.must(input_id, Types.T_STRING)
+	Assert.must(timer, Types.T_NUMBER)
 	if timer <= 0 then error("timer must not be zero or negative") end
-	Assert.should_entity(e)
-	Assert.should_exists(e.hold)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.hold)
 	!end
 
 	local id = "hold_key_" .. key
