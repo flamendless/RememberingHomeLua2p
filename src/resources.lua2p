@@ -14,12 +14,13 @@ local path_fonts = "res/fonts/"
 
 Resources.data.splash = {
 	image = {
+		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
 		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
 	},
 
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"firefly", path_fonts .. "Firefly.ttf", 256},
+		{"firefly", path_fonts .. "Firefly.ttf", 172, "default"},
 		{"uncle_type", path_fonts .. "uncle_type.ttf", 32},
 	}
 }

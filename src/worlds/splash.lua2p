@@ -123,6 +123,12 @@ function StateSplash:start()
 
 	local ww, wh = love.graphics.getDimensions()
 
+	self.entities.flamendless = Concord.entity(self.world)
+		:give("sprite", res_images.flamendless_logo)
+		:give("position", vec2(ww/2, wh/2))
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("color", {1, 1, 1, 0})
+
 	self.entities.splash_wits = Concord.entity(self.world)
 		:assemble(Assemblages.Common.animated_sprite, {
 				spritesheet = res_images.sheet_wits,
@@ -138,6 +144,7 @@ function StateSplash:start()
 		:give("animation_on_loop", function()
 			self.world:emit("start_fade")
 			Timer.after(2, function()
+				self.entities.flamendless:give("color_fade_in", 2)
 				current_state = states.splash_flam
 				timer_flam_skip:after(delay_skip, function()
 					splash_flam_skippable = true
@@ -147,7 +154,7 @@ function StateSplash:start()
 			end)
 		end, "pauseAtEnd")
 
-	local font = res_fonts.firefly_256
+	local font = res_fonts.firefly
 
 	self.entities.ghost_effect = Concord.entity(self.world)
 		:give("random_text", "flamendless")
@@ -161,12 +168,12 @@ function StateSplash:start()
 		:give("glitch_colors", Palette.color_glitches)
 		:give("color", color_a)
 		:give("lerp_colors", {color_a, color_b})
-		:give("position", vec2:new(ww/2, wh/2))
+		:give("position", vec2:new(ww/2, wh * 0.85))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	self.entities.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
-		:give("position", vec2:new(ww/2, wh * 0.3))
+		:give("position", vec2:new(ww/2, wh * 0.2))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
 		:give("font", res_fonts.uncle_type_32)

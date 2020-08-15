@@ -3,9 +3,8 @@ local Concord = require("modules.concord.concord")
 Concord.component("anchor", function(c, entity, a_x, a_y, padding_x, padding_y)
 	!if _ASSERT then
 	Assert.is(entity, Types.T_ENTITY)
-
-	Assert.must(a_x, Types.T_NUMBER)
-	Assert.must(a_y, Types.T_NUMBER)
+	Assert.must(a_x, Types.T_STRING)
+	Assert.must(a_y, Types.T_STRING)
 	Assert.safe.must(padding_x, Types.T_NUMBER)
 	Assert.safe.must(padding_y, Types.T_NUMBER)
 	!end
