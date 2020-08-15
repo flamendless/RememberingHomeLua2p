@@ -62,6 +62,7 @@ local ParticleSystems = {
 }
 
 local resources = {images = {}, image_data = {}, fonts = {}}
+local res_images, res_fonts
 
 local effect = {dt = 0, dt2 = 0, status = 1}
 local fade_out_duration = 0.1
@@ -102,6 +103,8 @@ function StateIntro:load()
 
 	Preloader.start(resources_data, resources,
 		function()
+			res_images = resources.images
+			res_fonts = resources.fonts
 			self.is_ready = true
 			self:start()
 		end)
@@ -125,8 +128,6 @@ function StateIntro:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	local res_images = resources.images
-	local res_fonts = resources.fonts
 	local w, h = res_images.bg:getDimensions()
 
 	self.screen_size = vec2:new(love.graphics.getDimensions())

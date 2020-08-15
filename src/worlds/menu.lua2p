@@ -486,6 +486,8 @@ function StateMenu:load()
 
 	Preloader.start(resources_data, resources,
 		function()
+			res_images = resources.images
+			res_fonts = resources.fonts
 			-- TODO play BGM
 			self.is_ready = true
 			self:start()
@@ -494,9 +496,6 @@ function StateMenu:load()
 end
 
 function StateMenu:start()
-	res_images = resources.images
-	res_fonts = resources.fonts
-
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
 	local img_ff = Image.resize_image(res_images.flowfield)

@@ -84,6 +84,8 @@ function StateSplash:load()
 
 	Preloader.start(resources_data, resources,
 		function()
+			res_images = resources.images
+			res_fonts = resources.fonts
 			self.is_ready = true
 			self:start()
 		end)
@@ -119,8 +121,6 @@ function StateSplash:start()
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
 
-	local res_images = resources.images
-	local res_fonts = resources.fonts
 	local ww, wh = love.graphics.getDimensions()
 
 	self.entities.splash_wits = Concord.entity(self.world)
