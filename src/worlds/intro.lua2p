@@ -75,8 +75,8 @@ local rain_amount = {16, 32, 96}
 
 function StateIntro:update_rain(i)
 	!if _ASSERT then
-	Assert.should_number(i)
-	Assert.should_exists(rain_amount[i])
+	Assert.must(i, Types.T_NUMBER)
+	Assert.exists(rain_amount[i])
 	!end
 
 	local amount = rain_amount[i]

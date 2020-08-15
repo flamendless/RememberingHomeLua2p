@@ -11,7 +11,7 @@ end
 
 function Tree:start_trees(speed)
 	!if _ASSERT then
-	Assert.should_number(speed)
+	Assert.must(speed, Types.T_NUMBER)
 	!end
 
 	for _, e in ipairs(self.pool_bg_tree) do

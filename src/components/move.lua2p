@@ -2,9 +2,9 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("move_by", function(c, pos, duration, delay)
 	!if _ASSERT then
-	Assert.should_vec2(pos)
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.must(pos, Types.T_VEC2)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.pos = pos
@@ -17,9 +17,9 @@ end)
 
 Concord.component("move_to_x", function(c, x_pos, duration, delay)
 	!if _ASSERT then
-	Assert.should_number(x_pos)
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.must(x_pos, Types.T_NUMBER)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.target_x = x_pos
@@ -29,8 +29,8 @@ end)
 
 Concord.component("move_to_original", function(c, duration, delay)
 	!if _ASSERT then
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.duration = duration
@@ -39,7 +39,7 @@ end)
 
 Concord.component("move_on_complete", function(c, callback)
 	!if _ASSERT then
-	Assert.should_function(callback)
+	Assert.must(callback, Types.T_FUNCTION)
 	!end
 
 	c.callback = callback

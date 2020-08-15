@@ -46,7 +46,7 @@ end
 
 function Save.validate_checkpoints(data)
 	!if _ASSERT then
-	Assert.should_table(data)
+	Assert.must(data, Types.T_TABLE)
 	!end
 end
 
@@ -59,9 +59,9 @@ end
 
 function Save.set_flag(id, should_overwrite)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.should_exists(Save.data[id])
-	Assert.safe_should_boolean(should_overwrite)
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(Save.data[id])
+	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
 	!end
 
 	Save.data[id] = true

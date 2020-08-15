@@ -1,10 +1,9 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
 Concord.component("circle", function(c, radius, segments)
 	!if _ASSERT then
-	Assert.should_number(radius)
-	Assert.safe_should_number(segments)
+	Assert.must(radius, Types.T_NUMBER)
+	Assert.safe.must(segments, Types.T_NUMBER)
 	!end
 
 	c.radius = radius

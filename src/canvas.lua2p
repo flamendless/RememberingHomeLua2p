@@ -4,12 +4,12 @@ local type_id = "CustomCanvas"
 
 function Canvas:new_default(x, y, width, height, rotation, scale)
 	!if _ASSERT then
-	Assert.should_number(x)
-	Assert.should_number(y)
-	Assert.should_number(width)
-	Assert.should_number(height)
-	Assert.should_number(rotation)
-	Assert.should_number(scale)
+	Assert.must(x, Types.T_NUMBER)
+	Assert.must(y, Types.T_NUMBER)
+	Assert.must(width, Types.T_NUMBER)
+	Assert.must(height, Types.T_NUMBER)
+	Assert.must(rotation, Types.T_NUMBER)
+	Assert.must(scale, Types.T_NUMBER)
 	!end
 
 	local _canvas = love.graphics.newCanvas(width, height)
@@ -27,7 +27,7 @@ end
 
 function Canvas:new_from_table(tbl)
 	!if _ASSERT then
-	Assert.should_table(tbl)
+	Assert.must(tbl, Types.T_TABLE)
 	!end
 
 	local _x = tbl.x
@@ -51,7 +51,7 @@ end
 
 function Canvas:new_from_canvas(source)
 	!if _ASSERT then
-	Assert.should_custom_canvas(source)
+	Assert.must(scale, Types.T_CUSTOM_CANVAS)
 	!end
 
 	local _canvas = love.graphics.newCanvas(source.width, source.height)
@@ -69,12 +69,12 @@ end
 
 function Canvas:new(x, y, width, height, rotation, scale)
 	!if _ASSERT then
-	Assert.either_type(x, Assert.types.T_NUMBER, Assert.types.T_TABLE)
-	Assert.safe_should_number(y)
-	Assert.safe_should_number(width)
-	Assert.safe_should_number(height)
-	Assert.safe_should_number(rotation)
-	Assert.safe_should_number(scale)
+	Assert.either_type(x, Types.T_NUMBER, Types.T_TABLE)
+	Assert.safe.must(y, Types.T_NUMBER)
+	Assert.safe.must(width, Types.T_NUMBER)
+	Assert.safe.must(height, Types.T_NUMBER)
+	Assert.safe.must(rotation, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
 	!end
 
 	local c
@@ -94,12 +94,12 @@ end
 
 function Canvas:set(x, y, width, height, rotation, scale)
 	!if _ASSERT then
-	Assert.should_number(x)
-	Assert.should_number(y)
-	Assert.should_number(width)
-	Assert.should_number(height)
-	Assert.safe_should_number(rotation)
-	Assert.safe_should_number(scale)
+	Assert.must(x, Types.T_NUMBER)
+	Assert.must(y, Types.T_NUMBER)
+	Assert.must(width, Types.T_NUMBER)
+	Assert.must(height, Types.T_NUMBER)
+	Assert.safe.must(rotation, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
 	!end
 
 	local _x, _y, _w, _h, _rotation, _scale

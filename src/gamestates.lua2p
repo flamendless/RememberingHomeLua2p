@@ -49,7 +49,7 @@ end
 
 function GameStates.switch(next_id)
 	!if _ASSERT then
-	Assert.should_exists(Worlds[next_id])
+	Assert.exists(Worlds[next_id])
 	!end
 
 	GameStates.prev_world = GameStates.current_world

@@ -4,9 +4,5 @@ local Enum = require("modules.enum.enum")
 local modes = Enum("fill", "line")
 
 Concord.component("draw_mode", function(c, draw_mode)
-	!if _ASSERT then
-	Assert.should_string(draw_mode)
-	!end
-
 	c.draw_mode = modes[draw_mode]
 end)

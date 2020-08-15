@@ -4,7 +4,7 @@ local floor = math.floor
 
 Concord.component("animation", function(c, stop_on_last)
 	!if _ASSERT then
-	Assert.safe_should_boolean(stop_on_last)
+	Assert.safe.must(stop_on_last, Types.T_BOOLEAN)
 	!end
 
 	c.grid = nil
@@ -16,7 +16,7 @@ end)
 
 Concord.component("animation_pause_at", function(c, at_frame)
 	!if _ASSERT then
-	Assert.either_type(at_frame, Assert.types.T_NUMBER, Assert.types.T_STRING)
+	Assert.either_type(at_frame, Types.T_NUMBER, Types.T_STRING)
 	if type(at_frame) == "string" then
 		Assert.either_value(at_frame, "first", "last")
 	end
@@ -38,9 +38,9 @@ end)
 
 Concord.component("animation_on_loop", function(c, callback, event, remove_at_end)
 	!if _ASSERT then
-	Assert.should_function(callback)
-	Assert.safe_either_value(event, "pauseAtEnd", "pauseAtStart")
-	Assert.safe_should_boolean(remove_at_end)
+	Assert.must(callback, Types.T_FUNCTION)
+	Assert.safe.either_value(event, "pauseAtEnd", "pauseAtStart")
+	Assert.safe.must(remove_at_end, Types.T_BOOLEAN)
 	!end
 
 	c.callback = callback
@@ -50,7 +50,7 @@ end)
 
 Concord.component("animation_on_update", function(c, on_update)
 	!if _ASSERT then
-	Assert.should_function(on_update)
+	Assert.must(on_update, Types.T_FUNCTION)
 	!end
 
 	c.on_update = on_update

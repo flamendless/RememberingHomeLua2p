@@ -110,8 +110,8 @@ Resources.data.outside = {
 
 function Resources.get(key)
 	!if _ASSERT then
-	Assert.should_string(key)
-	Assert.should_exists(Resources.data[key])
+	Assert.must(key, Types.T_STRING)
+	Assert.exists(Resources.data[key])
 	!end
 
 	return Resources.data[key]
@@ -119,7 +119,7 @@ end
 
 function Resources.clean(res)
 	!if _ASSERT then
-	Assert.should_table(res)
+	Assert.must(res, Types.T_TABLE)
 	!end
 
 	for k, t in pairs(res) do

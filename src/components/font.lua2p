@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("font", function(c, font)
 	!if _ASSERT then
-	Assert.should_font_or_sdf(font)
+	Assert.either_type(font, Types.T_FONT, Types.T_FONT_SDF)
 	!end
 
 	c.font = font

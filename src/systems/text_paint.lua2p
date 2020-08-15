@@ -36,9 +36,9 @@ end
 
 function TextPaint:show_text_paint(e, dur)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_exists(e.text_with_paint)
-	Assert.should_number(dur)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.must(dur, Types.T_NUMBER)
 	!end
 
 	self:show_paint(e, dur)
@@ -49,12 +49,12 @@ end
 
 function TextPaint:fade_text_paint(e, dur, on_complete)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_exists(e.text_with_paint)
-	Assert.should_entity(e.text_with_paint.paint)
-	Assert.should_exists(e.text_with_paint.paint.paint)
-	Assert.should_number(dur)
-	Assert.safe_should_function(on_complete)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.is(e.text_with_paint.paint, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint.paint.paint)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.safe.must(on_complete, Types.T_FUNCTION)
 	!end
 
 	local delay
@@ -93,8 +93,8 @@ end
 
 function TextPaint:show_paint(e, dur_in)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_number(dur_in)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
 	!end
 
 	local transform = e.transform
@@ -129,10 +129,10 @@ end
 
 function TextPaint:fade_paint(paint, dur, delay)
 	!if _ASSERT then
-	Assert.should_entity(paint)
-	Assert.should_exists(paint.paint)
-	Assert.should_number(dur)
-	Assert.safe_should_number(delay)
+	Assert.is(paint, Types.T_ENTITY)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.exists(paint.paint)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	Flux.to(paint.color.color, dur, {[4] = 0})

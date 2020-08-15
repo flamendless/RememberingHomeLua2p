@@ -4,26 +4,20 @@ local floor = math.floor
 
 Concord.component("animation_data", function(c, data)
 	!if _ASSERT then
-	Assert.should_table(data)
-	Assert.should_image(data.spritesheet)
-	Assert.should_table(data.frames)
-	Assert.should_number(data.rows_count)
-	Assert.should_number(data.columns_count)
-	Assert.safe_should_number(data.n_frames)
-	if Assert.safe_should_number(data.start_frame) then
-		if data.start_frame > data.n_frames then
-			error("start_frame should not exceed n_frames")
-		elseif data.start_frame <= 0 then
-			error("start_frame should not be less than 0")
-		end
-	end
+	Assert.must(data, Types.T_TABLE)
+	Assert.must(data.spritesheet, Types.T_IMAGE)
+	Assert.must(data.frames, Types.T_TABLE)
+	Assert.must(data.rows_count, Types.T_NUMBER)
+	Assert.must(data.columns_count, Types.T_NUMBER)
+	Assert.safe.must(data.n_frames, Types.T_NUMBER)
+	Assert.safe.within_range(data.start_frame, 1, data.n_frames)
 
 	if data.delay then
-		Assert.either_type(data.delay, Assert.types.T_NUMBER, Assert.types.T_TABLE)
+		Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
 	end
 
 	Assert.should_atleast(data.durations, data.delay)
-	Assert.safe_should_table(data.durations)
+	Assert.safe.must(data.durations, Types.T_TABLE)
 	!end
 
 	c.spritesheet = data.spritesheet

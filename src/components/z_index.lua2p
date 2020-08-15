@@ -2,8 +2,8 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("z_index", function(c, z, sortable)
 	!if _ASSERT then
-	Assert.should_number(z)
-	Assert.safe_should_boolean(sortable)
+	Assert.must(z, Types.T_NUMBER)
+	Assert.safe.must(sortable, Types.T_BOOLEAN)
 	!end
 
 	c.z = z

@@ -2,8 +2,8 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("option_key", function(c, id, page)
 	!if _ASSERT then
-	Assert.should_number(id)
-	Assert.should_number(page)
+	Assert.must(id, Types.T_NUMBER)
+	Assert.must(page, Types.T_NUMBER)
 	!end
 
 	c.id = id

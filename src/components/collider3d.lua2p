@@ -5,7 +5,7 @@ local filters = Enum("slide", "cross", "bounce", "cross")
 
 Concord.component("bump3d", function(c, id)
 	!if _ASSERT then
-	Assert.safe_should_string(id)
+	Assert.must(id, Types.T_STRING)
 	!end
 
 	c.id = id
@@ -13,8 +13,8 @@ end)
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
-	Assert.should_vec3(size)
-	Assert.safe_should_string(filter)
+	Assert.must(size, Types.T_VEC3)
+	Assert.safe.must(filter, Types.T_STRING)
 	!end
 
 	c.size = size
@@ -25,8 +25,4 @@ Concord.component("collider3d", function(c, size, filter)
 	if filter then
 		c.filter = filters[filter]
 	end
-
-	!if not _RELEASE then
-	c.highlight = false
-	!end
 end)

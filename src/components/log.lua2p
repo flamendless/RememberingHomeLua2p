@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("log", function(c, log)
 	!if _ASSERT then
-	Assert.should_string(log)
+	Assert.must(log, Types.T_STRING)
 	!end
 
 	c.log = log

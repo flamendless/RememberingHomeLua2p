@@ -80,10 +80,10 @@ end
 
 function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 	!if _ASSERT then
-	Assert.should_number(n)
-	Assert.should_image(sprite)
-	Assert.should_vec2(min_pos)
-	Assert.should_vec2(max_pos)
+	Assert.must(n, Types.T_NUMBER)
+	Assert.must(sprite, Types.T_IMAGE)
+	Assert.must(min_pos, Types.T_VEC2)
+	Assert.must(max_pos, Types.T_VEC2)
 	!end
 
 	for i = 1, n do
@@ -98,8 +98,8 @@ end
 
 function Fireflies:show_fireflies(dur, fn)
 	!if _ASSERT then
-	Assert.should_number(dur)
-	Assert.should_function(fn)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.must(fb, Types.T_FUNCTION)
 	!end
 
 	for _, e in ipairs(self.pool) do
@@ -120,8 +120,8 @@ end
 
 function Fireflies:flicker_fireflies(start_time, end_time)
 	!if _ASSERT then
-	Assert.should_number(start_time)
-	Assert.should_number(end_time)
+	Assert.must(start_time, Types.T_NUMBER)
+	Assert.must(end_time, Types.T_NUMBER)
 	!end
 
 	for _, e in ipairs(self.pool) do

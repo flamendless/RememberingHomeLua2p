@@ -9,10 +9,10 @@ local two_pi = pi * 2
 
 Concord.component("arc", function(c, radius, segments, start_angle, end_angle)
 	!if _ASSERT then
-	Assert.should_number(radius)
-	Assert.safe_should_number(segments)
-	Assert.safe_should_number(start_angle)
-	Assert.safe_should_number(end_angle)
+	Assert.must(radius, Types.T_NUMBER)
+	Assert.safe.must(segments, Types.T_NUMBER)
+	Assert.safe.must(start_angle, Types.T_NUMBER)
+	Assert.safe.must(end_angle, Types.T_NUMBER)
 	!end
 
 	c.radius = radius
@@ -22,9 +22,5 @@ Concord.component("arc", function(c, radius, segments, start_angle, end_angle)
 end)
 
 Concord.component("arc_type", function(c, arc_type)
-	!if _ASSERT then
-	Assert.safe_should_string(arc_type)
-	!end
-
 	c.arc_type = types[arc_type]
 end)

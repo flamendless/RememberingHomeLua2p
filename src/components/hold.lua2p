@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("hold", function(c, max_time)
 	!if _ASSERT then
-	Assert.should_number(max_time)
+	Assert.must(max_time, Types.T_NUMBER)
 	!end
 
 	c.current_time = 0

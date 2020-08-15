@@ -30,11 +30,11 @@ local z_index = {
 
 function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	!if _ASSERT then
-	Assert.should_exists(speed[tag])
-	Assert.should_exists(z_index[tag])
-	Assert.should_number(quad_width)
-	Assert.safe_should_number(sx)
-	Assert.safe_should_number(sy)
+	Assert.exists(speed[tag])
+	Assert.exists(z_index[tag])
+	Assert.must(quad_width, Types.T_NUMBER)
+	Assert.safe.must(sx, Types.T_NUMBER)
+	Assert.safe.must(sy, Types.T_NUMBER)
 	!end
 
 	local scale_x = sx or 1

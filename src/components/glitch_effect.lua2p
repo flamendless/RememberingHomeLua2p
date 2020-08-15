@@ -1,12 +1,11 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("glitch_effect", function(c, props)
-	local properties = {}
 	!if _ASSERT then
-	if Assert.safe_should_table(props) then
-		properties = props
-	end
+	Assert.safe.must(props, Types.T_TABLE)
 	!end
+
+	local properties = props or {}
 
 	c.is_glitch = false
 

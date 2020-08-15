@@ -16,7 +16,8 @@ local filename = !(_LOG_INFO)
 
 local function insert_str(src, dest)
 	!if _ASSERT then
-	Assert.should_table(src)
+	Assert.must(src, Types.T_TABLE)
+	Assert.must(dest, Types.T_TABLE)
 	!end
 
 	for k, v in pairs(src) do

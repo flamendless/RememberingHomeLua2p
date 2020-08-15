@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("line_width", function(c, line_width)
 	!if _ASSERT then
-	Assert.should_number(line_width)
+	Assert.must(line_width, Types.T_NUMBER)
 	!end
 
 	c.line_width = line_width

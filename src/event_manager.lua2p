@@ -10,8 +10,8 @@ function EventManager.add(event)
 	local id = event.id
 
 	!if _ASSERT then
-	Assert.should_event(event)
-	Assert.should_nil(EventManager.pool[id])
+	Assert.must(event, Types.T_EVENT)
+	Assert.empty(EventManager.pool[id])
 	!end
 
 	EventManager.pool[id] = event

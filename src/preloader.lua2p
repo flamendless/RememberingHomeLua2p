@@ -14,11 +14,11 @@ local keys = {
 	font = "newFont",
 }
 
-function Preloader.start(resources, container, oncomplete)
+function Preloader.start(resources, container, on_complete)
 	!if _ASSERT then
-	Assert.should_table(resources)
-	Assert.should_table(container)
-	Assert.should_function(oncomplete)
+	Assert.must(resources, Types.T_TABLE)
+	Assert.must(container, Types.T_TABLE)
+	Assert.must(on_complete, Types.T_FUNCTION)
 	!end
 
 	local i = 1
@@ -55,7 +55,7 @@ function Preloader.start(resources, container, oncomplete)
 			userdata[i] = id
 
 			!if _ASSERT then
-			Assert.should_nil(cache[id])
+			Assert.empty(cache[id])
 			!end
 
 			cache[id] = true
@@ -81,30 +81,30 @@ function Preloader.start(resources, container, oncomplete)
 
 			if data_type == "Image" then
 				!if _ASSERT then
-				Assert.should_exists(container.images)
-				Assert.should_table(container.images)
+				Assert.exists(container.images)
+				Assert.must(container.images, Types.T_TABLE)
 				!end
 
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
 				container.images[id] = data
 			elseif data_type == "ImageData" then
 				!if _ASSERT then
-				Assert.should_exists(container.image_data)
-				Assert.should_table(container.image_data)
+				Assert.exists(container.image_data)
+				Assert.must(container.image_data, Types.T_TABLE)
 				!end
 
 				container.image_data[id] = data
 			elseif data_type == "Source" then
 				!if _ASSERT then
-				Assert.should_exists(container.sources)
-				Assert.should_table(container.sources)
+				Assert.exists(container.sources)
+				Assert.must(container.sources, Types.T_TABLE)
 				!end
 
 				container.sources[id] = data
 			elseif data_type == "Font" then
 				!if _ASSERT then
-				Assert.should_exists(container.fonts)
-				Assert.should_table(container.fonts)
+				Assert.exists(container.fonts)
+				Assert.must(container.fonts, Types.T_TABLE)
 				!end
 
 				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
@@ -115,7 +115,7 @@ function Preloader.start(resources, container, oncomplete)
 			Log.trace(str)
 		end
 
-		oncomplete()
+		on_complete()
 	end)
 end
 

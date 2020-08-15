@@ -15,7 +15,7 @@ function Item:init(world)
 		local i = self.id_map:map(item_id)
 
 		!if _ASSERT then
-		Assert.should_nil(self.id[i])
+		Assert.empty(self.id[i])
 		!end
 
 		self.id[i] = item_id

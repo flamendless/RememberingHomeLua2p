@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("id", function(c, id)
 	!if _ASSERT then
-	Assert.should_string(id)
+	Assert.must(id, Types.T_STRING)
 	!end
 
 	c.id = id

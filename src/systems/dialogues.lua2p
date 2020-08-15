@@ -19,7 +19,7 @@ function Dialogue:init(world)
 		local i = self.map_id:map(e.dialogues.id)
 
 		!if _ASSERT then
-		Assert.should_nil(self.data[i])
+		Assert.empty(self.data[i])
 		!end
 
 		self.data[i] = e
@@ -28,17 +28,17 @@ end
 
 function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.should_timelineevent(timeline)
-	Assert.should_number(dur_in)
-	Assert.should_number(dur_out)
+	Assert.must(id, Types.T_STRING)
+	Assert.must(timeline, Types.T_TIMELINEEVENT)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.must(dur_out, Types.T_NUMBER)
 	!end
 
 	local i = self.map_id:map(id)
 	local data = self.data[i]
 
 	!if _ASSERT then
-	Assert.should_exists(data)
+	Assert.exists(data)
 	!end
 
 	local d = data.dialogues

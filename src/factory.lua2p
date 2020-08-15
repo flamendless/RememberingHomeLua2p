@@ -43,10 +43,10 @@ end
 
 function Factory.arrows(world, sheet, pos, offset, scale)
 	!if _ASSERT then
-	Assert.should_image(sheet)
-	Assert.should_vec2(pos)
-	Assert.should_number(offset)
-	Assert.safe_should_number(scale)
+	Assert.must(sheet, Types.T_IMAGE)
+	Assert.must(pos, Types.T_VEC2)
+	Assert.must(offset, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
 	!end
 
 	local t = {}
@@ -75,10 +75,10 @@ end
 
 function Factory.arrows_keys(world, arrows, font, pos)
 	!if _ASSERT then
-	Assert.should_world(world)
-	Assert.should_table(arrows)
-	Assert.should_font(font)
-	Assert.should_vec2(pos)
+	Assert.is(world, Types.T_WORLD)
+	Assert.must(arrows, Types.T_TABLE)
+	Assert.must(font, Types.T_FONT)
+	Assert.must(pos, Types.T_VEC2)
 	!end
 
 	local t = {}

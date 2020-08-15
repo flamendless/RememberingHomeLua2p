@@ -29,8 +29,8 @@ Palette.color_glitches = {
 
 function Palette.get(color, alpha)
 	!if _ASSERT then
-	Assert.should_exists(Palette.colors[color])
-	Assert.safe_should_number(alpha)
+	Assert.exists(Palette.colors[color])
+	Assert.safe.must(alpha, Types.T_NUMBER)
 	!end
 
 	local color = Palette.colors[color]

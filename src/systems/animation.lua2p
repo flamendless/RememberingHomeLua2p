@@ -16,7 +16,7 @@ local cache_multi_animation = {}
 
 local setup_on_loop = function(e, animation)
 	!if _ASSERT then
-	Assert.should_component(animation)
+	Assert.is(animation, Types.T_COMPONENT)
 	!end
 
 	local cb = e.animation_on_loop
@@ -153,7 +153,7 @@ function Animation:init()
 			end
 		elseif type(pause_at.at_frame) == "number" then
 			!if _ASSERT then
-			Assert.should_true(pause_at.at_frame <= data.n_frames)
+			Assert.must_true(pause_at.at_frame <= data.n_frames)
 			!end
 			animation.animation:gotoFrame(pause_at.at_frame)
 			animation.animation:pause()
@@ -169,7 +169,7 @@ end
 
 function Animation:switch_animation_tag(new_tag)
 	!if _ASSERT then
-	Assert.should_string(new_tag)
+	Assert.must(new_tag, Types.T_STRING)
 	!end
 
 	for _, e in ipairs(self.pool_multi) do
@@ -195,8 +195,8 @@ end
 
 function Animation:update_animation_data(e, data)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_table(data)
+	Assert.must(e, Types.T_ENTITY)
+	Assert.must(data, Types.T_TABLE)
 	!end
 
 	local anim_data = e.animation_data

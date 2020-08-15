@@ -47,10 +47,10 @@ end
 
 function Inputs.register(id, key, tag)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.safe_should_string(tag)
+	Assert.must(id, Types.T_STRING)
+	Assert.safe.must(tag, Types.T_STRING)
 	if not (tag and tag == "defaults") then
-		Assert.should_nil(Inputs.keys[id])
+		Assert.empty(Inputs.keys[id])
 	end
 	!end
 
@@ -75,7 +75,7 @@ end
 
 function Inputs.unregister(id)
 	!if _ASSERT then
-	Assert.should_string(id)
+	Assert.must(id, Types.T_STRING)
 	!end
 
 	Inputs.keys[id] = nil
@@ -121,7 +121,7 @@ end
 
 function Inputs.update_keybindings(new_keys)
 	!if _ASSERT then
-	Assert.should_table(new_keys)
+	Assert.must(new_keys, Types.T_TABLE)
 	!end
 
 	tablex.copy(new_keys, Inputs.keys)
@@ -129,7 +129,7 @@ end
 
 function Inputs.get_by_tag(tag)
 	!if _ASSERT then
-	Assert.should_string(tag)
+	Assert.must(tag, Types.T_STRING)
 	!end
 
 	local t = {}
@@ -144,7 +144,7 @@ end
 
 function Inputs.reset_by_tag(tag)
 	!if _ASSERT then
-	Assert.should_string(tag)
+	Assert.must(tag, Types.T_STRING)
 	!end
 
 	local tags = Inputs.tags[tag]
@@ -162,8 +162,8 @@ function Inputs.get(id)
 	local result = keys[id]
 
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.should_exists(result)
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(result)
 	!end
 
 	return result

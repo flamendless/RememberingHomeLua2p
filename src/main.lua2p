@@ -9,6 +9,7 @@ io.stdout:setvbuf("no")
 local getStats = love.graphics.getStats
 !if _ASSERT then
 Assert = require("assert")
+Types = Assert.types
 !end
 !end
 

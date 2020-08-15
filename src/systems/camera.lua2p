@@ -29,7 +29,7 @@ end
 
 function Camera:get_follow_coords(target)
 	!if _ASSERT then
-	Assert.should_entity(target)
+	Assert.is(target, Types.T_ENTITY)
 	!end
 
 	local pos = target.position.pos
@@ -48,8 +48,8 @@ end
 
 function Camera:camera_follow(target, dur)
 	!if _assert then
-	Assert.should_entity(target)
-	Assert.safe_should_number(dur)
+	Assert.is(target, Types.T_ENTITY)
+	Assert.must(dur, Types.T_NUMBER)
 	!end
 
 	local x, y = self:get_follow_coords(target)

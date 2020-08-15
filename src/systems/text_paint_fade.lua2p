@@ -35,9 +35,9 @@ end
 
 function TextPaintFade:generate_paint(e, dur_in, dur_out)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_number(dur_in)
-	Assert.safe_should_number(dur_out)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.safe.must(dur_out, Types.T_NUMBER)
 	!end
 
 	local transform = e.transform

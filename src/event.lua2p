@@ -4,8 +4,8 @@ local type_id = "Event"
 
 function Event:new(id, data)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.safe_should_table(data)
+	Assert.must(id, Types.T_STRING)
+	Assert.safe.must(data, Types.T_TABLE)
 	!end
 
 	return self:init({

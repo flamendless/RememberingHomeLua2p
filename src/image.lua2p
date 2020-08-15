@@ -2,7 +2,7 @@ local Image = {}
 
 function Image.resize_image(image, width, height)
 	!if _ASSERT then
-	Assert.should_image_or_imagedata(image)
+	Assert.either_type(image, Types.T_IMAGE, Types.T_IMAGEDATA)
 	!end
 
 	local ww = love.graphics.getWidth()
@@ -28,8 +28,8 @@ end
 
 function Image.generate_noise(w, h)
 	!if _ASSERT then
-	Assert.should_number(w)
-	Assert.should_number(h)
+	Assert.must(w, Types.T_NUMBER)
+	Assert.must(h, Types.T_NUMBER)
 	!end
 
 	local data = love.image.newImageData(w, h)

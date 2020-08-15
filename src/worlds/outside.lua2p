@@ -6,6 +6,7 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 !if not _RELEASE then
+local DebugFlags = require("debug_flags")
 local Tracker = require("tracker")
 !end
 
@@ -266,6 +267,12 @@ function StateOutside:start()
 
 	effect = NGrading:new(lut_dusk, lut_size)
 
+	local pos_arrows = vec2:new(512, 256)
+	local e_arrows = Factory.arrows(self.world, res_images.sheet_arrows, pos_arrows, 16, 2)
+	local e_arrows_keys = Factory.arrows_keys(self.world, e_arrows, res_fonts.ui, pos_arrows)
+	for _, e in pairs(e_arrows) do e:give("color_fade_in", 1.75) end
+	for _, e in pairs(e_arrows_keys) do e:give("color_fade_in", 1.75) end
+
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then
 		self.timeline:Pause()
@@ -390,7 +397,12 @@ function StateOutside:start()
 
 		TLE.Event.Wait(0.75)
 		tle_log("task: " .. tasks[2])
+
+		local e_arrows = Factory.arrows(self.world,
+			res_images.sheet_arrows, res_fonts.ui, vec2:new(256, 256), 16, 0.75)
+
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task)
+		for _, e in pairs(e_arrows) do e:give("color_fade_in", dur_fade_task) end
 
 		self.timeline:Pause()
 	end)
@@ -409,11 +421,7 @@ function StateOutside:update(dt)
 	end
 
 	!if not _RELEASE then
-	self.world:emit("update_debug", dt)
-
-	if self.draw_debug then
-		self.world:emit("draw_slab", dt)
-	end
+	self.world:emit("debugging_update", dt)
 	!end
 end
 
@@ -439,25 +447,19 @@ function StateOutside:draw()
 		end
 
 		!if not _RELEASE then
-		if self.draw_debug then
-			self.world:emit("draw_debug", l, t, w, h)
-		end
+		self.world:emit("debugging_draw", l, t, w, h)
 		!end
 	end)
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
-
-	!if not _RELEASE then
-	self.world:emit("post_draw")
-	!end
 end
 
 function StateOutside:keypressed(key)
 	!if not _RELEASE then
-	if key == "`" then
-		self.draw_debug = not self.draw_debug
-	elseif key == "space" then
+	self.world:emit("keypress", key)
+
+	if key == "space" then
 		self.timeline:Unpause()
 	end
 	!end

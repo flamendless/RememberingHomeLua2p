@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("attach_to", function(c, target_e)
 	!if _ASSERT then
-	Assert.should_entity(target_e)
+	Assert.is(target_e, "__isEntity")
 	!end
 
 	c.target_e = target_e

@@ -16,8 +16,8 @@ local dialogues = {
 
 function Dialogues.get(id)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.should_exists(dialogues[id])
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(dialogues[id])
 	!end
 
 	return dialogues[id]

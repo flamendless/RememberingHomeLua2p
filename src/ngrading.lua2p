@@ -35,7 +35,7 @@ local default_setting = {linear = true, dpiscale = 1}
 
 function NGrading:new_single(img, cs)
 	!if _ASSERT then
-	Assert.should_imagedata(img)
+	Assert.must(img, Types.T_IMAGEDATA)
 	!end
 
 	local data = img
@@ -84,9 +84,9 @@ end
 
 function NGrading:new_multi(img, img2, cs)
 	!if _ASSERT then
-	Assert.should_imagedata(img)
-	Assert.should_imagedata(img2)
-	Assert.should_number(cs)
+	Assert.must(img, Types.T_IMAGEDATA)
+	Assert.must(img2, Types.T_IMAGEDATA)
+	Assert.must(cs, Types.T_NUMBER)
 	!end
 
 	local data = img

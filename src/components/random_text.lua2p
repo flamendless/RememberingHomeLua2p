@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("random_text", function(c, text)
 	!if _ASSERT then
-	Assert.either_type(text, Assert.types.T_STRING, Assert.types.T_TABLE)
+	Assert.either_type(text, Types.T_STRING, Types.T_TABLE)
 	!end
 
 	if type(text) == "string" then

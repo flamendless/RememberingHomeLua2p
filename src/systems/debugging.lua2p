@@ -59,7 +59,7 @@ end
 
 function Debugging:debug_particle_system(ps)
 	!if _ASSERT then
-	Assert.should_particle_system(ps)
+	Assert.must(ps, Types.T_PARTICLE_SYSTEM)
 	!end
 
 	insert(self.ps, ps)

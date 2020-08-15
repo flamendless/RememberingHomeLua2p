@@ -2,10 +2,10 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("bounding_box", function(c, x, y, w, h)
 	!if _ASSERT then
-	Assert.should_number(x)
-	Assert.should_number(y)
-	Assert.should_number(w)
-	Assert.should_number(h)
+	Assert.must(x, Types.T_NUMBER)
+	Assert.must(y, Types.T_NUMBER)
+	Assert.must(w, Types.T_NUMBER)
+	Assert.must(h, Types.T_NUMBER)
 	!end
 
 	c.x = x
@@ -18,8 +18,8 @@ end)
 
 Concord.component("bounding_box_color", function(c, color)
 	!if _ASSERT then
-	Assert.should_table(color)
+	Assert.color(color)
 	!end
 
-	c.color = { color[1], color[2], color[3], color[4] }
+	c.color = {unpack(color)}
 end)

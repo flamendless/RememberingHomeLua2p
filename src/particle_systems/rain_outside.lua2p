@@ -4,9 +4,9 @@ local RainOutsideParticles = class()
 
 function RainOutsideParticles:new(image, buffer, w)
 	!if _ASSERT then
-	Assert.should_image(image)
-	Assert.should_number(buffer)
-	Assert.should_number(w)
+	Assert.must(image, Types.T_IMAGE)
+	Assert.must(buffer, Types.T_NUMBER)
+	Assert.must(w, Types.T_NUMBER)
 	!end
 
 	local ps = lg.newParticleSystem(image, buffer)

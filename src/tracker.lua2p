@@ -16,7 +16,7 @@ local mt = {
 
 function Tracker.track(t)
 	!if _ASSERT then
-	Assert.should_table(t)
+	-- Assert.must(t, Types.T_TABLE)
 	!end
 
 	local proxy = {}
@@ -34,8 +34,8 @@ end
 
 function Tracker.perform(t, fn)
 	!if _ASSERT then
-	Assert.should_table(t)
-	Assert.should_function(fn)
+	-- Assert.must(t, Types.T_TABLE)
+	-- Assert.must(fn, Types.T_FUNCTION)
 	!end
 
 	for _, tbl in pairs(t) do
@@ -47,8 +47,8 @@ end
 
 function Tracker.error_on_ref_count(t, ref_count)
 	!if _ASSERT then
-	Assert.should_table(t)
-	Assert.should_number(ref_count)
+	-- Assert.must(t, Types.T_TABLE)
+	-- Assert.must(ref_count, Types.T_NUMBER)
 	!end
 
 	Tracker.perform(t, function(id, ref)
@@ -60,8 +60,8 @@ end
 
 function Tracker.warn_on_ref_count(t, ref_count)
 	!if _ASSERT then
-	Assert.should_table(t)
-	Assert.should_number(ref_count)
+	-- Assert.must(t, Types.T_TABLE)
+	-- Assert.must(ref_count, Types.T_NUMBER)
 	!end
 
 	Tracker.perform(t, function(id, ref)

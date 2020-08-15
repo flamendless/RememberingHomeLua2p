@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("sprite", function(c, sprite)
 	!if _ASSERT then
-	Assert.should_image(sprite)
+	Assert.must(sprite, Types.T_IMAGE)
 	!end
 
 	c.sprite = sprite

@@ -2,8 +2,8 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("quad", function(c, quad, info)
 	!if _ASSERT then
-	Assert.should_quad(quad)
-	Assert.safe_should_table(info)
+	Assert.must(quad, Types.T_QUAD)
+	Assert.safe.must(info, Types.T_TABLE)
 	!end
 
 	c.quad = quad

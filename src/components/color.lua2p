@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("color", function(c, color)
 	!if _ASSERT then
-	Assert.should_color(color)
+	Assert.color(color)
 	!end
 
 	c.original_color = {unpack(color)}
@@ -11,8 +11,8 @@ end)
 
 Concord.component("color_fade_in_out", function(c, duration, count)
 	!if _ASSERT then
-	Assert.should_number(duration)
-	Assert.safe_should_number(count)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(count, Types.T_NUMBER)
 	!end
 
 	c.duration = duration
@@ -21,8 +21,8 @@ end)
 
 Concord.component("fade_to_black", function(c, duration, delay)
 	!if _ASSERT then
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.duration = duration
@@ -31,12 +31,12 @@ end)
 
 Concord.component("lerp_colors", function(c, colors, duration, delay)
 	!if _ASSERT then
-	Assert.should_table(colors)
+	Assert.must(colors, Types.T_TABLE)
 	for i, v in ipairs(colors) do
-		Assert.should_color(v)
+		Assert.color(v)
 	end
-	Assert.safe_should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.safe.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.current_color = 1
@@ -48,9 +48,9 @@ end)
 
 Concord.component("target_color", function(c, target_color, duration, delay)
 	!if _ASSERT then
-	Assert.should_color(target_color)
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
+	Assert.color(target_color)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
 	c.target_color = {unpack(target_color)}
@@ -60,9 +60,9 @@ end)
 
 Concord.component("color_fade_in", function(c, duration, delay, on_complete)
 	!if _ASSERT then
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
-	Assert.safe_should_function(on_complete)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
+	Assert.safe.must(on_complete, Types.T_FUNCTION)
 	!end
 
 	c.duration = duration
@@ -72,9 +72,9 @@ end)
 
 Concord.component("color_fade_out", function(c, duration, delay, on_complete)
 	!if _ASSERT then
-	Assert.should_number(duration)
-	Assert.safe_should_number(delay)
-	Assert.safe_should_function(on_complete)
+	Assert.must(duration, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
+	Assert.safe.must(on_complete, Types.T_FUNCTION)
 	!end
 
 	c.duration = duration

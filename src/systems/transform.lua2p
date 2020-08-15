@@ -56,7 +56,7 @@ function Transform:update_anchor(e)
 	local target_sprite = anchor.entity.sprite
 
 	!if _ASSERT then
-	Assert.should_image(target_sprite.sprite)
+	Assert.must(target_sprite.sprite, Types.T_IMAGE)
 	!end
 
 	local target_transform = anchor.entity.transform

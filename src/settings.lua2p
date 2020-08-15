@@ -53,10 +53,10 @@ function Settings.set(id, value, should_overwrite)
 	local current = Settings.current
 
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.either_type(value, Assert.types.T_NUMBER, Assert.types.T_BOOLEAN)
-	Assert.should_exists(current[id])
-	Assert.safe_should_boolean(should_overwrite)
+	Assert.must(id, Types.T_STRING)
+	Assert.either_type(value, Types.T_NUMBER, Types.T_BOOLEAN)
+	Assert.exists(current[id])
+	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
 	!end
 
 	local prev = current[id]
@@ -73,15 +73,15 @@ end
 
 function Settings.set_from_table(t, should_overwrite)
 	!if _ASSERT then
-	Assert.should_table(t)
-	Assert.safe_should_boolean(should_overwrite)
+	Assert.must(t, Types.T_TABLE)
+	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
 	!end
 
 	local current = Settings.current
 
 	for k, v in pairs(t) do
 		!if _ASSERT then
-		Assert.should_exists(current[k])
+		Assert.exists(current[k])
 		!end
 
 		current[k] = v

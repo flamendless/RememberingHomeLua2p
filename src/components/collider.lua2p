@@ -5,7 +5,7 @@ local filters = Enum("slide", "cross", "bounce", "cross")
 
 Concord.component("bump", function(c, id)
 	!if _ASSERT then
-	Assert.safe_should_string(id)
+	Assert.safe.must(id, Types.T_STRING)
 	!end
 
 	c.id = id
@@ -13,9 +13,9 @@ end)
 
 Concord.component("collider", function(c, size, offset, filter)
 	!if _ASSERT then
-	Assert.should_vec2(size)
-	Assert.safe_should_vec2(offset)
-	Assert.safe_should_string(filter)
+	Assert.must(size, Types.T_VEC2)
+	Assert.safe.must(offset, Types.T_VEC2)
+	Assert.safe.must(filter, Types.T_STRING)
 	!end
 
 	c.size = size
@@ -31,8 +31,8 @@ end)
 
 Concord.component("collider_circle", function(c, size, offset)
 	!if _ASSERT then
-	Assert.should_number(size)
-	Assert.safe_should_vec2(offset)
+	Assert.must(size, Types.T_NUMBER)
+	Assert.safe.must(offset, Types.T_VEC2)
 	!end
 
 	c.size = size

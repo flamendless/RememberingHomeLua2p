@@ -66,7 +66,7 @@ end
 
 function UI.keypress(e, is_hold, sheet, target)
 	!if _ASSERT then
-	Assert.should_boolean(is_hold)
+	Assert.must(is_hold, Types.T_BOOLEAN)
 	!end
 
 	local delay = is_hold and {0.5, 0.5, 2} or 0.5
@@ -100,7 +100,7 @@ end
 
 function UI.arrow(e, dir, sheet, pos)
 	!if _ASSERT then
-	Assert.should_string(dir)
+	Assert.must(dir, Types.T_STRING)
 	!end
 
 	local d = dirs[dir]
