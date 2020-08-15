@@ -36,7 +36,6 @@ local types = Assert.types
 local get_type = function(arg)
 	local a_type = type(arg)
 
-
 	if a_type == types.T_TABLE or a_type == types.T_USERDATA then
 		if arg.type and type(arg.type) == types.T_FUNCTION then
 			a_type = arg:type()
@@ -70,7 +69,6 @@ end
 
 function Assert.color(arg)
 	Assert.must(arg, types.T_TABLE)
-
 	Assert.within_range(arg[1], 0, 1)
 	Assert.within_range(arg[2], 0, 1)
 	Assert.within_range(arg[3], 0, 1)
@@ -155,7 +153,6 @@ for method, fn in pairs(Assert) do
 		Assert.safe[method] = function(arg, ...)
 			if arg then
 				fn(arg, ...)
-				-- Assert.must(arg, ...)
 
 				return true
 			end

@@ -137,17 +137,18 @@ function RenderText:draw_debug()
 			break
 		end
 
-		if not e.sdf then return end
 
-		Slab.SameLine()
+		if e.sdf then
+			Slab.SameLine()
 
-		if Slab.Button("Modify SDF") then
-			is_open_sdf = true
-			is_open_text = false
-			selected_e = e
-			t_comp = e.sdf
+			if Slab.Button("Modify SDF") then
+				is_open_sdf = true
+				is_open_text = false
+				selected_e = e
+				t_comp = e.sdf
 
-			break
+				break
+			end
 		end
 	end
 

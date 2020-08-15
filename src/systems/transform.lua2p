@@ -148,7 +148,9 @@ function Transform:draw_debug()
 			Title = "Transform List", IsOpen = DebugFlags.transform
 		})
 	for _, e in ipairs(self.pool) do
-		Slab.Text(e.id.id)
+		local id = e.id
+
+		Slab.Text(id and id.id or _)
 		Slab.SameLine()
 
 		if Slab.Button("Modify") then

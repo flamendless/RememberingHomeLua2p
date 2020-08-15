@@ -108,6 +108,10 @@ function Inputs.is_pressed(id, key)
 end
 
 function Inputs.is_down(id)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	!end
+
 	local keys = Inputs.keys[id]
 
 	return love.keyboard.isDown(keys)
