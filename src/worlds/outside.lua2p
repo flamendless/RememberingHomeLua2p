@@ -93,7 +93,7 @@ local function tle_log(msg)
 	!end
 end
 
-function StateOutside:create_arrow_keys()
+function StateOutside:create_arrows_keys()
 	local scale = 1.75
 	local scale_sdf = scale - 0.75
 	local pos_arrows = vec2:new(self.screen_size.x * 0.35, self.screen_size.y * 0.5)
@@ -107,15 +107,7 @@ function StateOutside:create_arrow_keys()
 	for _, e in pairs(e_arrows) do e:give("color_fade_in", 1.75) end
 	for _, e in pairs(e_arrows_keys) do e:give("color_fade_in", 1.75) end
 
-	Timer.after(3, function()
-		for _, e in pairs(e_arrows) do
-			e:give("color_fade_out", 1.75, nil, function() e:destroy() end)
-		end
-
-		for _, e in pairs(e_arrows_keys) do
-			e:give("color_fade_out", 1.75, nil, function() e:destroy() end)
-		end
-	end)
+	return e_arrows, e_arrows_keys
 end
 
 function StateOutside:new()
@@ -255,7 +247,7 @@ function StateOutside:start()
 			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
 			:give("transform", 0, 1, 1, 0.5, 0.5)
 			:give("text_with_paint")
-			:give("task", "flash", Palette.get("task_on_complete"))
+			:give("task", "flash", Palette.get("ui_feedback"))
 	end
 
 	local splashes = res_images.splashes
@@ -382,9 +374,9 @@ function StateOutside:start()
 		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key,
 			64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
-		local event1 = EventsList.hold_key(key_id, p_interact_id,
+		local ev1 = EventsList.hold_key(key_id, p_interact_id,
 			timer_hold_key, e_hold_key.progress)
-		event1.on_complete = function()
+		ev1.on_complete = function()
 			tle_log("action completed")
 
 			for id, e in pairs(e_hold_key) do
@@ -412,16 +404,20 @@ function StateOutside:start()
 			tle_log("player created")
 		end
 
-		EventManager.add(event1)
+		EventManager.add(ev1)
 		self.timeline:Pause()
 		self.entities.player.body.can_move = true
 
-		TLE.Event.Wait(0.75)
+		TLE.Event.Wait(0.25)
 		tle_log("task: " .. tasks[2])
 
-		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task)
-		self:create_arrow_keys()
+		local dur_fade_task2 = 2.5
 
+		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
+		local e_arrows, e_arrows_keys = self:create_arrows_keys()
+		local ev2 = EventsList.arrows_keys(e_arrows, e_arrows_keys, dur_fade_task2)
+
+		EventManager.add(ev2)
 		self.timeline:Pause()
 	end)
 end

@@ -1,7 +1,16 @@
 local Event = require("event")
 local Inputs = require("inputs")
+local Palette = require("palette")
 
 local EventsList = {}
+
+local function arrows_keys_fade(arrow, key, dur)
+	arrow:give("target_color", Palette.get("ui_feedback"), dur)
+	arrow:give("color_fade_out", dur, nil, function() arrow:destroy() end)
+
+	key:give("target_color", Palette.get("ui_feedback"), dur)
+	key:give("color_fade_out", dur, nil, function() key:destroy() end)
+end
 
 function EventsList.hold_key(key, input_id, timer, e)
 	!if _ASSERT then
@@ -14,9 +23,9 @@ function EventsList.hold_key(key, input_id, timer, e)
 	!end
 
 	local id = "hold_key_" .. key
-	local event = Event:new(id, { timer = 0 })
+	local ev = Event:new(id, {timer = 0})
 
-	event.update = function(task, dt)
+	ev.update = function(task, dt)
 		local data = task.data
 
 		if Inputs.is_down(input_id) then
@@ -29,7 +38,48 @@ function EventsList.hold_key(key, input_id, timer, e)
 		return data.timer >= timer
 	end
 
-	return event
+	return ev
+end
+
+function EventsList.arrows_keys(arrows, arrows_keys, dur)
+	!if _ASSERT then
+	Assert.must(arrows, Types.T_TABLE)
+	Assert.must(arrows_keys, Types.T_TABLE)
+	Assert.must(dur, Types.T_NUMBER)
+	!end
+
+	local id = "arrows_keys"
+	local ev = Event:new(id, {left = false, right = false, up = false, down = false})
+	local key_left = "player_move_left"
+	local key_right = "player_move_right"
+	local key_up = "player_move_up"
+	local key_down = "player_move_down"
+
+	ev.update = function(task, dt)
+		local data = task.data
+
+		if not data.left and Inputs.is_down(key_left) then
+			data.left = true
+			arrows_keys_fade(arrows.left, arrows_keys.key_left, dur)
+		end
+
+		if not data.right and Inputs.is_down(key_right) then
+			data.right = true
+			arrows_keys_fade(arrows.right, arrows_keys.key_right, dur)
+		end
+
+		if not data.up and Inputs.is_down(key_up) then
+			data.up = true
+			arrows_keys_fade(arrows.up, arrows_keys.key_up, dur)
+		end
+
+		if not data.down and Inputs.is_down(key_down) then
+			data.down = true
+			arrows_keys_fade(arrows.down, arrows_keys.key_down, dur)
+		end
+	end
+
+	return ev
 end
 
 return EventsList
