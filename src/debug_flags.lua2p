@@ -13,6 +13,7 @@ DebugFlags = {
 	quad_transform = false,
 	stats = true,
 	transform = false,
+	text = false,
 	z_index = false,
 
 	t_stats = {},

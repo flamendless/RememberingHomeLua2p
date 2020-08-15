@@ -140,7 +140,7 @@ end
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local is_open_transform = false
-local t_comp = nil
+local t_comp
 local selected_e
 
 function Transform:draw_debug()
@@ -148,9 +148,7 @@ function Transform:draw_debug()
 			Title = "Transform List", IsOpen = DebugFlags.transform
 		})
 	for _, e in ipairs(self.pool) do
-		local id = e.id
-
-		Slab.Text(id and id.id or _)
+		Slab.Text(e.id.id)
 		Slab.SameLine()
 
 		if Slab.Button("Modify") then

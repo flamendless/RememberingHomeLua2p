@@ -139,6 +139,10 @@ function Debugging:draw_slab()
 		DebugFlags.transform = not DebugFlags.transform
 	end
 
+	if Slab.CheckBox(DebugFlags.text, "Text") then
+		DebugFlags.text = not DebugFlags.text
+	end
+
 	if Slab.CheckBox(DebugFlags.z_index, "ZIndex") then
 		DebugFlags.z_index = not DebugFlags.z_index
 	end

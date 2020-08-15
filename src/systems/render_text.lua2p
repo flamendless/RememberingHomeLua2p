@@ -72,8 +72,8 @@ function RenderText:internal_draw(e)
 		end
 
 		if sdf then
-			sx = sdf.scale_x
-			sy = sdf.scale_y
+			sx = sdf.sx
+			sy = sdf.sy
 		end
 
 		local x = pos.pos.x
@@ -110,5 +110,107 @@ function RenderText:draw_ui()
 		self:internal_draw(e)
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local is_open_text = false
+local is_open_sdf = false
+local t_comp
+local selected_e
+
+function RenderText:draw_debug()
+	DebugFlags.text = Slab.BeginWindow("Text", {
+			Title = "Text List", IsOpen = DebugFlags.text
+		})
+
+	for _, e in ipairs(self.pool) do
+		Slab.Text(e.id.id)
+		Slab.SameLine()
+
+		if Slab.Button("Modify Text") then
+			is_open_text = true
+			is_open_sdf = false
+			selected_e = e
+			t_comp = e.text
+
+			break
+		end
+
+		if not e.sdf then return end
+
+		Slab.SameLine()
+
+		if Slab.Button("Modify SDF") then
+			is_open_sdf = true
+			is_open_text = false
+			selected_e = e
+			t_comp = e.sdf
+
+			break
+		end
+	end
+
+	Slab.EndWindow()
+
+	if not selected_e then return end
+
+	if is_open_text then
+		self:debug_modify_text()
+	elseif is_open_sdf then
+		self:debug_modify_sdf()
+	end
+end
+
+function RenderText:debug_modify_text()
+	is_open_text = Slab.BeginWindow("text_e", {
+			Title = "Text", IsOpen = is_open_text
+		})
+	Slab.Text("Text:")
+	Slab.SameLine()
+
+	if Slab.Input("text_text", {Text = tostring(t_comp.text)}) then
+		t_comp.text = Slab.GetInputText()
+	end
+
+	Slab.EndWindow()
+end
+
+function RenderText:debug_modify_sdf()
+	is_open_sdf = Slab.BeginWindow("sdf_e", {
+			Title = "SDF", IsOpen = is_open_sdf
+		})
+	Slab.Text("Scale X and Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_s", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale X:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sx", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sy", {
+			Text = tostring(t_comp.sy), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.EndWindow()
+end
+
+!end
 
 return RenderText
