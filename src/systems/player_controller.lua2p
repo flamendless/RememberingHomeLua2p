@@ -103,12 +103,14 @@ end
 function PlayerController:face_left(e)
 	if e:has("override_animation") then return end
 
+	e.body.dir = -1
 	self:update_animation(e, "idle", "_left")
 end
 
 function PlayerController:face_right(e)
 	if e:has("override_animation") then return end
 
+	e.body.dir = 1
 	self:update_animation(e, "idle")
 end
 
