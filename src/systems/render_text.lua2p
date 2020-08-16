@@ -114,14 +114,15 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 local is_open_text = false
 local is_open_sdf = false
 local t_comp
 local selected_e
 
 function RenderText:draw_debug()
-	DebugFlags.text = Slab.BeginWindow("Text", {
-			Title = "Text List", IsOpen = DebugFlags.text
+	views.text = Slab.BeginWindow("Text", {
+			Title = "Text List", IsOpen = views.text
 		})
 
 	for _, e in ipairs(self.pool) do

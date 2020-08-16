@@ -104,9 +104,10 @@ end
 
 !if not _RELEASE then
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
 function Collision:draw_debug()
-	if not DebugFlags.colliders then return end
+	if not views.colliders then return end
 
 	for _, e in ipairs(self.pool) do
 		if not e.bump then

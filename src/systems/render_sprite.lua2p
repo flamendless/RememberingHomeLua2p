@@ -145,10 +145,11 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
 function RenderSprite:draw_debug(l, t, w, h)
-	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {
-			Title = "Z Index", IsOpen = DebugFlags.z_index
+	views.z_index = Slab.BeginWindow("ZIndex", {
+			Title = "Z Index", IsOpen = views.z_index
 		})
 
 	for _, e in ipairs(self.custom_pool_z) do
@@ -163,7 +164,7 @@ function RenderSprite:draw_debug(l, t, w, h)
 end
 
 function RenderSprite:debug_draw_ui()
-	if DebugFlags.quad_bounds then
+	if views.quad_bounds then
 		for _, e in ipairs(self.pool_quad) do
 			local qx, qy, qw, qh = e.quad.quad:getViewport()
 			local pos = e.position.pos

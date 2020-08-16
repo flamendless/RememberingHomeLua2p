@@ -84,6 +84,7 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
 local floor = math.floor
 local format = string.format
@@ -126,8 +127,8 @@ end
 function Camera:draw_debug()
 	if not self.main_camera then return end
 
-	DebugFlags.camera = Slab.BeginWindow("camera",
-		{Title = "Camera", IsOpen = DebugFlags.camera})
+	views.camera = Slab.BeginWindow("camera",
+		{Title = "Camera", IsOpen = views.camera})
 
 	local scale = self.main_camera:getScale()
 

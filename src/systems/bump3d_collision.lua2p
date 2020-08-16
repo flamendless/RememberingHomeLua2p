@@ -91,14 +91,15 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
 local format = string.format
 local win_col3d = false
 local current_item, current_item_id
 
 function Bump3DCollision:draw_slab(dt)
-	DebugFlags.b3d_list = Slab.BeginWindow("b3d", {
-		Title = "Bump3DCollision", IsOpen = DebugFlags.b3d_list})
+	views.b3d_list = Slab.BeginWindow("b3d", {
+		Title = "Bump3DCollision", IsOpen = views.b3d_list})
 
 	local items, len = self.bump3d_world:getItems()
 
@@ -236,7 +237,7 @@ function Bump3DCollision:draw_slab(dt)
 end
 
 function Bump3DCollision:draw_debug()
-	if not DebugFlags.b3d_bounds then return end
+	if not views.b3d_bounds then return end
 
 	local items, len = self.bump3d_world:getItems()
 	for i = 1, len do

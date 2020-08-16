@@ -139,13 +139,14 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 local is_open_transform = false
 local t_comp
 local selected_e
 
 function Transform:draw_debug()
-	DebugFlags.transform = Slab.BeginWindow("transform", {
-			Title = "Transform List", IsOpen = DebugFlags.transform
+	views.transform = Slab.BeginWindow("transform", {
+			Title = "Transform List", IsOpen = views.transform
 		})
 	for _, e in ipairs(self.pool) do
 		local id = e.id
@@ -163,8 +164,8 @@ function Transform:draw_debug()
 	end
 	Slab.EndWindow()
 
-	DebugFlags.quad_transform = Slab.BeginWindow("quad_transform", {
-			Title = "Quad Transform List", IsOpen = DebugFlags.quad_transform})
+	views.quad_transform = Slab.BeginWindow("quad_transform", {
+			Title = "Quad Transform List", IsOpen = views.quad_transform})
 	for _, e in ipairs(self.pool_quad) do
 		local id = e.id
 

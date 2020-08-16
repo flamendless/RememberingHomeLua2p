@@ -4,6 +4,7 @@ local Log = require("modules.log.log")
 local Slab = require("modules.slab")
 
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
 local insert = table.insert
 local getFPS = love.timer.getFPS
@@ -82,9 +83,9 @@ end
 function Debugging:debugging_update(dt)
 	if not DebugFlags.draw_all then return end
 
+	Slab.Update(dt)
 	self.world:emit("update_debug", dt)
 	self.world:emit("draw_slab", dt)
-	Slab.Update(dt)
 end
 
 function Debugging:debugging_draw(l, t, w, h)
@@ -99,75 +100,29 @@ function Debugging:draw_slab()
 	self.is_open = Slab.BeginWindow("debugging",
 		{Title = "Debugging", IsOpen = self.is_open})
 
-	if Slab.CheckBox(DebugFlags.b3d_bounds, "B3D Bounds") then
-		DebugFlags.b3d_bounds = not DebugFlags.b3d_bounds
-	end
-
-	if Slab.CheckBox(DebugFlags.b3d_list, "B3D List") then
-		DebugFlags.b3d_list = not DebugFlags.b3d_list
-	end
-
-	if Slab.CheckBox(DebugFlags.camera, "Camera") then
-		DebugFlags.camera = not DebugFlags.camera
-	end
-
-	if Slab.CheckBox(DebugFlags.colliders, "Colliders") then
-		DebugFlags.colliders = not DebugFlags.colliders
-	end
-
-	if Slab.CheckBox(DebugFlags.cross, "Cross") then
-		DebugFlags.cross = not DebugFlags.cross
-	end
-
-	if Slab.CheckBox(DebugFlags.ent_count, "ECS") then
-		DebugFlags.ent_count = not DebugFlags.ent_count
-	end
-
-	if Slab.CheckBox(DebugFlags.logs, "Logs") then
-		DebugFlags.logs = not DebugFlags.logs
-	end
-
-	if Slab.CheckBox(DebugFlags.quad_bounds, "Quad Bounds") then
-		DebugFlags.quad_bounds = not DebugFlags.quad_bounds
-	end
-
-	if Slab.CheckBox(DebugFlags.quad_transform, "Quad Transform") then
-		DebugFlags.quad_transform = not DebugFlags.quad_transform
-	end
-
-	if Slab.CheckBox(DebugFlags.stats, "Stats") then
-		DebugFlags.stats = not DebugFlags.stats
-	end
-
-	if Slab.CheckBox(DebugFlags.transform, "Transform") then
-		DebugFlags.transform = not DebugFlags.transform
-	end
-
-	if Slab.CheckBox(DebugFlags.text, "Text") then
-		DebugFlags.text = not DebugFlags.text
-	end
-
-	if Slab.CheckBox(DebugFlags.z_index, "ZIndex") then
-		DebugFlags.z_index = not DebugFlags.z_index
+	for id, open in pairs(views) do
+		if Slab.CheckBox(open, id) then
+			views[id] = not views[id]
+		end
 	end
 
 	Slab.EndWindow()
 
-	DebugFlags.ent_count = Slab.BeginWindow("ecs",
-		{Title = "ECS", IsOpen = DebugFlags.ent_count})
+	views.ent_count = Slab.BeginWindow("ecs",
+		{Title = "ECS", IsOpen = views.ent_count})
 	Slab.Text("# of entities: " .. self.ent_count)
 	Slab.Text("# of entities with id: " .. self.ent_id_count)
 	Slab.EndWindow()
 
-	DebugFlags.logs = Slab.BeginWindow("log",
-		{Title = "log", IsOpen = DebugFlags.logs, AutoSizeWindow = false})
+	views.logs = Slab.BeginWindow("log",
+		{Title = "log", IsOpen = views.logs, AutoSizeWindow = false})
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
 	end
 
 	Slab.EndWindow()
 
-	DebugFlags.stats = Slab.BeginWindow("stats",
+	views.stats = Slab.BeginWindow("stats",
 		{Title = "stats", IsOpen = DebugFlags.stats})
 	Slab.Text("FPS: " .. getFPS())
 	Slab.Text("Particle Count: " .. self.ps_count)
@@ -179,7 +134,7 @@ function Debugging:draw_slab()
 end
 
 function Debugging:draw_debug(l, t, w, h)
-	if not DebugFlags.cross then return end
+	if not views.cross then return end
 
 	local hw, hh = w/2, h/2
 
