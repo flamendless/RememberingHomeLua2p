@@ -480,11 +480,17 @@ function StateOutside:keypressed(key)
 end
 
 function StateOutside:exit()
-	self.world:emit("cleanup")
-	self.world:clear()
-
 	Timer.clear()
 	Resources.clean(resources)
+
+	self.ps1.system:stop()
+	self.ps2.system:stop()
+	self.ps1 = nil
+	self.ps2 = nil
+	self.timeline:Die()
+
+	self.world:emit("cleanup")
+	self.world:clear()
 
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
@@ -495,8 +501,7 @@ function StateOutside:exit()
 		self.entities[k] = nil
 	end
 
-	-- rain_state.current = 0
-	-- rain_state.max_amount = 0
+	rain_state.current = 128
 	effect = nil
 	fireflies_flag = false
 	overlay_flag = false

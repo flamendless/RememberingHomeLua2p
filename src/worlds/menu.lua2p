@@ -678,11 +678,11 @@ function StateMenu:MB_return()
 end
 
 function StateMenu:exit()
-	self.world:emit("cleanup")
-	self.world:clear()
-
 	Timer.clear()
 	Resources.clean(resources)
+
+	self.world:emit("cleanup")
+	self.world:clear()
 
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()

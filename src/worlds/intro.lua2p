@@ -432,9 +432,6 @@ function StateIntro:keypressed(key)
 end
 
 function StateIntro:exit()
-	self.world:emit("cleanup")
-	self.world:clear()
-
 	Timer.clear()
 	Resources.clean(resources)
 
@@ -443,6 +440,9 @@ function StateIntro:exit()
 	self.ps1 = nil
 	self.ps2 = nil
 	self.timeline:Die()
+
+	self.world:emit("cleanup")
+	self.world:clear()
 
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()

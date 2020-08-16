@@ -242,11 +242,11 @@ function StateSplash:keypressed(key)
 end
 
 function StateSplash:exit()
-	self.world:emit("cleanup")
-	self.world:clear()
-
 	Resources.clean(resources)
 	Timer.clear()
+
+	self.world:emit("cleanup")
+	self.world:clear()
 
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
