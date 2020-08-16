@@ -14,7 +14,7 @@ local Debugging = Concord.system({
 	pool_log = {"log"}
 })
 
-local is_open = true
+local slab_init = false
 
 function Debugging:init(world)
 	self.world = world
@@ -23,8 +23,12 @@ function Debugging:init(world)
 	self.ps = {}
 	self.ps_count = 0
 	self.ref_id = {}
+	self.is_open = true
 
-	Slab.Initialize()
+	if not slab_init then
+		Slab.Initialize()
+		slab_init = true
+	end
 
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
@@ -76,12 +80,11 @@ function Debugging:update(dt)
 end
 
 function Debugging:debugging_update(dt)
-	Slab.Update(dt)
-	self.world:emit("update_debug", dt)
+	if not DebugFlags.draw_all then return end
 
-	if DebugFlags.draw_all then
-		self.world:emit("draw_slab", dt)
-	end
+	self.world:emit("update_debug", dt)
+	self.world:emit("draw_slab", dt)
+	Slab.Update(dt)
 end
 
 function Debugging:debugging_draw(l, t, w, h)
@@ -93,7 +96,8 @@ function Debugging:debugging_draw(l, t, w, h)
 end
 
 function Debugging:draw_slab()
-	is_open = Slab.BeginWindow("debugging", {Title = "Debugging", IsOpen = is_open})
+	self.is_open = Slab.BeginWindow("debugging",
+		{Title = "Debugging", IsOpen = self.is_open})
 
 	if Slab.CheckBox(DebugFlags.b3d_bounds, "B3D Bounds") then
 		DebugFlags.b3d_bounds = not DebugFlags.b3d_bounds
@@ -200,7 +204,6 @@ function Debugging:cleanup()
 	end
 
 	for _, e in ipairs(self.pool_log) do
-		e:remove("log")
 		e:destroy()
 	end
 end
