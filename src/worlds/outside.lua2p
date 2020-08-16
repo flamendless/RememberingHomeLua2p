@@ -411,7 +411,7 @@ function StateOutside:start()
 		TLE.Event.Wait(0.25)
 		tle_log("task: " .. tasks[2])
 
-		local dur_fade_task2 = 2.5
+		local dur_fade_task2 = 2.25
 
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
 		local e_arrows, e_arrows_keys = self:create_arrows_keys()

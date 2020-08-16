@@ -5,11 +5,13 @@ local Palette = require("palette")
 local EventsList = {}
 
 local function arrows_keys_fade(arrow, key, dur)
+	local dur2 = dur/2
+
 	arrow:give("target_color", Palette.get("ui_feedback"), dur)
 	arrow:give("color_fade_out", dur, nil, function() arrow:destroy() end)
 
-	key:give("target_color", Palette.get("ui_feedback"), dur)
-	key:give("color_fade_out", dur, nil, function() key:destroy() end)
+	key:give("target_color", Palette.get("ui_feedback"), dur2)
+	key:give("color_fade_out", dur2, nil, function() key:destroy() end)
 end
 
 function EventsList.hold_key(key, input_id, timer, e)

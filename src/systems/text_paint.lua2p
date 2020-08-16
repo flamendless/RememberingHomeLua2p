@@ -8,7 +8,7 @@ local TextPaint = Concord.system({
 
 local def_delay_paint = 1
 local def_delay_task = 1
-local dur_flash = 0.1
+local dur_flash = 0.15
 
 local function flash_to_color(source, target_a, target_b, dur, count, current)
 	local n = current or 0
@@ -66,13 +66,6 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 			local original = {unpack(e.color.color)}
 
 			flash_to_color(e.color.color, target, original, dur_flash, 2)
-		elseif e.task.kind == "redden" then
-			-- lerp to red
-			Flux.to(e.color.color, dur, {
-					[1] = target[1],
-					[2] = target[2],
-					[3] = target[3],
-				})
 		end
 
 		delay = def_delay_task
