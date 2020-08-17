@@ -3,33 +3,31 @@ local Concord = require("modules.concord.concord")
 local Inputs = require("inputs")
 
 local Item = Concord.system({
-	pool = {"item", "collider"},
+	pool_3d = {"id", "item", "collider3d"},
 })
 
+!if _ASSERT then
+local UISystem = require("systems.ui")
+!end
+
 function Item:init(world)
-	self.id_map = unique_mapping:new()
-	self.id = {}
-
-	self.pool.onEntityAdded = function(pool, e)
-		local item_id = e.item.id
-		local i = self.id_map:map(item_id)
-
-		!if _ASSERT then
-		Assert.empty(self.id[i])
-		!end
-
-		self.id[i] = item_id
-	end
+	self.world = world
 end
 
 function Item:keypressed(key)
-	if Inputs.is_pressed(key, "player_interact") then
-		for _, e in ipairs(self.pool) do
-			local item = e.item
-			local collider = e.collider
+	if Inputs.is_pressed("player_interact", key) then
+		for _, e in ipairs(self.pool_3d) do
+			local collider = e.collider3d
 
 			if collider.is_hit then
-				print(item.id)
+				!if _ASSERT then
+				if not self.world:hasSystem(UISystem) then
+					error("Item system needs UI system")
+				end
+				!end
+
+				self.world:emit("show_ui_interactive", e)
+				break
 			end
 		end
 	end

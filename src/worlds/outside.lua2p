@@ -44,6 +44,7 @@ local Systems = {
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Fireflies = require("systems.fireflies"),
+	Item = require("systems.item"),
 	PlayerController = require("systems.player_controller"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
@@ -52,6 +53,7 @@ local Systems = {
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 	RenderCircle = require("systems.render_circle"),
+	UI = require("systems.ui"),
 }
 
 !if not _RELEASE then
@@ -142,6 +144,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
+	self.world:addSystem(Systems.Item)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
@@ -153,6 +156,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.RenderCircle)
+	self.world:addSystem(Systems.UI)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -222,6 +226,8 @@ function StateOutside:start()
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
 
+	self.entities.door = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.door)
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, res_images.car)
 
@@ -477,6 +483,7 @@ function StateOutside:keypressed(key)
 		self.timeline:Unpause()
 	end
 	!end
+	self.world:emit("keypressed", key)
 end
 
 function StateOutside:exit()

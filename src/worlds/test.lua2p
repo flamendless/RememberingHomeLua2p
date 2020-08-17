@@ -19,7 +19,6 @@ local Systems = {
 	Movement = require("systems.movement"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	Item = require("systems.item"),
 }
 
 !if not _RELEASE then
@@ -73,7 +72,6 @@ function StateTest:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.Item)
 
 	!if not _RELEASE then
 	Tracker.error_on_ref_count(Systems, 0)
