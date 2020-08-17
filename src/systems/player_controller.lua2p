@@ -70,9 +70,9 @@ function PlayerController:update_animation(e, override_name, override_variance)
 	end
 
 	if anim_variance then
-		self.world:emit("switch_animation_tag", anim_name .. anim_variance)
+		self.world:emit("switch_animation_tag", e, anim_name .. anim_variance)
 	else
-		self.world:emit("switch_animation_tag", anim_name)
+		self.world:emit("switch_animation_tag", e, anim_name)
 	end
 
 	return anim_name
@@ -114,10 +114,28 @@ function PlayerController:face_right(e)
 	self:update_animation(e, "idle")
 end
 
-function PlayerController:collision_wall(player, wall)
-	-- TODO hit wall animation
-	player.body.can_move = false
-	self.world:emit("switch_animation_tag", "idle")
+function PlayerController:player_open_door(e, fn)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.safe.must(fn, Types.T_FUNCTION)
+	!end
+
+	--method A
+	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
+
+	e:give("change_animation_tag", tag)
+	:give("override_animation")
+	:give("animation_on_loop", fn, "pauseAtEnd", true)
+
+	--method B
+	-- local data = e.multi_animation_data.data[tag]
+	-- e.animation.current_tag = tag
+	-- e:remove("animation_data")
+	-- :give("animation_data", data)
+	-- :give("override_animation")
+	-- :give("animation_on_loop", fn, "pauseAtEnd", true)
+    --
+	-- self.world:emit("update_animation_data", e, data)
 end
 
 return PlayerController

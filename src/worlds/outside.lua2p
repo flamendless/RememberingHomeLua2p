@@ -119,6 +119,7 @@ function StateOutside:spawn_player(dur_camera_follow)
 			res_images.sheet_player_idle,
 			res_images.sheet_player_walk,
 			res_images.sheet_player_run,
+			res_images.sheet_player_open_door,
 			false, false)
 
 	self.world:emit("face_left", self.entities.player)
@@ -492,6 +493,12 @@ function StateOutside:keypressed(key)
 	if key == "space" then
 		self.timeline:Unpause()
 	end
+
+	-- if key == "o" then
+	-- 	self.world:emit("player_open_door", self.entities.player, function()
+	-- 		self.entities.player:remove("override_animation")
+	-- 	end)
+	-- end
 	!end
 
 	self.world:emit("keypressed", key)
