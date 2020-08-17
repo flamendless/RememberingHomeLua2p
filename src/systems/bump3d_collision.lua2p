@@ -46,42 +46,44 @@ end
 function Bump3DCollision:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e.body then
-			if e.body.vel_x ~= 0 or e.body.vel_y ~= 0 then
-				local pos = e.position.pos
-				local cols, len
-				local z
-
-				pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
-					pos.x + e.body.vel_x,
-					pos.y + e.body.vel_y,
-					0, filter)
-
-				for i = 1, len do
-					local c = cols[i]
-					local other = c.other
-					local other_col = other.collider3d
-					local other_id = other.bump3d.id
-
-					other_col.is_hit = true
-					other_col.normal.x = c.normalX
-					other_col.normal.y = c.normalY
-
-					local item = c.item
-					local item_col = item.collider3d
-
-					item_col.is_hit = true
-					item_col.normal.x = c.normalX
-					item_col.normal.y = c.normalY
-				end
-
-				if e.z_index.sortable then
-					self.world:emit("sort_z")
-				end
-
-				self.bump3d_world.freeCollisions(cols)
-			end
+			self:update_body(e)
 		end
 	end
+end
+
+function Bump3DCollision:update_body(e)
+	local pos = e.position.pos
+	local cols, len
+	local z
+
+	pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
+		pos.x + e.body.vel_x,
+		pos.y + e.body.vel_y,
+		0, filter)
+
+	for i = 1, len do
+		local c = cols[i]
+		local other = c.other
+		local other_col = other.collider3d
+		local other_id = other.bump3d.id
+
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
+
+		local item = c.item
+		local item_col = item.collider3d
+
+		item_col.is_hit = true
+		item_col.normal.x = c.normalX
+		item_col.normal.y = c.normalY
+	end
+
+	if e.z_index.sortable then
+		self.world:emit("sort_z")
+	end
+
+	self.bump3d_world.freeCollisions(cols)
 end
 
 !if not _RELEASE then
