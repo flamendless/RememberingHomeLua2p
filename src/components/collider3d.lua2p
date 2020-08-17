@@ -1,20 +1,14 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local filters = Enum("slide", "cross", "bounce", "cross")
+local filters = Enum("slide", "cross", "bounce")
 
-Concord.component("bump3d", function(c, id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	!end
-
-	c.id = id
+Concord.component("bump3d", function(c)
 end)
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
 	Assert.must(size, Types.T_VEC3)
-	Assert.safe.must(filter, Types.T_STRING)
 	!end
 
 	c.size = size

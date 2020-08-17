@@ -33,21 +33,21 @@ function Outside.left_bounds(e)
 	e:give("id", "left_bounds")
 	:give("position", vec2:new(80, 260))
 	:give("collider3d", vec3:new(92, 100, 16))
-	:give("bump3d", "left_bounds")
+	:give("bump3d")
 end
 
 function Outside.right_bounds(e)
 	e:give("id", "right_bounds")
 	:give("position", vec2:new(1160, 250))
 	:give("collider3d", vec3:new(32, 100, 32))
-	:give("bump3d", "right_bounds")
+	:give("bump3d")
 end
 
 function Outside.wood(e)
 	e:give("id", "wood")
 	:give("position", vec2:new(210, 270))
 	:give("collider3d", vec3:new(50, 10, 16))
-	:give("bump3d", "wood")
+	:give("bump3d")
 end
 
 function Outside.fence(e, sprite)
@@ -56,7 +56,7 @@ function Outside.fence(e, sprite)
 	:give("position", vec2:new(-47, 330))
 	:give("collider3d", vec3:new(850, 16, 61))
 	:give("z_index", z_index.fence)
-	:give("bump3d", "fence")
+	:give("bump3d")
 end
 
 function Outside.gate(e, sprite)
@@ -65,7 +65,7 @@ function Outside.gate(e, sprite)
 	:give("position", vec2:new(800, 330))
 	:give("transform", 0, 1, 1, 0, 16)
 	:give("collider3d", vec3:new(200, 8, 32))
-	:give("bump3d", "gate")
+	:give("bump3d")
 	:give("z_index", z_index.fence)
 end
 
@@ -94,7 +94,7 @@ function Outside.fence_right(e)
 	e:give("id", "fence_right")
 	:give("position", vec2:new(1000, 330))
 	:give("collider3d", vec3:new(407, 16, 61))
-	:give("bump3d", "fence_right")
+	:give("bump3d")
 end
 
 function Outside.car(e, sprite)
@@ -102,7 +102,7 @@ function Outside.car(e, sprite)
 	:give("sprite", sprite)
 	:give("position", vec2:new(934, 260))
 	:give("collider3d", vec3:new(78, 8, 50))
-	:give("bump3d", "car")
+	:give("bump3d")
 	:give("transform", 0, 1, 1, 0, -16)
 	:give("z_index", z_index.car)
 end
@@ -111,28 +111,30 @@ function Outside.house(e)
 	e:give("id", "house")
 	:give("position", vec2:new(240, 128))
 	:give("collider3d", vec3:new(350, 140, 64))
-	:give("bump3d", "house")
+	:give("bump3d")
 end
 
 function Outside.house_side(e)
 	e:give("id", "house_side")
 	:give("position", vec2:new(580, 200))
 	:give("collider3d", vec3:new(60, 60, 64))
-	:give("bump3d", "house_side")
+	:give("bump3d")
+end
+
 end
 
 function Outside.left_wall(e)
 	e:give("id", "left_wall")
 	:give("position", vec2:new(96, 160))
 	:give("collider3d", vec3:new(120, 100, 64))
-	:give("bump3d", "left_wall")
+	:give("bump3d")
 end
 
 function Outside.right_wall(e)
 	e:give("id", "right_wall")
 	:give("position", vec2:new(640, 185))
 	:give("collider3d", vec3:new(520, 60, 64))
-	:give("bump3d", "right_wall")
+	:give("bump3d")
 end
 
 function Outside.firefly(e, sprite, pos, points)

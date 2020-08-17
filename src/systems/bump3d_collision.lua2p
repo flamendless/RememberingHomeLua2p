@@ -3,7 +3,7 @@ local Bump3D = require("modules.bump3d.bump-3dpd")
 local Timer = require("modules.hump.timer")
 
 local Bump3DCollision = Concord.system({
-	pool = {"collider3d", "position", "bump3d"}
+	pool = {"collider3d", "position", "bump3d", "id"},
 })
 
 local function filter(item, other)
@@ -28,11 +28,7 @@ function Bump3DCollision:init(world)
 			e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
 
 		!if not _RELEASE then
-		local id = e.bump3d.id
-
-		if id then
-			self.bump3d_bodies[id] = e
-		end
+		self.bump3d_bodies[e.id.id] = e
 		!end
 	end
 
@@ -240,6 +236,7 @@ function Bump3DCollision:draw_debug()
 	if not views.b3d_bounds then return end
 
 	local items, len = self.bump3d_world:getItems()
+
 	for i = 1, len do
 		local e = items[i]
 		local x, y, z, w, h, d = self.bump3d_world:getCube(e)
@@ -249,11 +246,17 @@ function Bump3DCollision:draw_debug()
 		elseif e.collider3d.is_hit then
 			love.graphics.setColor(1, 0, 0, 0.8)
 		else
-			love.graphics.setColor(0, 1, 0, 0.3)
+			if e.item then
+				love.graphics.setColor(0, 0, 1, 1)
+			else
+				love.graphics.setColor(0, 1, 0, 0.3)
+			end
 		end
 
 		love.graphics.rectangle("line", x, y + z + h, w, d)
 		love.graphics.rectangle("line", x, y + z, w, h)
+
+		love.graphics.print(e.id.id, x, y)
 	end
 end
 !end
