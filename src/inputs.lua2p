@@ -96,7 +96,9 @@ function Inputs.is_pressed(id, key)
 
 	local keys = Inputs.keys[id]
 
-	if keys then
+	if keys == key then
+		return true
+	elseif type(keys) == "table" then
 		for i, v in ipairs(keys) do
 			if v == key then
 				return true

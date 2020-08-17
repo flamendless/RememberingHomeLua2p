@@ -12,7 +12,8 @@ function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
 	local can_move = defaults.can_move
 	local can_run = defaults.can_run
 
-	e:give("position", pos)
+	e:give("id", "player")
+	:give("position", pos)
 	:give("transform", 0, 1, 1, 18, 0)
 	:give("collider3d", vec3:new(28, 12, 64))
 	:give("bump3d", "player")

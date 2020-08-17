@@ -8,20 +8,21 @@ local Movement = Concord.system({
 function Movement:update_topdown(dt)
 	for _, e in ipairs(self.pool_topdown) do
 		if e.body.can_move then
+			local body = e.body
 			local speed = e.speed.speed
 			local vel_x = 0
 			local vel_y = 0
 
-			if e.body.dx ~= 0 then
-				vel_x = speed.x * e.body.dx * dt
+			if body.dx ~= 0 then
+				vel_x = speed.x * body.dx * dt
 			end
 
-			if e.body.dy ~= 0 then
-				vel_y = speed.y * e.body.dy * dt
+			if body.dy ~= 0 then
+				vel_y = speed.y * body.dy * dt
 			end
 
-			e.body.vel_x = vel_x
-			e.body.vel_y = vel_y
+			body.vel_x = vel_x
+			body.vel_y = vel_y
 		end
 	end
 end
