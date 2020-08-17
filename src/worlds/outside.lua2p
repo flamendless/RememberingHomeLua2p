@@ -310,6 +310,9 @@ function StateOutside:start()
 	self:spawn_player(1.75)
 	self.entities.player.body.can_move = true
 
+	local actions = Factory.ui_controls(self.world,
+		res_images.sheet_ui_eye, res_images.sheet_ui_hand, res_images.sheet_ui_bag, 1)
+
 	--TIMELINE
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then

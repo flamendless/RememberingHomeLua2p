@@ -1,0 +1,11 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("tween_dur", function(c, dur, delay)
+	!if _ASSERT then
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.safe.must(delay, Types.T_NUMBER)
+	!end
+
+	c.dur = dur
+	c.delay = delay or 0
+end)

@@ -98,6 +98,9 @@ Resources.data.outside = {
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
 		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
 		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
+		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},
+		{"sheet_ui_hand", path_ui .. "ui_action_hand.png"},
+		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
 	},
 
 	image_data = {

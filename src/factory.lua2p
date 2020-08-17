@@ -134,4 +134,26 @@ function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	return t
 end
 
+function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, dur)
+	!if _ASSERT then
+	Assert.must(sheet_eye, Types.T_IMAGE)
+	Assert.must(sheet_hand, Types.T_IMAGE)
+	Assert.must(sheet_bag, Types.T_IMAGE)
+	Assert.safe.must(dur, Types.T_NUMBER)
+	!end
+
+	local t = {}
+
+	t.eye = Concord.entity(world)
+		:assemble(UI.action_eye, sheet_eye, dur)
+
+	t.hand = Concord.entity(world)
+		:assemble(UI.action_hand, sheet_hand, dur)
+
+	t.bag = Concord.entity(world)
+		:assemble(UI.action_bag, sheet_bag, dur)
+
+	return t
+end
+
 return Factory

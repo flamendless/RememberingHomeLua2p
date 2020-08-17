@@ -124,4 +124,42 @@ function UI.arrow(e, dir, sheet, pos)
 	:give("ui_element")
 end
 
+local function action(e, sheet, dur)
+	e:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-5", 1},
+			delay = 0.2,
+			rows_count = 1,
+			columns_count = 5,
+			n_frames = 5,
+		})
+	:give("tween_dur", dur)
+	:give("position", vec2:new())
+	:give("ui_action")
+	:give("ui_element")
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("color", {1, 1, 1, 0})
+
+	return e
+end
+
+--TODO fix offset values
+function UI.action_eye(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_eye")
+	:give("ui_offset", vec2:new(16, -64))
+end
+
+function UI.action_hand(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_hand")
+	:give("ui_offset", vec2:new(96, 0))
+end
+
+function UI.action_bag(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_bag")
+	:give("ui_offset", vec2:new(72, 64))
+end
+
 return UI

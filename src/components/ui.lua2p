@@ -5,3 +5,14 @@ end)
 
 Concord.component("ui_text", function(c)
 end)
+
+Concord.component("ui_action", function(c)
+end)
+
+Concord.component("ui_offset", function(c, offset)
+	!if _ASSERT then
+	Assert.must(offset, Types.T_VEC2)
+	!end
+
+	c.offset = offset
+end)

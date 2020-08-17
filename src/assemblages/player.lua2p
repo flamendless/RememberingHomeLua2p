@@ -61,10 +61,11 @@ function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
 	end
 
 	e:give("id", "player")
+	:give("player")
 	:give("position", pos)
 	:give("transform", 0, 1, 1, 18, 0)
 	:give("collider3d", vec3:new(28, 12, 64))
-	:give("bump3d", "player")
+	:give("bump3d")
 	:give("speed")
 	:give("speed_data", speed_data)
 	:give("gravity", gravity)

@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Inputs = require("inputs")
 
 local Item = Concord.system({
-	pool_3d = {"id", "item", "collider3d"},
+	pool = {"id", "item", "collider3d"},
 })
 
 !if _ASSERT then
@@ -16,18 +16,20 @@ end
 
 function Item:keypressed(key)
 	if Inputs.is_pressed("player_interact", key) then
-		for _, e in ipairs(self.pool_3d) do
-			local collider = e.collider3d
+		for _, e in ipairs(self.pool) do
+			local col = e.collider3d
 
-			if collider.is_hit then
+			if col.is_hit then
 				!if _ASSERT then
 				if not self.world:hasSystem(UISystem) then
 					error("Item system needs UI system")
 				end
 				!end
 
-				self.world:emit("show_ui_interactive", e)
-				break
+				if col.normal.x == 0 then
+					self.world:emit("show_ui_interactive", e)
+					break
+				end
 			end
 		end
 	end

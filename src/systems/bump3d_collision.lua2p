@@ -70,13 +70,6 @@ function Bump3DCollision:update_body(e)
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
-
-		local item = c.item
-		local item_col = item.collider3d
-
-		item_col.is_hit = true
-		item_col.normal.x = c.normalX
-		item_col.normal.y = c.normalY
 	end
 
 	if e.z_index.sortable then

@@ -124,7 +124,7 @@ end
 function Outside.door(e)
 	e:give("id", "door")
 	:give("position", vec2:new(580, 250))
-	:give("collider3d", vec3:new(24, 16, 8), "cross")
+	:give("collider3d", vec3:new(24, 36, 8), "cross")
 	:give("bump3d")
 	:give("item")
 end
