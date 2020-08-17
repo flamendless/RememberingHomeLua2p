@@ -8,8 +8,9 @@ local remove = table.remove
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
 	pool_z = {"animation", "animation_data", "position", "z_index"},
-	pool_multi = {"multiple_animation_data", "animation", "position"},
+	pool_multi = {"multi_animation_data", "animation", "position"},
 	pool_pause = {"animation", "animation_data", "animation_pause_at"},
+	pool_change = {"animation", "animation_data", "change_animation_tag"}
 })
 
 local cache_multi_animation = {}
@@ -31,6 +32,7 @@ local setup_on_loop = function(e, animation)
 
 				if cb.remove_at_end then
 					e:remove("animation_on_loop")
+					cache_multi_animation[e.animation.current_tag] = nil
 				end
 			end
 		end
@@ -42,12 +44,14 @@ local setup_on_loop = function(e, animation)
 			end
 		end
 	end
+
 	return on_loop
 end
 
 local setup_animation = function(e, data, on_loop)
 	local animation = e.animation
-	local multi = e.multiple_animation_data
+	local multi = e.multi_animation_data
+	local current_tag = animation.current_tag
 	local obj_grid
 	local obj_animation
 
@@ -57,8 +61,8 @@ local setup_animation = function(e, data, on_loop)
 		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
 			data.durations or data.delay, on_loop)
 	else
-		if cache_multi_animation[animation.current_tag] then
-			local cached = cache_multi_animation[animation.current_tag]
+		if cache_multi_animation[current_tag] then
+			local cached = cache_multi_animation[current_tag]
 
 			obj_grid = cached.grid
 			obj_animation = cached.animation
@@ -67,10 +71,12 @@ local setup_animation = function(e, data, on_loop)
 				data.sheet_width, data.sheet_height)
 			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
 				data.durations or data.delay, on_loop)
-			cache_multi_animation[animation.current_tag] = {
+
+			cache_multi_animation[current_tag] = {
 				grid = obj_grid,
 				animation = obj_animation
 			}
+
 			if data.is_flipped then
 				obj_animation:flipH()
 			end
@@ -131,7 +137,7 @@ function Animation:init()
 	end
 
 	self.pool_multi.onEntityAdded = function(pool, e)
-		local multi = e.multiple_animation_data
+		local multi = e.multi_animation_data
 		local animation = e.animation
 		local on_loop = setup_on_loop(e, animation)
 		local data = multi.data[multi.first]
@@ -165,58 +171,54 @@ function Animation:init()
 
 		animation.animation:resume()
 	end
+
+	self.pool_change.onEntityAdded = function(pool, e)
+		self:switch_animation_tag(e, e.change_animation_tag.new_tag)
+	end
 end
 
-function Animation:switch_animation_tag(new_tag)
+function Animation:switch_animation_tag(e, new_tag, override)
 	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
 	Assert.must(new_tag, Types.T_STRING)
+	Assert.safe.must(override, Types.T_BOOLEAN)
 	!end
 
-	for _, e in ipairs(self.pool_multi) do
-		local multi = e.multiple_animation_data
+	local multi = e.multi_animation_data
+	local data = multi.data[new_tag]
 
-		!if _ASSERT then
-		Assert.exists(multi.data[new_tag])
-		!end
+	!if _ASSERT then
+	Assert.exists(data)
+	!end
 
-		local animation = e.animation
-		local on_loop = setup_on_loop(e, animation)
+	local animation = e.animation
+	local on_loop = setup_on_loop(e, animation)
 
-		if not (new_tag == animation.current_tag) then
-			local data = multi.data[new_tag]
+	if not (new_tag == animation.current_tag) then
+		animation.current_tag = new_tag
+		animation.is_playing = true
+		e:remove("animation_data")
+		e:give("animation_data", data)
+		setup_animation(e, data, on_loop)
 
-			animation.current_tag = new_tag
-			e:remove("animation_data")
-			e:give("animation_data", data)
-			setup_animation(e, data, on_loop)
-		end
 	end
+
+	if override then e:give("override_animation") end
+	e:remove("change_animation_tag")
 end
 
 function Animation:update_animation_data(e, data)
 	!if _ASSERT then
-	Assert.must(e, Types.T_ENTITY)
+	Assert.is(e, Types.T_ENTITY)
 	Assert.must(data, Types.T_TABLE)
 	!end
 
-	local anim_data = e.animation_data
 	local animation = e.animation
-
-	anim_data.spritesheet = data.spritesheet
-	anim_data.frames = data.frames
-	anim_data.delay = data.delay
-	anim_data.rows_count = data.rows_count
-	anim_data.columns_count = data.columns_count
-	anim_data.durations = data.durations
-	anim_data.n_frames = data.n_frames
-
-	anim_data.sheet_height = anim_data.spritesheet:getHeight()
-	anim_data.frame_width = floor(anim_data.sheet_width/anim_data.columns_count)
-	anim_data.frame_height = floor(anim_data.sheet_height/anim_data.rows_count)
-
+	animation.stop_on_last = data.stop_on_last
+	animation.is_playing = true
 	local on_loop = setup_on_loop(e, animation)
 
-	setup_animation(e, anim_data, on_loop)
+	setup_animation(e, data, on_loop)
 end
 
 function Animation:update(dt)
@@ -253,6 +255,7 @@ function Animation:update(dt)
 			end
 
 			local current_quad = animation.animation:getFrameInfo()
+
 
 			quad.quad = current_quad
 		end

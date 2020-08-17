@@ -14,6 +14,16 @@ Concord.component("animation", function(c, stop_on_last)
 	c.stop_on_last = (stop_on_last == true) and true or false
 end)
 
+Concord.component("change_animation_tag", function(c, new_tag, override)
+	!if _ASSERT then
+	Assert.must(new_tag, Types.T_STRING)
+	Assert.safe.must(override, Types.T_BOOLEAN)
+	!end
+
+	c.new_tag = new_tag
+	c.override = override
+end)
+
 Concord.component("animation_pause_at", function(c, at_frame)
 	!if _ASSERT then
 	Assert.either_type(at_frame, Types.T_NUMBER, Types.T_STRING)

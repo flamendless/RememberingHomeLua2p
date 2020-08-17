@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 local floor = math.floor
 
-Concord.component("multiple_animation_data", function(c, first, data, modifier)
+Concord.component("multi_animation_data", function(c, first, data, modifier)
 	!if _ASSERT then
 	Assert.must(first, Types.T_STRING)
 	Assert.must(data, Types.T_TABLE)
