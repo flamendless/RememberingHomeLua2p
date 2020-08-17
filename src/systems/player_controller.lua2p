@@ -138,4 +138,45 @@ function PlayerController:player_open_door(e, fn)
 	-- self.world:emit("update_animation_data", e, data)
 end
 
+!if _ASSERT then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local format = string.format
+
+function PlayerController:draw_debug()
+	views.player = Slab.BeginWindow("player", {
+			Title = "Player", IsOpen = views.player
+		})
+	for _, e in ipairs(self.pool) do
+		local body = e.body
+		Slab.Text("Body:")
+		Slab.Indent()
+		Slab.Text("Dir: " .. format("(%i, %i)", body.dx, body.dy))
+
+		if Slab.CheckBox(body.can_move, "can_move") then
+			body.can_move = not body.can_move
+		end
+
+		if Slab.CheckBox(body.can_run, "can_run") then
+			body.can_run = not body.can_run
+		end
+
+		Slab.Text("is_run:" .. tostring(body.is_run))
+
+		Slab.Unindent()
+		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
+		Slab.Text("Current:" .. e.animation.current_tag)
+		Slab.Text("Playing:" .. tostring(e.animation.is_playing))
+		Slab.Text("Tags:")
+		Slab.Indent()
+
+		for k, _ in pairs(e.multi_animation_data.data) do
+			Slab.Text(k)
+		end
+	end
+	Slab.EndWindow()
+end
+!end
+
 return PlayerController

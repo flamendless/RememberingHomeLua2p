@@ -57,13 +57,13 @@ end
 
 function Assert.exists(arg)
 	if arg == nil then
-		error(format("'%s' must not be 'nil'"), 2)
+		error(format("Passed argument must not be 'nil'; got '%s'", type(arg)), 2)
 	end
 end
 
 function Assert.empty(arg)
 	if not (arg == nil) then
-		error(format("'%s' must be 'nil'"), 2)
+		error(format("Passed argument must be 'nil'; got '%s'", type(arg)), 2)
 	end
 end
 

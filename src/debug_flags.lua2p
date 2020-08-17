@@ -10,6 +10,7 @@ DebugFlags = {
 		cross = false,
 		ent_count = true,
 		logs = true,
+		player = true,
 		quad_bounds = false,
 		quad_transform = false,
 		stats = true,
