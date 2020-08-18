@@ -50,7 +50,7 @@ end
 function RenderSprite:internal_draw(e)
 	local hidden = e.hidden
 	if not hidden then
-		local pos = e.position
+		local pos = e.position.pos
 		local quad = e.quad
 		local color = e.color
 		local sprite = e.sprite
@@ -115,9 +115,9 @@ function RenderSprite:internal_draw(e)
 				ky = quad_transform.ky
 			end
 
-			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy, kx, ky)
+			draw(sprite.sprite, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		else
-			draw(sprite.sprite, pos.pos.x, pos.pos.y, rot, sx, sy, ox, oy, kx, ky)
+			draw(sprite.sprite, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		end
 	end
 end

@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("parallax", function(c, speed)
 	!if _ASSERT then
-	Assert.must(speed, Types.T_VEC2)
+	Assert.is(speed, Types.T_VEC2)
 	!end
 
 	c.speed = speed

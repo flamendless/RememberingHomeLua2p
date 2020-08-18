@@ -8,7 +8,7 @@ end)
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
-	Assert.must(size, Types.T_VEC3)
+	Assert.is(size, Types.T_VEC3)
 	!end
 
 	c.size = size

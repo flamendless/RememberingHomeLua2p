@@ -7,7 +7,7 @@ local Item = Concord.system({
 })
 
 !if _ASSERT then
-local UISystem = require("systems.ui")
+local ActionControls = require("systems.action_controls")
 !end
 
 function Item:init(world)
@@ -21,8 +21,8 @@ function Item:keypressed(key)
 
 			if col.is_hit then
 				!if _ASSERT then
-				if not self.world:hasSystem(UISystem) then
-					error("Item system needs UI system")
+				if not self.world:hasSystem(ActionControls) then
+					error("Item system needs ActionControls system")
 				end
 				!end
 

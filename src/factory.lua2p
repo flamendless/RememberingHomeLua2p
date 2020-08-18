@@ -44,7 +44,7 @@ end
 function Factory.arrows(world, sheet, pos, offset, scale)
 	!if _ASSERT then
 	Assert.must(sheet, Types.T_IMAGE)
-	Assert.must(pos, Types.T_VEC2)
+	Assert.is(pos, Types.T_VEC2)
 	Assert.must(offset, Types.T_NUMBER)
 	Assert.safe.must(scale, Types.T_NUMBER)
 	!end
@@ -82,7 +82,7 @@ function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	Assert.is(world, Types.T_WORLD)
 	Assert.must(arrows, Types.T_TABLE)
 	Assert.must(font_sdf, Types.T_FONT_SDF)
-	Assert.must(pos, Types.T_VEC2)
+	Assert.is(pos, Types.T_VEC2)
 	Assert.must(scale, Types.T_NUMBER)
 	!end
 

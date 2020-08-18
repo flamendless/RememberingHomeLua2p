@@ -8,8 +8,8 @@ end)
 
 Concord.component("collider", function(c, size, offset, filter)
 	!if _ASSERT then
-	Assert.must(size, Types.T_VEC2)
-	Assert.safe.must(offset, Types.T_VEC2)
+	Assert.is(size, Types.T_VEC2)
+	Assert.safe.is(offset, Types.T_VEC2)
 	Assert.safe.must(filter, Types.T_STRING)
 	!end
 
@@ -27,7 +27,7 @@ end)
 Concord.component("collider_circle", function(c, size, offset)
 	!if _ASSERT then
 	Assert.must(size, Types.T_NUMBER)
-	Assert.safe.must(offset, Types.T_VEC2)
+	Assert.safe.is(offset, Types.T_VEC2)
 	!end
 
 	c.size = size

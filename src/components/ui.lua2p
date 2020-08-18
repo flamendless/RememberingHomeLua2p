@@ -11,7 +11,7 @@ end)
 
 Concord.component("ui_offset", function(c, offset)
 	!if _ASSERT then
-	Assert.must(offset, Types.T_VEC2)
+	Assert.is(offset, Types.T_VEC2)
 	!end
 
 	c.offset = offset

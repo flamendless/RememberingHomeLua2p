@@ -36,13 +36,9 @@ local types = Assert.types
 local get_type = function(arg)
 	local a_type = type(arg)
 
-	if a_type == types.T_TABLE or a_type == types.T_USERDATA then
-		if arg.type and type(arg.type) == types.T_FUNCTION then
-			a_type = arg:type()
-		elseif type(arg.type) == types.T_STRING then
-			a_type = arg.type
-		end
-	end
+	a_type = (a_type == types.T_TABLE or a_type == types.T_USERDATA)
+		and (arg.type and type(arg.type) == types.T_FUNCTION and arg:type())
+		or a_type
 
 	return a_type
 end
@@ -137,12 +133,12 @@ function Assert.within_range(arg, min, max)
 end
 
 function Assert.is(arg, t)
-	local result = arg[t]
+	local result = arg[t] or (type(arg.type) == "string" and arg.type == t)
 
 	return result == true
 end
 
-function Assert.must_true(arg)
+function Assert.truthy(arg)
 	if not arg then
 		error("Expression or argument must be true; got " .. arg, 2)
 	end

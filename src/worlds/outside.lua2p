@@ -38,6 +38,7 @@ local Systems = {
 	Debugging = require("systems.debugging"),
 	!end
 
+	ActionControls = require("systems.action_controls"),
 	Animation = require("systems.animation"),
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
@@ -53,7 +54,6 @@ local Systems = {
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 	RenderCircle = require("systems.render_circle"),
-	UI = require("systems.ui"),
 }
 
 !if not _RELEASE then
@@ -170,7 +170,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.RenderCircle)
-	self.world:addSystem(Systems.UI)
+	self.world:addSystem(Systems.ActionControls)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -310,8 +310,11 @@ function StateOutside:start()
 	self:spawn_player(1.75)
 	self.entities.player.body.can_move = true
 
+	self.camera:setScale(3)
 	local actions = Factory.ui_controls(self.world,
-		res_images.sheet_ui_eye, res_images.sheet_ui_hand, res_images.sheet_ui_bag, 1)
+		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
+		res_images.sheet_ui_bag, res_images.sheet_ui_bag,
+		1.25)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -345,7 +348,7 @@ function StateOutside:start()
 			end)
 		self.timeline:Pause()
 
-		Flux.to(self.camera, 10, {x = 960, y = 296, scale = 4})
+		Flux.to(self.camera, 10, {x = 960, y = 296, scale = 3})
 
 		tle_log("begin rain fade")
 		TLE.Event.Wait(3)

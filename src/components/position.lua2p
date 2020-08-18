@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("position", function(c, pos)
 	!if _ASSERT then
-	Assert.must(pos, Types.T_VEC2)
+	Assert.is(pos, Types.T_VEC2)
 	!end
 
 	c.pos = pos

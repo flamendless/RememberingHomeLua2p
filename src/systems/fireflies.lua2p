@@ -87,8 +87,8 @@ function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 	!if _ASSERT then
 	Assert.must(n, Types.T_NUMBER)
 	Assert.must(sprite, Types.T_IMAGE)
-	Assert.must(min_pos, Types.T_VEC2)
-	Assert.must(max_pos, Types.T_VEC2)
+	Assert.is(min_pos, Types.T_VEC2)
+	Assert.is(max_pos, Types.T_VEC2)
 	!end
 
 	for i = 1, n do

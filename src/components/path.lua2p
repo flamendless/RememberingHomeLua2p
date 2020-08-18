@@ -4,7 +4,7 @@ Concord.component("path", function(c, points)
 	!if _ASSERT then
 	Assert.must(points, Types.T_TABLE)
 	for i, v in ipairs(points) do
-		Assert.must(v, Types.T_VEC2)
+		Assert.is(v, Types.T_VEC2)
 	end
 	!end
 

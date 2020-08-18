@@ -159,7 +159,7 @@ function Animation:init()
 			end
 		elseif type(pause_at.at_frame) == "number" then
 			!if _ASSERT then
-			Assert.must_true(pause_at.at_frame <= data.n_frames)
+			Assert.truthy(pause_at.at_frame <= data.n_frames)
 			!end
 			animation.animation:gotoFrame(pause_at.at_frame)
 			animation.animation:pause()

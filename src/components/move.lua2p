@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("move_by", function(c, pos, duration, delay)
 	!if _ASSERT then
-	Assert.must(pos, Types.T_VEC2)
+	Assert.is(pos, Types.T_VEC2)
 	Assert.must(duration, Types.T_NUMBER)
 	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
