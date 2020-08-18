@@ -134,11 +134,12 @@ function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	return t
 end
 
-function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, dur)
+function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, sheet_cancel, dur)
 	!if _ASSERT then
 	Assert.must(sheet_eye, Types.T_IMAGE)
 	Assert.must(sheet_hand, Types.T_IMAGE)
 	Assert.must(sheet_bag, Types.T_IMAGE)
+	Assert.must(sheet_cancel, Types.T_IMAGE)
 	Assert.safe.must(dur, Types.T_NUMBER)
 	!end
 
@@ -152,6 +153,9 @@ function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, dur)
 
 	t.bag = Concord.entity(world)
 		:assemble(UI.action_bag, sheet_bag, dur)
+
+	t.cancel = Concord.entity(world)
+		:assemble(UI.action_cancel, sheet_cancel, dur)
 
 	return t
 end

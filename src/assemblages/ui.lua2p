@@ -139,27 +139,54 @@ local function action(e, sheet, dur)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
+	:give("ease", "backout")
 
 	return e
 end
+
+!(
+local dist = 115
+local gap = 60
+local start = -30
+local a = start
+local b = a + gap * 1
+local c = a + gap * 2
+local d = a + gap * 3
+)
+
+!!local x1 = math.sin(math.rad(a)) * dist
+!!local x2 = math.sin(math.rad(b)) * dist
+!!local x3 = math.sin(math.rad(c)) * dist
+!!local x4 = math.sin(math.rad(d)) * dist
+
+!!local y1 = -math.cos(math.rad(a)) * dist
+!!local y2 = -math.cos(math.rad(b)) * dist
+!!local y3 = -math.cos(math.rad(c)) * dist
+!!local y4 = -math.cos(math.rad(d)) * dist
 
 --TODO fix offset values
 function UI.action_eye(e, sheet, dur)
 	action(e, sheet, dur)
 	:give("id", "action_eye")
-	:give("ui_offset", vec2:new(16, -64))
+	:give("ui_offset", vec2:new(x1, y1))
 end
 
 function UI.action_hand(e, sheet, dur)
 	action(e, sheet, dur)
 	:give("id", "action_hand")
-	:give("ui_offset", vec2:new(96, 0))
+	:give("ui_offset", vec2:new(x2, y2))
 end
 
 function UI.action_bag(e, sheet, dur)
 	action(e, sheet, dur)
 	:give("id", "action_bag")
-	:give("ui_offset", vec2:new(72, 64))
+	:give("ui_offset", vec2:new(x3, y3))
+end
+
+function UI.action_cancel(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_cancel")
+	:give("ui_offset", vec2:new(x4, y4))
 end
 
 return UI
