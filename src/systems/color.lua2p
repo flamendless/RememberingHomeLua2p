@@ -13,6 +13,7 @@ local Color = Concord.system({
 local function lerp_colors(lc, color)
 	local duration = lc.duration
 	local delay = lc.delay
+	local ease = lc.ease
 	local next_value = lc.current_color + 1
 
 	if next_value > #lc.colors then
@@ -37,11 +38,13 @@ local function lerp_colors(lc, color)
 
 			lerp_colors(lc, color)
 		end)
+
+	if ease then lc.flux:ease(ease.ease) end
 end
 
 function Color:init()
 	self.pool_fade_in.onEntityAdded = function(pool, e)
-		Flux.to(e.color.color, e.color_fade_in.duration, {[4] = 1})
+		local f = Flux.to(e.color.color, e.color_fade_in.duration, {[4] = 1})
 			:delay(e.color_fade_in.delay)
 			:oncomplete(function()
 				local on_complete = e.color_fade_in.on_complete
@@ -52,10 +55,12 @@ function Color:init()
 
 				e:remove("color_fade_in")
 			end)
+
+		if e.ease then f:ease(e.ease.ease) end
 	end
 
 	self.pool_fade_out.onEntityAdded = function(pool, e)
-		Flux.to(e.color.color, e.color_fade_out.duration, {[4] = 0})
+		local f = Flux.to(e.color.color, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
 				local on_complete = e.color_fade_out.on_complete
@@ -66,11 +71,14 @@ function Color:init()
 
 				e:remove("color_fade_out")
 			end)
+
+		if e.ease then f:ease(e.ease.ease) end
 	end
 
 	self.pool_fade_in_out.onEntityAdded = function(pool, e)
 		local color = e.color
 		local f_in_out = e.color_fade_in_out
+		local ease = e.ease
 		local f
 		local count = 0
 		local fn_out, fn_in
@@ -86,6 +94,8 @@ function Color:init()
 						e:remove("color_fade_in_out")
 					end
 				end)
+
+			if ease then f:ease(ease.ease) end
 		end
 
 		fn_in = function()
@@ -99,6 +109,8 @@ function Color:init()
 						e:remove("color_fade_in_out")
 					end
 				end)
+
+			if ease then f:ease(ease.ease) end
 		end
 
 		if color.color[4] == 1 then
@@ -112,8 +124,9 @@ function Color:init()
 		local color = e.color
 		local target = e.target_color
 		local on_complete = e.lerp_on_complete
+		local ease = e.ease
 
-		Flux.to(color.color, target.duration, {
+		local f = Flux.to(color.color, target.duration, {
 				[1] = target.target_color[1],
 				[2] = target.target_color[2],
 				[3] = target.target_color[3],
@@ -128,6 +141,8 @@ function Color:init()
 
 				e:remove("target_color")
 			end)
+
+		if ease then f:ease(ease.ease) end
 	end
 end
 
@@ -135,14 +150,17 @@ function Color:start_fade()
 	for _, e in ipairs(self.pool_fade_to_black) do
 		local color = e.color
 		local fade = e.fade_to_black
+		local ease = e.ease
 
-		Flux.to(color.color, fade.duration, {
+		local f = Flux.to(color.color, fade.duration, {
 				[1] = 0,
 				[2] = 0,
 				[3] = 0,
 				[4] = 0,
 			})
 			:delay(fade.delay)
+
+		if ease then f:ease(ease.ease) end
 	end
 end
 
