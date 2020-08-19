@@ -402,6 +402,8 @@ function StateIntro:draw()
 end
 
 function StateIntro:keypressed(key)
+	if not self.is_ready then return end
+
 	!if not _RELEASE then
 	self.world:emit("keypress", key)
 	if key == "1" then

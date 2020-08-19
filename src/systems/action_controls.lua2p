@@ -44,6 +44,8 @@ function ActionControls:show_ui_interactive(other)
 			pos.x = pos.x - off.x
 		end
 
+		e.ui_action.is_active = true
+
 		e:give("animation", true)
 		:give("color_fade_in", e.tween_dur.dur)
 	end

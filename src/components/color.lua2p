@@ -1,12 +1,13 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("color", function(c, color)
+Concord.component("color", function(c, color, orig_color)
 	!if _ASSERT then
 	Assert.color(color)
+	Assert.safe.color(orig_color)
 	!end
 
-	c.original_color = {unpack(color)}
 	c.color = {unpack(color)}
+	c.orig_color = orig_color or {unpack(color)}
 end)
 
 Concord.component("color_fade_in_out", function(c, duration, count)

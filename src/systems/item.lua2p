@@ -14,6 +14,23 @@ function Item:init(world)
 	self.world = world
 end
 
+function Item:check_within_item(player)
+	!if _ASSERT then
+	Assert.exists(player.player)
+	!end
+
+	player.player.within_item = nil
+
+	for _, e in ipairs(self.pool) do
+		local col = e.collider3d
+
+		if col.is_hit then
+			player.player.within_item = e.id.id
+			break
+		end
+	end
+end
+
 function Item:keypressed(key)
 	if Inputs.is_pressed("player_interact", key) then
 		for _, e in ipairs(self.pool) do

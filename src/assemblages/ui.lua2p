@@ -138,8 +138,15 @@ local function action(e, sheet, dur)
 	:give("ui_action")
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", {1, 1, 1, 0})
+	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered", 1))
 	:give("ease", "backout")
+	:give("bounding_box", vec2:new(), vec2:new(96, 96))
+	:give("hoverable")
+	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
+	:give("hover_change_scale", 1.25, 0.25)
+	:give("clickable", 1, function()
+		print(e.id.id)
+	end)
 
 	return e
 end

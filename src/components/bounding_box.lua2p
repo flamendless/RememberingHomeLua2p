@@ -1,25 +1,12 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("bounding_box", function(c, x, y, w, h)
+Concord.component("bounding_box", function(c, pos, size)
 	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(w, Types.T_NUMBER)
-	Assert.must(h, Types.T_NUMBER)
+	Assert.is(pos, Types.T_VEC2)
+	Assert.is(size, Types.T_VEC2)
 	!end
 
-	c.x = x
-	c.y = y
-	c.w = w
-	c.h = h
-	c.screen_x = x
-	c.screen_y = y
-end)
-
-Concord.component("bounding_box_color", function(c, color)
-	!if _ASSERT then
-	Assert.color(color)
-	!end
-
-	c.color = {unpack(color)}
+	c.pos = pos
+	c.size = size
+	c.screen_size = pos:copy()
 end)

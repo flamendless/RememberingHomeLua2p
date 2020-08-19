@@ -92,7 +92,12 @@ function Debugging:debugging_draw(l, t, w, h)
 	if not DebugFlags.draw_all then return end
 
 	self.world:emit("draw_debug", l, t, w, h)
+
+	love.graphics.push()
+	love.graphics.origin()
 	self.world:emit("debug_draw_ui")
+	love.graphics.pop()
+
 	Slab.Draw()
 end
 
@@ -144,7 +149,7 @@ function Debugging:draw_debug(l, t, w, h)
 	love.graphics.line(0, hh, w, hh)
 end
 
-function Debugging:keypress(key)
+function Debugging:keypressed(key)
 	if key == "`" then
 		DebugFlags.draw_all = not DebugFlags.draw_all
 	end
@@ -156,6 +161,10 @@ function Debugging:cleanup()
 
 	for i, ps in ipairs(self.ps) do
 		self.ps[i] = nil
+	end
+
+	for _, e in ipairs(self.pool_id) do
+		Log.warn(e.id.id .. " not destroyed")
 	end
 
 	for _, e in ipairs(self.pool_log) do

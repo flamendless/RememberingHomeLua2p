@@ -40,11 +40,14 @@ local Systems = {
 
 	ActionControls = require("systems.action_controls"),
 	Animation = require("systems.animation"),
+	BoundingBox = require("systems.bounding_box"),
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
+	Click = require("systems.click"),
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Fireflies = require("systems.fireflies"),
+	HoverEffect = require("systems.hover_effect"),
 	Item = require("systems.item"),
 	PlayerController = require("systems.player_controller"),
 	Move = require("systems.move"),
@@ -159,6 +162,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.Item)
+	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
@@ -171,6 +175,8 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.RenderCircle)
 	self.world:addSystem(Systems.ActionControls)
+	self.world:addSystem(Systems.BoundingBox)
+	self.world:addSystem(Systems.Click)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -315,6 +321,7 @@ function StateOutside:start()
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_bag,
 		1.25)
+	self.world:emit("show_ui_interactive", self.entities.door)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -451,6 +458,8 @@ function StateOutside:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
+	self.world:emit("on_camera_move", self.camera)
+	self.world:emit("hover_check", love.mouse.getPosition())
 
 	if is_raining then
 		self.ps1:update(dt)
@@ -492,10 +501,20 @@ function StateOutside:draw()
 	self.world:emit("draw_ui")
 end
 
-function StateOutside:keypressed(key)
-	!if not _RELEASE then
-	self.world:emit("keypress", key)
+function StateOutside:mousemoved(mx, my)
+	if not self.is_ready then return end
+end
 
+function StateOutside:mousepressed(mx, my, mb)
+	if not self.is_ready then return end
+
+	self.world:emit("mousepressed", mx, my, mb)
+end
+
+function StateOutside:keypressed(key)
+	if not self.is_ready then return end
+
+	!if not _RELEASE then
 	if key == "space" then
 		self.timeline:Unpause()
 	end

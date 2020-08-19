@@ -123,14 +123,15 @@ function Color:init()
 	self.pool_color.onEntityAdded = function(pool, e)
 		local color = e.color
 		local target = e.target_color
+		local target_color = e.target_color.target_color
 		local on_complete = e.lerp_on_complete
 		local ease = e.ease
 
 		local f = Flux.to(color.color, target.duration, {
-				[1] = target.target_color[1],
-				[2] = target.target_color[2],
-				[3] = target.target_color[3],
-				[4] = target.target_color[4],
+				[1] = target_color[1],
+				[2] = target_color[2],
+				[3] = target_color[3],
+				[4] = target_color[4],
 			})
 			:delay(target.delay)
 			:oncomplete(function()

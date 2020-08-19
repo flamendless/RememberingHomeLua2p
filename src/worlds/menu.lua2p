@@ -450,18 +450,15 @@ function StateMenu:setup_about()
 					:give("position", vec2:new(x, y))
 					:give("color", Palette.colors.white)
 					:give("camera")
-					:give("bounding_box", x, y, image:getWidth(), image:getHeight())
+					:give("bounding_box", vec2:new(x, y),
+						vec2:new(image:getWidth(), image:getHeight()))
 					:give("clickable", 1, function()
 						local url = about_links[i2]
 
 						love.system.openURL(url)
 					end)
 					:give("hoverable")
-					:give("hover_change_color", Palette.colors.red, 0.5)
-
-					!if not _RELEASE then
-					self.entities[id]:give("bounding_box_color", {1, 0, 0, 0.5})
-					!end
+					:give("hover_change_color", Palette.get("ui_hovered"), 0.05)
 			end
 
 			base_y = base_y + img_h + pad
@@ -541,7 +538,7 @@ function StateMenu:update(dt)
 	local mx, my = love.mouse.getPosition()
 
 	self.world:emit("update", dt)
-	self.world:emit("change_color", mx, my)
+	self.world:emit("hover_check", mx, my)
 
 	if current_state == states.settings and not self.mb_main.flag_process then
 		self.world:emit("update_settings", dt)
@@ -614,7 +611,7 @@ end
 function StateMenu:mousepressed(mx, my, mb)
 	if not self.is_ready then return end
 
-	self.world:emit("mousepressed", mb, mx, my)
+	self.world:emit("mousepressed", mx, my, mb)
 end
 
 function StateMenu:MB_move(tx, ty, angle)

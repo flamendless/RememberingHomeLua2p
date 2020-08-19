@@ -44,6 +44,7 @@ function PlayerController:update(dt)
 
 		local anim_name = self:update_animation(e)
 		self:update_speed(e, anim_name)
+		self.world:emit("check_within_item", e)
 	end
 end
 
@@ -150,6 +151,8 @@ function PlayerController:draw_debug()
 		})
 	for _, e in ipairs(self.pool) do
 		local body = e.body
+		local player = e.player
+
 		Slab.Text("Body:")
 		Slab.Indent()
 		Slab.Text("Dir: " .. format("(%i, %i)", body.dx, body.dy))
@@ -165,6 +168,7 @@ function PlayerController:draw_debug()
 		Slab.Text("is_run:" .. tostring(body.is_run))
 
 		Slab.Unindent()
+		Slab.Text("Within Item:" .. (player.within_item or "none"))
 		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
 		Slab.Text("Current:" .. e.animation.current_tag)
 		Slab.Text("Playing:" .. tostring(e.animation.is_playing))

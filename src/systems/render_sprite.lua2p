@@ -182,17 +182,8 @@ function RenderSprite:debug_draw_ui()
 				h = h * qt.sy
 			end
 
-			if e.ui_element then
-				love.graphics.push()
-				love.graphics.origin()
-			end
-
 			love.graphics.setColor(1, 0, 0, 1)
 			love.graphics.rectangle("line", x, y, w, h)
-
-			if e.ui_element then
-				love.graphics.pop()
-			end
 		end
 	end
 end

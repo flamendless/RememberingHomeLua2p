@@ -18,6 +18,9 @@ Concord.component("transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
 	c.oy = oy or 0
 	c.kx = kx or 0
 	c.ky = ky or 0
+
+	c.orig_sx = c.sx
+	c.orig_sy = c.sy
 end)
 
 Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy, kx, ky)

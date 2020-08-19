@@ -4,25 +4,54 @@ local BoundingBox = Concord.system({
 	pool = {"bounding_box", "position"},
 })
 
+local function get_real_pos(e)
+	local box = e.bounding_box.pos
+	local pos = e.position.pos
+	local transform = e.transform
+
+	local x = pos.x
+	local y = pos.y
+
+	if transform then
+		x = x - transform.ox * transform.sx
+		y = y - transform.oy * transform.sy
+	end
+
+	return x, y
+end
+
 function BoundingBox:update(dt)
 	for _, e in ipairs(self.pool) do
-		local box = e.bounding_box
-		local pos = e.position
+		local box = e.bounding_box.pos
+		local x, y = get_real_pos(e)
 
-		box.x = pos.pos.x
-		box.y = pos.pos.y
+		box.x = x
+		box.y = y
 	end
 end
 
 function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
 		local box = e.bounding_box
-		local pos = e.position
-		local bx, by = camera:toScreen(pos.pos.x, pos.pos.y)
+		local pos = e.position.pos
+		local bx, by = camera:toScreen(pos.x, pos.y)
 
-		box.screen_x = bx
-		box.screen_y = by
+		box.screen_size.x = bx
+		box.screen_size.y = by
 	end
 end
+
+!if not _RELEASE then
+function BoundingBox:debug_draw_ui()
+	for _, e in ipairs(self.pool) do
+		local size = e.bounding_box.size
+		local transform = e.transform
+		local x, y = get_real_pos(e)
+
+		love.graphics.setColor(1, 0, 0, 1)
+		love.graphics.rectangle("line", x, y, size.x * transform.sx, size.y * transform.sy)
+	end
+end
+!end
 
 return BoundingBox
