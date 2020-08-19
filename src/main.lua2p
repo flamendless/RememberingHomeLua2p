@@ -129,6 +129,10 @@ function love.keyreleased(key)
 	GameStates.keyreleased(key)
 end
 
+function love.mousemoved(mx, my)
+	GameStates.mousemoved(mx, my)
+end
+
 function love.mousepressed(mx, my, mb)
 	GameStates.mousepressed(mx, my, mb)
 end

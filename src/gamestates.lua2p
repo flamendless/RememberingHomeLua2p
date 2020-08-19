@@ -23,7 +23,7 @@ local last_scale = 1
 local methods = {
 	"update", "draw", "keypressed", "keyreleased",
 	!if _PLATFORM == "desktop" then
-	"mousepressed", "mousereleased",
+	"mousepressed", "mousereleased", "mousemoved",
 	!elseif _PLATFORM == "mobile" then
 	"touchpressed", "touchreleased"
 	!end
@@ -220,6 +220,12 @@ end
 function GameStates.keyreleased(key)
 	if GameStates.current_world.keyreleased then
 		GameStates.current_world:keyreleased(key)
+	end
+end
+
+function GameStates.mousemoved(mx, my)
+	if GameStates.current_world.mousemoved then
+		GameStates.current_world:mousemoved(mx, my)
 	end
 end
 
