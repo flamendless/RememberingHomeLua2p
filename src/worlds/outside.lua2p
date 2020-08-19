@@ -193,7 +193,7 @@ function StateOutside:start()
 	self.entities.camera = Concord.entity(self.world)
 		:give("camera", self.camera, true)
 		:give("camera_transform", 0, self.scale)
-		:give("camera_clip", w, h, {0, 0, 0, 1})
+		:give("camera_clip", w, h, Palette.get("camera_clip"))
 
 	local cx, cy, cw, ch = self.camera:getVisible()
 
@@ -319,7 +319,7 @@ function StateOutside:start()
 	self.camera:setScale(3)
 	local actions = Factory.ui_controls(self.world,
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
-		res_images.sheet_ui_bag, res_images.sheet_ui_bag,
+		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
 		1.25)
 	self.world:emit("show_ui_interactive", self.entities.door)
 

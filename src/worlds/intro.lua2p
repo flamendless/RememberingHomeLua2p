@@ -36,7 +36,6 @@ local Systems = {
 
 	Animation = require("systems.animation"),
 	Camera = require("systems.camera"),
-	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Dialogues = require("systems.dialogues"),
 	Parallax = require("systems.parallax"),
@@ -120,7 +119,6 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Dialogues)
 
 	!if not _RELEASE then
@@ -135,8 +133,14 @@ function StateIntro:start()
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, self.screen_size.x, self.screen_size.y)
 	self.camera:setScale(self.scale)
-	self.world:emit("camera_set", self.camera)
-	self.world:emit("set_camera_clip", w, h, {0, 0, 0, 1})
+
+	self.entities.camera = Concord.entity(self.world)
+		:give("camera", self.camera, true)
+		:give("camera_transform", 0, self.scale)
+		:give("camera_clip", w, h, Palette.get("camera_clip"))
+
+	-- self.world:emit("camera_set", self.camera)
+	-- self.world:emit("set_camera_clip", w, h, {0, 0, 0, 1})
 
 	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)
@@ -159,7 +163,6 @@ function StateIntro:start()
 
 	self.entities.parallax_road = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road")
-		:give("collider", vec2:new(self.screen_size.x, 64), vec2:new(0, 354))
 
 	self.entities.parallax_grass = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1")
