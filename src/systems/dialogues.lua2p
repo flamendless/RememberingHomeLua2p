@@ -5,7 +5,9 @@ local Intro = require("assemblages.intro")
 
 local Dialogue = Concord.system({
 	pool = {"dialogues", "font", "position"},
-	pool_dialogue = {"static_text", "font", "position", "transform", "color", "ui_text"}
+	pool_dialogue = {
+		"static_text", "font", "position", "transform", "color", "ui_text"
+	}
 })
 
 function Dialogue:init(world)
@@ -17,7 +19,7 @@ function Dialogue:init(world)
 		local i = self.map_id:map(e.dialogues.id)
 
 		!if _ASSERT then
-		Assert.should_nil(self.data[i])
+		Assert.empty(self.data[i])
 		!end
 
 		self.data[i] = e
@@ -26,23 +28,25 @@ end
 
 function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 	!if _ASSERT then
-	Assert.should_string(id)
-	Assert.should_timelineevent(timeline)
-	Assert.should_number(dur_in)
-	Assert.should_number(dur_out)
+	Assert.must(id, Types.T_STRING)
+	Assert.must(timeline, Types.T_TIMELINEEVENT)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.must(dur_out, Types.T_NUMBER)
 	!end
 
 	local i = self.map_id:map(id)
 	local data = self.data[i]
 
 	!if _ASSERT then
-	Assert.should_exists(data)
+	Assert.exists(data)
 	!end
 
 	local d = data.dialogues
+
 	if d.current > d.max_n then
 		timeline:Unpause()
 		data:destroy()
+
 		return
 	end
 
@@ -52,13 +56,26 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 
 	self.world:emit("generate_paint", e, dur_in, dur_out)
 	e:remove("hidden")
-	Flux.to(e.color.color, dur_in, { [4] = 1 })
-		:oncomplete(function()
+
+	e:give("color_fade_in", dur_in, nil, function()
+		e:give("color_fade_out", dur_out, nil, function()
 			e:give("hidden")
 			e:destroy()
 			d.current = d.current + 1
 			self:start_dialogue(id, timeline, dur_in, dur_out)
 		end)
+	end)
+
+	-- Flux.to(e.color.color, dur_in, {[4] = 1})
+	-- 	:oncomplete(function()
+	-- 		e:give("color_fade_out", dur_out)
+	-- 		:give("color_on_complete", function()
+	-- 			e:give("hidden")
+	-- 			e:destroy()
+	-- 			d.current = d.current + 1
+	-- 			self:start_dialogue(id, timeline, dur_in, dur_out)
+	-- 		end)
+	-- 	end)
 end
 
 return Dialogue

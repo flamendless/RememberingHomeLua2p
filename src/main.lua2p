@@ -7,18 +7,21 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 !if not _RELEASE then
 io.stdout:setvbuf("no")
 local getStats = love.graphics.getStats
+!if _ASSERT then
+Assert = require("assert")
+Types = Assert.types
+!end
 !end
 
 require("modules.batteries"):export()
 
-!if _ASSERT then
-Assert = require("assert")
+!if not _RELEASE then
+require("modules.strict")
 !end
 
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
-Log.outfile = !(_LOG_OUTPUT)
 Log.lovesave = true
 local Semver = require("modules.semver.semver")
 local SDF = require("modules.sdf").mount()
@@ -40,22 +43,25 @@ local WindowMode = require("window_mode")
 
 local format = string.format
 
-local this_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
+local this_version = !(("%i.%i.%i"):format(unpack((_GAME_VERSION))))
 local this_semver = Semver(this_version)
 
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 
-local custom_loading_screen = function()
+local function custom_loading_screen()
+	local w, h = love.graphics.getDimensions()
+
 	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+	love.graphics.rectangle("fill", 0, 0, w, h)
 
 	local str_loading = format("LOADING: %i%%", Preloader.percent)
 	local ox = font_preload:getWidth(str_loading)/2
 	local oy = font_preload:getHeight(str_loading)/2
+
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setFont(font_preload)
-	love.graphics.print(str_loading, love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75, 0, 1, 1, ox, oy)
+	love.graphics.print(str_loading, w/2, h * 0.75, 0, 1, 1, ox, oy)
 end
 
 function love.load()
@@ -123,6 +129,10 @@ function love.keyreleased(key)
 	GameStates.keyreleased(key)
 end
 
+function love.mousemoved(mx, my)
+	GameStates.mousemoved(mx, my)
+end
+
 function love.mousepressed(mx, my, mb)
 	GameStates.mousepressed(mx, my, mb)
 end
@@ -134,4 +144,8 @@ end
 function love.quit()
 	Lily.quit()
 	Log.info("Quitting...")
+
+	!if not _RELEASE and _LOG_SAVE then
+	Log.quit(!(_LOG_OUTPUT))
+	!end
 end

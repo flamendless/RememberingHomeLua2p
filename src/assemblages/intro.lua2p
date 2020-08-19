@@ -1,5 +1,3 @@
-local Concord = require("modules.concord.concord")
-
 local Palette = require("palette")
 
 local Intro = {}
@@ -12,48 +10,53 @@ local speed = {
 	grass2 = 656,
 	grass_back = 48,
 	grass_front = 496,
-	bg_trees1 = 400,
-	bg_trees2 = 316,
-	bg_trees3 = 232,
-	fg_tree = -672,
+	bg_trees = 400,
+	fg_trees = 530,
 }
 
 local z_index = {
 	building = 1,
 	grass_back = 2,
-	bg_trees3 = 3,
-	bg_trees2 = 4,
-	bg_trees1 = 5,
-	bg_trees0 = 6,
+	bg_trees = 3,
+	bg_tree_cover = 4,
 	grass_front = 7,
 	road = 8,
 	post = 9,
 	grass1 = 10,
 	car = 11,
-	fg_tree = 12,
 	grass2 = 13,
+	fg_trees = 14,
 }
 
-function Intro.parallax(e, sprite, quad_width, tag)
+function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	!if _ASSERT then
-	Assert.should_exists(speed[tag])
-	Assert.should_exists(z_index[tag])
-	Assert.should_number(quad_width)
+	Assert.exists(speed[tag])
+	Assert.exists(z_index[tag])
+	Assert.must(quad_width, Types.T_NUMBER)
+	Assert.safe.must(sx, Types.T_NUMBER)
+	Assert.safe.must(sy, Types.T_NUMBER)
 	!end
 
+	local scale_x = sx or 1
+	local scale_y = sy or 1
 	local w, h = sprite:getDimensions()
-	local quad = love.graphics.newQuad(0, 0, quad_width, h, w, h)
+	local quad = love.graphics.newQuad(0, 0,
+		quad_width * scale_x, h * scale_y,
+		w * scale_x, h * scale_y)
 	local x = 0
 	local y = 0
 
-	if tag == "bg_trees1" or tag == "bg_trees2" or tag == "bg_trees3" then
+	if tag == "bg_trees" then
 		x = love.graphics.getWidth()
 		y = 90
 		e:give("parallax_stop")
-		e:give("bg_tree")
+		:give("bg_tree")
+	elseif tag == "fg_trees" then
+		y = 64
 	end
 
-	e:give("sprite", sprite)
+	e:give("id", "parallax_" .. tag)
+	:give("sprite", sprite)
 	:give("quad", quad)
 	:give("position", vec2:new(x, y))
 	:give("parallax", vec2:new(speed[tag], 0))
@@ -61,43 +64,27 @@ function Intro.parallax(e, sprite, quad_width, tag)
 end
 
 function Intro.bg_tree_cover(e, sprite)
-	e:give("sprite", sprite)
+	e:give("id", "bg_tree_cover")
+	:give("sprite", sprite)
 	:give("position", vec2:new(love.graphics.getWidth(), 90))
 	:give("transform", 0, 1, 1, sprite:getWidth()/2)
-	:give("z_index", z_index.bg_trees0)
+	:give("z_index", z_index.bg_tree_cover)
 	:give("bg_tree", true)
-end
-
-function Intro.fg_tree_data(e, images, max_width)
-	e:give("tree_data", {
-		images = images,
-		max_width = max_width,
-		parallax = vec2:new(speed.fg_tree, 0),
-		z_index = z_index.fg_tree,
-		chance = { yes = 0.2, no = 0.8 },
-	})
-end
-
-function Intro.tree(e, sprite, pos, index, parallax, z_index)
-	e:give("sprite", sprite)
-	:give("position", pos)
-	:give("tree", index)
-	:give("parallax", parallax)
-	:give("z_index", z_index)
 end
 
 function Intro.car(e, spritesheet)
 	local data = {
 		spritesheet = spritesheet,
-		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
 		delay = 0.2,
 		rows_count = 4,
 		columns_count = 3,
 		n_frames = 12
 	}
-
 	local car_init_pos = vec2:new(16, 325)
-	e:give("animation_data", data)
+
+	e:give("id", "car")
+	:give("animation_data", data)
 	:give("position", car_init_pos)
 	:give("animation", false)
 	:give("z_index", z_index.car)
@@ -106,13 +93,15 @@ end
 function Intro.car_reflect(e, spritesheet, car)
 	local data = {
 		spritesheet = spritesheet,
-		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4 },
+		frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
 		delay = 0.2,
 		rows_count = 4,
 		columns_count = 3,
 		n_frames = 12
 	}
-	e:give("animation_data", data)
+
+	e:give("id", "car_reflect")
+	:give("animation_data", data)
 	:give("position", car:get("position").pos:copy())
 	:give("animation", false)
 	:give("attach_to", car)
@@ -126,7 +115,8 @@ function Intro.dialogues(e, id, dialogues, font, pos)
 end
 
 function Intro.dialogue_text(e, text, font, pos)
-	e:give("static_text", text)
+	e:give("id", "dialogue")
+	:give("static_text", text)
 	:give("font", font)
 	:give("position", pos)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
@@ -138,35 +128,13 @@ function Intro.dialogue_text(e, text, font, pos)
 end
 
 function Intro.title(e, sprite, pos)
-	e:give("sprite", sprite)
+	e:give("id", "title")
+	:give("sprite", sprite)
 	:give("position", pos)
 	:give("hidden")
 	:give("transform", 0, 6, 6, 0.5, 0.5)
-	:give("color", { 1, 1, 1, 0 })
+	:give("color", {1, 1, 1, 0})
 	:give("ui_element")
-end
-
-function Intro.rain_data(e, rdt, rdt2, rst, rst2)
-	e:give("rain_tilted")
-	:give("rain_data", {
-		metadata = {
-			drop = {
-				frames = {"1-3", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 3,
-			},
-			splash = {
-				frames = {"1-5", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 5,
-			}
-		},
-		drop = { rdt, rdt2 },
-		splash = { rst, rst2 },
-		scroll_speed = -360,
-	}, 512)
 end
 
 return Intro

@@ -19,9 +19,9 @@ function TextPaintFade:fade_text(e, dur, timeline, should_destroy)
 	e:remove("hidden")
 
 	local color = e.color
-	Flux.to(color.color, dur, { [4] = 1 })
+	Flux.to(color.color, dur, {[4] = 1})
 		:oncomplete(function()
-			Flux.to(color.color, dur, { [4] = 0 })
+			Flux.to(color.color, dur, {[4] = 0})
 				:oncomplete(function()
 					timeline:Unpause()
 					e:give("hidden")
@@ -35,9 +35,9 @@ end
 
 function TextPaintFade:generate_paint(e, dur_in, dur_out)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_number(dur_in)
-	Assert.safe_should_number(dur_out)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.safe.must(dur_out, Types.T_NUMBER)
 	!end
 
 	local transform = e.transform
@@ -48,14 +48,13 @@ function TextPaintFade:generate_paint(e, dur_in, dur_out)
 	local offset = 96
 	local text_pos = e.position.pos
 	local pos = vec2:new(text_pos.x + str_w/2, text_pos.y + str_h/2)
+	local chance = Lume.randomchoice({true, false})
+	local sx = chance == true and -1 or 1
 
 	if transform then
 		pos.x = text_pos.x
 		pos.y = text_pos.y
 	end
-
-	local chance = Lume.randomchoice({true, false})
-	local sx = chance == true and -1 or 1
 
 	local paint = Concord.entity(self.world)
 		:give("animation_data", self.paint_data)
@@ -67,13 +66,14 @@ function TextPaintFade:generate_paint(e, dur_in, dur_out)
 		:give("color", {1, 1, 1, 0})
 
 	local color = paint.color
-	Flux.to(color.color, dur_in, { [4] = 1 })
+
+	Flux.to(color.color, dur_in, {[4] = 1})
 		:oncomplete(function()
-			Flux.to(color.color, dur_out or dur_in, { [4] = 0 })
+			Flux.to(color.color, dur_out or dur_in, {[4] = 0})
+				:delay(1)
 				:oncomplete(function()
 					paint:destroy()
 				end)
-				:delay(1)
 		end)
 end
 

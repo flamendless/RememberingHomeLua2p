@@ -1,20 +1,27 @@
 local Lume = require("modules.lume.lume")
+
 local randomf = Lume.random
 
 local Palette = {}
 
+!(@insert "scripts/color.lua")
+
 Palette.colors = {
-	white = { 1, 1, 1, 1 },
-	red = { 1, 0, 0, 1 },
-	disabled = { 0.2, 0.2, 0.2, 1 },
-	ui_red = { 1, 0, 0, 1 },
-	task_on_complete = { 1, 0, 0, 1 },
-	firefly_start = { 0.988235294, 0.823529412, 0.443137255, 0.8 },
-	firefly_end = { 0.968627451, 0.552941176, 0.247058824, 0.8 },
+	white = {1, 1, 1, 1},
+	red = {1, 0, 0, 1},
+	disabled = {0.2, 0.2, 0.2, 1},
+	ui_red = {1, 0, 0, 1},
+	ui_key = {0.121568627, 0.078431373, 0.207843137, 1},
+	ui_hold_progress = {0.988235294, 0.988235294, 0.925490196, 1},
+	ui_feedback = {0.380392, 0.878431, 0.635294, 1},
+	ui_not_hovered = !(rgb_to_love("#ffffff")),
+	ui_hovered = !(rgb_to_love("#ff8d73")),
+	firefly_start = {0.988235294, 0.823529412, 0.443137255, 0.8},
+	firefly_end = {0.968627451, 0.552941176, 0.247058824, 0.8},
 }
 
 Palette.windows = {
-	settings = { 0.2, 0.2, 0.2, 0.8 }
+	settings = {0.2, 0.2, 0.2, 0.3}
 }
 
 Palette.color_glitches = {
@@ -26,11 +33,12 @@ Palette.color_glitches = {
 
 function Palette.get(color, alpha)
 	!if _ASSERT then
-	Assert.should_exists(Palette.colors[color])
-	Assert.safe_should_number(alpha)
+	Assert.exists(Palette.colors[color])
+	Assert.safe.must(alpha, Types.T_NUMBER)
 	!end
 
 	local color = Palette.colors[color]
+
 	return {
 		color[1],
 		color[2],

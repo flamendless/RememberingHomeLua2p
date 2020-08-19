@@ -25,7 +25,7 @@ end
 function GlitchEffect:toggle_effect(c, colors)
 	local r = randomf(c.range_trigger.x, c.range_trigger.y)
 	c.timer_glitch:during(r, function()
-		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
+		local chance = weightedchoice({yes = c.range_chance.x, no = c.range_chance.y})
 
 		if chance == "yes" then
 			colors.current = love.math.random(1, #colors.colors)
@@ -54,19 +54,21 @@ function GlitchEffect:effect_draw()
 		local color = e.color
 		local pos = e.position
 		local transform = e.transform
-
 		local text
+
 		if glitch_effect.is_glitch then
 			if random_text.use_string then
 				text = random_text.text
 			elseif random_text.use_table then
 				local r = love.math.random(1, #random_text.text)
+
 				text = random_text.text[r]
 			end
+
 			love.graphics.setColor(glitch_colors.colors[glitch_colors.current])
 		else
 			text = random_text.text[1]
-	 		love.graphics.setColor(color.color)
+			love.graphics.setColor(color.color)
 		end
 
 		if font then
@@ -74,17 +76,21 @@ function GlitchEffect:effect_draw()
 		end
 
 		local rotation, sx, sy, ox, oy
+
 		if transform then
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
+
 			if transform.ox == 0.5 then
 				ox = love.graphics.getFont():getWidth(text)/2
 			end
+
 			if transform.oy == 0.5 then
 				oy = love.graphics.getFont():getHeight(text)/2
 			end
 		end
+
 		love.graphics.print(text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 	end
 end

@@ -1,7 +1,5 @@
 local Log = require("modules.log.log")
 
-local Event = require("event")
-
 local format = string.format
 
 local EventManager = {
@@ -12,12 +10,11 @@ function EventManager.add(event)
 	local id = event.id
 
 	!if _ASSERT then
-	Assert.should_event(event)
-	Assert.should_nil(EventManager.pool[id])
+	Assert.must(event, Types.T_EVENT)
+	Assert.empty(EventManager.pool[id])
 	!end
 
 	EventManager.pool[id] = event
-
 	Log.info(format("event %s added", id))
 end
 
@@ -32,7 +29,6 @@ function EventManager.update(dt)
 				event.is_done = true
 				event:on_complete()
 				pool[id] = nil
-
 				Log.info(format("event %s done", id))
 			end
 		end

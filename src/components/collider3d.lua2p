@@ -1,20 +1,14 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local filters = Enum("slide", "cross", "bounce", "cross")
+local filters = Enum("slide", "cross", "bounce")
 
-Concord.component("bump3d", function(c, id)
-	!if _ASSERT then
-	Assert.safe_should_string(id)
-	!end
-
-	c.id = id
+Concord.component("bump3d", function(c)
 end)
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
-	Assert.should_vec3(size)
-	Assert.safe_should_string(filter)
+	Assert.is(size, Types.T_VEC3)
 	!end
 
 	c.size = size
@@ -25,8 +19,4 @@ Concord.component("collider3d", function(c, size, filter)
 	if filter then
 		c.filter = filters[filter]
 	end
-
-	!if not _RELEASE then
-	c.highlight = false
-	!end
 end)

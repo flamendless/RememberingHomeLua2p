@@ -1,12 +1,8 @@
 local Log = require("modules.log.log")
 local Semver = require("modules.semver.semver")
 
-local format = string.format
-local match = string.match
 local sub = string.sub
-local gmatch = string.gmatch
 local match = string.match
-local insert = table.insert
 
 local Network = {}
 
@@ -33,7 +29,8 @@ function Network.get_response()
 		return r, c, h, s
 	else
 		!if _OS == "Linux" then
-		local res = request.send(github_url, { follow_redirects = false })
+		local res = request.send(github_url, {follow_redirects = false})
+
 		if res then
 			return res.code, res.headers, res.headers.status
 		else
@@ -42,13 +39,14 @@ function Network.get_response()
 
 		!elseif _OS == "Windows" then
 		-- TODO bug here, after changing libcurl version, the return value is different
-		local res = {request.send(github_url, { follow_redirects = false })}
+		local res = {request.send(github_url, {follow_redirects = false})}
 		!end
 	end
 end
 
 function Network.check_latest_version(current_semver)
 	local c, h, s = Network.get_response()
+
 	if not c then
 		Log.warn("Failed to connect to network")
 		return
@@ -65,10 +63,12 @@ function Network.check_latest_version(current_semver)
 		if use_luasec then
 			local parsed_url = socket.url.parse(new_url)
 			local path = socket.url.parse_path(parsed_url.path)
+
 			latest_ver = path[#path]
 			latest_ver = sub(latest_ver, 2)
 		else
 			local parsed_url = match(new_url, "/([^/]+)$")
+
 			latest_ver = sub(parsed_url, 2)
 		end
 
@@ -83,9 +83,9 @@ function Network.check_latest_version(current_semver)
 end
 
 function Network.show_latest_dialogbox(url)
-	local pressed = love.window.showMessageBox("Alert", "There is a newer version available! Do you want to check it?", {
-		"OK", "No", escapebutton = 2
-	})
+	local pressed = love.window.showMessageBox("Alert",
+		"There is a newer version available! Do you want to check it?",
+		{"OK", "No", escapebutton = 2})
 
 	if pressed == 1 then
 		love.system.openURL(url)

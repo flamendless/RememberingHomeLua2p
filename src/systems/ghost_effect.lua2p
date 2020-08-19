@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
@@ -25,7 +24,7 @@ end
 function GhostEffect:toggle_effect(c)
 	local r = randomf(c.range_trigger.x, c.range_trigger.y)
 	c.timer_ghost:during(r, function()
-		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
+		local chance = weightedchoice({yes = c.range_chance.x, no = c.range_chance.y})
 		if chance == "yes" then
 			local width = love.graphics.getWidth()
 			local height = love.graphics.getHeight()
@@ -65,6 +64,7 @@ function GhostEffect:effect_draw()
 			text = random_text.text
 		elseif random_text.use_table then
 			local r = love.math.random(1, #random_text.text)
+
 			text = random_text.text[r]
 		end
 
@@ -72,6 +72,7 @@ function GhostEffect:effect_draw()
 			if font then
 				love.graphics.setFont(font.font)
 			end
+
 			love.graphics.setColor(ghost_effect.effect_color)
 			love.graphics.print(text,
 				ghost_effect.ghost.x, ghost_effect.ghost.y, 0,

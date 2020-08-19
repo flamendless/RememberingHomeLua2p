@@ -8,12 +8,12 @@ local TextPaint = Concord.system({
 
 local def_delay_paint = 1
 local def_delay_task = 1
+local dur_flash = 0.15
 
-local flash_to_color
-flash_to_color = function(source, target_a, target_b, dur, count, current)
+local function flash_to_color(source, target_a, target_b, dur, count, current)
 	local n = current or 0
-	Flux.to(source, dur,
-		{
+
+	Flux.to(source, dur, {
 			[1] = target_a[1],
 			[2] = target_a[2],
 			[3] = target_a[3],
@@ -36,25 +36,25 @@ end
 
 function TextPaint:show_text_paint(e, dur)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_exists(e.text_with_paint)
-	Assert.should_number(dur)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.must(dur, Types.T_NUMBER)
 	!end
 
 	self:show_paint(e, dur)
 	e:remove("hidden")
 
-	Flux.to(e.color.color, dur, { [4] = 1 })
+	Flux.to(e.color.color, dur, {[4] = 1})
 end
 
 function TextPaint:fade_text_paint(e, dur, on_complete)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_exists(e.text_with_paint)
-	Assert.should_entity(e.text_with_paint.paint)
-	Assert.should_exists(e.text_with_paint.paint.paint)
-	Assert.should_number(dur)
-	Assert.safe_should_function(on_complete)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.is(e.text_with_paint.paint, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint.paint.paint)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.safe.must(on_complete, Types.T_FUNCTION)
 	!end
 
 	local delay
@@ -63,27 +63,21 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 
 		if e.task.kind == "flash" then
 			--flash
-			local original = { unpack(e.color.color) }
-			local dur_flash = 0.1
+			local original = {unpack(e.color.color)}
+
 			flash_to_color(e.color.color, target, original, dur_flash, 2)
-		elseif e.task.kind == "redden" then
-			-- lerp to red
-			Flux.to(e.color.color, dur,
-				{
-					[1] = target[1],
-					[2] = target[2],
-					[3] = target[3],
-				})
 		end
+
 		delay = def_delay_task
 	end
 
-	local f = Flux.to(e.color.color, dur, { [4] = 0 })
+	Flux.to(e.color.color, dur, {[4] = 0})
 		:delay(delay)
-		oncomplete(function()
+		:oncomplete(function()
 			if on_complete then
 				on_complete()
 			end
+
 			e:give("hidden")
 			e:destroy()
 		end)
@@ -92,8 +86,8 @@ end
 
 function TextPaint:show_paint(e, dur_in)
 	!if _ASSERT then
-	Assert.should_entity(e)
-	Assert.should_number(dur_in)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
 	!end
 
 	local transform = e.transform
@@ -104,14 +98,13 @@ function TextPaint:show_paint(e, dur_in)
 	local offset = 96
 	local text_pos = e.position.pos
 	local pos = vec2:new(text_pos.x + str_w/2, text_pos.y + str_h/2)
+	local chance = Lume.randomchoice({true, false})
+	local sx = chance == true and -1 or 1
 
 	if transform then
 		pos.x = text_pos.x
 		pos.y = text_pos.y
 	end
-
-	local chance = Lume.randomchoice({true, false})
-	local sx = chance == true and -1 or 1
 
 	local paint = Concord.entity(self.world)
 		:give("animation_data", self.paint_data)
@@ -124,23 +117,22 @@ function TextPaint:show_paint(e, dur_in)
 		:give("paint")
 
 	e.text_with_paint.paint = paint
-
-	Flux.to(paint.color.color, dur_in, { [4] = 1 })
+	Flux.to(paint.color.color, dur_in, {[4] = 1})
 end
 
 function TextPaint:fade_paint(paint, dur, delay)
 	!if _ASSERT then
-	Assert.should_entity(paint)
-	Assert.should_exists(paint.paint)
-	Assert.should_number(dur)
-	Assert.safe_should_number(delay)
+	Assert.is(paint, Types.T_ENTITY)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.exists(paint.paint)
+	Assert.safe.must(delay, Types.T_NUMBER)
 	!end
 
-	Flux.to(paint.color.color, dur, { [4] = 0 })
+	Flux.to(paint.color.color, dur, {[4] = 0})
+		:delay(delay or def_delay_paint)
 		:oncomplete(function()
 			paint:destroy()
 		end)
-		:delay(delay or def_delay_paint)
 end
 
 return TextPaint

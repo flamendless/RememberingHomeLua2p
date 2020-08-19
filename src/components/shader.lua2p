@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("shader", function(c, shader)
 	!if _ASSERT then
-	Assert.should_shader(shader)
+	Assert.must(shader, Types.T_SHADER)
 	!end
 
 	c.shader = shader

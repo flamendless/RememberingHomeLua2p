@@ -10,7 +10,7 @@ local RenderSprite = Concord.system({
 	pool_ui = {"position", "sprite", "ui_element"},
 })
 
-local draw = function(sprite, ...)
+local function draw(sprite, ...)
 	-- TODO implement camera_bounds drawing
 	love.graphics.draw(sprite, ...)
 end
@@ -20,7 +20,7 @@ function RenderSprite:init()
 
 	self.pool_z.onEntityAdded = function(pool, e)
 		insert(self.custom_pool_z, e)
-		table.insertion_sort(self.custom_pool_z, function(a, b)
+		tablex.insertion_sort(self.custom_pool_z, function(a, b)
 			local a_z = a.z_index.z
 			local b_z = b.z_index.z
 
@@ -39,7 +39,7 @@ function RenderSprite:init()
 end
 
 function RenderSprite:sort_z()
-	table.stable_sort(self.custom_pool_z, function(a, b)
+	tablex.stable_sort(self.custom_pool_z, function(a, b)
 		local a_pos = a.position.pos.y
 		local b_pos = b.position.pos.y
 
@@ -50,7 +50,7 @@ end
 function RenderSprite:internal_draw(e)
 	local hidden = e.hidden
 	if not hidden then
-		local pos = e.position
+		local pos = e.position.pos
 		local quad = e.quad
 		local color = e.color
 		local sprite = e.sprite
@@ -59,15 +59,19 @@ function RenderSprite:internal_draw(e)
 		local animation_data = e.animation_data
 
 		love.graphics.setColor(1, 1, 1, 1)
+
 		if color then
 			love.graphics.setColor(color.color)
 		end
 
-		local rotation, sx, sy, ox, oy
+		local rot, sx, sy, ox, oy, kx, ky
+
 		if transform then
-			rotation = transform.rotation
+			rot = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
+			kx = transform.kx
+			ky = transform.ky
 
 			if animation_data then
 				if transform.ox == 0.5 then
@@ -102,23 +106,25 @@ function RenderSprite:internal_draw(e)
 
 		if quad then
 			if quad_transform then
-				rotation = quad_transform.rotation
+				rot = quad_transform.rotation
 				sx = quad_transform.sx
 				sy = quad_transform.sy
 				ox = quad_transform.ox
 				oy = quad_transform.oy
+				kx = quad_transform.kx
+				ky = quad_transform.ky
 			end
 
-			draw(sprite.sprite, quad.quad, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			draw(sprite.sprite, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		else
-			draw(sprite.sprite, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
+			draw(sprite.sprite, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		end
 	end
 end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e:has("z_index") and not e:has("ui_element") then
+		if not e.z_index and not e.ui_element then
 			self:internal_draw(e)
 		end
 	end
@@ -139,9 +145,13 @@ end
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
 
-function RenderSprite:draw_debug()
-	DebugFlags.z_index = Slab.BeginWindow("ZIndex", {Title = "Z Index", IsOpen = DebugFlags.z_index})
+function RenderSprite:draw_debug(l, t, w, h)
+	views.z_index = Slab.BeginWindow("ZIndex", {
+			Title = "Z Index", IsOpen = views.z_index
+		})
+
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then
 			Slab.Text(e.bump3d.id)
@@ -149,17 +159,35 @@ function RenderSprite:draw_debug()
 			Slab.Text("z: " .. e.z_index.z)
 		end
 	end
-	Slab.EndWindow()
 
-	if DebugFlags.quad_bounds then
+	Slab.EndWindow()
+end
+
+function RenderSprite:debug_draw_ui()
+	if views.quad_bounds then
 		for _, e in ipairs(self.pool_quad) do
 			local qx, qy, qw, qh = e.quad.quad:getViewport()
+			local pos = e.position.pos
+			local qt = e.quad_transform
+
+			local x = pos.x
+			local y = pos.y
+			local w = qw
+			local h = qh
+
+			if qt then
+				x = x - qt.ox * qt.sx
+				y = y - qt.oy * qt.sy
+				w = w * qt.sx
+				h = h * qt.sy
+			end
 
 			love.graphics.setColor(1, 0, 0, 1)
-			love.graphics.rectangle("line", qx, qy, qw, qh)
+			love.graphics.rectangle("line", x, y, w, h)
 		end
 	end
 end
+
 !end
 
 return RenderSprite

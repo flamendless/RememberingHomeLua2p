@@ -2,8 +2,8 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("screen_size", function(c, w, h)
 	!if _ASSERT then
-	Assert.should_number(w)
-	Assert.should_number(h)
+	Assert.must(w, Types.T_NUMBER)
+	Assert.must(h, Types.T_NUMBER)
 	!end
 
 	c.width = w

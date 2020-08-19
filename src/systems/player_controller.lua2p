@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump-niji")
 
 local Inputs = require("inputs")
 
@@ -14,18 +13,21 @@ end
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e:has("override_animation") then return end
+
 		if not e.body.can_move then return end
 
 		if Inputs.is_down("player_move_left") then
 			if e.body.can_run then
 				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
+
 			e.body.dir = -1
 			e.body.dx = -1
 		elseif Inputs.is_down("player_move_right") then
 			if e.body.can_run then
 				e.body.is_run = Inputs.is_down("player_run_mod")
 			end
+
 			e.body.dir = 1
 			e.body.dx = 1
 		else
@@ -40,69 +42,145 @@ function PlayerController:update(dt)
 			e.body.dy = 0
 		end
 
-		local animation_name
-		local animation_variance
+		local anim_name = self:update_animation(e)
+		self:update_speed(e, anim_name)
+		self.world:emit("check_within_item", e)
+	end
+end
 
+function PlayerController:update_animation(e, override_name, override_variance)
+	local anim_name = override_name
+	local anim_variance = override_variance
+
+	if not anim_name then
 		if e.body.dx ~= 0 or e.body.dy ~= 0 then
 			if e.body.is_run then
-				animation_name = "run"
+				anim_name = "run"
 			else
-				animation_name = "walk"
+				anim_name = "walk"
 			end
 		else
-			animation_name = "idle"
+			anim_name = "idle"
 		end
+	end
 
+	if not anim_variance then
 		if e.body.dir == -1 then
-			animation_variance = "_left"
+			anim_variance = "_left"
+		end
+	end
+
+	if anim_variance then
+		self.world:emit("switch_animation_tag", e, anim_name .. anim_variance)
+	else
+		self.world:emit("switch_animation_tag", e, anim_name)
+	end
+
+	return anim_name
+end
+
+function PlayerController:update_speed(e, anim_name)
+	local speed = e.speed
+	local speed_data = e.speed_data
+
+	if speed and speed_data then
+		local old_speed = speed.speed
+		local new_speed = speed_data.speed_data[anim_name]
+
+		if e.body.dx ~= 0 then
+			local speed_dt = mathx.lerp(old_speed.x, new_speed.x, 0.5)
+
+			speed.speed.x = speed_dt
 		end
 
-		if animation_name then
-			if animation_variance then
-				self.world:emit("switch_animation_tag", animation_name .. animation_variance)
-			else
-				self.world:emit("switch_animation_tag", animation_name)
-			end
-		end
+		if e.body.dy ~= 0 then
+			local speed_dt = mathx.lerp(old_speed.y, new_speed.y, 0.5)
 
-		local speed = e.speed
-		local speed_data = e.speed_data
-
-		if speed and speed_data then
-			local old_speed = speed.speed
-			local new_speed = speed_data.speed_data[animation_name]
-			if e.body.dx ~= 0 or e.body.dy ~= 0 then
-				local speed_dt = math.lerp(old_speed, new_speed, 0.5)
-				speed.speed = speed_dt
-			else
-				speed.speed = new_speed
-			end
+			speed.speed.y = speed_dt
 		end
 	end
 end
 
 function PlayerController:face_left(e)
 	if e:has("override_animation") then return end
-	if e.body.can_run then
-		e.body.is_run = Inputs.is_down("player_run_mod")
-	end
+
 	e.body.dir = -1
-	e.body.dx = -1
+	self:update_animation(e, "idle", "_left")
 end
 
 function PlayerController:face_right(e)
 	if e:has("override_animation") then return end
-	if e.body.can_run then
-		e.body.is_run = Inputs.is_down("player_run_mod")
-	end
+
 	e.body.dir = 1
-	e.body.dx = 1
+	self:update_animation(e, "idle")
 end
 
-function PlayerController:collision_wall(player, wall)
-	-- TODO hit wall animation
-	player.body.can_move = false
-	self.world:emit("switch_animation_tag", "idle")
+function PlayerController:player_open_door(e, fn)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.safe.must(fn, Types.T_FUNCTION)
+	!end
+
+	--method A
+	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
+
+	e:give("change_animation_tag", tag)
+	:give("override_animation")
+	:give("animation_on_loop", fn, "pauseAtEnd", true)
+
+	--method B
+	-- local data = e.multi_animation_data.data[tag]
+	-- e.animation.current_tag = tag
+	-- e:remove("animation_data")
+	-- :give("animation_data", data)
+	-- :give("override_animation")
+	-- :give("animation_on_loop", fn, "pauseAtEnd", true)
+    --
+	-- self.world:emit("update_animation_data", e, data)
 end
+
+!if _ASSERT then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local format = string.format
+
+function PlayerController:draw_debug()
+	views.player = Slab.BeginWindow("player", {
+			Title = "Player", IsOpen = views.player
+		})
+	for _, e in ipairs(self.pool) do
+		local body = e.body
+		local player = e.player
+
+		Slab.Text("Body:")
+		Slab.Indent()
+		Slab.Text("Dir: " .. format("(%i, %i)", body.dx, body.dy))
+
+		if Slab.CheckBox(body.can_move, "can_move") then
+			body.can_move = not body.can_move
+		end
+
+		if Slab.CheckBox(body.can_run, "can_run") then
+			body.can_run = not body.can_run
+		end
+
+		Slab.Text("is_run:" .. tostring(body.is_run))
+
+		Slab.Unindent()
+		Slab.Text("Within Item:" .. (player.within_item or "none"))
+		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
+		Slab.Text("Current:" .. e.animation.current_tag)
+		Slab.Text("Playing:" .. tostring(e.animation.is_playing))
+		Slab.Text("Tags:")
+		Slab.Indent()
+
+		for k, _ in pairs(e.multi_animation_data.data) do
+			Slab.Text(k)
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return PlayerController

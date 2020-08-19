@@ -1,5 +1,3 @@
-local Concord = require("modules.concord.concord")
-
 local Palette = require("palette")
 
 local random = love.math.random
@@ -15,66 +13,71 @@ local z_index = {
 	fence = 4,
 	splashes = 11,
 }
-local rain_buffer_max = 512
 
 function Outside.bg_sky(e, sprite)
-	e:give("sprite", sprite)
-	:give("position", vec2:new(0, 0))
+	e:give("id", "bg_sky")
+	:give("sprite", sprite)
+	:give("position", vec2:new())
 	:give("z_index", z_index.bg_sky)
 end
 
 function Outside.bg_house(e, sprite, pos, quad)
-	e:give("sprite", sprite)
+	e:give("id", "bg_house")
+	:give("sprite", sprite)
 	:give("position", pos)
 	:give("quad", quad)
 	:give("z_index", z_index.bg_house)
 end
 
 function Outside.left_bounds(e)
-	e:give("position", vec2:new(80, 260))
+	e:give("id", "left_bounds")
+	:give("position", vec2:new(80, 260))
 	:give("collider3d", vec3:new(92, 100, 16))
-	:give("bump3d", "left_bounds")
+	:give("bump3d")
 end
 
 function Outside.right_bounds(e)
-	e:give("position", vec2:new(1160, 250))
+	e:give("id", "right_bounds")
+	:give("position", vec2:new(1160, 250))
 	:give("collider3d", vec3:new(32, 100, 32))
-	:give("bump3d", "right_bounds")
+	:give("bump3d")
 end
 
 function Outside.wood(e)
-	e:give("position", vec2:new(210, 270))
+	e:give("id", "wood")
+	:give("position", vec2:new(210, 270))
 	:give("collider3d", vec3:new(50, 10, 16))
-	:give("bump3d", "wood")
+	:give("bump3d")
 end
 
 function Outside.fence(e, sprite)
-	e:give("sprite", sprite)
+	e:give("id", "fence")
+	:give("sprite", sprite)
 	:give("position", vec2:new(-47, 330))
 	:give("collider3d", vec3:new(850, 16, 61))
 	:give("z_index", z_index.fence)
-	:give("bump3d", "fence")
+	:give("bump3d")
 end
 
 function Outside.gate(e, sprite)
-	e:give("sprite", sprite)
+	e:give("id", "gate")
+	:give("sprite", sprite)
 	:give("position", vec2:new(800, 330))
 	:give("transform", 0, 1, 1, 0, 16)
 	:give("collider3d", vec3:new(200, 8, 32))
-	:give("bump3d", "gate")
+	:give("bump3d")
 	:give("z_index", z_index.fence)
 end
 
 function Outside.splashes(e, spritesheet, pos, is_compatible)
-	e:give("position", pos)
+	e:give("id", "splashes")
+	:give("position", pos)
 	:give("z_index", z_index.splashes)
-	:give("rain_splashes")
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
-	:give("animation_data",
-		{
+	:give("animation_data", {
 			spritesheet = spritesheet,
-			frames = { "1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4 },
+			frames = {"1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4},
 			delay = 0.2,
 			rows_count = 4,
 			columns_count = 2,
@@ -88,70 +91,67 @@ function Outside.splashes(e, spritesheet, pos, is_compatible)
 end
 
 function Outside.fence_right(e)
-	e:give("position", vec2:new(1000, 330))
+	e:give("id", "fence_right")
+	:give("position", vec2:new(1000, 330))
 	:give("collider3d", vec3:new(407, 16, 61))
-	:give("bump3d", "fence_right")
+	:give("bump3d")
 end
 
 function Outside.car(e, sprite)
-	e:give("sprite", sprite)
+	e:give("id", "car")
+	:give("sprite", sprite)
 	:give("position", vec2:new(934, 260))
 	:give("collider3d", vec3:new(78, 8, 50))
-	:give("bump3d", "car")
+	:give("bump3d")
 	:give("transform", 0, 1, 1, 0, -16)
 	:give("z_index", z_index.car)
 end
 
 function Outside.house(e)
-	e:give("position", vec2:new(240, 128))
+	e:give("id", "house")
+	:give("position", vec2:new(240, 128))
 	:give("collider3d", vec3:new(350, 140, 64))
-	:give("bump3d", "house")
+	:give("bump3d")
 end
 
 function Outside.house_side(e)
-	e:give("position", vec2:new(580, 200))
+	e:give("id", "house_side")
+	:give("position", vec2:new(580, 200))
 	:give("collider3d", vec3:new(60, 60, 64))
-	:give("bump3d", "house_side")
+	:give("bump3d")
+end
+
+function Outside.door(e)
+	e:give("id", "door")
+	:give("position", vec2:new(580, 250))
+	:give("collider3d", vec3:new(24, 36, 8), "cross")
+	:give("bump3d")
+	:give("item")
 end
 
 function Outside.left_wall(e)
-	e:give("position", vec2:new(96, 160))
+	e:give("id", "left_wall")
+	:give("position", vec2:new(96, 160))
 	:give("collider3d", vec3:new(120, 100, 64))
-	:give("bump3d", "left_wall")
+	:give("bump3d")
 end
 
 function Outside.right_wall(e)
-	e:give("position", vec2:new(640, 185))
+	e:give("id", "right_wall")
+	:give("position", vec2:new(640, 185))
 	:give("collider3d", vec3:new(520, 60, 64))
-	:give("bump3d", "right_wall")
+	:give("bump3d")
 end
 
 function Outside.firefly(e, sprite, pos, points)
-	e:give("sprite", sprite)
+	e:give("id", "firefly")
+	:give("sprite", sprite)
 	:give("position", pos)
 	:give("path", points)
 	:give("z_index", z_index.firefly)
 	:give("firefly", {Palette.get("firefly_start"), Palette.get("firefly_end")})
 	:give("color", Palette.get("firefly_start", 0))
 	:give("hidden")
-end
-
-function Outside.rain(e, ww, wh, rain_drop, rain_drop2)
-	e:give("screen_size", ww, wh)
-	:give("rain_data", {
-		metadata = {
-			drop = {
-				frames = {"1-3", 1},
-				delay = 0.1,
-				rows_count = 1,
-				columns_count = 3,
-			},
-		},
-		drop = {
-			rain_drop,
-			rain_drop2,
-		},
-	}, rain_buffer_max)
 end
 
 return Outside

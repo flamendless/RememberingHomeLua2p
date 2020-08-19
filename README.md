@@ -13,7 +13,7 @@ Made with [LOVE](https://love2d.org)
 2. Then run `./build init` to setup the directories and copy the assets to the output directory.
 3. Then `./build run` to preprocess and run the game.
 
-When modifying files in the `res/`, you should update with `./build rebuild`
+When modifying files in the `res/` or in the `modules/` directory, you should update with `./build rebuild` before running again.
 
 For cleaning files and logs `./build clean && ./build clean_logs`
 
@@ -45,6 +45,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## Tools:
 
+* [HotParticles](https://github.com/ReFreezed/HotParticles) - for testing/playing with particle systems.
 * [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
@@ -54,7 +55,12 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [Curl](https://curl.haxx.se/download.html) - For Windows, version 7.38.0 is needed to work with luajit-request
 * [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
 
+## Coding Style Guide
+
+* [Look at my coding style guide for Lua](https://flamendless.github.io/lua-coding-style-guide/)
+
 ## LICENSE:
 
+* Source code is under the GPL. See [COPYING](COPYING) file.
 * Assets have a commercial license and thus can not be used without the permission from the artist
 * Each library/module has their own license

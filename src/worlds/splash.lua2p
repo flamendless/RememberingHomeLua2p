@@ -29,6 +29,7 @@ local Systems = {
 	GlitchEffect = require("systems.glitch_effect"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	Transform = require("systems.transform"),
 	Typewriter = require("systems.typewriter"),
 }
 
@@ -40,7 +41,8 @@ local Assemblages = {
 	Common = require("assemblages.common")
 }
 
-local resources = { images = {}, fonts = {} }
+local resources = {images = {}, fonts = {}}
+local res_images, res_fonts
 
 local states = Enum("splash_love", "splash_wits", "splash_flam")
 local current_state = states.splash_love
@@ -55,14 +57,15 @@ local splash_flam_skippable = false
 
 local color_a = {0.898, 0.48627451, 0.074509804, 1}
 local color_b = {0.952941176, 0.952941176, 0.054901961, 1}
-
 local is_switching = false
-local switch = function(gamestate)
+
+local function switch(gamestate)
 	if is_switching then return end
+
 	is_switching = true
 	Fade.fade_out(function()
-		Save.set_splash_done()
-		gamestate:switch("Menu")
+		Save.set_flag("intro_done", true)
+		gamestate.switch("Menu")
 	end)
 end
 
@@ -78,8 +81,11 @@ end
 function StateSplash:load()
 	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("splash")
+
 	Preloader.start(resources_data, resources,
 		function()
+			res_images = resources.images
+			res_fonts = resources.fonts
 			self.is_ready = true
 			self:start()
 		end)
@@ -105,6 +111,7 @@ function StateSplash:start()
 	self.world:addSystems(Systems.GhostEffect)
 	self.world:addSystems(Systems.GlitchEffect)
 	self.world:addSystem(Systems.Typewriter)
+	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.RenderSprite)
@@ -115,23 +122,29 @@ function StateSplash:start()
 	!end
 
 	local ww, wh = love.graphics.getDimensions()
+
+	self.entities.flamendless = Concord.entity(self.world)
+		:give("sprite", res_images.flamendless_logo)
+		:give("position", vec2(ww/2, wh/2))
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("color", {1, 1, 1, 0})
+
 	self.entities.splash_wits = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite,
-			{
-				spritesheet = resources.images.sheet_wits,
-				frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, },
+		:assemble(Assemblages.Common.animated_sprite, {
+				spritesheet = res_images.sheet_wits,
+				frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
 				delay = 0.15,
 				rows_count = 4,
 				columns_count = 3,
-			},
-			vec2:new(ww/2, wh/2)
-		):give("color", Palette.colors.white)
+			}, vec2:new(ww/2, wh/2))
+		:give("color", Palette.colors.white)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)
-		:give("animation_on_complete", function()
+		:give("animation_on_loop", function()
 			self.world:emit("start_fade")
 			Timer.after(2, function()
+				self.entities.flamendless:give("color_fade_in", 2)
 				current_state = states.splash_flam
 				timer_flam_skip:after(delay_skip, function()
 					splash_flam_skippable = true
@@ -141,7 +154,8 @@ function StateSplash:start()
 			end)
 		end, "pauseAtEnd")
 
-	local font = resources.fonts.firefly_256
+	local font = res_fonts.firefly
+
 	self.entities.ghost_effect = Concord.entity(self.world)
 		:give("random_text", "flamendless")
 		:give("font", font)
@@ -154,28 +168,29 @@ function StateSplash:start()
 		:give("glitch_colors", Palette.color_glitches)
 		:give("color", color_a)
 		:give("lerp_colors", {color_a, color_b})
-		:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2))
+		:give("position", vec2:new(ww/2, wh * 0.85))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	self.entities.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
-		:give("position", vec2:new(love.graphics.getWidth()/2, love.graphics.getHeight() * 0.3))
+		:give("position", vec2:new(ww/2, wh * 0.2))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
-		:give("font", resources.fonts.uncle_type_32)
-		:give("typewriter", "a game by", 0.4)
+		:give("font", res_fonts.uncle_type_32)
+		:give("typewriter", "a game by", 0.2)
 		:give("typewriter_on_finish", function()
 			switch(self.gamestate)
-		end, 2)
+		end, 1.25)
 
 	if Save.data.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, resources.fonts.ui, vec2:new(ww/2, wh - 8))
+			:assemble(Assemblages.Common.skip, res_fonts.ui, vec2:new(ww/2, wh - 8))
 	end
 end
 
 function StateSplash:update(dt)
 	if not self.is_ready then return end
+
 	if current_state == states.splash_love then
 		timer_love_skip:update(dt)
 		splash_love:update(dt)
@@ -190,6 +205,7 @@ end
 
 function StateSplash:draw()
 	if not self.is_ready then return end
+
 	if current_state == states.splash_love then
 		splash_love:draw()
 	elseif current_state == states.splash_wits then
@@ -198,21 +214,25 @@ function StateSplash:draw()
 		self.world:emit("draw")
 		self.world:emit("effect_draw")
 	end
+
 	self.world:emit("draw_ui")
 	Fade.draw()
 end
 
 function StateSplash:keypressed(key)
 	if not self.is_ready then return end
+
 	if Save.data.splash_done then
 		if Inputs.is_pressed("ui_skip", key) then
 			if splash_love and splash_love_skippable then
 				splash_love:skip()
 			end
+
 			if current_state == states.splash_wits and splash_wits_skippable then
 				self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
 				splash_wits_skippable = false
 			end
+
 			if current_state == states.splash_flam and splash_flam_skippable then
 				switch(self.gamestate)
 				splash_flam_skippable = false
@@ -224,13 +244,19 @@ end
 function StateSplash:exit()
 	Resources.clean(resources)
 	Timer.clear()
+
+	self.world:emit("cleanup")
+	self.world:clear()
+
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+
 	for k, e in pairs(self.entities) do
 		self.entities[k]:destroy()
 		self.entities[k] = nil
 	end
+
 	current_state = states.splash_love
 	splash_love = nil
 	timer_flam_skip = nil

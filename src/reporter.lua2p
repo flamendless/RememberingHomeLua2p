@@ -1,12 +1,8 @@
-local Reporter = {}
-
 !if _REPORTING then
+local Reporter = {}
 local Crush = require("modules.crush.crush")
 
 local format = string.format
-
-local file_output = !(_LOG_OUTPUT)
-local file_info = !(_LOG_INFO)
 
 local attachments = {
 	{
@@ -19,6 +15,9 @@ local attachments = {
 	},
 }
 
+local file_output = !(_LOG_OUTPUT)
+local file_info = !(_LOG_INFO)
+
 local game_name = !(_GAME_NAME)
 local game_version = !(_GAME_VERSION)
 local platform = !(_PLATFORM)
@@ -28,10 +27,10 @@ local url = !(_GITHUB_URL)
 local server = "smtp.mailgun.org"
 local user = "brbl@sandboxb8f406440cf4418487839136f9838754.mailgun.org"
 local password = "flamendless"
-local rec = format("<%s>", email)
 
 function Reporter.send(msg)
 	Crush.pcall(function()
+		local rec = format("<%s>", email)
 		local recipient = rec
 		local smtp_config = {
 			server = server,
@@ -39,7 +38,6 @@ function Reporter.send(msg)
 			user = user,
 			password = password,
 		}
-
 		local extra_info = {
 			Version = game_version,
 			OS = platform,
@@ -50,6 +48,5 @@ function Reporter.send(msg)
 	end)
 end
 
-!end
-
 return Reporter
+!end

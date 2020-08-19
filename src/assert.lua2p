@@ -1,156 +1,88 @@
-local Assert = {}
+local Assert = {
+	safe = {}
+}
 
 local concat = table.concat
 local format = string.format
 
-local T_BEZIER_CURVE = "BezierCurve"
-local T_BOOLEAN = "boolean"
-local T_CUSTOM_CANVAS = "CustomCanvas"
-local T_FONT = "Font"
-local T_FONT_SDF = "fontsdf"
-local T_FUNCTION = "function"
-local T_IMAGE = "Image"
-local T_IMAGEDATA = "ImageData"
-local T_NUMBER = "number"
-local T_QUAD = "Quad"
-local T_SHADER = "Shader"
-local T_STRING = "string"
-local T_TABLE = "table"
-local T_EVENT = "Event"
-local T_TIMELINEEVENT = "TLE"
-local T_VEC2 = "vec2"
-local T_VEC3 = "vec3"
+Assert.types = {
+	T_BEZIER_CURVE = "BezierCurve",
+	T_BOOLEAN = "boolean",
+	T_COMPONENT = "__isComponent",
+	T_CUSTOM_CANVAS = "CustomCanvas",
+	T_ENTITY = "__isEntity",
+	T_EVENT = "Event",
+	T_FONT = "Font",
+	T_FONT_SDF = "fontsdf",
+	T_FUNCTION = "function",
+	T_GAMERA = "__camera",
+	T_IMAGE = "Image",
+	T_IMAGEDATA = "ImageData",
+	T_NUMBER = "number",
+	T_PARTICLE_SYSTEM = "ParticleSystem",
+	T_QUAD = "Quad",
+	T_SHADER = "Shader",
+	T_STRING = "string",
+	T_TABLE = "table",
+	T_TIMELINEEVENT = "TLE",
+	T_USERDATA = "userdata",
+	T_VEC2 = "vec2",
+	T_VEC3 = "vec3",
+	T_WORLD = "__isWorld",
+}
 
-local msg_nil = "Passed argument is 'nil'"
-local msg_should_bezier_curve = "Passed argument must be of type 'BezierCurve'"
-local msg_should_boolean = "Passed argument must be of type 'boolean'"
-local msg_should_gamera = "Passed argument must be an instance of 'Gamera'"
-local msg_should_color = "Passed argument must be of type 'Table (Color)'"
-local msg_should_color_range = "Passed argument must between [0.0, 1.0] range"
-local msg_should_component = "Passed argument must not be of type 'Component'"
-local msg_should_custom_canvas = "Passed argument must be of type 'CustomCanvas'"
-local msg_should_entity = "Passed argument must not be of type 'Entity'"
-local msg_should_exists = "Passed argument must not be nil"
-local msg_should_font = "Passed argument must be of type 'Font'"
-local msg_should_font_or_sdf = "Passed argument must be of type 'Font' or 'fontsdf'"
-local msg_should_function = "Passed argument must be of type 'function'"
-local msg_should_image = "Passed argument must be of type 'Image'"
-local msg_should_imagedata = "Passed argument must be of type 'ImageData'"
-local msg_should_image_or_imagedata = "Passed argument must be of type 'Image' or 'ImageData'"
-local msg_should_nil = "Passed argument must be nil"
-local msg_should_number = "Passed argument must be of type 'number'"
-local msg_should_quad = "Passed argument must be of type 'Quad'"
-local msg_should_shader = "Passed argument must be of type 'Shader'"
-local msg_should_string = "Passed argument must be of type 'string'"
-local msg_should_system = "Passed argument must be of type 'System'"
-local msg_should_table = "Passed argument must be of type 'table'"
-local msg_should_event = "Passed argument must be of type 'Event'"
-local msg_should_table_not_empty = "Passed table must not be empty"
-local msg_should_timelineevent = "Passed argument must be of type 'TLE'"
-local msg_should_true = "Passed argument must be true"
-local msg_should_vec2 = "Passed argument must be of type 'vec2'"
-local msg_should_vec3 = "Passed argument must be of type 'vec3'"
-local msg_should_world = "Passed argument must not be of type 'World'"
+local types = Assert.types
 
-function Assert.should_all_image_i(arg)
-	Assert.should_table(arg)
-	if #arg == 0 then
-		error(msg_should_table_not_empty, 2)
-	end
-	for i, v in ipairs(arg) do
-		Assert.should_image(v)
+local get_type = function(arg)
+	local a_type = type(arg)
+
+	a_type = (a_type == types.T_TABLE or a_type == types.T_USERDATA)
+		and (arg.type and type(arg.type) == types.T_FUNCTION and arg:type())
+		or a_type
+
+	return a_type
+end
+
+function Assert.must(arg, expected_type)
+	local a_type = get_type(arg)
+
+	if not (a_type == expected_type) then
+		error(format("Expected type '%s' but got '%s'", expected_type, a_type), 2)
 	end
 end
 
-function Assert.should_bezier_curve(arg)
-	if arg:type() ~= T_BEZIER_CURVE then
-		error(msg_should_bezier_curve, 2)
+function Assert.exists(arg)
+	if arg == nil then
+		error(format("Passed argument must not be 'nil'; got '%s'", type(arg)), 2)
 	end
 end
 
-function Assert.should_boolean(arg)
-	if type(arg) ~= T_BOOLEAN then
-		error(msg_should_boolean, 2)
+function Assert.empty(arg)
+	if not (arg == nil) then
+		error(format("Passed argument must be 'nil'; got '%s'", type(arg)), 2)
 	end
 end
 
-function Assert.should_color(arg)
-	if type(arg) ~= T_TABLE then
-		error(msg_should_color, 2)
-	end
-	Assert.should_color_range(arg[1])
-	Assert.should_color_range(arg[2])
-	Assert.should_color_range(arg[3])
-	Assert.safe_should_color_range(arg[4])
+function Assert.color(arg)
+	Assert.must(arg, types.T_TABLE)
+	Assert.within_range(arg[1], 0, 1)
+	Assert.within_range(arg[2], 0, 1)
+	Assert.within_range(arg[3], 0, 1)
+	Assert.safe.within_range(arg[4], 0, 1)
 end
 
-function Assert.should_color_range(arg)
-	if type(arg) ~= T_NUMBER then
-		error(msg_should_number, 2)
-	end
-	if arg < 0 or arg > 1 then
-		error(msg_should_color_range, 2)
-	end
-end
-
-function Assert.should_exists(arg)
-	if not arg then
-		error(msg_should_exists, 2)
-	end
-end
-
-function Assert.should_function(arg)
-	if type(arg) ~= T_FUNCTION then
-		error(msg_should_function, 2)
-	end
-end
-
-function Assert.should_nil(arg)
-	if arg ~= nil then
-		error(msg_should_nil, 2)
-	end
-end
-
-function Assert.should_number(arg)
-	if type(arg) ~= T_NUMBER then
-		error(msg_should_number, 2)
-	end
-end
-
-function Assert.should_string(arg)
-	if type(arg) ~= T_STRING then
-		error(msg_should_string, 2)
-	end
-end
-
-function Assert.should_table(arg)
-	if type(arg) ~= T_TABLE then
-		error(msg_should_table, 2)
-	end
-end
-
-function Assert.should_event(arg)
-	if arg:type() ~= T_EVENT then
-		error(msg_should_event, 2)
-	end
-end
-
-function Assert.should_true(arg)
-	if arg == false then
-		error(msg_should_true, 2)
-	end
-end
-
---CUSTOM
 function Assert.either_type(arg, ...)
 	local args = {...}
 	local pass = false
+	local a_type = get_type(arg)
+
 	for _, v in ipairs(args) do
-		if type(arg) == v then
+		if a_type == v then
 			pass = true
 			break
 		end
 	end
+
 	if not pass then
 		local msg = "Passed argument must be either of types: " .. concat(args, ", ")
 		error(msg, 2)
@@ -160,12 +92,14 @@ end
 function Assert.either_value(arg, ...)
 	local args = {...}
 	local pass = false
+
 	for _, v in ipairs(args) do
 		if arg == v then
 			pass = true
 			break
 		end
 	end
+
 	if not pass then
 		local msg = "Passed argument must be either of values: " .. concat(args, ", ")
 		error(msg, 2)
@@ -175,248 +109,53 @@ end
 function Assert.should_atleast(...)
 	local args = {...}
 	local pass = false
+
 	for i = 1, #args do
 		if args[i] ~= nil then
 			pass = true
 			break
 		end
 	end
+
 	if not pass then
 		local msg = "Passed arguments must have atleast one true"
 		error(msg, 2)
 	end
 end
 
-function Assert.should_custom_canvas(arg)
-	if arg:type() ~= T_CUSTOM_CANVAS then
-		error(msg_should_custom_canvas, 2)
-	end
-end
-
-function Assert.should_vec2(arg)
-	if arg == nil then
-		error(msg_nil, 2)
-	end
-	if arg.type ~= T_VEC2 then
-		error(msg_should_vec2, 2)
-	end
-end
-
-function Assert.should_vec3(arg)
-	if arg == nil then
-		error(msg_nil, 2)
-	end
-	if arg.type ~= T_VEC3 then
-		error(msg_should_vec3, 2)
-	end
-end
-
 function Assert.within_range(arg, min, max)
-	if (arg > max) or (arg < min) then
-		local msg = format("Passed argument must be within the range: %i - %i", min, max)
+	Assert.must(arg, types.T_NUMBER)
+
+	if arg < min or arg > max then
+		local msg = format("Value must be between [%s, %s]; got '%s'", min, max, arg)
 		error(msg, 2)
 	end
 end
 
---ECS (Concord)
-function Assert.should_component(arg)
-	if not arg.__isComponent then
-		error(msg_should_component, 2)
+function Assert.is(arg, t)
+	local result = arg[t] or (type(arg.type) == "string" and arg.type == t)
+
+	return result == true
+end
+
+function Assert.truthy(arg)
+	if not arg then
+		error("Expression or argument must be true; got " .. arg, 2)
 	end
 end
 
-function Assert.should_entity(arg)
-	if not arg.__isEntity then
-		error(msg_should_entity, 2)
-	end
-end
+for method, fn in pairs(Assert) do
+	if type(fn) == "function" then
+		Assert.safe[method] = function(arg, ...)
+			if arg then
+				fn(arg, ...)
 
-function Assert.safe_should_entity(arg)
-	if arg then
-		Assert.should_entity(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.should_system(arg)
-	if not arg.__isSystem then
-		error(msg_should_system, 2)
-	end
-end
-
-function Assert.should_world(arg)
-	if not arg.__isWorld then
-		error(msg_should_world, 2)
-	end
-end
-
---GAMERA
-function Assert.should_gamera(arg)
-	if not arg:isCamera() then
-		error(msg_should_gamera, 2)
-	end
-end
-
---LOVE
-function Assert.should_font(arg)
-	if arg:type() ~= T_FONT then
-		error(msg_should_font, 2)
-	end
-end
-
-function Assert.should_font_or_sdf(arg)
-	local t = arg:type()
-	if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
-		error(msg_should_font_or_sdf)
-	end
-end
-
-function Assert.should_image(arg)
-	if arg:type() ~= T_IMAGE then
-		error(msg_should_image, 2)
-	end
-end
-
-function Assert.should_imagedata(arg)
-	if arg:type() ~= T_IMAGEDATA then
-		error(msg_should_imagedata, 2)
-	end
-end
-
-function Assert.should_image_or_imagedata(arg)
-	local t = arg:type()
-	if (t ~= T_IMAGE) and (t ~= T_IMAGEDATA) then
-		error(msg_should_image_or_imagedata)
-	end
-end
-
-function Assert.should_quad(arg)
-	if arg:type() ~= T_QUAD then
-		error(msg_should_quad, 2)
-	end
-end
-
-function Assert.should_shader(arg)
-	if arg:type() ~= T_SHADER then
-		error(msg_should_shader, 2)
-	end
-end
-
---TLE
-function Assert.should_timelineevent(arg)
-	if arg:type() ~= T_TIMELINEEVENT then
-		error(msg_should_timelineevent, 2)
-	end
-end
-
-function Assert.safe_should_timelineevent(arg)
-	if arg then
-		Assert.should_timelineevent(arg)
-		return true
-	end
-	return false
-end
-
---SAFE
-function Assert.safe_either_value(arg, ...)
-	if arg then
-		local args = {...}
-		local pass = false
-		for _, v in ipairs(args) do
-			if arg == v then
-				pass = true
-				break
+				return true
 			end
-		end
-		if not pass then
-			local msg = "Passed argument must be either of values: " .. concat(args, ", ")
-			error(msg, 2)
+
+			return false
 		end
 	end
-end
-
-function Assert.safe_should_boolean(arg)
-	if arg then
-		Assert.should_boolean(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_color(arg)
-	if arg then
-		Assert.should_color(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_color_range(arg)
-	if arg then
-		Assert.should_color_range(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_font(arg)
-	if arg then
-		Assert.should_font(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_font_or_sdf(arg)
-	if arg then
-		local t = arg:type()
-		if (t ~= T_FONT) and (t ~= T_FONT_SDF) then
-			error(msg_should_font_or_sdf)
-		end
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_function(arg)
-	if arg then
-		Assert.should_function(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_number(arg)
-	if arg then
-		Assert.should_number(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_string(arg)
-	if arg then
-		Assert.should_string(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_table(arg)
-	if arg then
-		Assert.should_table(arg)
-		return true
-	end
-	return false
-end
-
-function Assert.safe_should_vec2(arg)
-	if arg then
-		Assert.should_vec2(arg)
-		return true
-	end
-	return false
 end
 
 return Assert

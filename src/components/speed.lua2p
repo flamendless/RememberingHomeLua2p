@@ -2,16 +2,28 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("speed", function(c, speed)
 	!if _ASSERT then
-	Assert.safe_should_number(speed)
+	Assert.safe.is(speed, Types.T_VEC2)
 	!end
 
-	c.speed = speed or 0
+	c.speed = speed or vec2:new()
 end)
 
 Concord.component("speed_data", function(c, speed_data)
 	!if _ASSERT then
-	Assert.safe_should_table(speed)
+	if Assert.safe.must(speed_data, Types.T_TABLE) then
+		for i, v in ipairs(speed_data) do
+			Assert.is(v, Types.T_VEC2)
+		end
+	end
 	!end
 
 	c.speed_data = speed_data
+end)
+
+Concord.component("hspeed", function(c, hspeed)
+	!if _ASSERT then
+	Assert.must(hspeed, Types.T_NUMBER)
+	!end
+
+	c.hspeed = hspeed
 end)

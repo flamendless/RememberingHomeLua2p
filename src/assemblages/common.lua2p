@@ -1,31 +1,33 @@
-local Concord = require("modules.concord.concord")
-
 local Palette = require("palette")
 
 local Common = {}
 
 function Common.text(e, pos, str, font, color)
-	e:give("text", str)
+	e:give("id", "text")
+	:give("text", str)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", color)
 end
 
 function Common.static_text(e, pos, str, font, color)
-	e:give("static_text", str)
+	e:give("id", "static_text")
+	:give("static_text", str)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", color)
 end
 
 function Common.animated_sprite(e, animation_data, pos, stop_on_last)
-	e:give("animation_data", animation_data)
+	e:give("id", "animated_sprite")
+	:give("animation_data", animation_data)
 	:give("position", pos)
 	:give("animation", stop_on_last)
 end
 
-function Common.skip(e, font, pos)
-	e:give("static_text", "Press ESC/ENTER to skip")
+function Common.skip(e, text, font, pos)
+	e:give("id", "skip")
+	:give("static_text", text)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("ui_red"))
@@ -35,7 +37,8 @@ function Common.skip(e, font, pos)
 end
 
 function Common.item(e, id, pos, size)
-	e:give("item", id)
+	e:give("id", "item")
+	:give("item", id)
 	:give("position", pos)
 	:give("collider", size, nil, "cross")
 	:give("bump")

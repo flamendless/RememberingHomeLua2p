@@ -19,7 +19,6 @@ local Systems = {
 	Movement = require("systems.movement"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	Item = require("systems.item"),
 }
 
 !if not _RELEASE then
@@ -34,12 +33,12 @@ local Assemblages = {
 
 local resources_data = {
 	image = {
-		{ "sheet_player_idle", "res/images/player/player_idle.png" },
-		{ "sheet_player_walk", "res/images/player/player_walk.png" },
-		{ "sheet_player_run", "res/images/player/player_run.png" },
+		{"sheet_player_idle", "res/images/player/player_idle.png"},
+		{"sheet_player_walk", "res/images/player/player_walk.png"},
+		{"sheet_player_run", "res/images/player/player_run.png"},
 	},
 }
-local resources = { images = {} }
+local resources = {images = {}}
 local scale = 1
 
 function StateTest:new()
@@ -62,6 +61,7 @@ end
 
 function StateTest:start()
 	local ww, wh = love.graphics.getDimensions()
+
 	self.camera = Gamera.new(0, 0, ww, wh)
 	self.camera:setWindow(0, 0, ww, wh)
 
@@ -72,9 +72,10 @@ function StateTest:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.Item)
 
+	!if not _RELEASE then
 	Tracker.error_on_ref_count(Systems, 0)
+	!end
 
 	local ground = Concord.entity(self.world)
 		:give("position", vec2:new(256, 412))
@@ -92,15 +93,18 @@ function StateTest:start()
 		:give("bump")
 
 	self.item1 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item1", vec2:new(512, 360), vec2:new(32, 32))
+		:assemble(Assemblages.Common.item, "item1",
+			vec2:new(512, 360), vec2:new(32, 32))
 
 	self.item2 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item2", vec2:new(560, 360), vec2:new(32, 32))
+		:assemble(Assemblages.Common.item, "item2",
+			vec2:new(560, 360), vec2:new(32, 32))
 
 	self.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base, "topdown",
 			vec2:new(496, 256),
-			{ idle = 0, walk = 128, run = 180 }, 320,
+			{idle = vec2:new(), walk = vec2:new(128, 96), run = vec2:new(180, 148)},
+			320,
 			{
 				sheet_idle = resources.images.sheet_player_idle,
 				sheet_walk = resources.images.sheet_player_walk,
@@ -118,12 +122,14 @@ end
 
 function StateTest:update(dt)
 	if not self.is_ready then return end
+
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 
 	local mx, my = love.mouse.getPosition()
 	local mpos = self.ent_mouse:get("position").pos
+
 	mpos.x = mx
 	mpos.y = my
 	self.world:emit("check_collision", self.test_rect)
@@ -139,8 +145,10 @@ function StateTest:draw()
 		self.world:emit("draw_debug")
 
 		love.graphics.setColor(1, 0, 0, 1)
+
 		local cx, cy = self.camera:getPosition()
 		local l, t, w, h = self.camera:getVisible()
+
 		love.graphics.circle("fill", cx, cy, 8)
 		love.graphics.circle("fill", l, t, 16)
 		love.graphics.circle("fill", w, h, 16)
@@ -150,14 +158,17 @@ end
 
 function StateTest:keypressed(key)
 	if not self.is_ready then return end
+
 	self.world:emit("keypressed", key)
 end
 
 function StateTest:exit()
 	Resources.clean(resources)
+
 	for i, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
+
 	for k, e in pairs(self.entities) do
 		self.entities[k]:destroy()
 		self.entities[k] = nil

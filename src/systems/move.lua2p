@@ -7,25 +7,40 @@ local Move = Concord.system({
 	pool_original = {"position", "move_to_original"},
 })
 
-function Move:init()
-	self.pool.onEntityAdded = function(pool, e)
-		local pos = e.position
-		local move_by = e.move_by
+local function internal_move_by(e, is_repeat)
+	local pos = e.position.pos
+	local move_by = e.move_by
+	local mb_pos = move_by.pos
+
+	local f = Flux.to(pos, move_by.duration, {
+			x = pos.x + mb_pos.x,
+			y = pos.y + mb_pos.y,
+		})
+		:delay(move_by.delay)
+
+	if is_repeat then
+		-- f:oncomplete(function()
+		-- 	internal_move_by(e, is_repeat)
+		-- end)
+	else
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, move_by.duration,
-			{
-				x = pos.pos.x + move_by.pos.x,
-				y = pos.pos.y + move_by.pos.y
-			})
-			:delay(move_by.delay)
-			:oncomplete(function()
-				if on_complete then
-					on_complete.callback()
-					e:remove("move_on_complete")
-				end
-				e:remove("move_by")
-			end)
+		f:oncomplete(function()
+			if on_complete then
+				on_complete.callback()
+				e:remove("move_on_complete")
+			end
+
+			e:remove("move_by")
+		end)
+	end
+end
+
+function Move:init()
+	self.pool.onEntityAdded = function(pool, e)
+		local is_repeat = e.move_repeat ~= nil
+
+		internal_move_by(e, is_repeat)
 	end
 
 	self.pool_move_x.onEntityAdded = function(pool, e)
@@ -33,13 +48,14 @@ function Move:init()
 		local target = e.move_to_x
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, target.duration, { x = target.target_x, })
+		Flux.to(pos.pos, target.duration, {x = target.target_x})
 			:delay(target.delay)
 			:oncomplete(function()
 				if on_complete then
 					on_complete.callback()
 					e:remove("move_on_complete")
 				end
+
 				e:remove("move_to_x")
 			end)
 	end
@@ -49,17 +65,17 @@ function Move:init()
 		local move = e.move_to_original
 		local on_complete = e.move_on_complete
 
-		local f = Flux.to(pos.pos, move.duration,
-			{
+		Flux.to(pos.pos, move.duration, {
 				x = pos.original_pos.x,
 				y = pos.original_pos.y,
 			})
-		:delay(move.delay)
+			:delay(move.delay)
 			:oncomplete(function()
 				if on_complete then
 					on_complete.callback()
 					e:remove("move_on_complete")
 				end
+
 				e:remove("move_to_original")
 			end)
 	end

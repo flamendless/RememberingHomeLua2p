@@ -2,9 +2,9 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("position", function(c, pos)
 	!if _ASSERT then
-	Assert.should_vec2(pos)
+	Assert.is(pos, Types.T_VEC2)
 	!end
 
-	c.pos = pos:copy()
-	c.original_pos = c.pos:copy()
+	c.pos = pos
+	c.original_pos = pos:copy()
 end)

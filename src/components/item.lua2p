@@ -1,9 +1,4 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("item", function(c, id)
-	!if _ASSERT then
-	Assert.should_string(id)
-	!end
-
-	c.id = id
+Concord.component("item", function(c)
 end)

@@ -1,3 +1,5 @@
+local Log = require("modules.log.log")
+
 local Utils = require("utils")
 
 local format = string.format
@@ -7,6 +9,8 @@ local Save = {
 		splash_done = false,
 		intro_done = false
 	},
+	checkpoints = {},
+	valid_checkpoints = false,
 	exists = false,
 }
 
@@ -19,10 +23,17 @@ function Save.initialize()
 
 	if exists and exists_key then
 		local hashed = love.data.hash("sha256", content)
+
 		if key == hashed then
-			Save.data = Utils.deserialize(content)
+			local data = Utils.deserialize(content)
+			Save.data = data
+			Save.validate_checkpoints(data)
 		else
-			local error_msg = format("Data integrity is not valid.\nPlease do not modify the files: '%s' and '%s'.\nPlease delete the files in '%s' and restart the game", save_filename, key_filename, love.filesystem.getSaveDirectory())
+			local error_msg = format("Data integrity is not valid.\n\
+				Please do not modify the files: '%s' and '%s'.\n\
+				Please delete the files in '%s' and restart the game",
+				save_filename, key_filename, love.filesystem.getSaveDirectory())
+
 			error(error_msg)
 		end
 	else
@@ -30,24 +41,31 @@ function Save.initialize()
 	end
 
 	Save.exists = exists
-	print(string.pretty(Save.data, 2))
+	Log.info("Save Data: " .. stringx.pretty(Save.data))
+end
+
+function Save.validate_checkpoints(data)
+	!if _ASSERT then
+	Assert.must(data, Types.T_TABLE)
+	!end
 end
 
 function Save.overwrite()
 	local data = Utils.serialize_to_file(save_filename, Save.data)
 	local hashed = love.data.hash("sha256", data)
+
 	Utils.write_to_file(key_filename, hashed)
 end
 
-function Save.set_splash_done(should_overwrite)
-	Save.data.splash_done = true
-	if should_overwrite then
-		Save.overwrite()
-	end
-end
+function Save.set_flag(id, should_overwrite)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(Save.data[id])
+	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
+	!end
 
-function Save.set_intro_done(should_overwrite)
-	Save.data.intro_done = true
+	Save.data[id] = true
+
 	if should_overwrite then
 		Save.overwrite()
 	end

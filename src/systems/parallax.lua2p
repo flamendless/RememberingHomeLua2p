@@ -2,23 +2,16 @@ local Concord = require("modules.concord.concord")
 
 local Parallax = Concord.system({
 	pool = {"parallax", "quad", "sprite"},
-	pool_tree = {"sprite", "position", "tree", "parallax"},
 })
 
 function Parallax:init()
 	self.pool.onEntityAdded = function(pool, e)
-		local sprite = e.sprite
-
-		sprite.sprite:setWrap("repeat")
+		e.sprite.sprite:setWrap("repeat")
 	end
 end
 
 function Parallax:stop_parallax()
 	for _, e in ipairs(self.pool) do
-		e:remove("parallax")
-	end
-
-	for _, e in ipairs(self.pool_tree) do
 		e:remove("parallax")
 	end
 end
@@ -30,35 +23,17 @@ function Parallax:slow_parallax(amount)
 
 		parallax.speed.x = dx
 	end
-
-	for _, e in ipairs(self.pool_tree) do
-		local parallax = e.parallax
-		local dx = parallax.speed.x * amount
-
-		parallax.speed.x = dx
-	end
 end
 
 function Parallax:parallax_move_x(dt, dir)
 	for _, e in ipairs(self.pool) do
-		if not e:has("parallax_stop") then
+		if not e.parallax_stop then
 			local parallax = e.parallax
 			local quad = e.quad
 			local x, y, w, h = quad.quad:getViewport()
 
 			x = x + parallax.speed.x * dir * dt
 			quad.quad:setViewport(x, y, w, h)
-		end
-	end
-
-	for _, e in ipairs(self.pool_tree) do
-		if not e:has("parallax_stop") then
-			local pos = e.position.pos
-			local parallax = e.parallax
-			local x = pos.x
-
-			x = x + parallax.speed.x * dir * dt
-			pos.x = x
 		end
 	end
 end

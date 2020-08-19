@@ -1,38 +1,199 @@
-local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
 
 local Palette = require("palette")
 
 local UI = {}
 
+local dirs = Enum("up", "down", "left", "right")
+local line_width = 7
+
 function UI.paint_data(e, sheet)
-	e:give("text_paint_data", {
-		spritesheet = sheet,
-		frames = { "1-7", 1, "1-7", 2, "1-7", 3 },
-		delay = 0.1,
-		rows_count = 3,
-		columns_count = 7,
-		n_frames = 21
-	})
+	e:give("id", "paint_data")
+	:give("text_paint_data", {
+			spritesheet = sheet,
+			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
+			delay = 0.1,
+			rows_count = 3,
+			columns_count = 7,
+			n_frames = 21
+		})
 end
 
 function UI.splat_data(e, sheet)
-	e:give("text_paint_data", {
-		spritesheet = sheet,
-		frames = { "1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5 },
-		delay = 0.1,
-		rows_count = 5,
-		columns_count = 3,
-		n_frames = 13
-	})
+	e:give("id", "splat_data")
+	:give("text_paint_data", {
+			spritesheet = sheet,
+			frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5},
+			delay = 0.1,
+			rows_count = 5,
+			columns_count = 3,
+			n_frames = 13
+		})
 end
 
 function UI.ui_text(e, text, font, pos)
-	e:give("static_text", text)
+	e:give("id", "ui_text")
+	:give("static_text", text)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("white", 0))
 	:give("ui_text")
 	:give("hidden")
+end
+
+function UI.hold_progress_bg(e, pos, radius, segments)
+	e:give("id", "hold_progress_bg")
+	:give("position", pos)
+	:give("arc", radius, segments)
+	:give("line_width", line_width * 2)
+	:give("color", Palette.get("ui_hold_progress", 0))
+	:give("draw_mode", "line")
+	:give("arc_type", "open")
+	:give("ui_element")
+end
+
+function UI.hold_progress(e, pos, timer, radius, segments)
+	e:give("id", "hold_progress")
+	:give("position", pos)
+	:give("hold", timer)
+	:give("arc", radius, segments)
+	:give("line_width", line_width)
+	:give("color", Palette.get("ui_hold_progress", 0))
+	:give("draw_mode", "line")
+	:give("arc_type", "open")
+	:give("ui_element")
+end
+
+function UI.keypress(e, is_hold, sheet, target)
+	!if _ASSERT then
+	Assert.must(is_hold, Types.T_BOOLEAN)
+	!end
+
+	local delay = is_hold and {0.5, 0.5, 2} or 0.5
+
+	e:give("id", "keypress")
+	:give("ui_element")
+	:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-3", 1},
+			delay = delay,
+			rows_count = 1,
+			columns_count = 3,
+			n_frames = 3,
+		})
+	:give("animation")
+	:give("position", vec2:new())
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("color", {1, 1, 1, 0})
+	:give("attach_to", target)
+end
+
+function UI.key(e, key, pos, font)
+	e:give("id", "key_" .. key)
+	:give("text", key)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("ui_key", 0))
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("ui_text")
+end
+
+function UI.arrow(e, dir, sheet, pos)
+	!if _ASSERT then
+	Assert.must(dir, Types.T_STRING)
+	!end
+
+	local d = dirs[dir]
+	local q
+
+	if d == "up" then
+		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
+	elseif d == "down" then
+		q = love.graphics.newQuad(192, 0, 64, 64, sheet:getDimensions())
+	elseif d == "left" then
+		q = love.graphics.newQuad(64, 0, 64, 64, sheet:getDimensions())
+	elseif d == "right" then
+		q = love.graphics.newQuad(0, 0, 64, 64, sheet:getDimensions())
+	end
+
+	e:give("id", "arrow_" .. dir)
+	:give("sprite", sheet)
+	:give("position", pos)
+	:give("quad", q)
+	:give("color", {1, 1, 1, 0})
+	:give("ui_element")
+end
+
+local function action(e, sheet, dur)
+	e:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-5", 1},
+			delay = 0.2,
+			rows_count = 1,
+			columns_count = 5,
+			n_frames = 5,
+		})
+	:give("tween_dur", dur)
+	:give("position", vec2:new())
+	:give("ui_action")
+	:give("ui_element")
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered", 1))
+	:give("ease", "backout")
+	:give("bounding_box", vec2:new(), vec2:new(96, 96))
+	:give("hoverable")
+	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
+	:give("hover_change_scale", 1.25, 0.25)
+	:give("clickable", 1, function()
+		print(e.id.id)
+	end)
+
+	return e
+end
+
+!(
+local dist = 115
+local gap = 60
+local start = -30
+local a = start
+local b = a + gap * 1
+local c = a + gap * 2
+local d = a + gap * 3
+)
+
+!!local x1 = math.sin(math.rad(a)) * dist
+!!local x2 = math.sin(math.rad(b)) * dist
+!!local x3 = math.sin(math.rad(c)) * dist
+!!local x4 = math.sin(math.rad(d)) * dist
+
+!!local y1 = -math.cos(math.rad(a)) * dist
+!!local y2 = -math.cos(math.rad(b)) * dist
+!!local y3 = -math.cos(math.rad(c)) * dist
+!!local y4 = -math.cos(math.rad(d)) * dist
+
+--TODO fix offset values
+function UI.action_eye(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_eye")
+	:give("ui_offset", vec2:new(x1, y1))
+end
+
+function UI.action_hand(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_hand")
+	:give("ui_offset", vec2:new(x2, y2))
+end
+
+function UI.action_bag(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_bag")
+	:give("ui_offset", vec2:new(x3, y3))
+end
+
+function UI.action_cancel(e, sheet, dur)
+	action(e, sheet, dur)
+	:give("id", "action_cancel")
+	:give("ui_offset", vec2:new(x4, y4))
 end
 
 return UI

@@ -1,0 +1,54 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local format = string.format
+
+local ActionControls = Concord.system({
+	pool_player = {"player", "position", "collider3d"},
+	pool_actions = {"id", "ui_action", "position", "tween_dur", "ui_offset"},
+})
+
+function ActionControls:init(world)
+	self.world = world
+	self.player = nil
+
+	self.pool_player.onEntityAdded = function(pool, e)
+		!if _ASSERT then
+		Assert.empty(self.player)
+		!end
+
+		self.player = e
+	end
+end
+
+function ActionControls:show_ui_interactive(other)
+	!if _ASSERT then
+	Assert.exists(other.item)
+	!end
+
+	for _, e in ipairs(self.pool_actions) do
+		local pos = e.position.pos
+		local off = e.ui_offset.offset
+
+		local player_pos = self.player.position.pos
+		local other_pos = other.position.pos
+
+		pos.x = player_pos.x
+		pos.y = player_pos.y + off.y
+
+		if other_pos.x <= player_pos.x then
+			--show action on right
+			pos.x = pos.x + off.x
+		else
+			--show action on left
+			pos.x = pos.x - off.x
+		end
+
+		e.ui_action.is_active = true
+
+		e:give("animation", true)
+		:give("color_fade_in", e.tween_dur.dur)
+	end
+end
+
+return ActionControls

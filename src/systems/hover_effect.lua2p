@@ -3,47 +3,89 @@ local Flux = require("modules.flux.flux")
 
 local HoverEffect = Concord.system({
 	pool_change_color = {"bounding_box", "hoverable", "color", "hover_change_color"},
+	pool_change_scale = {"bounding_box", "hoverable", "transform", "hover_change_scale"},
 })
 
-function HoverEffect:change_color(mx, my)
+local function get_real_pos(e)
+	local pos = e.position.pos
+	local transform = e.transform
+
+	local x = pos.x
+	local y = pos.y
+
+	if transform then
+		x = x - transform.ox * transform.sx
+		y = y - transform.oy * transform.sy
+	end
+
+	return x, y
+end
+
+function HoverEffect:hover_check(mx, my)
+	self:hover_change_color(mx, my)
+	self:hover_change_scale(mx, my)
+end
+
+function HoverEffect:hover_change_color(mx, my)
 	for _, e in ipairs(self.pool_change_color) do
 		local color = e.color
-		local new_color = e.hover_change_color
+		local hcc = e.hover_change_color
 		local box = e.bounding_box
 		local hoverable = e.hoverable
 		local camera = e.camera
-		local bx = box.x
-		local by = box.y
-		local bw = box.w
-		local bh = box.h
+
+		local bx, by = get_real_pos(e)
+		local bw, bh = box.size.x, box.size.y
 
 		if camera then
-			bx = box.screen_x
-			by = box.screen_y
+			bx = box.screen_size.x
+			by = box.screen_size.y
 		end
 
-		if mx > bx and mx < bx + bw and my > by and my < by + bh then
-			if not hoverable.is_hovered then
-				hoverable.is_hovered = true
-				Flux.to(color.color, new_color.duration,
-					{
-						[1] = new_color.color[1],
-						[2] = new_color.color[2],
-						[3] = new_color.color[3],
-						[4] = new_color.color[4],
-					})
-			end
+		local res = mx > bx and mx < bx + bw and my > by and my < by + bh
+
+		hoverable.is_hovered = res
+
+		if res then
+			color.color[1] = mathx.lerp(color.color[1], hcc.target[1], hcc.step)
+			color.color[2] = mathx.lerp(color.color[2], hcc.target[2], hcc.step)
+			color.color[3] = mathx.lerp(color.color[3], hcc.target[3], hcc.step)
+			color.color[4] = mathx.lerp(color.color[4], hcc.target[4], hcc.step)
 		else
-			if hoverable.is_hovered then
-				hoverable.is_hovered = false
-				Flux.to(color.color, new_color.duration,
-					{
-						[1] = color.original_color[1],
-						[2] = color.original_color[2],
-						[3] = color.original_color[3],
-						[4] = color.original_color[4],
-					})
-			end
+			color.color[1] = mathx.lerp(color.color[1], color.orig_color[1], hcc.step)
+			color.color[2] = mathx.lerp(color.color[2], color.orig_color[2], hcc.step)
+			color.color[3] = mathx.lerp(color.color[3], color.orig_color[3], hcc.step)
+			color.color[4] = mathx.lerp(color.color[4], color.orig_color[4], hcc.step)
+		end
+	end
+end
+
+function HoverEffect:hover_change_scale(mx, my)
+	for _, e in ipairs(self.pool_change_scale) do
+		local box = e.bounding_box
+		local hoverable = e.hoverable
+		local transform = e.transform
+		local hcs = e.hover_change_scale
+		local camera = e.camera
+
+		local bx, by = get_real_pos(e)
+		local bw, bh = box.size.x, box.size.y
+
+		if camera then
+			bx = box.screen_size.x
+			by = box.screen_size.y
+		end
+
+		local res = mx > bx and mx < bx + bw and my > by and my < by + bh
+
+		hoverable.is_hovered = res
+
+		if res then
+			transform.sx = mathx.lerp(transform.sx, hcs.target, hcs.step)
+			transform.sy = mathx.lerp(transform.sy, hcs.target, hcs.step)
+		else
+			transform.sx = mathx.lerp(transform.sx, transform.orig_sx, hcs.step)
+			transform.sy = mathx.lerp(transform.sy, transform.orig_sy, hcs.step)
 		end
 	end
 end

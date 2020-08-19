@@ -9,14 +9,12 @@ local RenderText = Concord.system({
 function RenderText:init()
 	self.pool_static.onEntityAdded = function(pool, e)
 		!if _ASSERT then
-		if e:has("sdf") then
+		if e.sdf then
 			error("static_font can't use sdf font")
 		end
 		!end
 
-		local static_text = e.static_text
-		local font = e.font
-		static_text.text_obj = love.graphics.newText(font.font, static_text.text)
+		e.static_text.text_obj = love.graphics.newText(e.font.font, e.static_text.text)
 	end
 end
 
@@ -31,6 +29,7 @@ function RenderText:internal_draw(e)
 		local sdf = e.sdf
 
 		love.graphics.setColor(1, 1, 1, 1)
+
 		if color then
 			love.graphics.setColor(color.color)
 		end
@@ -39,7 +38,7 @@ function RenderText:internal_draw(e)
 			love.graphics.setFont(font.font)
 		end
 
-		local font = love.graphics.getFont()
+		local current_font = love.graphics.getFont()
 		local rotation, sx, sy, ox, oy
 
 		if transform then
@@ -53,27 +52,28 @@ function RenderText:internal_draw(e)
 				if static_text then
 					ox = static_text.text_obj:getWidth()/2
 				else
-					ox = font:getWidth(text.text)/2
+					ox = current_font:getWidth(text.text)/2
 				end
 			end
+
 			if transform.oy == 0.5 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()/2
 				else
-					oy = font:getHeight(text.text)/2
+					oy = current_font:getHeight(text.text)/2
 				end
 			elseif transform.oy == 1 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()
 				else
-					oy = font:getHeight(text.text)
+					oy = current_font:getHeight(text.text)
 				end
 			end
 		end
 
 		if sdf then
-			sx = sdf.scale_x
-			sy = sdf.scale_y
+			sx = sdf.sx
+			sy = sdf.sy
 		end
 
 		local x = pos.pos.x
@@ -89,12 +89,13 @@ end
 
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
-		if not e:has("ui_text") then
+		if not e.ui_text then
 			self:internal_draw(e)
 		end
 	end
+
 	for _, e in ipairs(self.pool_static) do
-		if not e:has("ui_text") then
+		if not e.ui_text then
 			self:internal_draw(e)
 		end
 	end
@@ -104,9 +105,114 @@ function RenderText:draw_ui()
 	for _, e in ipairs(self.pool_ui) do
 		self:internal_draw(e)
 	end
+
 	for _, e in ipairs(self.pool_static) do
 		self:internal_draw(e)
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local is_open_text = false
+local is_open_sdf = false
+local t_comp
+local selected_e
+
+function RenderText:draw_debug()
+	views.text = Slab.BeginWindow("Text", {
+			Title = "Text List", IsOpen = views.text
+		})
+
+	for _, e in ipairs(self.pool) do
+		Slab.Text(e.id.id)
+		Slab.SameLine()
+
+		if Slab.Button("Modify Text") then
+			is_open_text = true
+			is_open_sdf = false
+			selected_e = e
+			t_comp = e.text
+
+			break
+		end
+
+
+		if e.sdf then
+			Slab.SameLine()
+
+			if Slab.Button("Modify SDF") then
+				is_open_sdf = true
+				is_open_text = false
+				selected_e = e
+				t_comp = e.sdf
+
+				break
+			end
+		end
+	end
+
+	Slab.EndWindow()
+
+	if not selected_e then return end
+
+	if is_open_text then
+		self:debug_modify_text()
+	elseif is_open_sdf then
+		self:debug_modify_sdf()
+	end
+end
+
+function RenderText:debug_modify_text()
+	is_open_text = Slab.BeginWindow("text_e", {
+			Title = "Text", IsOpen = is_open_text
+		})
+	Slab.Text("Text:")
+	Slab.SameLine()
+
+	if Slab.Input("text_text", {Text = tostring(t_comp.text)}) then
+		t_comp.text = Slab.GetInputText()
+	end
+
+	Slab.EndWindow()
+end
+
+function RenderText:debug_modify_sdf()
+	is_open_sdf = Slab.BeginWindow("sdf_e", {
+			Title = "SDF", IsOpen = is_open_sdf
+		})
+	Slab.Text("Scale X and Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_s", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale X:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sx", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sy", {
+			Text = tostring(t_comp.sy), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.EndWindow()
+end
+
+!end
 
 return RenderText

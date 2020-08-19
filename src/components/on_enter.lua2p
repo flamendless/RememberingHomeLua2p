@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("on_enter", function(c, callback)
 	!if _ASSERT then
-	Assert.should_function(callback)
+	Assert.must(callback, Types.T_FUNCTION)
 	!end
 
 	c.callback = callback
