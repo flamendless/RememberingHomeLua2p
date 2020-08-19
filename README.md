@@ -45,6 +45,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## Tools:
 
+* [HotParticles](https://github.com/ReFreezed/HotParticles) - for testing/playing with particle systems.
 * [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
@@ -60,5 +61,6 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## LICENSE:
 
+* Source code is under the GPL. See [COPYING](COPYING) file.
 * Assets have a commercial license and thus can not be used without the permission from the artist
 * Each library/module has their own license
