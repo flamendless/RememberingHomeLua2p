@@ -5,6 +5,8 @@ return {
 		"vec3",
 		"unique_mapping",
 		"class",
+		"mathx",
+		"stringx",
 	},
 	ignore = {'212'},
 }
