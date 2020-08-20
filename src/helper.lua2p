@@ -1,0 +1,68 @@
+local Helper = {}
+
+function Helper.get_offset(e)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	!end
+
+	local transform = e.transform
+	local animation_data = e.animation_data
+	local sprite = e.sprite
+
+	local ox = transform.ox
+	local oy = transform.oy
+
+	if animation_data then
+		if transform.ox == 0.5 then
+			ox = animation_data.frame_width/2
+		elseif transform.ox == 1 then
+			ox = animation_data.frame_width
+		end
+
+		if transform.oy == 0.5 then
+			oy = animation_data.frame_height/2
+		elseif transform.oy == 1 then
+			oy = animation_data.frame_height
+		end
+	elseif sprite then
+		if transform.ox == 0.5 then
+			ox = sprite.sprite:getWidth()/2
+		end
+
+		if transform.oy == 0.5 then
+			oy = sprite.sprite:getHeight()/2
+		end
+	end
+
+	return ox, oy
+end
+
+function Helper.get_real_pos_box(e)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	!end
+
+	local box = e.bounding_box
+	local pos = e.position.pos
+	local transform = e.transform
+	local camera = e.camera
+
+	local x = pos.x
+	local y = pos.y
+
+	if transform then
+		local ox, oy = Helper.get_offset(e)
+
+		x = x - ox
+		y = y - oy
+	end
+
+	if camera then
+		x = box.screen_pos.x
+		y = box.screen_pos.y
+	end
+
+	return x, y
+end
+
+return Helper

@@ -1,18 +1,14 @@
 local Concord = require("modules.concord.concord")
 
+local Helper = require("helper")
+
 local Click = Concord.system({
 	pool = {"bounding_box", "clickable"}
 })
 
 function Click:mousepressed(mx, my, mb)
 	for _, e in ipairs(self.pool) do
-		local ui_action = e.ui_action
-
-		if ui_action then
-			if ui_action.is_active then
-				self:internal_mousepressed(e, mx, my, mb)
-			end
-		else
+		if not e.hidden then
 			self:internal_mousepressed(e, mx, my, mb)
 		end
 	end
@@ -23,17 +19,8 @@ function Click:internal_mousepressed(e, mx, my, mb)
 
 	if mb == clickable.mb then
 		local box = e.bounding_box
-		local camera = e.camera
-
-		local bx = box.pos.x
-		local by = box.pos.y
-		local bw = box.size.x
-		local bh = box.size.y
-
-		if camera then
-			bx = box.screen_size.x
-			by = box.screen_size.y
-		end
+		local bx, by = Helper.get_real_pos_box(e)
+		local bw, bh = box.size.x, box.size.y
 
 		local result = mx > bx and mx < bx + bw and my > by and my < by + bh
 

@@ -12,6 +12,12 @@ local ActionControls = require("systems.action_controls")
 
 function Item:init(world)
 	self.world = world
+
+	!if _ASSERT then
+	if not self.world:hasSystem(ActionControls) then
+		error("Item system needs ActionControls system")
+	end
+	!end
 end
 
 function Item:check_within_item(player)
@@ -37,12 +43,6 @@ function Item:keypressed(key)
 			local col = e.collider3d
 
 			if col.is_hit then
-				!if _ASSERT then
-				if not self.world:hasSystem(ActionControls) then
-					error("Item system needs ActionControls system")
-				end
-				!end
-
 				if col.normal.x == 0 then
 					self.world:emit("show_ui_interactive", e)
 					break

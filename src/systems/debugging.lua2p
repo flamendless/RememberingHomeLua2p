@@ -128,7 +128,7 @@ function Debugging:draw_slab()
 	Slab.EndWindow()
 
 	views.stats = Slab.BeginWindow("stats",
-		{Title = "stats", IsOpen = DebugFlags.stats})
+		{Title = "stats", IsOpen = views.stats})
 	Slab.Text("FPS: " .. getFPS())
 	Slab.Text("Particle Count: " .. self.ps_count)
 	for k, v in pairs(DebugFlags.t_stats) do

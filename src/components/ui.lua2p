@@ -1,14 +1,10 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("ui_element", function(c)
-end)
+Concord.component("ui_element")
 
-Concord.component("ui_text", function(c)
-end)
+Concord.component("ui_text")
 
-Concord.component("ui_action", function(c)
-	c.is_active = false
-end)
+Concord.component("ui_action")
 
 Concord.component("ui_offset", function(c, offset)
 	!if _ASSERT then

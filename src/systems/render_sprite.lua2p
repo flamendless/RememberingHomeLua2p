@@ -3,6 +3,8 @@ local Concord = require("modules.concord.concord")
 local insert = table.insert
 local remove = table.remove
 
+local Helper = require("helper")
+
 local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
 	pool_quad = {"position", "sprite", "quad"},
@@ -68,40 +70,11 @@ function RenderSprite:internal_draw(e)
 
 		if transform then
 			rot = transform.rotation
+			ox, oy = Helper.get_offset(e)
 			sx = transform.sx
 			sy = transform.sy
 			kx = transform.kx
 			ky = transform.ky
-
-			if animation_data then
-				if transform.ox == 0.5 then
-					ox = animation_data.frame_width/2
-				elseif transform.ox == 1 then
-					ox = animation_data.frame_width
-				else
-					ox = transform.ox
-				end
-
-				if transform.oy == 0.5 then
-					oy = animation_data.frame_height/2
-				elseif transform.oy == 1 then
-					oy = animation_data.frame_height
-				else
-					oy = transform.oy
-				end
-			else
-				if transform.ox == 0.5 then
-					ox = sprite.sprite:getWidth()/2
-				else
-					ox = transform.ox
-				end
-
-				if transform.oy == 0.5 then
-					oy = sprite.sprite:getHeight()/2
-				else
-					oy = transform.oy
-				end
-			end
 		end
 
 		if quad then

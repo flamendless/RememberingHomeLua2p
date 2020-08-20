@@ -52,6 +52,7 @@ local Systems = {
 	PlayerController = require("systems.player_controller"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
+	MouseHover = require("systems.mouse_hover"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
@@ -161,7 +162,9 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
+	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.Item)
+	self.world:addSystem(Systems.MouseHover)
 	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
@@ -174,7 +177,6 @@ function StateOutside:start()
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.RenderCircle)
-	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)
 
@@ -313,15 +315,17 @@ function StateOutside:start()
 
 	effect = NGrading:new(lut_dusk, lut_size)
 
+	--TEST
 	self:spawn_player(1.75)
 	self.entities.player.body.can_move = true
 
 	self.camera:setScale(3)
+	self.camera:setPosition(self.entities.player.position.pos:unpack())
 	local actions = Factory.ui_controls(self.world,
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
 		1.25)
-	self.world:emit("show_ui_interactive", self.entities.door)
+	-- self.world:emit("show_ui_interactive", self.entities.door)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -459,7 +463,7 @@ function StateOutside:update(dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("on_camera_move", self.camera)
-	self.world:emit("hover_check", love.mouse.getPosition())
+	self.world:emit("hover_effects")
 
 	if is_raining then
 		self.ps1:update(dt)

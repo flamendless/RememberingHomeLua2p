@@ -147,6 +147,7 @@ local function action(e, sheet, dur)
 	:give("clickable", 1, function()
 		print(e.id.id)
 	end)
+	:give("hidden")
 
 	return e
 end

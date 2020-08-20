@@ -10,6 +10,16 @@ function PlayerController:init(world)
 	self.world = world
 end
 
+function PlayerController:player_set_movement(bool)
+	!if _ASSERT then
+	Assert.must(bool, Types.T_BOOLEAN)
+	!end
+
+	for _, e in ipairs(self.pool) do
+		e.body.can_move = bool
+	end
+end
+
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e:has("override_animation") then return end

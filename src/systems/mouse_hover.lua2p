@@ -1,0 +1,22 @@
+local Concord = require("modules.concord.concord")
+
+local Helper = require("helper")
+
+local MouseHover = Concord.system({
+	pool_bb = {"bounding_box", "hoverable", "position"},
+})
+
+function MouseHover:update(dt)
+	for _, e in ipairs(self.pool_bb) do
+		local box = e.bounding_box
+		local hoverable = e.hoverable
+		local bx, by = Helper.get_real_pos_box(e)
+		local bw, bh = box.size.x, box.size.y
+		local mx, my = love.mouse.getPosition()
+
+		local res = mx > bx and mx < bx + bw and my > by and my < by + bh
+		hoverable.is_hovered = res
+	end
+end
+
+return MouseHover

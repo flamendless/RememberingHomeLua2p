@@ -5,7 +5,7 @@ local format = string.format
 
 local ActionControls = Concord.system({
 	pool_player = {"player", "position", "collider3d"},
-	pool_actions = {"id", "ui_action", "position", "tween_dur", "ui_offset"},
+	pool_actions = {"id", "ui_action", "position", "tween_dur", "ui_offset", "clickable"},
 })
 
 function ActionControls:init(world)
@@ -37,16 +37,17 @@ function ActionControls:show_ui_interactive(other)
 		pos.y = player_pos.y + off.y
 
 		if other_pos.x <= player_pos.x then
-			--show action on right
+			--show actions on right
 			pos.x = pos.x + off.x
 		else
-			--show action on left
+			--show actions on left
 			pos.x = pos.x - off.x
 		end
 
-		e.ui_action.is_active = true
+		self.world:emit("player_set_movement", false)
 
-		e:give("animation", true)
+		e:remove("hidden")
+		:give("animation", true)
 		:give("color_fade_in", e.tween_dur.dur)
 	end
 end
