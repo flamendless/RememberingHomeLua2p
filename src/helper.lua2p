@@ -1,5 +1,9 @@
 local Helper = {}
 
+function Helper.check_point_rect(px, py, x, y, w, h)
+	return px > x and px < x + w and py > y and py < y + h
+end
+
 function Helper.get_offset(e)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)

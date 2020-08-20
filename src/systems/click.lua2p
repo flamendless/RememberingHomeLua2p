@@ -21,8 +21,7 @@ function Click:internal_mousepressed(e, mx, my, mb)
 		local box = e.bounding_box
 		local bx, by = Helper.get_real_pos_box(e)
 		local bw, bh = box.size.x, box.size.y
-
-		local result = mx > bx and mx < bx + bw and my > by and my < by + bh
+		local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 		if result then clickable.on_click() end
 	end

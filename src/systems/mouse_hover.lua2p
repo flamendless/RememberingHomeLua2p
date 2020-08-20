@@ -13,9 +13,9 @@ function MouseHover:update(dt)
 		local bx, by = Helper.get_real_pos_box(e)
 		local bw, bh = box.size.x, box.size.y
 		local mx, my = love.mouse.getPosition()
+		local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
-		local res = mx > bx and mx < bx + bw and my > by and my < by + bh
-		hoverable.is_hovered = res
+		hoverable.is_hovered = result
 	end
 end
 
