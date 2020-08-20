@@ -127,6 +127,10 @@ function Outside.door(e)
 	:give("collider3d", vec3:new(24, 36, 8), "cross")
 	:give("bump3d")
 	:give("item")
+	:give("action_eye")
+	:give("action_hand")
+	:give("action_bag")
+	:give("action_cancel")
 end
 
 function Outside.left_wall(e)

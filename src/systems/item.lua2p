@@ -1,6 +1,9 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 
 local Inputs = require("inputs")
+
+local format = string.format
 
 local Item = Concord.system({
 	pool = {"id", "item", "collider3d"},
@@ -8,10 +11,21 @@ local Item = Concord.system({
 
 !if _ASSERT then
 local ActionControls = require("systems.action_controls")
+local actions = {"action_eye", "action_hand", "action_bag", "action_cancel"}
 !end
 
 function Item:init(world)
 	self.world = world
+
+	!if _ASSERT then
+	self.pool.onEntityAdded = function(pool, e)
+		for _, action in ipairs(actions) do
+			if not e[action] then
+				Log.warn(format("'%s' does not have '%s' component", e.id.id, action))
+			end
+		end
+	end
+	!end
 
 	!if _ASSERT then
 	if not self.world:hasSystem(ActionControls) then

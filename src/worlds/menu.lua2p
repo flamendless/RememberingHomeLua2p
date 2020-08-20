@@ -452,7 +452,8 @@ function StateMenu:setup_about()
 					:give("camera")
 					:give("bounding_box", vec2:new(x, y),
 						vec2:new(image:getWidth(), image:getHeight()))
-					:give("clickable", 1, function()
+					:give("clickable")
+					:give("on_click", 1, function()
 						local url = about_links[i2]
 
 						love.system.openURL(url)

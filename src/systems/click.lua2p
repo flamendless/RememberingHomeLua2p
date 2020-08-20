@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local Click = Concord.system({
-	pool = {"bounding_box", "clickable"}
+	pool = {"bounding_box", "clickable", "on_click"}
 })
 
 function Click:mousepressed(mx, my, mb)
@@ -15,15 +15,15 @@ function Click:mousepressed(mx, my, mb)
 end
 
 function Click:internal_mousepressed(e, mx, my, mb)
-	local clickable = e.clickable
+	local on_click = e.on_click
 
-	if mb == clickable.mb then
+	if mb == on_click.mb then
 		local box = e.bounding_box
 		local bx, by = Helper.get_real_pos_box(e)
 		local bw, bh = box.size.x, box.size.y
 		local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
-		if result then clickable.on_click() end
+		if result then on_click.on_click() end
 	end
 end
 

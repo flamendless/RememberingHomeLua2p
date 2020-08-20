@@ -324,8 +324,7 @@ function StateOutside:start()
 	local actions = Factory.ui_controls(self.world,
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
-		1.25)
-	-- self.world:emit("show_ui_interactive", self.entities.door)
+		0.75)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()

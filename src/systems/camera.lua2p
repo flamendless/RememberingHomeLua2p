@@ -9,7 +9,10 @@ local Camera = Concord.system({
 function Camera:init(world)
 	self.world = world
 	self.main_camera = nil
+	self.prev_scale = nil
+	self.target_scale = nil
 	self.to_follow = nil
+	self.can_scale_lerp = true
 
 	self.pool.onEntityAdded = function(pool, e)
 		local cam = e.camera.camera
@@ -24,6 +27,48 @@ function Camera:init(world)
 		if e.camera.is_main then
 			self.main_camera = cam
 		end
+	end
+end
+
+function Camera:set_camera_scale(scale)
+	!if _ASSERT then
+	Assert.must(scale, Types.T_NUMBER)
+	!end
+
+	self.prev_scale = self.main_camera:getScale()
+	self.target_scale = scale
+	self.main_camera:setScale(scale)
+end
+
+function Camera:set_camera_scale_ex(inc, dur)
+	!if _ASSERT then
+	Assert.must(inc, Types.T_NUMBER)
+	Assert.must(dur, Types.T_NUMBER)
+	!end
+
+	if self.can_scale_lerp then
+		self.can_scale_lerp = false
+		self.prev_scale = self.main_camera:getScale()
+		self.target_scale = self.prev_scale + inc
+		self.flux = Flux.to(self.main_camera, dur, {scale = self.target_scale})
+			:oncomplete(function()
+				self.can_scale_lerp = true
+			end)
+	end
+end
+
+function Camera:set_camera_scale_prev(dur)
+	!if _ASSERT then
+	Assert.must(dur, Types.T_NUMBER)
+	!end
+
+	if self.can_scale_lerp then
+		self.can_scale_lerp = false
+		self.target_scale = self.prev_scale
+		self.flux = Flux.to(self.main_camera, dur, {scale = self.target_scale})
+			:oncomplete(function()
+				self.can_scale_lerp = true
+			end)
 	end
 end
 

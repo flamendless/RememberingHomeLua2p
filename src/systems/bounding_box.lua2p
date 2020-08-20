@@ -36,7 +36,7 @@ function BoundingBox:debug_draw_ui()
 			local hoverable = e.hoverable
 			local x, y = Helper.get_real_pos_box(e)
 
-			if hoverable.is_hovered then
+			if hoverable and hoverable.is_hovered then
 				love.graphics.setColor(1, 0, 0, 1)
 			else
 				love.graphics.setColor(0, 1, 0, 1)

@@ -1,16 +1,38 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
-
-local format = string.format
 
 local ActionControls = Concord.system({
 	pool_player = {"player", "position", "collider3d"},
-	pool_actions = {"id", "ui_action", "position", "tween_dur", "ui_offset", "clickable"},
+	pool_actions = {"id", "ui_action", "position", "tween_dur", "on_click", "color"},
 })
+
+!(
+local dist = 130
+local gap = 60
+local start = -30
+local _offsets = {}
+
+for i = 0, 3 do
+	local n = (start) + gap * i
+	local x = math.sin(math.rad(n)) * dist
+	local y = -math.cos(math.rad(n)) * dist
+
+	local t = {x, y}
+	table.insert(_offsets, t)
+end
+)
+
+!!local offsets = _offsets
+
+local function get_offset(i)
+	local off = offsets[i]
+
+	return vec2:new(off[1], off[2])
+end
 
 function ActionControls:init(world)
 	self.world = world
 	self.player = nil
+	self.dur_camera = 0.25
 
 	self.pool_player.onEntityAdded = function(pool, e)
 		!if _ASSERT then
@@ -21,35 +43,75 @@ function ActionControls:init(world)
 	end
 end
 
-function ActionControls:show_ui_interactive(other)
+function ActionControls:show_ui_interactive(target_item)
 	!if _ASSERT then
-	Assert.exists(other.item)
+	Assert.exists(target_item.item)
 	!end
 
+	if self.player.player.is_interact_item then return end
+
+	local i = 1
+	local success = false
+
 	for _, e in ipairs(self.pool_actions) do
-		local pos = e.position.pos
-		local off = e.ui_offset.offset
+		local id = e.id.id
+		local valid = target_item[id]
 
-		local player_pos = self.player.position.pos
-		local other_pos = other.position.pos
+		if valid then
+			local off = get_offset(i)
+			local pos = e.position.pos
 
-		pos.x = player_pos.x
-		pos.y = player_pos.y + off.y
+			local player_pos = self.player.position.pos
+			local target_item_pos = target_item.position.pos
+			local dir = (target_item_pos.x <= player_pos.x) and 1 or -1
 
-		if other_pos.x <= player_pos.x then
-			--show actions on right
-			pos.x = pos.x + off.x
-		else
-			--show actions on left
-			pos.x = pos.x - off.x
+			pos.x = player_pos.x + off.x * dir
+			pos.y = player_pos.y + off.y
+
+			e:remove("hidden")
+			:give("animation", true)
+			:give("color_fade_in", e.tween_dur.dur, nil, function()
+				e:give("hoverable")
+				:give("clickable")
+			end)
+			:give("target_item", target_item)
+
+			i = i + 1
+			success = true
 		end
-
-		self.world:emit("player_set_movement", false)
-
-		e:remove("hidden")
-		:give("animation", true)
-		:give("color_fade_in", e.tween_dur.dur)
 	end
+
+	if success then
+		self.world:emit("set_camera_scale_ex", 1, self.dur_camera)
+		self.world:emit("player_interact_item", true)
+	end
+end
+
+function ActionControls:hide_ui_interactive()
+	for _, e in ipairs(self.pool_actions) do
+		e:remove("animation")
+		:remove("target_item")
+		:remove("hoverable")
+		:remove("clickable")
+		:give("color_fade_out", e.tween_dur.dur)
+		:give("hidden")
+	end
+end
+
+function ActionControls:interact_item(action_id, target_item)
+	!if _ASSERT then
+	Assert.must(action_id, Types.T_STRING)
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
+	print(action_id, id)
+end
+
+function ActionControls:interact_cancel(dur)
+	self.world:emit("set_camera_scale_prev", self.dur_camera)
+	self.world:emit("player_interact_item", false)
+	self:hide_ui_interactive()
 end
 
 return ActionControls

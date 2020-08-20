@@ -10,6 +10,17 @@ function PlayerController:init(world)
 	self.world = world
 end
 
+function PlayerController:player_interact_item(bool)
+	!if _ASSERT then
+	Assert.must(bool, Types.T_BOOLEAN)
+	!end
+
+	for _, e in ipairs(self.pool) do
+		e.body.can_move = not bool
+		e.player.is_interact_item = bool
+	end
+end
+
 function PlayerController:player_set_movement(bool)
 	!if _ASSERT then
 	Assert.must(bool, Types.T_BOOLEAN)
@@ -17,6 +28,10 @@ function PlayerController:player_set_movement(bool)
 
 	for _, e in ipairs(self.pool) do
 		e.body.can_move = bool
+	end
+
+	if not bool then
+
 	end
 end
 
@@ -125,6 +140,14 @@ function PlayerController:face_right(e)
 	self:update_animation(e, "idle")
 end
 
+function PlayerController:idle(e)
+	if e.body.dir == -1 then
+		self:update_animation(e, "idle", "_left")
+	else
+		self:update_animation(e, "idle")
+	end
+end
+
 function PlayerController:player_open_door(e, fn)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
@@ -178,7 +201,8 @@ function PlayerController:draw_debug()
 		Slab.Text("is_run:" .. tostring(body.is_run))
 
 		Slab.Unindent()
-		Slab.Text("Within Item:" .. (player.within_item or "none"))
+		Slab.Text("Interact item:" .. tostring(player.is_interact_item))
+		Slab.Text("Within item:" .. (player.within_item or "none"))
 		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
 		Slab.Text("Current:" .. e.animation.current_tag)
 		Slab.Text("Playing:" .. tostring(e.animation.is_playing))

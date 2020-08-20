@@ -1,4 +1,12 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("item", function(c)
+Concord.component("item")
+
+Concord.component("target_item", function(c, item)
+	!if _ASSERT then
+	Assert.is(item, Types.T_ENTITY)
+	Assert.exists(item.item)
+	!end
+
+	c.item = item
 end)
