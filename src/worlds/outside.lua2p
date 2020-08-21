@@ -53,6 +53,7 @@ local Systems = {
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
 	MouseHover = require("systems.mouse_hover"),
+	Notification = require("systems.notification"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
@@ -162,6 +163,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
+	self.world:addSystem(Systems.Notification)
 	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.Item)
 	self.world:addSystem(Systems.MouseHover)
@@ -318,6 +320,8 @@ function StateOutside:start()
 	--TEST
 	self:spawn_player(1.75)
 	self.entities.player.body.can_move = true
+	self.entities.player.question_mark = Concord.entity(self.world)
+		:assemble(Assemblages.UI.question_mark, res_images.question_mark, 0.25)
 
 	self.camera:setScale(3)
 	self.camera:setPosition(self.entities.player.position.pos:unpack())

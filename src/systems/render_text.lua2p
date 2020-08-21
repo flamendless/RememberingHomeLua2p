@@ -121,9 +121,7 @@ local t_comp
 local selected_e
 
 function RenderText:draw_debug()
-	views.text = Slab.BeginWindow("Text", {
-			Title = "Text List", IsOpen = views.text
-		})
+	views.text = Slab.BeginWindow("Text", {Title = "Text List", IsOpen = views.text})
 
 	for _, e in ipairs(self.pool) do
 		Slab.Text(e.id.id)

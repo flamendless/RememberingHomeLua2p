@@ -31,10 +31,14 @@ function Helper.get_offset(e)
 	elseif sprite then
 		if transform.ox == 0.5 then
 			ox = sprite.sprite:getWidth()/2
+		elseif transform.ox == 1 then
+			ox = sprite.sprite:getWidth()
 		end
 
 		if transform.oy == 0.5 then
 			oy = sprite.sprite:getHeight()/2
+		elseif transform.oy == 1 then
+			oy = sprite.sprite:getHeight()
 		end
 	end
 

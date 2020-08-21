@@ -122,8 +122,7 @@ local views = DebugFlags.views
 
 function RenderSprite:draw_debug(l, t, w, h)
 	views.z_index = Slab.BeginWindow("ZIndex", {
-			Title = "Z Index", IsOpen = views.z_index
-		})
+		Title = "Z Index", IsOpen = views.z_index})
 
 	for _, e in ipairs(self.custom_pool_z) do
 		if e.bump3d and e.bump3d.id then

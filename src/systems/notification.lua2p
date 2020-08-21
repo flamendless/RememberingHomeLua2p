@@ -1,0 +1,55 @@
+local Concord = require("modules.concord.concord")
+
+local Notification = Concord.system({
+	pool = {"id", "ui_element", "notification", "sprite"}
+})
+
+function Notification:init(world)
+	self.world = world
+end
+
+function Notification:show_notification(req_id, target)
+	!if _ASSERT then
+	Assert.must(req_id, Types.T_STRING)
+	Assert.is(target, Types.T_ENTITY)
+	!end
+
+	local pos = target.position.pos
+
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+		local notif = e.notification
+
+		if (id == req_id) and (not notif.is_active) then
+			local tween_dur = e.tween_dur
+			local offset = e.ui_offset.offset
+			local x = pos.x + offset.x
+			local y = pos.y + offset.y
+
+			notif.is_active = true
+
+			e:give("color_fade_in", tween_dur.dur)
+			:give("position", vec2:new(x, y))
+		end
+	end
+end
+
+function Notification:hide_notification(req_id)
+	!if _ASSERT then
+	Assert.must(req_id, Types.T_STRING)
+	!end
+
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+		local notif = e.notification
+		local tween_dur = e.tween_dur
+
+		if (id == req_id) and notif.is_active then
+			notif.is_active = false
+
+			e:give("color_fade_out", tween_dur.dur)
+		end
+	end
+end
+
+return Notification

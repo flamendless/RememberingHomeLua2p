@@ -146,8 +146,8 @@ local selected_e
 
 function Transform:draw_debug()
 	views.transform = Slab.BeginWindow("transform", {
-			Title = "Transform List", IsOpen = views.transform
-		})
+			Title = "Transform List", IsOpen = views.transform})
+
 	for _, e in ipairs(self.pool) do
 		local id = e.id
 
@@ -165,7 +165,8 @@ function Transform:draw_debug()
 	Slab.EndWindow()
 
 	views.quad_transform = Slab.BeginWindow("quad_transform", {
-			Title = "Quad Transform List", IsOpen = views.quad_transform})
+		Title = "Quad Transform List", IsOpen = views.quad_transform})
+
 	for _, e in ipairs(self.pool_quad) do
 		local id = e.id
 

@@ -25,6 +25,7 @@ function Debugging:init(world)
 	self.ps_count = 0
 	self.ref_id = {}
 	self.is_open = true
+	self.is_open_list = false
 
 	if not slab_init then
 		Slab.Initialize()
@@ -113,14 +114,37 @@ function Debugging:draw_slab()
 
 	Slab.EndWindow()
 
-	views.ent_count = Slab.BeginWindow("ecs",
-		{Title = "ECS", IsOpen = views.ent_count})
+	views.ent_count = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = views.ent_count})
 	Slab.Text("# of entities: " .. self.ent_count)
 	Slab.Text("# of entities with id: " .. self.ent_id_count)
+
+	if Slab.Button("View List") then
+		self.is_open_list = true
+	end
+
+	if self.is_open_list then
+		self.is_open_list = Slab.BeginWindow("ent_list", {
+			Title = "Entity List", IsOpen = self.is_open_list})
+
+		for _, e in ipairs(self.pool_id) do
+			local id = e.id.id
+
+			Slab.Text(id)
+			Slab.SameLine()
+
+			if Slab.Button("x") then
+				e:destroy()
+			end
+		end
+
+		Slab.EndWindow()
+	end
+
 	Slab.EndWindow()
 
 	views.logs = Slab.BeginWindow("log",
 		{Title = "log", IsOpen = views.logs, AutoSizeWindow = false})
+
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
 	end

@@ -82,6 +82,7 @@ function ActionControls:show_ui_interactive(target_item)
 	end
 
 	if success then
+		self.world:emit("hide_notification", "question_mark")
 		self.world:emit("set_camera_scale_ex", 1, self.dur_camera)
 		self.world:emit("player_interact_item", true)
 	end

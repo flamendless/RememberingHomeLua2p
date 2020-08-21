@@ -256,7 +256,6 @@ function Animation:update(dt)
 
 			local current_quad = animation.animation:getFrameInfo()
 
-
 			quad.quad = current_quad
 		end
 	end

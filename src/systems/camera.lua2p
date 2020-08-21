@@ -172,8 +172,7 @@ end
 function Camera:draw_debug()
 	if not self.main_camera then return end
 
-	views.camera = Slab.BeginWindow("camera",
-		{Title = "Camera", IsOpen = views.camera})
+	views.camera = Slab.BeginWindow("camera", {Title = "Camera", IsOpen = views.camera})
 
 	local scale = self.main_camera:getScale()
 

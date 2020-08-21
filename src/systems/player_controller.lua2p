@@ -29,10 +29,6 @@ function PlayerController:player_set_movement(bool)
 	for _, e in ipairs(self.pool) do
 		e.body.can_move = bool
 	end
-
-	if not bool then
-
-	end
 end
 
 function PlayerController:update(dt)
@@ -68,6 +64,7 @@ function PlayerController:update(dt)
 		end
 
 		local anim_name = self:update_animation(e)
+
 		self:update_speed(e, anim_name)
 		self.world:emit("check_within_item", e)
 	end
@@ -141,6 +138,8 @@ function PlayerController:face_right(e)
 end
 
 function PlayerController:idle(e)
+	if e:has("override_animation") then return end
+
 	if e.body.dir == -1 then
 		self:update_animation(e, "idle", "_left")
 	else
@@ -179,12 +178,12 @@ local views = DebugFlags.views
 local format = string.format
 
 function PlayerController:draw_debug()
-	views.player = Slab.BeginWindow("player", {
-			Title = "Player", IsOpen = views.player
-		})
+	views.player = Slab.BeginWindow("player", {Title = "Player", IsOpen = views.player})
+
 	for _, e in ipairs(self.pool) do
 		local body = e.body
 		local player = e.player
+		local within_item = e.within_item
 
 		Slab.Text("Body:")
 		Slab.Indent()
@@ -198,14 +197,18 @@ function PlayerController:draw_debug()
 			body.can_run = not body.can_run
 		end
 
-		Slab.Text("is_run:" .. tostring(body.is_run))
+		Slab.Text("is_run: " .. tostring(body.is_run))
 
 		Slab.Unindent()
-		Slab.Text("Interact item:" .. tostring(player.is_interact_item))
-		Slab.Text("Within item:" .. (player.within_item or "none"))
+		Slab.Text("Interact item: " .. tostring(player.is_interact_item))
+
+		if within_item then
+			Slab.Text("Within item: " .. within_item.item_id)
+		end
+
 		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
-		Slab.Text("Current:" .. e.animation.current_tag)
-		Slab.Text("Playing:" .. tostring(e.animation.is_playing))
+		Slab.Text("Current: " .. e.animation.current_tag)
+		Slab.Text("Playing: " .. tostring(e.animation.is_playing))
 		Slab.Text("Tags:")
 		Slab.Indent()
 
