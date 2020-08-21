@@ -7,6 +7,7 @@ _LOG_SAVE = false
 _OS = "Linux"
 _PLATFORM = "desktop"
 _GAME_TITLE  = "Going Home: Revisited"
+_GAME_TITLE_SECRET  = "COMING SOON"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
 
@@ -21,7 +22,7 @@ _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
 _CANVAS_FILTER = "nearest"
 
-_EMAIL = "flamendless8@gmail.com"
+_EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
 _GITHUB_URL_RELEASE = ""
 
@@ -33,19 +34,22 @@ _SAVE_KEY = "data_store"
 _KEYBINDINGS_FILENAME = "keybindings.json"
 _KEYBINDINGS_DEF_FILENAME = "data/keybindings_default.json"
 
-_URL_TWITTER = "https://twitter.com/@flamendless"
-_URL_WEBSITE = "https://flamendless.github.io/goinghomerevisited"
-_URL_MAIL = "mailto:flamendless8@gmail.com"
+_URL_TWITTER = "https://twitter.com/@flam8studio"
+_URL_WEBSITE = ""
+_URL_MAIL = "mailto:flamendless.studio@gmail.com"
 
 _NAME_DEVELOPER = "Brandon"
 _NAME_ARTIST = "Conrad"
+_NAME_DESIGNER = "Piolo Maurice"
 _NAME_MUSICIAN = "???"
 
 _FULL_NAME_DEVELOPER = "Brandon Blanker Lim-it"
 _FULL_NAME_ARTIST = "Conrad Reyes"
+_FULL_NAME_DESIGNER = "Piolo Maurice Laudencia"
 
 _TWITTER_DEVELOPER = "@flamendless"
 _TWITTER_ARTIST = "@wits"
+_TWITTER_DESIGNER = "@piotato"
 
 _TOOLS = {
 	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",

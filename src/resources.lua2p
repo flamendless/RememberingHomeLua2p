@@ -40,7 +40,7 @@ Resources.data.menu = {
 
 	font = {
 		{"menu", path_fonts .. "Jamboree.ttf", 24, "default"},
-		{"about", path_fonts .. "DigitalDisco.ttf", 24},
+		{"about", path_fonts .. "DigitalDisco.ttf", 20},
 		{"about", path_fonts .. "DigitalDisco.ttf", 64},
 	}
 }
