@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local abs = math.abs
+
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
@@ -33,34 +35,36 @@ end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		if e:has("override_animation") then return end
+		if e.override_animation then return end
 
-		if not e.body.can_move then return end
+		local body = e.body
+
+		if not body.can_move then return end
 
 		if Inputs.is_down("player_move_left") then
-			if e.body.can_run then
-				e.body.is_run = Inputs.is_down("player_run_mod")
+			if body.can_run then
+				body.is_run = Inputs.is_down("player_run_mod")
 			end
 
-			e.body.dir = -1
-			e.body.dx = -1
+			body.dir = -1
+			body.dx = -1
 		elseif Inputs.is_down("player_move_right") then
-			if e.body.can_run then
-				e.body.is_run = Inputs.is_down("player_run_mod")
+			if body.can_run then
+				body.is_run = Inputs.is_down("player_run_mod")
 			end
 
-			e.body.dir = 1
-			e.body.dx = 1
+			body.dir = 1
+			body.dx = 1
 		else
-			e.body.dx = 0
+			body.dx = 0
 		end
 
 		if Inputs.is_down("player_move_up") then
-			e.body.dy = -1
+			body.dy = -1
 		elseif Inputs.is_down("player_move_down") then
-			e.body.dy = 1
+			body.dy = 1
 		else
-			e.body.dy = 0
+			body.dy = 0
 		end
 
 		local anim_name = self:update_animation(e)
@@ -70,13 +74,29 @@ function PlayerController:update(dt)
 	end
 end
 
+function PlayerController:update_spawn_point(e)
+	local dir = e.body.dir
+	local pos = e.position.pos
+	local sp = e.spawn_point
+
+	if dir == -1 then
+		sp.pos.x = pos.x + 24
+	else
+		sp.pos.x = pos.x + 4
+	end
+
+	sp.pos.y = pos.y + 8
+end
+
 function PlayerController:update_animation(e, override_name, override_variance)
 	local anim_name = override_name
 	local anim_variance = override_variance
+	local body = e.body
 
 	if not anim_name then
-		if e.body.dx ~= 0 or e.body.dy ~= 0 then
-			if e.body.is_run then
+
+		if body.dx ~= 0 or body.dy ~= 0 then
+			if body.is_run then
 				anim_name = "run"
 			else
 				anim_name = "walk"
@@ -87,7 +107,7 @@ function PlayerController:update_animation(e, override_name, override_variance)
 	end
 
 	if not anim_variance then
-		if e.body.dir == -1 then
+		if body.dir == -1 then
 			anim_variance = "_left"
 		end
 	end
@@ -98,6 +118,8 @@ function PlayerController:update_animation(e, override_name, override_variance)
 		self.world:emit("switch_animation_tag", e, anim_name)
 	end
 
+	self:update_spawn_point(e)
+
 	return anim_name
 end
 
@@ -106,16 +128,17 @@ function PlayerController:update_speed(e, anim_name)
 	local speed_data = e.speed_data
 
 	if speed and speed_data then
+		local body = e.body
 		local old_speed = speed.speed
 		local new_speed = speed_data.speed_data[anim_name]
 
-		if e.body.dx ~= 0 then
+		if body.dx ~= 0 then
 			local speed_dt = mathx.lerp(old_speed.x, new_speed.x, 0.5)
 
 			speed.speed.x = speed_dt
 		end
 
-		if e.body.dy ~= 0 then
+		if body.dy ~= 0 then
 			local speed_dt = mathx.lerp(old_speed.y, new_speed.y, 0.5)
 
 			speed.speed.y = speed_dt
@@ -124,21 +147,21 @@ function PlayerController:update_speed(e, anim_name)
 end
 
 function PlayerController:face_left(e)
-	if e:has("override_animation") then return end
+	if e.override_animation then return end
 
 	e.body.dir = -1
 	self:update_animation(e, "idle", "_left")
 end
 
 function PlayerController:face_right(e)
-	if e:has("override_animation") then return end
+	if e.override_animation then return end
 
 	e.body.dir = 1
 	self:update_animation(e, "idle")
 end
 
 function PlayerController:idle(e)
-	if e:has("override_animation") then return end
+	if e.override_animation then return end
 
 	if e.body.dir == -1 then
 		self:update_animation(e, "idle", "_left")
@@ -150,6 +173,7 @@ end
 function PlayerController:player_open_door(e, fn)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.player)
 	Assert.safe.must(fn, Types.T_FUNCTION)
 	!end
 
@@ -169,6 +193,19 @@ function PlayerController:player_open_door(e, fn)
 	-- :give("animation_on_loop", fn, "pauseAtEnd", true)
     --
 	-- self.world:emit("update_animation_data", e, data)
+end
+
+function PlayerController:player_upstairs(e, fn)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.player)
+	Assert.safe.must(fn, Types.T_FUNCTION)
+	!end
+
+	e:give("change_animation_tag", "upstairs")
+	:give("override_animation")
+	-- :give("animation_on_loop", fn, nil)
+	:give("animation_on_update", fn)
 end
 
 !if _ASSERT then
@@ -197,10 +234,13 @@ function PlayerController:draw_debug()
 			body.can_run = not body.can_run
 		end
 
+		if Slab.CheckBox(player.is_interact_item, "interact_item") then
+			player.is_interact_item = not player.is_interact_item
+		end
+
 		Slab.Text("is_run: " .. tostring(body.is_run))
 
 		Slab.Unindent()
-		Slab.Text("Interact item: " .. tostring(player.is_interact_item))
 
 		if within_item then
 			Slab.Text("Within item: " .. within_item.item_id)

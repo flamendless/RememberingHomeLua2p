@@ -10,6 +10,7 @@ local RenderSprite = Concord.system({
 	pool_quad = {"position", "sprite", "quad"},
 	pool_z = {"position", "sprite", "z_index"},
 	pool_ui = {"position", "sprite", "ui_element"},
+	pool_action = {"position", "sprite", "ui_action"},
 })
 
 local function draw(sprite, ...)
@@ -97,7 +98,7 @@ end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.z_index and not e.ui_element then
+		if not e.z_index and not e.ui_element and not e.ui_action then
 			self:internal_draw(e)
 		end
 	end
@@ -105,7 +106,9 @@ end
 
 function RenderSprite:draw_z()
 	for _, e in ipairs(self.custom_pool_z) do
-		self:internal_draw(e)
+		if not e.ui_action then
+			self:internal_draw(e)
+		end
 	end
 end
 
@@ -115,47 +118,92 @@ function RenderSprite:draw_ui()
 	end
 end
 
+function RenderSprite:draw_actions()
+	for _, e in ipairs(self.pool_action) do
+		self:internal_draw(e)
+	end
+end
+
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
 
-function RenderSprite:draw_debug(l, t, w, h)
+local function debug_internal_draw(e)
+	local qx, qy, qw, qh = e.quad.quad:getViewport()
+	local pos = e.position.pos
+	local transform = e.transform
+	local qt = e.quad_transform
+	local spawn_point = e.spawn_point
+
+	local x = pos.x
+	local y = pos.y
+	local w = qw
+	local h = qh
+	local sx, sy, ox, oy = 1, 1, 0, 0
+
+	if transform then
+		ox, oy = Helper.get_offset(e)
+		sx = transform.sx
+		sy = transform.sy
+	end
+
+	if qt then
+		sx = qt.sx
+		sy = qt.sy
+		ox = qt.ox
+		oy = qt.oy
+	end
+
+	x = x - ox * sx
+	y = y - oy * sy
+	w = w * sx
+	h = h * sy
+
+	love.graphics.setColor(1, 0, 0, 1)
+	love.graphics.rectangle("line", x, y, w, h)
+	love.graphics.print(e.id.id, pos.x, pos.y)
+
+	if spawn_point then
+		local sp = spawn_point.pos
+
+		love.graphics.setColor(0, 1, 0, 1)
+		love.graphics.circle("fill", sp.x, sp.y, 2)
+	end
+
+	love.graphics.setColor(0, 0, 1, 1)
+	love.graphics.circle("fill", pos.x, pos.y, 2)
+end
+
+function RenderSprite:draw_debug()
 	views.z_index = Slab.BeginWindow("ZIndex", {
 		Title = "Z Index", IsOpen = views.z_index})
 
 	for _, e in ipairs(self.custom_pool_z) do
-		if e.bump3d and e.bump3d.id then
-			Slab.Text(e.bump3d.id)
-			Slab.SameLine()
-			Slab.Text("z: " .. e.z_index.z)
-		end
+		local id = e.id.id
+
+		Slab.Text(id)
+		Slab.SameLine()
+		Slab.Text("z: " .. e.z_index.z)
 	end
 
 	Slab.EndWindow()
+
+	if views.quad_bounds then
+		for _, e in ipairs(self.pool_quad) do
+			if not e.ui_element then
+				debug_internal_draw(e)
+			end
+		end
+	end
 end
 
 function RenderSprite:debug_draw_ui()
 	if views.quad_bounds then
 		for _, e in ipairs(self.pool_quad) do
-			local qx, qy, qw, qh = e.quad.quad:getViewport()
-			local pos = e.position.pos
-			local qt = e.quad_transform
-
-			local x = pos.x
-			local y = pos.y
-			local w = qw
-			local h = qh
-
-			if qt then
-				x = x - qt.ox * qt.sx
-				y = y - qt.oy * qt.sy
-				w = w * qt.sx
-				h = h * qt.sy
+			if e.ui_element then
+				debug_internal_draw(e)
 			end
-
-			love.graphics.setColor(1, 0, 0, 1)
-			love.graphics.rectangle("line", x, y, w, h)
 		end
 	end
 end

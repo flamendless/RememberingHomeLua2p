@@ -26,6 +26,7 @@ function Debugging:init(world)
 	self.ref_id = {}
 	self.is_open = true
 	self.is_open_list = false
+	self.camera = nil
 
 	if not slab_init then
 		Slab.Initialize()
@@ -69,6 +70,14 @@ function Debugging:debug_particle_system(ps)
 	!end
 
 	insert(self.ps, ps)
+end
+
+function Debugging:debug_camera(camera)
+	!if _ASSERT then
+	Assert.is(camera, Types.T_GAMERA)
+	!end
+
+	self.camera = camera
 end
 
 function Debugging:update(dt)
@@ -148,6 +157,18 @@ function Debugging:draw_slab()
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
 	end
+
+	Slab.EndWindow()
+
+	views.mouse_info = Slab.BeginWindow("mouse_info",
+		{Title = "mouse info", IsOpen = views.mouse_info})
+	local mx, my = love.mouse.getPosition()
+	local cx, cy = self.camera:toWorld(mx, my)
+
+	Slab.Text("mx: " .. mx)
+	Slab.Text("my: " .. my)
+	Slab.Text("cx: " .. cx)
+	Slab.Text("cy: " .. cy)
 
 	Slab.EndWindow()
 

@@ -67,7 +67,6 @@ local world
 !end
 
 local Assemblages = {
-	Common = require("assemblages.common"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
@@ -125,6 +124,7 @@ function StateOutside:spawn_player(dur_camera_follow)
 			res_images.sheet_player_walk,
 			res_images.sheet_player_run,
 			res_images.sheet_player_open_door,
+			res_images.sheet_player_upstairs,
 			false, false)
 
 	self.world:emit("face_left", self.entities.player)
@@ -207,6 +207,7 @@ function StateOutside:start()
 	!if not _RELEASE then
 	self.world:emit("debug_particle_system", self.ps1.system)
 	self.world:emit("debug_particle_system", self.ps2.system)
+	self.world:emit("debug_camera", self.camera)
 	!end
 
 	self.entities.bg_sky = Concord.entity(self.world)
@@ -252,6 +253,9 @@ function StateOutside:start()
 
 	self.entities.door = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.door)
+
+	self.entities.staircase = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.staircase)
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, res_images.car)
@@ -329,6 +333,7 @@ function StateOutside:start()
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
 		0.75)
+	-- self.world:emit("show_ui_interactive", self.entities.door)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -466,6 +471,10 @@ function StateOutside:update(dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("on_camera_move", self.camera)
+
+	local mx, my = self.camera:toWorld(love.mouse.getPosition())
+
+	self.world:emit("check_mouse_hover", mx, my)
 	self.world:emit("hover_effects")
 
 	if is_raining then
@@ -494,6 +503,8 @@ function StateOutside:draw()
 
 		love.graphics.setShader()
 
+		self.world:emit("draw_actions")
+
 		if overlay_flag then
 			love.graphics.setColor(overlay)
 			love.graphics.rectangle("fill", l, t, w, h)
@@ -515,7 +526,8 @@ end
 function StateOutside:mousepressed(mx, my, mb)
 	if not self.is_ready then return end
 
-	self.world:emit("mousepressed", mx, my, mb)
+	local cx, cy = self.camera:toWorld(mx, my)
+	self.world:emit("mousepressed", cx, cy, mb)
 end
 
 function StateOutside:keypressed(key)
@@ -526,11 +538,16 @@ function StateOutside:keypressed(key)
 		self.timeline:Unpause()
 	end
 
-	-- if key == "o" then
-	-- 	self.world:emit("player_open_door", self.entities.player, function()
-	-- 		self.entities.player:remove("override_animation")
-	-- 	end)
-	-- end
+	if key == "o" then
+		-- self.world:emit("player_open_door", self.entities.player, function()
+		-- 	self.entities.player:remove("override_animation")
+		-- end)
+
+		self.world:emit("player_upstairs", self.entities.player, function(dt, current_frame)
+			local pos = self.entities.player.position.pos
+			pos.y = pos.y - 32 * dt
+		end)
+	end
 	!end
 
 	self.world:emit("keypressed", key)

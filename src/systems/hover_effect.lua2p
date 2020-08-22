@@ -17,6 +17,13 @@ function HoverEffect:init(world)
 		error("HoverEffect system needs MouseHover system")
 	end
 	!end
+
+	self.pool_change_scale.onEntityRemoved = function(pool, e)
+		local transform = e.transform
+
+		transform.sx = transform.orig_sx
+		transform.sy = transform.orig_sy
+	end
 end
 
 function HoverEffect:hover_effects()

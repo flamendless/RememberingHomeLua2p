@@ -61,8 +61,8 @@ function Helper.get_real_pos_box(e)
 	if transform then
 		local ox, oy = Helper.get_offset(e)
 
-		x = x - ox
-		y = y - oy
+		x = x - ox * transform.orig_sx
+		y = y - oy * transform.orig_sy
 	end
 
 	if camera then

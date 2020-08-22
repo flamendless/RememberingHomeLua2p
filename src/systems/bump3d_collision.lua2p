@@ -16,20 +16,12 @@ function Bump3DCollision:init(world)
 	self.world = world
 	self.bump3d_world = Bump3D.newWorld()
 
-	!if not _RELEASE then
-	self.bump3d_bodies = {}
-	!end
-
 	self.pool.onEntityAdded = function(pool, e)
 		local x = e.position.pos.x
 		local y = e.position.pos.y
 
 		self.bump3d_world:add(e, x, y, 0,
 			e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
-
-		!if not _RELEASE then
-		self.bump3d_bodies[e.id.id] = e
-		!end
 	end
 
 	self.pool.onEntityRemoved = function(pool, e)
@@ -98,7 +90,9 @@ function Bump3DCollision:draw_slab(dt)
 	Slab.SameLine()
 	Slab.Text(len)
 
-	for id, e in pairs(self.bump3d_bodies) do
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+
 		Slab.BeginLayout("b3d_layout", {Columns = 2})
 		Slab.SetLayoutColumn(1)
 		Slab.Text(id)

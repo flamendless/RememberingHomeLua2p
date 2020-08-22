@@ -125,6 +125,8 @@ function UI.arrow(e, dir, sheet, pos)
 end
 
 local function action(e, sheet, dur)
+	local scale = 0.25
+
 	e:give("animation_data", {
 			spritesheet = sheet,
 			frames = {"1-5", 1},
@@ -134,15 +136,14 @@ local function action(e, sheet, dur)
 			n_frames = 5,
 		})
 	:give("tween_dur", dur)
-	:give("position", vec2:new())
 	:give("ui_action")
-	:give("ui_element")
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered", 1))
+	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
 	:give("ease", "backout")
-	:give("bounding_box", vec2:new(), vec2:new(96, 96))
+	:give("bounding_box", vec2:new(), vec2:new(96 * scale, 96 * scale))
 	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
-	:give("hover_change_scale", 1.25, 0.25)
+	:give("hover_change_scale", scale + 0.1, 0.25)
+	:give("transform", 0, scale, scale, 0.5, 0.5)
+	:give("z_index", 99)
 	:give("hidden")
 
 	return e
@@ -175,7 +176,7 @@ function UI.question_mark(e, sprite, dur)
 	:give("color", Palette.get("ui_not_hovered", 0))
 	:give("tween_dur", dur)
 	:give("notification")
-	:give("ui_element")
+	:give("z_index", 99)
 	:give("ui_offset", vec2:new(-56, -48))
 end
 

@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Notification = Concord.system({
-	pool = {"id", "ui_element", "notification", "sprite"}
+	pool = {"id", "notification", "sprite"}
 })
 
 function Notification:init(world)

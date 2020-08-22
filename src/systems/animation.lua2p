@@ -32,7 +32,7 @@ local setup_on_loop = function(e, animation)
 
 				if cb.remove_at_end then
 					e:remove("animation_on_loop")
-					cache_multi_animation[e.animation.current_tag] = nil
+					-- cache_multi_animation[e.animation.current_tag] = nil
 				end
 			end
 		end
@@ -193,14 +193,13 @@ function Animation:switch_animation_tag(e, new_tag, override)
 
 	local animation = e.animation
 	local on_loop = setup_on_loop(e, animation)
+	animation.is_playing = true
 
 	if not (new_tag == animation.current_tag) then
 		animation.current_tag = new_tag
-		animation.is_playing = true
 		e:remove("animation_data")
 		e:give("animation_data", data)
 		setup_animation(e, data, on_loop)
-
 	end
 
 	if override then e:give("override_animation") end

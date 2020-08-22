@@ -2,11 +2,13 @@ local Concord = require("modules.concord.concord")
 
 local ActionControls = Concord.system({
 	pool_player = {"player", "position", "collider3d"},
-	pool_actions = {"id", "ui_action", "position", "tween_dur", "on_click", "color"},
+	pool_actions = {"id", "ui_action", "tween_dur", "on_click", "color",
+		"bounding_box",
+	},
 })
 
 !(
-local dist = 130
+local dist = 32
 local gap = 60
 local start = -30
 local _offsets = {}
@@ -59,14 +61,15 @@ function ActionControls:show_ui_interactive(target_item)
 
 		if valid then
 			local off = get_offset(i)
-			local pos = e.position.pos
+			local pos = vec2:new()
 
-			local player_pos = self.player.position.pos
+			local ppos = self.player.position.pos
+			local pspawn = self.player.spawn_point.pos
 			local target_item_pos = target_item.position.pos
-			local dir = (target_item_pos.x <= player_pos.x) and 1 or -1
+			local dir = (target_item_pos.x < ppos.x) and 1 or -1
 
-			pos.x = player_pos.x + off.x * dir
-			pos.y = player_pos.y + off.y
+			pos.x = pspawn.x + (off.x * dir)
+			pos.y = pspawn.y + off.y
 
 			e:remove("hidden")
 			:give("animation", true)
@@ -75,6 +78,7 @@ function ActionControls:show_ui_interactive(target_item)
 				:give("clickable")
 			end)
 			:give("target_item", target_item)
+			:give("position", pos)
 
 			i = i + 1
 			success = true
@@ -85,6 +89,7 @@ function ActionControls:show_ui_interactive(target_item)
 		self.world:emit("hide_notification", "question_mark")
 		self.world:emit("set_camera_scale_ex", 1, self.dur_camera)
 		self.world:emit("player_interact_item", true)
+		self.world:emit("sort_z")
 	end
 end
 
@@ -94,8 +99,10 @@ function ActionControls:hide_ui_interactive()
 		:remove("target_item")
 		:remove("hoverable")
 		:remove("clickable")
-		:give("color_fade_out", e.tween_dur.dur)
-		:give("hidden")
+		:give("color_fade_out", e.tween_dur.dur, nil, function()
+			e:give("hidden")
+			:remove("position")
+		end)
 	end
 end
 

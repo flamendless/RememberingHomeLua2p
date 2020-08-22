@@ -6,13 +6,13 @@ local MouseHover = Concord.system({
 	pool_bb = {"bounding_box", "hoverable", "position"},
 })
 
-function MouseHover:update(dt)
+function MouseHover:check_mouse_hover(mx, my)
 	for _, e in ipairs(self.pool_bb) do
 		local box = e.bounding_box
 		local hoverable = e.hoverable
 		local bx, by = Helper.get_real_pos_box(e)
 		local bw, bh = box.size.x, box.size.y
-		local mx, my = love.mouse.getPosition()
+
 		local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 		hoverable.is_hovered = result

@@ -8,3 +8,7 @@ Concord.component("position", function(c, pos)
 	c.pos = pos
 	c.original_pos = pos:copy()
 end)
+
+Concord.component("spawn_point", function(c)
+	c.pos = vec2:new()
+end)

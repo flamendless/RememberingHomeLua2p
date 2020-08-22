@@ -540,6 +540,7 @@ function StateMenu:update(dt)
 	local mx, my = love.mouse.getPosition()
 
 	self.world:emit("update", dt)
+	self.world:emit("check_mouse_hover", mx, my)
 	self.world:emit("hover_effects")
 
 	if current_state == states.settings and not self.mb_main.flag_process then

@@ -133,6 +133,14 @@ function Outside.door(e)
 	:give("action_cancel")
 end
 
+function Outside.staircase(e)
+	e:give("id", "staircase")
+	:give("position", vec2:new(440, 260))
+	:give("collider3d", vec3:new(20, 10, 16), "cross")
+	:give("bump3d")
+	:give("item")
+end
+
 function Outside.left_wall(e)
 	e:give("id", "left_wall")
 	:give("position", vec2:new(96, 160))
