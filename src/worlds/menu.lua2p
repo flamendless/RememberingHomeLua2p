@@ -51,7 +51,7 @@ local Systems = Tracker.track(Systems)
 !end
 
 local Assemblages = {
-	Common = require("assemblages.common")
+	Menu = require("assemblages.menu"),
 }
 
 local resources = {images = {}, sources = {}, fonts = {}}
@@ -148,30 +148,18 @@ end
 function StateMenu:turn_off_lamp()
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()
-	local duration = 2
+	local dur = 2
 	local timer = 1.75
 	-- TODO turn off BGM
 
 	self:hide_sub_menu()
 	self.entities.desk:give("hidden")
-	self.entities.title
-		:give("target_color", Palette.get("white", 0), duration)
-	self.entities.subtitle
-		:give("target_color", Palette.get("white", 0), duration)
+	--TODO change target_color
+	self.entities.title:give("target_color", Palette.get("white", 0), dur)
+	self.entities.subtitle:give("target_color", Palette.get("white", 0), dur)
 
 	self.entities.desk_fast = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite,
-			{
-				spritesheet = res_images.sheet_desk,
-				frames = {"1-3", 1, "1-3", 2, "1-1", 3},
-				delay = 0.001,
-				rows_count = 3,
-				columns_count = 3,
-				n_frames = 7
-			}, vec2:new(ww/2, wh/2), false)
-		:give("transform", 0, 1, 1, 0.5, 0.5)
-		:give("auto_scale", ww, wh, true)
-		:give("color", {1, 1, 1, 1})
+		:assemble(Assemblages.Menu.desk_fast, res_images.sheet_desk, ww, wh)
 
 	Timer.after(timer, function()
 		-- TODO add sudden static sound
@@ -255,50 +243,30 @@ function StateMenu:setup_menu()
 	scale_subt = scale_subt * 0.75
 
 	self.entities.bg_door = Concord.entity(self.world)
-		:give("position", vec2:new(ww * 1.5, wh/2))
-		:give("sprite", bg_door)
-		:give("transform", 0, scale, scale, bg_door_w/2, bg_door_h/2)
+		:assemble(Assemblages.Menu.bg_door,
+			bg_door, vec2:new(ww * 1.5, wh/2), scale, bg_door_w/2, bg_door_h/2)
 
 	self.entities.bg_hallway = Concord.entity(self.world)
-		:give("position", vec2:new(ww/2, wh * 1.5))
-		:give("sprite", bg_hallway)
-		:give("transform", 0, scale_hallway, scale_hallway, bg_hw_w/2, bg_hw_h/2)
+		:assemble(Assemblages.Menu.bg_hallway,
+			bg_hallway, vec2:new(ww/2, wh * 1.5), scale_hallway, bg_hw_w/2, bg_hw_h/2)
 
 	self.entities.desk = Concord.entity(self.world)
-		:assemble(Assemblages.Common.animated_sprite, {
-				spritesheet = res_images.sheet_desk,
-				frames = {"1-3", 1, "1-3", 2, "1-1", 3},
-				durations = {1, 0.1, 1, 0.1, 0.1, 0.1, 1},
-				rows_count = 3,
-				columns_count = 3,
-				n_frames = 7
-			}, vec2:new(ww/2, wh/2), false)
-		:give("transform", 0, 1, 1, 0.5, 0.5)
-		:give("auto_scale", ww, wh, true)
-		:give("color", {1, 1, 1, 1})
+		:assemble(Assemblages.Menu.desk, res_images.sheet_desk, ww, wh)
 
 	!if not _RELEASE then
-	self.entities.secret = Concord.entity(self.world)
-		:give("position", vec2:new(32, wh * 0.5))
-		:give("text", !(_GAME_TITLE_SECRET), res_fonts.about_64)
-		:give("color", Palette.get("red_desaturated", 0))
-		:give("transform", 0, 2, 2, 0, 0.5)
+	self.entities.secret_title = Concord.entity(self.world)
+		:assemble(Assemblages.Menu.secret_title, res_fonts.about_64, vec2:new(32, wh/2))
 
-	self.entities.secret:give("color_fade_in", 5, 3)
+	self.entities.secret_title:give("color_fade_in", 5, 3)
 	!end
 
 	self.entities.title = Concord.entity(self.world)
-		-- :give("position", vec2:new(ww * 0.25, wh/2 - 36))
-		:give("sprite", title)
-		:give("transform", 0, scale_title, scale_title, title_w/2, title_h/2)
-		:give("color", Palette.get("white", 0.75))
+		:assemble(Assemblages.Menu.title, title, vec2:new(ww * 0.25, wh/2 - 36),
+			scale_title, title_w/2, title_h/2)
 
 	self.entities.subtitle = Concord.entity(self.world)
-		-- :give("position", vec2:new(ww * 0.25, wh * 1.5))
-		:give("anchor", self.entities.title, "center", "bottom")
-		:give("sprite", subtitle)
-		:give("color", Palette.get("white", 0.5))
-		:give("transform", 0, scale_subt, scale_subt, subt_w/2, subt_h/2)
+		:assemble(Assemblages.Menu.subtitle, subtitle, vec2:new(ww * 0.25, wh * 1.5),
+			self.entities.title, scale_subt, subt_w/2, subt_h/2)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
 	local jamboree_png = "res/fonts/Jamboree.png"
@@ -315,13 +283,11 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
+		local pos = vec2:new(x, y)
 		local id = "text_" .. lstr
 
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text,
-				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
-			:give("sdf", scale, scale)
-			:give("option_key", i, 1)
+			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, pos, scale, i, 1)
 			:give("on_enter", function()
 				current_state = states[lstr]
 				Log.info("Switched Menu State to: ", current_state)
@@ -336,13 +302,11 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
+		local pos = vec2:new(x, y)
 		local id = "text_sub_" .. lstr
 
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Common.text,
-				vec2:new(x, y), str, sdf_menu, Palette.get("white", 1))
-			:give("sdf", scale, scale)
-			:give("option_key", i, 2)
+			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, pos, scale, i, 2)
 			:give("on_enter", function()
 				self["on_" .. lstr](self)
 			end)
@@ -409,14 +373,17 @@ local function generate_about()
 	insert(t, {"@LAYOUT:CENTER"})
 	insert(t, {""})
 	insert(t, {"SPECIAL THANKS to the people at the Löve Discord server"})
-	insert(t, {res_images.twitter, res_images.website, res_images.mail})
+	insert(t, {
+		res_images.twitter, res_images.twitter,
+		res_images.website, res_images.mail
+	})
 
 	return t
 end
 
 function StateMenu:setup_about()
 	local about = generate_about()
-	local about_links = {!(_URL_TWITTER), !(_URL_WEBSITE), !(_URL_MAIL)}
+	!!local about_links = _ABOUT_LINKS
 	local l, t, w, h = self.camera:getVisible()
 	local font_about = res_fonts.about_20
 	local base_x = w/2
@@ -424,7 +391,8 @@ function StateMenu:setup_about()
 	local layout = false
 	local layout_base_y = 0
 	local largest = 0
-	local color
+	local dt_color = false
+	local color = Palette.get("about_normal")
 
 	for i, el in ipairs(about) do
 		if type(el[1]) == "string" then
@@ -451,7 +419,8 @@ function StateMenu:setup_about()
 				base_y = largest
 				layout = false
 			elseif str == "@COLOR" then
-				color = Palette.get("about_hint", 1)
+				color = Palette.get("about_hint")
+				dt_color = true
 			else
 				if layout then
 					y = layout_base_y
@@ -460,17 +429,15 @@ function StateMenu:setup_about()
 				end
 
 				local id = "about_text_" .. i
+				local pos = vec2:new(x, y)
 
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Common.static_text,
-						vec2:new(x, y), str, font, Palette.colors.white)
-					:give("position", vec2:new(x, y))
-					:give("camera")
+					:assemble(Assemblages.Menu.about_text, id, str, font, pos, color)
 
-					if color then
-						self.entities[id]:give("color", color)
-						color = nil
-					end
+				if dt_color then
+					color = Palette.get("about_normal")
+					dt_color = false
+				end
 
 				if not layout then base_y = base_y + str_h end
 			end
@@ -483,24 +450,16 @@ function StateMenu:setup_about()
 				local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
 				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
 				local y = base_y + image:getHeight()/2 - pad
-
+				local pos = vec2:new(x, y)
 				img_h = image:getHeight()
+
 				self.entities[id] = Concord.entity(self.world)
-					:give("sprite", image)
-					:give("position", vec2:new(x, y))
-					:give("color", Palette.colors.white)
-					:give("camera")
-					:give("bounding_box", vec2:new(x, y),
-						vec2:new(image:getWidth(), image:getHeight()))
-					:give("clickable")
+					:assemble(Assemblages.Menu.about_ext_link, id, image, pos)
 					:give("on_click", 1, function()
 						local url = about_links[i2]
 
 						love.system.openURL(url)
 					end)
-					:give("hoverable")
-					:give("hover_change_color", Palette.get("about_hint"), 0.1)
-					:give("transform", 0, 0.75, 0.75)
 			end
 
 			base_y = base_y + img_h + pad
@@ -535,16 +494,6 @@ function StateMenu:load()
 end
 
 function StateMenu:start()
-	local ww = love.graphics.getWidth()
-	local wh = love.graphics.getHeight()
-	local img_ff = Image.resize_image(res_images.flowfield)
-
-	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
-	self.camera:setWindow(0, 0, ww, wh)
-	self.canvas_main = self.canvases.main_canvas
-	self.mb_main = MotionBlur:new(self.canvas_main)
-	self.dissolve_ff = Dissolve:new(img_ff, 2)
-
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystems(Systems.RenderSprite)
 	self.world:addSystems(Systems.RenderText)
@@ -561,6 +510,16 @@ function StateMenu:start()
 	!if not _RELEASE then
 	Tracker.warn_on_ref_count(Systems, 0)
 	!end
+
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+	local img_ff = Image.resize_image(res_images.flowfield)
+
+	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
+	self.camera:setWindow(0, 0, ww, wh)
+	self.canvas_main = self.canvases.main_canvas
+	self.mb_main = MotionBlur:new(self.canvas_main)
+	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self:setup_menu()
 	self:hide_main_menu(0.1)
@@ -599,6 +558,7 @@ function StateMenu:draw()
 		current_state == states.settings or
 		current_state == states.about or
 		current_state == states.play then
+
 		self.canvas_main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")

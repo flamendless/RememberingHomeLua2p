@@ -85,7 +85,8 @@ function love.load()
 	!if _RELEASE then
 	GameStates.switch("Splash")
 	!else
-	GameStates.switch("Outside")
+	GameStates.switch("Menu")
+	-- GameStates.switch("Outside")
 	!end
 end
 

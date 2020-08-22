@@ -35,8 +35,16 @@ _KEYBINDINGS_FILENAME = "keybindings.json"
 _KEYBINDINGS_DEF_FILENAME = "data/keybindings_default.json"
 
 _URL_TWITTER = "https://twitter.com/@flam8studio"
-_URL_WEBSITE = ""
+_URL_DISCORD = "https://discord.gg/2W4tyyV"
+_URL_WEBSITE = "https://flamendless.itch.io"
 _URL_MAIL = "mailto:flamendless.studio@gmail.com"
+
+_ABOUT_LINKS = {
+	_URL_TWITTER,
+	_URL_DISCORD,
+	_URL_WEBSITE,
+	_URL_MAIL
+}
 
 _NAME_DEVELOPER = "Brandon"
 _NAME_ARTIST = "Conrad"
