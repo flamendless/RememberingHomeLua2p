@@ -62,6 +62,7 @@ function Bump3DCollision:update_body(e)
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
+		other_col.normal.z = c.normalZ
 	end
 
 	if e.z_index.sortable then

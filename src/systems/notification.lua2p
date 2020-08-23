@@ -14,22 +14,23 @@ function Notification:show_notification(req_id, target)
 	Assert.is(target, Types.T_ENTITY)
 	!end
 
-	local pos = target.position.pos
+	local sp = target.spawn_point_question_mark.pos
 
 	for _, e in ipairs(self.pool) do
 		local id = e.id.id
 		local notif = e.notification
 
 		if (id == req_id) and (not notif.is_active) then
+			local transform = e.transform
 			local tween_dur = e.tween_dur
-			local offset = e.ui_offset.offset
-			local x = pos.x + offset.x
-			local y = pos.y + offset.y
+			local x = sp.x
+			local y = sp.y
 
 			notif.is_active = true
 
 			e:give("color_fade_in", tween_dur.dur)
 			:give("position", vec2:new(x, y))
+			:give("attach_to_spawn_point", sp)
 		end
 	end
 end
@@ -47,7 +48,10 @@ function Notification:hide_notification(req_id)
 		if (id == req_id) and notif.is_active then
 			notif.is_active = false
 
-			e:give("color_fade_out", tween_dur.dur)
+			e:give("color_fade_out", tween_dur.dur, nil, function()
+				e:remove("attach_to")
+				:remove("position")
+			end)
 		end
 	end
 end

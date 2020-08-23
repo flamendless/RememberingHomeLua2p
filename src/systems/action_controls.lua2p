@@ -1,9 +1,8 @@
 local Concord = require("modules.concord.concord")
 
 local ActionControls = Concord.system({
-	pool_player = {"player", "position", "collider3d"},
-	pool_actions = {"id", "ui_action", "tween_dur", "on_click", "color",
-		"bounding_box",
+	pool_actions = {"id", "ui_action", "tween_dur", "on_click",
+		"color", "bounding_box",
 	},
 })
 
@@ -33,27 +32,18 @@ end
 
 function ActionControls:init(world)
 	self.world = world
-	self.player = nil
 	self.dur_camera = 0.25
-
-	self.pool_player.onEntityAdded = function(pool, e)
-		!if _ASSERT then
-		Assert.empty(self.player)
-		!end
-
-		self.player = e
-	end
 end
 
-function ActionControls:show_ui_interactive(target_item)
+function ActionControls:show_ui_interactive(target_item, player)
 	!if _ASSERT then
 	Assert.exists(target_item.item)
 	!end
 
-	if self.player.player.is_interact_item then return end
-
 	local i = 1
 	local success = false
+	local item_pos = target_item.position.pos
+	local col = target_item.collider3d
 
 	for _, e in ipairs(self.pool_actions) do
 		local id = e.id.id
@@ -63,10 +53,9 @@ function ActionControls:show_ui_interactive(target_item)
 			local off = get_offset(i)
 			local pos = vec2:new()
 
-			local ppos = self.player.position.pos
-			local pspawn = self.player.spawn_point.pos
-			local target_item_pos = target_item.position.pos
-			local dir = (target_item_pos.x < ppos.x) and 1 or -1
+			local ppos = player.position.pos
+			local pspawn = player.spawn_point_action_controls.pos
+			local dir =  (item_pos.x < ppos.x) and 1 or -1
 
 			pos.x = pspawn.x + (off.x * dir)
 			pos.y = pspawn.y + off.y
@@ -106,7 +95,7 @@ function ActionControls:hide_ui_interactive()
 	end
 end
 
-function ActionControls:interact_item(action_id, target_item)
+function ActionControls:interact_action(action_id, target_item)
 	!if _ASSERT then
 	Assert.must(action_id, Types.T_STRING)
 	Assert.is(target_item, Types.T_ENTITY)
@@ -116,7 +105,7 @@ function ActionControls:interact_item(action_id, target_item)
 	print(action_id, id)
 end
 
-function ActionControls:interact_cancel(dur)
+function ActionControls:interact_cancel()
 	self.world:emit("set_camera_scale_prev", self.dur_camera)
 	self.world:emit("player_interact_item", false)
 	self:hide_ui_interactive()

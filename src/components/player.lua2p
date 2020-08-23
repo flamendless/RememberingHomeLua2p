@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("player", function(c)
-	c.is_interact_item = false
+	c.can_interact_item = true
 end)
 
 Concord.component("within_item", function(c, item_e)

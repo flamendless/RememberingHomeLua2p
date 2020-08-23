@@ -14,7 +14,7 @@ Concord.component("collider3d", function(c, size, filter)
 	c.size = size
 	c.is_hit = false
 	c.filter = nil
-	c.normal = vec2:new()
+	c.normal = vec3:new()
 
 	if filter then
 		c.filter = filters[filter]

@@ -172,12 +172,11 @@ end
 function UI.question_mark(e, sprite, dur)
 	e:give("id", "question_mark")
 	:give("sprite", sprite)
-	:give("transform", 0, 0.5, 0.5, 0.5, 1)
+	:give("transform", 0, 0.25, 0.25, 0.5, 1)
 	:give("color", Palette.get("ui_not_hovered", 0))
 	:give("tween_dur", dur)
 	:give("notification")
 	:give("z_index", 99)
-	:give("ui_offset", vec2:new(-56, -48))
 end
 
 return UI
