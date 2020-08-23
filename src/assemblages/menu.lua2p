@@ -103,6 +103,18 @@ function Menu.about_ext_link(e, id, sprite, pos)
 	:give("transform", 0, 0.75, 0.75)
 end
 
+function Menu.btn_back(e, spr, pos)
+	e:give("id", "btn_back")
+	:give("sprite", spr)
+	:give("position", pos)
+	:give("color", Palette.get("ui_not_hovered"))
+	:give("camera")
+	:give("bounding_box", pos:copy(), vec2:new(59, 45))
+	:give("clickable")
+	:give("hoverable")
+	:give("hover_change_color", Palette.get("ui_hovered"), 0.2)
+end
+
 !if not _RELEASE then
 function Menu.secret_title(e, font, pos)
 	e:give("id", "secret_title")

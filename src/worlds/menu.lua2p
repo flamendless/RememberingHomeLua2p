@@ -66,6 +66,8 @@ local is_transition = false
 local ent_options = {}
 local ent_options_sub = {}
 
+local about_done = false
+
 local ANGLE_UP = 90
 local ANGLE_DOWN = 270
 local ANGLE_LEFT = 180
@@ -197,7 +199,11 @@ function StateMenu:on_about()
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = {x = l, y = t, w = w, h = h}
 
-	self:setup_about()
+	if not about_done then
+		self:setup_about()
+		about_done = true
+	end
+
 	self.world:emit("allow_cursor", false)
 	self:MB_move(nil, cworld.h, ANGLE_UP)
 end
@@ -374,7 +380,7 @@ local function generate_about()
 	insert(t, {""})
 	insert(t, {"SPECIAL THANKS to the people at the Löve Discord server"})
 	insert(t, {
-		res_images.twitter, res_images.twitter,
+		res_images.twitter, res_images.discord,
 		res_images.website, res_images.mail
 	})
 
@@ -393,6 +399,12 @@ function StateMenu:setup_about()
 	local largest = 0
 	local dt_color = false
 	local color = Palette.get("about_normal")
+
+	self.entities.btn_back = Concord.entity(self.world)
+		:assemble(Assemblages.Menu.btn_back, res_images.btn_back, vec2:new(8, base_y))
+		:give("on_click", 1, function()
+			self:keypressed(Inputs.get("ui_back"))
+		end)
 
 	for i, el in ipairs(about) do
 		if type(el[1]) == "string" then
@@ -707,6 +719,7 @@ function StateMenu:exit()
 	current_state = states.menu
 	is_sub_menu = false
 	is_transition = false
+	about_done = false
 end
 
 return StateMenu
