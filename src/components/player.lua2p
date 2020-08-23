@@ -3,13 +3,3 @@ local Concord = require("modules.concord.concord")
 Concord.component("player", function(c)
 	c.can_interact_item = true
 end)
-
-Concord.component("within_item", function(c, item_e)
-	!if _ASSERT then
-	Assert.is(item_e, Types.T_ENTITY)
-	Assert.exists(item_e.item)
-	!end
-
-	c.item_e = item_e
-	c.item_id = item_e.id.id
-end)

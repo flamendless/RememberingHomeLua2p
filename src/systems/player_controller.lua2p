@@ -8,22 +8,23 @@ local PlayerController = Concord.system({
 
 function PlayerController:init(world)
 	self.world = world
-
-	-- self.pool.onEntityAdded = function(pool, e)
-	-- 	local sp_qm = e.spawn_point_question_mark.pos
-    --
-	-- 	pos
-	-- end
 end
 
-function PlayerController:player_interact_item(bool)
-	!if _ASSERT then
-	Assert.must(bool, Types.T_BOOLEAN)
-	!end
+function PlayerController:item_interacted(e, item)
+	e.body.can_move = false
+	e.player.can_interact_item = false
+	self:idle(e, true)
+end
 
-	for _, e in ipairs(self.pool) do
-		e.body.can_move = not bool
-		e.player.can_interact_item = not bool
+function PlayerController:interact_cancelled(e)
+	if e then
+		e.body.can_move = true
+		e.player.can_interact_item = true
+	else
+		for _, e in ipairs(self.pool) do
+			e.body.can_move = true
+			e.player.can_interact_item = true
+		end
 	end
 end
 
@@ -74,7 +75,7 @@ function PlayerController:update(dt)
 		local anim_name = self:update_animation(e)
 
 		self:update_speed(e, anim_name)
-		self.world:emit("check_within_item", e)
+		self.world:emit("check_on_leave_items", e)
 	end
 end
 
@@ -168,13 +169,22 @@ function PlayerController:face_right(e)
 	self:update_animation(e, "idle")
 end
 
-function PlayerController:idle(e)
+function PlayerController:idle(e, stop)
 	if e.override_animation then return end
 
-	if e.body.dir == -1 then
+	local body = e.body
+
+	if body.dir == -1 then
 		self:update_animation(e, "idle", "_left")
 	else
 		self:update_animation(e, "idle")
+	end
+
+	if stop then
+		body.dx = 0
+		body.dy = 0
+		body.vel_x = 0
+		body.vel_y = 0
 	end
 end
 
@@ -191,16 +201,6 @@ function PlayerController:player_open_door(e, fn)
 	e:give("change_animation_tag", tag)
 	:give("override_animation")
 	:give("animation_on_loop", fn, "pauseAtEnd", true)
-
-	--method B
-	-- local data = e.multi_animation_data.data[tag]
-	-- e.animation.current_tag = tag
-	-- e:remove("animation_data")
-	-- :give("animation_data", data)
-	-- :give("override_animation")
-	-- :give("animation_on_loop", fn, "pauseAtEnd", true)
-    --
-	-- self.world:emit("update_animation_data", e, data)
 end
 
 function PlayerController:player_upstairs(e, fn)
@@ -220,9 +220,18 @@ function PlayerController:keypressed(key)
 	if Inputs.is_pressed("player_interact", key) then
 		for _, e in ipairs(self.pool) do
 			local player = e.player
+			local item = e.within_item
 
-			if player.can_interact_item then
-				self.world:emit("interact_item", e)
+			if player.can_interact_item and item then
+				self.world:emit("item_interacted", e, item.item)
+			end
+		end
+	elseif Inputs.is_pressed("ui_back", key) then
+		for _, e in ipairs(self.pool) do
+			local player = e.player
+
+			if not player.can_interact_item then
+				self.world:emit("interact_cancelled", e)
 			end
 		end
 	end

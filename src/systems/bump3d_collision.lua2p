@@ -31,7 +31,9 @@ end
 
 function Bump3DCollision:preupdate(dt)
 	for _, e in ipairs(self.pool) do
-		e.collider3d.is_hit = false
+		local col = e.collider3d
+
+		col.is_hit = false
 	end
 end
 
@@ -45,8 +47,7 @@ end
 
 function Bump3DCollision:update_body(e)
 	local pos = e.position.pos
-	local cols, len
-	local z
+	local cols, len, z
 
 	pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
 		pos.x + e.body.vel_x,
@@ -63,6 +64,13 @@ function Bump3DCollision:update_body(e)
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
 		other_col.normal.z = c.normalZ
+
+		if other.item then
+			if not other_col.prev_hit then
+				other_col.prev_hit = true
+				self.world:emit("item_collided", e, other)
+			end
+		end
 	end
 
 	if e.z_index.sortable then

@@ -8,6 +8,40 @@ function Notification:init(world)
 	self.world = world
 end
 
+function Notification:item_collided(e, item)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.is(item, Types.T_ENTITY)
+	!end
+
+	local notif = item.notify
+
+	if notif then
+		self:show_notification(notif.id, e)
+	end
+end
+
+function Notification:item_left_collision(e, item)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.is(item, Types.T_ENTITY)
+	!end
+
+	local notif = item.notify
+
+	if notif then
+		self:hide_notification(notif.id)
+	end
+end
+
+function Notification:item_interacted(player, item)
+	local notif = item.notify
+
+	if notif then
+		self:hide_notification(notif.id)
+	end
+end
+
 function Notification:show_notification(req_id, target)
 	!if _ASSERT then
 	Assert.must(req_id, Types.T_STRING)

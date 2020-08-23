@@ -9,10 +9,9 @@ local Camera = Concord.system({
 function Camera:init(world)
 	self.world = world
 	self.main_camera = nil
-	self.prev_scale = nil
-	self.target_scale = nil
 	self.to_follow = nil
-	self.can_scale_lerp = true
+	self.dur_scale = 0.25
+	self.can_scale = true
 
 	self.pool.onEntityAdded = function(pool, e)
 		local cam = e.camera.camera
@@ -30,14 +29,31 @@ function Camera:init(world)
 	end
 end
 
-function Camera:set_camera_scale(scale)
-	!if _ASSERT then
-	Assert.must(scale, Types.T_NUMBER)
-	!end
+function Camera:item_interacted()
+	if self.can_scale then
+		self.can_scale = false
+		self.prev_scale = self.main_camera.scale
+		self.target_scale = self.prev_scale + 1
+		self.flux = Flux.to(self.main_camera, self.dur_scale, {scale = self.target_scale})
+			:oncomplete(function() self.can_scale = true end)
+	else
+		self.flux:stop()
+		self.main_camera.scale = self.target_scale
+		self.can_scale = true
+	end
+end
 
-	self.prev_scale = self.main_camera:getScale()
-	self.target_scale = scale
-	self.main_camera:setScale(scale)
+function Camera:interact_cancelled()
+	if self.can_scale then
+		self.can_scale = false
+		self.target_scale = self.prev_scale
+		self.flux = Flux.to(self.main_camera, self.dur_scale, {scale = self.target_scale})
+			:oncomplete(function() self.can_scale = true end)
+	else
+		self.flux:stop()
+		self.main_camera.scale = self.prev_scale
+		self.can_scale = true
+	end
 end
 
 function Camera:set_camera_scale_ex(inc, dur)
@@ -50,21 +66,6 @@ function Camera:set_camera_scale_ex(inc, dur)
 		self.can_scale_lerp = false
 		self.prev_scale = self.main_camera:getScale()
 		self.target_scale = self.prev_scale + inc
-		self.flux = Flux.to(self.main_camera, dur, {scale = self.target_scale})
-			:oncomplete(function()
-				self.can_scale_lerp = true
-			end)
-	end
-end
-
-function Camera:set_camera_scale_prev(dur)
-	!if _ASSERT then
-	Assert.must(dur, Types.T_NUMBER)
-	!end
-
-	if self.can_scale_lerp then
-		self.can_scale_lerp = false
-		self.target_scale = self.prev_scale
 		self.flux = Flux.to(self.main_camera, dur, {scale = self.target_scale})
 			:oncomplete(function()
 				self.can_scale_lerp = true

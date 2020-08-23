@@ -1,9 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Log = require("modules.log.log")
-
-local Inputs = require("inputs")
-
-local format = string.format
 
 local Item = Concord.system({
 	pool = {"id", "item", "collider3d"},
@@ -13,34 +8,31 @@ function Item:init(world)
 	self.world = world
 end
 
-function Item:check_within_item(player)
+function Item:item_collided(e, item)
 	!if _ASSERT then
-	Assert.exists(player.player)
+	Assert.is(e, Types.T_ENTITY)
+	Assert.is(item, Types.T_ENTITY)
 	!end
 
-	for _, e in ipairs(self.pool) do
-		local col = e.collider3d
-
-		if col.is_hit then
-			player:give("within_item", e)
-			self.world:emit("show_notification", "question_mark", player)
-
-			return
-		end
-	end
-
-	player:remove("within_item")
-	self.world:emit("hide_notification", "question_mark")
+	e:give("within_item", item)
 end
 
-function Item:interact_item(player)
+function Item:item_left_collision(e, item)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.is(item, Types.T_ENTITY)
+	!end
+
+	e:remove("within_item")
+end
+
+function Item:check_on_leave_items(player)
 	for _, e in ipairs(self.pool) do
 		local col = e.collider3d
 
-		if col.is_hit then
-			self.world:emit("show_ui_interactive", e, player)
-
-			return
+		if col.prev_hit and not col.is_hit then
+			col.prev_hit = false
+			self.world:emit("item_left_collision", player, e)
 		end
 	end
 end

@@ -13,7 +13,3 @@ Concord.component("ui_offset", function(c, offset)
 
 	c.offset = offset
 end)
-
-Concord.component("notification", function(c)
-	c.is_active = false
-end)

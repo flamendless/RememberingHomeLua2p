@@ -32,26 +32,19 @@ end
 
 function ActionControls:init(world)
 	self.world = world
-	self.dur_camera = 0.25
 end
 
-function ActionControls:show_ui_interactive(target_item, player)
-	!if _ASSERT then
-	Assert.exists(target_item.item)
-	!end
-
+function ActionControls:item_interacted(player, target_item)
 	local i = 1
-	local success = false
 	local item_pos = target_item.position.pos
-	local col = target_item.collider3d
 
 	for _, e in ipairs(self.pool_actions) do
 		local id = e.id.id
 		local valid = target_item[id]
 
-		if valid then
+		if valid and not e.color_fade_out then
 			local off = get_offset(i)
-			local pos = vec2:new()
+			local pos = e.position.pos
 
 			local ppos = player.position.pos
 			local pspawn = player.spawn_point_action_controls.pos
@@ -67,22 +60,15 @@ function ActionControls:show_ui_interactive(target_item, player)
 				:give("clickable")
 			end)
 			:give("target_item", target_item)
-			:give("position", pos)
 
 			i = i + 1
-			success = true
 		end
 	end
 
-	if success then
-		self.world:emit("hide_notification", "question_mark")
-		self.world:emit("set_camera_scale_ex", 1, self.dur_camera)
-		self.world:emit("player_interact_item", true)
-		self.world:emit("sort_z")
-	end
+	self.world:emit("sort_z")
 end
 
-function ActionControls:hide_ui_interactive()
+function ActionControls:interact_cancelled()
 	for _, e in ipairs(self.pool_actions) do
 		e:remove("animation")
 		:remove("target_item")
@@ -90,12 +76,11 @@ function ActionControls:hide_ui_interactive()
 		:remove("clickable")
 		:give("color_fade_out", e.tween_dur.dur, nil, function()
 			e:give("hidden")
-			:remove("position")
 		end)
 	end
 end
 
-function ActionControls:interact_action(action_id, target_item)
+function ActionControls:action_interacted(action_id, target_item)
 	!if _ASSERT then
 	Assert.must(action_id, Types.T_STRING)
 	Assert.is(target_item, Types.T_ENTITY)
@@ -103,12 +88,6 @@ function ActionControls:interact_action(action_id, target_item)
 
 	local id = target_item.id.id
 	print(action_id, id)
-end
-
-function ActionControls:interact_cancel()
-	self.world:emit("set_camera_scale_prev", self.dur_camera)
-	self.world:emit("player_interact_item", false)
-	self:hide_ui_interactive()
 end
 
 return ActionControls

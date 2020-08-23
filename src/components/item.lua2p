@@ -10,3 +10,13 @@ Concord.component("target_item", function(c, item)
 
 	c.item = item
 end)
+
+Concord.component("within_item", function(c, item)
+	!if _ASSERT then
+	Assert.is(item, Types.T_ENTITY)
+	Assert.exists(item.item)
+	!end
+
+	c.item = item
+	c.item_id = item.id.id
+end)
