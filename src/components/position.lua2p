@@ -9,6 +9,10 @@ Concord.component("position", function(c, pos)
 	c.original_pos = pos:copy()
 end)
 
-Concord.component("spawn_point", function(c)
+Concord.component("spawn_point_action_controls", function(c)
+	c.pos = vec2:new()
+end)
+
+Concord.component("spawn_point_question_mark", function(c)
 	c.pos = vec2:new()
 end)

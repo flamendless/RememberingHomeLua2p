@@ -84,7 +84,8 @@ function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
 	:give("player_controller")
 	:give("body", can_move, can_run)
 	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
-	:give("spawn_point")
+	:give("spawn_point_action_controls")
+	:give("spawn_point_question_mark")
 
 	if movement == "platformer" then
 		e:give("movement_platformer")

@@ -134,7 +134,8 @@ local function debug_internal_draw(e)
 	local pos = e.position.pos
 	local transform = e.transform
 	local qt = e.quad_transform
-	local spawn_point = e.spawn_point
+	local sp_ac = e.spawn_point_action_controls
+	local sp_qm = e.spawn_point_question_mark
 
 	local x = pos.x
 	local y = pos.y
@@ -164,14 +165,21 @@ local function debug_internal_draw(e)
 	love.graphics.rectangle("line", x, y, w, h)
 	love.graphics.print(e.id.id, pos.x, pos.y)
 
-	if spawn_point then
-		local sp = spawn_point.pos
+	if sp_ac then
+		local sp = sp_ac.pos
 
 		love.graphics.setColor(0, 1, 0, 1)
 		love.graphics.circle("fill", sp.x, sp.y, 2)
 	end
 
-	love.graphics.setColor(0, 0, 1, 1)
+	if sp_qm then
+		local sp = sp_qm.pos
+
+		love.graphics.setColor(0, 0, 1, 1)
+		love.graphics.circle("fill", sp.x, sp.y, 2)
+	end
+
+	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.circle("fill", pos.x, pos.y, 2)
 end
 

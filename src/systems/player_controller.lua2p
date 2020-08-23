@@ -1,15 +1,19 @@
 local Concord = require("modules.concord.concord")
 
-local abs = math.abs
-
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body"},
+	pool = {"player_controller", "body", "collider3d"},
 })
 
 function PlayerController:init(world)
 	self.world = world
+
+	-- self.pool.onEntityAdded = function(pool, e)
+	-- 	local sp_qm = e.spawn_point_question_mark.pos
+    --
+	-- 	pos
+	-- end
 end
 
 function PlayerController:player_interact_item(bool)
@@ -19,7 +23,7 @@ function PlayerController:player_interact_item(bool)
 
 	for _, e in ipairs(self.pool) do
 		e.body.can_move = not bool
-		e.player.is_interact_item = bool
+		e.player.can_interact_item = not bool
 	end
 end
 
@@ -77,15 +81,19 @@ end
 function PlayerController:update_spawn_point(e)
 	local dir = e.body.dir
 	local pos = e.position.pos
-	local sp = e.spawn_point
+	local sp_ac = e.spawn_point_action_controls
+	local sp_qm = e.spawn_point_question_mark
 
 	if dir == -1 then
-		sp.pos.x = pos.x + 24
+		sp_ac.pos.x = pos.x + 24
+		sp_qm.pos.x = pos.x + 8
 	else
-		sp.pos.x = pos.x + 4
+		sp_ac.pos.x = pos.x + 4
+		sp_qm.pos.x = pos.x + 16
 	end
 
-	sp.pos.y = pos.y + 8
+	sp_ac.pos.y = pos.y + 8
+	sp_qm.pos.y = pos.y
 end
 
 function PlayerController:update_animation(e, override_name, override_variance)
@@ -208,6 +216,18 @@ function PlayerController:player_upstairs(e, fn)
 	:give("animation_on_update", fn)
 end
 
+function PlayerController:keypressed(key)
+	if Inputs.is_pressed("player_interact", key) then
+		for _, e in ipairs(self.pool) do
+			local player = e.player
+
+			if player.can_interact_item then
+				self.world:emit("interact_item", e)
+			end
+		end
+	end
+end
+
 !if _ASSERT then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
@@ -224,7 +244,8 @@ function PlayerController:draw_debug()
 
 		Slab.Text("Body:")
 		Slab.Indent()
-		Slab.Text("Dir: " .. format("(%i, %i)", body.dx, body.dy))
+		Slab.Text("dxy: " .. format("(%i, %i)", body.dx, body.dy))
+		Slab.Text("dir: " .. body.dir)
 
 		if Slab.CheckBox(body.can_move, "can_move") then
 			body.can_move = not body.can_move
@@ -234,8 +255,8 @@ function PlayerController:draw_debug()
 			body.can_run = not body.can_run
 		end
 
-		if Slab.CheckBox(player.is_interact_item, "interact_item") then
-			player.is_interact_item = not player.is_interact_item
+		if Slab.CheckBox(player.can_interact_item, "can_interact_item") then
+			player.can_interact_item = not player.can_interact_item
 		end
 
 		Slab.Text("is_run: " .. tostring(body.is_run))
