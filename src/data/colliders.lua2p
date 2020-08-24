@@ -1,0 +1,34 @@
+local Colliders = {}
+
+local data = {}
+
+data.house_left = {
+	pos = vec2:new(240, 128),
+	col = vec3:new(175, 140, 64),
+}
+
+data.house_right = {
+	pos = vec2:new(480, 128),
+	col = vec3:new(80, 140, 64),
+}
+
+data.house_top = {
+	pos = vec2:new(420, 180),
+	col = vec3:new(50, 45, 64),
+}
+
+data.house_bottom = {
+	pos = vec2:new(412, 240),
+	col = vec3:new(65, 28, 18),
+}
+
+function Colliders.get(id)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(data[id])
+	!end
+
+	return data[id]
+end
+
+return Colliders

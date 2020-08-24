@@ -46,9 +46,8 @@ function ActionControls:item_interacted(player, target_item)
 			local off = get_offset(i)
 			local pos = e.position.pos
 
-			local ppos = player.position.pos
+			local dir = -player.body.dir
 			local pspawn = player.spawn_point_action_controls.pos
-			local dir =  (item_pos.x < ppos.x) and 1 or -1
 
 			pos.x = pspawn.x + (off.x * dir)
 			pos.y = pspawn.y + off.y
@@ -68,7 +67,7 @@ function ActionControls:item_interacted(player, target_item)
 	self.world:emit("sort_z")
 end
 
-function ActionControls:interact_cancelled()
+function ActionControls:hide_action_controls()
 	for _, e in ipairs(self.pool_actions) do
 		e:remove("animation")
 		:remove("target_item")
@@ -88,6 +87,10 @@ function ActionControls:action_interacted(action_id, target_item)
 
 	local id = target_item.id.id
 	print(action_id, id)
+end
+
+function ActionControls:interact_cancelled()
+	self:hide_action_controls()
 end
 
 return ActionControls

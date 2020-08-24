@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("item")
+Concord.component("staircase")
 
 Concord.component("target_item", function(c, item)
 	!if _ASSERT then

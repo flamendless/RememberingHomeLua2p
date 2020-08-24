@@ -54,11 +54,12 @@ local Systems = {
 	Movement = require("systems.movement"),
 	MouseHover = require("systems.mouse_hover"),
 	Notification = require("systems.notification"),
+	RenderCircle = require("systems.render_circle"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	ClimbStaircase = require("systems.climb_staircase"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
-	RenderCircle = require("systems.render_circle"),
 }
 
 !if not _RELEASE then
@@ -181,6 +182,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.RenderCircle)
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)
+	self.world:addSystem(Systems.ClimbStaircase)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -215,11 +217,11 @@ function StateOutside:start()
 
 	local bg_house = res_images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
-	local div = 2
+	local div = 4
 	local qw = bg_house_w/div
-	local qh = bg_house_h/div
+	local qh = bg_house_h
 
-	for i = 1, div * div do
+	for i = 1, div do
 		local id = "bg_house_" .. i
 		local x = bg_house_w * ((i - 1) % div)/div
 		local y = bg_house_h * floor((i - 1)/div)/div
@@ -245,8 +247,17 @@ function StateOutside:start()
 	self.entities.wood = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.wood)
 
-	self.entities.house = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house)
+	self.entities.house_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "left")
+
+	self.entities.house_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "right")
+
+	self.entities.house_top = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "top")
+
+	self.entities.house_bottom = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "bottom")
 
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
@@ -332,7 +343,7 @@ function StateOutside:start()
 	local actions = Factory.ui_controls(self.world,
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
-		0.75)
+		0.75, self.entities.player)
 	-- self.world:emit("show_ui_interactive", self.entities.door)
 
 	--TIMELINE
@@ -544,11 +555,11 @@ function StateOutside:keypressed(key)
 		-- 	self.entities.player:remove("override_animation")
 		-- end)
 
-		self.world:emit("player_upstairs", self.entities.player, function(dt, current_frame)
-			local pos = self.entities.player.position.pos
-
-			pos.y = pos.y - 32 * dt
-		end)
+		-- self.world:emit("climbed_staircase", self.entities.player, function(dt, current_frame)
+		-- 	local pos = self.entities.player.position.pos
+        --
+		-- 	pos.y = pos.y - 32 * dt
+		-- end)
 	end
 	!end
 

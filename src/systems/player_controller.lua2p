@@ -16,16 +16,9 @@ function PlayerController:item_interacted(e, item)
 	self:idle(e, true)
 end
 
-function PlayerController:interact_cancelled(e)
-	if e then
-		e.body.can_move = true
-		e.player.can_interact_item = true
-	else
-		for _, e in ipairs(self.pool) do
-			e.body.can_move = true
-			e.player.can_interact_item = true
-		end
-	end
+function PlayerController:interact_cancelled(e, item)
+	e.body.can_move = true
+	e.player.can_interact_item = true
 end
 
 function PlayerController:player_set_movement(bool)
@@ -203,7 +196,7 @@ function PlayerController:player_open_door(e, fn)
 	:give("animation_on_loop", fn, "pauseAtEnd", true)
 end
 
-function PlayerController:player_upstairs(e, fn)
+function PlayerController:climbed_staircase(e, fn)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
 	Assert.exists(e.player)

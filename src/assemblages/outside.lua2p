@@ -1,3 +1,4 @@
+local Colliders = require("data.colliders")
 local Palette = require("palette")
 
 local random = love.math.random
@@ -26,7 +27,7 @@ function Outside.bg_house(e, sprite, pos, quad)
 	:give("sprite", sprite)
 	:give("position", pos)
 	:give("quad", quad)
-	:give("z_index", z_index.bg_house)
+	:give("z_index", z_index.bg_house, false)
 end
 
 function Outside.left_bounds(e)
@@ -107,10 +108,13 @@ function Outside.car(e, sprite)
 	:give("z_index", z_index.car)
 end
 
-function Outside.house(e)
-	e:give("id", "house")
-	:give("position", vec2:new(240, 128))
-	:give("collider3d", vec3:new(350, 140, 64))
+function Outside.house(e, part)
+	local id = "house_" .. part
+	local data = Colliders.get(id)
+
+	e:give("id", id)
+	:give("position", data.pos)
+	:give("collider3d", data.col)
 	:give("bump3d")
 end
 
@@ -136,10 +140,15 @@ end
 
 function Outside.staircase(e)
 	e:give("id", "staircase")
-	:give("position", vec2:new(440, 260))
-	:give("collider3d", vec3:new(20, 10, 16), "cross")
+	:give("position", vec2:new(446, 260))
+	:give("collider3d", vec3:new(2, 12, 16), "cross")
 	:give("bump3d")
 	:give("item")
+	:give("staircase")
+	:give("notify", "question_mark")
+	:give("action_eye")
+	:give("action_hand")
+	:give("action_cancel")
 end
 
 function Outside.left_wall(e)
