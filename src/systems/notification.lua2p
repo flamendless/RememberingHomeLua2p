@@ -38,7 +38,15 @@ function Notification:item_interacted(player, item)
 	local notif = item.notify
 
 	if notif then
-		self:hide_notification(notif.id)
+		self:toggle_notification_temp(notif.id)
+	end
+end
+
+function Notification:interact_cancelled(player, item)
+	local notif = item.notify
+
+	if notif then
+		self:toggle_notification_temp(notif.id)
 	end
 end
 
@@ -86,6 +94,25 @@ function Notification:hide_notification(req_id)
 				e:remove("attach_to")
 				:remove("position")
 			end)
+		end
+	end
+end
+
+function Notification:toggle_notification_temp(req_id)
+	!if _ASSERT then
+	Assert.must(req_id, Types.T_STRING)
+	!end
+
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+		local notif = e.notification
+
+		if (id == req_id) and notif.is_active then
+			if e.hidden then
+				e:remove("hidden")
+			else
+				e:give("hidden")
+			end
 		end
 	end
 end

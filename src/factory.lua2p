@@ -166,7 +166,7 @@ function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, sheet_canc
 	t.cancel = Concord.entity(world)
 		:assemble(UI.action_cancel, sheet_cancel, dur)
 		:give("on_click", 1, function()
-			world:emit("interact_cancelled")
+			world:emit("interact_cancelled", nil, t.cancel.target_item.item)
 		end)
 
 	return t

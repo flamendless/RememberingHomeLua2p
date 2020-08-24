@@ -527,6 +527,7 @@ function StateOutside:mousepressed(mx, my, mb)
 	if not self.is_ready then return end
 
 	local cx, cy = self.camera:toWorld(mx, my)
+
 	self.world:emit("mousepressed", cx, cy, mb)
 end
 
@@ -545,6 +546,7 @@ function StateOutside:keypressed(key)
 
 		self.world:emit("player_upstairs", self.entities.player, function(dt, current_frame)
 			local pos = self.entities.player.position.pos
+
 			pos.y = pos.y - 32 * dt
 		end)
 	end
