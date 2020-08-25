@@ -1,0 +1,24 @@
+local Concord = require("modules.concord.concord")
+
+local OutsideDoor = Concord.system({
+	pool = {"door", "collider3d", "bump3d", "position"},
+	pool_col = {"id", "position", "collider3d", "bump3d"}
+})
+
+function OutsideDoor:init(world)
+	self.world = world
+end
+
+function OutsideDoor:item_collided(e, item)
+	local item_id = item.id.id
+
+	if item_id == "locked_door" then
+		e:remove("override_animation")
+		:remove("animation_on_update")
+		:give("change_animation_tag", "idle")
+
+		self.world:emit("climbed_staircase")
+	end
+end
+
+return OutsideDoor

@@ -41,6 +41,13 @@ function UI.ui_text(e, text, font, pos)
 	:give("hidden")
 end
 
+function UI.ui_text_paint(e, text, font, pos)
+	e:assemble(UI.ui_text, text, font, pos)
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("text_with_paint")
+	:give("task", "flash", Palette.get("ui_feedback"))
+end
+
 function UI.hold_progress_bg(e, pos, radius, segments)
 	e:give("id", "hold_progress_bg")
 	:give("position", pos)

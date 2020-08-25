@@ -54,6 +54,7 @@ local Systems = {
 	Movement = require("systems.movement"),
 	MouseHover = require("systems.mouse_hover"),
 	Notification = require("systems.notification"),
+	OutsideDoor = require("systems.outside_door"),
 	RenderCircle = require("systems.render_circle"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
@@ -183,6 +184,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)
 	self.world:addSystem(Systems.ClimbStaircase)
+	self.world:addSystem(Systems.OutsideDoor)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -256,14 +258,23 @@ function StateOutside:start()
 	self.entities.house_top = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house, "top")
 
-	self.entities.house_bottom = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house, "bottom")
+	-- self.entities.house_bottom = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Outside.house, "bottom")
+
+	self.entities.railing_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.railing, "left")
+
+	self.entities.railing_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.railing, "right")
 
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
 
 	self.entities.door = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.door)
+
+	self.entities.locked_door = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.locked_door)
 
 	self.entities.staircase = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.staircase)
@@ -287,13 +298,8 @@ function StateOutside:start()
 	local pos_ui = vec2:new(self.screen_size.x/2, self.screen_size.y * 0.9)
 
 	for i, str in ipairs(tasks) do
-		local id = "task" .. i
-
-		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
-			:give("transform", 0, 1, 1, 0.5, 0.5)
-			:give("text_with_paint")
-			:give("task", "flash", Palette.get("ui_feedback"))
+		self.entities["task" .. i] = Concord.entity(self.world)
+			:assemble(Assemblages.UI.ui_text_paint, str, font_ui, pos_ui:copy())
 	end
 
 	local splashes = res_images.splashes

@@ -85,7 +85,6 @@ local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
 
-local format = string.format
 local win_col3d = false
 local current_item, current_item_id
 
@@ -128,11 +127,15 @@ function Bump3DCollision:draw_slab(dt)
 
 	Slab.EndWindow()
 
-	if win_col3d then
+	if not win_col3d then
+		current_item = nil
+		current_item_id = nil
+	else
 		local e = current_item
 		local id = current_item_id
 
-		Slab.BeginWindow("EditCollider", {Title = "Collider3d"})
+		win_col3d = Slab.BeginWindow("EditCollider", {
+			Title = "Collider3d", IsOpen = win_col3d})
 		Slab.Text(id)
 		Slab.Indent()
 
@@ -230,31 +233,39 @@ function Bump3DCollision:draw_slab(dt)
 	end
 end
 
+function Bump3DCollision:internal_draw(e)
+	local id = e.id.id
+	local x, y, z, w, h, d = self.bump3d_world:getCube(e)
+
+	if e.collider3d.highlight then
+		love.graphics.setColor(1, 0, 1, 1)
+	elseif e.collider3d.is_hit then
+		love.graphics.setColor(1, 0, 0, 0.8)
+	else
+		if e.item then
+			love.graphics.setColor(0, 0, 1, 1)
+		else
+			love.graphics.setColor(0, 1, 0, 0.3)
+		end
+	end
+
+	love.graphics.rectangle("line", x, y + z + h, w, d)
+	love.graphics.rectangle("line", x, y + z, w, h)
+
+	love.graphics.print(id, x, y)
+end
+
 function Bump3DCollision:draw_debug()
 	if not views.b3d_bounds then return end
 
-	local items, len = self.bump3d_world:getItems()
+	if current_item then
+		self:internal_draw(current_item)
+	else
+		local items, len = self.bump3d_world:getItems()
 
-	for i = 1, len do
-		local e = items[i]
-		local x, y, z, w, h, d = self.bump3d_world:getCube(e)
-
-		if e.collider3d.highlight then
-			love.graphics.setColor(1, 0, 1, 1)
-		elseif e.collider3d.is_hit then
-			love.graphics.setColor(1, 0, 0, 0.8)
-		else
-			if e.item then
-				love.graphics.setColor(0, 0, 1, 1)
-			else
-				love.graphics.setColor(0, 1, 0, 0.3)
-			end
+		for i = 1, len do
+			self:internal_draw(items[i])
 		end
-
-		love.graphics.rectangle("line", x, y + z + h, w, d)
-		love.graphics.rectangle("line", x, y + z, w, h)
-
-		love.graphics.print(e.id.id, x, y)
 	end
 end
 !end

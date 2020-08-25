@@ -125,6 +125,16 @@ function Outside.house_side(e)
 	:give("bump3d")
 end
 
+function Outside.railing(e, part)
+	local id = "railing_" .. part
+	local data = Colliders.get(id)
+
+	e:give("id", id)
+	:give("position", data.pos)
+	:give("collider3d", data.col)
+	:give("bump3d")
+end
+
 function Outside.door(e)
 	e:give("id", "door")
 	:give("position", vec2:new(580, 250))
@@ -138,17 +148,27 @@ function Outside.door(e)
 	:give("action_cancel")
 end
 
-function Outside.staircase(e)
-	e:give("id", "staircase")
-	:give("position", vec2:new(446, 260))
-	:give("collider3d", vec3:new(2, 12, 16), "cross")
+function Outside.locked_door(e)
+	e:give("id", "locked_door")
+	:give("position", vec2:new(448, 222))
+	:give("collider3d", vec3:new(28, 4, 8), "cross")
 	:give("bump3d")
 	:give("item")
-	:give("staircase")
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
+	:give("action_bag")
 	:give("action_cancel")
+	:give("door", true)
+end
+
+function Outside.staircase(e)
+	e:give("id", "staircase")
+	:give("position", vec2:new(450, 260))
+	:give("collider3d", vec3:new(16, 12, 16), "cross")
+	:give("bump3d")
+	:give("item")
+	:give("staircase")
 end
 
 function Outside.left_wall(e)

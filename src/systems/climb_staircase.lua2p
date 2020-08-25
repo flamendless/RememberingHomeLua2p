@@ -9,6 +9,28 @@ function ClimbStaircase:init(world)
 	self.world = world
 end
 
+function ClimbStaircase:item_collided(e, item)
+	if item.id.id == "staircase" then
+		local item_pos = item.position.pos
+		local pos = e.position.pos
+
+		if item_pos.y < pos.y then
+			local body = e.body
+			body.dx = 0
+			body.dy = 0
+			body.vel_x = 0
+			body.vel_y = 0
+
+			self.world:emit("interacted_stairs", e, function(dt)
+				pos.x = pos.x + 16 * dt
+				pos.y = pos.y - 32 * dt
+
+				self.world:emit("sort_z")
+			end)
+		end
+	end
+end
+
 function ClimbStaircase:action_interacted(action_id, target_item, player)
 	!if _ASSERT then
 	Assert.must(action_id, Types.T_STRING)
@@ -24,24 +46,32 @@ function ClimbStaircase:action_interacted(action_id, target_item, player)
 	elseif action_id == "hand" then
 		local pos = player.position.pos
 
-		self:remove_bounds()
-		self.world:emit("hide_action_controls")
-		self.world:emit("climbed_staircase", player, function(dt, cur_frame)
-			pos.y = pos.y - 32 * dt
-
-			self.world:emit("sort_z")
-		end)
+		-- self:remove_bounds()
+		-- self.world:emit("hide_action_controls")
+		-- self.world:emit("climbed_staircase", player, function(dt, cur_frame)
+		-- 	pos.x = pos.x + 8 * dt
+		-- 	pos.y = pos.y - 32 * dt
+        --
+		-- 	self.world:emit("sort_z")
+		-- end)
 	end
 end
 
-function ClimbStaircase:remove_bounds()
+function ClimbStaircase:interacted_stairs()
 	for _, e in ipairs(self.pool_col) do
 		local id = e.id.id
 
-		if id == "house_bottom" then
+		if id == "house_bottom" or id == "railing_left" then
 			e.collider3d.filter = "cross"
+		end
+	end
+end
+function ClimbStaircase:climbed_staircase()
+	for _, e in ipairs(self.pool_col) do
+		local id = e.id.id
 
-			return
+		if id == "house_bottom" or id == "railing_left" then
+			e.collider3d.filter = "slide"
 		end
 	end
 end

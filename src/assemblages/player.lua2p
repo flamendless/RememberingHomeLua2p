@@ -102,7 +102,7 @@ function Player.outside_house(e,
 		{
 			idle = vec2:new(),
 			walk = vec2:new(128, 92),
-			run = vec2:new(180, 144)
+			run = vec2:new(180, 144),
 		},
 		320,
 		{

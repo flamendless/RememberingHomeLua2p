@@ -3,6 +3,10 @@ local Concord = require("modules.concord.concord")
 Concord.component("item")
 Concord.component("staircase")
 
+Concord.component("door", function(c, is_locked)
+	c.is_locked = is_locked
+end)
+
 Concord.component("target_item", function(c, item)
 	!if _ASSERT then
 	Assert.is(item, Types.T_ENTITY)
