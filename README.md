@@ -9,7 +9,7 @@ Made with [LOVE](https://love2d.org)
 
 ## Building:
 
-1. Run `./generate_fonts generate_fonts`, `./generate_fonts convert_fonts`, and `./generate_fonts copy_fonts` first. This is only required once.
+1. Go to the `scripts/` folder and then run `./generate_fonts generate_fonts`, `./generate_fonts convert_fonts`, and `./generate_fonts copy_fonts` first. This is only required once.
 2. Then run `./build init` to setup the directories and copy the assets to the output directory.
 3. Then `./build run` to preprocess and run the game.
 
