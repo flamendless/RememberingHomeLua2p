@@ -20,4 +20,9 @@ Concord.component("collider3d", function(c, size, filter)
 	if filter then
 		c.filter = filters[filter]
 	end
+
+	!if not _RELEASE then
+	c.view = true
+	c.focus_view = false
+	!end
 end)

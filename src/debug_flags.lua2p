@@ -3,7 +3,6 @@ local DebugFlags
 
 DebugFlags = {
 	views = {
-		b3d_bounds = false,
 		b3d_list = false,
 		bounding_box = false,
 		camera = true,
