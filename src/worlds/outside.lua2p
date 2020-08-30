@@ -127,6 +127,7 @@ function StateOutside:spawn_player(dur_camera_follow)
 			res_images.sheet_player_run,
 			res_images.sheet_player_open_door,
 			res_images.sheet_player_upstairs,
+			res_images.sheet_player_downstairs,
 			false, false)
 
 	self.world:emit("face_left", self.entities.player)

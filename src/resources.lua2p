@@ -93,6 +93,7 @@ Resources.data.outside = {
 		{"sheet_player_run", path_images .. "player/player_run.png"},
 		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
 		{"sheet_player_upstairs", path_images .. "player/sheet_player_upstairs.png"},
+		{"sheet_player_downstairs", path_images .. "player/sheet_player_downstairs.png"},
 		{"firefly", path_images .. "house_outside/firefly.png"},
 		{"splashes", path_images .. "house_outside/splashes.png"},
 		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
