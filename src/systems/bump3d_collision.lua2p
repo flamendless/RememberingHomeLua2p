@@ -136,6 +136,8 @@ function Bump3DCollision:draw_slab(dt)
 			win_col3d = true
 			current_item = e
 			current_item_id = id
+			col.focus_view = true
+			self:focus_view(e, false)
 		end
 
 		Slab.SameLine()
@@ -294,14 +296,10 @@ end
 function Bump3DCollision:draw_debug()
 	if not view_b3d_bounds then return end
 
-	if current_item then
-		self:internal_draw(current_item, true)
-	else
-		local items, len = self.bump3d_world:getItems()
+	local items, len = self.bump3d_world:getItems()
 
-		for i = 1, len do
-			self:internal_draw(items[i])
-		end
+	for i = 1, len do
+		self:internal_draw(items[i])
 	end
 end
 !end

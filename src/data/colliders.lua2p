@@ -17,11 +17,6 @@ data.house_top = {
 	col = vec3:new(60, 45, 64),
 }
 
-data.house_bottom = {
-	pos = vec2:new(412, 240),
-	col = vec3:new(65, 28, 18),
-}
-
 data.railing_left = {
 	pos = vec2:new(420, 236),
 	col = vec3:new(22, 18, 18),

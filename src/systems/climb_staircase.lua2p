@@ -10,23 +10,41 @@ function ClimbStaircase:init(world)
 end
 
 function ClimbStaircase:item_collided(e, item)
-	if item.id.id == "staircase" then
+	local id = item.id.id
+
+	if id == "staircase" then
 		local item_pos = item.position.pos
 		local pos = e.position.pos
+		local body = e.body
+		body.dx = 0
+		body.dy = 0
+		body.vel_x = 0
+		body.vel_y = 0
 
 		if item_pos.y < pos.y then
-			local body = e.body
-			body.dx = 0
-			body.dy = 0
-			body.vel_x = 0
-			body.vel_y = 0
-
-			self.world:emit("interacted_stairs", e, function(dt)
+			e:give("climb_up")
+			self.world:emit("interacted_stairs", e, "upstairs", function(dt)
 				pos.x = pos.x + 12 * dt
 				pos.y = pos.y - 24 * dt
 
 				self.world:emit("sort_z")
 			end)
+		else
+			e:give("climb_down")
+			self.world:emit("interacted_stairs", e, "downstairs", function(dt)
+				pos.x = pos.x - 12 * dt
+				pos.y = pos.y + 24 * dt
+
+				self.world:emit("sort_z")
+			end)
+		end
+	elseif id == "staircase_bottom" then
+		if e.climb_down then
+			e:remove("climb_down")
+			:remove("override_animation")
+			:remove("animation_on_update")
+
+			self.world:emit("climbed_staircase")
 		end
 	end
 end
@@ -35,16 +53,17 @@ function ClimbStaircase:interacted_stairs()
 	for _, e in ipairs(self.pool_col) do
 		local id = e.id.id
 
-		if id == "house_bottom" or id == "railing_left" then
+		if id == "railing_left" then
 			e.collider3d.filter = "cross"
 		end
 	end
 end
+
 function ClimbStaircase:climbed_staircase()
 	for _, e in ipairs(self.pool_col) do
 		local id = e.id.id
 
-		if id == "house_bottom" or id == "railing_left" then
+		if id == "railing_left" then
 			e.collider3d.filter = "slide"
 		end
 	end

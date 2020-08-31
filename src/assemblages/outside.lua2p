@@ -138,7 +138,7 @@ end
 function Outside.door(e)
 	e:give("id", "door")
 	:give("position", vec2:new(580, 250))
-	:give("collider3d", vec3:new(24, 36, 8), "cross")
+	:give("collider3d", vec3:new(16, 16, 4), "cross")
 	:give("bump3d")
 	:give("item")
 	:give("notify", "question_mark")
@@ -164,8 +164,17 @@ end
 
 function Outside.staircase(e)
 	e:give("id", "staircase")
-	:give("position", vec2:new(450, 260))
-	:give("collider3d", vec3:new(16, 12, 16), "cross")
+	:give("position", vec2:new(450, 240))
+	:give("collider3d", vec3:new(12, 24, 12), "cross")
+	:give("bump3d")
+	:give("item")
+	:give("staircase")
+end
+
+function Outside.staircase_bottom(e)
+	e:give("id", "staircase_bottom")
+	:give("position", vec2:new(440, 280))
+	:give("collider3d", vec3:new(32, 8, 12), "cross")
 	:give("bump3d")
 	:give("item")
 	:give("staircase")

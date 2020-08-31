@@ -33,6 +33,8 @@ end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
+		self.world:emit("check_on_leave_items", e)
+
 		if e.override_animation then return end
 
 		local body = e.body
@@ -68,7 +70,6 @@ function PlayerController:update(dt)
 		local anim_name = self:update_animation(e)
 
 		self:update_speed(e, anim_name)
-		self.world:emit("check_on_leave_items", e)
 	end
 end
 
@@ -196,16 +197,16 @@ function PlayerController:player_open_door(e, fn)
 	:give("animation_on_loop", fn, "pauseAtEnd", true)
 end
 
-function PlayerController:interacted_stairs(e, fn)
+function PlayerController:interacted_stairs(e, tag, fn)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
 	Assert.exists(e.player)
+	Assert.either_value(tag, "upstairs", "downstairs")
 	Assert.safe.must(fn, Types.T_FUNCTION)
 	!end
 
-	e:give("change_animation_tag", "upstairs")
+	e:give("change_animation_tag", tag)
 	:give("override_animation")
-	-- :give("animation_on_loop", fn, nil)
 	:give("animation_on_update", fn)
 end
 

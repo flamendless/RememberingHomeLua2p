@@ -259,9 +259,6 @@ function StateOutside:start()
 	self.entities.house_top = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house, "top")
 
-	-- self.entities.house_bottom = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Outside.house, "bottom")
-
 	self.entities.railing_left = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.railing, "left")
 
@@ -279,6 +276,9 @@ function StateOutside:start()
 
 	self.entities.staircase = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.staircase)
+
+	self.entities.staircase_bottom = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.staircase_bottom)
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, res_images.car)
