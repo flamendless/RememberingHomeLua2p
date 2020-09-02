@@ -4,7 +4,7 @@ local data = {}
 
 data.house_left = {
 	pos = vec2:new(240, 128),
-	col = vec3:new(175, 140, 64),
+	col = vec3:new(177, 140, 64),
 }
 
 data.house_right = {
@@ -17,12 +17,12 @@ data.house_top = {
 	col = vec3:new(60, 45, 64),
 }
 
-data.railing_left = {
+data.col_railing_left = {
 	pos = vec2:new(420, 236),
-	col = vec3:new(22, 18, 18),
+	col = vec3:new(14, 18, 18),
 }
 
-data.railing_right = {
+data.col_railing_right = {
 	pos = vec2:new(484, 240),
 	col = vec3:new(76, 28, 18),
 }

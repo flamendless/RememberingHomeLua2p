@@ -235,6 +235,9 @@ function StateOutside:start()
 			:assemble(Assemblages.Outside.bg_house, bg_house, pos, quad)
 	end
 
+	self.entities.railings = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.railings, res_images.railings)
+
 	self.entities.left_bounds = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_bounds)
 
@@ -259,11 +262,17 @@ function StateOutside:start()
 	self.entities.house_top = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house, "top")
 
-	self.entities.railing_left = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.railing, "left")
+	self.entities.col_railing_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "left")
 
-	self.entities.railing_right = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.railing, "right")
+	self.entities.col_railing_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "right")
+
+	self.entities.left_railing = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.left_railing)
+
+	self.entities.right_railing = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.right_railing)
 
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)

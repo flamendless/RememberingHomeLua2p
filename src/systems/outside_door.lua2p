@@ -18,7 +18,7 @@ function OutsideDoor:item_collided(e, item)
 		:remove("climb_up")
 		:give("change_animation_tag", "idle")
 
-		self.world:emit("climbed_staircase")
+		self.world:emit("climbed_staircase", "up")
 	end
 end
 

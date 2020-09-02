@@ -152,7 +152,7 @@ function Bump3DCollision:draw_slab(dt)
 		Slab.SameLine()
 
 		if Slab.Button("focus") then
-			col.focus_view = true
+			col.focus_view = not col.focus_view
 			self:focus_view(e, false)
 		end
 

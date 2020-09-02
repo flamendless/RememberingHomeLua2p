@@ -8,6 +8,7 @@ local Outside = {}
 local z_index = {
 	bg_sky = -1,
 	bg_house = 0,
+	railings = 1,
 	firefly = 1,
 	--player = 2,
 	car = 3,
@@ -28,6 +29,13 @@ function Outside.bg_house(e, sprite, pos, quad)
 	:give("position", pos)
 	:give("quad", quad)
 	:give("z_index", z_index.bg_house, false)
+end
+
+function Outside.railings(e, sprite)
+	e:give("id", "railings")
+	:give("sprite", sprite)
+	:give("position", vec2:new(421, 220))
+	:give("z_index", z_index.railings, false)
 end
 
 function Outside.left_bounds(e)
@@ -125,8 +133,8 @@ function Outside.house_side(e)
 	:give("bump3d")
 end
 
-function Outside.railing(e, part)
-	local id = "railing_" .. part
+function Outside.col_railing(e, part)
+	local id = "col_railing_" .. part
 	local data = Colliders.get(id)
 
 	e:give("id", id)
@@ -178,6 +186,20 @@ function Outside.staircase_bottom(e)
 	:give("bump3d")
 	:give("item")
 	:give("staircase")
+end
+
+function Outside.left_railing(e)
+	e:give("id", "left_railing")
+	:give("position", vec2:new(420, 237))
+	:give("collider3d", vec3:new(24, 4, 22), "cross")
+	:give("bump3d")
+end
+
+function Outside.right_railing(e)
+	e:give("id", "right_railing")
+	:give("position", vec2:new(480, 260))
+	:give("collider3d", vec3:new(72, 4, 22), "cross")
+	:give("bump3d")
 end
 
 function Outside.left_wall(e)

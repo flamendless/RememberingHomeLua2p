@@ -44,7 +44,7 @@ function ClimbStaircase:item_collided(e, item)
 			:remove("override_animation")
 			:remove("animation_on_update")
 
-			self.world:emit("climbed_staircase")
+			self.world:emit("climbed_staircase", "down")
 		end
 	end
 end
@@ -53,18 +53,29 @@ function ClimbStaircase:interacted_stairs()
 	for _, e in ipairs(self.pool_col) do
 		local id = e.id.id
 
-		if id == "railing_left" then
+		if id == "col_railing_left" or
+			id == "left_railing" then
 			e.collider3d.filter = "cross"
 		end
 	end
 end
 
-function ClimbStaircase:climbed_staircase()
+function ClimbStaircase:climbed_staircase(dir)
 	for _, e in ipairs(self.pool_col) do
 		local id = e.id.id
 
-		if id == "railing_left" then
-			e.collider3d.filter = "slide"
+		if dir == "up" then
+			if id == "left_railing" then
+				e.collider3d.filter = "slide"
+			elseif id == "col_railing_left" then
+				e.collider3d.filter = "cross"
+			end
+		elseif dir == "down" then
+			if id == "left_railing" then
+				e.collider3d.filter = "cross"
+			elseif id == "col_railing_left" then
+				e.collider3d.filter = "slide"
+			end
 		end
 	end
 end
