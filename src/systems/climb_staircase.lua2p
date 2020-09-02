@@ -65,15 +65,23 @@ function ClimbStaircase:climbed_staircase(dir)
 		local id = e.id.id
 
 		if dir == "up" then
-			if id == "left_railing" then
+			if id == "left_railing" or
+				id == "right_railing" then
 				e.collider3d.filter = "slide"
-			elseif id == "col_railing_left" then
+			elseif id == "col_railing_left" or
+				id == "col_railing_right" then
+				e.collider3d.filter = "cross"
+			elseif id == "house_right" then
 				e.collider3d.filter = "cross"
 			end
 		elseif dir == "down" then
-			if id == "left_railing" then
+			if id == "left_railing" or
+				id == "right_railing" then
 				e.collider3d.filter = "cross"
-			elseif id == "col_railing_left" then
+			elseif id == "col_railing_left" or
+				id == "col_railing_right" then
+				e.collider3d.filter = "slide"
+			elseif id == "house_right" then
 				e.collider3d.filter = "slide"
 			end
 		end

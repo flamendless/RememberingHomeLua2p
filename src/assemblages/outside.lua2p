@@ -8,11 +8,11 @@ local Outside = {}
 local z_index = {
 	bg_sky = -1,
 	bg_house = 0,
-	railings = 1,
 	firefly = 1,
 	--player = 2,
 	car = 3,
 	fence = 4,
+	railings = 10,
 	splashes = 11,
 }
 
@@ -36,6 +36,8 @@ function Outside.railings(e, sprite)
 	:give("sprite", sprite)
 	:give("position", vec2:new(421, 220))
 	:give("z_index", z_index.railings, false)
+	:give("railings")
+	:give("hidden")
 end
 
 function Outside.left_bounds(e)
@@ -81,7 +83,7 @@ end
 function Outside.splashes(e, spritesheet, pos, is_compatible)
 	e:give("id", "splashes")
 	:give("position", pos)
-	:give("z_index", z_index.splashes)
+	:give("z_index", z_index.splashes, false)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
 	:give("animation_data", {
@@ -128,8 +130,8 @@ end
 
 function Outside.house_side(e)
 	e:give("id", "house_side")
-	:give("position", vec2:new(580, 200))
-	:give("collider3d", vec3:new(60, 60, 64))
+	:give("position", vec2:new(565, 200))
+	:give("collider3d", vec3:new(65, 60, 64))
 	:give("bump3d")
 end
 
@@ -191,13 +193,13 @@ end
 function Outside.left_railing(e)
 	e:give("id", "left_railing")
 	:give("position", vec2:new(420, 237))
-	:give("collider3d", vec3:new(24, 4, 22), "cross")
+	:give("collider3d", vec3:new(20, 4, 22), "cross")
 	:give("bump3d")
 end
 
 function Outside.right_railing(e)
 	e:give("id", "right_railing")
-	:give("position", vec2:new(480, 260))
+	:give("position", vec2:new(480, 237))
 	:give("collider3d", vec3:new(72, 4, 22), "cross")
 	:give("bump3d")
 end

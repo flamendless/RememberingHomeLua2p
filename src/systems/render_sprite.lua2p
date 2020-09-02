@@ -43,10 +43,17 @@ end
 
 function RenderSprite:sort_z()
 	tablex.stable_sort(self.custom_pool_z, function(a, b)
-		local a_pos = a.position.pos.y
-		local b_pos = b.position.pos.y
+		if a.z_index.sortable then
+			local a_pos = a.position.pos.y
+			local b_pos = b.position.pos.y
 
-		return a_pos < b_pos
+			return a_pos < b_pos
+		else
+			local a_z = a.z_index.z
+			local b_z = b.z_index.z
+
+			return a_z < b_z
+		end
 	end)
 end
 

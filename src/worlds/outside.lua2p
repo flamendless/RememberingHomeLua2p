@@ -44,21 +44,21 @@ local Systems = {
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Click = require("systems.click"),
+	ClimbStaircase = require("systems.climb_staircase"),
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
 	Fireflies = require("systems.fireflies"),
 	HoverEffect = require("systems.hover_effect"),
 	Item = require("systems.item"),
-	PlayerController = require("systems.player_controller"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
 	MouseHover = require("systems.mouse_hover"),
 	Notification = require("systems.notification"),
-	OutsideDoor = require("systems.outside_door"),
+	OutsideHouse = require("systems.outside_house"),
+	PlayerController = require("systems.player_controller"),
 	RenderCircle = require("systems.render_circle"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	ClimbStaircase = require("systems.climb_staircase"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 }
@@ -185,7 +185,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)
 	self.world:addSystem(Systems.ClimbStaircase)
-	self.world:addSystem(Systems.OutsideDoor)
+	self.world:addSystem(Systems.OutsideHouse)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
