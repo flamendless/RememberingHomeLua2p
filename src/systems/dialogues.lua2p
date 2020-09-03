@@ -1,30 +1,49 @@
 local Concord = require("modules.concord.concord")
+local Timer = require("modules.hump.timer")
 
 local DialoguesList = require("dialogues")
 local Palette = require("palette")
 local ScreenInfo = require("screen_info")
 
 local Dialogues = Concord.system({
-	pool_dialogue = {"id", "dialogue", "text", "position"},
+	pool_dialogue = {"id", "dialogue"},
 })
+
+local UI = require("assemblages.ui")
 
 function Dialogues:init(world)
 	self.world = world
 	self.font = nil
+
+	self.timer = Timer()
+	self.dur = 1
+	self.lifetime = 1.5
+
+	self.pool_dialogue.onEntityAdded = function(pool, e)
+		self.timer:after(self.lifetime, function()
+			self.world:emit("fade_text_paint", e, self.dur)
+		end)
+	end
 end
 
-function Dialogues:set_dialogue_font(font)
+function Dialogues:set_dialogue_config(t)
 	!if _ASSERT then
-	Assert.must(font, Types.T_FONT)
+	Assert.must(t, Types.T_TABLE)
+	Assert.must(t.font, Types.T_FONT)
+	Assert.safe.must(t.dur, Types.T_NUMBER)
+	Assert.safe.must(t.lifetime, Types.T_NUMBER)
 	!end
 
-	self.font = font
+	self.font = t.font
+	self.dur = t.dur or self.dur
+	self.lifetime = t.lifetime or self.lifetime
 end
 
 function Dialogues:show_dialogue(id, sub)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	Assert.must(sub, Types.T_STRING)
+	Assert.exists(self.font)
 	!end
 
 	local text = DialoguesList.get(id)[sub]
@@ -32,17 +51,25 @@ function Dialogues:show_dialogue(id, sub)
 
 	!if _ASSERT then
 	Assert.exists(text)
-	Assert.exists(self.font)
 	!end
 
+	local id = "d_" .. id
 	local e = Concord.entity(self.world)
-		:give("dialogue")
-		:give("id", "d_" .. id)
-		:give("text", text, self.font)
-		:give("position", pos)
-		:give("color", Palette.get("ui_dialogue"))
-		:give("transform", 0, 1, 1, 0.5, 0.5)
-		:give("ui_text")
+		:assemble(UI.dialogue_text, id, text, self.font, pos)
+
+	self.world:emit("show_text_paint", e, self.dur)
+end
+
+function Dialogues:update(dt)
+	self.timer:update(dt)
+end
+
+function Dialogues:cleanup()
+	for _, e in ipairs(self.pool) do
+		e:destroy()
+	end
+
+	self.timer:clear()
 end
 
 return Dialogues

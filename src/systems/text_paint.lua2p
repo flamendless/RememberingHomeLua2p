@@ -57,7 +57,8 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 	Assert.safe.must(on_complete, Types.T_FUNCTION)
 	!end
 
-	local delay
+	local delay = 0
+
 	if e.task then
 		local target = e.task.color
 

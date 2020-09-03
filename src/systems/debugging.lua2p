@@ -60,6 +60,7 @@ function Debugging:init(world)
 
 	self.pool_id.onEntityRemoved = function(pool, e)
 		self.ent_id_count = self.ent_id_count - 1
+		self.ref_id[e.id.id] = nil
 		Log.info("Removed entity: " .. e.id.id)
 	end
 end
