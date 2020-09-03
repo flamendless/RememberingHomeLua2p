@@ -3,7 +3,6 @@ local Timer = require("modules.hump.timer")
 
 local DialoguesList = require("dialogues")
 local Palette = require("palette")
-local ScreenInfo = require("screen_info")
 
 local Dialogues = Concord.system({
 	pool_dialogue = {"id", "dialogue"},
@@ -13,11 +12,12 @@ local UI = require("assemblages.ui")
 
 function Dialogues:init(world)
 	self.world = world
+	self.pos = nil
 	self.font = nil
 
 	self.timer = Timer()
 	self.dur = 1
-	self.lifetime = 1.5
+	self.lifetime = 2
 
 	self.pool_dialogue.onEntityAdded = function(pool, e)
 		self.timer:after(self.lifetime, function()
@@ -29,11 +29,13 @@ end
 function Dialogues:set_dialogue_config(t)
 	!if _ASSERT then
 	Assert.must(t, Types.T_TABLE)
+	Assert.is(t.pos, Types.T_VEC2)
 	Assert.must(t.font, Types.T_FONT)
 	Assert.safe.must(t.dur, Types.T_NUMBER)
 	Assert.safe.must(t.lifetime, Types.T_NUMBER)
 	!end
 
+	self.pos = t.pos or self.pos
 	self.font = t.font
 	self.dur = t.dur or self.dur
 	self.lifetime = t.lifetime or self.lifetime
@@ -46,16 +48,10 @@ function Dialogues:show_dialogue(id, sub)
 	Assert.exists(self.font)
 	!end
 
-	local text = DialoguesList.get(id)[sub]
-	local pos = vec2:new(ScreenInfo.ww/2, ScreenInfo.hh/2)
-
-	!if _ASSERT then
-	Assert.exists(text)
-	!end
-
-	local id = "d_" .. id
+	local text = DialoguesList.get_spec(id, sub)
+	local pos = self.pos:copy()
 	local e = Concord.entity(self.world)
-		:assemble(UI.dialogue_text, id, text, self.font, pos)
+		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos)
 
 	self.world:emit("show_text_paint", e, self.dur)
 end

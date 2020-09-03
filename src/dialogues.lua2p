@@ -27,4 +27,14 @@ function Dialogues.get(id)
 	return dialogues[id]
 end
 
+function Dialogues.get_spec(id, sub)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.must(sub, Types.T_STRING)
+	Assert.exists(dialogues[id][sub])
+	!end
+
+	return dialogues[id][sub]
+end
+
 return Dialogues
