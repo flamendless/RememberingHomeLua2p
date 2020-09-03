@@ -70,6 +70,7 @@ local world
 
 local Assemblages = {
 	Outside = require("assemblages.outside"),
+	ItemsOutside = require("assemblages.items_outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
 }
@@ -262,32 +263,20 @@ function StateOutside:start()
 	self.entities.house_top = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house, "top")
 
-	self.entities.col_railing_left = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.col_railing, "left")
-
-	self.entities.col_railing_right = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.col_railing, "right")
-
 	self.entities.left_railing = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_railing)
 
 	self.entities.right_railing = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.right_railing)
 
+	self.entities.col_railing_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "left")
+
+	self.entities.col_railing_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "right")
+
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
-
-	self.entities.door = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.door)
-
-	self.entities.locked_door = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.locked_door)
-
-	self.entities.staircase = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.staircase)
-
-	self.entities.staircase_bottom = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.staircase_bottom)
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, res_images.car)
@@ -303,6 +292,11 @@ function StateOutside:start()
 
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
+
+	for k, v in pairs(Assemblages.ItemsOutside) do
+		self.entities[k] = Concord.entity(self.world)
+			:assemble(v)
+	end
 
 	local font_ui = res_fonts.ui
 	local pos_ui = vec2:new(self.screen_size.x/2, self.screen_size.y * 0.9)

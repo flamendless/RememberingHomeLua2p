@@ -79,14 +79,31 @@ function ActionControls:hide_action_controls()
 	end
 end
 
-function ActionControls:action_interacted(action_id, target_item)
+function ActionControls:action_interacted_eye(target_item)
 	!if _ASSERT then
-	Assert.must(action_id, Types.T_STRING)
 	Assert.is(target_item, Types.T_ENTITY)
 	!end
 
 	local id = target_item.id.id
-	print(action_id, id)
+	print("eye", id)
+end
+
+function ActionControls:action_interacted_hand(target_item)
+	!if _ASSERT then
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
+	print("hand", id)
+end
+
+function ActionControls:action_interacted_bag(target_item)
+	!if _ASSERT then
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
+	print("bag", id)
 end
 
 function ActionControls:interact_cancelled()

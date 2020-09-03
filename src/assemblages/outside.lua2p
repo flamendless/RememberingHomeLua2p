@@ -40,6 +40,16 @@ function Outside.railings(e, sprite)
 	:give("hidden")
 end
 
+function Outside.col_railing(e, part)
+	local id = "col_railing_" .. part
+	local data = Colliders.get(id)
+
+	e:give("id", id)
+	:give("position", data.pos)
+	:give("collider3d", data.col)
+	:give("bump3d")
+end
+
 function Outside.left_bounds(e)
 	e:give("id", "left_bounds")
 	:give("position", vec2:new(80, 260))
@@ -83,7 +93,7 @@ end
 function Outside.splashes(e, spritesheet, pos, is_compatible)
 	e:give("id", "splashes")
 	:give("position", pos)
-	:give("z_index", z_index.splashes, false)
+	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
 	:give("animation_data", {
@@ -133,61 +143,6 @@ function Outside.house_side(e)
 	:give("position", vec2:new(565, 200))
 	:give("collider3d", vec3:new(65, 60, 64))
 	:give("bump3d")
-end
-
-function Outside.col_railing(e, part)
-	local id = "col_railing_" .. part
-	local data = Colliders.get(id)
-
-	e:give("id", id)
-	:give("position", data.pos)
-	:give("collider3d", data.col)
-	:give("bump3d")
-end
-
-function Outside.door(e)
-	e:give("id", "door")
-	:give("position", vec2:new(580, 250))
-	:give("collider3d", vec3:new(16, 16, 4), "cross")
-	:give("bump3d")
-	:give("item")
-	:give("notify", "question_mark")
-	:give("action_eye")
-	:give("action_hand")
-	:give("action_bag")
-	:give("action_cancel")
-end
-
-function Outside.locked_door(e)
-	e:give("id", "locked_door")
-	:give("position", vec2:new(448, 222))
-	:give("collider3d", vec3:new(28, 4, 8), "cross")
-	:give("bump3d")
-	:give("item")
-	:give("notify", "question_mark")
-	:give("action_eye")
-	:give("action_hand")
-	:give("action_bag")
-	:give("action_cancel")
-	:give("door", true)
-end
-
-function Outside.staircase(e)
-	e:give("id", "staircase")
-	:give("position", vec2:new(450, 240))
-	:give("collider3d", vec3:new(12, 24, 12), "cross")
-	:give("bump3d")
-	:give("item")
-	:give("staircase")
-end
-
-function Outside.staircase_bottom(e)
-	e:give("id", "staircase_bottom")
-	:give("position", vec2:new(440, 280))
-	:give("collider3d", vec3:new(32, 8, 12), "cross")
-	:give("bump3d")
-	:give("item")
-	:give("staircase")
 end
 
 function Outside.left_railing(e)

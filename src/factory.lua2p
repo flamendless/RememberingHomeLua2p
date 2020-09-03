@@ -148,19 +148,19 @@ function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, sheet_canc
 	t.eye = Concord.entity(world)
 		:assemble(UI.action_eye, sheet_eye, dur)
 		:give("on_click", 1, function()
-			world:emit("action_interacted", "eye", t.eye.target_item.item, player)
+			world:emit("action_interacted_eye", t.eye.target_item.item, player)
 		end)
 
 	t.hand = Concord.entity(world)
 		:assemble(UI.action_hand, sheet_hand, dur)
 		:give("on_click", 1, function()
-			world:emit("action_interacted", "hand", t.hand.target_item.item, player)
+			world:emit("action_interacted_hand", t.hand.target_item.item, player)
 		end)
 
 	t.bag = Concord.entity(world)
 		:assemble(UI.action_bag, sheet_bag, dur)
 		:give("on_click", 1, function()
-			world:emit("action_interacted", "bag", t.bag.target_item.item, player)
+			world:emit("action_interacted_bag", t.bag.target_item.item, player)
 		end)
 
 	t.cancel = Concord.entity(world)

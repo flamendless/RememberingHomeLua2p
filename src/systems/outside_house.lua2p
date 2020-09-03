@@ -13,7 +13,7 @@ end
 function OutsideHouse:item_collided(e, item)
 	local item_id = item.id.id
 
-	if item_id == "locked_door" then
+	if item_id == "item_locked_door" then
 		e:remove("override_animation")
 		:remove("animation_on_update")
 		:remove("climb_up")
@@ -37,6 +37,33 @@ function OutsideHouse:climbed_staircase(dir)
 			e:give("hidden")
 		end
 	end
+end
+
+function OutsideHouse:action_interacted_eye(target_item)
+	!if _ASSERT then
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
+
+	if id == "item_car" then
+	end
+end
+
+function OutsideHouse:action_interacted_hand(target_item)
+	!if _ASSERT then
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
+end
+
+function OutsideHouse:action_interacted_bag(target_item)
+	!if _ASSERT then
+	Assert.is(target_item, Types.T_ENTITY)
+	!end
+
+	local id = target_item.id.id
 end
 
 return OutsideHouse

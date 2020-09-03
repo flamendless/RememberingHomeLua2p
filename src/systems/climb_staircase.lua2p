@@ -12,7 +12,7 @@ end
 function ClimbStaircase:item_collided(e, item)
 	local id = item.id.id
 
-	if id == "staircase" then
+	if id == "item_staircase" then
 		local item_pos = item.position.pos
 		local pos = e.position.pos
 		local body = e.body
@@ -38,7 +38,7 @@ function ClimbStaircase:item_collided(e, item)
 				self.world:emit("sort_z")
 			end)
 		end
-	elseif id == "staircase_bottom" then
+	elseif id == "item_staircase_bottom" then
 		if e.climb_down then
 			e:remove("climb_down")
 			:remove("override_animation")
