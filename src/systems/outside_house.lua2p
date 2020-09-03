@@ -47,6 +47,7 @@ function OutsideHouse:action_interacted_eye(target_item)
 	local id = target_item.id.id
 
 	if id == "item_car" then
+		self.world:emit("show_dialogue", "outside", "car")
 	end
 end
 

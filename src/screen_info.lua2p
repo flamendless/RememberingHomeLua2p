@@ -1,0 +1,15 @@
+local ScreenInfo = {
+	w = 0, h = 0,
+	ww = 0, hh = 0,
+	scale = 1,
+}
+
+function ScreenInfo.set(w, h, ww, hh, scale)
+	ScreenInfo.w = w
+	ScreenInfo.h = h
+	ScreenInfo.ww = ww
+	ScreenInfo.hh = hh
+	ScreenInfo.scale = scale
+end
+
+return ScreenInfo

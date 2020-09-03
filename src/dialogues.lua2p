@@ -12,6 +12,10 @@ local dialogues = {
 		"make sure to check it when you got home okay?",
 		"Man! Things keep getting worse and wor--"
 	},
+
+	outside = {
+		car = "I don't need to get back in there",
+	}
 }
 
 function Dialogues.get(id)

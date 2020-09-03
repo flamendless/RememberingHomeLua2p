@@ -1,81 +1,48 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
 
-local Intro = require("assemblages.intro")
+local DialoguesList = require("dialogues")
+local Palette = require("palette")
+local ScreenInfo = require("screen_info")
 
-local Dialogue = Concord.system({
-	pool = {"dialogues", "font", "position"},
-	pool_dialogue = {
-		"static_text", "font", "position", "transform", "color", "ui_text"
-	}
+local Dialogues = Concord.system({
+	pool_dialogue = {"id", "dialogue", "text", "position"},
 })
 
-function Dialogue:init(world)
+function Dialogues:init(world)
 	self.world = world
-	self.map_id = unique_mapping:new()
-	self.data = {}
-
-	self.pool.onEntityAdded = function(pool, e)
-		local i = self.map_id:map(e.dialogues.id)
-
-		!if _ASSERT then
-		Assert.empty(self.data[i])
-		!end
-
-		self.data[i] = e
-	end
+	self.font = nil
 end
 
-function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
+function Dialogues:set_dialogue_font(font)
+	!if _ASSERT then
+	Assert.must(font, Types.T_FONT)
+	!end
+
+	self.font = font
+end
+
+function Dialogues:show_dialogue(id, sub)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
-	Assert.must(timeline, Types.T_TIMELINEEVENT)
-	Assert.must(dur_in, Types.T_NUMBER)
-	Assert.must(dur_out, Types.T_NUMBER)
+	Assert.must(sub, Types.T_STRING)
 	!end
 
-	local i = self.map_id:map(id)
-	local data = self.data[i]
+	local text = DialoguesList.get(id)[sub]
+	local pos = vec2:new(ScreenInfo.ww/2, ScreenInfo.hh/2)
 
 	!if _ASSERT then
-	Assert.exists(data)
+	Assert.exists(text)
+	Assert.exists(self.font)
 	!end
 
-	local d = data.dialogues
-
-	if d.current > d.max_n then
-		timeline:Unpause()
-		data:destroy()
-
-		return
-	end
-
-	local str = d.dialogues[d.current]
 	local e = Concord.entity(self.world)
-		:assemble(Intro.dialogue_text, str, data.font.font, data.position.pos)
-
-	self.world:emit("generate_paint", e, dur_in, dur_out)
-	e:remove("hidden")
-
-	e:give("color_fade_in", dur_in, nil, function()
-		e:give("color_fade_out", dur_out, nil, function()
-			e:give("hidden")
-			e:destroy()
-			d.current = d.current + 1
-			self:start_dialogue(id, timeline, dur_in, dur_out)
-		end)
-	end)
-
-	-- Flux.to(e.color.color, dur_in, {[4] = 1})
-	-- 	:oncomplete(function()
-	-- 		e:give("color_fade_out", dur_out)
-	-- 		:give("color_on_complete", function()
-	-- 			e:give("hidden")
-	-- 			e:destroy()
-	-- 			d.current = d.current + 1
-	-- 			self:start_dialogue(id, timeline, dur_in, dur_out)
-	-- 		end)
-	-- 	end)
+		:give("dialogue")
+		:give("id", "d_" .. id)
+		:give("text", text, self.font)
+		:give("position", pos)
+		:give("color", Palette.get("ui_dialogue"))
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("ui_text")
 end
 
-return Dialogue
+return Dialogues

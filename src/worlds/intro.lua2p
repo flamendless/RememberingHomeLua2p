@@ -38,7 +38,7 @@ local Systems = {
 	Animation = require("systems.animation"),
 	Camera = require("systems.camera"),
 	Color = require("systems.color"),
-	Dialogues = require("systems.dialogues"),
+	DialoguesIntro = require("systems.dialogues_intro"),
 	Parallax = require("systems.parallax"),
 	Tree = require("systems.tree"),
 	RenderSprite = require("systems.render_sprite"),
@@ -63,6 +63,7 @@ local ParticleSystems = {
 
 local resources = {images = {}, image_data = {}, fonts = {}}
 local res_images, res_fonts
+local screen_size
 
 local effect = {dt = 0, dt2 = 0, status = 1}
 local fade_out_duration = 0.1
@@ -120,7 +121,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
 	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Dialogues)
+	self.world:addSystem(Systems.DialoguesIntro)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -129,10 +130,10 @@ function StateIntro:start()
 
 	local w, h = res_images.bg:getDimensions()
 
-	self.screen_size = vec2:new(love.graphics.getDimensions())
-	self.scale = min(self.screen_size.x/w, self.screen_size.y/h)
+	screen_size = vec2:new(love.graphics.getDimensions())
+	self.scale = min(screen_size.x/w, screen_size.y/h)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, self.screen_size.x, self.screen_size.y)
+	self.camera:setWindow(0, 0, screen_size.x, screen_size.y)
 	self.camera:setScale(self.scale)
 
 	self.entities.camera = Concord.entity(self.world)
@@ -156,7 +157,7 @@ function StateIntro:start()
 		:give("sprite", res_images.bg)
 		:give("position", vec2:new())
 
-	local ssx2 = self.screen_size.x * 2
+	local ssx2 = screen_size.x * 2
 
 	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax,
@@ -243,12 +244,12 @@ function StateIntro:start()
 
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title,
-			res_images.title, vec2:new(self.screen_size.x/2, self.screen_size.y/2))
+			res_images.title, vec2:new(screen_size.x/2, screen_size.y/2))
 
 	self.entities.dialogue = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.dialogues, "dialogue_intro",
 			Dialogues.get("intro_rain"), res_fonts.dialogue,
-			vec2:new(self.screen_size.x/2, 64))
+			vec2:new(screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
 		local car_pos = self.entities.car.position.pos
@@ -310,7 +311,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("slow_parallax", 0.75)
-		Flux.to(car_pos, 3, {x = self.screen_size.x/2})
+		Flux.to(car_pos, 3, {x = screen_size.x/2})
 
 		TLE.Event.Wait(2)
 		Flux.to(self.camera, 5, {scale = self.scale})
@@ -330,7 +331,7 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("stop_parallax")
-		Flux.to(car_pos, 5, {x = self.screen_size.x * 1.5})
+		Flux.to(car_pos, 5, {x = screen_size.x * 1.5})
 
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
@@ -351,7 +352,7 @@ function StateIntro:start()
 
 		self.entities.skip_intro = Concord.entity(self.world)
 			:assemble(Assemblages.Common.skip, str_skip, res_fonts.ui,
-				vec2:new(self.screen_size.x/2, self.screen_size.y - 8))
+				vec2:new(screen_size.x/2, screen_size.y - 8))
 	end
 end
 

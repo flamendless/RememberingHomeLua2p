@@ -1,0 +1,70 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local Intro = require("assemblages.intro")
+
+local Dialogue = Concord.system({
+	pool = {"dialogues", "font", "position"},
+	pool_dialogue = {
+		"static_text", "font", "position", "transform", "color", "ui_text"
+	}
+})
+
+function Dialogue:init(world)
+	self.world = world
+	self.map_id = unique_mapping:new()
+	self.data = {}
+
+	self.pool.onEntityAdded = function(pool, e)
+		local i = self.map_id:map(e.dialogues.id)
+
+		!if _ASSERT then
+		Assert.empty(self.data[i])
+		!end
+
+		self.data[i] = e
+	end
+end
+
+function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.must(timeline, Types.T_TIMELINEEVENT)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.must(dur_out, Types.T_NUMBER)
+	!end
+
+	local i = self.map_id:map(id)
+	local data = self.data[i]
+
+	!if _ASSERT then
+	Assert.exists(data)
+	!end
+
+	local d = data.dialogues
+
+	if d.current > d.max_n then
+		timeline:Unpause()
+		data:destroy()
+
+		return
+	end
+
+	local str = d.dialogues[d.current]
+	local e = Concord.entity(self.world)
+		:assemble(Intro.dialogue_text, str, data.font.font, data.position.pos)
+
+	self.world:emit("generate_paint", e, dur_in, dur_out)
+	e:remove("hidden")
+
+	e:give("color_fade_in", dur_in, nil, function()
+		e:give("color_fade_out", dur_out, nil, function()
+			e:give("hidden")
+			e:destroy()
+			d.current = d.current + 1
+			self:start_dialogue(id, timeline, dur_in, dur_out)
+		end)
+	end)
+end
+
+return Dialogue

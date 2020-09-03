@@ -1,6 +1,6 @@
 local ItemsOutside = {}
 
-function ItemsOutside.item_car(e)
+function ItemsOutside.item_car(e, font)
 	e:give("id", "item_car")
 	:give("position", vec2:new(934, 250))
 	:give("collider3d", vec3:new(64, 24, 4), "cross")
