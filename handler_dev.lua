@@ -68,8 +68,8 @@ _LIBS = {
 	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
 	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
 	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "SDF", "Semver", "Slab",
-	"Splashes", "TimelineEvents",
+	"Lume", "NGrading", "ReflowPrint", "SDF", "Semver",
+	"Slab", "Splashes", "TimelineEvents",
 }
 
 return {}
