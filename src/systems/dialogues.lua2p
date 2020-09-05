@@ -23,7 +23,12 @@ function Dialogues:init(world)
 	self.pool_dialogue.onEntityAdded = function(pool, e)
 		self.timer:after(self.lifetime, function()
 			self.world:emit("fade_text_paint", e, self.dur)
+			self.world:emit("fading_out_dialogue")
 		end)
+	end
+
+	self.pool_dialogue.onEntityRemoved = function(pool, e)
+		self.world:emit("destroyed_dialogue")
 	end
 end
 
@@ -56,6 +61,7 @@ function Dialogues:show_dialogue(id, sub)
 		:give("reflowprint", ScreenInfo.w/2, "left")
 
 	self.world:emit("show_text_paint", e, self.dur)
+	self.world:emit("displayed_dialogue")
 end
 
 function Dialogues:update(dt)

@@ -31,6 +31,10 @@ function PlayerController:player_set_movement(bool)
 	end
 end
 
+function PlayerController:displayed_dialogue()
+	self:player_set_movement(false)
+end
+
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		self.world:emit("check_on_leave_items", e)

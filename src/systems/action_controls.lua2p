@@ -34,7 +34,7 @@ function ActionControls:init(world)
 	self.world = world
 end
 
-function ActionControls:item_interacted(player, target_item)
+function ActionControls:show_action_controls(player, target_item)
 	local i = 1
 	local item_pos = target_item.position.pos
 
@@ -79,6 +79,10 @@ function ActionControls:hide_action_controls()
 	end
 end
 
+function ActionControls:item_interacted(player, target_item)
+	self:show_action_controls(player, target_item)
+end
+
 function ActionControls:action_interacted_eye(target_item)
 	!if _ASSERT then
 	Assert.is(target_item, Types.T_ENTITY)
@@ -108,6 +112,27 @@ end
 
 function ActionControls:interact_cancelled()
 	self:hide_action_controls()
+end
+
+function ActionControls:displayed_dialogue()
+	for _, e in ipairs(self.pool_actions) do
+		e:give("color_fade_out", e.tween_dur.dur)
+		:remove("hoverable")
+		:remove("clickable")
+	end
+end
+
+function ActionControls:destroyed_dialogue()
+	for _, e in ipairs(self.pool_actions) do
+		e:give("hoverable")
+		:give("clickable")
+	end
+end
+
+function ActionControls:fading_out_dialogue()
+	for _, e in ipairs(self.pool_actions) do
+		e:give("color_fade_in", e.tween_dur.dur)
+	end
 end
 
 return ActionControls
