@@ -10,6 +10,19 @@ function PlayerController:init(world)
 	self.world = world
 end
 
+function PlayerController:displayed_dialogue()
+	for _, e in ipairs(self.pool) do
+		e:give("in_dialogue")
+		e.body.can_move = false
+	end
+end
+
+function PlayerController:destroyed_dialogue()
+	for _, e in ipairs(self.pool) do
+		e:remove("in_dialogue")
+	end
+end
+
 function PlayerController:item_interacted(e, item)
 	e.body.can_move = false
 	e.player.can_interact_item = false
@@ -31,19 +44,14 @@ function PlayerController:player_set_movement(bool)
 	end
 end
 
-function PlayerController:displayed_dialogue()
-	self:player_set_movement(false)
-end
-
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		self.world:emit("check_on_leave_items", e)
 
 		if e.override_animation then return end
+		if not e.body.can_move then return end
 
 		local body = e.body
-
-		if not body.can_move then return end
 
 		if Inputs.is_down("player_move_left") then
 			if body.can_run then
@@ -227,8 +235,10 @@ function PlayerController:keypressed(key)
 	elseif Inputs.is_pressed("ui_back", key) then
 		for _, e in ipairs(self.pool) do
 			local player = e.player
+			local item = e.within_item
+			local in_dialogue = e.in_dialogue
 
-			if not player.can_interact_item then
+			if not player.can_interact_item and not in_dialogue then
 				self.world:emit("interact_cancelled", e, item.item)
 			end
 		end

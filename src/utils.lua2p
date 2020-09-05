@@ -5,6 +5,7 @@ local Log = require("modules.log.log")
 local find = string.find
 local format = string.format
 local sub = string.sub
+local max = math.max
 
 local Utils = {}
 
@@ -120,6 +121,27 @@ function Utils.get_substring(str, sep)
 	local s = sub(str, 1, n - 1)
 
 	return s
+end
+
+function Utils.get_widest_str(t)
+	!if _ASSERT then
+	Assert.must(t, Types.T_TABLE)
+	if #t == 0 then error("Passed table's length is 0") end
+	!end
+
+	local n = 0
+	local widest
+
+	for i, str in ipairs(t) do
+		local l = #str
+
+		if l > n then
+			n = l
+			widest = str
+		end
+	end
+
+	return widest
 end
 
 return Utils

@@ -2,11 +2,13 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local DialoguesList = require("dialogues")
+local Inputs = require("inputs")
 local Palette = require("palette")
 local ScreenInfo = require("screen_info")
+local Utils = require("utils")
 
 local Dialogues = Concord.system({
-	pool_dialogue = {"id", "dialogue"},
+	pool = {"id", "dialogue"},
 })
 
 local UI = require("assemblages.ui")
@@ -17,14 +19,24 @@ function Dialogues:init(world)
 	self.font = nil
 
 	self.timer = Timer()
-	self.dur = 1
-	self.lifetime = 2
+	self.dur_show = 1
+	self.dur_hide = 0.5
+	self.has_dialogue = false
 
-	self.pool_dialogue.onEntityAdded = function(pool, e)
+	self.pool.onEntityAdded = function(pool, e)
+		self.has_dialogue = true
+		self.current_d = e
 	end
 
-	self.pool_dialogue.onEntityRemoved = function(pool, e)
+	self.pool.onEntityRemoved = function(pool, e)
 		self.world:emit("destroyed_dialogue")
+		self.current_d = nil
+		self.current_i = nil
+		self.dialogue_t = nil
+
+		if #self.pool == 0 then
+			self.has_dialogue = false
+		end
 	end
 end
 
@@ -33,14 +45,14 @@ function Dialogues:set_dialogue_config(t)
 	Assert.must(t, Types.T_TABLE)
 	Assert.is(t.pos, Types.T_VEC2)
 	Assert.must(t.font, Types.T_FONT)
-	Assert.safe.must(t.dur, Types.T_NUMBER)
-	Assert.safe.must(t.lifetime, Types.T_NUMBER)
+	Assert.safe.must(t.dur_show, Types.T_NUMBER)
+	Assert.safe.must(t.dur_hide, Types.T_NUMBER)
 	!end
 
 	self.pos = t.pos or self.pos
 	self.font = t.font
-	self.dur = t.dur or self.dur
-	self.lifetime = t.lifetime or self.lifetime
+	self.dur_show = t.dur_show or self.dur_show
+	self.dur_hide = t.dur_hide or self.dur_hide
 end
 
 function Dialogues:show_dialogue(id, sub)
@@ -50,25 +62,63 @@ function Dialogues:show_dialogue(id, sub)
 	Assert.exists(self.font)
 	!end
 
-	local text = DialoguesList.get_spec(id, sub)
+	local dialogue = DialoguesList.get_spec(id, sub)
+	local text
+	local widest
+
+	if type(dialogue) == "string" then
+		text = dialogue
+	elseif type(dialogue) == "table" then
+		self.dialogue_t = dialogue
+		self.current_i = 1
+		text = dialogue[1]
+		widest = Utils.get_widest_str(dialogue)
+	end
+
 	local pos = self.pos:copy()
 	local e = Concord.entity(self.world)
 		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos)
 		:give("reflowprint", ScreenInfo.w/2, "left")
 
-	self.world:emit("show_text_paint", e, self.dur)
+	self.world:emit("show_text_paint", e, self.dur_show, widest)
 	self.world:emit("displayed_dialogue")
 end
 
-function DialoguesList:hide_dialogue(e)
-	self.timer:after(self.lifetime, function()
-		self.world:emit("fade_text_paint", e, self.dur)
-		self.world:emit("fading_out_dialogue")
-	end)
+function Dialogues:hide_dialogue(e)
+	self.world:emit("fade_text_paint", e, self.dur_hide)
+	self.world:emit("fading_out_dialogue")
+end
+
+function Dialogues:next_dialogue()
+	self.current_i = self.current_i + 1
+
+	local next_dialogue = self.dialogue_t[self.current_i]
+
+	if next_dialogue then
+		local rfp = self.current_d.reflowprint
+
+		rfp.dt = 0
+		rfp.current = 1
+		self.current_d.text.text = next_dialogue
+	else
+		self:hide_dialogue(self.current_d)
+	end
 end
 
 function Dialogues:update(dt)
 	self.timer:update(dt)
+end
+
+function Dialogues:keypressed(key)
+	if self.has_dialogue then
+		if Inputs.is_pressed("ui_interact", key) then
+			if self.dialogue_t then
+				self:next_dialogue()
+			else
+				self:hide_dialogue(self.pool[1])
+			end
+		end
+	end
 end
 
 function Dialogues:cleanup()

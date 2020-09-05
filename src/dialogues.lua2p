@@ -14,7 +14,10 @@ local dialogues = {
 	},
 
 	outside = {
-		car = "I don't need to get back in there",
+		car = {
+			"It's my car",
+			"I don't need to get back in there",
+		},
 	}
 }
 
