@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local ReflowPrint = require("modules.reflowprint.reflowprint")
 
 local RenderText = Concord.system({
 	pool = {"position", "text"},
@@ -27,6 +28,7 @@ function RenderText:internal_draw(e)
 		local font = e.font
 		local transform = e.transform
 		local sdf = e.sdf
+		local rfp = e.reflowprint
 
 		love.graphics.setColor(1, 1, 1, 1)
 
@@ -79,10 +81,16 @@ function RenderText:internal_draw(e)
 		local x = pos.pos.x
 		local y = pos.pos.y
 
-		if static_text then
-			love.graphics.draw(static_text.text_obj, x, y, rotation, sx, sy, ox, oy)
+		if rfp then
+			x = x - ox
+			y = y - oy
+			ReflowPrint(rfp.dt/rfp.current, text.text, x, y, rfp.width, rfp.alignment, sx, sy)
 		else
-			love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+			if static_text then
+				love.graphics.draw(static_text.text_obj, x, y, rotation, sx, sy, ox, oy)
+			else
+				love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+			end
 		end
 	end
 end

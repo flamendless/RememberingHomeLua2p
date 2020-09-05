@@ -3,6 +3,7 @@ local Timer = require("modules.hump.timer")
 
 local DialoguesList = require("dialogues")
 local Palette = require("palette")
+local ScreenInfo = require("screen_info")
 
 local Dialogues = Concord.system({
 	pool_dialogue = {"id", "dialogue"},
@@ -52,6 +53,7 @@ function Dialogues:show_dialogue(id, sub)
 	local pos = self.pos:copy()
 	local e = Concord.entity(self.world)
 		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos)
+		:give("reflowprint", ScreenInfo.w/2, "left")
 
 	self.world:emit("show_text_paint", e, self.dur)
 end
