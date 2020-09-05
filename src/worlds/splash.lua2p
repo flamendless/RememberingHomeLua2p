@@ -30,7 +30,7 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	Transform = require("systems.transform"),
-	Typewriter = require("systems.typewriter"),
+	TypewriterSplash = require("systems.typewriter_splash"),
 }
 
 !if not _RELEASE then
@@ -110,7 +110,7 @@ end
 function StateSplash:start()
 	self.world:addSystems(Systems.GhostEffect)
 	self.world:addSystems(Systems.GlitchEffect)
-	self.world:addSystem(Systems.Typewriter)
+	self.world:addSystem(Systems.TypewriterSplash)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Color)

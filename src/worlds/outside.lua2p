@@ -63,6 +63,7 @@ local Systems = {
 	RenderText = require("systems.render_text"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
+	Typewriter = require("systems.typewriter"),
 }
 
 !if not _RELEASE then
@@ -185,6 +186,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
+	self.world:addSystem(Systems.Typewriter)
 	self.world:addSystem(Systems.RenderCircle)
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)

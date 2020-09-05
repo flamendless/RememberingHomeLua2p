@@ -1,11 +1,11 @@
 local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
-local Typewriter = Concord.system({
+local TypewriterSplash = Concord.system({
 	pool = {"text", "typewriter", "position"}
 })
 
-function Typewriter:start_typewriter()
+function TypewriterSplash:start_typewriter()
 	for _, e in ipairs(self.pool) do
 		local text = e.text
 		local typewriter = e.typewriter
@@ -32,7 +32,7 @@ function Typewriter:start_typewriter()
 	end
 end
 
-function Typewriter:update(dt)
+function TypewriterSplash:update(dt)
 	for _, e in ipairs(self.pool) do
 		local typewriter = e.typewriter
 
@@ -42,4 +42,4 @@ function Typewriter:update(dt)
 	end
 end
 
-return Typewriter
+return TypewriterSplash
