@@ -50,7 +50,7 @@ end
 
 function UI.dialogue_text(e, id, text, font, pos)
 	e:give("id", id)
-	:give("static_text", text)
+	:give("text", text)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("ui_dialogue", 0))

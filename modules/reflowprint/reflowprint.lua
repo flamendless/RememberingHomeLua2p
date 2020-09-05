@@ -3,14 +3,6 @@ local trim5 = function(s)
 end
 
 local reflow = function(progress,printf,text,x,y,w,a,sx,sy)
-	assert(progress)
-	assert(printf)
-	assert(text)
-	assert(x)
-	assert(y)
-	assert(sx)
-	assert(sy)
-
 	local font = love.graphics.getFont()
 	local width,wrappedtext = font:getWrap(text,w)
 

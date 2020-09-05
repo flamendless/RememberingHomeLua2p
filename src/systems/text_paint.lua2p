@@ -89,11 +89,20 @@ function TextPaint:show_paint(e, dur_in)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
 	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.safe.exists(e.static_text)
+	Assert.safe.exists(e.text)
 	!end
 
-	local transform = e.transform
-	local text = e.static_text.text
+	local text
+
+	if e.static_text then
+		text = e.static_text.text
+	else
+		text = e.text.text
+	end
+
 	local font = e.font.font
+	local transform = e.transform
 	local str_w = font:getWidth(text)
 	local str_h = font:getHeight(text)
 	local offset = 96

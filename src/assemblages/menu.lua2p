@@ -118,7 +118,8 @@ end
 !if not _RELEASE then
 function Menu.secret_title(e, font, pos)
 	e:give("id", "secret_title")
-	:give("text", !(_GAME_TITLE_SECRET), font)
+	:give("text", !(_GAME_TITLE_SECRET))
+	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("red_desaturated", 0))
 	:give("transform", 0, 2, 2, 0, 0.5)
