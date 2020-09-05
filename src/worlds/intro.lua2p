@@ -43,7 +43,7 @@ local Systems = {
 	Tree = require("systems.tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
-	TextPaintFade = require("systems.text_paint_fade"),
+	TextPaintIntro = require("systems.text_paint_intro"),
 	Transform = require("systems.transform"),
 }
 
@@ -114,7 +114,7 @@ end
 function StateIntro:start()
 	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Color)
-	self.world:addSystem(Systems.TextPaintFade)
+	self.world:addSystem(Systems.TextPaintIntro)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Parallax)
 	self.world:addSystem(Systems.Tree)
@@ -140,9 +140,6 @@ function StateIntro:start()
 		:give("camera", self.camera, true)
 		:give("camera_transform", 0, self.scale)
 		:give("camera_clip", w, h, Palette.get("camera_clip"))
-
-	-- self.world:emit("camera_set", self.camera)
-	-- self.world:emit("set_camera_clip", w, h, {0, 0, 0, 1})
 
 	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)

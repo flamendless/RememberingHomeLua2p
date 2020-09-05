@@ -28,9 +28,14 @@ end
 
 function TextPaint:init(world)
 	self.world = world
+	self.paint_data = {}
 
 	self.pool.onEntityAdded = function(pool, e)
-		self.paint_data = e.text_paint_data.data
+		local tpd = e.text_paint_data
+		local id = tpd.id
+		local data = tpd.data
+
+		self.paint_data[id] = data
 	end
 end
 
@@ -116,8 +121,9 @@ function TextPaint:show_paint(e, dur_in)
 		pos.y = text_pos.y
 	end
 
+	local id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
-		:give("animation_data", self.paint_data)
+		:give("animation_data", self.paint_data[id])
 		:give("ui_element")
 		:give("position", pos)
 		:give("animation", true)

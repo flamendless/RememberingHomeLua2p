@@ -2,11 +2,11 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
-local TextPaintFade = Concord.system({
+local TextPaintIntro = Concord.system({
 	pool = {"text_paint_data"}
 })
 
-function TextPaintFade:init(world)
+function TextPaintIntro:init(world)
 	self.world = world
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -14,7 +14,7 @@ function TextPaintFade:init(world)
 	end
 end
 
-function TextPaintFade:fade_text(e, dur, timeline, should_destroy)
+function TextPaintIntro:fade_text(e, dur, timeline, should_destroy)
 	self:generate_paint(e, dur)
 	e:remove("hidden")
 
@@ -33,7 +33,7 @@ function TextPaintFade:fade_text(e, dur, timeline, should_destroy)
 		end)
 end
 
-function TextPaintFade:generate_paint(e, dur_in, dur_out)
+function TextPaintIntro:generate_paint(e, dur_in, dur_out)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
 	Assert.must(dur_in, Types.T_NUMBER)
@@ -77,4 +77,4 @@ function TextPaintFade:generate_paint(e, dur_in, dur_out)
 		end)
 end
 
-return TextPaintFade
+return TextPaintIntro

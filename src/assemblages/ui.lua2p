@@ -9,25 +9,36 @@ local line_width = 7
 
 function UI.paint_data(e, sheet)
 	e:give("id", "paint_data")
-	:give("text_paint_data", {
+	:give("text_paint_data", "paint", {
 			spritesheet = sheet,
-			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
-			delay = 0.1,
-			rows_count = 3,
-			columns_count = 7,
-			n_frames = 21
+			frames = {"1-10", 1, "1-10", 2, "1-10", 3, "1-10", 4, "1-10", 5},
+			delay = 0.05,
+			rows_count = 5,
+			columns_count = 10,
+			n_frames = 50
 		})
 end
 
 function UI.splat_data(e, sheet)
 	e:give("id", "splat_data")
-	:give("text_paint_data", {
+	:give("text_paint_data", "splat", {
 			spritesheet = sheet,
 			frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5},
 			delay = 0.1,
 			rows_count = 5,
 			columns_count = 3,
 			n_frames = 13
+		})
+end
+function UI.dialogue_data(e, sheet)
+	e:give("id", "dialogue_data")
+	:give("text_paint_data", "dialogue", {
+			spritesheet = sheet,
+			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
+			delay = 0.1,
+			rows_count = 3,
+			columns_count = 7,
+			n_frames = 21
 		})
 end
 
@@ -41,10 +52,10 @@ function UI.ui_text(e, text, font, pos)
 	:give("hidden")
 end
 
-function UI.ui_text_paint(e, text, font, pos)
+function UI.ui_text_paint(e, id, text, font, pos)
 	e:assemble(UI.ui_text, text, font, pos)
+	:give("text_with_paint", id)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("text_with_paint")
 	:give("task", "flash", Palette.get("ui_feedback"))
 end
 
@@ -58,7 +69,7 @@ function UI.dialogue_text(e, id, text, font, pos)
 	:give("ui_text")
 	:give("hidden")
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("text_with_paint")
+	:give("text_with_paint", "dialogue")
 end
 
 function UI.hold_progress_bg(e, pos, radius, segments)

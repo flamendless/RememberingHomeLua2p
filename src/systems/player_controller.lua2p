@@ -229,7 +229,7 @@ function PlayerController:keypressed(key)
 			local player = e.player
 
 			if not player.can_interact_item then
-				self.world:emit("interact_cancelled", e)
+				self.world:emit("interact_cancelled", e, item.item)
 			end
 		end
 	end

@@ -101,6 +101,7 @@ Resources.data.outside = {
 		{"rain_drop", path_images .. "rain/rain_drop.png"},
 		{"rain_drop2", path_images .. "rain/rain_drop2.png"},
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
+		{"sheet_dialogue", path_ui .. "sheet_dialogue.png"},
 		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
 		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
 		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},

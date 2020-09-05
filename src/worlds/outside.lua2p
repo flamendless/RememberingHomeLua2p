@@ -307,6 +307,12 @@ function StateOutside:start()
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
 
+	self.entities.dialogue_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.dialogue_data, res_images.sheet_dialogue)
+
+	self.entities.question_mark = Concord.entity(self.world)
+		:assemble(Assemblages.UI.question_mark, res_images.question_mark, 0.25)
+
 	for k, v in pairs(Assemblages.ItemsOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end
@@ -316,7 +322,7 @@ function StateOutside:start()
 
 	for i, str in ipairs(tasks) do
 		self.entities["task" .. i] = Concord.entity(self.world)
-			:assemble(Assemblages.UI.ui_text_paint, str, font_ui, pos_ui:copy())
+			:assemble(Assemblages.UI.ui_text_paint, "splat", str, font_ui, pos_ui:copy())
 	end
 
 	local splashes = res_images.splashes
@@ -358,16 +364,14 @@ function StateOutside:start()
 	--TEST
 	self:spawn_player(1.75)
 	self.entities.player.body.can_move = true
-	self.entities.player.question_mark = Concord.entity(self.world)
-		:assemble(Assemblages.UI.question_mark, res_images.question_mark, 0.25)
 
 	self.camera:setScale(3)
 	self.camera:setPosition(self.entities.player.position.pos:unpack())
+
 	local actions = Factory.ui_controls(self.world,
 		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
 		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
 		0.75, self.entities.player)
-	-- self.world:emit("show_ui_interactive", self.entities.door)
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -483,6 +487,7 @@ function StateOutside:start()
 		EventManager.add(ev1)
 		self.timeline:Pause()
 		self.entities.player.body.can_move = true
+		self.entities.player.player.can_interact = true
 
 		TLE.Event.Wait(0.25)
 		tle_log("task: " .. tasks[2])
@@ -490,6 +495,11 @@ function StateOutside:start()
 		local dur_fade_task2 = 2.25
 		local e_arrows, e_arrows_keys = self:show_arrows_keys()
 		local ev2 = EventsList.arrows_keys(e_arrows, e_arrows_keys, dur_fade_task2)
+
+		local actions = Factory.ui_controls(self.world,
+			res_images.sheet_ui_eye, res_images.sheet_ui_hand,
+			res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
+			0.75, self.entities.player)
 
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
 
@@ -571,18 +581,6 @@ function StateOutside:keypressed(key)
 	!if not _RELEASE then
 	if key == "space" then
 		self.timeline:Unpause()
-	end
-
-	if key == "o" then
-		-- self.world:emit("player_open_door", self.entities.player, function()
-		-- 	self.entities.player:remove("override_animation")
-		-- end)
-
-		-- self.world:emit("climbed_staircase", self.entities.player, function(dt, current_frame)
-		-- 	local pos = self.entities.player.position.pos
-        --
-		-- 	pos.y = pos.y - 32 * dt
-		-- end)
 	end
 	!end
 
