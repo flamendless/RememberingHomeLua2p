@@ -30,6 +30,7 @@ function UI.splat_data(e, sheet)
 			n_frames = 13
 		})
 end
+
 function UI.dialogue_data(e, sheet)
 	e:give("id", "dialogue_data")
 	:give("text_paint_data", "dialogue", {
@@ -70,6 +71,24 @@ function UI.dialogue_text(e, id, text, font, pos)
 	:give("hidden")
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("text_with_paint", "splat")
+end
+
+function UI.dialogue_arrow(e, sheet, pos)
+	e:give("id", "dialogue_arrow")
+	:give("position", pos)
+	:give("animation", true)
+	:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-8", 1},
+			delay = {["1-4"] = 0.05, ["5-8"] = 0.1},
+			rows_count = 1,
+			columns_count = 8,
+			n_frames = 8,
+		})
+	:give("color", Palette.get("ui_dialogue", 0))
+	:give("transform", 0, 2, 2, 0.5, 0.5)
+	:give("dialogue_arrow")
+	:give("direction")
 end
 
 function UI.hold_progress_bg(e, pos, radius, segments)

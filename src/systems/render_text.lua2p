@@ -5,9 +5,12 @@ local RenderText = Concord.system({
 	pool = {"position", "text"},
 	pool_static = {"position", "static_text", "font"},
 	pool_ui = {"position", "text", "ui_text"},
+	pool_dialogue = {"position", "dialogue_arrow"},
 })
 
-function RenderText:init()
+function RenderText:init(world)
+	self.world = world
+
 	self.pool_static.onEntityAdded = function(pool, e)
 		!if _ASSERT then
 		if e.sdf then
@@ -116,6 +119,10 @@ function RenderText:draw_ui()
 
 	for _, e in ipairs(self.pool_static) do
 		self:internal_draw(e)
+	end
+
+	for _, e in ipairs(self.pool_dialogue) do
+		self.world:emit("draw_ex", e)
 	end
 end
 

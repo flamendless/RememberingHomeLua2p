@@ -9,6 +9,7 @@ local Utils = require("utils")
 
 local Dialogues = Concord.system({
 	pool = {"id", "dialogue"},
+	pool_arrow = {"id", "dialogue_arrow"},
 })
 
 local UI = require("assemblages.ui")
@@ -16,16 +17,23 @@ local UI = require("assemblages.ui")
 function Dialogues:init(world)
 	self.world = world
 	self.pos = nil
+	self.pos_arrow = nil
 	self.font = nil
+	self.sheet_arrow = nil
 
 	self.timer = Timer()
 	self.dur_show = 1
 	self.dur_hide = 0.5
 	self.has_dialogue = false
+	self.arrow = nil
 
 	self.pool.onEntityAdded = function(pool, e)
 		self.has_dialogue = true
 		self.current_d = e
+	end
+
+	self.pool_arrow.onEntityAdded = function(pool, e)
+		self.arrow = e
 	end
 
 	self.pool.onEntityRemoved = function(pool, e)
@@ -33,6 +41,7 @@ function Dialogues:init(world)
 		self.current_d = nil
 		self.current_i = nil
 		self.dialogue_t = nil
+		self.arrow:destroy()
 
 		if #self.pool == 0 then
 			self.has_dialogue = false
@@ -44,13 +53,17 @@ function Dialogues:set_dialogue_config(t)
 	!if _ASSERT then
 	Assert.must(t, Types.T_TABLE)
 	Assert.is(t.pos, Types.T_VEC2)
+	Assert.is(t.pos_arrow, Types.T_VEC2)
 	Assert.must(t.font, Types.T_FONT)
+	Assert.must(t.sheet_arrow, Types.T_IMAGE)
 	Assert.safe.must(t.dur_show, Types.T_NUMBER)
 	Assert.safe.must(t.dur_hide, Types.T_NUMBER)
 	!end
 
-	self.pos = t.pos or self.pos
+	self.pos = t.pos
+	self.pos_arrow = t.pos_arrow
 	self.font = t.font
+	self.sheet_arrow = t.sheet_arrow
 	self.dur_show = t.dur_show or self.dur_show
 	self.dur_hide = t.dur_hide or self.dur_hide
 end
@@ -75,17 +88,24 @@ function Dialogues:show_dialogue(id, sub)
 		widest = Utils.get_widest_str(dialogue)
 	end
 
-	local pos = self.pos:copy()
-	local e = Concord.entity(self.world)
-		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos)
+	local pos_dialogue = self.pos:copy()
+	local pos_arrow = self.pos_arrow:copy()
+
+	local e_dialogue = Concord.entity(self.world)
+		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos_dialogue)
 		:give("reflowprint", ScreenInfo.w/2, "left")
 
-	self.world:emit("show_text_paint", e, self.dur_show, widest)
+	local e_arrow = Concord.entity(self.world)
+		:assemble(UI.dialogue_arrow, self.sheet_arrow, pos_arrow)
+		:give("color_fade_in", self.dur_show)
+
+	self.world:emit("show_text_paint", e_dialogue, self.dur_show, widest)
 	self.world:emit("displayed_dialogue")
 end
 
 function Dialogues:hide_dialogue(e)
 	self.world:emit("fade_text_paint", e, self.dur_hide)
+	self.arrow:give("color_fade_out", self.dur_hide)
 	self.world:emit("fading_out_dialogue")
 end
 
@@ -103,10 +123,29 @@ function Dialogues:next_dialogue()
 	else
 		self:hide_dialogue(self.current_d)
 	end
+
+	local arrow_anim = self.arrow.animation
+	arrow_anim.is_playing = true
+	arrow_anim.animation:gotoFrame(1)
+	arrow_anim.animation:resume()
 end
 
 function Dialogues:update(dt)
 	self.timer:update(dt)
+
+	if self.arrow then
+		local orig = self.arrow.position.original_pos
+		local pos = self.arrow.position.pos
+		local dir = self.arrow.direction
+
+		pos.y = pos.y + 16 * dir.dir * dt
+
+		if pos.y > orig.y + 8 then
+			dir.dir = -1
+		elseif pos.y <= orig.y then
+			dir.dir = 1
+		end
+	end
 end
 
 function Dialogues:keypressed(key)

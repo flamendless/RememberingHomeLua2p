@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("dialogue")
+Concord.component("dialogue_arrow")
 Concord.component("in_dialogue")

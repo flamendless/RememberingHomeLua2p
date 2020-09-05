@@ -125,6 +125,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 
 	local id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
+		:give("id", "text_paint")
 		:give("animation_data", self.paint_data[id])
 		:give("ui_element")
 		:give("position", pos)

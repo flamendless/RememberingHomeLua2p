@@ -1,4 +1,3 @@
-local Colliders = require("data.colliders")
 local Palette = require("palette")
 
 local random = love.math.random
@@ -14,6 +13,29 @@ local z_index = {
 	fence = 4,
 	railings = 10,
 	splashes = 11,
+}
+
+local data = {
+	house_left = {
+		pos = vec2:new(240, 128),
+		col = vec3:new(180, 140, 64),
+	},
+	house_right = {
+		pos = vec2:new(480, 128),
+		col = vec3:new(80, 140, 64),
+	},
+	house_top = {
+		pos = vec2:new(420, 180),
+		col = vec3:new(150, 45, 64),
+	},
+	col_railing_left = {
+		pos = vec2:new(420, 236),
+		col = vec3:new(14, 18, 18),
+	},
+	col_railing_right = {
+		pos = vec2:new(484, 240),
+		col = vec3:new(76, 28, 18),
+	}
 }
 
 function Outside.bg_sky(e, sprite)
@@ -42,7 +64,7 @@ end
 
 function Outside.col_railing(e, part)
 	local id = "col_railing_" .. part
-	local data = Colliders.get(id)
+	local data = data[id]
 
 	e:give("id", id)
 	:give("position", data.pos)
@@ -130,7 +152,7 @@ end
 
 function Outside.house(e, part)
 	local id = "house_" .. part
-	local data = Colliders.get(id)
+	local data = data[id]
 
 	e:give("id", id)
 	:give("position", data.pos)

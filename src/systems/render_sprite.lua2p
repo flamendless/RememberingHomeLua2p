@@ -131,6 +131,10 @@ function RenderSprite:draw_actions()
 	end
 end
 
+function RenderSprite:draw_ex(e)
+	self:internal_draw(e)
+end
+
 !if not _RELEASE then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
@@ -151,6 +155,7 @@ local function debug_internal_draw(e)
 	local h = qh
 	local sx, sy, ox, oy = 1, 1, 0, 0
 	local a = (hidden == nil) and 1 or 0.2
+	local id = e.id.id
 
 	if transform then
 		ox, oy = Helper.get_offset(e)
@@ -171,7 +176,7 @@ local function debug_internal_draw(e)
 	h = h * sy
 
 	love.graphics.setColor(1, 0, 0, a)
-	love.graphics.print(e.id.id, pos.x, pos.y)
+	love.graphics.print(id, pos.x, pos.y)
 	love.graphics.rectangle("line", x, y, w, h)
 
 	if sp_ac then

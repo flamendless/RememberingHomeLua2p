@@ -16,6 +16,7 @@ local Debugging = Concord.system({
 })
 
 local slab_init = false
+local font = love.graphics.getFont()
 
 function Debugging:init(world)
 	self.world = world
@@ -102,6 +103,7 @@ end
 function Debugging:debugging_draw(l, t, w, h)
 	if not DebugFlags.draw_all then return end
 
+	love.graphics.setFont(font)
 	self.world:emit("draw_debug", l, t, w, h)
 
 	love.graphics.push()
