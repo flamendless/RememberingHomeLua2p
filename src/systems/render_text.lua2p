@@ -4,8 +4,6 @@ local ReflowPrint = require("modules.reflowprint.reflowprint")
 local RenderText = Concord.system({
 	pool = {"position", "text"},
 	pool_static = {"position", "static_text", "font"},
-	pool_ui = {"position", "text", "ui_text"},
-	pool_dialogue = {"position", "dialogue_arrow"},
 })
 
 function RenderText:init(world)
@@ -22,7 +20,7 @@ function RenderText:init(world)
 	end
 end
 
-function RenderText:internal_draw(e)
+function RenderText:draw_text_ex(e)
 	if not e.hidden then
 		local pos = e.position
 		local color = e.color
@@ -100,29 +98,15 @@ end
 
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.ui_text then
-			self:internal_draw(e)
+		if not e.ui_element then
+			self:draw_text_ex(e)
 		end
 	end
 
 	for _, e in ipairs(self.pool_static) do
-		if not e.ui_text then
-			self:internal_draw(e)
+		if not e.ui_element then
+			self:draw_text_ex(e)
 		end
-	end
-end
-
-function RenderText:draw_ui()
-	for _, e in ipairs(self.pool_ui) do
-		self:internal_draw(e)
-	end
-
-	for _, e in ipairs(self.pool_static) do
-		self:internal_draw(e)
-	end
-
-	for _, e in ipairs(self.pool_dialogue) do
-		self.world:emit("draw_ex", e)
 	end
 end
 

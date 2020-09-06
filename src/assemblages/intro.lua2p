@@ -109,7 +109,8 @@ function Intro.car_reflect(e, spritesheet, car)
 end
 
 function Intro.dialogues(e, id, dialogues, font, pos)
-	e:give("dialogues", id, dialogues)
+	e:give("id", id)
+	:give("dialogues", id, dialogues)
 	:give("font", font)
 	:give("position", pos)
 end
@@ -121,7 +122,7 @@ function Intro.dialogue_text(e, text, font, pos)
 	:give("position", pos)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("color", Palette.get("white", 0))
-	:give("ui_text")
+	:give("ui_element")
 	:give("hidden")
 	-- TODO add voice acting dialogue
 	-- :give("sound", sound_voice)

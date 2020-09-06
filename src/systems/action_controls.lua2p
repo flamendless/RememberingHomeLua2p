@@ -1,9 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local ActionControls = Concord.system({
-	pool_actions = {"id", "ui_action", "tween_dur", "on_click",
-		"color", "bounding_box",
-	},
+	pool_actions = {"id", "tween_dur", "on_click", "color", "bounding_box"},
 })
 
 !(
@@ -45,7 +43,6 @@ function ActionControls:show_action_controls(player, target_item)
 		if valid and not e.color_fade_out then
 			local off = get_offset(i)
 			local pos = e.position.pos
-
 			local dir = -player.body.dir
 			local pspawn = player.spawn_point_action_controls.pos
 

@@ -3,14 +3,14 @@ local Flux = require("modules.flux.flux")
 
 local Intro = require("assemblages.intro")
 
-local Dialogue = Concord.system({
+local DialogueIntro = Concord.system({
 	pool = {"dialogues", "font", "position"},
 	pool_dialogue = {
-		"static_text", "font", "position", "transform", "color", "ui_text"
+		"static_text", "font", "position", "transform", "color", "ui_element"
 	}
 })
 
-function Dialogue:init(world)
+function DialogueIntro:init(world)
 	self.world = world
 	self.map_id = unique_mapping:new()
 	self.data = {}
@@ -26,7 +26,7 @@ function Dialogue:init(world)
 	end
 end
 
-function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
+function DialogueIntro:start_dialogue(id, timeline, dur_in, dur_out)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	Assert.must(timeline, Types.T_TIMELINEEVENT)
@@ -53,6 +53,7 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 	local str = d.dialogues[d.current]
 	local e = Concord.entity(self.world)
 		:assemble(Intro.dialogue_text, str, data.font.font, data.position.pos)
+		:give("layer", "intro", 2)
 
 	self.world:emit("generate_paint", e, dur_in, dur_out)
 	e:remove("hidden")
@@ -67,4 +68,4 @@ function Dialogue:start_dialogue(id, timeline, dur_in, dur_out)
 	end)
 end
 
-return Dialogue
+return DialogueIntro

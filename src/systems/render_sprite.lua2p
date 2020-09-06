@@ -9,9 +9,16 @@ local RenderSprite = Concord.system({
 	pool = {"position", "sprite"},
 	pool_quad = {"position", "sprite", "quad"},
 	pool_z = {"position", "sprite", "z_index"},
-	pool_ui = {"position", "sprite", "ui_element"},
-	pool_action = {"position", "sprite", "ui_action"},
 })
+
+local function sort_z(a, b) return a.z_index.z < b.z_index.z end
+local function sort_z_ex(a, b)
+	if a.z_index.sortable then
+		return a.position.pos.y < b.position.pos.y
+	else
+		return a.z_index.z < b.z_index.z
+	end
+end
 
 local function draw(sprite, ...)
 	-- TODO implement camera_bounds drawing
@@ -23,12 +30,7 @@ function RenderSprite:init()
 
 	self.pool_z.onEntityAdded = function(pool, e)
 		insert(self.custom_pool_z, e)
-		tablex.insertion_sort(self.custom_pool_z, function(a, b)
-			local a_z = a.z_index.z
-			local b_z = b.z_index.z
-
-			return a_z < b_z
-		end)
+		tablex.insertion_sort(self.custom_pool_z, sort_z)
 	end
 
 	self.pool_z.onEntityRemoved = function(pool, e)
@@ -42,22 +44,10 @@ function RenderSprite:init()
 end
 
 function RenderSprite:sort_z()
-	tablex.stable_sort(self.custom_pool_z, function(a, b)
-		if a.z_index.sortable then
-			local a_pos = a.position.pos.y
-			local b_pos = b.position.pos.y
-
-			return a_pos < b_pos
-		else
-			local a_z = a.z_index.z
-			local b_z = b.z_index.z
-
-			return a_z < b_z
-		end
-	end)
+	tablex.stable_sort(self.custom_pool_z, sort_z_ex)
 end
 
-function RenderSprite:internal_draw(e)
+function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
 	if not hidden then
 		local pos = e.position.pos
@@ -85,6 +75,12 @@ function RenderSprite:internal_draw(e)
 			ky = transform.ky
 		end
 
+		local temp_shader
+		if e.no_shader then
+			temp_shader = love.graphics.getShader()
+			love.graphics.setShader()
+		end
+
 		if quad then
 			if quad_transform then
 				rot = quad_transform.rotation
@@ -100,39 +96,27 @@ function RenderSprite:internal_draw(e)
 		else
 			draw(sprite.sprite, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		end
+
+		if e.no_shader then
+			love.graphics.setShader(temp_shader)
+		end
 	end
 end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.z_index and not e.ui_element and not e.ui_action then
-			self:internal_draw(e)
+		if not e.z_index and not e.ui_element then
+			self:draw_sprite_ex(e)
 		end
 	end
 end
 
 function RenderSprite:draw_z()
 	for _, e in ipairs(self.custom_pool_z) do
-		if not e.ui_action then
-			self:internal_draw(e)
+		if not e.ui_element then
+			self:draw_sprite_ex(e)
 		end
 	end
-end
-
-function RenderSprite:draw_ui()
-	for _, e in ipairs(self.pool_ui) do
-		self:internal_draw(e)
-	end
-end
-
-function RenderSprite:draw_actions()
-	for _, e in ipairs(self.pool_action) do
-		self:internal_draw(e)
-	end
-end
-
-function RenderSprite:draw_ex(e)
-	self:internal_draw(e)
 end
 
 !if not _RELEASE then

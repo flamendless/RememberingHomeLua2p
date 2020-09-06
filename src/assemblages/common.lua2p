@@ -31,7 +31,7 @@ function Common.skip(e, text, font, pos)
 	:give("font", font)
 	:give("position", pos)
 	:give("color", Palette.get("ui_skip"))
-	:give("ui_text")
+	:give("ui_element")
 	:give("transform", 0, 1, 1, 0.5, 1)
 	:give("color_fade_in_out", 1)
 end

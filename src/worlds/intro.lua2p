@@ -43,6 +43,7 @@ local Systems = {
 	Tree = require("systems.tree"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	RenderUI = require("systems.render_ui"),
 	TextPaintIntro = require("systems.text_paint_intro"),
 	Transform = require("systems.transform"),
 }
@@ -120,6 +121,7 @@ function StateIntro:start()
 	self.world:addSystem(Systems.Tree)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
+	self.world:addSystem(Systems.RenderUI)
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.DialoguesIntro)
 

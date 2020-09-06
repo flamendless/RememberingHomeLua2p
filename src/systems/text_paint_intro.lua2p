@@ -57,6 +57,7 @@ function TextPaintIntro:generate_paint(e, dur_in, dur_out)
 	end
 
 	local paint = Concord.entity(self.world)
+		:give("id", "text_paint_intro")
 		:give("animation_data", self.paint_data)
 		:give("ui_element")
 		:give("position", pos)
@@ -64,6 +65,7 @@ function TextPaintIntro:generate_paint(e, dur_in, dur_out)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, nil, 0.5, 0.5)
 		:give("color", {1, 1, 1, 0})
+		:give("layer", "intro", 1)
 
 	local color = paint.color
 

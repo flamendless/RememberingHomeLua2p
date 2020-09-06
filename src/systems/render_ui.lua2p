@@ -1,0 +1,78 @@
+local Concord = require("modules.concord.concord")
+
+local insert = table.insert
+local remove = table.remove
+
+local RenderUI = Concord.system({
+	pool_ui = {"ui_element", "position"},
+	pool_layer = {"ui_element", "position", "layer"},
+});
+
+local function sort(a, b) return a.layer.n < b.layer.n end
+
+function RenderUI:init(world)
+	self.world = world
+	self.layers = {}
+	self.map_layers = unique_mapping:new()
+
+	self.pool_layer.onEntityAdded = function(pool, e)
+		local layer_id = e.layer.id
+		local unique_id = self.map_layers:map(layer_id)
+
+		if not self.layers[unique_id] then
+			self.layers[unique_id] = {}
+		end
+
+		local t = self.layers[unique_id]
+
+		insert(t, e)
+		tablex.insertion_sort(t, sort)
+	end
+
+	self.pool_layer.onEntityRemoved = function(pool, e)
+		local layer_id = e.layer.id
+		local unique_id = self.map_layers:map(layer_id)
+		local t = self.layers[unique_id]
+
+		for i = #t, 1, -1 do
+			if e == t[i] then remove(t, i) end
+		end
+	end
+end
+
+function RenderUI:draw_ui()
+	for _, e in ipairs(self.pool_ui) do
+		local text = e.text
+		local stext = e.static_text
+		local sprite = e.sprite
+		local layer = e.layer
+
+		if not layer then
+			if sprite then
+				self.world:emit("draw_sprite_ex", e)
+			end
+
+			if text or stext then
+				self.world:emit("draw_text_ex", e)
+			end
+		end
+	end
+
+	for _, t in ipairs(self.layers) do
+		for _, e in ipairs(t) do
+			local text = e.text
+			local stext = e.static_text
+			local sprite = e.sprite
+
+			if sprite then
+				self.world:emit("draw_sprite_ex", e)
+			end
+
+			if text or stext then
+				self.world:emit("draw_text_ex", e)
+			end
+		end
+	end
+end
+
+return RenderUI

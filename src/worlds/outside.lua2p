@@ -61,6 +61,7 @@ local Systems = {
 	RenderCircle = require("systems.render_circle"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	RenderUI = require("systems.render_ui"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
 	Typewriter = require("systems.typewriter"),
@@ -179,6 +180,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
+	self.world:addSystem(Systems.RenderUI)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)

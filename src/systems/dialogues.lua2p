@@ -100,6 +100,7 @@ function Dialogues:show_dialogue(id, sub)
 		:give("color_fade_in", self.dur_show)
 
 	self.world:emit("show_text_paint", e_dialogue, self.dur_show, widest)
+	e_dialogue.text_with_paint.paint:give("layer", "dialogue", 1)
 	self.world:emit("displayed_dialogue")
 end
 
