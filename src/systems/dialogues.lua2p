@@ -37,7 +37,14 @@ function Dialogues:init(world)
 	end
 
 	self.pool.onEntityRemoved = function(pool, e)
-		self.world:emit("destroyed_dialogue")
+		local dialogue_item = e.dialogue_item
+		local item_id
+
+		if dialogue_item then
+			item_id = dialogue_item.id
+		end
+
+		self.world:emit("destroyed_dialogue", item_id)
 		self.current_d = nil
 		self.current_i = nil
 		self.dialogue_t = nil
@@ -68,10 +75,11 @@ function Dialogues:set_dialogue_config(t)
 	self.dur_hide = t.dur_hide or self.dur_hide
 end
 
-function Dialogues:show_dialogue(id, sub)
+function Dialogues:show_dialogue(id, sub, item_id)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	Assert.must(sub, Types.T_STRING)
+	Assert.safe.must(item_id, Types.T_STRING)
 	Assert.exists(self.font)
 	!end
 
@@ -94,6 +102,10 @@ function Dialogues:show_dialogue(id, sub)
 	local e_dialogue = Concord.entity(self.world)
 		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos_dialogue)
 		:give("reflowprint", ScreenInfo.w/2, "left")
+
+	if item_id then
+		e_dialogue:give("dialogue_item", item_id)
+	end
 
 	local e_arrow = Concord.entity(self.world)
 		:assemble(UI.dialogue_arrow, self.sheet_arrow, pos_arrow)

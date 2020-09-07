@@ -60,9 +60,7 @@ function RenderSprite:draw_sprite_ex(e)
 
 		love.graphics.setColor(1, 1, 1, 1)
 
-		if color then
-			love.graphics.setColor(color.color)
-		end
+		if color then love.graphics.setColor(color.color) end
 
 		local rot, sx, sy, ox, oy, kx, ky
 
@@ -76,6 +74,7 @@ function RenderSprite:draw_sprite_ex(e)
 		end
 
 		local temp_shader
+
 		if e.no_shader then
 			temp_shader = love.graphics.getShader()
 			love.graphics.setShader()

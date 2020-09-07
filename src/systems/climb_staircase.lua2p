@@ -5,6 +5,9 @@ local ClimbStaircase = Concord.system({
 	pool_col = {"id", "position", "collider3d", "bump3d"}
 })
 
+local xspeed = 12
+local yspeed = 36
+
 function ClimbStaircase:init(world)
 	self.world = world
 end
@@ -24,16 +27,16 @@ function ClimbStaircase:item_collided(e, item)
 		if item_pos.y < pos.y then
 			e:give("climb_up")
 			self.world:emit("interacted_stairs", e, "upstairs", function(dt)
-				pos.x = pos.x + 12 * dt
-				pos.y = pos.y - 24 * dt
+				pos.x = pos.x + xspeed * dt
+				pos.y = pos.y - yspeed * dt
 
 				self.world:emit("sort_z")
 			end)
 		else
 			e:give("climb_down")
 			self.world:emit("interacted_stairs", e, "downstairs", function(dt)
-				pos.x = pos.x - 12 * dt
-				pos.y = pos.y + 24 * dt
+				pos.x = pos.x - xspeed * dt
+				pos.y = pos.y + yspeed * dt
 
 				self.world:emit("sort_z")
 			end)

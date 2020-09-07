@@ -48,15 +48,23 @@ function OutsideHouse:action_interacted_eye(target_item)
 
 	if id == "item_car" then
 		self.world:emit("show_dialogue", "outside", "car")
+	elseif id == "item_locked_door" then
+		self.world:emit("show_dialogue", "outside", "locked_door_eye")
 	end
 end
 
-function OutsideHouse:action_interacted_hand(target_item)
+function OutsideHouse:action_interacted_hand(target_item, player)
 	!if _ASSERT then
 	Assert.is(target_item, Types.T_ENTITY)
 	!end
 
 	local id = target_item.id.id
+
+	if id == "item_locked_door" then
+		self.world:emit("player_open_locked_door", player, function()
+			self.world:emit("show_dialogue", "outside", "locked_door_hand", id)
+		end)
+	end
 end
 
 function OutsideHouse:action_interacted_bag(target_item)
@@ -65,6 +73,12 @@ function OutsideHouse:action_interacted_bag(target_item)
 	!end
 
 	local id = target_item.id.id
+end
+
+function OutsideHouse:destroyed_dialogue(item_id)
+	if item_id and item_id == "item_locked_door" then
+		self.world:emit("reset_player")
+	end
 end
 
 return OutsideHouse

@@ -18,6 +18,11 @@ local dialogues = {
 			"It's my car",
 			"I don't need to get back in there",
 		},
+		locked_door_eye = "The main door",
+		locked_door_hand = {
+			"It is locked",
+			"I need to find another way in",
+		},
 	}
 }
 

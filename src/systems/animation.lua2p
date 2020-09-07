@@ -32,7 +32,7 @@ local setup_on_loop = function(e, animation)
 
 				if cb.remove_at_end then
 					e:remove("animation_on_loop")
-					-- cache_multi_animation[e.animation.current_tag] = nil
+					cache_multi_animation[e.animation.current_tag] = nil
 				end
 			end
 		end
@@ -59,7 +59,7 @@ local setup_animation = function(e, data, on_loop)
 		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
 			data.sheet_width, data.sheet_height)
 		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
-			data.durations or data.delay, on_loop)
+			 data.delay, on_loop)
 	else
 		if cache_multi_animation[current_tag] then
 			local cached = cache_multi_animation[current_tag]
@@ -70,7 +70,7 @@ local setup_animation = function(e, data, on_loop)
 			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
 				data.sheet_width, data.sheet_height)
 			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
-				data.durations or data.delay, on_loop)
+				data.delay, on_loop)
 
 			cache_multi_animation[current_tag] = {
 				grid = obj_grid,

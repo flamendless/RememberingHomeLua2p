@@ -76,6 +76,24 @@ function ActionControls:hide_action_controls()
 	end
 end
 
+function ActionControls:toggle_action_controls(bool)
+	for _, e in ipairs(self.pool_actions) do
+		if bool then
+			e:remove("hidden")
+			:give("color_fade_in", e.tween_dur.dur, nil, function()
+				e:give("hoverable")
+				:give("clickable")
+			end)
+		else
+			e:remove("hoverable")
+			:remove("clickable")
+			:give("color_fade_out", e.tween_dur.dur, nil, function()
+				e:give("hidden")
+			end)
+		end
+	end
+end
+
 function ActionControls:item_interacted(player, target_item)
 	self:show_action_controls(player, target_item)
 end
@@ -87,6 +105,8 @@ function ActionControls:action_interacted_eye(target_item)
 
 	local id = target_item.id.id
 	print("eye", id)
+
+	self:toggle_action_controls(false)
 end
 
 function ActionControls:action_interacted_hand(target_item)
@@ -96,6 +116,8 @@ function ActionControls:action_interacted_hand(target_item)
 
 	local id = target_item.id.id
 	print("hand", id)
+
+	self:toggle_action_controls(false)
 end
 
 function ActionControls:action_interacted_bag(target_item)
@@ -105,25 +127,16 @@ function ActionControls:action_interacted_bag(target_item)
 
 	local id = target_item.id.id
 	print("bag", id)
+
+	self:toggle_action_controls(false)
 end
 
 function ActionControls:interact_cancelled()
 	self:hide_action_controls()
 end
 
-function ActionControls:displayed_dialogue()
-	for _, e in ipairs(self.pool_actions) do
-		e:give("color_fade_out", e.tween_dur.dur)
-		:remove("hoverable")
-		:remove("clickable")
-	end
-end
-
 function ActionControls:destroyed_dialogue()
-	for _, e in ipairs(self.pool_actions) do
-		e:give("hoverable")
-		:give("clickable")
-	end
+	self:toggle_action_controls(true)
 end
 
 function ActionControls:fading_out_dialogue()

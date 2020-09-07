@@ -34,16 +34,6 @@ function PlayerController:interact_cancelled(e, item)
 	e.player.can_interact_item = true
 end
 
-function PlayerController:player_set_movement(bool)
-	!if _ASSERT then
-	Assert.must(bool, Types.T_BOOLEAN)
-	!end
-
-	for _, e in ipairs(self.pool) do
-		e.body.can_move = bool
-	end
-end
-
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		self.world:emit("check_on_leave_items", e)
@@ -194,6 +184,13 @@ function PlayerController:idle(e, stop)
 	end
 end
 
+function PlayerController:reset_player()
+	for _, e in ipairs(self.pool) do
+		e:remove("override_animation")
+		self:idle(e)
+	end
+end
+
 function PlayerController:player_open_door(e, fn)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
@@ -201,8 +198,21 @@ function PlayerController:player_open_door(e, fn)
 	Assert.safe.must(fn, Types.T_FUNCTION)
 	!end
 
-	--method A
 	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
+
+	e:give("change_animation_tag", tag)
+	:give("override_animation")
+	:give("animation_on_loop", fn, "pauseAtEnd", true)
+end
+
+function PlayerController:player_open_locked_door(e, fn)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.player)
+	Assert.safe.must(fn, Types.T_FUNCTION)
+	!end
+
+	local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
 
 	e:give("change_animation_tag", tag)
 	:give("override_animation")
