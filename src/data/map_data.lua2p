@@ -1,0 +1,21 @@
+local MapData = {}
+
+MapData.rooms = {
+	Outside = {
+		item_door = "StorageRoom"
+	}
+}
+
+function MapData.get_next(current_id, next_id)
+	local rooms = MapData.rooms[current_id]
+	local next_room = rooms[next_id]
+
+	!if _ASSERT then
+	Assert.exists(rooms)
+	Assert.exists(next_room)
+	!end
+
+	return next_room
+end
+
+return MapData

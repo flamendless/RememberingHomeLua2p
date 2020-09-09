@@ -22,7 +22,7 @@ function Dialogues:init(world)
 	self.sheet_arrow = nil
 
 	self.timer = Timer()
-	self.dur_show = 1
+	self.dur_show = 0.75
 	self.dur_hide = 0.5
 	self.has_dialogue = false
 	self.arrow = nil

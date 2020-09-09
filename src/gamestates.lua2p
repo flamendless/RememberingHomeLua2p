@@ -9,6 +9,7 @@ local min = math.min
 local floor = math.floor
 
 local GameStates = {
+	type_id = "GameStates",
 	prev_world = nil,
 	current_world = nil,
 	current_id = nil,

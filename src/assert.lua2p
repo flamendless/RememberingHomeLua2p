@@ -16,6 +16,7 @@ Assert.types = {
 	T_FONT_SDF = "fontsdf",
 	T_FUNCTION = "function",
 	T_GAMERA = "__camera",
+	T_GAMESTATES = "GameStates",
 	T_IMAGE = "Image",
 	T_IMAGEDATA = "ImageData",
 	T_NUMBER = "number",

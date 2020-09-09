@@ -1,5 +1,8 @@
 local Concord = require("modules.concord.concord")
 
+local Fade = require("fade")
+local Save = require("save")
+
 local OutsideHouse = Concord.system({
 	pool_door = {"door", "collider3d", "bump3d", "position"},
 	pool_col = {"id", "position", "collider3d", "bump3d"},
@@ -8,6 +11,7 @@ local OutsideHouse = Concord.system({
 
 function OutsideHouse:init(world)
 	self.world = world
+	self.can_go_to_storage_room = false
 end
 
 function OutsideHouse:item_collided(e, item)
@@ -45,11 +49,16 @@ function OutsideHouse:action_interacted_eye(target_item)
 	!end
 
 	local id = target_item.id.id
+	local str_outside = "outside"
 
 	if id == "item_car" then
-		self.world:emit("show_dialogue", "outside", "car")
+		self.world:emit("show_dialogue", str_outside, "car_eye")
+	elseif id == "item_wood" then
+		self.world:emit("show_dialogue", str_outside, "wood_eye")
 	elseif id == "item_locked_door" then
-		self.world:emit("show_dialogue", "outside", "locked_door_eye")
+		self.world:emit("show_dialogue", str_outside, "locked_door_eye")
+	elseif id == "item_backdoor" then
+		self.world:emit("show_dialogue", str_outside, "backdoor_eye")
 	end
 end
 
@@ -59,11 +68,36 @@ function OutsideHouse:action_interacted_hand(target_item, player)
 	!end
 
 	local id = target_item.id.id
+	local str_outside = "outside"
 
-	if id == "item_locked_door" then
+	if id == "item_car" then
+		self.world:emit("show_dialogue", str_outside, "car_hand")
+	elseif id == "item_wood" then
+		self.world:emit("show_dialogue", str_outside, "wood_hand")
+	elseif id == "item_locked_door" then
+		self.world:emit("face_left", player)
 		self.world:emit("player_open_locked_door", player, function()
-			self.world:emit("show_dialogue", "outside", "locked_door_hand", id)
+			self.world:emit("show_dialogue", str_outside, "locked_door_hand", id)
+			self.can_go_to_storage_room = true
 		end)
+	elseif id == "item_backdoor" then
+		if self.can_go_to_storage_room then
+			local save_bd = "backdoor_locked"
+
+			if Save.data[save_bd] then
+				-- do puzzle here to unlock the door
+				-- after:
+				-- Save.toggle_flag(save_bd, true)
+			else
+				self.world:emit("player_open_door", player, function()
+					Fade.fade_out(function()
+						self.world:emit("go_to_next", id)
+					end, 0.5)
+				end)
+			end
+		else
+			self.world:emit("show_dialogue", str_outside, "backdoor_hand", id)
+		end
 	end
 end
 

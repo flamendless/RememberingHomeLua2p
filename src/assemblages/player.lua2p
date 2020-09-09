@@ -52,7 +52,7 @@ function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
 		multi_data.open_door = {
 			spritesheet = resources.sheet_open_door,
 			frames = {"1-7", 1},
-			delay = 0.2,
+			delay = 0.15,
 			rows_count = 1,
 			columns_count = 7,
 			n_frames = 7,
@@ -61,20 +61,18 @@ function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
 
 		multi_data.open_door_reverse = {
 			spritesheet = resources.sheet_open_door,
-			frames = {"1-7", 1, "7-1", 1},
-			delay = 0.1,
-			-- frames = {
-			-- 	"1-7", 1,
-			-- 	"7-6", 1,
-			-- 	"6-7", 1,
-			-- 	"7-1", 1,
-			-- },
-			-- delay = {
-			-- 	["1-5"] = 0.1,
-			-- 	["6-7"] = 0.05,
-			-- 	["8-9"] = 0.05,
-			-- 	["10-18"] = 0.1,
-			-- },
+			frames = {
+				"1-7", 1, -- 1-7
+				"7-5", 1, -- 8-10
+				"5-7", 1, -- 11-13
+				"7-1", 1, -- 13-20
+			},
+			delay = {
+				["1-6"] = 0.15,
+				["7-8"] = 0.25,
+				["9-13"] = 0.075,
+				["14-20"] = 0.15,
+			},
 			rows_count = 1,
 			columns_count = 7,
 			n_frames = 7,

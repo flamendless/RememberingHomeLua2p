@@ -14,15 +14,20 @@ local dialogues = {
 	},
 
 	outside = {
-		car = {
-			"It's my car",
-			"I don't need to get back in there",
-		},
+		car_eye = "A xxxx car",
+		car_hand = "I don't need to get back in there",
+
+		wood_eye = "It is for chopping woods",
+		wood_hand = "There is nothing to chop",
+
 		locked_door_eye = "The main door",
 		locked_door_hand = {
 			"It is locked",
-			"I need to find another way in",
+			"I may have left the key back in work",
 		},
+
+		backdoor_eye = "This door leads to the storage room",
+		backdoor_hand = "I need to check the main door first",
 	}
 }
 

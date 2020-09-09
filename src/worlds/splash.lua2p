@@ -64,7 +64,7 @@ local function switch(gamestate)
 
 	is_switching = true
 	Fade.fade_out(function()
-		Save.set_flag("intro_done", true)
+		Save.toggle_flag("intro_done", true)
 		gamestate.switch("Menu")
 	end)
 end

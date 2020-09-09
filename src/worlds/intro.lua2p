@@ -335,7 +335,7 @@ function StateIntro:start()
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
 			Fade.fade_out(function()
-				Save.set_flag("intro_done", true)
+				Save.toggle_flag("intro_done", true)
 				is_raining = false
 				is_switching = true
 				self.ps1.system:stop()
@@ -425,7 +425,7 @@ function StateIntro:keypressed(key)
 
 			if Inputs.is_pressed("ui_skip", key) then
 				Fade.fade_out(function()
-					Save.set_flag("intro_done", true)
+					Save.toggle_flag("intro_done", true)
 					is_raining = false
 					is_switching = true
 					self.ps1.system:stop()

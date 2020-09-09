@@ -23,7 +23,11 @@ function Item:item_left_collision(e, item)
 	Assert.is(item, Types.T_ENTITY)
 	!end
 
-	e:remove("within_item")
+	local w_item = e.within_item
+
+	if w_item and w_item.item.id.id == item.id then
+		e:remove("within_item")
+	end
 end
 
 function Item:check_on_leave_items(player)
