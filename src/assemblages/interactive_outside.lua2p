@@ -1,23 +1,23 @@
-local ItemsOutside = {}
+local InteractiveOutside = {}
 
-function ItemsOutside.item_car(e, font)
-	e:give("id", "item_car")
+function InteractiveOutside.interactive_car(e, font)
+	e:give("id", "interactive_car")
 	:give("position", vec2:new(934, 250))
 	:give("collider3d", vec3:new(64, 24, 4), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
 	:give("action_cancel")
 end
 
-function ItemsOutside.item_backdoor(e)
-	e:give("id", "item_backdoor")
+function InteractiveOutside.interactive_backdoor(e)
+	e:give("id", "interactive_backdoor")
 	:give("position", vec2:new(580, 250))
 	:give("collider3d", vec3:new(16, 16, 4), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
@@ -25,12 +25,12 @@ function ItemsOutside.item_backdoor(e)
 	:give("action_cancel")
 end
 
-function ItemsOutside.item_locked_door(e)
-	e:give("id", "item_locked_door")
+function InteractiveOutside.interactive_locked_door(e)
+	e:give("id", "interactive_locked_door")
 	:give("position", vec2:new(448, 222))
 	:give("collider3d", vec3:new(28, 4, 8), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
@@ -39,34 +39,34 @@ function ItemsOutside.item_locked_door(e)
 	:give("door", true)
 end
 
-function ItemsOutside.item_staircase(e)
-	e:give("id", "item_staircase")
+function InteractiveOutside.interactive_staircase(e)
+	e:give("id", "interactive_staircase")
 	:give("position", vec2:new(450, 240))
 	:give("collider3d", vec3:new(12, 24, 12), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("staircase")
 end
 
-function ItemsOutside.item_staircase_bottom(e)
-	e:give("id", "item_staircase_bottom")
+function InteractiveOutside.interactive_staircase_bottom(e)
+	e:give("id", "interactive_staircase_bottom")
 	:give("position", vec2:new(440, 280))
 	:give("collider3d", vec3:new(32, 8, 12), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("staircase")
 end
 
-function ItemsOutside.item_wood(e)
-	e:give("id", "item_wood")
+function InteractiveOutside.interactive_wood(e)
+	e:give("id", "interactive_wood")
 	:give("position", vec2:new(215, 270))
 	:give("collider3d", vec3:new(30, 12, 16), "cross")
 	:give("bump3d")
-	:give("item")
+	:give("interactive")
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
 	:give("action_cancel")
 end
 
-return ItemsOutside
+return InteractiveOutside

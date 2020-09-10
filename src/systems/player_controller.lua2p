@@ -23,20 +23,20 @@ function PlayerController:destroyed_dialogue()
 	end
 end
 
-function PlayerController:item_interacted(e, item)
+function PlayerController:interactive_interacted(e, interactive)
 	e.body.can_move = false
-	e.player.can_interact_item = false
+	e.player.can_interact = false
 	self:idle(e, true)
 end
 
-function PlayerController:interact_cancelled(e, item)
+function PlayerController:interact_cancelled(e, interactive)
 	e.body.can_move = true
-	e.player.can_interact_item = true
+	e.player.can_interact = true
 end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		self.world:emit("check_on_leave_items", e)
+		self.world:emit("check_on_leave_interactives", e)
 
 		if e.override_animation then return end
 		if not e.body.can_move then return end
@@ -236,20 +236,20 @@ function PlayerController:keypressed(key)
 	if Inputs.is_pressed("player_interact", key) then
 		for _, e in ipairs(self.pool) do
 			local player = e.player
-			local item = e.within_item
+			local interactive = e.within_interactive
 
-			if player.can_interact_item and item then
-				self.world:emit("item_interacted", e, item.item)
+			if player.can_interact and interactive then
+				self.world:emit("interactive_interacted", e, interactive.interactive)
 			end
 		end
 	elseif Inputs.is_pressed("ui_back", key) then
 		for _, e in ipairs(self.pool) do
 			local player = e.player
-			local item = e.within_item
+			local interactive = e.within_interactive
 			local in_dialogue = e.in_dialogue
 
-			if not player.can_interact_item and not in_dialogue then
-				self.world:emit("interact_cancelled", e, item.item)
+			if not player.can_interact and not in_dialogue then
+				self.world:emit("interact_cancelled", e, interactive.interactive)
 			end
 		end
 	end
@@ -267,7 +267,7 @@ function PlayerController:draw_debug()
 	for _, e in ipairs(self.pool) do
 		local body = e.body
 		local player = e.player
-		local within_item = e.within_item
+		local within_interactive = e.within_interactive
 
 		Slab.Text("Body:")
 		Slab.Indent()
@@ -282,16 +282,16 @@ function PlayerController:draw_debug()
 			body.can_run = not body.can_run
 		end
 
-		if Slab.CheckBox(player.can_interact_item, "can_interact_item") then
-			player.can_interact_item = not player.can_interact_item
+		if Slab.CheckBox(player.can_interact, "can_interact") then
+			player.can_interact = not player.can_interact
 		end
 
 		Slab.Text("is_run: " .. tostring(body.is_run))
 
 		Slab.Unindent()
 
-		if within_item then
-			Slab.Text("Within item: " .. within_item.item_id)
+		if within_interactive then
+			Slab.Text("Within interactive: " .. within_interactive.interactive_id)
 		end
 
 		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))

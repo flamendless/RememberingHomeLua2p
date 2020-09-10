@@ -65,10 +65,10 @@ function Bump3DCollision:update_body(e)
 		other_col.normal.y = c.normalY
 		other_col.normal.z = c.normalZ
 
-		if other.item then
+		if other.interactive then
 			if not other_col.prev_hit then
 				other_col.prev_hit = true
-				self.world:emit("item_collided", e, other)
+				self.world:emit("interactive_collided", e, other)
 			end
 		end
 	end

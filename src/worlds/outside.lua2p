@@ -52,7 +52,7 @@ local Systems = {
 	Dialogues = require("systems.dialogues"),
 	Fireflies = require("systems.fireflies"),
 	HoverEffect = require("systems.hover_effect"),
-	Item = require("systems.item"),
+	Interactive = require("systems.interactive"),
 	Map = require("systems.map"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
@@ -76,7 +76,7 @@ local world
 
 local Assemblages = {
 	Outside = require("assemblages.outside"),
-	ItemsOutside = require("assemblages.items_outside"),
+	InteractiveOutside = require("assemblages.interactive_outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
 }
@@ -176,7 +176,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Fireflies)
 	self.world:addSystem(Systems.Notification)
 	self.world:addSystem(Systems.ActionControls)
-	self.world:addSystem(Systems.Item)
+	self.world:addSystem(Systems.Interactive)
 	self.world:addSystem(Systems.MouseHover)
 	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)
@@ -321,7 +321,7 @@ function StateOutside:start()
 	self.entities.question_mark = Concord.entity(self.world)
 		:assemble(Assemblages.UI.question_mark, res_images.question_mark, 0.25)
 
-	for k, v in pairs(Assemblages.ItemsOutside) do
+	for k, v in pairs(Assemblages.InteractiveOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end
 

@@ -2,7 +2,7 @@ local MapData = {}
 
 MapData.rooms = {
 	Outside = {
-		item_door = "StorageRoom"
+		interactive_door = "StorageRoom"
 	}
 }
 

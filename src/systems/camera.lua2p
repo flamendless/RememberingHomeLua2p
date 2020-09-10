@@ -29,7 +29,7 @@ function Camera:init(world)
 	end
 end
 
-function Camera:item_interacted()
+function Camera:interactive_interacted()
 	if self.can_scale then
 		self.can_scale = false
 		self.prev_scale = self.main_camera.scale

@@ -14,10 +14,10 @@ function OutsideHouse:init(world)
 	self.can_go_to_storage_room = false
 end
 
-function OutsideHouse:item_collided(e, item)
-	local item_id = item.id.id
+function OutsideHouse:interactive_collided(e, interactive)
+	local interactive_id = interactive.id.id
 
-	if item_id == "item_locked_door" then
+	if interactive_id == "interactive_locked_door" then
 		e:remove("override_animation")
 		:remove("animation_on_update")
 		:remove("climb_up")
@@ -43,44 +43,44 @@ function OutsideHouse:climbed_staircase(dir)
 	end
 end
 
-function OutsideHouse:action_interacted_eye(target_item)
+function OutsideHouse:action_interacted_eye(target_interactive)
 	!if _ASSERT then
-	Assert.is(target_item, Types.T_ENTITY)
+	Assert.is(target_interactive, Types.T_ENTITY)
 	!end
 
-	local id = target_item.id.id
+	local id = target_interactive.id.id
 	local str_outside = "outside"
 
-	if id == "item_car" then
+	if id == "interactive_car" then
 		self.world:emit("show_dialogue", str_outside, "car_eye")
-	elseif id == "item_wood" then
+	elseif id == "interactive_wood" then
 		self.world:emit("show_dialogue", str_outside, "wood_eye")
-	elseif id == "item_locked_door" then
+	elseif id == "interactive_locked_door" then
 		self.world:emit("show_dialogue", str_outside, "locked_door_eye")
-	elseif id == "item_backdoor" then
+	elseif id == "interactive_backdoor" then
 		self.world:emit("show_dialogue", str_outside, "backdoor_eye")
 	end
 end
 
-function OutsideHouse:action_interacted_hand(target_item, player)
+function OutsideHouse:action_interacted_hand(target_interactive, player)
 	!if _ASSERT then
-	Assert.is(target_item, Types.T_ENTITY)
+	Assert.is(target_interactive, Types.T_ENTITY)
 	!end
 
-	local id = target_item.id.id
+	local id = target_interactive.id.id
 	local str_outside = "outside"
 
-	if id == "item_car" then
+	if id == "interactive_car" then
 		self.world:emit("show_dialogue", str_outside, "car_hand")
-	elseif id == "item_wood" then
+	elseif id == "interactive_wood" then
 		self.world:emit("show_dialogue", str_outside, "wood_hand")
-	elseif id == "item_locked_door" then
+	elseif id == "interactive_locked_door" then
 		self.world:emit("face_left", player)
 		self.world:emit("player_open_locked_door", player, function()
 			self.world:emit("show_dialogue", str_outside, "locked_door_hand", id)
 			self.can_go_to_storage_room = true
 		end)
-	elseif id == "item_backdoor" then
+	elseif id == "interactive_backdoor" then
 		if self.can_go_to_storage_room then
 			local save_bd = "backdoor_locked"
 
@@ -101,16 +101,16 @@ function OutsideHouse:action_interacted_hand(target_item, player)
 	end
 end
 
-function OutsideHouse:action_interacted_bag(target_item)
+function OutsideHouse:action_interacted_bag(target_interactive)
 	!if _ASSERT then
-	Assert.is(target_item, Types.T_ENTITY)
+	Assert.is(target_interactive, Types.T_ENTITY)
 	!end
 
-	local id = target_item.id.id
+	local id = target_interactive.id.id
 end
 
-function OutsideHouse:destroyed_dialogue(item_id)
-	if item_id and item_id == "item_locked_door" then
+function OutsideHouse:destroyed_dialogue(interactive_id)
+	if interactive_id and interactive_id == "interactive_locked_door" then
 		self.world:emit("reset_player")
 	end
 end

@@ -36,12 +36,4 @@ function Common.skip(e, text, font, pos)
 	:give("color_fade_in_out", 1)
 end
 
-function Common.item(e, id, pos, size)
-	e:give("id", "item")
-	:give("item", id)
-	:give("position", pos)
-	:give("collider", size, nil, "cross")
-	:give("bump")
-end
-
 return Common

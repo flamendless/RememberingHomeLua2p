@@ -8,42 +8,42 @@ function Notification:init(world)
 	self.world = world
 end
 
-function Notification:item_collided(e, item)
+function Notification:interactive_collided(e, interactive)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
-	Assert.is(item, Types.T_ENTITY)
+	Assert.is(interactive, Types.T_ENTITY)
 	!end
 
-	local notif = item.notify
+	local notif = interactive.notify
 
 	if notif then
 		self:show_notification(notif.id, e)
 	end
 end
 
-function Notification:item_left_collision(e, item)
+function Notification:interactive_left_collision(e, interactive)
 	!if _ASSERT then
 	Assert.is(e, Types.T_ENTITY)
-	Assert.is(item, Types.T_ENTITY)
+	Assert.is(interactive, Types.T_ENTITY)
 	!end
 
-	local notif = item.notify
+	local notif = interactive.notify
 
 	if notif then
 		self:hide_notification(notif.id)
 	end
 end
 
-function Notification:item_interacted(player, item)
-	local notif = item.notify
+function Notification:interactive_interacted(player, interactive)
+	local notif = interactive.notify
 
 	if notif then
 		self:toggle_notification_temp(notif.id)
 	end
 end
 
-function Notification:interact_cancelled(player, item)
-	local notif = item.notify
+function Notification:interact_cancelled(player, interactive)
+	local notif = interactive.notify
 
 	if notif then
 		self:toggle_notification_temp(notif.id)

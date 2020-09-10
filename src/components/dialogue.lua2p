@@ -4,7 +4,7 @@ Concord.component("dialogue")
 Concord.component("dialogue_arrow")
 Concord.component("in_dialogue")
 
-Concord.component("dialogue_item", function(c, id)
+Concord.component("dialogue_interactive", function(c, id)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	!end

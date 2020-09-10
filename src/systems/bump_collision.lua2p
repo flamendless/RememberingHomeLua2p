@@ -53,12 +53,12 @@ function BumpCollision:update(dt)
 					other_col.normal.x = c.normalX
 					other_col.normal.y = c.normalY
 
-					local item = c.item
-					local item_col = item.collider
+					local interactive = c.interactive
+					local interactive_col = interactive.collider
 
-					item_col.is_hit = true
-					item_col.normal.x = c.normalX
-					item_col.normal.y = c.normalY
+					interactive_col.is_hit = true
+					interactive_col.normal.x = c.normalX
+					interactive_col.normal.y = c.normalY
 
 					if other_id then
 						--TODO wall collision animation
