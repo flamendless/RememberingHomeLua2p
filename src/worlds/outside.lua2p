@@ -226,6 +226,12 @@ function StateOutside:start()
 			font = res_fonts.dialogue,
 			sheet_arrow = res_images.sheet_dialogue_arrow,
 		})
+	self.world:emit("set_action_controls_resources", {
+			eye = res_images.sheet_ui_eye,
+			hand = res_images.sheet_ui_hand,
+			bag = res_images.sheet_ui_bag,
+			cancel = res_images.sheet_ui_cancel,
+		})
 
 	local cx, cy, cw, ch = self.camera:getVisible()
 
@@ -376,11 +382,6 @@ function StateOutside:start()
 	self.camera:setScale(3)
 	self.camera:setPosition(self.entities.player.position.pos:unpack())
 
-	local actions = Factory.ui_controls(self.world,
-		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
-		res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
-		0.75, self.entities.player)
-
 	--TIMELINE
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then
@@ -503,11 +504,6 @@ function StateOutside:start()
 		local dur_fade_task2 = 2.25
 		local e_arrows, e_arrows_keys = self:show_arrows_keys()
 		local ev2 = EventsList.arrows_keys(e_arrows, e_arrows_keys, dur_fade_task2)
-
-		local actions = Factory.ui_controls(self.world,
-			res_images.sheet_ui_eye, res_images.sheet_ui_hand,
-			res_images.sheet_ui_bag, res_images.sheet_ui_cancel,
-			0.75, self.entities.player)
 
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
 

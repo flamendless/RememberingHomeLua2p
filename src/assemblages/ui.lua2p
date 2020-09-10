@@ -178,7 +178,7 @@ function UI.arrow(e, dir, sheet, pos)
 	:give("ui_element")
 end
 
-local function action(e, sheet, dur)
+function UI.action(e, sheet)
 	local scale = 0.25
 
 	e:give("animation_data", {
@@ -189,39 +189,15 @@ local function action(e, sheet, dur)
 			columns_count = 5,
 			n_frames = 5,
 		})
-	:give("tween_dur", dur)
-	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
 	:give("ease", "backout")
 	:give("bounding_box", vec2:new(), vec2:new(96 * scale, 96 * scale))
 	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
 	:give("hover_change_scale", scale + 0.1, 0.25)
 	:give("transform", 0, scale, scale, 0.5, 0.5)
-	:give("hidden")
-	:give("position", vec2:new())
 	:give("z_index", 99, false)
 	:give("no_shader")
 
 	return e
-end
-
-function UI.action_eye(e, sheet, dur)
-	action(e, sheet, dur)
-	:give("id", "action_eye")
-end
-
-function UI.action_hand(e, sheet, dur)
-	action(e, sheet, dur)
-	:give("id", "action_hand")
-end
-
-function UI.action_bag(e, sheet, dur)
-	action(e, sheet, dur)
-	:give("id", "action_bag")
-end
-
-function UI.action_cancel(e, sheet, dur)
-	action(e, sheet, dur)
-	:give("id", "action_cancel")
 end
 
 function UI.question_mark(e, sprite, dur)
