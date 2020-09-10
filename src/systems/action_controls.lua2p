@@ -94,7 +94,7 @@ function ActionControls:show_action_controls(player, target_interactive)
 			if id == "cancel" then
 				self.world:emit("interact_cancelled", player, target_interactive)
 			else
-				self.world:emit("action_interacted_" .. id, target_interactive)
+				self.world:emit("action_interacted_" .. id, target_interactive, player)
 			end
 		end)
 		:give("color_fade_in", self.dur, nil, function()
@@ -149,7 +149,7 @@ function ActionControls:interactive_interacted(player, target_interactive)
 	self:show_action_controls(player, target_interactive)
 end
 
-function ActionControls:action_interacted_eye(target_interactive)
+function ActionControls:action_interacted_eye(target_interactive, player)
 	!if _ASSERT then
 	Assert.is(target_interactive, Types.T_ENTITY)
 	!end
@@ -160,7 +160,7 @@ function ActionControls:action_interacted_eye(target_interactive)
 	self:toggle_action_controls(false)
 end
 
-function ActionControls:action_interacted_hand(target_interactive)
+function ActionControls:action_interacted_hand(target_interactive, player)
 	!if _ASSERT then
 	Assert.is(target_interactive, Types.T_ENTITY)
 	!end
@@ -171,7 +171,7 @@ function ActionControls:action_interacted_hand(target_interactive)
 	self:toggle_action_controls(false)
 end
 
-function ActionControls:action_interacted_bag(target_interactive)
+function ActionControls:action_interacted_bag(target_interactive, player)
 	!if _ASSERT then
 	Assert.is(target_interactive, Types.T_ENTITY)
 	!end

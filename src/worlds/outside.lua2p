@@ -53,6 +53,7 @@ local Systems = {
 	Fireflies = require("systems.fireflies"),
 	HoverEffect = require("systems.hover_effect"),
 	Interactive = require("systems.interactive"),
+	Inventory = require("systems.inventory"),
 	Map = require("systems.map"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
@@ -77,6 +78,7 @@ local world
 local Assemblages = {
 	Outside = require("assemblages.outside"),
 	InteractiveOutside = require("assemblages.interactive_outside"),
+	Items = require("assemblages.items"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
 }
@@ -177,6 +179,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Notification)
 	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.Interactive)
+	self.world:addSystem(Systems.Inventory)
 	self.world:addSystem(Systems.MouseHover)
 	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)
@@ -246,6 +249,9 @@ function StateOutside:start()
 	self.world:emit("debug_particle_system", self.ps2.system)
 	self.world:emit("debug_camera", self.camera)
 	!end
+
+	self.entities.backdoor_key = Concord.entity(self.world)
+		:assemble(Assemblages.Items, res_images.item_backdoor_key)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)

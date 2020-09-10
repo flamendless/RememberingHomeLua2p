@@ -1,0 +1,14 @@
+local Concord = require("modules.concord.concord")
+
+local Inventory = Concord.system({
+	pool = {"id", "item"}
+})
+
+function Inventory:init(world)
+	self.world = world
+end
+
+function Inventory:action_interacted_bag(target_interactive, player)
+end
+
+return Inventory

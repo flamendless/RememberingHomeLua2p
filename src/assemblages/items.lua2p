@@ -1,0 +1,17 @@
+local Items = {}
+
+local function item(e)
+	e:give("item")
+	:give("ui_element")
+	:give("layer", "inventory", 0)
+	:give("hoverable")
+	:give("clickable")
+end
+
+function Items.backdoor_key(e, sprite)
+	e:assemble(item)
+	:give("id", "item_backdoor_key")
+	:give("sprite", sprite)
+end
+
+return Items

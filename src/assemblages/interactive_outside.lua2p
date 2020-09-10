@@ -36,7 +36,7 @@ function InteractiveOutside.interactive_locked_door(e)
 	:give("action_hand")
 	:give("action_bag")
 	:give("action_cancel")
-	:give("door", true)
+	:give("door")
 end
 
 function InteractiveOutside.interactive_staircase(e)
