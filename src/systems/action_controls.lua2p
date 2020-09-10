@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local ActionControls = Concord.system({
+	pool_empty = {"empty_action"},
 	pool_actions = {"id", "tween_dur", "on_click", "color", "bounding_box"},
 })
 
@@ -22,7 +23,6 @@ for i = 0, 3 do
 	table.insert(_offsets, t)
 end
 )
-
 !!local offsets = _offsets
 
 local function get_offset(i)
@@ -36,6 +36,18 @@ function ActionControls:init(world)
 	self.sheets = nil
 	self.dur = 0.75
 	self.actions_map = {"eye", "hand", "bag", "cancel"}
+
+	self.max_pool = 5
+	self.current = 1
+
+	for i = 1, self.max_pool do
+		local e = Concord.entity(self.world):give("empty_action")
+	end
+
+	self.pool_actions.onEntityRemoved = function(pool, e)
+		self.current = self.current - 1
+		e:give("empty_action")
+	end
 end
 
 function ActionControls:set_action_controls_resources(sheets)
@@ -68,29 +80,30 @@ function ActionControls:show_action_controls(player, target_interactive)
 		local pspawn = player.spawn_point_action_controls.pos
 		local x = pspawn.x + (off.x * dir)
 		local y = pspawn.y + off.y
+		local e = self.pool_empty[self.current]
 
-		local e
-		e = Concord.entity(self.world)
-			:assemble(UI.action, self.sheets[id])
-			:give("id", "action_" .. id)
-			:give("position", vec2:new(x, y))
-			:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
-			:give("animation", true)
-			:give("target_interactive", target_interactive)
-			:give("tween_dur", self.dur)
-			:give("on_click", 1, function()
-				if id == "cancel" then
-					self.world:emit("interact_cancelled", player, target_interactive)
-				else
-					self.world:emit("action_interacted_" .. id, target_interactive)
-				end
-			end)
-			:give("color_fade_in", self.dur, nil, function()
-				e:give("hoverable")
-				:give("clickable")
-			end)
+		e:remove("empty_action")
+		:assemble(UI.action, self.sheets[id])
+		:give("id", "action_" .. id)
+		:give("position", vec2:new(x, y))
+		:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
+		:give("animation", true)
+		:give("target_interactive", target_interactive)
+		:give("tween_dur", self.dur)
+		:give("on_click", 1, function()
+			if id == "cancel" then
+				self.world:emit("interact_cancelled", player, target_interactive)
+			else
+				self.world:emit("action_interacted_" .. id, target_interactive)
+			end
+		end)
+		:give("color_fade_in", self.dur, nil, function()
+			e:give("hoverable")
+			:give("clickable")
+		end)
 
 		i = i + 1
+		self.current = self.current + 1
 	end
 
 	self.world:emit("sort_z")
@@ -102,7 +115,15 @@ function ActionControls:hide_action_controls()
 		:remove("target_interactive")
 		:remove("hoverable")
 		:remove("clickable")
-		:give("color_fade_out", e.tween_dur.dur, nil, function() e:destroy() end)
+		:give("color_fade_out", e.tween_dur.dur, nil, function()
+			e:remove("tween_dur")
+			:remove("on_click")
+			:remove("color")
+			:remove("bounding_box")
+			:remove("animation")
+			:remove("sprite")
+			:remove("position")
+		end)
 	end
 end
 

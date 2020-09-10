@@ -7,3 +7,5 @@ Concord.component("id", function(c, id)
 
 	c.id = id
 end)
+
+Concord.component("preserve_id")

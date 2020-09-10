@@ -232,6 +232,9 @@ function StateOutside:start()
 			bag = res_images.sheet_ui_bag,
 			cancel = res_images.sheet_ui_cancel,
 		})
+	self.world:emit("set_notification_resources", {
+			question_mark = res_images.question_mark
+		})
 
 	local cx, cy, cw, ch = self.camera:getVisible()
 
@@ -323,9 +326,6 @@ function StateOutside:start()
 
 	self.entities.dialogue_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.dialogue_data, res_images.sheet_dialogue)
-
-	self.entities.question_mark = Concord.entity(self.world)
-		:assemble(Assemblages.UI.question_mark, res_images.question_mark, 0.25)
 
 	for k, v in pairs(Assemblages.InteractiveOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)

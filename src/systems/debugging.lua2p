@@ -46,16 +46,20 @@ function Debugging:init(world)
 
 	self.pool_id.onEntityAdded = function(pool, e)
 		local id = e.id
-		local ref_id = self.ref_id[id.id]
 
-		if ref_id then
-			self.ref_id[id.id] = self.ref_id[id.id] + 1
-			id.id = id.id .. self.ref_id[id.id]
-		else
-			self.ref_id[id.id] = 1
+		if not e.preserve_id then
+			local ref_id = self.ref_id[id.id]
+
+			if ref_id then
+				self.ref_id[id.id] = self.ref_id[id.id] + 1
+				id.id = id.id .. self.ref_id[id.id]
+			else
+				self.ref_id[id.id] = 1
+			end
+
+			self.ent_id_count = self.ent_id_count + 1
 		end
 
-		self.ent_id_count = self.ent_id_count + 1
 		Log.info("Added entity: " .. id.id)
 	end
 
