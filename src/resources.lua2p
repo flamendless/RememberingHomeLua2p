@@ -7,6 +7,7 @@ local Resources = {
 }
 
 local path_images = "res/images/"
+local path_items = path_images .. "items/"
 local path_lut = "res/lut/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
@@ -110,6 +111,7 @@ Resources.data.outside = {
 		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
 		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
 		{"question_mark", path_ui .. "question_mark.png"},
+		{"backdoor_key", path_items .. "backdoor_key.png"},
 	},
 
 	image_data = {

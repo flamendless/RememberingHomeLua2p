@@ -251,7 +251,17 @@ function StateOutside:start()
 	!end
 
 	self.entities.backdoor_key = Concord.entity(self.world)
-		:assemble(Assemblages.Items, res_images.item_backdoor_key)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key1 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key2 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key3 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key4 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key5 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
@@ -526,9 +536,11 @@ function StateOutside:update(dt)
 	self.world:emit("update", dt)
 	self.world:emit("on_camera_move", self.camera)
 
-	local mx, my = self.camera:toWorld(love.mouse.getPosition())
+	local mx, my = love.mouse.getPosition()
+	local wmx, wmy = self.camera:toWorld(mx, my)
 
-	self.world:emit("check_mouse_hover", mx, my)
+	self.world:emit("check_mouse_hover", wmx, wmy)
+	self.world:emit("check_mouse_hover_ui", mx, my)
 	self.world:emit("hover_effects")
 
 	if is_raining then
@@ -556,8 +568,6 @@ function StateOutside:draw()
 		end
 
 		love.graphics.setShader()
-
-		self.world:emit("draw_actions")
 
 		if overlay_flag then
 			love.graphics.setColor(overlay)

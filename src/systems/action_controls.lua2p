@@ -37,7 +37,7 @@ function ActionControls:init(world)
 	self.dur = 0.75
 	self.actions_map = {"eye", "hand", "bag", "cancel"}
 
-	self.max_pool = 5
+	self.max_pool = 10
 	self.current = 1
 
 	for i = 1, self.max_pool do
@@ -72,38 +72,38 @@ function ActionControls:show_action_controls(player, target_interactive)
 		cancel = target_interactive.action_cancel,
 	}
 
-	for i, id in ipairs(self.actions_map) do
-		if not actions[id] then return end
+	for _, id in ipairs(self.actions_map) do
+		if actions[id] then
+			local off = get_offset(i)
+			local dir = -player.body.dir
+			local pspawn = player.spawn_point_action_controls.pos
+			local x = pspawn.x + (off.x * dir)
+			local y = pspawn.y + off.y
+			local e = self.pool_empty[self.current]
 
-		local off = get_offset(i)
-		local dir = -player.body.dir
-		local pspawn = player.spawn_point_action_controls.pos
-		local x = pspawn.x + (off.x * dir)
-		local y = pspawn.y + off.y
-		local e = self.pool_empty[self.current]
+			e:remove("empty_action")
+			:assemble(UI.action, self.sheets[id])
+			:give("id", "action_" .. id)
+			:give("position", vec2:new(x, y))
+			:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
+			:give("animation", true)
+			:give("target_interactive", target_interactive)
+			:give("tween_dur", self.dur)
+			:give("on_click", 1, function()
+				if id == "cancel" then
+					self.world:emit("interact_cancelled", player, target_interactive)
+				else
+					self.world:emit("action_interacted_" .. id, target_interactive, player)
+				end
+			end)
+			:give("color_fade_in", self.dur, nil, function()
+				e:give("hoverable")
+				:give("clickable")
+			end)
 
-		e:remove("empty_action")
-		:assemble(UI.action, self.sheets[id])
-		:give("id", "action_" .. id)
-		:give("position", vec2:new(x, y))
-		:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
-		:give("animation", true)
-		:give("target_interactive", target_interactive)
-		:give("tween_dur", self.dur)
-		:give("on_click", 1, function()
-			if id == "cancel" then
-				self.world:emit("interact_cancelled", player, target_interactive)
-			else
-				self.world:emit("action_interacted_" .. id, target_interactive, player)
-			end
-		end)
-		:give("color_fade_in", self.dur, nil, function()
-			e:give("hoverable")
-			:give("clickable")
-		end)
-
-		i = i + 1
-		self.current = self.current + 1
+			i = i + 1
+			self.current = self.current + 1
+		end
 	end
 
 	self.world:emit("sort_z")

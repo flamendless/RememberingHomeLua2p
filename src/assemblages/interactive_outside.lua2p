@@ -9,6 +9,7 @@ function InteractiveOutside.interactive_car(e, font)
 	:give("notify", "question_mark")
 	:give("action_eye")
 	:give("action_hand")
+	:give("action_bag") --TODO remove
 	:give("action_cancel")
 end
 

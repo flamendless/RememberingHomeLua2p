@@ -1,11 +1,15 @@
+local Palette = require("palette")
+
 local Items = {}
 
 local function item(e)
 	e:give("item")
-	:give("ui_element")
-	:give("layer", "inventory", 0)
 	:give("hoverable")
 	:give("clickable")
+	:give("color", Palette.get("item_default", 0))
+	:give("hidden")
+	:give("ui_element")
+	:give("camera")
 end
 
 function Items.backdoor_key(e, sprite)

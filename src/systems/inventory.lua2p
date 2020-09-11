@@ -1,14 +1,45 @@
 local Concord = require("modules.concord.concord")
 
+local ScreenInfo = require("screen_info")
+
+local floor = math.floor
+
 local Inventory = Concord.system({
 	pool = {"id", "item"}
 })
 
+local scale = 1
+local item_size = vec2:new(64 * scale, 64 * scale)
+
 function Inventory:init(world)
 	self.world = world
+
+	self.dur_show = 0.5
+	self.offset = 64
+	self.max_size = 3
+
+	self.pool.onEntityAdded = function(pool, e)
+		local base_x = ScreenInfo.ww * 0.7
+		local base_y = ScreenInfo.hh * 0.5
+		local p = #pool - 1
+		local i = p % self.max_size
+		local j = floor(p/self.max_size)
+		local x = base_x + (self.offset * scale * i)
+		local y = base_y + (self.offset * scale * j)
+		local pos = vec2:new(x, y)
+
+		e:give("position", pos)
+		:give("bounding_box", pos:copy(), item_size:copy())
+		:give("layer", "inventory", 0)
+		:give("transform", 0, scale, scale, 0.5, 0.5)
+	end
 end
 
 function Inventory:action_interacted_bag(target_interactive, player)
+	for _, e in ipairs(self.pool) do
+		e:remove("hidden")
+		:give("color_fade_in", self.dur_show)
+	end
 end
 
 return Inventory

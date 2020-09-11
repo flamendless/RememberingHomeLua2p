@@ -276,7 +276,7 @@ local selected_e
 local min_zoom, max_zoom = 1, 3
 local zoom_sheet = 1
 local zoom_preview = 1
-local is_open_preview = true
+local is_open_preview = false
 local frame_n = 0
 
 function Animation:draw_debug()

@@ -10,35 +10,36 @@ function Helper.get_offset(e)
 	!end
 
 	local transform = e.transform
-	local animation_data = e.animation_data
+	local anim_data = e.animation_data
 	local sprite = e.sprite
-
 	local ox = transform.ox
 	local oy = transform.oy
 
-	if animation_data then
+	if anim_data then
 		if transform.ox == 0.5 then
-			ox = animation_data.frame_width/2
+			ox = anim_data.frame_width/2
 		elseif transform.ox == 1 then
-			ox = animation_data.frame_width
+			ox = anim_data.frame_width
 		end
 
 		if transform.oy == 0.5 then
-			oy = animation_data.frame_height/2
+			oy = anim_data.frame_height/2
 		elseif transform.oy == 1 then
-			oy = animation_data.frame_height
+			oy = anim_data.frame_height
 		end
 	elseif sprite then
+		local spr = sprite.sprite
+
 		if transform.ox == 0.5 then
-			ox = sprite.sprite:getWidth()/2
+			ox = spr:getWidth()/2
 		elseif transform.ox == 1 then
-			ox = sprite.sprite:getWidth()
+			ox = spr:getWidth()
 		end
 
 		if transform.oy == 0.5 then
-			oy = sprite.sprite:getHeight()/2
+			oy = spr:getHeight()/2
 		elseif transform.oy == 1 then
-			oy = sprite.sprite:getHeight()
+			oy = spr:getHeight()
 		end
 	end
 

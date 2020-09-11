@@ -131,7 +131,8 @@ function Player.outside_house(e,
 		can_move, can_run)
 
 	!if not _RELEASE then
-	local pos = vec2:new(439, 270)
+	-- local pos = vec2:new(439, 270)
+	local pos = vec2:new(910, 270)
 	!else
 	local pos = vec2:new(910, 270)
 	!end
