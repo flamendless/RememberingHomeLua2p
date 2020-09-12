@@ -1,3 +1,4 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("item")
+Concord.component("inventory_open")

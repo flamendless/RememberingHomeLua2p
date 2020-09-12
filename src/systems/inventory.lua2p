@@ -16,14 +16,15 @@ function Inventory:init(world)
 
 	self.dur_show = 0.5
 	self.offset = 64
-	self.max_size = 3
+	self.cols = 3
+	self.rows = 3
 
 	self.pool.onEntityAdded = function(pool, e)
 		local base_x = ScreenInfo.ww * 0.7
 		local base_y = ScreenInfo.hh * 0.5
 		local p = #pool - 1
-		local i = p % self.max_size
-		local j = floor(p/self.max_size)
+		local i = p % self.cols
+		local j = floor(p/self.rows)
 		local x = base_x + (self.offset * scale * i)
 		local y = base_y + (self.offset * scale * j)
 		local pos = vec2:new(x, y)
@@ -36,9 +37,25 @@ function Inventory:init(world)
 end
 
 function Inventory:action_interacted_bag(target_interactive, player)
+	player:give("inventory_open")
+
 	for _, e in ipairs(self.pool) do
 		e:remove("hidden")
 		:give("color_fade_in", self.dur_show)
+	end
+end
+
+function Inventory:keypressed_back(player)
+	player:remove("inventory_open")
+
+	for i, e in ipairs(self.pool) do
+		e:give("color_fade_out", self.dur_show, nil, function()
+			e:give("hidden")
+
+			if i == #self.pool then
+				self.world:emit("closed_inventory")
+			end
+		end)
 	end
 end
 

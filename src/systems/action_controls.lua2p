@@ -186,6 +186,10 @@ function ActionControls:interact_cancelled()
 	self:hide_action_controls()
 end
 
+function ActionControls:closed_inventory()
+	self:toggle_action_controls(true)
+end
+
 function ActionControls:destroyed_dialogue()
 	self:toggle_action_controls(true)
 end

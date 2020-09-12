@@ -245,11 +245,17 @@ function PlayerController:keypressed(key)
 	elseif Inputs.is_pressed("ui_back", key) then
 		for _, e in ipairs(self.pool) do
 			local player = e.player
+			local interact = player.can_interact
 			local interactive = e.within_interactive
 			local in_dialogue = e.in_dialogue
+			local in_inventory = e.inventory_open
 
-			if not player.can_interact and not in_dialogue then
+			if not interact and not in_dialogue and not in_inventory then
 				self.world:emit("interact_cancelled", e, interactive.interactive)
+			end
+
+			if not interact and not in_dialogue and in_inventory then
+				self.world:emit("keypressed_back", e)
 			end
 		end
 	end
