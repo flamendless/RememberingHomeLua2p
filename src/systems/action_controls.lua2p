@@ -1,12 +1,12 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
+local UI = require("assemblages.ui")
+
 local ActionControls = Concord.system({
 	pool_empty = {"empty_action"},
 	pool_actions = {"id", "tween_dur", "on_click", "color", "bounding_box"},
 })
-
-local Palette = require("palette")
-local UI = require("assemblages.ui")
 
 !(
 local dist = 32

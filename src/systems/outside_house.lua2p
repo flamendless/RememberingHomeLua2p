@@ -85,6 +85,7 @@ function OutsideHouse:action_interacted_hand(target_interactive, player)
 			local save_bd = "backdoor_locked"
 
 			if Save.data[save_bd] then
+				-- TODO
 				-- do puzzle here to unlock the door
 				-- after:
 				-- Save.toggle_flag(save_bd, true)

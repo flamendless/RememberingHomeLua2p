@@ -58,7 +58,7 @@ function UI.ui_text_paint(e, id, text, font, pos)
 	e:assemble(UI.ui_text, text, font, pos)
 	:give("text_with_paint", id)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("task", "flash", Palette.get("ui_feedback"))
+	:give("task", Palette.get("ui_feedback"))
 end
 
 function UI.dialogue_text(e, id, text, font, pos)

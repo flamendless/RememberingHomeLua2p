@@ -15,8 +15,7 @@ function Notification:init(world)
 	self.current = 1
 
 	for i = 1, self.max_pool do
-		local e = Concord.entity(self.world)
-			:give("empty_notification")
+		local e = Concord.entity(self.world):give("empty_notification")
 	end
 
 	self.pool.onEntityAdded = function(pool, e)

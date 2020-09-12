@@ -154,10 +154,7 @@ function Color:start_fade()
 		local ease = e.ease
 
 		local f = Flux.to(color.color, fade.duration, {
-				[1] = 0,
-				[2] = 0,
-				[3] = 0,
-				[4] = 0,
+				[1] = 0, [2] = 0, [3] = 0, [4] = 0
 			})
 			:delay(fade.delay)
 

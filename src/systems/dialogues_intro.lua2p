@@ -60,8 +60,7 @@ function DialogueIntro:start_dialogue(id, timeline, dur_in, dur_out)
 
 	e:give("color_fade_in", dur_in, nil, function()
 		e:give("color_fade_out", dur_out, nil, function()
-			e:give("hidden")
-			e:destroy()
+			e:give("hidden"):destroy()
 			d.current = d.current + 1
 			self:start_dialogue(id, timeline, dur_in, dur_out)
 		end)
