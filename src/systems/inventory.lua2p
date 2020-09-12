@@ -1,21 +1,29 @@
 local Concord = require("modules.concord.concord")
 
+local Palette = require("palette")
 local ScreenInfo = require("screen_info")
 
 local floor = math.floor
 
 local Inventory = Concord.system({
-	pool = {"id", "item"}
+	pool = {"id", "item"},
 })
 
 local scale = 1
-local item_size = vec2:new(64 * scale, 64 * scale)
+local w, h = 64, 64
+local item_size = vec2:new(w * scale, h * scale)
+
+local line_width = 2
+local color_bg = Palette.get("inventory_bg")
+local color_bg_hovered = Palette.get("inventory_bg_hovered")
+local color_outline = Palette.get("inventory_outline")
+local color_outline_hovered = Palette.get("inventory_outline_hovered")
 
 function Inventory:init(world)
 	self.world = world
 
 	self.dur_show = 0.5
-	self.offset = 64
+	self.offset = 72
 	self.cols = 3
 	self.rows = 3
 
@@ -56,6 +64,54 @@ function Inventory:keypressed_back(player)
 				self.world:emit("closed_inventory")
 			end
 		end)
+	end
+end
+
+function Inventory:draw_ui()
+	for _, e in ipairs(self.pool) do
+		if not e.hidden then
+			local hoverable = e.hoverable
+			local transform = e.transform
+			local bbox = e.bounding_box
+			local a = e.color.color[4]
+			local size = bbox.size
+
+			local x, y = bbox.screen_pos:unpack()
+
+			if transform then
+				x = x - transform.ox * transform.sx
+				y = y - transform.oy * transform.sy
+			end
+
+			if hoverable.is_hovered then
+				love.graphics.setColor(
+					color_bg_hovered[1],
+					color_bg_hovered[2],
+					color_bg_hovered[3], a * 0.5)
+			else
+				love.graphics.setColor(
+					color_bg[1],
+					color_bg[2],
+					color_bg[3], a * 0.5)
+			end
+
+			love.graphics.rectangle("fill", x, y, size.x, size.y)
+
+			if hoverable.is_hovered then
+				love.graphics.setColor(
+					color_outline_hovered[1],
+					color_outline_hovered[2],
+					color_outline_hovered[3], a)
+			else
+				love.graphics.setColor(
+					color_outline[1],
+					color_outline[2],
+					color_outline[3], a)
+			end
+
+			love.graphics.setLineWidth(line_width)
+			love.graphics.rectangle("line", x, y, size.x, size.y)
+		end
 	end
 end
 

@@ -16,3 +16,11 @@ end)
 Concord.component("spawn_point_question_mark", function(c)
 	c.pos = vec2:new()
 end)
+
+Concord.component("size", function(c, size)
+	!if _ASSERT then
+	Assert.is(size, Types.T_VEC2)
+	!end
+
+	c.size = size
+end)
