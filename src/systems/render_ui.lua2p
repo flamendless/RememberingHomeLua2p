@@ -59,10 +59,12 @@ function RenderUI:draw_ui()
 	end
 
 	for _, t in ipairs(self.layers) do
-		for _, e in ipairs(t) do
+		for i, e in ipairs(t) do
 			local text = e.text
 			local stext = e.static_text
 			local sprite = e.sprite
+
+			self.world:emit("draw_ui_layer_ex", i)
 
 			if sprite then
 				self.world:emit("draw_sprite_ex", e)

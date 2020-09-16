@@ -29,10 +29,8 @@ Palette.colors = {
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 
 	item_default = !(rgb_to_love("#ffffff")),
-	inventory_bg = !(rgb_to_love("#333333")),
-	inventory_bg_hovered = !(rgb_to_love("#555555")),
-	inventory_outline = !(rgb_to_love("#888888")),
-	inventory_outline_hovered = !(rgb_to_love("#aaaaaa")),
+	item_outline = !(rgb_to_love("#888888")),
+	item_outline_hovered = !(rgb_to_love("#aaaaaa")),
 
 	firefly_start = {0.988235294, 0.823529412, 0.443137255, 0.8},
 	firefly_end = {0.968627451, 0.552941176, 0.247058824, 0.8},

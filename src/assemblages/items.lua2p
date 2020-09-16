@@ -6,16 +6,26 @@ local function item(e)
 	e:give("item")
 	:give("hoverable")
 	:give("clickable")
-	:give("color", Palette.get("item_default", 0))
+	:give("color", Palette.get("white", 0))
 	:give("hidden")
 	:give("ui_element")
 	:give("camera")
 end
 
-function Items.backdoor_key(e, sprite)
+function Items.backdoor_key(e, sprite, bg_sprite)
 	e:assemble(item)
 	:give("id", "item_backdoor_key")
 	:give("sprite", sprite)
+end
+
+function Items.inventory_bg(e, sprite)
+	e:give("id", "inventory_bg")
+	:give("sprite", sprite)
+	:give("color", Palette.get("white", 0))
+	:give("hidden")
+	:give("ui_element")
+	:give("inventory_bg")
+	-- :give("fade_in_target_alpha", 0.9)
 end
 
 return Items

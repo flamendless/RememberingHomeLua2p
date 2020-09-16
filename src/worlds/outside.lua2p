@@ -262,6 +262,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	self.entities.backdoor_key5 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.world:emit("create_inventory_cell", res_images.inventory_bg)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
@@ -602,6 +603,8 @@ function StateOutside:keypressed(key)
 	!if not _RELEASE then
 	if key == "space" then
 		self.timeline:Unpause()
+	elseif key == "i" then
+		self.world:emit("action_interacted_bag", self.entities.interactive_car, self.entities.player)
 	end
 	!end
 

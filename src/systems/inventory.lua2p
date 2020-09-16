@@ -7,17 +7,18 @@ local floor = math.floor
 
 local Inventory = Concord.system({
 	pool = {"id", "item"},
+	pool_bg = {"id", "sprite", "inventory_bg"}
 })
 
-local scale = 1
-local w, h = 64, 64
-local item_size = vec2:new(w * scale, h * scale)
+local Items = require("assemblages.items")
 
-local line_width = 2
-local color_bg = Palette.get("inventory_bg")
-local color_bg_hovered = Palette.get("inventory_bg_hovered")
-local color_outline = Palette.get("inventory_outline")
-local color_outline_hovered = Palette.get("inventory_outline_hovered")
+local scale = 1
+local img_w, img_h = 64, 64
+local item_size = vec2:new(img_w * scale, img_h * scale)
+
+local line_width = 3
+local color_outline = Palette.get("item_outline")
+local color_outline_hovered = Palette.get("item_outline_hovered")
 
 function Inventory:init(world)
 	self.world = world
@@ -39,8 +40,20 @@ function Inventory:init(world)
 
 		e:give("position", pos)
 		:give("bounding_box", pos:copy(), item_size:copy())
-		:give("layer", "inventory", 0)
+		:give("layer", "inventory", 3)
 		:give("transform", 0, scale, scale, 0.5, 0.5)
+	end
+end
+
+function Inventory:create_inventory_cell(sprite)
+	for i = 1, self.rows + self.cols do
+		local e = self.pool[i]
+		local pos = e.position.pos
+		local e_bg = Concord.entity(self.world)
+			:assemble(Items.inventory_bg, sprite)
+			:give("position", pos:copy())
+			:give("transform", 0, 1.25, 1.25, 0.5, 0.5)
+			:give("layer", "inventory", 1)
 	end
 end
 
@@ -48,6 +61,11 @@ function Inventory:action_interacted_bag(target_interactive, player)
 	player:give("inventory_open")
 
 	for _, e in ipairs(self.pool) do
+		e:remove("hidden")
+		:give("color_fade_in", self.dur_show)
+	end
+
+	for _, e in ipairs(self.pool_bg) do
 		e:remove("hidden")
 		:give("color_fade_in", self.dur_show)
 	end
@@ -65,37 +83,30 @@ function Inventory:keypressed_back(player)
 			end
 		end)
 	end
+
+	for _, e in ipairs(self.pool_bg) do
+		e:give("color_fade_out", self.dur_show, nil, function()
+			e:give("hidden")
+		end)
+	end
 end
 
-function Inventory:draw_ui()
+function Inventory:draw_ui_layer_ex(layer_n)
+	if not (layer_n == 2) then return end
+
 	for _, e in ipairs(self.pool) do
 		if not e.hidden then
 			local hoverable = e.hoverable
 			local transform = e.transform
 			local bbox = e.bounding_box
 			local a = e.color.color[4]
-			local size = bbox.size
-
 			local x, y = bbox.screen_pos:unpack()
+			local w, h = bbox.size:unpack()
 
 			if transform then
 				x = x - transform.ox * transform.sx
 				y = y - transform.oy * transform.sy
 			end
-
-			if hoverable.is_hovered then
-				love.graphics.setColor(
-					color_bg_hovered[1],
-					color_bg_hovered[2],
-					color_bg_hovered[3], a * 0.5)
-			else
-				love.graphics.setColor(
-					color_bg[1],
-					color_bg[2],
-					color_bg[3], a * 0.5)
-			end
-
-			love.graphics.rectangle("fill", x, y, size.x, size.y)
 
 			if hoverable.is_hovered then
 				love.graphics.setColor(
@@ -110,7 +121,7 @@ function Inventory:draw_ui()
 			end
 
 			love.graphics.setLineWidth(line_width)
-			love.graphics.rectangle("line", x, y, size.x, size.y)
+			love.graphics.rectangle("line", x, y, w, h)
 		end
 	end
 end
