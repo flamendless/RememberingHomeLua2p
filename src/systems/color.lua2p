@@ -8,6 +8,7 @@ local Color = Concord.system({
 	pool_fade_out = {"color", "color_fade_out"},
 	pool_colors = {"color", "lerp_colors"},
 	pool_color = {"color", "target_color"},
+	pool = {"color", "id"},
 })
 
 local function lerp_colors(lc, color)
@@ -44,10 +45,18 @@ end
 
 function Color:init()
 	self.pool_fade_in.onEntityAdded = function(pool, e)
-		local f = Flux.to(e.color.color, e.color_fade_in.duration, {[4] = 1})
-			:delay(e.color_fade_in.delay)
+		local c = e.color_fade_in
+		local f_in = e.fade_in_target_alpha
+		local target = 1
+
+		if f_in then
+			target = f_in.alpha
+		end
+
+		local f = Flux.to(e.color.color, c.duration, {[4] = target})
+			:delay(c.delay)
 			:oncomplete(function()
-				local on_complete = e.color_fade_in.on_complete
+				local on_complete = c.on_complete
 
 				if on_complete then
 					on_complete()

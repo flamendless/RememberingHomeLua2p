@@ -7,6 +7,7 @@ local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
 
 local insert = table.insert
+local remove = table.remove
 local getFPS = love.timer.getFPS
 
 local Debugging = Concord.system({
@@ -20,8 +21,6 @@ local font = love.graphics.getFont()
 
 function Debugging:init(world)
 	self.world = world
-	self.ent_count = 0
-	self.ent_id_count = 0
 	self.ps = {}
 	self.ps_count = 0
 	self.ref_id = {}
@@ -36,14 +35,6 @@ function Debugging:init(world)
 
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
-	self.pool.onEntityAdded = function(pool, e)
-		self.ent_count = self.ent_count + 1
-	end
-
-	self.pool.onEntityRemoved = function(pool, e)
-		self.ent_count = self.ent_count - 1
-	end
-
 	self.pool_id.onEntityAdded = function(pool, e)
 		local id = e.id
 
@@ -56,17 +47,25 @@ function Debugging:init(world)
 			else
 				self.ref_id[id.id] = 1
 			end
-
-			self.ent_id_count = self.ent_id_count + 1
 		end
 
 		Log.info("Added entity: " .. id.id)
 	end
 
 	self.pool_id.onEntityRemoved = function(pool, e)
-		self.ent_id_count = self.ent_id_count - 1
-		self.ref_id[e.id.id] = nil
-		Log.info("Removed entity: " .. e.id.id)
+		local id = e.id and e.id.id
+
+		if id then
+			self.ref_id[e.id.id] = nil
+		else
+			for i = #pool, 1, -1 do
+				if e == pool[i] then
+					remove(self.ref_id, i)
+				end
+			end
+		end
+
+		Log.info("Removed entity: " .. (id or tostring(e)))
 	end
 end
 
@@ -131,8 +130,8 @@ function Debugging:draw_slab()
 	Slab.EndWindow()
 
 	views.ent_count = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = views.ent_count})
-	Slab.Text("# of entities: " .. self.ent_count)
-	Slab.Text("# of entities with id: " .. self.ent_id_count)
+	Slab.Text("# of entities: " .. #self.pool)
+	Slab.Text("# of entities with id: " .. #self.pool_id)
 
 	if Slab.Button("View List") then
 		self.is_open_list = true
@@ -208,7 +207,6 @@ function Debugging:keypressed(key)
 end
 
 function Debugging:cleanup()
-	self.ent_count = 0
 	self.ps_count = 0
 
 	for i, ps in ipairs(self.ps) do

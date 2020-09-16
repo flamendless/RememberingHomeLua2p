@@ -82,3 +82,11 @@ Concord.component("color_fade_out", function(c, duration, delay, on_complete)
 	c.delay = delay or 0
 	c.on_complete = on_complete
 end)
+
+Concord.component("fade_in_target_alpha", function(c, alpha)
+	!if _ASSERT then
+	Assert.must(alpha, Types.T_NUMBER)
+	!end
+
+	c.alpha = alpha
+end)

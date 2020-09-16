@@ -25,6 +25,7 @@ function Notification:init(world)
 	self.pool.onEntityRemoved = function(pool, e)
 		self.current = self.current - 1
 		e:give("empty_notification")
+		:remove("id")
 	end
 end
 

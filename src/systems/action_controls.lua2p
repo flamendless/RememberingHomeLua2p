@@ -47,6 +47,7 @@ function ActionControls:init(world)
 	self.pool_actions.onEntityRemoved = function(pool, e)
 		self.current = self.current - 1
 		e:give("empty_action")
+		:remove("id")
 	end
 end
 
