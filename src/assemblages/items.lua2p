@@ -25,7 +25,6 @@ function Items.inventory_bg(e, sprite)
 	:give("hidden")
 	:give("ui_element")
 	:give("inventory_bg")
-	-- :give("fade_in_target_alpha", 0.9)
 end
 
 return Items

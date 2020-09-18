@@ -111,6 +111,7 @@ function Debugging:debugging_draw(l, t, w, h)
 
 	love.graphics.push()
 	love.graphics.origin()
+	love.graphics.setLineWidth(1)
 	self.world:emit("debug_draw_ui")
 	love.graphics.pop()
 

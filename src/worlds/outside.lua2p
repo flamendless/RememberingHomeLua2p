@@ -262,7 +262,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	self.entities.backdoor_key5 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.world:emit("create_inventory_cell", res_images.inventory_bg)
+	self.world:emit("create_inventory_cell", res_images.bg_item, res_images.bg_desc)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
@@ -595,6 +595,7 @@ function StateOutside:mousepressed(mx, my, mb)
 	local cx, cy = self.camera:toWorld(mx, my)
 
 	self.world:emit("mousepressed", cx, cy, mb)
+	self.world:emit("mousepressed_ui", mx, my, mb)
 end
 
 function StateOutside:keypressed(key)

@@ -112,7 +112,8 @@ Resources.data.outside = {
 		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
 		{"question_mark", path_ui .. "question_mark.png"},
 		{"backdoor_key", path_items .. "backdoor_key.png"},
-		{"inventory_bg", path_items .. "inventory_bg.png"},
+		{"bg_item", path_items .. "bg_item.png"},
+		{"bg_desc", path_items .. "bg_desc.png"},
 	},
 
 	image_data = {
