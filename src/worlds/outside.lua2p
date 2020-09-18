@@ -250,19 +250,12 @@ function StateOutside:start()
 	self.world:emit("debug_camera", self.camera)
 	!end
 
+	self.world:emit("create_inventory_cell",
+		res_images.bg_item,
+		res_images.bg_desc,
+		res_fonts.item_desc)
 	self.entities.backdoor_key = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key1 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key2 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key3 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key4 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key5 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.world:emit("create_inventory_cell", res_images.bg_item, res_images.bg_desc)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)

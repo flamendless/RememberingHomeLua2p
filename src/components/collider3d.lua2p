@@ -3,8 +3,7 @@ local Enum = require("modules.enum.enum")
 
 local filters = Enum("slide", "cross", "bounce")
 
-Concord.component("bump3d", function(c)
-end)
+Concord.component("bump3d")
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then

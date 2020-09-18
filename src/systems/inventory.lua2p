@@ -7,7 +7,8 @@ local floor = math.floor
 
 local Inventory = Concord.system({
 	pool = {"id", "item"},
-	pool_bg = {"id", "sprite", "inventory_bg"}
+	pool_cell = {"id", "sprite", "inventory_cell"},
+	pool_desc = {"id", "sprite", "inventory_desc"},
 })
 
 local Items = require("assemblages.items")
@@ -29,14 +30,7 @@ function Inventory:init(world)
 	self.rows = 3
 
 	self.pool.onEntityAdded = function(pool, e)
-		local base_x = ScreenInfo.ww * 0.7
-		local base_y = ScreenInfo.hh * 0.25
-		local p = #pool - 1
-		local i = p % self.cols
-		local j = floor(p/self.rows)
-		local x = base_x + (self.offset * scale * i)
-		local y = base_y + (self.offset * scale * j)
-		local pos = vec2:new(x, y)
+		local pos = self.pool_cell[#pool].position.pos:copy()
 
 		e:give("position", pos)
 		:give("bounding_box", pos:copy(), item_size:copy())
@@ -46,25 +40,70 @@ function Inventory:init(world)
 			self.world:emit("item_clicked", e)
 		end)
 	end
+
+	!if not _RELEASE and _ASSERT then
+	self.pool_desc.onEntityAdded = function(pool, e)
+		if #pool > 1 then error("There should only be one inventory_desc") end
+	end
+	!end
+end
+
+function Inventory:create_inventory_cell(spr_item, spr_desc, font)
+	local limit = self.rows + self.cols
+	local last_pos
+
+	for n = 1, limit do
+		local base_x = ScreenInfo.ww * 0.7
+		local base_y = ScreenInfo.hh * 0.25
+		local p = n - 1
+		local i = p % self.cols
+		local j = floor(p/self.rows)
+		local x = base_x + (self.offset * scale * i)
+		local y = base_y + (self.offset * scale * j)
+		local pos = vec2:new(x, y)
+
+		local bg_scale = scale + 0.25
+		local ox, oy = 0.5, 0.5
+		local e_cell = Concord.entity(self.world)
+			:assemble(Items.inventory_cell, spr_item)
+			:give("position", pos:copy())
+			:give("transform", 0, bg_scale, bg_scale, ox, oy)
+			:give("layer", "inventory", 1)
+
+		if n == limit - 1 then
+			local sprite = spr_item
+			local lx = pos.x
+			local ly = pos.y + (oy * 2 * sprite:getHeight() * bg_scale) + 32
+
+			last_pos = vec2:new(lx, ly)
+		end
+	end
+
+	local e_desc_bg = Concord.entity(self.world)
+		:assemble(Items.inventory_desc, spr_desc)
+		:give("position", last_pos)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("text", "")
+		:give("textf", spr_desc:getWidth(), "center")
+		:give("font", font)
 end
 
 function Inventory:item_clicked(e)
 	local id = e.id.id
-
 	print("item_clicked", id)
 end
 
-function Inventory:create_inventory_cell(spr_item, spr_desc)
-	for i = 1, self.rows + self.cols do
-		local e = self.pool[i]
-		local pos = e.position.pos
-		local bg_scale = scale + 0.25
-		local e_bg = Concord.entity(self.world)
-			:assemble(Items.inventory_bg, spr_item)
-			:give("position", pos:copy())
-			:give("transform", 0, bg_scale, bg_scale, 0.5, 0.5)
-			:give("layer", "inventory", 1)
-	end
+function Inventory:mouse_hovered_item(e)
+	local desc = e.item.desc
+	local e_desc_text = self.pool_desc[1].text
+
+	e_desc_text.text = desc
+end
+
+function Inventory:mouse_unhovered_item(e)
+	local e_desc_text = self.pool_desc[1].text
+
+	e_desc_text.text = ""
 end
 
 function Inventory:action_interacted_bag(target_interactive, player)
@@ -75,10 +114,14 @@ function Inventory:action_interacted_bag(target_interactive, player)
 		:give("color_fade_in", self.dur_show)
 	end
 
-	for _, e in ipairs(self.pool_bg) do
+	for _, e in ipairs(self.pool_cell) do
 		e:remove("hidden")
 		:give("color_fade_in", self.dur_show)
 	end
+
+	local e_desc = self.pool_desc[1]
+		:remove("hidden")
+		:give("color_fade_in", self.dur_show)
 end
 
 function Inventory:keypressed_back(player)
@@ -94,11 +137,17 @@ function Inventory:keypressed_back(player)
 		end)
 	end
 
-	for _, e in ipairs(self.pool_bg) do
+	for _, e in ipairs(self.pool_cell) do
 		e:give("color_fade_out", self.dur_show, nil, function()
 			e:give("hidden")
 		end)
 	end
+
+	local e_desc
+	e_desc = self.pool_desc[1]
+		:give("color_fade_out", self.dur_show, nil, function()
+			e_desc:give("hidden")
+		end)
 end
 
 function Inventory:draw_ui_layer_ex(layer_n)

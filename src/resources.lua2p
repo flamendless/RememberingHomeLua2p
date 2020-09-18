@@ -124,6 +124,7 @@ Resources.data.outside = {
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
 	},
 }
 
