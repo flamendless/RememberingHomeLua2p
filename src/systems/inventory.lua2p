@@ -120,6 +120,9 @@ function Inventory:action_interacted_bag(target_interactive, player)
 	local e_desc = self.pool_desc[1]
 		:remove("hidden")
 		:give("color_fade_in", self.dur_show)
+
+	local second_e = self.pool_cell[2]
+	self.world:emit("displayed_inventory", player, second_e, self.dur_show)
 end
 
 function Inventory:keypressed_back(player)

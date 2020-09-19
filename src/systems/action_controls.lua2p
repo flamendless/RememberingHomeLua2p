@@ -63,6 +63,30 @@ function ActionControls:set_action_controls_resources(sheets)
 	self.sheets = sheets
 end
 
+function ActionControls:displayed_inventory(player, e, dur)
+	local base = e.position.pos
+	local sprite = e.sprite.sprite
+	local transform = e.transform
+	local x = base.x
+	local y = base.y - (transform.oy * 2 * sprite:getHeight() * transform.sy)
+	local pos = vec2:new(x, y)
+	local scale = 0.75
+
+	self.btn_close = Concord.entity(self.world)
+		:assemble(UI.inventory_close, self.sheets.cancel, scale)
+		:give("position", pos)
+		:give("color_fade_in", dur, nil, function()
+			self.btn_close:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("keypressed_back", player)
+			self.btn_close:remove("hoverable"):remove("clickable")
+				:give("color_fade_out", dur, nil, function()
+					self.btn_close:destroy()
+				end)
+		end)
+end
+
 function ActionControls:show_action_controls(player, target_interactive)
 	local i = 1
 	local actions = {
