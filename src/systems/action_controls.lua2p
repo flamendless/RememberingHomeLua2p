@@ -65,7 +65,6 @@ end
 
 function ActionControls:show_action_controls(player, target_interactive)
 	local i = 1
-	local ipos = target_interactive.position.pos
 	local actions = {
 		eye = target_interactive.action_eye,
 		hand = target_interactive.action_hand,
@@ -82,28 +81,30 @@ function ActionControls:show_action_controls(player, target_interactive)
 			local y = pspawn.y + off.y
 			local e = self.pool_empty[self.current]
 
-			e:remove("empty_action")
-			:assemble(UI.action, self.sheets[id])
-			:give("id", "action_" .. id)
-			:give("position", vec2:new(x, y))
-			:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
-			:give("animation", true)
-			:give("target_interactive", target_interactive)
-			:give("tween_dur", self.dur)
-			:give("on_click", 1, function()
-				if id == "cancel" then
-					self.world:emit("interact_cancelled", player, target_interactive)
-				else
-					self.world:emit("action_interacted_" .. id, target_interactive, player)
-				end
-			end)
-			:give("color_fade_in", self.dur, nil, function()
-				e:give("hoverable")
-				:give("clickable")
-			end)
+			if e then
+				e:remove("empty_action")
+				:assemble(UI.action, self.sheets[id])
+				:give("id", "action_" .. id)
+				:give("position", vec2:new(x, y))
+				:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
+				:give("animation", true)
+				:give("target_interactive", target_interactive)
+				:give("tween_dur", self.dur)
+				:give("on_click", 1, function()
+					if id == "cancel" then
+						self.world:emit("interact_cancelled", player, target_interactive)
+					else
+						self.world:emit("action_interacted_" .. id, target_interactive, player)
+					end
+				end)
+				:give("color_fade_in", self.dur, nil, function()
+					e:give("hoverable")
+					:give("clickable")
+				end)
 
-			i = i + 1
-			self.current = self.current + 1
+				i = i + 1
+				self.current = self.current + 1
+			end
 		end
 	end
 
@@ -191,14 +192,8 @@ function ActionControls:closed_inventory()
 	self:toggle_action_controls(true)
 end
 
-function ActionControls:destroyed_dialogue()
+function ActionControls:destroyed_dialogue(id)
 	self:toggle_action_controls(true)
-end
-
-function ActionControls:fading_out_dialogue()
-	for _, e in ipairs(self.pool_actions) do
-		e:give("color_fade_in", e.tween_dur.dur)
-	end
 end
 
 return ActionControls

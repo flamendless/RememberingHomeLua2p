@@ -23,7 +23,6 @@ local color_outline_hovered = Palette.get("item_outline_hovered")
 
 function Inventory:init(world)
 	self.world = world
-
 	self.dur_show = 0.5
 	self.offset = 108
 	self.cols = 3
@@ -61,7 +60,6 @@ function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 		local x = base_x + (self.offset * scale * i)
 		local y = base_y + (self.offset * scale * j)
 		local pos = vec2:new(x, y)
-
 		local bg_scale = scale + 0.25
 		local ox, oy = 0.5, 0.5
 		local e_cell = Concord.entity(self.world)
@@ -143,11 +141,10 @@ function Inventory:keypressed_back(player)
 		end)
 	end
 
-	local e_desc
-	e_desc = self.pool_desc[1]
-		:give("color_fade_out", self.dur_show, nil, function()
-			e_desc:give("hidden")
-		end)
+	local e_desc = self.pool_desc[1]
+	e_desc:give("color_fade_out", self.dur_show, nil, function()
+		e_desc:give("hidden")
+	end)
 end
 
 function Inventory:draw_ui_layer_ex(layer_n)
