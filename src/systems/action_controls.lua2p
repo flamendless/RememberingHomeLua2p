@@ -89,23 +89,39 @@ function ActionControls:displayed_inventory(player, e, dur)
 		end)
 end
 
-function ActionControls:item_clicked(e, dur)
+function ActionControls:item_clicked(e, e_desc, dur)
+	local scale = 0.75
+	local pos_desc = e_desc.position.pos
+	local spr_w, spr_h = e_desc.sprite.sprite:getDimensions()
+	local transform = e_desc.transform
+	local y = pos_desc.y + transform.ox * spr_h
+	local pos_use = vec2:new(pos_desc.x - transform.ox * spr_w, y)
+	local pos_combine = vec2:new(pos_desc.x + transform.ox * spr_w, y)
+
 	self.btn_use = Concord.entity(self.world)
 		:assemble(UI.inventory_button, "use", self.sheets.use, scale)
 		:give("position", pos_use)
+		:give("transform", 0, scale, scale, 0, 0)
+		:give("tween_dur", dur)
 		:give("color_fade_in", dur, nil, function()
-			self.btn_close:give("hoverable"):give("clickable")
+			self.btn_use:give("hoverable"):give("clickable")
 		end)
+		:remove("hover_change_scale")
 
 	self.btn_combine = Concord.entity(self.world)
 		:assemble(UI.inventory_button, "combine", self.sheets.combine, scale)
 		:give("position", pos_combine)
+		:give("transform", 0, scale, scale, 1, 0)
+		:give("tween_dur", dur)
 		:give("color_fade_in", dur, nil, function()
-			self.btn_close:give("hoverable"):give("clickable")
+			self.btn_combine:give("hoverable"):give("clickable")
 		end)
+		:remove("hover_change_scale")
 end
 
 function ActionControls:keypressed_back()
+	local dur = self.btn_use.tween_dur.dur
+
 	self.btn_use:remove("hoverable"):remove("clickable")
 		:give("color_fade_out", dur, nil, function()
 			self.btn_use:destroy()
