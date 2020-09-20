@@ -88,7 +88,27 @@ end
 
 function Inventory:item_clicked(e)
 	local id = e.id.id
+
+	for _, e2 in ipairs(self.pool) do
+		if e == e2 then
+			e:give("clicked")
+			break
+		else
+			e2:remove("clicked")
+		end
+	end
+
 	print("item_clicked", id)
+end
+
+function Inventory:clicked_inventory_use(e)
+	local id = e.id.id
+	print("used " .. id)
+end
+
+function Inventory:clicked_inventory_combine(e)
+	local id = e.id.id
+	print("combine " .. id)
 end
 
 function Inventory:mouse_hovered_item(e)
@@ -101,7 +121,9 @@ end
 function Inventory:mouse_unhovered_item(e)
 	local e_desc_text = self.pool_desc[1].text
 
-	e_desc_text.text = ""
+	if not e.clicked then
+		e_desc_text.text = ""
+	end
 end
 
 function Inventory:action_interacted_bag(target_interactive, player)
@@ -120,6 +142,7 @@ function Inventory:action_interacted_bag(target_interactive, player)
 	local e_desc = self.pool_desc[1]
 		:remove("hidden")
 		:give("color_fade_in", self.dur_show)
+	e_desc.text.text = ""
 
 	local second_e = self.pool_cell[2]
 	self.world:emit("displayed_inventory", player, second_e, self.dur_show)
@@ -131,6 +154,7 @@ function Inventory:keypressed_back(player)
 	for i, e in ipairs(self.pool) do
 		e:give("color_fade_out", self.dur_show, nil, function()
 			e:give("hidden")
+			:remove("clicked")
 
 			if i == #self.pool then
 				self.world:emit("closed_inventory")
@@ -156,6 +180,7 @@ function Inventory:draw_ui_layer_ex(layer_n)
 	for _, e in ipairs(self.pool) do
 		if not e.hidden then
 			local hoverable = e.hoverable
+			local clicked = e.clicked
 			local transform = e.transform
 			local bbox = e.bounding_box
 			local a = e.color.color[4]
@@ -167,7 +192,7 @@ function Inventory:draw_ui_layer_ex(layer_n)
 				y = y - transform.oy * transform.sy
 			end
 
-			if hoverable.is_hovered then
+			if clicked or hoverable.is_hovered then
 				love.graphics.setColor(
 					color_outline_hovered[1],
 					color_outline_hovered[2],
