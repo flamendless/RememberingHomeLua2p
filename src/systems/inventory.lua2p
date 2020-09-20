@@ -27,17 +27,28 @@ function Inventory:init(world)
 	self.offset = 108
 	self.cols = 3
 	self.rows = 3
+	self.current_n = 0
+	self.actions_active = false
 
 	self.pool.onEntityAdded = function(pool, e)
 		local pos = self.pool_cell[#pool].position.pos:copy()
+		self.current_n = self.current_n + 1
 
 		e:give("position", pos)
 		:give("bounding_box", pos:copy(), item_size:copy())
 		:give("layer", "inventory", 3)
 		:give("transform", 0, scale, scale, 0.5, 0.5)
 		:give("on_click", 1, function()
-			self.world:emit("item_clicked", e, self.pool_desc[1], self.dur_show)
+			if not self.actions_active then
+				self.world:emit("item_clicked", e, self.dur_show)
+				self.actions_active = true
+			end
 		end)
+		:give("inventory_slot_number", self.current_n)
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		self.current_n = self.current_n - 1
 	end
 
 	!if not _RELEASE and _ASSERT then
@@ -111,6 +122,15 @@ function Inventory:clicked_inventory_combine(e)
 	print("combine " .. id)
 end
 
+function Inventory:clicked_inventory_back(e)
+	local id = e.id.id
+	print("back " .. id)
+
+	self.actions_active = false
+	self.pool_desc[1].text.text = ""
+	for _, e in ipairs(self.pool) do e:remove("clicked") end
+end
+
 function Inventory:mouse_hovered_item(e)
 	local desc = e.item.desc
 	local e_desc_text = self.pool_desc[1].text
@@ -121,7 +141,7 @@ end
 function Inventory:mouse_unhovered_item(e)
 	local e_desc_text = self.pool_desc[1].text
 
-	if not e.clicked then
+	if not self.actions_active then
 		e_desc_text.text = ""
 	end
 end
@@ -148,9 +168,7 @@ function Inventory:action_interacted_bag(target_interactive, player)
 	self.world:emit("displayed_inventory", player, second_e, self.dur_show)
 end
 
-function Inventory:keypressed_back(player)
-	player:remove("inventory_open")
-
+function Inventory:keypressed_back()
 	for i, e in ipairs(self.pool) do
 		e:give("color_fade_out", self.dur_show, nil, function()
 			e:give("hidden")

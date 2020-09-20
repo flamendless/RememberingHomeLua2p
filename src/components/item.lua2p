@@ -11,3 +11,11 @@ end)
 Concord.component("inventory_open")
 Concord.component("inventory_cell")
 Concord.component("inventory_desc")
+
+Concord.component("inventory_slot_number", function(c, slot)
+	!if _ASSERT then
+	Assert.must(slot, Types.T_NUMBER)
+	!end
+
+	c.slot = slot
+end)

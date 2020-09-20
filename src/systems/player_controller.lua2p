@@ -261,6 +261,12 @@ function PlayerController:keypressed(key)
 	end
 end
 
+function PlayerController:keypressed_back()
+	for _, e in ipairs(self.pool) do
+		e:remove("inventory_open")
+	end
+end
+
 !if _ASSERT then
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")

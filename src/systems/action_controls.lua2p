@@ -60,6 +60,7 @@ function ActionControls:set_action_controls_resources(sheets)
 	Assert.exists(sheets.cancel)
 	Assert.exists(sheets.use)
 	Assert.exists(sheets.combine)
+	Assert.exists(sheets.back)
 	!end
 
 	self.sheets = sheets
@@ -81,7 +82,7 @@ function ActionControls:displayed_inventory(player, e, dur)
 			self.btn_close:give("hoverable"):give("clickable")
 		end)
 		:give("on_click", 1, function()
-			self.world:emit("keypressed_back", player)
+			self.world:emit("keypressed_back")
 			self.btn_close:remove("hoverable"):remove("clickable")
 				:give("color_fade_out", dur, nil, function()
 					self.btn_close:destroy()
@@ -89,20 +90,27 @@ function ActionControls:displayed_inventory(player, e, dur)
 		end)
 end
 
-function ActionControls:item_clicked(e, e_desc, dur)
+function ActionControls:item_clicked(e, dur)
 	local scale = 0.75
-	local pos_desc = e_desc.position.pos
-	local spr_w, spr_h = e_desc.sprite.sprite:getDimensions()
-	local transform = e_desc.transform
-	local y = pos_desc.y + transform.ox * spr_h
-	local pos_use = vec2:new(pos_desc.x - transform.ox * spr_w, y)
-	local pos_combine = vec2:new(pos_desc.x + transform.ox * spr_w, y)
+	local transform = e.transform
+	local spr_w, spr_h = e.sprite.sprite:getDimensions()
+	local slot = e.inventory_slot_number.slot
+	local dir = (slot == 3 or slot == 6) and -1 or 1
+	local ox = (slot == 3 or slot == 6) and 1 or 0
+	local oy = 0.5
+	local ix, iy = e.position.pos:unpack()
+	local x = ix + (spr_w * dir) * transform.sx * transform.oy
+	local pos_use = vec2:new(x, iy)
+
+	if self.btn_use then self.btn_use:destroy() end
+	if self.btn_combine then self.btn_combine:destroy() end
+	if self.btn_back then self.btn_back:destroy() end
 
 	self.btn_use = Concord.entity(self.world)
 		:assemble(UI.inventory_button, "use", self.sheets.use, scale)
 		:remove("hover_change_scale")
 		:give("position", pos_use)
-		:give("transform", 0, scale, scale, 0, 0)
+		:give("transform", 0, scale, scale, ox, oy)
 		:give("tween_dur", dur)
 		:give("color_fade_in", dur, nil, function()
 			self.btn_use:give("hoverable"):give("clickable")
@@ -111,17 +119,36 @@ function ActionControls:item_clicked(e, e_desc, dur)
 			self.world:emit("clicked_inventory_use", e)
 		end)
 
+	local frame_height = self.btn_use.animation_data.frame_height * scale
+	local pos_combine = vec2:new(x, iy + frame_height)
+
 	self.btn_combine = Concord.entity(self.world)
 		:assemble(UI.inventory_button, "combine", self.sheets.combine, scale)
 		:remove("hover_change_scale")
 		:give("position", pos_combine)
-		:give("transform", 0, scale, scale, 1, 0)
+		:give("transform", 0, scale, scale, ox, oy)
 		:give("tween_dur", dur)
 		:give("color_fade_in", dur, nil, function()
 			self.btn_combine:give("hoverable"):give("clickable")
 		end)
 		:give("on_click", 1, function()
 			self.world:emit("clicked_inventory_combine", e)
+		end)
+
+	local pos_back = vec2:new(x, iy + frame_height * 2)
+
+	self.btn_back = Concord.entity(self.world)
+		:assemble(UI.inventory_button, "back", self.sheets.back, scale)
+		:remove("hover_change_scale")
+		:give("position", pos_back)
+		:give("transform", 0, scale, scale, ox, oy)
+		:give("tween_dur", dur)
+		:give("color_fade_in", dur, nil, function()
+			self.btn_back:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("clicked_inventory_back", e)
+			self:keypressed_back()
 		end)
 end
 
@@ -136,6 +163,11 @@ function ActionControls:keypressed_back()
 	self.btn_combine:remove("hoverable"):remove("clickable")
 		:give("color_fade_out", dur, nil, function()
 			self.btn_combine:destroy()
+		end)
+
+	self.btn_back:remove("hoverable"):remove("clickable")
+		:give("color_fade_out", dur, nil, function()
+			self.btn_back:destroy()
 		end)
 end
 

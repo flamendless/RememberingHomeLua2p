@@ -236,8 +236,10 @@ function StateOutside:start()
 			cancel = res_images.sheet_ui_cancel,
 			use = res_images.sheet_ui_cancel,
 			combine = res_images.sheet_ui_cancel,
+			back = res_images.sheet_ui_cancel,
 			-- use = res_images.sheet_ui_use,
 			-- combine = res_images.sheet_ui_combine,
+			-- back = res_images.sheet_ui_back,
 		})
 	self.world:emit("set_notification_resources", {
 			question_mark = res_images.question_mark
@@ -259,6 +261,16 @@ function StateOutside:start()
 		res_images.bg_desc,
 		res_fonts.item_desc)
 	self.entities.backdoor_key = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key2 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key3 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key4 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key5 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key6 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.entities.bg_sky = Concord.entity(self.world)
