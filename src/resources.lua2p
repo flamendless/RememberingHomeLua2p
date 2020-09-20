@@ -63,7 +63,7 @@ Resources.data.intro = {
 		{"parallax_grass_front", path_images .. "intro/parallax_grass_front.png"},
 		{"sheet_car", path_images .. "intro/sheet_car.png"},
 		{"sheet_car_reflect", path_images .. "intro/sheet_car_reflect.png"},
-		{"sheet_paint", path_ui .. "sheet_paint.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
@@ -101,8 +101,9 @@ Resources.data.outside = {
 		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
 		{"rain_drop", path_images .. "rain/rain_drop.png"},
 		{"rain_drop2", path_images .. "rain/rain_drop2.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
-		{"sheet_dialogue", path_ui .. "sheet_dialogue.png"},
+		{"sheet_brush", path_ui .. "sheet_brush.png"},
 		{"sheet_dialogue_arrow", path_ui .. "sheet_dialogue_arrow.png"},
 		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
 		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
@@ -123,6 +124,7 @@ Resources.data.outside = {
 
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
 	},

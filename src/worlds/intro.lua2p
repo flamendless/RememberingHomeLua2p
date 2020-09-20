@@ -205,8 +205,8 @@ function StateIntro:start()
 			end
 		end)
 
-	self.entities.paint_data = Concord.entity(self.world)
-		:assemble(Assemblages.UI.paint_data, res_images.sheet_paint)
+	self.entities.cloud_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.cloud_data, res_images.sheet_paint)
 
 	local lut_size
 	local lut_afternoon, lut_dusk

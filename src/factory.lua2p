@@ -21,6 +21,7 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 	t.key = Concord.entity(world)
 		:assemble(UI.key, key_id, vec2:new(pos.x, pos.y - 4), font)
 		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 3)
 
 	local key_pos = t.key.position.pos
 	local orig = t.key.position.original_pos
@@ -37,6 +38,7 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 			end
 		end)
 		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 2)
 
 	return t
 end

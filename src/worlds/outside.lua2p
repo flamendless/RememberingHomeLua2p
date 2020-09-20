@@ -334,19 +334,23 @@ function StateOutside:start()
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
 
-	self.entities.dialogue_data = Concord.entity(self.world)
-		:assemble(Assemblages.UI.dialogue_data, res_images.sheet_dialogue)
+	self.entities.brush_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.brush_data, res_images.sheet_brush)
+
+	self.entities.cloud_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.cloud_data, res_images.sheet_cloud)
 
 	for k, v in pairs(Assemblages.InteractiveOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end
 
-	local font_ui = res_fonts.ui
-	local pos_ui = vec2:new(screen_size.x/2, screen_size.y * 0.2)
+	local pos_ui = vec2:new(screen_size.x/2, screen_size.y * 0.9)
 
 	for i, str in ipairs(tasks) do
 		self.entities["task" .. i] = Concord.entity(self.world)
-			:assemble(Assemblages.UI.ui_text_paint, "paint", str, font_ui, pos_ui:copy())
+			:assemble(Assemblages.UI.ui_text_paint, "brush",
+				str, res_fonts.task, pos_ui:copy())
+			:give("task", Palette.get("ui_feedback"))
 	end
 
 	local splashes = res_images.splashes
@@ -386,11 +390,11 @@ function StateOutside:start()
 	effect = NGrading:new(lut_dusk, lut_size)
 
 	--TEST
-	self:spawn_player(1.75)
-	self.entities.player.body.can_move = true
-
-	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.position.pos:unpack())
+	-- self:spawn_player(1.75)
+	-- self.entities.player.body.can_move = true
+    --
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(self.entities.player.position.pos:unpack())
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()

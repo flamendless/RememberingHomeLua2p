@@ -7,9 +7,9 @@ local UI = {}
 local dirs = Enum("up", "down", "left", "right")
 local line_width = 7
 
-function UI.paint_data(e, sheet)
-	e:give("id", "paint_data")
-	:give("text_paint_data", "paint", {
+function UI.cloud_data(e, sheet)
+	e:give("id", "cloud_data")
+	:give("text_paint_data", "cloud", {
 			spritesheet = sheet,
 			frames = {"1-10", 1, "1-10", 2, "1-10", 3, "1-10", 4, "1-10", 5},
 			delay = 0.05,
@@ -31,9 +31,9 @@ function UI.splat_data(e, sheet)
 		})
 end
 
-function UI.dialogue_data(e, sheet)
-	e:give("id", "dialogue_data")
-	:give("text_paint_data", "dialogue", {
+function UI.brush_data(e, sheet)
+	e:give("id", "brush_data")
+	:give("text_paint_data", "brush", {
 			spritesheet = sheet,
 			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
 			delay = 0.1,
@@ -58,7 +58,6 @@ function UI.ui_text_paint(e, id, text, font, pos)
 	e:assemble(UI.ui_text, text, font, pos)
 	:give("text_with_paint", id)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("task", Palette.get("ui_feedback"))
 end
 
 function UI.dialogue_text(e, id, text, font, pos)
