@@ -1,0 +1,5 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("player", function(c)
+	c.within_item = false
+end)

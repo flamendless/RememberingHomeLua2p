@@ -1,0 +1,161 @@
+local Assert = {
+	safe = {}
+}
+
+local concat = table.concat
+local format = string.format
+
+Assert.types = {
+	T_BEZIER_CURVE = "BezierCurve",
+	T_BOOLEAN = "boolean",
+	T_COMPONENT = "__isComponent",
+	T_CUSTOM_CANVAS = "CustomCanvas",
+	T_ENTITY = "__isEntity",
+	T_EVENT = "Event",
+	T_FONT = "Font",
+	T_FONT_SDF = "fontsdf",
+	T_FUNCTION = "function",
+	T_GAMERA = "__camera",
+	T_IMAGE = "Image",
+	T_IMAGEDATA = "ImageData",
+	T_NUMBER = "number",
+	T_PARTICLE_SYSTEM = "ParticleSystem",
+	T_QUAD = "Quad",
+	T_SHADER = "Shader",
+	T_STRING = "string",
+	T_TABLE = "table",
+	T_TIMELINEEVENT = "TLE",
+	T_USERDATA = "userdata",
+	T_VEC2 = "vec2",
+	T_VEC3 = "vec3",
+	T_WORLD = "__isWorld",
+}
+
+local types = Assert.types
+
+local get_type = function(arg)
+	local a_type = type(arg)
+
+	a_type = (a_type == types.T_TABLE or a_type == types.T_USERDATA)
+		and (arg.type and type(arg.type) == types.T_FUNCTION and arg:type())
+		or a_type
+
+	return a_type
+end
+
+function Assert.must(arg, expected_type)
+	local a_type = get_type(arg)
+
+	if not (a_type == expected_type) then
+		error(format("Expected type '%s' but got '%s'", expected_type, a_type), 2)
+	end
+end
+
+function Assert.exists(arg)
+	if arg == nil then
+		error(format("Passed argument must not be 'nil'; got '%s'", type(arg)), 2)
+	end
+end
+
+function Assert.empty(arg)
+	if not (arg == nil) then
+		error(format("Passed argument must be 'nil'; got '%s'", type(arg)), 2)
+	end
+end
+
+function Assert.color(arg)
+	Assert.must(arg, types.T_TABLE)
+	Assert.within_range(arg[1], 0, 1)
+	Assert.within_range(arg[2], 0, 1)
+	Assert.within_range(arg[3], 0, 1)
+	Assert.safe.within_range(arg[4], 0, 1)
+end
+
+function Assert.either_type(arg, ...)
+	local args = {...}
+	local pass = false
+	local a_type = get_type(arg)
+
+	for _, v in ipairs(args) do
+		if a_type == v then
+			pass = true
+			break
+		end
+	end
+
+	if not pass then
+		local msg = "Passed argument must be either of types: " .. concat(args, ", ")
+		error(msg, 2)
+	end
+end
+
+function Assert.either_value(arg, ...)
+	local args = {...}
+	local pass = false
+
+	for _, v in ipairs(args) do
+		if arg == v then
+			pass = true
+			break
+		end
+	end
+
+	if not pass then
+		local msg = "Passed argument must be either of values: " .. concat(args, ", ")
+		error(msg, 2)
+	end
+end
+
+function Assert.should_atleast(...)
+	local args = {...}
+	local pass = false
+
+	for i = 1, #args do
+		if args[i] ~= nil then
+			pass = true
+			break
+		end
+	end
+
+	if not pass then
+		local msg = "Passed arguments must have atleast one true"
+		error(msg, 2)
+	end
+end
+
+function Assert.within_range(arg, min, max)
+	Assert.must(arg, types.T_NUMBER)
+
+	if arg < min or arg > max then
+		local msg = format("Value must be between [%s, %s]; got '%s'", min, max, arg)
+		error(msg, 2)
+	end
+end
+
+function Assert.is(arg, t)
+	local result = arg[t] or (type(arg.type) == "string" and arg.type == t)
+
+	return result == true
+end
+
+function Assert.truthy(arg)
+	if not arg then
+		error("Expression or argument must be true; got " .. arg, 2)
+	end
+end
+
+for method, fn in pairs(Assert) do
+	if type(fn) == "function" then
+		Assert.safe[method] = function(arg, ...)
+			if arg then
+				fn(arg, ...)
+
+				return true
+			end
+
+			return false
+		end
+	end
+end
+
+return Assert

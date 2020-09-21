@@ -4,26 +4,40 @@ local Click = Concord.system({
 	pool = {"bounding_box", "clickable"}
 })
 
-function Click:mousepressed(mb, mx, my)
+function Click:mousepressed(mx, my, mb)
 	for _, e in ipairs(self.pool) do
-		local box = e:get("bounding_box")
-		local clickable = e:get("clickable")
-		local camera = e:get("camera")
+		local ui_action = e.ui_action
 
-		local bx = box.x
-		local by = box.y
-		local bw = box.w
-		local bh = box.h
-		if camera then
-			bx = box.screen_x
-			by = box.screen_y
-		end
-
-		if mb == clickable.mb then
-			if mx > bx and mx < bx + bw and my > by and my < by + bh then
-				clickable.on_click()
+		if ui_action then
+			if ui_action.is_active then
+				self:internal_mousepressed(e, mx, my, mb)
 			end
+		else
+			self:internal_mousepressed(e, mx, my, mb)
 		end
+	end
+end
+
+function Click:internal_mousepressed(e, mx, my, mb)
+	local clickable = e.clickable
+
+	if mb == clickable.mb then
+		local box = e.bounding_box
+		local camera = e.camera
+
+		local bx = box.pos.x
+		local by = box.pos.y
+		local bw = box.size.x
+		local bh = box.size.y
+
+		if camera then
+			bx = box.screen_size.x
+			by = box.screen_size.y
+		end
+
+		local result = mx > bx and mx < bx + bw and my > by and my < by + bh
+
+		if result then clickable.on_click() end
 	end
 end
 

@@ -1,10 +1,28 @@
 output
+output_win
 profiler_log_load.txt
 tags
 temp.lua
 test
 temp.glsl
+scripts/output
 scripts/final
 scripts/fonts
+<<<<<<< HEAD
 scripts/output
 assets/new_assets/*.gif
+=======
+love-windows_*
+makelove-build
+release
+temp
+Slab.ini
+res/new_assets
+res/_images
+res/android
+res/audio
+res/gallery
+res/icons
+res/media
+res/soundtracks
+>>>>>>> 49e6cc62a71dbd7efec9e490ca010b373358e885

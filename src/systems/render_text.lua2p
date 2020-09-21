@@ -2,45 +2,217 @@ local Concord = require("modules.concord.concord")
 
 local RenderText = Concord.system({
 	pool = {"position", "text"},
+	pool_static = {"position", "static_text", "font"},
+	pool_ui = {"position", "text", "ui_text"},
 })
 
-function RenderText:draw()
-	for _, e in ipairs(self.pool) do
-		local pos = e:get("position")
-		local color = e:get("color")
-		local text = e:get("text")
-		local transform = e:get("transform")
-		local sdf = e:get("sdf")
+function RenderText:init()
+	self.pool_static.onEntityAdded = function(pool, e)
+		!if _ASSERT then
+		if e.sdf then
+			error("static_font can't use sdf font")
+		end
+		!end
+
+		e.static_text.text_obj = love.graphics.newText(e.font.font, e.static_text.text)
+	end
+end
+
+function RenderText:internal_draw(e)
+	if not e.hidden then
+		local pos = e.position
+		local color = e.color
+		local text = e.text
+		local static_text = e.static_text
+		local font = e.font
+		local transform = e.transform
+		local sdf = e.sdf
+
 		love.graphics.setColor(1, 1, 1, 1)
 
 		if color then
-			love.graphics.setColor(e.color.color)
-		end
-		if text.font then
-			love.graphics.setFont(text.font)
+			love.graphics.setColor(color.color)
 		end
 
+		if font then
+			love.graphics.setFont(font.font)
+		end
+
+		local current_font = love.graphics.getFont()
 		local rotation, sx, sy, ox, oy
+
 		if transform then
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
+			ox = transform.ox
+			oy = transform.oy
+
 			if transform.ox == 0.5 then
-				ox = love.graphics.getFont():getWidth(text)/2
+				if static_text then
+					ox = static_text.text_obj:getWidth()/2
+				else
+					ox = current_font:getWidth(text.text)/2
+				end
 			end
+
 			if transform.oy == 0.5 then
-				oy = love.graphics.getFont():getHeight(text)/2
+				if static_text then
+					oy = static_text.text_obj:getHeight()/2
+				else
+					oy = current_font:getHeight(text.text)/2
+				end
+			elseif transform.oy == 1 then
+				if static_text then
+					oy = static_text.text_obj:getHeight()
+				else
+					oy = current_font:getHeight(text.text)
+				end
 			end
 		end
+
 		if sdf then
-			sx = sdf.scale_x
-			sy = sdf.scale_y
+			sx = sdf.sx
+			sy = sdf.sy
 		end
+
 		local x = pos.pos.x
 		local y = pos.pos.y
 
-		love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+		if static_text then
+			love.graphics.draw(static_text.text_obj, x, y, rotation, sx, sy, ox, oy)
+		else
+			love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+		end
 	end
 end
+
+function RenderText:draw()
+	for _, e in ipairs(self.pool) do
+		if not e.ui_text then
+			self:internal_draw(e)
+		end
+	end
+
+	for _, e in ipairs(self.pool_static) do
+		if not e.ui_text then
+			self:internal_draw(e)
+		end
+	end
+end
+
+function RenderText:draw_ui()
+	for _, e in ipairs(self.pool_ui) do
+		self:internal_draw(e)
+	end
+
+	for _, e in ipairs(self.pool_static) do
+		self:internal_draw(e)
+	end
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local is_open_text = false
+local is_open_sdf = false
+local t_comp
+local selected_e
+
+function RenderText:draw_debug()
+	views.text = Slab.BeginWindow("Text", {
+			Title = "Text List", IsOpen = views.text
+		})
+
+	for _, e in ipairs(self.pool) do
+		Slab.Text(e.id.id)
+		Slab.SameLine()
+
+		if Slab.Button("Modify Text") then
+			is_open_text = true
+			is_open_sdf = false
+			selected_e = e
+			t_comp = e.text
+
+			break
+		end
+
+
+		if e.sdf then
+			Slab.SameLine()
+
+			if Slab.Button("Modify SDF") then
+				is_open_sdf = true
+				is_open_text = false
+				selected_e = e
+				t_comp = e.sdf
+
+				break
+			end
+		end
+	end
+
+	Slab.EndWindow()
+
+	if not selected_e then return end
+
+	if is_open_text then
+		self:debug_modify_text()
+	elseif is_open_sdf then
+		self:debug_modify_sdf()
+	end
+end
+
+function RenderText:debug_modify_text()
+	is_open_text = Slab.BeginWindow("text_e", {
+			Title = "Text", IsOpen = is_open_text
+		})
+	Slab.Text("Text:")
+	Slab.SameLine()
+
+	if Slab.Input("text_text", {Text = tostring(t_comp.text)}) then
+		t_comp.text = Slab.GetInputText()
+	end
+
+	Slab.EndWindow()
+end
+
+function RenderText:debug_modify_sdf()
+	is_open_sdf = Slab.BeginWindow("sdf_e", {
+			Title = "SDF", IsOpen = is_open_sdf
+		})
+	Slab.Text("Scale X and Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_s", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale X:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sx", {
+			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sx = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Scale Y:")
+	Slab.SameLine()
+
+	if Slab.Input("sdf_sy", {
+			Text = tostring(t_comp.sy), ReturnOnText = false, NumbersOnly = true
+		}) then
+		t_comp.sy = Slab.GetInputNumber()
+	end
+
+	Slab.EndWindow()
+end
+
+!end
 
 return RenderText

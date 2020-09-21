@@ -1,0 +1,176 @@
+!if not _RELEASE then
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+local Slab = require("modules.slab")
+
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+
+local insert = table.insert
+local getFPS = love.timer.getFPS
+
+local Debugging = Concord.system({
+	pool = {},
+	pool_id = {"id"},
+	pool_log = {"log"}
+})
+
+local slab_init = false
+
+function Debugging:init(world)
+	self.world = world
+	self.ent_count = 0
+	self.ent_id_count = 0
+	self.ps = {}
+	self.ps_count = 0
+	self.ref_id = {}
+	self.is_open = true
+
+	if not slab_init then
+		Slab.Initialize()
+		slab_init = true
+	end
+
+	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
+
+	self.pool.onEntityAdded = function(pool, e)
+		self.ent_count = self.ent_count + 1
+	end
+
+	self.pool.onEntityRemoved = function(pool, e)
+		self.ent_count = self.ent_count - 1
+	end
+
+	self.pool_id.onEntityAdded = function(pool, e)
+		local id = e.id
+		local ref_id = self.ref_id[id.id]
+
+		if ref_id then
+			self.ref_id[id.id] = self.ref_id[id.id] + 1
+			id.id = id.id .. self.ref_id[id.id]
+		else
+			self.ref_id[id.id] = 1
+		end
+
+		self.ent_id_count = self.ent_id_count + 1
+		Log.info("Added entity: " .. id.id)
+	end
+
+	self.pool_id.onEntityRemoved = function(pool, e)
+		self.ent_id_count = self.ent_id_count - 1
+		Log.info("Removed entity: " .. e.id.id)
+	end
+end
+
+function Debugging:debug_particle_system(ps)
+	!if _ASSERT then
+	Assert.must(ps, Types.T_PARTICLE_SYSTEM)
+	!end
+
+	insert(self.ps, ps)
+end
+
+function Debugging:update(dt)
+	local c = 0
+
+	for i, ps in ipairs(self.ps) do
+		c = c + ps:getCount()
+	end
+
+	self.ps_count = c
+end
+
+function Debugging:debugging_update(dt)
+	if not DebugFlags.draw_all then return end
+
+	Slab.Update(dt)
+	self.world:emit("update_debug", dt)
+	self.world:emit("draw_slab", dt)
+end
+
+function Debugging:debugging_draw(l, t, w, h)
+	if not DebugFlags.draw_all then return end
+
+	self.world:emit("draw_debug", l, t, w, h)
+
+	love.graphics.push()
+	love.graphics.origin()
+	self.world:emit("debug_draw_ui")
+	love.graphics.pop()
+
+	Slab.Draw()
+end
+
+function Debugging:draw_slab()
+	self.is_open = Slab.BeginWindow("debugging",
+		{Title = "Debugging", IsOpen = self.is_open})
+
+	for id, open in pairs(views) do
+		if Slab.CheckBox(open, id) then
+			views[id] = not views[id]
+		end
+	end
+
+	Slab.EndWindow()
+
+	views.ent_count = Slab.BeginWindow("ecs",
+		{Title = "ECS", IsOpen = views.ent_count})
+	Slab.Text("# of entities: " .. self.ent_count)
+	Slab.Text("# of entities with id: " .. self.ent_id_count)
+	Slab.EndWindow()
+
+	views.logs = Slab.BeginWindow("log",
+		{Title = "log", IsOpen = views.logs, AutoSizeWindow = false})
+	for _, e in ipairs(self.pool_log) do
+		Slab.Text(e.log.log)
+	end
+
+	Slab.EndWindow()
+
+	views.stats = Slab.BeginWindow("stats",
+		{Title = "stats", IsOpen = DebugFlags.stats})
+	Slab.Text("FPS: " .. getFPS())
+	Slab.Text("Particle Count: " .. self.ps_count)
+	for k, v in pairs(DebugFlags.t_stats) do
+		Slab.Text(k .. ": " .. v)
+	end
+
+	Slab.EndWindow()
+end
+
+function Debugging:draw_debug(l, t, w, h)
+	if not views.cross then return end
+
+	local hw, hh = w/2, h/2
+
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.setLineWidth(1)
+	love.graphics.line(hw, 0, hw, h)
+	love.graphics.line(0, hh, w, hh)
+end
+
+function Debugging:keypressed(key)
+	if key == "`" then
+		DebugFlags.draw_all = not DebugFlags.draw_all
+	end
+end
+
+function Debugging:cleanup()
+	self.ent_count = 0
+	self.ps_count = 0
+
+	for i, ps in ipairs(self.ps) do
+		self.ps[i] = nil
+	end
+
+	for _, e in ipairs(self.pool_id) do
+		Log.warn(e.id.id .. " not destroyed")
+	end
+
+	for _, e in ipairs(self.pool_log) do
+		e:destroy()
+	end
+end
+
+return Debugging
+!end

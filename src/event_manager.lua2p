@@ -1,0 +1,46 @@
+local Log = require("modules.log.log")
+
+local format = string.format
+
+local EventManager = {
+	pool = {},
+}
+
+function EventManager.add(event)
+	local id = event.id
+
+	!if _ASSERT then
+	Assert.must(event, Types.T_EVENT)
+	Assert.empty(EventManager.pool[id])
+	!end
+
+	EventManager.pool[id] = event
+	Log.info(format("event %s added", id))
+end
+
+function EventManager.update(dt)
+	local pool = EventManager.pool
+
+	for id, event in pairs(pool) do
+		if not event.is_done then
+			local res = event:update(dt)
+
+			if res then
+				event.is_done = true
+				event:on_complete()
+				pool[id] = nil
+				Log.info(format("event %s done", id))
+			end
+		end
+	end
+end
+
+function EventManager.clean()
+	local pool = EventManager.pool
+
+	for id, event in pairs(pool) do
+		pool[id] = nil
+	end
+end
+
+return EventManager

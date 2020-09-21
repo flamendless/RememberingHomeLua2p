@@ -2,97 +2,121 @@ local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 
 local format = string.format
-local Preloader = {}
+
+local Preloader = {
+	percent = 0
+}
+
 local keys = {
 	image = "newImage",
+	image_data = "newImageData",
 	source = "newSource",
 	font = "newFont",
 }
 
-local apply_filter = true
-local font = love.graphics.newFont("assets/fonts/Jamboree.ttf", 32)
-font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-local str_loading = ""
-
-function Preloader.start(assets, container)
-	assert(type(assets) == "table", "'assets' must be a table")
-	assert(type(container) == "table", "'container' must be a table")
+function Preloader.start(resources, container, on_complete)
+	!if _ASSERT then
+	Assert.must(resources, Types.T_TABLE)
+	Assert.must(container, Types.T_TABLE)
+	Assert.must(on_complete, Types.T_FUNCTION)
+	!end
 
 	local i = 1
 	local data = {}
 	local userdata = {}
 	local cache = {}
 
-	for kind, t in pairs(assets) do
+	Preloader.percent = 0
+
+	for kind, t in pairs(resources) do
 		for j = 1, #t do
 			local id = t[j][1]
 			local path = t[j][2]
 
 			if kind == "image" then
 				data[i] = {keys[kind], path}
+			elseif kind == "image_data" then
+				data[i] = {keys[kind], path}
 			elseif kind == "source" then
 				local source_type = t[j][3]
+
 				data[i] = {keys[kind], path, source_type}
 			elseif kind == "font" then
 				local font_size = t[j][3]
 				local font_sub = t[j][4]
-				id = id .. "_" .. (font_sub or font_size)
+
+				if not font_sub then
+					id = id .. "_" .. (font_sub or font_size)
+				end
+
 				data[i] = {keys[kind], path, font_size}
 			end
+
 			userdata[i] = id
 
-			assert(cache[id] == nil, format("'%s' is duplicated", id))
-			cache[id] = true
+			!if _ASSERT then
+			Assert.empty(cache[id])
+			!end
 
+			cache[id] = true
 			i = i + 1
 		end
 	end
 
 	local preloader = Lily.loadMulti(data)
+
 	preloader:setUserData(userdata)
 	preloader:onLoaded(function(id, i, data)
-			local name = id[i]
+			local to_load = preloader:getCount()
+			local completed = preloader:getLoadedCount()
+
+			Preloader.percent = (completed/to_load) * 100
+		end)
+
+	preloader:onComplete(function(id, tbl_data)
+		for i, tbl in ipairs(tbl_data) do
+			local id = id[i]
+			local data = tbl[1]
 			local data_type = data:type()
 
 			if data_type == "Image" then
-				assert(container.images ~= nil, "You must provide an 'images' table")
-				assert(type(container.images) == "table", "'container.images' must be a table ")
+				!if _ASSERT then
+				Assert.exists(container.images)
+				Assert.must(container.images, Types.T_TABLE)
+				!end
+
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
-				container.images[name] = data
+				container.images[id] = data
+			elseif data_type == "ImageData" then
+				!if _ASSERT then
+				Assert.exists(container.image_data)
+				Assert.must(container.image_data, Types.T_TABLE)
+				!end
+
+				container.image_data[id] = data
 			elseif data_type == "Source" then
-				assert(container.sources ~= nil, "You must provide a 'sources' table")
-				assert(type(container.sources) == "table", "'container.sources' must be a table")
-				container.sources[name] = data
+				!if _ASSERT then
+				Assert.exists(container.sources)
+				Assert.must(container.sources, Types.T_TABLE)
+				!end
+
+				container.sources[id] = data
 			elseif data_type == "Font" then
-				assert(container.fonts ~= nil, "You must provide a 'fonts' table")
-				assert(type(container.fonts) == "table", "'container.fonts' must be a table")
+				!if _ASSERT then
+				Assert.exists(container.fonts)
+				Assert.must(container.fonts, Types.T_TABLE)
+				!end
+
 				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-				container.fonts[name] = data
+				container.fonts[id] = data
 			end
 
-			local str = format("Loaded: #%i - %s : %s", i, data_type, name)
-			Log.info(str)
+			local str = format("Loaded: #%i - %s : %s", i, data_type, id)
+			Log.trace(str)
+		end
 
-			local to_load = preloader:getCount()
-			local completed = preloader:getLoadedCount()
-			local percent = (completed/to_load) * 100
-			str_loading = format("LOADING...%.0f%%", percent)
-		end)
-
-	return preloader
-end
-
-function Preloader.draw_loading()
-	love.graphics.setColor(0, 0, 0, 1)
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-
-	local ox = font:getWidth(str_loading)/2
-	local oy = font:getHeight(str_loading)/2
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(font)
-	love.graphics.print(str_loading,
-		love.graphics.getWidth()/2, love.graphics.getHeight() * 0.75,
-		0, 1, 1, ox, oy)
+		on_complete()
+	end)
 end
 
 return Preloader

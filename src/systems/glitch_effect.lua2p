@@ -1,9 +1,7 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local random = love.math.random
 local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
@@ -13,8 +11,9 @@ local GlitchEffect = Concord.system({
 
 function GlitchEffect:init()
 	self.pool_text.onEntityAdded = function(pool, e)
-		local c = e:get("glitch_effect")
-		local colors = e:get("glitch_colors")
+		local c = e.glitch_effect
+		local colors = e.glitch_colors
+
 		c.timer_glitch = Timer()
 		c.timer_effect = Timer()
 		c.timer_effect:every(randomf(c.range_every.x, c.range_every.y), function()
@@ -26,9 +25,10 @@ end
 function GlitchEffect:toggle_effect(c, colors)
 	local r = randomf(c.range_trigger.x, c.range_trigger.y)
 	c.timer_glitch:during(r, function()
-		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
+		local chance = weightedchoice({yes = c.range_chance.x, no = c.range_chance.y})
+
 		if chance == "yes" then
-			colors.current = random(1, #colors.colors)
+			colors.current = love.math.random(1, #colors.colors)
 			c.is_glitch = true
 		elseif chance == "no" then
 			c.is_glitch = false
@@ -38,7 +38,8 @@ end
 
 function GlitchEffect:update(dt)
 	for _, e in ipairs(self.pool_text) do
-		local c = e:get("glitch_effect")
+		local c = e.glitch_effect
+
 		c.timer_effect:update(dt)
 		c.timer_glitch:update(dt)
 	end
@@ -46,43 +47,50 @@ end
 
 function GlitchEffect:effect_draw()
 	for _, e in ipairs(self.pool_text) do
-		local random_text = e:get("random_text")
-		local glitch_effect = e:get("glitch_effect")
-		local glitch_colors = e:get("glitch_colors")
-		local color = e:get("color")
-		local pos = e:get("position")
-		local transform = e:get("transform")
-
+		local random_text = e.random_text
+		local font = e.font
+		local glitch_effect = e.glitch_effect
+		local glitch_colors = e.glitch_colors
+		local color = e.color
+		local pos = e.position
+		local transform = e.transform
 		local text
+
 		if glitch_effect.is_glitch then
 			if random_text.use_string then
 				text = random_text.text
 			elseif random_text.use_table then
-				local r = random(1, #random_text.text)
+				local r = love.math.random(1, #random_text.text)
+
 				text = random_text.text[r]
 			end
+
 			love.graphics.setColor(glitch_colors.colors[glitch_colors.current])
 		else
 			text = random_text.text[1]
-	 		love.graphics.setColor(color.color)
+			love.graphics.setColor(color.color)
 		end
 
-		if random_text.font then
-			love.graphics.setFont(random_text.font)
+		if font then
+			love.graphics.setFont(font.font)
 		end
 
 		local rotation, sx, sy, ox, oy
+
 		if transform then
 			rotation = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
+
 			if transform.ox == 0.5 then
 				ox = love.graphics.getFont():getWidth(text)/2
 			end
+
 			if transform.oy == 0.5 then
 				oy = love.graphics.getFont():getHeight(text)/2
 			end
 		end
+
 		love.graphics.print(text, pos.pos.x, pos.pos.y, rotation, sx, sy, ox, oy)
 	end
 end

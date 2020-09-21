@@ -1,0 +1,9 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("text_paint_data", function(c, data)
+	!if _ASSERT then
+	Assert.must(data, Types.T_TABLE)
+	!end
+
+	c.data = data
+end)

@@ -1,8 +1,14 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("option_key", function(c, id)
+Concord.component("option_key", function(c, id, page)
 	!if _ASSERT then
-	assert(type(id) == "number", "Passed argument must be of type 'number'")
+	Assert.must(id, Types.T_NUMBER)
+	Assert.must(page, Types.T_NUMBER)
 	!end
+
 	c.id = id
+	c.page = page
+end)
+
+Concord.component("option_disabled", function(c)
 end)

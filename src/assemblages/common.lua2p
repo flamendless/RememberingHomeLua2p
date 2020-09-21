@@ -1,23 +1,47 @@
-local Concord = require("modules.concord.concord")
+local Palette = require("palette")
 
 local Common = {}
 
 function Common.text(e, pos, str, font, color)
-	e:give("text", str, font)
+	e:give("id", "text")
+	:give("text", str)
+	:give("font", font)
 	:give("position", pos)
 	:give("color", color)
 end
 
-function Common.sprite(e, sprite, pos, color)
-	e:give("sprite", sprite)
+function Common.static_text(e, pos, str, font, color)
+	e:give("id", "static_text")
+	:give("static_text", str)
+	:give("font", font)
 	:give("position", pos)
 	:give("color", color)
 end
 
-function Common.animated_sprite(e, animation_data, pos)
-	e:give("animation_data", animation_data)
+function Common.animated_sprite(e, animation_data, pos, stop_on_last)
+	e:give("id", "animated_sprite")
+	:give("animation_data", animation_data)
 	:give("position", pos)
-	:give("animation")
+	:give("animation", stop_on_last)
+end
+
+function Common.skip(e, text, font, pos)
+	e:give("id", "skip")
+	:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("ui_red"))
+	:give("ui_text")
+	:give("transform", 0, 1, 1, 0.5, 1)
+	:give("color_fade_in_out", 1)
+end
+
+function Common.item(e, id, pos, size)
+	e:give("id", "item")
+	:give("item", id)
+	:give("position", pos)
+	:give("collider", size, nil, "cross")
+	:give("bump")
 end
 
 return Common

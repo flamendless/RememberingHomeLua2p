@@ -4,12 +4,20 @@ local floor = math.floor
 
 Concord.component("animation_data", function(c, data)
 	!if _ASSERT then
-	assert(type(data) == "table", "Passed argument must be of type 'table'")
-	assert(data.spritesheet:type() == "Image", "Passed argument must be of type 'Image'")
-	assert(type(data.frames) == "table", "Passed argument must be of type 'table'")
-	assert(type(data.delay) == "number", "Passed argument must be of type 'number'")
-	assert(type(data.rows_count) == "number", "Passed argument must be of type 'number'")
-	assert(type(data.columns_count) == "number", "Passed argument must be of type 'number'")
+	Assert.must(data, Types.T_TABLE)
+	Assert.must(data.spritesheet, Types.T_IMAGE)
+	Assert.must(data.frames, Types.T_TABLE)
+	Assert.must(data.rows_count, Types.T_NUMBER)
+	Assert.must(data.columns_count, Types.T_NUMBER)
+	Assert.safe.must(data.n_frames, Types.T_NUMBER)
+	Assert.safe.within_range(data.start_frame, 1, data.n_frames)
+
+	if data.delay then
+		Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
+	end
+
+	Assert.should_atleast(data.durations, data.delay)
+	Assert.safe.must(data.durations, Types.T_TABLE)
 	!end
 
 	c.spritesheet = data.spritesheet
@@ -17,6 +25,9 @@ Concord.component("animation_data", function(c, data)
 	c.delay = data.delay
 	c.rows_count = data.rows_count
 	c.columns_count = data.columns_count
+	c.durations = data.durations
+	c.n_frames = data.n_frames
+	c.start_frame = data.start_frame
 
 	c.sheet_width = c.spritesheet:getWidth()
 	c.sheet_height = c.spritesheet:getHeight()

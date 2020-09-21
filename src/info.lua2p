@@ -1,73 +1,113 @@
 local Log = require("modules.log.log")
+
 local WindowMode = require("window_mode")
+local Utils = require("utils")
 
-local Info = {}
-
-local min = math.min
-local sort = table.sort
 local concat = table.concat
 local insert = table.insert
-local remove = table.remove
 local format = string.format
-local file = !(_LOG_INFO)
-local game_version = ("%i.%i.%i"):format(unpack(!(_GAME_VERSION)))
 
-Info.data = {}
+local Info = {
+	data = {},
+	options = {},
+}
+
+local filename = !(_LOG_INFO)
+
+local function insert_str(src, dest)
+	!if _ASSERT then
+	Assert.must(src, Types.T_TABLE)
+	Assert.must(dest, Types.T_TABLE)
+	!end
+
+	for k, v in pairs(src) do
+		local str = format("\t%s: %s\n", k, v)
+
+		insert(dest, str)
+	end
+end
 
 function Info.initialize()
 	Log.info("System information checking...")
+	local data = Info.data
+	local system_limits = {}
+	local canvas_formats = {}
+	local image_formats = {}
+	local texture_types = {}
+	local supported = {}
 
-	Info.data.info_os = love.system.getOS()
-	Info.data.state, percent, seconds = love.system.getPowerInfo()
-	Info.data.processor_count = love.system.getProcessorCount()
-	Info.data.has_bgm = love.system.hasBackgroundMusic()
-	Info.data.limits = love.graphics.getSystemLimits()
-	Info.data.name, version, vendor, device = love.graphics.getRendererInfo()
-	Info.data.supported_modes = WindowMode.modes
+	data.info_os = love.system.getOS()
+	data.processor_count = love.system.getProcessorCount()
+	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
+	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+	data.limits = love.graphics.getSystemLimits()
+	data.canvasformats = love.graphics.getCanvasFormats()
+	data.imageformats = love.graphics.getImageFormats()
+	data.texturetypes = love.graphics.getTextureTypes()
+	data.supported = love.graphics.getSupported()
 
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
-	sort(Info.data.supported_modes, function(a, b) return a.width * a.height < b.width * b.height end)
-	Info.data.current_mode = w .. "x" .. h
+	insert_str(data.limits, system_limits)
+	insert_str(data.canvasformats, canvas_formats)
+	insert_str(data.imageformats, image_formats)
+	insert_str(data.texturetypes, texture_types)
+	insert_str(data.supported, supported)
 
 	local str = {
-		format("Game Version: %s", Info.data.game_version),
-		format("OS: %s", Info.data.info_os),
-		"Power Info:",
-		format("\tState: %s", Info.data.state),
-		format("\tPercent: %s", Info.data.percent),
-		format("\tSeconds: %s", Info.data.seconds or "not available"),
-		format("Processor Count: %s", Info.data.processor_count),
-		format("Has BGM: %s", tostring(Info.data.has_bgm)),
+		format("Game Version: %s", data.game_version),
+		format("OS: %s", data.info_os),
+
+		format("Processor Count: %s", data.processor_count),
+
 		"Renderer Info:",
-		format("\tName: %s", Info.data.name),
-		format("\tVersion: %s", Info.data.version),
-		format("\tVendor: %s", Info.data.vendor),
-		format("\tDevice: %s", Info.data.device),
-		"Supported Modes:",
+		format("\tName: %s", data.name),
+		format("\tVersion: %s", data.version),
+		format("\tVendor: %s", data.vendor),
+		format("\tDevice: %s", data.device),
+
+		"System Limits:",
+		concat(system_limits),
+
+		"Canvas Formats:",
+		concat(canvas_formats),
+
+		"Image Formats:",
+		concat(image_formats),
+
+		"Texture Types:",
+		concat(texture_types),
+
+		"Supported:",
+		concat(supported),
+
+		"Other Info:",
+		format("Release Mode: %s", !(_RELEASE)),
+		format("Assert Mode: %s", !(_ASSERT)),
 	}
-	Info.data.supported_modes_str = {}
-	for i, mode in ipairs(Info.data.supported_modes) do
-		local scale = min(love.graphics.getWidth()/mode.width, love.graphics.getHeight()/mode.height)
-		str[#str + 1] = format("\t[%i] - %ix%i - scale: %f", i, mode.width, mode.height, scale)
-		Info.data.supported_modes_str[i] = mode.width .. "x" .. mode.height
-	end
 
 	local to_write = concat(str, "\n")
-	local exists = love.filesystem.getInfo(file)
-	Log.info(format("'%s' exists: %s", file, exists or false))
+	local content, exists = Utils.read_file(filename)
+
 	if exists then
-		local content = love.filesystem.read(file)
-		if (content ~= to_write) then
-			love.filesystem.write(file, to_write)
-			Log.info(format("'%s' overwritten", file))
-		else
-			Log.info(format("'%s' untouched", file))
-		end
+		Info.validate_file(content, to_write)
 	else
-		love.filesystem.write(file, to_write)
-		Log.info(format("'%s' written", file))
+		Utils.write_to_file(filename, to_write)
+		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES", "Editing any files in this directory will invalidate all your progress")
 	end
+end
+
+function Info.validate_file(content, to_write)
+	if content ~= to_write then
+		love.filesystem.write(filename, to_write)
+		Log.info(format("'%s' overwritten", filename))
+	else
+		Log.info(format("'%s' untouched", filename))
+	end
+end
+
+function Info.is_texturesize_compatible(size)
+	local max_size = Info.data.limits.texturesize
+
+	return size <= max_size
 end
 
 return Info

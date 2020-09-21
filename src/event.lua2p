@@ -1,0 +1,20 @@
+local Event = class()
+
+local type_id = "Event"
+
+function Event:new(id, data)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.safe.must(data, Types.T_TABLE)
+	!end
+
+	return self:init({
+		id = id,
+		is_done = false,
+		data = data or {},
+	})
+end
+
+function Event:type() return type_id end
+
+return Event

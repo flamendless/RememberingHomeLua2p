@@ -1,0 +1,47 @@
+local Concord = require("modules.concord.concord")
+
+local Movement = Concord.system({
+	pool_topdown = {"speed", "body", "movement_topdown"},
+	pool_platformer = {"speed", "gravity", "body", "movement_platformer"},
+})
+
+function Movement:update_topdown(dt)
+	for _, e in ipairs(self.pool_topdown) do
+		if e.body.can_move then
+			local body = e.body
+			local speed = e.speed.speed
+			local vel_x = 0
+			local vel_y = 0
+
+			if body.dx ~= 0 then
+				vel_x = speed.x * body.dx * dt
+			end
+
+			if body.dy ~= 0 then
+				vel_y = speed.y * body.dy * dt
+			end
+
+			body.vel_x = vel_x
+			body.vel_y = vel_y
+		end
+	end
+end
+
+function Movement:update_platformer(dt)
+	for _, e in ipairs(self.pool_platformer) do
+		if e.body.can_move then
+			local speed = e.speed.speed
+			local vel_x = 0
+			local vel_y = e.gravity.gravity * dt
+
+			if e.body.dx ~= 0 then
+				vel_x = speed.x * e.body.dx * dt
+			end
+
+			e.body.vel_x = vel_x
+			e.body.vel_y = vel_y
+		end
+	end
+end
+
+return Movement

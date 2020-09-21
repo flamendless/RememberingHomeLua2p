@@ -1,0 +1,169 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local Camera = Concord.system({
+	pool = {"camera"},
+	pool_clip = {"camera", "camera_clip"},
+})
+
+function Camera:init(world)
+	self.world = world
+	self.main_camera = nil
+	self.to_follow = nil
+
+	self.pool.onEntityAdded = function(pool, e)
+		local cam = e.camera.camera
+
+		if e.camera_transform then
+			local t = e.camera_transform
+
+			cam:setAngle(t.rot)
+			cam:setScale(t.scale)
+		end
+
+		if e.camera.is_main then
+			self.main_camera = cam
+		end
+	end
+end
+
+function Camera:get_follow_coords(target)
+	!if _ASSERT then
+	Assert.is(target, Types.T_ENTITY)
+	!end
+
+	local pos = target.position.pos
+	local x = pos.x
+	local y = pos.y
+
+	if target.camera_follow_offset then
+		local offset = target.camera_follow_offset.offset
+
+		x = x + offset.x
+		y = y + offset.y
+	end
+
+	return x, y
+end
+
+function Camera:camera_follow(target, dur)
+	!if _assert then
+	Assert.is(target, Types.T_ENTITY)
+	Assert.must(dur, Types.T_NUMBER)
+	!end
+
+	local x, y = self:get_follow_coords(target)
+
+	Flux.to(self.main_camera, dur or 1, {x = x, y = y})
+		:oncomplete(function()
+			self.to_follow = target
+		end)
+end
+
+function Camera:update(dt)
+	if self.to_follow then
+		local x, y = self:get_follow_coords(self.to_follow)
+
+		self.main_camera:setPosition(x, y)
+	end
+end
+
+function Camera:draw_clip()
+	for _, e in ipairs(self.pool_clip) do
+		local cam = e.camera.camera
+		local cx, cy, cw, ch = cam:getWindow()
+		local scale = cam:getScale()
+		local diff = (ch - e.camera_clip.h * scale)/2
+
+		love.graphics.setColor(e.camera_clip.color)
+		love.graphics.rectangle("fill", cx, cy, cw, diff)
+		love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
+	end
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+
+local floor = math.floor
+local format = string.format
+
+local min_speed = 64
+local max_speed = 260
+
+function Camera:update_debug(dt)
+	if not self.main_camera then return end
+	for _, e in ipairs(self.pool) do
+		local x, y = self.main_camera:getPosition()
+		local dx = 0
+		local dy = 0
+		local speed = min_speed
+		local fast = love.keyboard.isDown("lshift")
+
+		if love.keyboard.isDown("left") then
+			dx = -1
+		elseif love.keyboard.isDown("right") then
+			dx = 1
+		end
+
+		if love.keyboard.isDown("up") then
+			dy = -1
+		elseif love.keyboard.isDown("down") then
+			dy = 1
+		end
+
+		if fast then
+			speed = mathx.lerp(speed, max_speed, 0.5)
+		end
+
+		x = x + speed * dx * dt
+		y = y + speed * dy * dt
+
+		self.main_camera:setPosition(x, y)
+	end
+end
+
+function Camera:draw_debug()
+	if not self.main_camera then return end
+
+	views.camera = Slab.BeginWindow("camera",
+		{Title = "Camera", IsOpen = views.camera})
+
+	local scale = self.main_camera:getScale()
+
+	Slab.Text("scale: ")
+	Slab.SameLine()
+
+	if Slab.Input("input_scale", {
+			Text = tostring(scale), ReturnOnText = false, NumbersOnly = true}) then
+		scale = Slab.GetInputNumber()
+		self.main_camera:setScale(scale)
+	end
+
+	if Slab.Button("-") then
+		scale = scale - 1
+		self.main_camera:setScale(scale)
+	end
+
+	Slab.SameLine()
+	if Slab.Button("+") then
+		scale = scale + 1
+		self.main_camera:setScale(scale)
+	end
+
+	local x, y = self.main_camera:getPosition()
+	local str_pos = format("position: (%i, %i)", x, y)
+
+	Slab.Text(str_pos)
+
+	if Slab.Button("print") then
+		print("camera scale:", scale)
+		print("camera pos:", floor(x), floor(y))
+	end
+
+	Slab.EndWindow()
+end
+!end
+
+return Camera

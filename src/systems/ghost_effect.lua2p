@@ -1,9 +1,7 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
-local random = love.math.random
 local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
@@ -13,7 +11,8 @@ local GhostEffect = Concord.system({
 
 function GhostEffect:init()
 	self.pool_text.onEntityAdded = function(pool, e)
-		local c = e:get("ghost_effect")
+		local c = e.ghost_effect
+
 		c.timer_ghost = Timer()
 		c.timer_effect = Timer()
 		c.timer_effect:every(randomf(c.range_every.x, c.range_every.y), function()
@@ -25,19 +24,20 @@ end
 function GhostEffect:toggle_effect(c)
 	local r = randomf(c.range_trigger.x, c.range_trigger.y)
 	c.timer_ghost:during(r, function()
-		local chance = weightedchoice({ yes = c.range_chance.x, no = c.range_chance.y })
+		local chance = weightedchoice({yes = c.range_chance.x, no = c.range_chance.y})
 		if chance == "yes" then
 			local width = love.graphics.getWidth()
 			local height = love.graphics.getHeight()
+
 			c.effect_color[1] = randomf(c.range_color.x, c.range_color.y)
 			c.effect_color[2] = randomf(c.range_color.x, c.range_color.y)
 			c.effect_color[3] = randomf(c.range_color.x, c.range_color.y)
 			c.effect_color[4] = randomf(c.range_alpha.x, c.range_alpha.y)
 			c.is_ghost = true
-			c.ghost.sx = random(c.range_scale.x, c.range_scale.y)
+			c.ghost.sx = love.math.random(c.range_scale.x, c.range_scale.y)
 			c.ghost.sy = c.ghost.sx
-			c.ghost.x = random(-width/4, width - 64)
-			c.ghost.y = random(-height/4, height - 64)
+			c.ghost.x = love.math.random(-width/4, width - 64)
+			c.ghost.y = love.math.random(-height/4, height - 64)
 		elseif chance == "no" then
 			c.is_ghost = false
 		end
@@ -46,7 +46,8 @@ end
 
 function GhostEffect:update(dt)
 	for _, e in ipairs(self.pool_text) do
-		local c = e:get("ghost_effect")
+		local c = e.ghost_effect
+
 		c.timer_effect:update(dt)
 		c.timer_ghost:update(dt)
 	end
@@ -54,20 +55,24 @@ end
 
 function GhostEffect:effect_draw()
 	for _, e in ipairs(self.pool_text) do
-		local random_text = e:get("random_text")
-		local ghost_effect = e:get("ghost_effect")
+		local random_text = e.random_text
+		local ghost_effect = e.ghost_effect
+		local font = e.font
 		local text
+
 		if random_text.use_string then
 			text = random_text.text
 		elseif random_text.use_table then
-			local r = random(1, #random_text.text)
+			local r = love.math.random(1, #random_text.text)
+
 			text = random_text.text[r]
 		end
 
 		if ghost_effect.is_ghost then
-			if random_text.font then
-				love.graphics.setFont(random_text.font)
+			if font then
+				love.graphics.setFont(font.font)
 			end
+
 			love.graphics.setColor(ghost_effect.effect_color)
 			love.graphics.print(text,
 				ghost_effect.ghost.x, ghost_effect.ghost.y, 0,

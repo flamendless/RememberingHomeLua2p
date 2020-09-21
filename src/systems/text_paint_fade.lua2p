@@ -1,0 +1,80 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+local Lume = require("modules.lume.lume")
+
+local TextPaintFade = Concord.system({
+	pool = {"text_paint_data"}
+})
+
+function TextPaintFade:init(world)
+	self.world = world
+
+	self.pool.onEntityAdded = function(pool, e)
+		self.paint_data = e.text_paint_data.data
+	end
+end
+
+function TextPaintFade:fade_text(e, dur, timeline, should_destroy)
+	self:generate_paint(e, dur)
+	e:remove("hidden")
+
+	local color = e.color
+	Flux.to(color.color, dur, {[4] = 1})
+		:oncomplete(function()
+			Flux.to(color.color, dur, {[4] = 0})
+				:oncomplete(function()
+					timeline:Unpause()
+					e:give("hidden")
+
+					if should_destroy then
+						e:destroy()
+					end
+				end)
+		end)
+end
+
+function TextPaintFade:generate_paint(e, dur_in, dur_out)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
+	Assert.safe.must(dur_out, Types.T_NUMBER)
+	!end
+
+	local transform = e.transform
+	local text = e.static_text.text
+	local font = e.font.font
+	local str_w = font:getWidth(text)
+	local str_h = font:getHeight(text)
+	local offset = 96
+	local text_pos = e.position.pos
+	local pos = vec2:new(text_pos.x + str_w/2, text_pos.y + str_h/2)
+	local chance = Lume.randomchoice({true, false})
+	local sx = chance == true and -1 or 1
+
+	if transform then
+		pos.x = text_pos.x
+		pos.y = text_pos.y
+	end
+
+	local paint = Concord.entity(self.world)
+		:give("animation_data", self.paint_data)
+		:give("ui_element")
+		:give("position", pos)
+		:give("animation", true)
+		:give("auto_scale", str_w + offset, str_h + offset, false)
+		:give("transform", 0, sx, nil, 0.5, 0.5)
+		:give("color", {1, 1, 1, 0})
+
+	local color = paint.color
+
+	Flux.to(color.color, dur_in, {[4] = 1})
+		:oncomplete(function()
+			Flux.to(color.color, dur_out or dur_in, {[4] = 0})
+				:delay(1)
+				:oncomplete(function()
+					paint:destroy()
+				end)
+		end)
+end
+
+return TextPaintFade

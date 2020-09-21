@@ -1,11 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("random_text", function(c, text, font)
+Concord.component("random_text", function(c, text)
 	!if _ASSERT then
-	assert(type(text) == "string" or type(text) == "table", "Passed argument must be of type 'string' or 'table'")
-	if font then
-		assert(font:type() == "Font", "Passed argument must be of type 'Font'")
-	end
+	Assert.either_type(text, Types.T_STRING, Types.T_TABLE)
 	!end
 
 	if type(text) == "string" then
@@ -13,6 +10,6 @@ Concord.component("random_text", function(c, text, font)
 	elseif type(text) == "table" then
 		c.use_table = true
 	end
+
 	c.text = text
-	c.font = font
 end)

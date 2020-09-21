@@ -10,10 +10,12 @@ end
 
 function Dissolve:new(texture, duration)
 	!if _ASSERT then
-	assert(texture:type() == "Image", "Passed argument must be of type 'Image'")
-	assert(type(duration) == "number", "Passed argument must be of type 'number'")
+	Assert.must(texture, Types.T_IMAGE)
+	Assert.must(duration, Types.T_NUMBER)
 	!end
+
 	local shader_code = love.graphics.newShader("shaders/dissolve.glsl")
+
 	shader_code:send("tex", texture)
 
 	return self:init({
@@ -28,30 +30,36 @@ end
 
 function Dissolve:set_kind(kind)
 	!if _ASSERT then
-	assert(type(kind) == "number", "Passed argument must be of type 'number'")
+	Assert.must(kind, Types.T_NUMBER)
 	!end
+
 	self.kind = kind
 end
 
 function Dissolve:update(dt)
 	if self.shader_code and self.flag_process then
 		self.time = self.time + dt * self.dir
+
 		local n = self.kind + smootherstep(max(0, min(self.time/self.duration, 1)))
+
 		self.shader_code:send("time", abs(n))
+
 		if self.time > self.duration then
-			self.flag_process = false
 			if self.on_complete then
 				self.on_complete()
 				self.on_complete = nil
 			end
+
+			self.flag_process = false
 		end
 	end
 end
 
 function Dissolve:draw(fn)
 	!if _ASSERT then
-	assert(type(fn) == "function", "Passed argument must be of type 'function'")
+	Assert.must(fn, Types.T_FUNCTION)
 	!end
+
 	if self.flag_process then
 		love.graphics.setShader(self.shader_code)
 		fn()

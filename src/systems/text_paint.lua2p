@@ -1,0 +1,138 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+local Lume = require("modules.lume.lume")
+
+local TextPaint = Concord.system({
+	pool = {"text_paint_data"}
+})
+
+local def_delay_paint = 1
+local def_delay_task = 1
+local dur_flash = 0.15
+
+local function flash_to_color(source, target_a, target_b, dur, count, current)
+	local n = current or 0
+
+	Flux.to(source, dur, {
+			[1] = target_a[1],
+			[2] = target_a[2],
+			[3] = target_a[3],
+		})
+		:oncomplete(function()
+			if n <= count then
+				n = n + 1
+				flash_to_color(source, target_b, target_a, dur, count, n)
+			end
+		end)
+end
+
+function TextPaint:init(world)
+	self.world = world
+
+	self.pool.onEntityAdded = function(pool, e)
+		self.paint_data = e.text_paint_data.data
+	end
+end
+
+function TextPaint:show_text_paint(e, dur)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.must(dur, Types.T_NUMBER)
+	!end
+
+	self:show_paint(e, dur)
+	e:remove("hidden")
+
+	Flux.to(e.color.color, dur, {[4] = 1})
+end
+
+function TextPaint:fade_text_paint(e, dur, on_complete)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint)
+	Assert.is(e.text_with_paint.paint, Types.T_ENTITY)
+	Assert.exists(e.text_with_paint.paint.paint)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.safe.must(on_complete, Types.T_FUNCTION)
+	!end
+
+	local delay
+	if e.task then
+		local target = e.task.color
+
+		if e.task.kind == "flash" then
+			--flash
+			local original = {unpack(e.color.color)}
+
+			flash_to_color(e.color.color, target, original, dur_flash, 2)
+		end
+
+		delay = def_delay_task
+	end
+
+	Flux.to(e.color.color, dur, {[4] = 0})
+		:delay(delay)
+		:oncomplete(function()
+			if on_complete then
+				on_complete()
+			end
+
+			e:give("hidden")
+			e:destroy()
+		end)
+	self:fade_paint(e.text_with_paint.paint, dur, delay)
+end
+
+function TextPaint:show_paint(e, dur_in)
+	!if _ASSERT then
+	Assert.is(e, Types.T_ENTITY)
+	Assert.must(dur_in, Types.T_NUMBER)
+	!end
+
+	local transform = e.transform
+	local text = e.static_text.text
+	local font = e.font.font
+	local str_w = font:getWidth(text)
+	local str_h = font:getHeight(text)
+	local offset = 96
+	local text_pos = e.position.pos
+	local pos = vec2:new(text_pos.x + str_w/2, text_pos.y + str_h/2)
+	local chance = Lume.randomchoice({true, false})
+	local sx = chance == true and -1 or 1
+
+	if transform then
+		pos.x = text_pos.x
+		pos.y = text_pos.y
+	end
+
+	local paint = Concord.entity(self.world)
+		:give("animation_data", self.paint_data)
+		:give("ui_element")
+		:give("position", pos)
+		:give("animation", true)
+		:give("auto_scale", str_w + offset, str_h + offset, false)
+		:give("transform", 0, sx, nil, 0.5, 0.5)
+		:give("color", {1, 1, 1, 0})
+		:give("paint")
+
+	e.text_with_paint.paint = paint
+	Flux.to(paint.color.color, dur_in, {[4] = 1})
+end
+
+function TextPaint:fade_paint(paint, dur, delay)
+	!if _ASSERT then
+	Assert.is(paint, Types.T_ENTITY)
+	Assert.must(dur, Types.T_NUMBER)
+	Assert.exists(paint.paint)
+	Assert.safe.must(delay, Types.T_NUMBER)
+	!end
+
+	Flux.to(paint.color.color, dur, {[4] = 0})
+		:delay(delay or def_delay_paint)
+		:oncomplete(function()
+			paint:destroy()
+		end)
+end
+
+return TextPaint
