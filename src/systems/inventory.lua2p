@@ -125,7 +125,7 @@ function Inventory:item_clicked(e)
 		end
 	end
 
-	local scale = 0.75
+	local scale = 1
 	local transform = e.transform
 	local spr_w, spr_h = e.sprite.sprite:getDimensions()
 	local slot = e.inventory_slot_number.slot
@@ -343,8 +343,8 @@ function Inventory:destroyed_dialogue(id)
 	end
 end
 
-function Inventory:draw_ui_layer_ex(layer_n)
-	if not (layer_n == 2) then return end
+function Inventory:draw_ui_layer_ex(layer_id, layer_n)
+	if not (layer_id == "inventory") then return end
 
 	for _, e in ipairs(self.pool) do
 		if not e.hidden then

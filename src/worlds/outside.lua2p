@@ -236,12 +236,9 @@ function StateOutside:start()
 			hand = res_images.sheet_ui_hand,
 			bag = res_images.sheet_ui_bag,
 			cancel = res_images.sheet_ui_cancel,
-			use = res_images.sheet_ui_cancel,
-			combine = res_images.sheet_ui_cancel,
-			back = res_images.sheet_ui_cancel,
-			-- use = res_images.sheet_ui_use,
-			-- combine = res_images.sheet_ui_combine,
-			-- back = res_images.sheet_ui_back,
+			use = res_images.sheet_ui_use,
+			combine = res_images.sheet_ui_combine,
+			back = res_images.sheet_ui_back,
 		})
 	self.world:emit("set_notification_resources", {
 			question_mark = res_images.question_mark

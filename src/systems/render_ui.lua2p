@@ -13,6 +13,7 @@ local function sort(a, b) return a.layer.n < b.layer.n end
 function RenderUI:init(world)
 	self.world = world
 	self.layers = {}
+	self.layer_id = {}
 	self.map_layers = unique_mapping:new()
 
 	self.pool_layer.onEntityAdded = function(pool, e)
@@ -26,6 +27,7 @@ function RenderUI:init(world)
 		local t = self.layers[unique_id]
 
 		insert(t, e)
+		self.layer_id[unique_id] = layer_id
 		tablex.insertion_sort(t, sort)
 	end
 
@@ -58,13 +60,15 @@ function RenderUI:draw_ui()
 		end
 	end
 
-	for _, t in ipairs(self.layers) do
+	for n, t in ipairs(self.layers) do
+		local layer_id = self.layer_id[n]
+
 		for i, e in ipairs(t) do
 			local text = e.text
 			local stext = e.static_text
 			local sprite = e.sprite
 
-			self.world:emit("draw_ui_layer_ex", i)
+			self.world:emit("draw_ui_layer_ex", layer_id, i)
 
 			if sprite then
 				self.world:emit("draw_sprite_ex", e)
@@ -76,5 +80,42 @@ function RenderUI:draw_ui()
 		end
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local list, list_i, list_t
+
+function RenderUI:draw_debug()
+	views.layers = Slab.BeginWindow("Layers", {
+		Title = "Layers", IsOpen = views.layers})
+	for id, i in pairs(self.map_layers) do
+		Slab.Text(i .. " " .. id)
+		Slab.SameLine()
+
+		if Slab.Button("list") then
+			list = true
+			list_i = i
+			list_t = id
+		end
+	end
+
+	if list then
+		list = Slab.BeginWindow("LayersList", {
+			Title = list_t, IsOpen = list})
+		Slab.Indent()
+		for n, e in ipairs(self.layers[list_i]) do
+			local e_id = e.id.id
+			Slab.Text(e_id)
+		end
+		Slab.Unindent()
+		Slab.EndWindow()
+	end
+
+	Slab.EndWindow()
+end
+
+!end
 
 return RenderUI

@@ -229,7 +229,7 @@ function UI.inventory_button(e, id, sheet, scale)
 	:give("no_shader")
 	:give("preserve_id")
 	:give("ui_element")
-	:give("layer", "inventory", 4)
+	:give("layer", "inventory_buttons", 4)
 	:give("animation", true)
 	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
 
