@@ -58,117 +58,9 @@ function ActionControls:set_action_controls_resources(sheets)
 	Assert.exists(sheets.hand)
 	Assert.exists(sheets.bag)
 	Assert.exists(sheets.cancel)
-	Assert.exists(sheets.use)
-	Assert.exists(sheets.combine)
-	Assert.exists(sheets.back)
 	!end
 
 	self.sheets = sheets
-end
-
-function ActionControls:displayed_inventory(player, e, dur)
-	local base = e.position.pos
-	local sprite = e.sprite.sprite
-	local transform = e.transform
-	local x = base.x
-	local y = base.y - (transform.oy * 2 * sprite:getHeight() * transform.sy)
-	local pos = vec2:new(x, y)
-	local scale = 0.75
-
-	self.btn_close = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "close", self.sheets.cancel, scale)
-		:give("position", pos)
-		:give("color_fade_in", dur, nil, function()
-			self.btn_close:give("hoverable"):give("clickable")
-		end)
-		:give("on_click", 1, function()
-			self.world:emit("keypressed_back")
-			self.btn_close:remove("hoverable"):remove("clickable")
-				:give("color_fade_out", dur, nil, function()
-					self.btn_close:destroy()
-				end)
-		end)
-end
-
-function ActionControls:item_clicked(e, dur)
-	local scale = 0.75
-	local transform = e.transform
-	local spr_w, spr_h = e.sprite.sprite:getDimensions()
-	local slot = e.inventory_slot_number.slot
-	local dir = (slot == 3 or slot == 6) and -1 or 1
-	local ox = (slot == 3 or slot == 6) and 1 or 0
-	local oy = 0.5
-	local ix, iy = e.position.pos:unpack()
-	local x = ix + (spr_w * dir) * transform.sx * transform.oy
-	local pos_use = vec2:new(x, iy)
-
-	if self.btn_use then self.btn_use:destroy() end
-	if self.btn_combine then self.btn_combine:destroy() end
-	if self.btn_back then self.btn_back:destroy() end
-
-	self.btn_use = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "use", self.sheets.use, scale)
-		:remove("hover_change_scale")
-		:give("position", pos_use)
-		:give("transform", 0, scale, scale, ox, oy)
-		:give("tween_dur", dur)
-		:give("color_fade_in", dur, nil, function()
-			self.btn_use:give("hoverable"):give("clickable")
-		end)
-		:give("on_click", 1, function()
-			self.world:emit("clicked_inventory_use", e)
-		end)
-
-	local frame_height = self.btn_use.animation_data.frame_height * scale
-	local pos_combine = vec2:new(x, iy + frame_height)
-
-	self.btn_combine = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "combine", self.sheets.combine, scale)
-		:remove("hover_change_scale")
-		:give("position", pos_combine)
-		:give("transform", 0, scale, scale, ox, oy)
-		:give("tween_dur", dur)
-		:give("color_fade_in", dur, nil, function()
-			self.btn_combine:give("hoverable"):give("clickable")
-		end)
-		:give("on_click", 1, function()
-			self.world:emit("clicked_inventory_combine", e)
-		end)
-
-	local pos_back = vec2:new(x, iy + frame_height * 2)
-
-	self.btn_back = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "back", self.sheets.back, scale)
-		:remove("hover_change_scale")
-		:give("position", pos_back)
-		:give("transform", 0, scale, scale, ox, oy)
-		:give("tween_dur", dur)
-		:give("color_fade_in", dur, nil, function()
-			self.btn_back:give("hoverable"):give("clickable")
-		end)
-		:give("on_click", 1, function()
-			self.world:emit("clicked_inventory_back", e)
-			self:keypressed_back()
-		end)
-end
-
-function ActionControls:keypressed_back()
-	local dur = self.btn_use.tween_dur.dur
-
-	self.btn_use:remove("hoverable"):remove("clickable")
-		:give("color_fade_out", dur, nil, function()
-			self.btn_use:destroy()
-		end)
-
-	self.btn_combine:remove("hoverable"):remove("clickable")
-		:give("color_fade_out", dur, nil, function()
-			self.btn_combine:destroy()
-		end)
-
-	self.btn_back:remove("hoverable"):remove("clickable")
-		:give("color_fade_out", dur, nil, function()
-			self.btn_back:destroy()
-		end)
 end
 
 function ActionControls:show_action_controls(player, target_interactive)
@@ -265,8 +157,6 @@ function ActionControls:action_interacted_eye(target_interactive, player)
 	!end
 
 	local id = target_interactive.id.id
-	print("eye", id)
-
 	self:toggle_action_controls(false)
 end
 
@@ -276,8 +166,6 @@ function ActionControls:action_interacted_hand(target_interactive, player)
 	!end
 
 	local id = target_interactive.id.id
-	print("hand", id)
-
 	self:toggle_action_controls(false)
 end
 
@@ -287,8 +175,6 @@ function ActionControls:action_interacted_bag(target_interactive, player)
 	!end
 
 	local id = target_interactive.id.id
-	print("bag", id)
-
 	self:toggle_action_controls(false)
 end
 
@@ -297,10 +183,6 @@ function ActionControls:interact_cancelled()
 end
 
 function ActionControls:closed_inventory()
-	self:toggle_action_controls(true)
-end
-
-function ActionControls:destroyed_dialogue(id)
 	self:toggle_action_controls(true)
 end
 

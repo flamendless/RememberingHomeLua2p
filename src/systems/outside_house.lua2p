@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 
 local Fade = require("fade")
-local Save = require("save")
 
 local OutsideHouse = Concord.system({
 	pool_door = {"door", "collider3d", "bump3d", "position"},
@@ -81,14 +80,13 @@ function OutsideHouse:action_interacted_hand(target_interactive, player)
 			self.can_go_to_storage_room = true
 		end)
 	elseif id == "interactive_backdoor" then
-		if self.can_go_to_storage_room then
-			local save_bd = "backdoor_locked"
+		local locked = target_interactive.locked
 
-			if Save.data[save_bd] then
-				-- TODO
-				-- do puzzle here to unlock the door
-				-- after:
-				-- Save.toggle_flag(save_bd, true)
+		if not self.can_go_to_storage_room then
+			self.world:emit("show_dialogue", str_outside, "backdoor_hand", id)
+		else
+			if locked then
+				self.world:emit("show_dialogue", str_outside, "backdoor_hand_locked", id)
 			else
 				self.world:emit("player_open_door", player, function()
 					Fade.fade_out(function()
@@ -96,18 +94,35 @@ function OutsideHouse:action_interacted_hand(target_interactive, player)
 					end, 0.5)
 				end)
 			end
-		else
-			self.world:emit("show_dialogue", str_outside, "backdoor_hand", id)
 		end
 	end
 end
 
-function OutsideHouse:action_interacted_bag(target_interactive)
-	!if _ASSERT then
-	Assert.is(target_interactive, Types.T_ENTITY)
-	!end
+function OutsideHouse:used_item(interactive, item)
+	local interactive_id = interactive.id.id
+	local item_id = item.id.id
+	local str_outside = "outside"
+	local dialogue_id
 
-	local id = target_interactive.id.id
+	if interactive_id == "interactive_backdoor" and
+		item_id == "item_backdoor_key" then
+
+		if self.can_go_to_storage_room then
+			dialogue_id = "backdoor_unlocked"
+			--TODO play unlock sound
+			interactive:remove("locked")
+			item:give("item_discard")
+			self.can_go_to_storage_room = true
+		else
+			dialogue_id = "backdoor_hand"
+		end
+
+		self.world:emit("show_dialogue", str_outside, dialogue_id, interactive_id)
+		self.world:emit("showed_dialogue_item")
+	else
+		self.world:emit("show_dialogue", "inventory", "unable_to_use", interactive_id)
+		self.world:emit("showed_dialogue_item")
+	end
 end
 
 function OutsideHouse:destroyed_dialogue(interactive_id)

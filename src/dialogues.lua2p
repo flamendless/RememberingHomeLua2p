@@ -1,6 +1,10 @@
 local Dialogues = {}
 
 local dialogues = {
+	inventory = {
+		unable_to_use = "Item can not be used here.",
+	},
+
 	intro_rain = {
 		"Hey, latest reports came in a few minutes ago.",
 		"Apparently another case occured.",
@@ -28,6 +32,8 @@ local dialogues = {
 
 		backdoor_eye = "This door leads to the storage room",
 		backdoor_hand = "I need to check the main door first",
+		backdoor_hand_locked = "It is locked. I have the key though.",
+		backdoor_unlocked = "It is now unlocked.",
 	}
 }
 

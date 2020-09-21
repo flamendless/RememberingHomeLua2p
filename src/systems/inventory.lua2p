@@ -12,6 +12,7 @@ local Inventory = Concord.system({
 })
 
 local Items = require("assemblages.items")
+local UI = require("assemblages.ui")
 
 local scale = 1
 local img_w, img_h = 64, 64
@@ -24,11 +25,13 @@ local color_outline_hovered = Palette.get("item_outline_hovered")
 function Inventory:init(world)
 	self.world = world
 	self.dur_show = 0.5
+	self.dur_hide = 0.5
 	self.offset = 108
 	self.cols = 3
 	self.rows = 3
 	self.current_n = 0
 	self.actions_active = false
+	self.sheets = nil
 
 	self.pool.onEntityAdded = function(pool, e)
 		local pos = self.pool_cell[#pool].position.pos:copy()
@@ -56,6 +59,21 @@ function Inventory:init(world)
 		if #pool > 1 then error("There should only be one inventory_desc") end
 	end
 	!end
+end
+
+function Inventory:set_action_controls_resources(sheets)
+	!if _ASSERT then
+	Assert.must(sheets, Types.T_TABLE)
+	Assert.exists(sheets.eye)
+	Assert.exists(sheets.hand)
+	Assert.exists(sheets.bag)
+	Assert.exists(sheets.cancel)
+	Assert.exists(sheets.use)
+	Assert.exists(sheets.combine)
+	Assert.exists(sheets.back)
+	!end
+
+	self.sheets = sheets
 end
 
 function Inventory:create_inventory_cell(spr_item, spr_desc, font)
@@ -98,8 +116,6 @@ function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 end
 
 function Inventory:item_clicked(e)
-	local id = e.id.id
-
 	for _, e2 in ipairs(self.pool) do
 		if e == e2 then
 			e:give("clicked")
@@ -109,22 +125,66 @@ function Inventory:item_clicked(e)
 		end
 	end
 
-	print("item_clicked", id)
-end
+	local scale = 0.75
+	local transform = e.transform
+	local spr_w, spr_h = e.sprite.sprite:getDimensions()
+	local slot = e.inventory_slot_number.slot
+	local dir = (slot == 3 or slot == 6) and -1 or 1
+	local ox = (slot == 3 or slot == 6) and 1 or 0
+	local oy = 0.5
+	local ix, iy = e.position.pos:unpack()
+	local x = ix + (spr_w * dir) * transform.sx * transform.oy
+	local pos_use = vec2:new(x, iy)
 
-function Inventory:clicked_inventory_use(e)
-	local id = e.id.id
-	print("used " .. id)
-end
+	if self.btn_use then self.btn_use:destroy() end
+	if self.btn_combine then self.btn_combine:destroy() end
+	if self.btn_back then self.btn_back:destroy() end
 
-function Inventory:clicked_inventory_combine(e)
-	local id = e.id.id
-	print("combine " .. id)
+	self.btn_use = Concord.entity(self.world)
+		:assemble(UI.inventory_button, "use", self.sheets.use, scale)
+		:remove("hover_change_scale")
+		:give("position", pos_use)
+		:give("transform", 0, scale, scale, ox, oy)
+		:give("color_fade_in", self.dur_show, nil, function()
+			self.btn_use:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("clicked_inventory_use", e)
+		end)
+
+	local frame_height = self.btn_use.animation_data.frame_height * scale
+	local pos_combine = vec2:new(x, iy + frame_height)
+
+	self.btn_combine = Concord.entity(self.world)
+		:assemble(UI.inventory_button, "combine", self.sheets.combine, scale)
+		:remove("hover_change_scale")
+		:give("position", pos_combine)
+		:give("transform", 0, scale, scale, ox, oy)
+		:give("color_fade_in", self.dur_show, nil, function()
+			self.btn_combine:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("clicked_inventory_combine", e)
+		end)
+
+	local pos_back = vec2:new(x, iy + frame_height * 2)
+
+	self.btn_back = Concord.entity(self.world)
+		:assemble(UI.inventory_button, "back", self.sheets.back, scale)
+		:remove("hover_change_scale")
+		:give("position", pos_back)
+		:give("transform", 0, scale, scale, ox, oy)
+		:give("color_fade_in", self.dur_show, nil, function()
+			self.btn_back:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("clicked_inventory_back", e)
+			self:close_inventory_buttons()
+		end)
 end
 
 function Inventory:clicked_inventory_back(e)
 	local id = e.id.id
-	print("back " .. id)
 
 	self.actions_active = false
 	self.pool_desc[1].text.text = ""
@@ -164,8 +224,49 @@ function Inventory:action_interacted_bag(target_interactive, player)
 		:give("color_fade_in", self.dur_show)
 	e_desc.text.text = ""
 
-	local second_e = self.pool_cell[2]
-	self.world:emit("displayed_inventory", player, second_e, self.dur_show)
+	self.inventory_open = true
+	self:displayed_inventory()
+end
+
+function Inventory:displayed_inventory()
+	local e = self.pool_cell[2]
+	local base = e.position.pos
+	local sprite = e.sprite.sprite
+	local transform = e.transform
+	local x = base.x
+	local y = base.y - (transform.oy * 2 * sprite:getHeight() * transform.sy)
+	local pos = vec2:new(x, y)
+	local scale = 0.75
+
+	self.btn_close = Concord.entity(self.world)
+		:assemble(UI.inventory_button, "close", self.sheets.cancel, scale)
+		:give("position", pos)
+		:give("color_fade_in", self.dur_show, nil, function()
+			self.btn_close:give("hoverable"):give("clickable")
+		end)
+		:give("on_click", 1, function()
+			self.world:emit("keypressed_back")
+			self.btn_close:remove("hoverable"):remove("clickable")
+				:give("color_fade_out", self.dur_show, nil, function()
+					self.btn_close:destroy()
+				end)
+		end)
+end
+
+function Inventory:finished_item_dialogue()
+	local has_discard = false
+
+	for _, e in ipairs(self.pool) do
+		if e.item_discard then
+			e:destroy()
+			has_discard = true
+		end
+	end
+
+	if has_discard then
+		self.pool_desc[1].text.text = ""
+		self.world:emit("close_inventory_buttons")
+	end
 end
 
 function Inventory:keypressed_back()
@@ -190,6 +291,56 @@ function Inventory:keypressed_back()
 	e_desc:give("color_fade_out", self.dur_show, nil, function()
 		e_desc:give("hidden")
 	end)
+
+	self:close_inventory_buttons()
+end
+
+function Inventory:close_inventory_buttons()
+	if not (self.btn_use and self.btn_combine and self.btn_back) then return end
+
+	self.btn_use:remove("hoverable"):remove("clickable")
+		:give("color_fade_out", self.dur_hide, nil, function()
+			self.btn_use:destroy()
+		end)
+
+	self.btn_combine:remove("hoverable"):remove("clickable")
+		:give("color_fade_out", self.dur_hide, nil, function()
+			self.btn_combine:destroy()
+		end)
+
+	self.btn_back:remove("hoverable"):remove("clickable")
+		:give("color_fade_out", self.dur_hide, nil, function()
+			self.btn_back:destroy()
+		end)
+end
+
+function Inventory:showed_dialogue_item()
+	self.btn_use:remove("hoverable"):remove("clickable")
+	self.btn_combine:remove("hoverable"):remove("clickable")
+	self.btn_back:remove("hoverable"):remove("clickable")
+	self.btn_close:remove("hoverable"):remove("clickable")
+	self.is_inventory = true
+end
+
+function Inventory:closed_inventory()
+	self.actions_active = false
+	self.inventory_open = false
+end
+
+function Inventory:destroyed_dialogue(id)
+	if not self.inventory_open then
+		self.world:emit("toggle_action_controls", true)
+	end
+
+	if self.is_inventory then
+		self.btn_use:give("hoverable"):give("clickable")
+		self.btn_combine:give("hoverable"):give("clickable")
+		self.btn_back:give("hoverable"):give("clickable")
+		self.btn_close:give("hoverable"):give("clickable")
+		self.is_inventory = false
+
+		self.world:emit("finished_item_dialogue")
+	end
 end
 
 function Inventory:draw_ui_layer_ex(layer_n)

@@ -1,0 +1,28 @@
+local Concord = require("modules.concord.concord")
+
+local Items = Concord.system({
+	pool = {"id", "item"},
+})
+
+function Items:init(world)
+	self.world = world
+	self.is_combining = false
+	self.interactive = nil
+end
+
+function Items:action_interacted_bag(target_interactive, player)
+	self.interactive = target_interactive
+end
+
+function Items:interact_cancelled()
+	self.interactive = nil
+end
+
+function Items:clicked_inventory_use(e)
+	self.world:emit("used_item", self.interactive, e)
+end
+
+function Items:clicked_inventory_combine(e)
+end
+
+return Items

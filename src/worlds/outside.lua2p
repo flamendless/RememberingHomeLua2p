@@ -54,6 +54,7 @@ local Systems = {
 	HoverEffect = require("systems.hover_effect"),
 	Interactive = require("systems.interactive"),
 	Inventory = require("systems.inventory"),
+	Items = require("systems.items"),
 	Map = require("systems.map"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
@@ -180,6 +181,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.Interactive)
 	self.world:addSystem(Systems.Inventory)
+	self.world:addSystem(Systems.Items)
 	self.world:addSystem(Systems.MouseHover)
 	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)

@@ -24,6 +24,7 @@ function InteractiveOutside.interactive_backdoor(e)
 	:give("action_hand")
 	:give("action_bag")
 	:give("action_cancel")
+	:give("locked")
 end
 
 function InteractiveOutside.interactive_locked_door(e)

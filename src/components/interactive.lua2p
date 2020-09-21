@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("interactive")
+Concord.component("locked")
 
 Concord.component("target_interactive", function(c, interactive)
 	!if _ASSERT then
