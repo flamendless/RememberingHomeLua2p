@@ -211,7 +211,19 @@ function UI.question_mark(e, sprite, dur)
 	:give("no_shader")
 end
 
-function UI.inventory_button(e, id, sheet, scale)
+function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
+	local color_hovered, color_unhovered_def, color_unhovered
+
+	if id == "close" then
+		color_hovered = Palette.get("ui_hovered")
+		color_unhovered_def = Palette.get("ui_not_hovered", 0)
+		color_unhovered = Palette.get("ui_not_hovered")
+	else
+		color_hovered = Palette.get("inventory_btn_hovered")
+		color_unhovered_def = Palette.get("inventory_btn_unhovered", 0)
+		color_unhovered = Palette.get("inventory_btn_unhovered")
+	end
+
 	e:give("id", "inventory_" .. id)
 	:give("animation_data", {
 			spritesheet = sheet,
@@ -221,17 +233,22 @@ function UI.inventory_button(e, id, sheet, scale)
 			columns_count = 5,
 			n_frames = 5,
 		})
+	:give("position", pos)
+	:give("transform", 0, scale, scale, ox, oy)
 	:give("ease", "backout")
-	:give("bounding_box", vec2:new(), vec2:new(96 * scale, 96 * scale))
-	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
+	:give("hover_change_color", color_hovered, 0.1)
 	:give("hover_change_scale", scale + 0.1, 0.25)
-	:give("transform", 0, scale, scale, 0.5, 0.5)
+	:give("color", color_unhovered_def, color_unhovered)
 	:give("no_shader")
 	:give("preserve_id")
 	:give("ui_element")
 	:give("layer", "inventory_buttons", 4)
 	:give("animation", true)
-	:give("color", Palette.get("ui_not_hovered", 0), Palette.get("ui_not_hovered"))
+
+	local w = e.animation_data.frame_width
+	local h = e.animation_data.frame_height
+
+	e:give("bounding_box", vec2:new(), vec2:new(w * scale, h * scale))
 
 	return e
 end

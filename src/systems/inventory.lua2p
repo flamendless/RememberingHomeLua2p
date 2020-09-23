@@ -135,16 +135,15 @@ function Inventory:item_clicked(e)
 	local ix, iy = e.position.pos:unpack()
 	local x = ix + (spr_w * dir) * transform.sx * transform.oy
 	local pos_use = vec2:new(x, iy)
+	local sheets = self.sheets
 
 	if self.btn_use then self.btn_use:destroy() end
 	if self.btn_combine then self.btn_combine:destroy() end
 	if self.btn_back then self.btn_back:destroy() end
 
 	self.btn_use = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "use", self.sheets.use, scale)
+		:assemble(UI.inventory_btn, "use", sheets.use, pos_use, scale, ox, oy)
 		:remove("hover_change_scale")
-		:give("position", pos_use)
-		:give("transform", 0, scale, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_use:give("hoverable"):give("clickable")
 		end)
@@ -156,10 +155,8 @@ function Inventory:item_clicked(e)
 	local pos_combine = vec2:new(x, iy + frame_height)
 
 	self.btn_combine = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "combine", self.sheets.combine, scale)
+		:assemble(UI.inventory_btn, "combine", sheets.combine, pos_combine, scale, ox, oy)
 		:remove("hover_change_scale")
-		:give("position", pos_combine)
-		:give("transform", 0, scale, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_combine:give("hoverable"):give("clickable")
 		end)
@@ -170,10 +167,8 @@ function Inventory:item_clicked(e)
 	local pos_back = vec2:new(x, iy + frame_height * 2)
 
 	self.btn_back = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "back", self.sheets.back, scale)
+		:assemble(UI.inventory_btn, "back", sheets.back, pos_back, scale, ox, oy)
 		:remove("hover_change_scale")
-		:give("position", pos_back)
-		:give("transform", 0, scale, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_back:give("hoverable"):give("clickable")
 		end)
@@ -239,8 +234,7 @@ function Inventory:displayed_inventory()
 	local scale = 0.75
 
 	self.btn_close = Concord.entity(self.world)
-		:assemble(UI.inventory_button, "close", self.sheets.cancel, scale)
-		:give("position", pos)
+		:assemble(UI.inventory_btn, "close", self.sheets.cancel, pos, scale, 0.5, 0.5)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_close:give("hoverable"):give("clickable")
 		end)
@@ -361,16 +355,23 @@ function Inventory:draw_ui_layer_ex(layer_id, layer_n)
 				y = y - transform.oy * transform.sy
 			end
 
-			if clicked or hoverable.is_hovered then
-				love.graphics.setColor(
-					color_outline_hovered[1],
-					color_outline_hovered[2],
-					color_outline_hovered[3], a)
-			else
+			if self.actions_active then
 				love.graphics.setColor(
 					color_outline[1],
 					color_outline[2],
 					color_outline[3], a)
+			else
+				if clicked or hoverable.is_hovered then
+					love.graphics.setColor(
+						color_outline_hovered[1],
+						color_outline_hovered[2],
+						color_outline_hovered[3], a)
+				else
+					love.graphics.setColor(
+						color_outline[1],
+						color_outline[2],
+						color_outline[3], a)
+				end
 			end
 
 			love.graphics.setLineWidth(line_width)
