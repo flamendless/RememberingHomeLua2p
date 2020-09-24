@@ -145,6 +145,20 @@ function Assert.truthy(arg)
 	end
 end
 
+function Assert.i_every(t, req_type)
+	Assert.must(t, types.T_TABLE)
+	for _, v in ipairs(t) do
+		Assert.must(v, req_type)
+	end
+end
+
+function Assert.k_every(t, req_type)
+	Assert.must(t, types.T_TABLE)
+	for _, v in pairs(t) do
+		Assert.must(v, req_type)
+	end
+end
+
 for method, fn in pairs(Assert) do
 	if type(fn) == "function" then
 		Assert.safe[method] = function(arg, ...)

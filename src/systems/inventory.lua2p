@@ -25,8 +25,8 @@ local color_outline_hovered = Palette.get("item_outline_hovered")
 
 function Inventory:init(world)
 	self.world = world
-	self.dur_show = 0.5
-	self.dur_hide = 0.5
+	self.dur_show = 0.25
+	self.dur_hide = 0.25
 	self.offset = 108
 	self.cols = 3
 	self.rows = 3
@@ -315,11 +315,18 @@ function Inventory:combined_item_success(res, a, b)
 	--TODO play sound combine success
 	self.is_combining = false
 
-	print(res)
+	a.id.id = res.id
+	a.sprite.sprite = res.spr
+	a.item.desc = res.desc
+end
+
+function Inventory:combined_item_fail()
+	--TODO play sound unable to combine
+	self.is_combining = false
+	self.pool_desc[1].text.text = "Items can not be combined"
 end
 
 function Inventory:cancelled_combine()
-	--TODO play sound unable to combine
 	self.is_combining = false
 end
 

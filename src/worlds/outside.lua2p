@@ -231,6 +231,7 @@ function StateOutside:start()
 			font = res_fonts.dialogue,
 			sheet_arrow = res_images.sheet_dialogue_arrow,
 		})
+
 	self.world:emit("set_action_controls_resources", {
 			eye = res_images.sheet_ui_eye,
 			hand = res_images.sheet_ui_hand,
@@ -240,6 +241,11 @@ function StateOutside:start()
 			combine = res_images.sheet_ui_combine,
 			back = res_images.sheet_ui_back,
 		})
+
+	self.world:emit("set_items_resources", {
+			item_backdoor_key = res_images.backdoor_key,
+		})
+
 	self.world:emit("set_notification_resources", {
 			question_mark = res_images.question_mark
 		})

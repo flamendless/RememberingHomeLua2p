@@ -115,9 +115,9 @@ Resources.data.outside = {
 		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
 		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
 		{"question_mark", path_ui .. "question_mark.png"},
-		{"backdoor_key", path_items .. "backdoor_key.png"},
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
+		{"backdoor_key", path_items .. "backdoor_key.png"},
 	},
 
 	image_data = {
