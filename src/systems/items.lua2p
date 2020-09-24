@@ -1,12 +1,14 @@
 local Concord = require("modules.concord.concord")
 
+local ItemCombinations = require("data.item_combinations")
+
 local Items = Concord.system({
 	pool = {"id", "item"},
 })
 
 function Items:init(world)
 	self.world = world
-	self.is_combining = false
+	self.combine_a = nil
 	self.interactive = nil
 end
 
@@ -18,11 +20,37 @@ function Items:interact_cancelled()
 	self.interactive = nil
 end
 
+function Items:item_clicked_combine(combine_b)
+	local id_a = self.combine_a.id.id
+	local id_b = combine_b.id.id
+
+	if id_a == id_b then
+		self.world:emit("cancelled_combine")
+	else
+		local res = ItemCombinations.get(id_a, id_b)
+
+		if res then
+			self.world:emit("combined_item_success", res, self.combine_a, combine_b)
+		else
+			self.world:emit("cancelled_combine")
+		end
+	end
+
+	self.combine_a:remove("combining"):remove("clicked")
+	self.combine_a = nil
+end
+
+function Items:combined_item_success(res, a, b)
+	b:destroy()
+end
+
 function Items:clicked_inventory_use(e)
 	self.world:emit("used_item", self.interactive, e)
 end
 
 function Items:clicked_inventory_combine(e)
+	self.combine_a = e
+	e:give("combining")
 end
 
 return Items

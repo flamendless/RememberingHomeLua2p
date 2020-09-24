@@ -1,6 +1,10 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("item_discard")
+Concord.component("combining")
+Concord.component("inventory_open")
+Concord.component("inventory_cell")
+Concord.component("inventory_desc")
 
 Concord.component("item", function(c, desc)
 	!if _ASSERT then
@@ -9,10 +13,6 @@ Concord.component("item", function(c, desc)
 
 	c.desc = desc
 end)
-
-Concord.component("inventory_open")
-Concord.component("inventory_cell")
-Concord.component("inventory_desc")
 
 Concord.component("inventory_slot_number", function(c, slot)
 	!if _ASSERT then

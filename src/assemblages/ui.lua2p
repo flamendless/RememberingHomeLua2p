@@ -237,7 +237,6 @@ function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("ease", "backout")
 	:give("hover_change_color", color_hovered, 0.1)
-	:give("hover_change_scale", scale + 0.1, 0.25)
 	:give("color", color_unhovered_def, color_unhovered)
 	:give("no_shader")
 	:give("preserve_id")
@@ -249,6 +248,10 @@ function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
 	local h = e.animation_data.frame_height
 
 	e:give("bounding_box", vec2:new(), vec2:new(w * scale, h * scale))
+
+	if id == "close" then
+		e:give("hover_change_scale", scale + 0.1, 0.25)
+	end
 
 	return e
 end

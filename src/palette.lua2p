@@ -28,7 +28,7 @@ Palette.colors = {
 	ui_hovered = !(rgb_to_love("#ffffff")),
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 
-	item_default = !(rgb_to_love("#ffffff")),
+	item_combine = !(rgb_to_love("#00ff00")),
 	item_outline = !(rgb_to_love("#888888")),
 	item_outline_hovered = !(rgb_to_love("#aaaaaa")),
 

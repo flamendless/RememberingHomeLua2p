@@ -19,6 +19,7 @@ local img_w, img_h = 64, 64
 local item_size = vec2:new(img_w * scale, img_h * scale)
 
 local line_width = 3
+local color_combine = Palette.get("item_combine")
 local color_outline = Palette.get("item_outline")
 local color_outline_hovered = Palette.get("item_outline_hovered")
 
@@ -31,6 +32,7 @@ function Inventory:init(world)
 	self.rows = 3
 	self.current_n = 0
 	self.actions_active = false
+	self.is_combining = false
 	self.sheets = nil
 
 	self.pool.onEntityAdded = function(pool, e)
@@ -42,7 +44,9 @@ function Inventory:init(world)
 		:give("layer", "inventory", 3)
 		:give("transform", 0, scale, scale, 0.5, 0.5)
 		:give("on_click", 1, function()
-			if not self.actions_active then
+			if self.is_combining then
+				self.world:emit("item_clicked_combine", e)
+			elseif not self.actions_active then
 				self.world:emit("item_clicked", e, self.dur_show)
 				self.actions_active = true
 			end
@@ -64,10 +68,6 @@ end
 function Inventory:set_action_controls_resources(sheets)
 	!if _ASSERT then
 	Assert.must(sheets, Types.T_TABLE)
-	Assert.exists(sheets.eye)
-	Assert.exists(sheets.hand)
-	Assert.exists(sheets.bag)
-	Assert.exists(sheets.cancel)
 	Assert.exists(sheets.use)
 	Assert.exists(sheets.combine)
 	Assert.exists(sheets.back)
@@ -143,7 +143,6 @@ function Inventory:item_clicked(e)
 
 	self.btn_use = Concord.entity(self.world)
 		:assemble(UI.inventory_btn, "use", sheets.use, pos_use, scale, ox, oy)
-		:remove("hover_change_scale")
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_use:give("hoverable"):give("clickable")
 		end)
@@ -156,7 +155,6 @@ function Inventory:item_clicked(e)
 
 	self.btn_combine = Concord.entity(self.world)
 		:assemble(UI.inventory_btn, "combine", sheets.combine, pos_combine, scale, ox, oy)
-		:remove("hover_change_scale")
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_combine:give("hoverable"):give("clickable")
 		end)
@@ -168,7 +166,6 @@ function Inventory:item_clicked(e)
 
 	self.btn_back = Concord.entity(self.world)
 		:assemble(UI.inventory_btn, "back", sheets.back, pos_back, scale, ox, oy)
-		:remove("hover_change_scale")
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_back:give("hoverable"):give("clickable")
 		end)
@@ -308,6 +305,24 @@ function Inventory:close_inventory_buttons()
 		end)
 end
 
+function Inventory:clicked_inventory_combine()
+	self:close_inventory_buttons()
+	self.actions_active = false
+	self.is_combining = true
+end
+
+function Inventory:combined_item_success(res, a, b)
+	--TODO play sound combine success
+	self.is_combining = false
+
+	print(res)
+end
+
+function Inventory:cancelled_combine()
+	--TODO play sound unable to combine
+	self.is_combining = false
+end
+
 function Inventory:showed_dialogue_item()
 	self.btn_use:remove("hoverable"):remove("clickable")
 	self.btn_combine:remove("hoverable"):remove("clickable")
@@ -355,7 +370,12 @@ function Inventory:draw_ui_layer_ex(layer_id, layer_n)
 				y = y - transform.oy * transform.sy
 			end
 
-			if self.actions_active then
+			if e.combining then
+				love.graphics.setColor(
+					color_combine[1],
+					color_combine[2],
+					color_combine[3], a)
+			elseif self.actions_active then
 				love.graphics.setColor(
 					color_outline[1],
 					color_outline[2],
