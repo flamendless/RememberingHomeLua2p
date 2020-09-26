@@ -3,13 +3,13 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
 local TextPaintIntro = Concord.system({
-	pool = {"text_paint_data"}
+	pool_data = {"text_paint_data"}
 })
 
 function TextPaintIntro:init(world)
 	self.world = world
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool_data.onEntityAdded = function(pool, e)
 		self.paint_data = e.text_paint_data.data
 	end
 end

@@ -137,7 +137,7 @@ function StateSplash:start()
 				rows_count = 4,
 				columns_count = 3,
 			}, vec2:new(ww/2, wh/2))
-		:give("color", Palette.colors.white)
+		:give("color", Palette.get("white"))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)

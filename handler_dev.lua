@@ -1,8 +1,18 @@
-_RELEASE = false
-_REPORTING = false
-_NETWORK = false
-_ASSERT = true
-_LOG_SAVE = false
+local test = false
+
+if test then
+	_RELEASE = true
+	_REPORTING = false
+	_NETWORK = false
+	_ASSERT = false
+	_LOG_SAVE = false
+else
+	_RELEASE = false
+	_REPORTING = false
+	_NETWORK = false
+	_ASSERT = true
+	_LOG_SAVE = false
+end
 
 _OS = "Linux"
 _PLATFORM = "desktop"
@@ -60,7 +70,7 @@ _TWITTER_ARTIST = "@wits"
 _TWITTER_DESIGNER = "@piotato"
 
 _TOOLS = {
-	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",
+	"Manjaro", "i3-Gaps", "Discord", "Löve Framework",
 	"Vim", "Trello", "Aseprite", "Audacity",
 }
 

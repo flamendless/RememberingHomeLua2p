@@ -36,6 +36,14 @@ function Fade.fade_in(on_complete, duration, delay)
 	end
 end
 
+function Fade.set_alpha(a)
+	!if _ASSERT then
+	Assert.must(a, Types.T_NUMBER)
+	!end
+
+	f_color[4] = a
+end
+
 function Fade.draw()
 	local w, h = love.graphics.getDimensions()
 

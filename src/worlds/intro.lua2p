@@ -67,7 +67,6 @@ local res_images, res_fonts
 local screen_size
 
 local effect = {dt = 0, dt2 = 0, status = 1}
-local fade_out_duration = 0.1
 local dur_in = 2.5
 local dur_out = 1.5
 local fade_duration = 4
@@ -206,7 +205,7 @@ function StateIntro:start()
 		end)
 
 	self.entities.cloud_data = Concord.entity(self.world)
-		:assemble(Assemblages.UI.cloud_data, res_images.sheet_paint)
+		:assemble(Assemblages.UI.cloud_data, res_images.sheet_cloud)
 
 	local lut_size
 	local lut_afternoon, lut_dusk
@@ -341,7 +340,7 @@ function StateIntro:start()
 				self.ps1.system:stop()
 				self.ps2.system:stop()
 				self.gamestate.switch("Outside")
-			end, fade_out_duration)
+			end, 2)
 		end
 	end)
 
