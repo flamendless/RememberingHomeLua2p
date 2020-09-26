@@ -1,14 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("ui_element", function(c)
-end)
-
-Concord.component("ui_text", function(c)
-end)
-
-Concord.component("ui_action", function(c)
-	c.is_active = false
-end)
+Concord.component("ui_element")
 
 Concord.component("ui_offset", function(c, offset)
 	!if _ASSERT then
@@ -16,4 +8,14 @@ Concord.component("ui_offset", function(c, offset)
 	!end
 
 	c.offset = offset
+end)
+
+Concord.component("layer", function(c, id, n)
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.safe.must(n, Types.T_NUMBER)
+	!end
+
+	c.id = id
+	c.n = n or 0
 end)

@@ -7,7 +7,8 @@ local format = string.format
 local Save = {
 	data = {
 		splash_done = false,
-		intro_done = false
+		intro_done = false,
+		backdoor_locked = true,
 	},
 	checkpoints = {},
 	valid_checkpoints = false,
@@ -57,14 +58,15 @@ function Save.overwrite()
 	Utils.write_to_file(key_filename, hashed)
 end
 
-function Save.set_flag(id, should_overwrite)
+function Save.toggle_flag(id, should_overwrite)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	Assert.exists(Save.data[id])
 	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
 	!end
 
-	Save.data[id] = true
+	local sd = Save.data
+	sd[id] = not sd[id]
 
 	if should_overwrite then
 		Save.overwrite()

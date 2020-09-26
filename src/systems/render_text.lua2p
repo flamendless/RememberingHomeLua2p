@@ -1,12 +1,16 @@
 local Concord = require("modules.concord.concord")
+local ReflowPrint = require("modules.reflowprint.reflowprint")
+
+local ceil = math.ceil
 
 local RenderText = Concord.system({
 	pool = {"position", "text"},
 	pool_static = {"position", "static_text", "font"},
-	pool_ui = {"position", "text", "ui_text"},
 })
 
-function RenderText:init()
+function RenderText:init(world)
+	self.world = world
+
 	self.pool_static.onEntityAdded = function(pool, e)
 		!if _ASSERT then
 		if e.sdf then
@@ -18,15 +22,17 @@ function RenderText:init()
 	end
 end
 
-function RenderText:internal_draw(e)
+function RenderText:draw_text_ex(e)
 	if not e.hidden then
 		local pos = e.position
 		local color = e.color
 		local text = e.text
+		local textf = e.textf
 		local static_text = e.static_text
 		local font = e.font
 		local transform = e.transform
 		local sdf = e.sdf
+		local rfp = e.reflowprint
 
 		love.graphics.setColor(1, 1, 1, 1)
 
@@ -38,11 +44,12 @@ function RenderText:internal_draw(e)
 			love.graphics.setFont(font.font)
 		end
 
+		local str = text and text.text
 		local current_font = love.graphics.getFont()
-		local rotation, sx, sy, ox, oy
+		local r, sx, sy, ox, oy
 
 		if transform then
-			rotation = transform.rotation
+			r = transform.rotation
 			sx = transform.sx
 			sy = transform.sy
 			ox = transform.ox
@@ -51,22 +58,28 @@ function RenderText:internal_draw(e)
 			if transform.ox == 0.5 then
 				if static_text then
 					ox = static_text.text_obj:getWidth()/2
+				elseif textf then
+					ox = textf.limit/2
 				else
-					ox = current_font:getWidth(text.text)/2
+					ox = current_font:getWidth(str)/2
 				end
 			end
 
 			if transform.oy == 0.5 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()/2
+				elseif textf then
+					local lines = current_font:getWidth(str)/textf.limit
+					lines = ceil(lines)
+					oy = current_font:getHeight(str)/2 * lines
 				else
-					oy = current_font:getHeight(text.text)/2
+					oy = current_font:getHeight(str)/2
 				end
 			elseif transform.oy == 1 then
 				if static_text then
 					oy = static_text.text_obj:getHeight()
 				else
-					oy = current_font:getHeight(text.text)
+					oy = current_font:getHeight(str)
 				end
 			end
 		end
@@ -79,35 +92,36 @@ function RenderText:internal_draw(e)
 		local x = pos.pos.x
 		local y = pos.pos.y
 
-		if static_text then
-			love.graphics.draw(static_text.text_obj, x, y, rotation, sx, sy, ox, oy)
+		if rfp then
+			x = x - ox
+			y = y - oy
+			ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
 		else
-			love.graphics.print(text.text, x, y, rotation, sx, sy, ox, oy)
+			if static_text then
+				love.graphics.draw(static_text.text_obj, x, y, r, sx, sy, ox, oy)
+			else
+				if textf then
+					love.graphics.printf(str, x, y, textf.limit, textf.align,
+						r, sx, sy, ox, oy)
+				else
+					love.graphics.print(str, x, y, r, sx, sy, ox, oy)
+				end
+			end
 		end
 	end
 end
 
 function RenderText:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.ui_text then
-			self:internal_draw(e)
+		if not e.ui_element then
+			self:draw_text_ex(e)
 		end
 	end
 
 	for _, e in ipairs(self.pool_static) do
-		if not e.ui_text then
-			self:internal_draw(e)
+		if not e.ui_element then
+			self:draw_text_ex(e)
 		end
-	end
-end
-
-function RenderText:draw_ui()
-	for _, e in ipairs(self.pool_ui) do
-		self:internal_draw(e)
-	end
-
-	for _, e in ipairs(self.pool_static) do
-		self:internal_draw(e)
 	end
 end
 
@@ -121,9 +135,7 @@ local t_comp
 local selected_e
 
 function RenderText:draw_debug()
-	views.text = Slab.BeginWindow("Text", {
-			Title = "Text List", IsOpen = views.text
-		})
+	views.text = Slab.BeginWindow("Text", {Title = "Text List", IsOpen = views.text})
 
 	for _, e in ipairs(self.pool) do
 		Slab.Text(e.id.id)

@@ -8,5 +8,5 @@ Concord.component("bounding_box", function(c, pos, size)
 
 	c.pos = pos
 	c.size = size
-	c.screen_size = pos:copy()
+	c.screen_pos = pos:copy()
 end)

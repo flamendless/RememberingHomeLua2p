@@ -11,7 +11,7 @@ Concord.component("multi_animation_data", function(c, first, data, modifier)
 	for k, v in pairs(data) do
 		Assert.exists(v.spritesheet)
 		Assert.must(v.spritesheet, Types.T_IMAGE)
-		Assert.must(v.delay, Types.T_NUMBER)
+		Assert.either_type(v.delay, Types.T_NUMBER, Types.T_TABLE)
 		Assert.must(v.rows_count, Types.T_NUMBER)
 		Assert.must(v.columns_count, Types.T_NUMBER)
 		Assert.must(v.n_frames, Types.T_NUMBER)

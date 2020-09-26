@@ -9,3 +9,13 @@ Concord.component("circle", function(c, radius, segments)
 	c.radius = radius
 	c.segments = segments or radius
 end)
+
+Concord.component("rectangle_use_bbox")
+
+Concord.component("rectangle", function(c, size)
+	!if _ASSERT then
+	Assert.is(size, Types.T_VEC2)
+	!end
+
+	c.size = size
+end)

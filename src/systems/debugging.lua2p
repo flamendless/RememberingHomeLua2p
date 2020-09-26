@@ -7,6 +7,7 @@ local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
 
 local insert = table.insert
+local remove = table.remove
 local getFPS = love.timer.getFPS
 
 local Debugging = Concord.system({
@@ -16,15 +17,16 @@ local Debugging = Concord.system({
 })
 
 local slab_init = false
+local font = love.graphics.getFont()
 
 function Debugging:init(world)
 	self.world = world
-	self.ent_count = 0
-	self.ent_id_count = 0
 	self.ps = {}
 	self.ps_count = 0
 	self.ref_id = {}
 	self.is_open = true
+	self.is_open_list = false
+	self.camera = nil
 
 	if not slab_init then
 		Slab.Initialize()
@@ -33,32 +35,37 @@ function Debugging:init(world)
 
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
-	self.pool.onEntityAdded = function(pool, e)
-		self.ent_count = self.ent_count + 1
-	end
-
-	self.pool.onEntityRemoved = function(pool, e)
-		self.ent_count = self.ent_count - 1
-	end
-
 	self.pool_id.onEntityAdded = function(pool, e)
 		local id = e.id
-		local ref_id = self.ref_id[id.id]
 
-		if ref_id then
-			self.ref_id[id.id] = self.ref_id[id.id] + 1
-			id.id = id.id .. self.ref_id[id.id]
-		else
-			self.ref_id[id.id] = 1
+		if not e.preserve_id then
+			local ref_id = self.ref_id[id.id]
+
+			if ref_id then
+				self.ref_id[id.id] = self.ref_id[id.id] + 1
+				id.id = id.id .. self.ref_id[id.id]
+			else
+				self.ref_id[id.id] = 1
+			end
 		end
 
-		self.ent_id_count = self.ent_id_count + 1
 		Log.info("Added entity: " .. id.id)
 	end
 
 	self.pool_id.onEntityRemoved = function(pool, e)
-		self.ent_id_count = self.ent_id_count - 1
-		Log.info("Removed entity: " .. e.id.id)
+		local id = e.id and e.id.id
+
+		if id then
+			self.ref_id[e.id.id] = nil
+		else
+			for i = #pool, 1, -1 do
+				if e == pool[i] then
+					remove(self.ref_id, i)
+				end
+			end
+		end
+
+		Log.info("Removed entity: " .. (id or tostring(e)))
 	end
 end
 
@@ -68,6 +75,14 @@ function Debugging:debug_particle_system(ps)
 	!end
 
 	insert(self.ps, ps)
+end
+
+function Debugging:debug_camera(camera)
+	!if _ASSERT then
+	Assert.is(camera, Types.T_GAMERA)
+	!end
+
+	self.camera = camera
 end
 
 function Debugging:update(dt)
@@ -91,10 +106,12 @@ end
 function Debugging:debugging_draw(l, t, w, h)
 	if not DebugFlags.draw_all then return end
 
+	love.graphics.setFont(font)
 	self.world:emit("draw_debug", l, t, w, h)
 
 	love.graphics.push()
 	love.graphics.origin()
+	love.graphics.setLineWidth(1)
 	self.world:emit("debug_draw_ui")
 	love.graphics.pop()
 
@@ -113,22 +130,57 @@ function Debugging:draw_slab()
 
 	Slab.EndWindow()
 
-	views.ent_count = Slab.BeginWindow("ecs",
-		{Title = "ECS", IsOpen = views.ent_count})
-	Slab.Text("# of entities: " .. self.ent_count)
-	Slab.Text("# of entities with id: " .. self.ent_id_count)
+	views.ent_count = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = views.ent_count})
+	Slab.Text("# of entities: " .. #self.pool)
+	Slab.Text("# of entities with id: " .. #self.pool_id)
+
+	if Slab.Button("View List") then
+		self.is_open_list = true
+	end
+
+	if self.is_open_list then
+		self.is_open_list = Slab.BeginWindow("ent_list", {
+			Title = "Entity List", IsOpen = self.is_open_list})
+
+		for _, e in ipairs(self.pool_id) do
+			local id = e.id.id
+
+			Slab.Text(id)
+			Slab.SameLine()
+
+			if Slab.Button("x") then
+				e:destroy()
+			end
+		end
+
+		Slab.EndWindow()
+	end
+
 	Slab.EndWindow()
 
 	views.logs = Slab.BeginWindow("log",
 		{Title = "log", IsOpen = views.logs, AutoSizeWindow = false})
+
 	for _, e in ipairs(self.pool_log) do
 		Slab.Text(e.log.log)
 	end
 
 	Slab.EndWindow()
 
+	views.mouse_info = Slab.BeginWindow("mouse_info",
+		{Title = "mouse info", IsOpen = views.mouse_info})
+	local mx, my = love.mouse.getPosition()
+	local cx, cy = self.camera:toWorld(mx, my)
+
+	Slab.Text("mx: " .. mx)
+	Slab.Text("my: " .. my)
+	Slab.Text("cx: " .. cx)
+	Slab.Text("cy: " .. cy)
+
+	Slab.EndWindow()
+
 	views.stats = Slab.BeginWindow("stats",
-		{Title = "stats", IsOpen = DebugFlags.stats})
+		{Title = "stats", IsOpen = views.stats})
 	Slab.Text("FPS: " .. getFPS())
 	Slab.Text("Particle Count: " .. self.ps_count)
 	for k, v in pairs(DebugFlags.t_stats) do
@@ -156,7 +208,6 @@ function Debugging:keypressed(key)
 end
 
 function Debugging:cleanup()
-	self.ent_count = 0
 	self.ps_count = 0
 
 	for i, ps in ipairs(self.ps) do

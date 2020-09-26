@@ -75,12 +75,12 @@ function copy_res()
 
 function clean()
 {
-	rm -rf $dir_output/*
+	rm -rfv $dir_output/*
 }
 
 function clean_logs()
 {
-	rm -i $appdata/*
+	rm -v $appdata/*
 }
 
 function init()
@@ -105,6 +105,13 @@ function run()
 	process_src "$dir_source"
 	love "$dir_output"
 	echo "Completed buid.sh"
+}
+
+function test()
+{
+	dir_output=output_test
+	clean_logs
+	run
 }
 
 if [ $# -eq 0 ]; then

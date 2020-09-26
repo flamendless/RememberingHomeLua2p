@@ -1,12 +1,9 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("task", function(c, kind, color)
+Concord.component("task", function(c, color)
 	!if _ASSERT then
-	Assert.must(kind, Types.T_STRING)
-	Assert.either_value(kind, "flash", "redden")
 	Assert.color(color)
 	!end
 
-	c.kind = kind
 	c.color = color
 end)

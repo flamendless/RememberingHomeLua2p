@@ -1,0 +1,45 @@
+local Concord = require("modules.concord.concord")
+local Timer = require("modules.hump.timer")
+
+local TypewriterSplash = Concord.system({
+	pool = {"text", "typewriter", "position"}
+})
+
+function TypewriterSplash:start_typewriter()
+	for _, e in ipairs(self.pool) do
+		local text = e.text
+		local typewriter = e.typewriter
+		local cb_on_finish = e.typewriter_on_finish
+
+		if not typewriter.timer then
+			typewriter.timer = Timer()
+			typewriter.timer:every(typewriter.every, function()
+				local target = typewriter.target_text
+
+				if #text.text ~= #target then
+					local ch = target:sub(#text.text + 1, #text.text + 1)
+
+					text.text = text.text .. ch
+				else
+					if cb_on_finish then
+						typewriter.timer:after(cb_on_finish.delay, function()
+							cb_on_finish.callback()
+						end)
+					end
+				end
+			end)
+		end
+	end
+end
+
+function TypewriterSplash:update(dt)
+	for _, e in ipairs(self.pool) do
+		local typewriter = e.typewriter
+
+		if typewriter.timer then
+			typewriter.timer:update(dt)
+		end
+	end
+end
+
+return TypewriterSplash

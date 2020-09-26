@@ -1,13 +1,13 @@
 #!/bin/bash
 
-dir_fonts=scripts/fonts
-dir_fonts_output=scripts/output
-dir_fonts_final=scripts/final
-dir_fonts_target=res/fonts
+dir_fonts=./fonts
+dir_fonts_output=./output
+dir_fonts_final=./final
+dir_fonts_target=../res/fonts
 fonts=(Jamboree DigitalDisco-Thin DigitalDisco Firefly Jamboree Luna Pixeled tiny uncle_type)
 fonts_texture_size="1024,1024"
 
-script_convert=scripts/convertfont.py
+script_convert=./convertfont.py
 
 function generate_fonts()
 {

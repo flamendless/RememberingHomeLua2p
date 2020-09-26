@@ -9,6 +9,7 @@ local Transform = Concord.system({
 	pool_camera = {"position", "camera"},
 	pool_attach = {"position", "attach_to"},
 	pool_auto_scale = {"transform", "auto_scale"},
+	pool_spawn = {"position", "attach_to_spawn_point"}
 })
 
 function Transform:init()
@@ -131,8 +132,16 @@ function Transform:update(dt)
 		self:update_anchor(e)
 	end
 
-	for _,e in ipairs(self.pool_attach) do
+	for _, e in ipairs(self.pool_attach) do
 		self:update_attachment(e)
+	end
+
+	for _, e in ipairs(self.pool_spawn) do
+		local pos = e.position.pos
+		local sp = e.attach_to_spawn_point.pos
+
+		pos.x = sp.x
+		pos.y = sp.y
 	end
 end
 
@@ -146,8 +155,8 @@ local selected_e
 
 function Transform:draw_debug()
 	views.transform = Slab.BeginWindow("transform", {
-			Title = "Transform List", IsOpen = views.transform
-		})
+			Title = "Transform List", IsOpen = views.transform})
+
 	for _, e in ipairs(self.pool) do
 		local id = e.id
 
@@ -165,7 +174,8 @@ function Transform:draw_debug()
 	Slab.EndWindow()
 
 	views.quad_transform = Slab.BeginWindow("quad_transform", {
-			Title = "Quad Transform List", IsOpen = views.quad_transform})
+		Title = "Quad Transform List", IsOpen = views.quad_transform})
+
 	for _, e in ipairs(self.pool_quad) do
 		local id = e.id
 

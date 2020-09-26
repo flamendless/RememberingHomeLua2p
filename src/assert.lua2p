@@ -16,6 +16,7 @@ Assert.types = {
 	T_FONT_SDF = "fontsdf",
 	T_FUNCTION = "function",
 	T_GAMERA = "__camera",
+	T_GAMESTATES = "GameStates",
 	T_IMAGE = "Image",
 	T_IMAGEDATA = "ImageData",
 	T_NUMBER = "number",
@@ -141,6 +142,20 @@ end
 function Assert.truthy(arg)
 	if not arg then
 		error("Expression or argument must be true; got " .. arg, 2)
+	end
+end
+
+function Assert.i_every(t, req_type)
+	Assert.must(t, types.T_TABLE)
+	for _, v in ipairs(t) do
+		Assert.must(v, req_type)
+	end
+end
+
+function Assert.k_every(t, req_type)
+	Assert.must(t, types.T_TABLE)
+	for _, v in pairs(t) do
+		Assert.must(v, req_type)
 	end
 end
 

@@ -1,43 +1,45 @@
 local Concord = require("modules.concord.concord")
 
+local Helper = require("helper")
+
 local Click = Concord.system({
-	pool = {"bounding_box", "clickable"}
+	pool = {"bounding_box", "clickable", "on_click"},
+	pool_ui = {"bounding_box", "clickable", "on_click", "ui_element"},
 })
 
 function Click:mousepressed(mx, my, mb)
 	for _, e in ipairs(self.pool) do
-		local ui_action = e.ui_action
+		if not e.hidden and not e.ui_element then
+			local on_click = e.on_click
 
-		if ui_action then
-			if ui_action.is_active then
-				self:internal_mousepressed(e, mx, my, mb)
+			if mb == on_click.mb then
+				local id = e.id.id
+				local box = e.bounding_box
+				local bx, by = Helper.get_real_pos_box(e)
+				local bw, bh = box.size.x, box.size.y
+				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
+
+				if result then on_click.on_click(id) end
 			end
-		else
-			self:internal_mousepressed(e, mx, my, mb)
 		end
 	end
 end
 
-function Click:internal_mousepressed(e, mx, my, mb)
-	local clickable = e.clickable
+function Click:mousepressed_ui(mx, my, mb)
+	for _, e in ipairs(self.pool_ui) do
+		if not e.hidden then
+			local on_click = e.on_click
 
-	if mb == clickable.mb then
-		local box = e.bounding_box
-		local camera = e.camera
+			if mb == on_click.mb then
+				local id = e.id.id
+				local box = e.bounding_box
+				local bx, by = box.screen_pos:unpack()
+				local bw, bh = box.size:unpack()
+				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
-		local bx = box.pos.x
-		local by = box.pos.y
-		local bw = box.size.x
-		local bh = box.size.y
-
-		if camera then
-			bx = box.screen_size.x
-			by = box.screen_size.y
+				if result then on_click.on_click(id) end
+			end
 		end
-
-		local result = mx > bx and mx < bx + bw and my > by and my < by + bh
-
-		if result then clickable.on_click() end
 	end
 end
 

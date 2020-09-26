@@ -13,12 +13,14 @@ local Tracker = require("tracker")
 local EventsList = require("data.events_list")
 local EventManager = require("event_manager")
 local Factory = require("factory")
+local Fade = require("fade")
 local Info = require("info")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Palette = require("palette")
 local Preloader = require("preloader")
+local ScreenInfo = require("screen_info")
 local Settings = require("settings")
 
 local floor = math.floor
@@ -44,19 +46,29 @@ local Systems = {
 	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Click = require("systems.click"),
+	ClimbStaircase = require("systems.climb_staircase"),
 	Collision = require("systems.collision"),
 	Color = require("systems.color"),
+	Dialogues = require("systems.dialogues"),
 	Fireflies = require("systems.fireflies"),
 	HoverEffect = require("systems.hover_effect"),
-	Item = require("systems.item"),
-	PlayerController = require("systems.player_controller"),
+	Interactive = require("systems.interactive"),
+	Inventory = require("systems.inventory"),
+	Items = require("systems.items"),
+	Map = require("systems.map"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
+	MouseHover = require("systems.mouse_hover"),
+	Notification = require("systems.notification"),
+	OutsideHouse = require("systems.outside_house"),
+	PlayerController = require("systems.player_controller"),
+	RenderCircle = require("systems.render_circle"),
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
+	RenderUI = require("systems.render_ui"),
 	TextPaint = require("systems.text_paint"),
 	Transform = require("systems.transform"),
-	RenderCircle = require("systems.render_circle"),
+	Typewriter = require("systems.typewriter"),
 }
 
 !if not _RELEASE then
@@ -65,8 +77,9 @@ local world
 !end
 
 local Assemblages = {
-	Common = require("assemblages.common"),
 	Outside = require("assemblages.outside"),
+	InteractiveOutside = require("assemblages.interactive_outside"),
+	Items = require("assemblages.items"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
 }
@@ -77,6 +90,7 @@ local ParticleSystems = {
 
 local resources = {images = {}, image_data = {}, fonts = {}}
 local res_images, res_fonts
+local screen_size
 local rain_state = {current = 128}
 local is_raining = false
 local effect
@@ -102,7 +116,7 @@ function StateOutside:show_arrows_keys()
 	local dur = 1.75
 	local scale = 1.75
 	local scale_sdf = scale - 0.75
-	local pos_arrows = vec2:new(self.screen_size.x * 0.35, self.screen_size.y * 0.5)
+	local pos_arrows = vec2:new(screen_size.x * 0.35, screen_size.y * 0.5)
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
 	local jamboree_png = "res/fonts/Jamboree.png"
 	local font_sdf = love.graphics.newFontMSDF(jamboree_fnt, jamboree_png)
@@ -123,6 +137,8 @@ function StateOutside:spawn_player(dur_camera_follow)
 			res_images.sheet_player_walk,
 			res_images.sheet_player_run,
 			res_images.sheet_player_open_door,
+			res_images.sheet_player_upstairs,
+			res_images.sheet_player_downstairs,
 			false, false)
 
 	self.world:emit("face_left", self.entities.player)
@@ -161,22 +177,32 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
-	self.world:addSystem(Systems.Item)
+	self.world:addSystem(Systems.Notification)
+	self.world:addSystem(Systems.ActionControls)
+	self.world:addSystem(Systems.Interactive)
+	self.world:addSystem(Systems.Inventory)
+	self.world:addSystem(Systems.Items)
+	self.world:addSystem(Systems.MouseHover)
 	self.world:addSystem(Systems.HoverEffect)
 	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.RenderText)
+	self.world:addSystem(Systems.RenderUI)
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)
+	self.world:addSystem(Systems.Map)
 	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Movement)
 	self.world:addSystem(Systems.TextPaint)
 	self.world:addSystem(Systems.Transform)
+	self.world:addSystem(Systems.Typewriter)
 	self.world:addSystem(Systems.RenderCircle)
-	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.BoundingBox)
 	self.world:addSystem(Systems.Click)
+	self.world:addSystem(Systems.ClimbStaircase)
+	self.world:addSystem(Systems.OutsideHouse)
+	self.world:addSystem(Systems.Dialogues)
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
@@ -184,16 +210,45 @@ function StateOutside:start()
 	!end
 
 	local w, h = res_images.bg_house:getDimensions()
+	local ww, hh = love.graphics.getDimensions()
 
-	self.screen_size = vec2:new(love.graphics.getDimensions())
-	self.scale = min(self.screen_size.x/w, self.screen_size.y/h)
+	screen_size = vec2:new(ww, hh)
+	self.scale = min(screen_size.x/w, screen_size.y/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, self.screen_size.x, self.screen_size.y)
+	self.camera:setWindow(0, 0, screen_size.x, screen_size.y)
 	self.entities.camera = Concord.entity(self.world)
 		:give("camera", self.camera, true)
 		:give("camera_transform", 0, self.scale)
-		:give("camera_clip", w, h, {0, 0, 0, 1})
+		:give("camera_clip", w, h, Palette.get("camera_clip"))
+
+	ScreenInfo.set(w, h, ww, hh, self.scale)
+
+	self.world:emit("set_gamestate", self.gamestate)
+	self.world:emit("set_dialogue_config", {
+			pos = vec2:new(ww/2, hh * 0.87),
+			pos_arrow = vec2:new(ww/2, hh * 0.94),
+			font = res_fonts.dialogue,
+			sheet_arrow = res_images.sheet_dialogue_arrow,
+		})
+
+	self.world:emit("set_action_controls_resources", {
+			eye = res_images.sheet_ui_eye,
+			hand = res_images.sheet_ui_hand,
+			bag = res_images.sheet_ui_bag,
+			cancel = res_images.sheet_ui_cancel,
+			use = res_images.sheet_ui_use,
+			combine = res_images.sheet_ui_combine,
+			back = res_images.sheet_ui_back,
+		})
+
+	self.world:emit("set_items_resources", {
+			item_backdoor_key = res_images.backdoor_key,
+		})
+
+	self.world:emit("set_notification_resources", {
+			question_mark = res_images.question_mark
+		})
 
 	local cx, cy, cw, ch = self.camera:getVisible()
 
@@ -203,18 +258,27 @@ function StateOutside:start()
 	!if not _RELEASE then
 	self.world:emit("debug_particle_system", self.ps1.system)
 	self.world:emit("debug_particle_system", self.ps2.system)
+	self.world:emit("debug_camera", self.camera)
 	!end
+
+	self.world:emit("create_inventory_cell",
+		res_images.bg_item,
+		res_images.bg_desc,
+		res_fonts.item_desc)
+
+	self.entities.backdoor_key = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.entities.bg_sky = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
 
 	local bg_house = res_images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
-	local div = 2
+	local div = 4
 	local qw = bg_house_w/div
-	local qh = bg_house_h/div
+	local qh = bg_house_h
 
-	for i = 1, div * div do
+	for i = 1, div do
 		local id = "bg_house_" .. i
 		local x = bg_house_w * ((i - 1) % div)/div
 		local y = bg_house_h * floor((i - 1)/div)/div
@@ -224,6 +288,9 @@ function StateOutside:start()
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Outside.bg_house, bg_house, pos, quad)
 	end
+
+	self.entities.railings = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.railings, res_images.railings)
 
 	self.entities.left_bounds = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.left_bounds)
@@ -240,14 +307,29 @@ function StateOutside:start()
 	self.entities.wood = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.wood)
 
-	self.entities.house = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house)
+	self.entities.house_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "left")
+
+	self.entities.house_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "right")
+
+	self.entities.house_top = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house, "top")
+
+	self.entities.left_railing = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.left_railing)
+
+	self.entities.right_railing = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.right_railing)
+
+	self.entities.col_railing_left = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "left")
+
+	self.entities.col_railing_right = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_railing, "right")
 
 	self.entities.house_side = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_side)
-
-	self.entities.door = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.door)
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.car, res_images.car)
@@ -264,17 +346,23 @@ function StateOutside:start()
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
 
-	local font_ui = res_fonts.ui
-	local pos_ui = vec2:new(self.screen_size.x/2, self.screen_size.y * 0.9)
+	self.entities.brush_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.brush_data, res_images.sheet_brush)
+
+	self.entities.cloud_data = Concord.entity(self.world)
+		:assemble(Assemblages.UI.cloud_data, res_images.sheet_cloud)
+
+	for k, v in pairs(Assemblages.InteractiveOutside) do
+		self.entities[k] = Concord.entity(self.world):assemble(v)
+	end
+
+	local pos_ui = vec2:new(screen_size.x/2, screen_size.y * 0.9)
 
 	for i, str in ipairs(tasks) do
-		local id = "task" .. i
-
-		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.UI.ui_text, str, font_ui, pos_ui:copy())
-			:give("transform", 0, 1, 1, 0.5, 0.5)
-			:give("text_with_paint")
-			:give("task", "flash", Palette.get("ui_feedback"))
+		self.entities["task" .. i] = Concord.entity(self.world)
+			:assemble(Assemblages.UI.ui_text_paint, "brush",
+				str, res_fonts.task, pos_ui:copy())
+			:give("task", Palette.get("ui_feedback"))
 	end
 
 	local splashes = res_images.splashes
@@ -313,15 +401,26 @@ function StateOutside:start()
 
 	effect = NGrading:new(lut_dusk, lut_size)
 
-	self:spawn_player(1.75)
+	--TEST
+	!if not _RELEASE then
+	self:spawn_player(1.5)
 	self.entities.player.body.can_move = true
 
+	self.entities.backdoor_key2 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+		:give("id", "item_test")
+	self.entities.backdoor_key3 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key4 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key5 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key6 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+
 	self.camera:setScale(3)
-	local actions = Factory.ui_controls(self.world,
-		res_images.sheet_ui_eye, res_images.sheet_ui_hand,
-		res_images.sheet_ui_bag, res_images.sheet_ui_bag,
-		1.25)
-	self.world:emit("show_ui_interactive", self.entities.door)
+	self.camera:setPosition(self.entities.player.position.pos:unpack())
+	!end
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
@@ -329,6 +428,7 @@ function StateOutside:start()
 		self.timeline:Pause()
 		!end
 
+		Fade.set_alpha(0)
 		is_raining = true
 		self.ps1.system:setEmissionRate(rain_state.current)
 		self.ps2.system:setEmissionRate(rain_state.current)
@@ -408,7 +508,7 @@ function StateOutside:start()
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		local pos = vec2:new(self.screen_size.x/2, self.screen_size.y/2)
+		local pos = vec2:new(screen_size.x/2, screen_size.y/2)
 		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key,
 			64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
@@ -437,6 +537,7 @@ function StateOutside:start()
 		EventManager.add(ev1)
 		self.timeline:Pause()
 		self.entities.player.body.can_move = true
+		self.entities.player.player.can_interact = true
 
 		TLE.Event.Wait(0.25)
 		tle_log("task: " .. tasks[2])
@@ -459,7 +560,13 @@ function StateOutside:update(dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 	self.world:emit("on_camera_move", self.camera)
-	self.world:emit("hover_check", love.mouse.getPosition())
+
+	local mx, my = love.mouse.getPosition()
+	local wmx, wmy = self.camera:toWorld(mx, my)
+
+	self.world:emit("check_mouse_hover", wmx, wmy)
+	self.world:emit("check_mouse_hover_ui", mx, my)
+	self.world:emit("hover_effects")
 
 	if is_raining then
 		self.ps1:update(dt)
@@ -499,6 +606,7 @@ function StateOutside:draw()
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
+	Fade.draw()
 end
 
 function StateOutside:mousemoved(mx, my)
@@ -508,7 +616,10 @@ end
 function StateOutside:mousepressed(mx, my, mb)
 	if not self.is_ready then return end
 
-	self.world:emit("mousepressed", mx, my, mb)
+	local cx, cy = self.camera:toWorld(mx, my)
+
+	self.world:emit("mousepressed", cx, cy, mb)
+	self.world:emit("mousepressed_ui", mx, my, mb)
 end
 
 function StateOutside:keypressed(key)
@@ -517,13 +628,9 @@ function StateOutside:keypressed(key)
 	!if not _RELEASE then
 	if key == "space" then
 		self.timeline:Unpause()
+	elseif key == "i" then
+		self.world:emit("action_interacted_bag", self.entities.interactive_car, self.entities.player)
 	end
-
-	-- if key == "o" then
-	-- 	self.world:emit("player_open_door", self.entities.player, function()
-	-- 		self.entities.player:remove("override_animation")
-	-- 	end)
-	-- end
 	!end
 
 	self.world:emit("keypressed", key)

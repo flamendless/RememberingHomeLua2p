@@ -11,13 +11,7 @@ Concord.component("animation_data", function(c, data)
 	Assert.must(data.columns_count, Types.T_NUMBER)
 	Assert.safe.must(data.n_frames, Types.T_NUMBER)
 	Assert.safe.within_range(data.start_frame, 1, data.n_frames)
-
-	if data.delay then
-		Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
-	end
-
-	Assert.should_atleast(data.durations, data.delay)
-	Assert.safe.must(data.durations, Types.T_TABLE)
+	Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
 	!end
 
 	c.spritesheet = data.spritesheet
@@ -25,7 +19,6 @@ Concord.component("animation_data", function(c, data)
 	c.delay = data.delay
 	c.rows_count = data.rows_count
 	c.columns_count = data.columns_count
-	c.durations = data.durations
 	c.n_frames = data.n_frames
 	c.start_frame = data.start_frame
 

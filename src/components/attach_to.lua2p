@@ -2,8 +2,16 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("attach_to", function(c, target_e)
 	!if _ASSERT then
-	Assert.is(target_e, "__isEntity")
+	Assert.is(target_e, Types.T_ENTITY)
 	!end
 
 	c.target_e = target_e
+end)
+
+Concord.component("attach_to_spawn_point", function(c, pos)
+	!if _ASSERT then
+	Assert.is(pos, Types.T_VEC2)
+	!end
+
+	c.pos = pos
 end)

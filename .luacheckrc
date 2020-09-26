@@ -7,6 +7,7 @@ return {
 		"class",
 		"mathx",
 		"stringx",
+		"tablex",
 	},
 	ignore = {'212'},
 }
