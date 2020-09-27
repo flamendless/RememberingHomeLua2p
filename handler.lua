@@ -1,18 +1,16 @@
-local test = false
+local args = dataFromCommandLine
 
-if test then
+if args == "test" then
 	_RELEASE = true
-	_REPORTING = false
-	_NETWORK = false
 	_ASSERT = false
-	_LOG_SAVE = false
-else
+elseif args == "dev" then
 	_RELEASE = false
-	_REPORTING = false
-	_NETWORK = false
 	_ASSERT = true
-	_LOG_SAVE = false
 end
+
+_REPORTING = false
+_NETWORK = false
+_LOG_SAVE = false
 
 _OS = "Linux"
 _PLATFORM = "desktop"
