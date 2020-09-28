@@ -7,7 +7,7 @@ handler=handler.lua
 
 dir_modules=modules
 dir_res=res
-dir_output=output
+dir_output=output_dev
 dir_source=src
 
 dir_sub=(assemblages components shaders systems worlds)
