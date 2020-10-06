@@ -6,7 +6,6 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 !if not _RELEASE then
-local DebugFlags = require("debug_flags")
 local Tracker = require("tracker")
 !end
 
@@ -77,9 +76,10 @@ local world
 !end
 
 local Assemblages = {
-	Outside = require("assemblages.outside"),
+	Common = require("assemblages.common"),
 	InteractiveOutside = require("assemblages.interactive_outside"),
 	Items = require("assemblages.items"),
+	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
 }
@@ -156,7 +156,6 @@ function StateOutside:new()
 end
 
 function StateOutside:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("outside")
 
 	Preloader.start(resources_data, resources,
@@ -218,9 +217,7 @@ function StateOutside:start()
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, screen_size.x, screen_size.y)
 	self.entities.camera = Concord.entity(self.world)
-		:give("camera", self.camera, true)
-		:give("camera_transform", 0, self.scale)
-		:give("camera_clip", w, h, Palette.get("camera_clip"))
+		:assemble(Assemblages.Common.camera, self.camera, self.scale, w, h)
 
 	ScreenInfo.set(w, h, ww, hh, self.scale)
 

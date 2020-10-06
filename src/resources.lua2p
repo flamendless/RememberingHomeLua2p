@@ -133,6 +133,11 @@ Resources.data.outside = {
 	},
 }
 
+Resources.data.storage_room = {
+	image = {},
+	font = {},
+}
+
 function Resources.get(key)
 	!if _ASSERT then
 	Assert.must(key, Types.T_STRING)

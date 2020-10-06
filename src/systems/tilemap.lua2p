@@ -1,0 +1,27 @@
+local Cartographer = require("modules.cartographer.cartographer")
+local Concord = require("modules.concord.concord")
+
+local Tilemap = Concord.system({
+	pool = {"id", "tilemap"}
+})
+
+function Tilemap:init(world)
+	self.world = world
+
+	self.pool.onEntityAdded = function(pool, e)
+		local tilemap = e.tilemap
+		local map = Cartographer.load(tilemap.path)
+
+		tilemap.map = map
+	end
+end
+
+function Tilemap:draw_map()
+	for _, e in ipairs(self.pool) do
+		local map = e.tilemap.map
+
+		map:draw()
+	end
+end
+
+return Tilemap

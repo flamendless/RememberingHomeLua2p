@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Flux = require("modules.flux.flux")
-local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
@@ -17,7 +16,6 @@ local Save = require("save")
 local Settings = require("settings")
 
 !if not _RELEASE then
-local DebugFlags = require("debug_flags")
 local Tracker = require("tracker")
 !end
 
@@ -99,7 +97,6 @@ function StateIntro:new()
 end
 
 function StateIntro:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("intro")
 
 	Preloader.start(resources_data, resources,

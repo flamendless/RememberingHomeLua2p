@@ -490,7 +490,6 @@ function StateMenu:new()
 end
 
 function StateMenu:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("menu")
 
 	Preloader.start(resources_data, resources,

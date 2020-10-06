@@ -61,3 +61,6 @@
 [submodule "modules/bitser"]
 	path = modules/bitser
 	url = https://github.com/gvx/bitser
+[submodule "modules/cartographer"]
+	path = modules/cartographer
+	url = https://github.com/tesselode/cartographer/

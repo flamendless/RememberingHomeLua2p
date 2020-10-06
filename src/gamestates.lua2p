@@ -73,6 +73,8 @@ function GameStates.switch(next_id)
 	Log.trace(str)
 
 	GameStates.init()
+
+	Log.info("State Load: ", GameStates.current_id)
 	GameStates.current_world:load()
 	GameStates.current_world.gamestate = GameStates
 end

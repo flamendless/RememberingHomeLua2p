@@ -36,4 +36,11 @@ function Common.skip(e, text, font, pos)
 	:give("color_fade_in_out", 1)
 end
 
+function Common.camera(e, cam, scale, w, h)
+	e:give("id", "camera")
+	:give("camera", cam, true)
+	:give("camera_transform", 0, scale)
+	:give("camera_clip", w, h, Palette.get("camera_clip"))
+end
+
 return Common

@@ -1,6 +1,5 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
-local Log = require("modules.log.log")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Timer = require("modules.hump.timer")
 
@@ -79,7 +78,6 @@ function StateSplash:new()
 end
 
 function StateSplash:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("splash")
 
 	Preloader.start(resources_data, resources,
