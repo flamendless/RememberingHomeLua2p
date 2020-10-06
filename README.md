@@ -26,6 +26,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [Batteries](https://github.com/1bardesign/batteries) - for class, vec2, vec3, math, string, table, etc.
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
 * [bump-3dpd](https://github.com/oniietzschan/bump-3dpd) - for 3D collision detection
+* [cartographer](https://github.com/tesselode/cartographer/) - for Tilemaps
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System
 * [Crush](modules/crush) - for error reporting
 * [Enum](https://github.com/Tjakka5/Enum) - for Enums

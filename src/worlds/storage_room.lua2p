@@ -11,6 +11,8 @@ local Resources = require("resources")
 local Preloader = require("preloader")
 local ScreenInfo = require("screen_info")
 
+local min = math.min
+
 local StateStorageRoom = class()
 StateStorageRoom.id = "StorageRoom"
 
@@ -22,6 +24,7 @@ local Systems = {
 	Debugging = require("systems.debugging"),
 	!end
 
+	Camera = require("systems.camera"),
 	Map = require("systems.map"),
 	Tilemap = require("systems.tilemap"),
 }
@@ -62,6 +65,7 @@ function StateStorageRoom:load()
 end
 
 function StateStorageRoom:start()
+	self.world:addSystem(Systems.Camera)
 	self.world:addSystem(Systems.Map)
 	self.world:addSystem(Systems.Tilemap)
 
@@ -72,9 +76,9 @@ function StateStorageRoom:start()
 
 	-- local w, h = res_images.bg_house:getDimensions()
 	local w, h = love.graphics.getDimensions()
-	local ww, wh = love.graphics.getDimensions()
+	local ww, hh = love.graphics.getDimensions()
 
-	screen_size = vec2:new(ww, wh)
+	screen_size = vec2:new(ww, hh)
 	self.scale = min(screen_size.x/w, screen_size.y/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
@@ -86,24 +90,31 @@ function StateStorageRoom:start()
 
 	self.world:emit("set_gamestate", self.gamestate)
 
+	!if not _RELEASE then
+	self.world:emit("debug_camera", self.camera)
+	!end
+
 	--TEST
 	self.entities.test_map = Concord.entity(self.world)
 		:give("id", "test_map")
-		:give("tilemap", "assets.tilemaps.test")
+		:give("tilemap", "res/tilemaps/test.lua")
 end
 
 function StateStorageRoom:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("update", dt)
+
+	!if not _RELEASE then
+	self.world:emit("debugging_update", dt)
+	!end
 end
 
 function StateStorageRoom:draw()
 	if not self.is_ready then return end
 
-	self.world:emit("draw_map")
-
 	self.camera:draw(function(l, t, w, h)
+		self.world:emit("draw_map")
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 

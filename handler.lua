@@ -73,11 +73,11 @@ _TOOLS = {
 }
 
 _LIBS = {
-	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
-	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
-	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "ReflowPrint", "SDF", "Semver",
-	"Slab", "Splashes", "TimelineEvents",
+	"Anim8", "Arson", "Batteries", "Bump-niji", "Cartographer",
+	"Concord", "Crush", "Enum", "Flux", "Gamera",
+	"HTTPS", "HUMP", "JSON", "Lily", "Log",
+	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
+	"Semver", "Slab", "Splashes", "TimelineEvents",
 }
 
 return {}

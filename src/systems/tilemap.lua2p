@@ -7,12 +7,15 @@ local Tilemap = Concord.system({
 
 function Tilemap:init(world)
 	self.world = world
+	self.maps = {}
 
 	self.pool.onEntityAdded = function(pool, e)
+		local id = e.id.id
 		local tilemap = e.tilemap
 		local map = Cartographer.load(tilemap.path)
 
 		tilemap.map = map
+		self.maps[id] = map
 	end
 end
 
@@ -23,5 +26,51 @@ function Tilemap:draw_map()
 		map:draw()
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local is_open = false
+local selected
+
+function Tilemap:draw_debug()
+	views.tilemap = Slab.BeginWindow("Tilemap", {
+		Title = "Tilemap", IsOpen = views.tilemap})
+
+	for k, v in pairs(self.maps) do
+		Slab.Text(k)
+		Slab.SameLine()
+
+		if Slab.Button("grid") then
+			is_open = not is_open
+			selected = v
+		end
+
+		Slab.Indent()
+		for _, t in ipairs(v.layers) do
+			if Slab.CheckBox(t.visible, t.name) then
+				t.visible = not t.visible
+			end
+		end
+		Slab.Unindent()
+	end
+
+	Slab.EndWindow()
+
+	if not is_open then return end
+
+	love.graphics.push()
+	love.graphics.setColor(1, 0, 0, 0.5)
+	local size = selected.tilewidth
+
+	for y = 0, selected.height do
+		for x = 0, selected.width do
+			love.graphics.rectangle("line", x * size, y * size, size, size)
+		end
+	end
+	love.graphics.pop()
+end
+!end
 
 return Tilemap

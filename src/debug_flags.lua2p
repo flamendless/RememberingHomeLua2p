@@ -16,6 +16,7 @@ DebugFlags = {
 		quad_bounds = false,
 		quad_transform = false,
 		stats = true,
+		tilemap = true,
 		transform = false,
 		text = false,
 		z_index = false,
