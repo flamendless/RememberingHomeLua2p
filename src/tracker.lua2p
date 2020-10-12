@@ -46,11 +46,6 @@ function Tracker.perform(t, fn)
 end
 
 function Tracker.error_on_ref_count(t, ref_count)
-	!if _ASSERT then
-	-- Assert.must(t, Types.T_TABLE)
-	-- Assert.must(ref_count, Types.T_NUMBER)
-	!end
-
 	Tracker.perform(t, function(id, ref)
 		if ref <= ref_count then
 			error(id .. " has a ref count of " .. ref)
@@ -59,11 +54,6 @@ function Tracker.error_on_ref_count(t, ref_count)
 end
 
 function Tracker.warn_on_ref_count(t, ref_count)
-	!if _ASSERT then
-	-- Assert.must(t, Types.T_TABLE)
-	-- Assert.must(ref_count, Types.T_NUMBER)
-	!end
-
 	Tracker.perform(t, function(id, ref)
 		if ref <= ref_count then
 			local msg = format("%s ref count: %i", id, ref)

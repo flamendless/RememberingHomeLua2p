@@ -116,7 +116,7 @@ function StateSplash:start()
 	self.world:addSystem(Systems.RenderText)
 
 	!if not _RELEASE then
-	Tracker.warn_on_ref_count(Systems, 0)
+	Tracker.error_on_ref_count(Systems, 0)
 	!end
 
 	local ww, wh = love.graphics.getDimensions()

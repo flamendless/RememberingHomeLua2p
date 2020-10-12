@@ -138,7 +138,6 @@ Resources.data.storage_room = {
 		{"sheet_player_idle", path_images .. "player/player_idle.png"},
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},
-		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
 	},
 	font = {},
 }

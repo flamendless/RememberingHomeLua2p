@@ -71,7 +71,7 @@ function StateStorageRoom:start()
 
 	!if not _RELEASE then
 	self.world:addSystem(Systems.Debugging)
-	Tracker.warn_on_ref_count(Systems, 0)
+	Tracker.error_on_ref_count(Systems, 0)
 	!end
 
 	-- local w, h = res_images.bg_house:getDimensions()
