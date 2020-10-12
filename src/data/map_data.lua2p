@@ -6,6 +6,32 @@ MapData.rooms = {
 	}
 }
 
+!(
+local get_size = function(t)
+	local tw, th = t.tilewidth, t.tileheight
+	local w, h = t.width, t.height
+
+	return {w * tw, h * th}
+end
+
+local map_test = require("res/tilemaps/test")
+local _sizes = {
+	Test = get_size(map_test),
+}
+)
+!!local map_sizes = _sizes
+
+function MapData.get_size(id)
+	local size = map_sizes[id]
+
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(size)
+	!end
+
+	return size
+end
+
 function MapData.get_next(current_id, next_id)
 	local rooms = MapData.rooms[current_id]
 	local next_room = rooms[next_id]

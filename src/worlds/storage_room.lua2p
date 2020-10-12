@@ -7,6 +7,7 @@ local DebugFlags = require("debug_flags")
 local Tracker = require("tracker")
 !end
 
+local MapData = require("data.map_data")
 local Resources = require("resources")
 local Preloader = require("preloader")
 local ScreenInfo = require("screen_info")
@@ -54,6 +55,7 @@ function StateStorageRoom:spawn_player()
 			res_images.sheet_player_walk,
 			res_images.sheet_player_run)
 end
+
 function StateStorageRoom:new()
 	return self:init({
 		is_ready = false,
@@ -93,7 +95,9 @@ function StateStorageRoom:start()
 	!end
 
 	-- local w, h = res_images.bg_house:getDimensions()
-	local w, h = love.graphics.getDimensions()
+	-- local w, h = love.graphics.getDimensions()
+	local world_size = MapData.get_size("Test")
+	local w, h = world_size[1], world_size[2]
 	local ww, hh = love.graphics.getDimensions()
 
 	screen_size = vec2:new(ww, hh)
@@ -116,6 +120,7 @@ function StateStorageRoom:start()
 	self.entities.test_map = Concord.entity(self.world)
 		:give("id", "test_map")
 		:give("tilemap", "res/tilemaps/test.lua")
+
 	self:spawn_player()
 end
 
@@ -144,7 +149,7 @@ function StateStorageRoom:draw()
 		!end
 	end)
 
-	self.world:emit("draw_clip")
+	-- self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 end
 
