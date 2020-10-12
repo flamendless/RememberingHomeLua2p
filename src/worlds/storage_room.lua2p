@@ -24,8 +24,13 @@ local Systems = {
 	Debugging = require("systems.debugging"),
 	!end
 
+	Animation = require("systems.animation"),
+	Bump3DCollision = require("systems.bump3d_collision"),
 	Camera = require("systems.camera"),
 	Map = require("systems.map"),
+	Movement = require("systems.movement"),
+	PlayerController = require("systems.player_controller"),
+	RenderSprite = require("systems.render_sprite"),
 	Tilemap = require("systems.tilemap"),
 }
 
@@ -35,12 +40,20 @@ local Systems = Tracker.track(Systems)
 
 local Assemblages = {
 	Common = require("assemblages.common"),
+	Player = require("assemblages.player"),
 }
 
 local resources = {images = {}, fonts = {}}
 local res_images, res_fonts
 local screen_size
 
+function StateStorageRoom:spawn_player()
+	self.entities.player = Concord.entity(self.world)
+		:assemble(Assemblages.Player.test,
+			res_images.sheet_player_idle,
+			res_images.sheet_player_walk,
+			res_images.sheet_player_run)
+end
 function StateStorageRoom:new()
 	return self:init({
 		is_ready = false,
@@ -65,8 +78,13 @@ function StateStorageRoom:load()
 end
 
 function StateStorageRoom:start()
+	self.world:addSystem(Systems.Animation)
+	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Camera)
+	self.world:addSystem(Systems.RenderSprite)
 	self.world:addSystem(Systems.Map)
+	self.world:addSystem(Systems.Movement)
+	self.world:addSystem(Systems.PlayerController)
 	self.world:addSystem(Systems.Tilemap)
 
 	!if not _RELEASE then
@@ -98,11 +116,14 @@ function StateStorageRoom:start()
 	self.entities.test_map = Concord.entity(self.world)
 		:give("id", "test_map")
 		:give("tilemap", "res/tilemaps/test.lua")
+	self:spawn_player()
 end
 
 function StateStorageRoom:update(dt)
 	if not self.is_ready then return end
 
+	self.world:emit("preupdate", dt)
+	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
 
 	!if not _RELEASE then
