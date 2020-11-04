@@ -1,0 +1,155 @@
+local Concord = require("modules.concord.concord")
+
+local Light = Concord.system({
+	pool_normal = {"id", "position", "transform", "color",
+		"light", "light_type",
+	},
+	pool_flicker = {"id", "position", "transform", "color",
+		"light", "light_type", "light_flicker", "light_timer",
+	},
+	pool_flash = {"id", "position", "transform", "color",
+		"light", "light_type", "light_flashing", "light_timer",
+	},
+})
+
+local function randomf(min, max)
+	return min + love.math.random() * (max - min)
+end
+
+local function generate_flicker(e)
+	local light = e.light
+	local color = e.color
+	local range = e.light_flicker.color_range
+	local power_range = e.light_flicker.power_range
+	local timer = e.light_timer
+	local speed_range = e.light_flicker.speed_range
+
+	color[1] = randomf(range.min[1], range.max[1])
+	color[2] = randomf(range.min[2], range.max[2])
+	color[3] = randomf(range.min[3], range.max[3])
+
+	light.power = randomf(power_range.x, power_range.y)
+	timer.timer = randomf(speed_range.x, speed_range.y)
+end
+
+function Light:init(world)
+	self.world = world
+	self.ambient = {0, 0, 0, 1}
+end
+
+function Light:create_light_map(w, h)
+	!if _ASSERT then
+	Assert.must(w, Types.T_NUMBER)
+	Assert.must(h, Types.T_NUMBER)
+	!end
+
+	self.light_map = love.graphics.newCanvas(w, h)
+end
+
+function Light:update_light(dt)
+	for _, e in ipairs(self.pool_flicker) do
+		local light = e.light
+		local timer = e.timer
+
+		if light.enabled then
+			if (timer.timer > 0) then
+				timer.timer = timer.timer - dt
+			else
+				generate_flicker(e)
+			end
+		end
+	end
+
+	for _, e in ipairs(self.pool_flash) do
+		local light = e.light
+		local timer = e.timer
+		local flash = e.light_flashing
+		local max_power = flash.max_power
+		local speed = flash.speed
+
+		if light.enabled then
+			timer.timer = timer.timer + dt
+			if (light.power < max_power) then
+				light.power = (max_power * timer.timer)/speed
+			else
+				e:remove()
+			end
+		end
+	end
+end
+
+function Light:draw_light_start()
+	love.graphics.setCanvas(self.light_map)
+	love.graphics.setBlendMode("add")
+	love.graphics.clear(self.ambient)
+
+	local _r, _g, _b, _a = love.graphics.getColor()
+
+	for _, e in ipairs(self.pool_normal) do
+		local light = e.light
+
+		if (light.enabled) then
+			local color = e.color.color
+			local sprite = light.sprite
+			local power = light.power
+			local pos = e.position.pos
+			local transform = e.transform
+
+			love.graphics.setColor(color)
+			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
+				transform.sx * power, transform.sy * power,
+				transform.ox, transform.oy)
+		end
+	end
+
+	for _, e in ipairs(self.pool_flicker) do
+		local light = e.light
+
+		if (light.enabled) then
+			local color = e.color.color
+			local sprite = light.sprite
+			local power = light.power
+			local pos = e.position.pos
+			local transform = e.transform
+
+			love.graphics.setColor(color)
+			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
+				transform.sx * power, transform.sy * power,
+				transform.ox, transform.oy)
+		end
+	end
+
+	for _, e in ipairs(self.pool_flash) do
+		local light = e.light
+
+		if (light.enabled) then
+			local color = e.color.color
+			local sprite = light.sprite
+			local power = light.power
+			local pos = e.position.pos
+			local transform = e.transform
+
+			love.graphics.setColor(color)
+			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
+				transform.sx * power, transform.sy * power,
+				transform.ox, transform.oy)
+		end
+	end
+
+	love.graphics.setColor(_r, _g, _b, _a)
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setCanvas()
+end
+
+function Light:draw_light_end()
+	love.graphics.setBlendMode("multiply", "prelmu")
+	love.graphics.draw(self.light_map)
+	love.graphics.setBlendMode("alpha")
+end
+
+function Light:cleanup()
+	self.world:clear()
+	self.light_map:release()
+end
+
+return Light
