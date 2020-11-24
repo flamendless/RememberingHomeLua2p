@@ -326,12 +326,14 @@ function Animation:modify_e()
 		Title = "Preview", IsOpen = is_open_preview})
 
 	local a = anim.anim_debug
+	local sheet = data.spritesheet
 	local w, h = data.frame_width, data.frame_height
 	local quad = a:getFrameInfo()
 	local qx, qy, qw, qh = quad:getViewport()
 
 	Slab.Image("Image", {
-		Image = quad,
+		Image = sheet,
+		Quad = quad,
 		Scale = zoom_preview,
 	})
 

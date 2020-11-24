@@ -117,9 +117,10 @@ function StateStorageRoom:start()
 	!end
 
 	--TEST
+	local map_path = MapData.get_path("Test")
 	self.entities.test_map = Concord.entity(self.world)
 		:give("id", "test_map")
-		:give("tilemap", "res/tilemaps/test.lua")
+		:give("tilemap", map_path)
 
 	self:spawn_player()
 end

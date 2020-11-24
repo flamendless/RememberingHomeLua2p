@@ -1,9 +1,19 @@
 local args = dataFromCommandLine
 
-if args == "test" then
+local function split(str)
+	local t = {}
+	for arg in string.gmatch(str, "([^%s]+)") do
+		table.insert(t, arg)
+	end
+	return t
+end
+
+args = split(args)
+
+if args[1] == "test" then
 	_RELEASE = true
 	_ASSERT = false
-elseif args == "dev" then
+elseif args[1] == "dev" then
 	_RELEASE = false
 	_ASSERT = true
 end
@@ -22,6 +32,7 @@ _GAME_BASE_SIZE = { x = 128, y = 32 }
 _IDENTITY = "goinghomerevisited"
 _LOVE_VERSION = "11.3"
 _GAME_VERSION = { 0, 0, 1 }
+_COMMIT_VERSION = args[2]
 
 _MIN_GL_VERSION = "2.1"
 

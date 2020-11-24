@@ -66,6 +66,7 @@ end
 
 function love.load()
 	Log.info(format("Starting... Game Version: %s", this_version))
+	Log.info(!("Commit: " .. _COMMIT_VERSION))
 	!if _NETWORK then
 	Log.info("Network is enabled")
 	Network.check_latest_version(this_semver)
