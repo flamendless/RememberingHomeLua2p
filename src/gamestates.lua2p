@@ -212,6 +212,10 @@ function GameStates.draw()
 		main_canvas:detach()
 		main_canvas:render()
 	end
+
+    if GameStates.current_world.custom_draw then
+		GameStates.current_world:custom_draw(main_canvas)
+    end
 end
 
 function GameStates.keypressed(key)

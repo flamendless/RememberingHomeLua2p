@@ -54,6 +54,7 @@ local Systems = {
 	Interactive = require("systems.interactive"),
 	Inventory = require("systems.inventory"),
 	Items = require("systems.items"),
+	Light = require("systems.light"),
 	Map = require("systems.map"),
 	Move = require("systems.move"),
 	Movement = require("systems.movement"),
@@ -190,6 +191,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Collision)
 	self.world:addSystem(Systems.Color)
 	self.world:addSystem(Systems.Camera)
+	self.world:addSystem(Systems.Light)
 	self.world:addSystem(Systems.Map)
 	self.world:addSystem(Systems.Move)
 	self.world:addSystem(Systems.Movement)
@@ -220,13 +222,20 @@ function StateOutside:start()
 		:assemble(Assemblages.Common.camera, self.camera, self.scale, w, h)
 
 	ScreenInfo.set(w, h, ww, hh, self.scale)
-
+	self.world:emit("create_light_map", w, h)
 	self.world:emit("set_gamestate", self.gamestate)
+
 	self.world:emit("set_dialogue_config", {
 			pos = vec2:new(ww/2, hh * 0.87),
 			pos_arrow = vec2:new(ww/2, hh * 0.94),
 			font = res_fonts.dialogue,
 			sheet_arrow = res_images.sheet_dialogue_arrow,
+		})
+
+	self.world:emit("set_light_resources", {
+			round = res_images.light_round,
+			rectangle = res_images.light_rectangle,
+			cone = res_images.light_cone,
 		})
 
 	self.world:emit("set_action_controls_resources", {
@@ -262,6 +271,17 @@ function StateOutside:start()
 		res_images.bg_item,
 		res_images.bg_desc,
 		res_fonts.item_desc)
+
+	!if not _RELEASE then
+		-- TODO remove this
+		local e = Concord.entity(self.world)
+			:give("id", "test_light")
+			:give("position", vec2:new(cw/2, ch/2))
+			:give("transform", 0, 1, 1)
+			:give("color", {1, 1, 1, 1})
+			:give("light", "round", res_images.light_round, 128)
+			:give("light_type", "normal")
+	!end
 
 	self.entities.backdoor_key = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
@@ -556,6 +576,7 @@ function StateOutside:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
+	self.world:emit("light_update", dt)
 	self.world:emit("on_camera_move", self.camera)
 
 	local mx, my = love.mouse.getPosition()
@@ -575,11 +596,15 @@ function StateOutside:update(dt)
 	!end
 end
 
-function StateOutside:draw()
+function StateOutside:custom_draw(canvas)
 	if not self.is_ready then return end
 
 	self.camera:draw(function(l, t, w, h)
 		effect:apply()
+
+		self.world:emit("draw_light_start")
+		self.world:emit("draw_light")
+		canvas:attach()
 
 		self.world:emit("draw")
 		self.world:emit("draw_z")
@@ -588,6 +613,8 @@ function StateOutside:draw()
 			self.ps1:draw(0, -16)
 			self.ps2:draw(0, -16)
 		end
+
+		self.world:emit("draw_light_end")
 
 		love.graphics.setShader()
 
@@ -604,6 +631,9 @@ function StateOutside:draw()
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()
+
+	love.graphics.setCanvas()
+	love.graphics.draw(canvas.canvas)
 end
 
 function StateOutside:mousemoved(mx, my)

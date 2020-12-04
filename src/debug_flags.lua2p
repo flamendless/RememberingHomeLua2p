@@ -10,6 +10,7 @@ DebugFlags = {
 		colliders = false,
 		ent_count = true,
 		layers = false,
+        light = false,
 		logs = true,
 		mouse_info = false,
 		player = false,

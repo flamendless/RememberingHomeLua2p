@@ -37,12 +37,25 @@ function Light:init(world)
 	self.ambient = {0, 0, 0, 1}
 end
 
+function Light:set_light_resources(res)
+    !if _ASSERT then
+    Assert.must(res, Types.T_TABLE)
+    Assert.must(res.round, Types.T_IMAGE)
+    Assert.must(res.rectangle, Types.T_IMAGE)
+    Assert.must(res.cone, Types.T_IMAGE)
+    !end
+
+    self.resources = res
+end
+
 function Light:create_light_map(w, h)
 	!if _ASSERT then
 	Assert.must(w, Types.T_NUMBER)
 	Assert.must(h, Types.T_NUMBER)
 	!end
 
+    self.w = w
+    self.h = h
 	self.light_map = love.graphics.newCanvas(w, h)
 end
 
@@ -81,8 +94,10 @@ end
 function Light:draw_light_start()
 	love.graphics.setCanvas(self.light_map)
 	love.graphics.setBlendMode("add")
-	love.graphics.clear(self.ambient)
+	-- love.graphics.clear(self.ambient)
+end
 
+function Light:draw_light()
 	local _r, _g, _b, _a = love.graphics.getColor()
 
 	for _, e in ipairs(self.pool_normal) do
@@ -99,6 +114,9 @@ function Light:draw_light_start()
 			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
 				transform.sx * power, transform.sy * power,
 				transform.ox, transform.oy)
+
+			love.graphics.setColor(1, 0, 0, 1)
+			love.graphics.circle("fill", pos.x, pos.y, 128)
 		end
 	end
 
@@ -138,11 +156,11 @@ function Light:draw_light_start()
 
 	love.graphics.setColor(_r, _g, _b, _a)
 	love.graphics.setBlendMode("alpha")
-	love.graphics.setCanvas()
+	-- love.graphics.setCanvas()
 end
 
 function Light:draw_light_end()
-	love.graphics.setBlendMode("multiply", "prelmu")
+	love.graphics.setBlendMode("multiply", "premultiplied")
 	love.graphics.draw(self.light_map)
 	love.graphics.setBlendMode("alpha")
 end
@@ -151,5 +169,101 @@ function Light:cleanup()
 	self.world:clear()
 	self.light_map:release()
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local light_types = {"normal", "flicker", "flash"}
+local selected
+local selected_pool
+local is_open
+local selected_e
+
+function Light:draw_debug()
+	views.light = Slab.BeginWindow("Light", {
+		Title = "Light", IsOpen = views.light})
+
+	if Slab.Button("Add Light") then
+		local e = Concord.entity(self.world)
+			:give("id", "test_light")
+			:give("position", vec2:new(self.w/2, self.h/2))
+			:give("transform", 0, 1, 1)
+			:give("color", {1, 1, 1, 1})
+			:give("light", "round", self.resources.round, 128)
+			:give("light_type", "normal")
+	end
+
+	if Slab.BeginComboBox("Lights", {Selected = selected}) then
+		for i, v in ipairs(light_types) do
+			if Slab.TextSelectable(v) then
+				selected = v
+
+				if i == 1 then
+					selected_pool = self.pool_normal
+				elseif i == 2 then
+					selected_pool = self.pool_flicker
+				else
+					selected_pool = self.pool_flash
+				end
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	if selected_pool then
+		for _, e in ipairs(selected_pool) do
+			local id = e.id.id
+
+			Slab.Text(id)
+			Slab.SameLine()
+
+			if Slab.Button("edit") then
+				selected_e = e
+			end
+		end
+	end
+	Slab.EndWindow()
+
+	if selected_e then
+		self:edit_light()
+	end
+end
+
+function Light:edit_light()
+	local e = selected_e
+	local id = e.id.id
+	local pos = e.position.pos
+	local light = e.light
+
+	is_open = Slab.BeginWindow("LightEdit", {
+	Title = id, IsOpen = is_open})
+	Slab.Text("Position: ")
+	Slab.SameLine()
+
+	if Slab.Input("x", {
+		Text = tostring(pos.x), ReturnOnText = false, NumbersOnly = true}) then
+		pos.x = Slab.GetInputNumber()
+	end
+
+	Slab.SameLine()
+
+	if Slab.Input("y", {
+		Text = tostring(pos.y), ReturnOnText = false, NumbersOnly = true}) then
+		pos.y = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Power:")
+	Slab.SameLine()
+
+	if Slab.Input("power", {
+		Text = tostring(light.power), ReturnOnText = false,
+		NumbersOnly = true}) then
+		light.power = Slab.GetInputNumber()
+	end
+
+	Slab.EndWindow()
+end
+!end
 
 return Light

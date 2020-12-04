@@ -9,6 +9,7 @@ local Resources = {
 local path_images = "res/images/"
 local path_items = path_images .. "items/"
 local path_lut = "res/lut/"
+local path_lights = "res/lights/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
@@ -118,6 +119,10 @@ Resources.data.outside = {
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
 		{"backdoor_key", path_items .. "backdoor_key.png"},
+
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
 	},
 
 	image_data = {
