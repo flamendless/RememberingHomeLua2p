@@ -287,12 +287,14 @@ function Animation:draw_debug()
 
 		Slab.Text(id)
 		Slab.SameLine()
+
 		if Slab.Button("edit") then
 			is_open = true
 			selected_e = e
 			break
 		end
 	end
+
 	Slab.EndWindow()
 	if not is_open then return end
 	self:modify_e()
