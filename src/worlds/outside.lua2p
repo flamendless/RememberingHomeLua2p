@@ -278,8 +278,8 @@ function StateOutside:start()
 			:give("id", "test_light")
 			:give("position", vec2:new(cw/2, ch/2))
 			:give("transform", 0, 1, 1)
-			:give("color", {1, 1, 1, 1})
-			:give("light", "round", res_images.light_round, 128)
+			:give("color", {1, 1, 1})
+			:give("light", "round", res_images.light_round, 0.8)
 			:give("light_type", "normal")
 	!end
 
@@ -596,16 +596,20 @@ function StateOutside:update(dt)
 	!end
 end
 
+local bg = love.graphics.newImage("res/test/bg.png")
+
 function StateOutside:custom_draw(canvas)
 	if not self.is_ready then return end
 
 	self.camera:draw(function(l, t, w, h)
-		effect:apply()
-
 		self.world:emit("draw_light_start")
 		self.world:emit("draw_light")
-		canvas:attach()
 
+		love.graphics.setBlendMode("alpha")
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.setCanvas(canvas.canvas)
+
+		effect:apply()
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
@@ -613,10 +617,12 @@ function StateOutside:custom_draw(canvas)
 			self.ps1:draw(0, -16)
 			self.ps2:draw(0, -16)
 		end
+		love.graphics.setShader()
 
 		self.world:emit("draw_light_end")
 
-		love.graphics.setShader()
+		love.graphics.setCanvas()
+		canvas:render()
 
 		if overlay_flag then
 			love.graphics.setColor(overlay)
@@ -631,9 +637,6 @@ function StateOutside:custom_draw(canvas)
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()
-
-	love.graphics.setCanvas()
-	love.graphics.draw(canvas.canvas)
 end
 
 function StateOutside:mousemoved(mx, my)

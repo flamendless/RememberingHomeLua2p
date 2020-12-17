@@ -34,7 +34,7 @@ end
 
 function Light:init(world)
 	self.world = world
-	self.ambient = {0, 0, 0, 1}
+	self.ambient = {0.1, 0.1, 0.1}
 end
 
 function Light:set_light_resources(res)
@@ -94,7 +94,7 @@ end
 function Light:draw_light_start()
 	love.graphics.setCanvas(self.light_map)
 	love.graphics.setBlendMode("add")
-	-- love.graphics.clear(self.ambient)
+	love.graphics.clear(self.ambient)
 end
 
 function Light:draw_light()
@@ -114,9 +114,6 @@ function Light:draw_light()
 			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
 				transform.sx * power, transform.sy * power,
 				transform.ox, transform.oy)
-
-			love.graphics.setColor(1, 0, 0, 1)
-			love.graphics.circle("fill", pos.x, pos.y, 128)
 		end
 	end
 
@@ -179,10 +176,28 @@ local selected
 local selected_pool
 local is_open
 local selected_e
+local mouse_light = false
+local e_mouse_light
 
 function Light:draw_debug()
 	views.light = Slab.BeginWindow("Light", {
 		Title = "Light", IsOpen = views.light})
+
+	if Slab.Button("Mouse Light") then
+		if not mouse_light then
+			if e_mouse_light then return end
+			e_mouse_light = Concord.entity(self.world)
+				:give("id", "mouse_light")
+				:give("position", vec2:new(0, 0))
+				:give("transform", 0, 1, 1)
+				:give("color", {1, 1, 1})
+				:give("light", "round", self.resources.round, 0.8)
+				:give("light_type", "normal")
+			mouse_light = true
+		else
+			mouse_light = false
+		end
+	end
 
 	if Slab.Button("Add Light") then
 		local e = Concord.entity(self.world)
@@ -227,6 +242,16 @@ function Light:draw_debug()
 
 	if selected_e then
 		self:edit_light()
+	end
+end
+
+function Light:update_debug(dt)
+	if mouse_light then
+		local mx, my = love.mouse.getPosition()
+		local pos = e_mouse_light.position.pos
+
+		pos.x = mx
+		pos.y = my
 	end
 end
 
