@@ -25,6 +25,7 @@ function Camera:init(world)
 
 		if e.camera.is_main then
 			self.main_camera = cam
+			self.world:emit("on_camera_created", cam)
 		end
 	end
 end
@@ -140,6 +141,7 @@ local max_speed = 260
 
 function Camera:update_debug(dt)
 	if not self.main_camera then return end
+
 	for _, e in ipairs(self.pool) do
 		local x, y = self.main_camera:getPosition()
 		local dx = 0
@@ -189,12 +191,14 @@ function Camera:draw_debug()
 	if Slab.Button("-") then
 		scale = scale - 1
 		self.main_camera:setScale(scale)
+		self.world:emit("camera_on_scale", scale)
 	end
 
 	Slab.SameLine()
 	if Slab.Button("+") then
 		scale = scale + 1
 		self.main_camera:setScale(scale)
+		self.world:emit("camera_on_scale", scale)
 	end
 
 	local x, y = self.main_camera:getPosition()

@@ -33,7 +33,6 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [gamera](https://github.com/kikito/gamera) - for camera
 * [luajit-request](https://github.com/LPGhatguy/luajit-request) - for HTTPS requests
 * [HUMP](https://github.com/vrld/hump) - for Timer
-* [inspect](https://github.com/kikito/inspect.lua) - for debugging Lua tables
 * [json.lua](https://github.com/kikito/json.lua) - for serialization/deserialization of json files
 * [lily](https://github.com/MikuAuahDark/lily) - for asynchronous loading of assets
 * [log](https://github.com/flamendless/log.lua) - for logging

@@ -104,7 +104,7 @@ end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.z_index and not e.ui_element then
+		if not e.z_index and not e.ui_element and not e.light then
 			self:draw_sprite_ex(e)
 		end
 	end
@@ -112,7 +112,7 @@ end
 
 function RenderSprite:draw_z()
 	for _, e in ipairs(self.custom_pool_z) do
-		if not e.ui_element then
+		if not e.ui_element and not e.light then
 			self:draw_sprite_ex(e)
 		end
 	end

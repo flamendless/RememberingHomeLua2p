@@ -2,13 +2,13 @@ local Concord = require("modules.concord.concord")
 
 local Light = Concord.system({
 	pool_normal = {"id", "position", "transform", "color",
-		"light", "light_type",
+		"light", "light_type", "sprite",
 	},
 	pool_flicker = {"id", "position", "transform", "color",
-		"light", "light_type", "light_flicker", "light_timer",
+		"light", "light_type", "light_flicker", "light_timer", "sprite"
 	},
 	pool_flash = {"id", "position", "transform", "color",
-		"light", "light_type", "light_flashing", "light_timer",
+		"light", "light_type", "light_flashing", "light_timer", "sprite"
 	},
 })
 
@@ -34,7 +34,7 @@ end
 
 function Light:init(world)
 	self.world = world
-	self.ambient = {0.1, 0.1, 0.1}
+	self.ambient = {0.3, 0.3, 0.3}
 end
 
 function Light:set_light_resources(res)
@@ -57,6 +57,14 @@ function Light:create_light_map(w, h)
     self.w = w
     self.h = h
 	self.light_map = love.graphics.newCanvas(w, h)
+end
+
+function Light:camera_on_scale(scale)
+	!if _ASSERT then
+	Assert.must(scale, Types.T_NUMBER)
+	!end
+
+	self.scale = scale
 end
 
 function Light:update_light(dt)
@@ -105,7 +113,7 @@ function Light:draw_light()
 
 		if (light.enabled) then
 			local color = e.color.color
-			local sprite = light.sprite
+			local sprite = e.sprite.sprite
 			local power = light.power
 			local pos = e.position.pos
 			local transform = e.transform
@@ -156,9 +164,9 @@ function Light:draw_light()
 	-- love.graphics.setCanvas()
 end
 
-function Light:draw_light_end()
+function Light:draw_light_end(x, y, scale)
 	love.graphics.setBlendMode("multiply", "premultiplied")
-	love.graphics.draw(self.light_map)
+	love.graphics.draw(self.light_map, x, y, 0, scale, scale)
 	love.graphics.setBlendMode("alpha")
 end
 
@@ -183,20 +191,28 @@ function Light:draw_debug()
 	views.light = Slab.BeginWindow("Light", {
 		Title = "Light", IsOpen = views.light})
 
-	if Slab.Button("Mouse Light") then
-		if not mouse_light then
-			if e_mouse_light then return end
+	if Slab.CheckBox(mouse_light, "Mouse Light") then
+		if (not mouse_light) and (not e_mouse_light) then
 			e_mouse_light = Concord.entity(self.world)
 				:give("id", "mouse_light")
 				:give("position", vec2:new(0, 0))
 				:give("transform", 0, 1, 1)
 				:give("color", {1, 1, 1})
-				:give("light", "round", self.resources.round, 0.8)
+				:give("light", "round", 1)
+				:give("sprite", self.resources.round)
 				:give("light_type", "normal")
-			mouse_light = true
-		else
-			mouse_light = false
+				:give("follow_mouse")
 		end
+
+		mouse_light = not mouse_light
+	end
+
+	if mouse_light then
+		local mx, my = e_mouse_light.position.pos:unpack()
+		Slab.Indent()
+		Slab.Text("x: " .. mx)
+		Slab.Text("y: " .. my)
+		Slab.Unindent()
 	end
 
 	if Slab.Button("Add Light") then
@@ -205,7 +221,8 @@ function Light:draw_debug()
 			:give("position", vec2:new(self.w/2, self.h/2))
 			:give("transform", 0, 1, 1)
 			:give("color", {1, 1, 1, 1})
-			:give("light", "round", self.resources.round, 128)
+			:give("light", "round", 1)
+			:give("sprite", self.resources.round)
 			:give("light_type", "normal")
 	end
 
@@ -242,16 +259,6 @@ function Light:draw_debug()
 
 	if selected_e then
 		self:edit_light()
-	end
-end
-
-function Light:update_debug(dt)
-	if mouse_light then
-		local mx, my = love.mouse.getPosition()
-		local pos = e_mouse_light.position.pos
-
-		pos.x = mx
-		pos.y = my
 	end
 end
 

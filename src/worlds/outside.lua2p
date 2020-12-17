@@ -50,6 +50,7 @@ local Systems = {
 	Color = require("systems.color"),
 	Dialogues = require("systems.dialogues"),
 	Fireflies = require("systems.fireflies"),
+	Follow = require("systems.follow"),
 	HoverEffect = require("systems.hover_effect"),
 	Interactive = require("systems.interactive"),
 	Inventory = require("systems.inventory"),
@@ -177,6 +178,7 @@ function StateOutside:start()
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Bump3DCollision)
 	self.world:addSystem(Systems.Fireflies)
+	self.world:addSystem(Systems.Follow)
 	self.world:addSystem(Systems.Notification)
 	self.world:addSystem(Systems.ActionControls)
 	self.world:addSystem(Systems.Interactive)
@@ -221,7 +223,7 @@ function StateOutside:start()
 	self.entities.camera = Concord.entity(self.world)
 		:assemble(Assemblages.Common.camera, self.camera, self.scale, w, h)
 
-	ScreenInfo.set(w, h, ww, hh, self.scale)
+	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", w, h)
 	self.world:emit("set_gamestate", self.gamestate)
 
@@ -271,17 +273,6 @@ function StateOutside:start()
 		res_images.bg_item,
 		res_images.bg_desc,
 		res_fonts.item_desc)
-
-	!if not _RELEASE then
-		-- TODO remove this
-		local e = Concord.entity(self.world)
-			:give("id", "test_light")
-			:give("position", vec2:new(cw/2, ch/2))
-			:give("transform", 0, 1, 1)
-			:give("color", {1, 1, 1})
-			:give("light", "round", res_images.light_round, 0.8)
-			:give("light_type", "normal")
-	!end
 
 	self.entities.backdoor_key = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
@@ -422,6 +413,17 @@ function StateOutside:start()
 	!if not _RELEASE then
 	self:spawn_player(1.5)
 	self.entities.player.body.can_move = true
+
+	local ppx, ppy = self.entities.player.position.pos:unpack()
+
+	self.entities.test_light = Concord.entity(self.world)
+		:give("id", "test_light")
+		:give("position", vec2:new(ppx, ppy))
+		:give("transform", 0, 1, 1)
+		:give("color", {1, 1, 1})
+		:give("light", "round", 0.8)
+		:give("sprite", res_images.light_round)
+		:give("light_type", "normal")
 
 	self.entities.backdoor_key2 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
@@ -601,13 +603,16 @@ local bg = love.graphics.newImage("res/test/bg.png")
 function StateOutside:custom_draw(canvas)
 	if not self.is_ready then return end
 
-	self.camera:draw(function(l, t, w, h)
-		self.world:emit("draw_light_start")
-		self.world:emit("draw_light")
+	local x, y, scale = canvas.x, canvas.y, canvas.scale
 
-		love.graphics.setBlendMode("alpha")
-		love.graphics.setColor(1, 1, 1, 1)
-		love.graphics.setCanvas(canvas.canvas)
+	self.world:emit("draw_light_start")
+	self.world:emit("draw_light")
+
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setCanvas(canvas.canvas)
+
+	self.camera:draw(function(l, t, w, h)
 
 		effect:apply()
 		self.world:emit("draw")
@@ -619,10 +624,7 @@ function StateOutside:custom_draw(canvas)
 		end
 		love.graphics.setShader()
 
-		self.world:emit("draw_light_end")
-
-		love.graphics.setCanvas()
-		canvas:render()
+		self.world:emit("draw_light_end", x, y, scale)
 
 		if overlay_flag then
 			love.graphics.setColor(overlay)
@@ -637,6 +639,9 @@ function StateOutside:custom_draw(canvas)
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()
+
+	love.graphics.setCanvas()
+	canvas:render()
 end
 
 function StateOutside:mousemoved(mx, my)

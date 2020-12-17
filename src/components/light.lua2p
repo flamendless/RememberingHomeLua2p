@@ -8,15 +8,13 @@ Concord.component("light_type", function(c, light_type)
 	c.light_type = light_types[light_type]
 end)
 
-Concord.component("light", function(c, light_shape, sprite, power)
+Concord.component("light", function(c, light_shape, power)
 	!if _ASSERT then
-	Assert.must(sprite, Types.T_IMAGE)
 	Assert.must(power, Types.T_NUMBER)
 	Assert.within_range(power, 0, 1)
 	!end
 
 	c.light_shape = light_shapes[light_shape]
-	c.sprite = sprite
 	c.power = power
 	c.enabled = true
 end)
