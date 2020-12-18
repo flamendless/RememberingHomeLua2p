@@ -35,6 +35,18 @@ end
 function Light:init(world)
 	self.world = world
 	self.ambient = {0.3, 0.3, 0.3}
+
+	self.pool_normal.onEntityAdded = function(pool, e)
+		local light = e.light
+
+		if light.light_shape == "round" then
+			local transform = e.transform
+			local w, h = e.sprite.sprite:getDimensions()
+
+			transform.ox = w/2
+			transform.oy = h/2
+		end
+	end
 end
 
 function Light:set_light_resources(res)
@@ -202,6 +214,8 @@ function Light:draw_debug()
 				:give("sprite", self.resources.round)
 				:give("light_type", "normal")
 				:give("follow_mouse")
+		elseif e_mouse_light then
+			e_mouse_light:destroy()
 		end
 
 		mouse_light = not mouse_light
@@ -252,12 +266,13 @@ function Light:draw_debug()
 
 			if Slab.Button("edit") then
 				selected_e = e
+				is_open = true
 			end
 		end
 	end
 	Slab.EndWindow()
 
-	if selected_e then
+	if is_open then
 		self:edit_light()
 	end
 end
@@ -267,9 +282,11 @@ function Light:edit_light()
 	local id = e.id.id
 	local pos = e.position.pos
 	local light = e.light
+	local color = e.color.color
 
 	is_open = Slab.BeginWindow("LightEdit", {
-	Title = id, IsOpen = is_open})
+		Title = id, IsOpen = is_open})
+
 	Slab.Text("Position: ")
 	Slab.SameLine()
 
@@ -288,10 +305,28 @@ function Light:edit_light()
 	Slab.Text("Power:")
 	Slab.SameLine()
 
-	if Slab.Input("power", {
-		Text = tostring(light.power), ReturnOnText = false,
-		NumbersOnly = true}) then
+	if Slab.InputNumberSlider("power:", light.power, 0, 1) then
 		light.power = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Color:")
+	Slab.Indent()
+	Slab.Text("R:")
+	Slab.SameLine()
+	if Slab.InputNumberSlider("red", color[1], 0, 1) then
+		color[1] = Slab.GetInputNumber()
+	end
+
+	Slab.Text("G:")
+	Slab.SameLine()
+	if Slab.InputNumberSlider("green", color[2], 0, 1) then
+		color[2] = Slab.GetInputNumber()
+	end
+
+	Slab.Text("B:")
+	Slab.SameLine()
+	if Slab.InputNumberSlider("blue", color[3], 0, 1) then
+		color[3] = Slab.GetInputNumber()
 	end
 
 	Slab.EndWindow()
