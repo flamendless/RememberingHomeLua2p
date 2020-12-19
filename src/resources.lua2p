@@ -68,6 +68,9 @@ Resources.data.intro = {
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
 	},
 
 	image_data = {

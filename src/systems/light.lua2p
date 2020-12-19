@@ -70,23 +70,21 @@ function Light:set_light_resources(res)
     self.resources = res
 end
 
-function Light:create_light_map(w, h)
+function Light:create_light_map(x, y, w, h, scale)
 	!if _ASSERT then
+	Assert.must(x, Types.T_NUMBER)
+	Assert.must(y, Types.T_NUMBER)
 	Assert.must(w, Types.T_NUMBER)
 	Assert.must(h, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
 	!end
 
+	self.x = x
+	self.y = y
     self.w = w
     self.h = h
+	self.scale = scale or 1
 	self.light_map = love.graphics.newCanvas(w, h)
-end
-
-function Light:camera_on_scale(scale)
-	!if _ASSERT then
-	Assert.must(scale, Types.T_NUMBER)
-	!end
-
-	self.scale = scale
 end
 
 function Light:update_light(dt)
@@ -149,9 +147,9 @@ function Light:draw_light()
 	-- love.graphics.setCanvas()
 end
 
-function Light:draw_light_end(x, y, scale)
+function Light:draw_light_end(x, y)
 	love.graphics.setBlendMode("multiply", "premultiplied")
-	love.graphics.draw(self.light_map, x, y, 0, scale, scale)
+	love.graphics.draw(self.light_map, x, y, 0, self.scale, self.scale)
 	love.graphics.setBlendMode("alpha")
 end
 
@@ -175,8 +173,9 @@ local e_mouse_light
 local cp_a = false
 local cp = false
 local cp_min, cp_max = false, false
+local show_canvas = false
 
-function Light:draw_debug()
+function Light:update_debug()
 	views.light = Slab.BeginWindow("Light", {
 		Title = "Light", IsOpen = views.light})
 
@@ -198,12 +197,10 @@ function Light:draw_debug()
 		mouse_light = not mouse_light
 	end
 
-	if mouse_light then
-		local mx, my = e_mouse_light.position.pos:unpack()
-		Slab.Indent()
-		Slab.Text("x: " .. mx)
-		Slab.Text("y: " .. my)
-		Slab.Unindent()
+	Slab.SameLine()
+
+	if Slab.CheckBox(show_canvas, "Show Light Map") then
+		show_canvas = not show_canvas
 	end
 
 	if Slab.Button("Ambient Color") then cp_a = not cp_a end
@@ -441,6 +438,13 @@ function Light:edit_light()
 	end
 
 	Slab.EndWindow()
+end
+
+function Light:draw_debug()
+	if show_canvas then
+		love.graphics.setColor(1, 0, 0, 1)
+		love.graphics.rectangle("line", self.x, self.y, self.w * self.scale, self.h * self.scale)
+	end
 end
 !end
 

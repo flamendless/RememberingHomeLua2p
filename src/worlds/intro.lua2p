@@ -15,6 +15,7 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
+local ScreenInfo = require("screen_info")
 
 local format = string.format
 local min = math.min
@@ -67,6 +68,7 @@ function StateIntro:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
+		main_canvas = true,
 		gamestate = nil
 	})
 end
@@ -90,6 +92,7 @@ function StateIntro:start()
 
 	screen_size = vec2:new(love.graphics.getDimensions())
 	self.scale = min(screen_size.x/w, screen_size.y/h)
+
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, screen_size.x, screen_size.y)
 	self.camera:setScale(self.scale)
@@ -99,12 +102,21 @@ function StateIntro:start()
 		:give("camera_transform", 0, self.scale)
 		:give("camera_clip", w, h, Palette.get("camera_clip"))
 
+	ScreenInfo.set(w, h, w, h)
+	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
+	self.world:emit("set_light_resources", {
+			round = res_images.light_round,
+			rectangle = res_images.light_rectangle,
+			cone = res_images.light_cone,
+		})
+
 	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)
 
 	!if not _RELEASE then
 	self.world:emit("debug_particle_system", self.ps1.system)
 	self.world:emit("debug_particle_system", self.ps2.system)
+	self.world:emit("debug_camera", self.camera)
 	!end
 
 	self.entities.bg = Concord.entity(self.world)
@@ -147,6 +159,17 @@ function StateIntro:start()
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
+
+	self.entities.car_light = Concord.entity(self.world)
+		:give("id", "car_light")
+		:give("position", vec2:new())
+		:give("transform", 0, 1, 1)
+		:give("color", {1, 1, 1})
+		:give("light", "cone", 0.8)
+		:give("sprite", res_images.light_cone, "cone")
+		:give("light_type", "normal")
+		:give("attach_to", self.entities.car)
+		:give("attach_to_offset", vec2:new(112, 24))
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect,
@@ -207,6 +230,13 @@ function StateIntro:start()
 			vec2:new(screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
+		local ambient_color = {0.5, 0.5, 0.5}
+		self.world:emit("set_ambient_light", ambient_color)
+
+		!if not _RELEASE then
+		self.timeline:Pause()
+		!end
+
 		local car_pos = self.entities.car.position.pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
@@ -234,6 +264,14 @@ function StateIntro:start()
 		self.world:emit("start_trees", -320)
 
 		local cx, cy = self.camera:getPosition()
+
+		Flux.to(ambient_color, 15, {
+			[1] = 0,
+			[2] = 0,
+			[3] = 0,
+		}):onupdate(function()
+			self.world:emit("set_ambient_light", ambient_color)
+		end)
 
 		effect.status = 2
 		current_effect = effect.multi
@@ -326,14 +364,24 @@ function StateIntro:update(dt)
 	end
 
 	self.world:emit("update", dt)
+	self.world:emit("light_update", dt)
 
 	!if not _RELEASE then
 	self.world:emit("debugging_update", dt)
 	!end
 end
 
-function StateIntro:draw()
+function StateIntro:custom_draw(canvas)
 	if not self.is_ready then return end
+
+	local x, y = canvas.x, canvas.y
+
+	self.world:emit("draw_light_start")
+	self.world:emit("draw_light")
+
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setCanvas(canvas.canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		if current_effect then
@@ -350,6 +398,8 @@ function StateIntro:draw()
 
 		love.graphics.setShader()
 
+		self.world:emit("draw_light_end", x, y)
+
 		!if not _RELEASE then
 		self.world:emit("debugging_draw", l, t, w, h)
 		!end
@@ -357,15 +407,15 @@ function StateIntro:draw()
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
-
 	Fade.draw()
+
+	love.graphics.setCanvas()
+	canvas:render()
 end
 
 function StateIntro:keypressed(key)
 	if not self.is_ready then return end
-
 	!if not _RELEASE then
-	self.world:emit("keypress", key)
 	if key == "1" then
 		self:update_rain(1)
 	elseif key == "2" then
@@ -377,9 +427,8 @@ function StateIntro:keypressed(key)
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		if not is_switching then
-			self.entities.skip_intro:destroy()
-
 			if Inputs.is_pressed("ui_skip", key) then
+				self.entities.skip_intro:destroy()
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)
 					is_raining = false
@@ -391,6 +440,8 @@ function StateIntro:keypressed(key)
 			end
 		end
 	end
+
+	self.world:emit("keypressed", key)
 end
 
 function StateIntro:exit()

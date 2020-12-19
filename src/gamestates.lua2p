@@ -45,6 +45,8 @@ function GameStates.init()
 			top_canvas = top_canvas,
 			bot_canvas = bot_canvas
 		}
+	elseif GameStates.current_world.main_canvas then
+		GameStates.current_world.main_canvas = main_canvas
 	end
 end
 

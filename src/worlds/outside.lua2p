@@ -108,6 +108,7 @@ function StateOutside:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
+		main_canvas = true,
 		gamestate = nil
 	})
 end
@@ -144,7 +145,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Common.camera, self.camera, self.scale, w, h)
 
 	ScreenInfo.set(w, h, w, h)
-	self.world:emit("create_light_map", w, h)
+	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_gamestate", self.gamestate)
 
 	self.world:emit("set_dialogue_config", {
@@ -518,12 +519,8 @@ function StateOutside:update(dt)
 	!end
 end
 
-local bg = love.graphics.newImage("res/test/bg.png")
-
 function StateOutside:custom_draw(canvas)
 	if not self.is_ready then return end
-
-	local x, y, scale = canvas.x, canvas.y, canvas.scale
 
 	self.world:emit("draw_light_start")
 	self.world:emit("draw_light")
@@ -533,7 +530,6 @@ function StateOutside:custom_draw(canvas)
 	love.graphics.setCanvas(canvas.canvas)
 
 	self.camera:draw(function(l, t, w, h)
-
 		effect:apply()
 		self.world:emit("draw")
 		self.world:emit("draw_z")
@@ -544,7 +540,7 @@ function StateOutside:custom_draw(canvas)
 		end
 		love.graphics.setShader()
 
-		self.world:emit("draw_light_end", x, y, scale)
+		self.world:emit("draw_light_end")
 
 		if overlay_flag then
 			love.graphics.setColor(overlay)
