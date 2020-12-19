@@ -162,6 +162,8 @@ local is_open
 local selected_e
 local mouse_light = false
 local e_mouse_light
+local cp = false
+local cp_min, cp_max = false, false
 
 function Light:draw_debug()
 	views.light = Slab.BeginWindow("Light", {
@@ -227,7 +229,7 @@ function Light:edit_light()
 	local id = e.id.id
 	local pos = e.position.pos
 	local light = e.light
-	local color = e.color.color
+	local color = e.color
 	local sprite = e.sprite
 	local flash = e.light_flash ~= nil
 	local flicker = e.light_flicker ~= nil
@@ -299,28 +301,30 @@ function Light:edit_light()
 	Slab.Text("Power:")
 	Slab.SameLine()
 
-	if Slab.InputNumberSlider("power:", light.power, 0, 1) then
+	if Slab.InputNumberSlider("power", light.power, 0, 4) then
 		light.power = Slab.GetInputNumber()
 	end
 
 	Slab.Text("Color:")
-	Slab.Indent()
-	Slab.Text("R:")
 	Slab.SameLine()
-	if Slab.InputNumberSlider("red", color[1], 0, 1) then
-		color[1] = Slab.GetInputNumber()
+
+	if Slab.Button("Color Wheel") then cp = not cp end
+	if cp then
+		local res = Slab.ColorPicker({Color = color.color})
+		if res.Button == 1 then color.color = res.Color
+		elseif res.Button == -1 then cp = false end
 	end
 
-	Slab.Text("G:")
-	Slab.SameLine()
-	if Slab.InputNumberSlider("green", color[2], 0, 1) then
-		color[2] = Slab.GetInputNumber()
+	if cp_min then
+		local res = Slab.ColorPicker({Color = color_range.min})
+		if res.Button then color_range.min = res.Color
+		elseif res.Button == -1 then cp_min = false end
 	end
 
-	Slab.Text("B:")
-	Slab.SameLine()
-	if Slab.InputNumberSlider("blue", color[3], 0, 1) then
-		color[3] = Slab.GetInputNumber()
+	if cp_max then
+		local res = Slab.ColorPicker({Color = color_range.max})
+		if res.Button then color_range.max = res.Color
+		elseif res.Button == -1 then cp_max = false end
 	end
 
 	flash = e.light_flash
@@ -344,55 +348,55 @@ function Light:edit_light()
 	end
 
 	if flicker then
+		local color_range = flicker.color_range
+		local speed_range = flicker.speed_range
+		local power_range = flicker.power_range
+
 		Slab.Text("Flicker:")
 		Slab.Indent()
 		Slab.Text("Color Range:")
+
+		Slab.SameLine()
+		if Slab.Button("Color Wheel (min)") then
+			cp_min = not cp_min
+		end
+
+		Slab.SameLine()
+		if Slab.Button("Color Wheel (Max)") then
+			cp_max = not cp_max
+		end
+
+		Slab.Text("Speed Range:")
 		Slab.Indent()
 		Slab.Text("Min:")
-
-		local color_range = flicker.color_range
-		local min_color = color_range.min
-		local max_color = color_range.max
-
-		Slab.Indent()
-		Slab.Text("R:")
 		Slab.SameLine()
-		if Slab.InputNumberSlider("min_red", min_color[1], 0, 1) then
-			min_color[1] = Slab.GetInputNumber()
+		if Slab.Input("speed_range_min", {Text = tostring(speed_range.x),
+			ReturnOnText = false, NumbersOnly = true}) then
+			speed_range.x = Slab.GetInputNumber()
 		end
 
-		Slab.Text("G:")
+		Slab.Text("Max:")
 		Slab.SameLine()
-		if Slab.InputNumberSlider("min_green", min_color[2], 0, 1) then
-			min_color[2] = Slab.GetInputNumber()
-		end
-
-		Slab.Text("B:")
-		Slab.SameLine()
-		if Slab.InputNumberSlider("min_blue", min_color[3], 0, 1) then
-			min_color[3] = Slab.GetInputNumber()
+		if Slab.Input("speed_range_max", {Text = tostring(speed_range.y),
+			ReturnOnText = false, NumbersOnly = true}) then
+			speed_range.y = Slab.GetInputNumber()
 		end
 
 		Slab.Unindent()
-		Slab.Text("Max:")
+		Slab.Text("Power Range:")
 		Slab.Indent()
-
-		Slab.Text("R:")
+		Slab.Text("Min:")
 		Slab.SameLine()
-		if Slab.InputNumberSlider("max_red", max_color[1], 0, 1) then
-			max_color[1] = Slab.GetInputNumber()
+		if Slab.Input("power_range_min", {Text = tostring(power_range.x),
+			ReturnOnText = false, NumbersOnly = true}) then
+			power_range.x = Slab.GetInputNumber()
 		end
 
-		Slab.Text("G:")
+		Slab.Text("Max:")
 		Slab.SameLine()
-		if Slab.InputNumberSlider("max_green", max_color[2], 0, 1) then
-			max_color[2] = Slab.GetInputNumber()
-		end
-
-		Slab.Text("B:")
-		Slab.SameLine()
-		if Slab.InputNumberSlider("max_blue", max_color[3], 0, 1) then
-			max_color[3] = Slab.GetInputNumber()
+		if Slab.Input("power_range_max", {Text = tostring(power_range.y),
+			ReturnOnText = false, NumbersOnly = true}) then
+			power_range.y = Slab.GetInputNumber()
 		end
 	end
 
