@@ -1,31 +1,12 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 
+local ECSData = require("data.ecs_data")
 local Resources = require("resources")
 local Preloader = require("preloader")
-local Tracker = require("tracker")
 
 local StateTest = class()
 StateTest.id = "Test"
-
-local Components = {}
-Concord.utils.loadNamespace("components", Components)
-
-local Systems = {
-	Animation = require("systems.animation"),
-	Bump3DCollision = require("systems.bump3d_collision"),
-	Collision = require("systems.collision"),
-	Camera = require("systems.camera"),
-	PlayerController = require("systems.player_controller"),
-	Light = require("systems.light"),
-	Movement = require("systems.movement"),
-	RenderSprite = require("systems.render_sprite"),
-	RenderText = require("systems.render_text"),
-}
-
-!if not _RELEASE then
-Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -66,19 +47,7 @@ function StateTest:load()
 end
 
 function StateTest:start()
-	self.world:addSystem(Systems.Collision)
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Bump3DCollision)
-	self.world:addSystem(Systems.PlayerController)
-	self.world:addSystem(Systems.Light)
-	self.world:addSystem(Systems.Movement)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.Camera)
-
-	!if not _RELEASE then
-	Tracker.error_on_ref_count(Systems, 0)
-	!end
+	ECSData.load_systems(self.id, self.world)
 
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = ww, wh

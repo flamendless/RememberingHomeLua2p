@@ -2,11 +2,7 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Timer = require("modules.hump.timer")
 
-!if not _RELEASE then
-local DebugFlags = require("debug_flags")
-local Tracker = require("tracker")
-!end
-
+local ECSData = require("data.ecs_data")
 local MapData = require("data.map_data")
 local Resources = require("resources")
 local Preloader = require("preloader")
@@ -16,28 +12,6 @@ local min = math.min
 
 local StateStorageRoom = class()
 StateStorageRoom.id = "StorageRoom"
-
-local Components = {}
-Concord.utils.loadNamespace("components", Components)
-
-local Systems = {
-	!if not _RELEASE then
-	Debugging = require("systems.debugging"),
-	!end
-
-	Animation = require("systems.animation"),
-	Bump3DCollision = require("systems.bump3d_collision"),
-	Camera = require("systems.camera"),
-	Map = require("systems.map"),
-	Movement = require("systems.movement"),
-	PlayerController = require("systems.player_controller"),
-	RenderSprite = require("systems.render_sprite"),
-	Tilemap = require("systems.tilemap"),
-}
-
-!if not _RELEASE then
-local Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -80,19 +54,7 @@ function StateStorageRoom:load()
 end
 
 function StateStorageRoom:start()
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Bump3DCollision)
-	self.world:addSystem(Systems.Camera)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.Map)
-	self.world:addSystem(Systems.Movement)
-	self.world:addSystem(Systems.PlayerController)
-	self.world:addSystem(Systems.Tilemap)
-
-	!if not _RELEASE then
-	self.world:addSystem(Systems.Debugging)
-	Tracker.error_on_ref_count(Systems, 0)
-	!end
+	ECSData.load_systems(self.id, self.world)
 
 	-- local w, h = res_images.bg_house:getDimensions()
 	-- local w, h = love.graphics.getDimensions()

@@ -3,38 +3,19 @@ local Enum = require("modules.enum.enum")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Timer = require("modules.hump.timer")
 
+local ECSData = require("data.ecs_data")
 local Resources = require("resources")
 local Inputs = require("inputs")
 local Fade = require("fade")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
-!if not _RELEASE then
-local Tracker = require("tracker")
-!end
 
 local floor = math.floor
 local min = math.min
 
 local StateSplash = class()
 StateSplash.id = "Splash"
-
-local Components = {}
-Concord.utils.loadNamespace("components", Components)
-local Systems = {
-	Animation = require("systems.animation"),
-	Color = require("systems.color"),
-	GhostEffect = require("systems.ghost_effect"),
-	GlitchEffect = require("systems.glitch_effect"),
-	RenderSprite = require("systems.render_sprite"),
-	RenderText = require("systems.render_text"),
-	Transform = require("systems.transform"),
-	TypewriterSplash = require("systems.typewriter_splash"),
-}
-
-!if not _RELEASE then
-local Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common")
@@ -106,18 +87,7 @@ function StateSplash:load()
 end
 
 function StateSplash:start()
-	self.world:addSystems(Systems.GhostEffect)
-	self.world:addSystems(Systems.GlitchEffect)
-	self.world:addSystem(Systems.TypewriterSplash)
-	self.world:addSystem(Systems.Transform)
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.Color)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.RenderText)
-
-	!if not _RELEASE then
-	Tracker.error_on_ref_count(Systems, 0)
-	!end
+	ECSData.load_systems(self.id, self.world)
 
 	local ww, wh = love.graphics.getDimensions()
 

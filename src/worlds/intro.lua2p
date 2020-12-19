@@ -5,6 +5,7 @@ local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
+local ECSData = require("data.ecs_data")
 local Dialogues = require("dialogues")
 local Fade = require("fade")
 local Inputs = require("inputs")
@@ -15,10 +16,6 @@ local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
 
-!if not _RELEASE then
-local Tracker = require("tracker")
-!end
-
 local format = string.format
 local min = math.min
 
@@ -27,28 +24,6 @@ StateIntro.id = "Intro"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
-
-local Systems = {
-	!if not _RELEASE then
-	Debugging = require("systems.debugging"),
-	!end
-
-	Animation = require("systems.animation"),
-	Camera = require("systems.camera"),
-	Color = require("systems.color"),
-	DialoguesIntro = require("systems.dialogues_intro"),
-	Parallax = require("systems.parallax"),
-	Tree = require("systems.tree"),
-	RenderSprite = require("systems.render_sprite"),
-	RenderText = require("systems.render_text"),
-	RenderUI = require("systems.render_ui"),
-	TextPaintIntro = require("systems.text_paint_intro"),
-	Transform = require("systems.transform"),
-}
-
-!if not _RELEASE then
-local Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -109,22 +84,7 @@ function StateIntro:load()
 end
 
 function StateIntro:start()
-	self.world:addSystem(Systems.Camera)
-	self.world:addSystem(Systems.Color)
-	self.world:addSystem(Systems.TextPaintIntro)
-	self.world:addSystem(Systems.Transform)
-	self.world:addSystem(Systems.Parallax)
-	self.world:addSystem(Systems.Tree)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.RenderUI)
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.DialoguesIntro)
-
-	!if not _RELEASE then
-	self.world:addSystem(Systems.Debugging)
-	Tracker.error_on_ref_count(Systems, 0)
-	!end
+	ECSData.load_systems(self.id, self.world)
 
 	local w, h = res_images.bg:getDimensions()
 
