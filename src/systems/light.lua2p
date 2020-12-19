@@ -42,13 +42,21 @@ end
 
 function Light:init(world)
 	self.world = world
-	self.ambient = {0.3, 0.3, 0.3}
+	self.ambient = {0, 0, 0}
 
 	self.pool.onEntityAdded = function(pool, e)
 		local light = e.light
 
 		manage_offset(light.light_shape, e.transform, e.sprite.sprite)
 	end
+end
+
+function Light:set_ambient_light(color)
+	!if _ASSERT then
+	Assert.color(color)
+	!end
+
+	self.ambient = color
 end
 
 function Light:set_light_resources(res)
@@ -164,6 +172,7 @@ local is_open
 local selected_e
 local mouse_light = false
 local e_mouse_light
+local cp_a = false
 local cp = false
 local cp_min, cp_max = false, false
 
@@ -195,6 +204,13 @@ function Light:draw_debug()
 		Slab.Text("x: " .. mx)
 		Slab.Text("y: " .. my)
 		Slab.Unindent()
+	end
+
+	if Slab.Button("Ambient Color") then cp_a = not cp_a end
+	if cp_a then
+		local res = Slab.ColorPicker({Color = self.ambient})
+		if res.Button == 1 then self.ambient = res.Color
+		elseif res.Button == -1 then cp_a = false end
 	end
 
 	if Slab.Button("Add Light") then
@@ -332,6 +348,7 @@ function Light:edit_light()
 	Slab.SameLine()
 
 	if Slab.Button("Color Wheel") then cp = not cp end
+
 	if cp then
 		local res = Slab.ColorPicker({Color = color.color})
 		if res.Button == 1 then color.color = res.Color
