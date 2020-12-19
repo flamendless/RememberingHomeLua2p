@@ -29,7 +29,7 @@ function Debugging:init(world)
 	self.camera = nil
 
 	if not slab_init then
-		Slab.Initialize()
+		Slab.Initialize({"NoDocks"})
 		slab_init = true
 	end
 
