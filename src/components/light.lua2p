@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local light_types = Enum("normal", "flickering", "flashing")
+local light_types = Enum("normal", "flicker", "flash")
 local light_shapes = Enum("round", "rectangle", "cone")
 
 Concord.component("light_type", function(c, light_type)
@@ -26,6 +26,8 @@ end)
 Concord.component("light_flicker", function(c, color_range, power_range, speed_range)
 	!if _ASSERT then
 	Assert.must(color_range, Types.T_TABLE)
+	Assert.must(color_range.min, Types.T_TABLE)
+	Assert.must(color_range.max, Types.T_TABLE)
 	Assert.is(power_range, Types.T_VEC2)
 	Assert.is(speed_range, Types.T_VEC2)
 	!end
@@ -35,7 +37,7 @@ Concord.component("light_flicker", function(c, color_range, power_range, speed_r
 	c.speed_range = speed_range
 end)
 
-Concord.component("light_flashing", function(c, max_power, speed)
+Concord.component("light_flash", function(c, max_power, speed)
 	!if _ASSERT then
 	Assert.must(max_power, Types.T_NUMBER)
 	Assert.must(speed, Types.T_NUMBER)

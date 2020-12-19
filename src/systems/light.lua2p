@@ -1,14 +1,8 @@
 local Concord = require("modules.concord.concord")
 
 local Light = Concord.system({
-	pool_normal = {"id", "position", "transform", "color",
+	pool = {"id", "position", "transform", "color",
 		"light", "light_type", "sprite",
-	},
-	pool_flicker = {"id", "position", "transform", "color",
-		"light", "light_type", "light_flicker", "light_timer", "sprite"
-	},
-	pool_flash = {"id", "position", "transform", "color",
-		"light", "light_type", "light_flashing", "light_timer", "sprite"
 	},
 })
 
@@ -32,20 +26,26 @@ local function generate_flicker(e)
 	timer.timer = randomf(speed_range.x, speed_range.y)
 end
 
+local function manage_offset(shape, transform, sprite)
+	local w, h = sprite:getDimensions()
+
+	if shape == "round" or shape == "rectangle" then
+		transform.ox = w/2
+		transform.oy = h/2
+	elseif shape == "cone" then
+		transform.ox = 0
+		transform.oy = h/2
+	end
+end
+
 function Light:init(world)
 	self.world = world
 	self.ambient = {0.3, 0.3, 0.3}
 
-	self.pool_normal.onEntityAdded = function(pool, e)
+	self.pool.onEntityAdded = function(pool, e)
 		local light = e.light
 
-		if light.light_shape == "round" then
-			local transform = e.transform
-			local w, h = e.sprite.sprite:getDimensions()
-
-			transform.ox = w/2
-			transform.oy = h/2
-		end
+		manage_offset(light.light_shape, e.transform, e.sprite.sprite)
 	end
 end
 
@@ -80,32 +80,29 @@ function Light:camera_on_scale(scale)
 end
 
 function Light:update_light(dt)
-	for _, e in ipairs(self.pool_flicker) do
+	for _, e in ipair(self.pool) do
 		local light = e.light
-		local timer = e.timer
+		local timer = e.light_timer
+		local flicker = e.light_flicker
+		local flash = e.light_flash
 
 		if light.enabled then
-			if (timer.timer > 0) then
-				timer.timer = timer.timer - dt
-			else
-				generate_flicker(e)
-			end
-		end
-	end
+			if flicker then
+				if (timer.timer > 0) then
+					timer.timer = timer.timer - dt
+				else
+					generate_flicker(e)
+				end
+			elseif flash then
+				local max_power = flash.max_power
+				local speed = flash.speed
 
-	for _, e in ipairs(self.pool_flash) do
-		local light = e.light
-		local timer = e.timer
-		local flash = e.light_flashing
-		local max_power = flash.max_power
-		local speed = flash.speed
-
-		if light.enabled then
-			timer.timer = timer.timer + dt
-			if (light.power < max_power) then
-				light.power = (max_power * timer.timer)/speed
-			else
-				e:remove()
+				timer.timer = timer.timer + dt
+				if (light.power < max_power) then
+					light.power = (max_power * timer.timer)/speed
+				else
+					e:remove()
+				end
 			end
 		end
 	end
@@ -120,46 +117,12 @@ end
 function Light:draw_light()
 	local _r, _g, _b, _a = love.graphics.getColor()
 
-	for _, e in ipairs(self.pool_normal) do
+	for _, e in ipairs(self.pool) do
 		local light = e.light
 
 		if (light.enabled) then
 			local color = e.color.color
 			local sprite = e.sprite.sprite
-			local power = light.power
-			local pos = e.position.pos
-			local transform = e.transform
-
-			love.graphics.setColor(color)
-			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
-				transform.sx * power, transform.sy * power,
-				transform.ox, transform.oy)
-		end
-	end
-
-	for _, e in ipairs(self.pool_flicker) do
-		local light = e.light
-
-		if (light.enabled) then
-			local color = e.color.color
-			local sprite = light.sprite
-			local power = light.power
-			local pos = e.position.pos
-			local transform = e.transform
-
-			love.graphics.setColor(color)
-			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
-				transform.sx * power, transform.sy * power,
-				transform.ox, transform.oy)
-		end
-	end
-
-	for _, e in ipairs(self.pool_flash) do
-		local light = e.light
-
-		if (light.enabled) then
-			local color = e.color.color
-			local sprite = light.sprite
 			local power = light.power
 			local pos = e.position.pos
 			local transform = e.transform
@@ -192,6 +155,7 @@ local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
 local light_types = {"normal", "flicker", "flash"}
+local light_sprites = {"round", "rectangle", "cone"}
 local selected
 local selected_pool
 local is_open
@@ -234,40 +198,21 @@ function Light:draw_debug()
 			:give("id", "test_light")
 			:give("position", vec2:new(self.w/2, self.h/2))
 			:give("transform", 0, 1, 1)
-			:give("color", {1, 1, 1, 1})
+			:give("color", {1, 1, 1})
 			:give("light", "round", 1)
-			:give("sprite", self.resources.round)
+			:give("sprite", self.resources.round, "round")
 			:give("light_type", "normal")
 	end
 
-	if Slab.BeginComboBox("Lights", {Selected = selected}) then
-		for i, v in ipairs(light_types) do
-			if Slab.TextSelectable(v) then
-				selected = v
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
 
-				if i == 1 then
-					selected_pool = self.pool_normal
-				elseif i == 2 then
-					selected_pool = self.pool_flicker
-				else
-					selected_pool = self.pool_flash
-				end
-			end
-		end
-		Slab.EndComboBox()
-	end
+		Slab.Text(id)
+		Slab.SameLine()
 
-	if selected_pool then
-		for _, e in ipairs(selected_pool) do
-			local id = e.id.id
-
-			Slab.Text(id)
-			Slab.SameLine()
-
-			if Slab.Button("edit") then
-				selected_e = e
-				is_open = true
-			end
+		if Slab.Button("edit") then
+			selected_e = e
+			is_open = true
 		end
 	end
 	Slab.EndWindow()
@@ -283,9 +228,58 @@ function Light:edit_light()
 	local pos = e.position.pos
 	local light = e.light
 	local color = e.color.color
+	local sprite = e.sprite
+	local flash = e.light_flash ~= nil
+	local flicker = e.light_flicker ~= nil
 
 	is_open = Slab.BeginWindow("LightEdit", {
 		Title = id, IsOpen = is_open})
+
+	Slab.Text("Shape:")
+	Slab.SameLine()
+
+	if Slab.BeginComboBox("LightShape", {Selected = light.light_shape}) then
+		for i, v in ipairs(light_types) do
+			if Slab.TextSelectable(v) then
+				e:give("light", v, light.power)
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	Slab.Text("Sprite:")
+	Slab.SameLine()
+	if Slab.BeginComboBox("LightSprite", {Selected = sprite.name}) then
+		for i, v in ipairs(light_sprites) do
+			if Slab.TextSelectable(v) then
+				local spr = self.resources[v]
+				e:give("sprite", spr, v)
+				manage_offset(v, e.transform, spr)
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	--TODO if flash is enabled, disabled toggling of flicker and vice-versa
+
+	if Slab.CheckBox(flash, "Flash") then
+		if flash then
+			e:remove("light_flash")
+		else
+			e:give("light_flash", 360, 8)
+		end
+	end
+
+	if Slab.CheckBox(flicker, "Flicker") then
+		if flicker then
+			e:remove("light_flicker")
+		else
+			e:give("light_flicker", {
+				min = {0, 0, 0},
+				max = {1, 1, 1}
+			}, vec2:new(0, 1), vec2:new(0, 1))
+		end
+	end
 
 	Slab.Text("Position: ")
 	Slab.SameLine()
@@ -327,6 +321,79 @@ function Light:edit_light()
 	Slab.SameLine()
 	if Slab.InputNumberSlider("blue", color[3], 0, 1) then
 		color[3] = Slab.GetInputNumber()
+	end
+
+	flash = e.light_flash
+	flicker = e.light_flicker
+
+	if flash then
+		Slab.Text("Flash:")
+
+		Slab.Indent()
+		Slab.Text("Max Power:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("max_power", flash.max_power, 0, 1) then
+			flash.max_power = Slab.GetInputNumber()
+		end
+
+		Slab.Text("Speed")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("speed", flash.speed, 0, 1) then
+			flash.speed = Slab.GetInputNumber()
+		end
+	end
+
+	if flicker then
+		Slab.Text("Flicker:")
+		Slab.Indent()
+		Slab.Text("Color Range:")
+		Slab.Indent()
+		Slab.Text("Min:")
+
+		local color_range = flicker.color_range
+		local min_color = color_range.min
+		local max_color = color_range.max
+
+		Slab.Indent()
+		Slab.Text("R:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("min_red", min_color[1], 0, 1) then
+			min_color[1] = Slab.GetInputNumber()
+		end
+
+		Slab.Text("G:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("min_green", min_color[2], 0, 1) then
+			min_color[2] = Slab.GetInputNumber()
+		end
+
+		Slab.Text("B:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("min_blue", min_color[3], 0, 1) then
+			min_color[3] = Slab.GetInputNumber()
+		end
+
+		Slab.Unindent()
+		Slab.Text("Max:")
+		Slab.Indent()
+
+		Slab.Text("R:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("max_red", max_color[1], 0, 1) then
+			max_color[1] = Slab.GetInputNumber()
+		end
+
+		Slab.Text("G:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("max_green", max_color[2], 0, 1) then
+			max_color[2] = Slab.GetInputNumber()
+		end
+
+		Slab.Text("B:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("max_blue", max_color[3], 0, 1) then
+			max_color[3] = Slab.GetInputNumber()
+		end
 	end
 
 	Slab.EndWindow()
