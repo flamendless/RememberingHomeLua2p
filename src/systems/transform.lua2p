@@ -121,10 +121,17 @@ end
 function Transform:update_attachment(e)
 	local attach = e.attach_to
 	local pos = e.position
+	local offset = e.attach_to_offset
 	local target = attach.target_e
-	local t_pos = target.position
+	local tx, ty = target.position.pos:unpack()
 
-	pos.pos = t_pos.pos:copy()
+	if offset then
+		tx = tx + offset.offset.x
+		ty = ty + offset.offset.y
+	end
+
+	pos.pos.x = tx
+	pos.pos.y = ty
 end
 
 function Transform:update(dt)

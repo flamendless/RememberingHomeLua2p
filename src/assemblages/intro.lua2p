@@ -102,7 +102,7 @@ function Intro.car_reflect(e, spritesheet, car)
 
 	e:give("id", "car_reflect")
 	:give("animation_data", data)
-	:give("position", car:get("position").pos:copy())
+	:give("position", vec2:new())
 	:give("animation", false)
 	:give("attach_to", car)
 	:give("z_index", z_index.car)
