@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local format = string.format
+
 local Light = Concord.system({
 	pool = {"id", "position", "transform", "color",
 		"light", "light_type", "sprite",
@@ -204,6 +206,7 @@ function Light:draw_debug()
 			:give("light", "round", 1)
 			:give("sprite", self.resources.round, "round")
 			:give("light_type", "normal")
+			:give("light_timer")
 	end
 
 	for _, e in ipairs(self.pool) do
@@ -217,6 +220,24 @@ function Light:draw_debug()
 			is_open = true
 		end
 	end
+
+	if Slab.Button("Print") then
+		for _, e in ipairs(self.pool) do
+			local id = e.id.id
+			local pos = e.position.pos
+			local color = e.color.color
+			local light = e.light
+			local light_type = e.light_type.light_type
+
+			print(id .. ":")
+			print("\tposition: ", pos.x, pos.y)
+			print("\tcolor: ", unpack(color))
+			print("\tlight_type: ", light_type)
+			print("\tlight.shape: ", light.light_shape)
+			print("\tlight.power: ", light.power)
+		end
+	end
+
 	Slab.EndWindow()
 
 	if is_open then
@@ -266,20 +287,22 @@ function Light:edit_light()
 
 	if Slab.CheckBox(flash, "Flash") then
 		if flash then
-			e:remove("light_flash")
+			e:remove("light_flash"):remove("light_timer")
 		else
 			e:give("light_flash", 360, 8)
+			:give("light_timer")
 		end
 	end
 
 	if Slab.CheckBox(flicker, "Flicker") then
 		if flicker then
-			e:remove("light_flicker")
+			e:remove("light_flicker"):remove("light_timer")
 		else
 			e:give("light_flicker", {
 				min = {0, 0, 0},
 				max = {1, 1, 1}
 			}, vec2:new(0, 1), vec2:new(0, 1))
+			:give("light_timer")
 		end
 	end
 
