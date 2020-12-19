@@ -5,6 +5,7 @@ local Slab = require("modules.slab")
 
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
+local order = {}
 
 local insert = table.insert
 local remove = table.remove
@@ -27,6 +28,9 @@ function Debugging:init(world)
 	self.is_open = true
 	self.is_open_list = false
 	self.camera = nil
+
+	for k, v in pairs(views) do insert(order, k) end
+	table.insertion_sort(order)
 
 	if not slab_init then
 		Slab.Initialize({"NoDocks"})
@@ -122,8 +126,8 @@ function Debugging:draw_slab()
 	self.is_open = Slab.BeginWindow("debugging",
 		{Title = "Debugging", IsOpen = self.is_open})
 
-	for id, open in pairs(views) do
-		if Slab.CheckBox(open, id) then
+	for _, id in ipairs(order) do
+		if Slab.CheckBox(views[id], id) then
 			views[id] = not views[id]
 		end
 	end
