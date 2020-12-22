@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local light_shapes = Enum("round", "rectangle", "cone")
+local light_shapes = Enum("round", "rectangle", "cone", "custom")
 
 Concord.component("light_disabled")
 

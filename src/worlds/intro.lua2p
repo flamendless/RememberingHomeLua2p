@@ -157,6 +157,22 @@ function StateIntro:start()
 	self.entities.post = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post")
 
+	self.entities.post_light = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, res_images.light_post, ssx2, "post_light")
+		:give("transform", 0, 1, 1)
+		:give("light", "custom", 0.8)
+		:give("color", {1, 1, 1})
+
+	-- self.entities.post_light = Concord.entity(self.world)
+	-- 	:give("id", "post_light")
+	-- 	:give("position", vec2:new())
+	-- 	:give("transform", 0, 1, 1)
+	-- 	:give("sprite", res_images.light_post)
+	-- 	:give("light", "custom", 0.8)
+	-- 	:give("color", {1, 1, 1})
+	-- 	:give("light_flicker", 0.075)
+	-- 	:give("parallax", vec2:new(-512, 0))
+
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
 

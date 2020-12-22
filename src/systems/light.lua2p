@@ -164,11 +164,19 @@ function Light:draw_light()
 			local power = light.power
 			local pos = e.position.pos
 			local transform = e.transform
+			local quad = e.quad
 
 			love.graphics.setColor(color)
-			love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
-				transform.sx * power, transform.sy * power,
-				transform.ox, transform.oy)
+
+			if quad then
+				love.graphics.draw(sprite, quad.quad, pos.x, pos.y, transform.rot,
+					transform.sx * power, transform.sy * power,
+					transform.ox, transform.oy)
+			else
+				love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
+					transform.sx * power, transform.sy * power,
+					transform.ox, transform.oy)
+			end
 		end
 	end
 

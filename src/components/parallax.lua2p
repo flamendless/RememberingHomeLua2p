@@ -8,5 +8,4 @@ Concord.component("parallax", function(c, speed)
 	c.speed = speed
 end)
 
-Concord.component("parallax_stop", function(c)
-end)
+Concord.component("parallax_stop")

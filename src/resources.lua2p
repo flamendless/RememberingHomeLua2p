@@ -71,6 +71,7 @@ Resources.data.intro = {
 		{"light_round", path_lights .. "round.png"},
 		{"light_rectangle", path_lights .. "rectangle.png"},
 		{"light_cone", path_lights .. "cone.png"},
+		{"light_post", path_lights .. "post_light.png"},
 	},
 
 	image_data = {
