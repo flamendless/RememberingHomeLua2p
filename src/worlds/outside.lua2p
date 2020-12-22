@@ -499,7 +499,7 @@ function StateOutside:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
-	self.world:emit("light_update", dt)
+	self.world:emit("update_light", dt)
 	self.world:emit("on_camera_move", self.camera)
 
 	local mx, my = love.mouse.getPosition()

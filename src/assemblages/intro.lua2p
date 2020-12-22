@@ -108,6 +108,18 @@ function Intro.car_reflect(e, spritesheet, car)
 	:give("z_index", z_index.car)
 end
 
+function Intro.car_light(e, sprite, car)
+	e:give("id", "car_light")
+	:give("position", vec2:new())
+	:give("transform", 0, 1, 1)
+	:give("color", {1, 1, 1})
+	:give("light", "cone", 0.8)
+	:give("sprite", sprite, "cone")
+	:give("light_flicker", 0.075)
+	:give("attach_to", car)
+	:give("attach_to_offset", vec2:new(112, 24))
+end
+
 function Intro.dialogues(e, id, dialogues, font, pos)
 	e:give("id", id)
 	:give("dialogues", id, dialogues)

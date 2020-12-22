@@ -161,15 +161,9 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
 
 	self.entities.car_light = Concord.entity(self.world)
-		:give("id", "car_light")
-		:give("position", vec2:new())
-		:give("transform", 0, 1, 1)
-		:give("color", {1, 1, 1})
-		:give("light", "cone", 0.8)
-		:give("sprite", res_images.light_cone, "cone")
-		:give("light_type", "normal")
-		:give("attach_to", self.entities.car)
-		:give("attach_to_offset", vec2:new(112, 24))
+		:assemble(Assemblages.Intro.car_light, res_images.light_cone,
+			self.entities.car)
+		:give("light_disabled")
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect,
@@ -230,7 +224,7 @@ function StateIntro:start()
 			vec2:new(screen_size.x/2, 64))
 
 	self.timeline = TLE.Do(function()
-		local ambient_color = {0.5, 0.5, 0.5}
+		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
 
 		!if not _RELEASE then
@@ -265,10 +259,9 @@ function StateIntro:start()
 
 		local cx, cy = self.camera:getPosition()
 
+		self.entities.car_light:remove("light_disabled")
 		Flux.to(ambient_color, 15, {
-			[1] = 0,
-			[2] = 0,
-			[3] = 0,
+			[1] = 0.3, [2] = 0.3, [3] = 0.3,
 		}):onupdate(function()
 			self.world:emit("set_ambient_light", ambient_color)
 		end)
@@ -364,7 +357,7 @@ function StateIntro:update(dt)
 	end
 
 	self.world:emit("update", dt)
-	self.world:emit("light_update", dt)
+	self.world:emit("update_light", dt)
 
 	!if not _RELEASE then
 	self.world:emit("debugging_update", dt)
@@ -416,7 +409,9 @@ end
 function StateIntro:keypressed(key)
 	if not self.is_ready then return end
 	!if not _RELEASE then
-	if key == "1" then
+	if key == "space" then
+		self.timeline:Unpause()
+	elseif key == "1" then
 		self:update_rain(1)
 	elseif key == "2" then
 		self:update_rain(2)

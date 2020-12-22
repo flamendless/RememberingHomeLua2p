@@ -119,7 +119,7 @@ function StateTest:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
-	self.world:emit("light_update", dt)
+	self.world:emit("update_light", dt)
 end
 
 function StateTest:custom_draw(canvas)

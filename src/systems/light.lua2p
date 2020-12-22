@@ -1,24 +1,25 @@
 local Concord = require("modules.concord.concord")
 
 local format = string.format
+local random = love.math.random
 
 local Light = Concord.system({
 	pool = {"id", "position", "transform", "color",
-		"light", "light_type", "sprite",
+		"light", "sprite",
 	},
 })
 
 local function randomf(min, max)
-	return min + love.math.random() * (max - min)
+	return min + random() * (max - min)
 end
 
-local function generate_flicker(e)
+local function generate_recolor(e)
 	local light = e.light
-	local color = e.color
-	local range = e.light_flicker.color_range
-	local power_range = e.light_flicker.power_range
+	local color = e.color.color
 	local timer = e.light_timer
-	local speed_range = e.light_flicker.speed_range
+	local range = e.light_recolor.color_range
+	local power_range = e.light_recolor.power_range
+	local speed_range = e.light_recolor.speed_range
 
 	color[1] = randomf(range.min[1], range.max[1])
 	color[2] = randomf(range.min[2], range.max[2])
@@ -26,6 +27,19 @@ local function generate_flicker(e)
 
 	light.power = randomf(power_range.x, power_range.y)
 	timer.timer = randomf(speed_range.x, speed_range.y)
+end
+
+local function generate_flicker(e)
+	local timer = e.light_timer
+	local flicker = e.light_flicker.off_chance
+	local color = e.color.color
+	local r = random()
+
+	if r < flicker then
+		color[4] = 0.3
+	else
+		color[4] = 1
+	end
 end
 
 local function manage_offset(shape, transform, sprite)
@@ -46,6 +60,13 @@ function Light:init(world)
 
 	self.pool.onEntityAdded = function(pool, e)
 		local light = e.light
+		local recolor = e.light_recolor
+		local flash = e.light_flash
+		local flicker = e.light_flicker
+
+		if recolor or flash or flicker then
+			e:give("light_timer")
+		end
 
 		manage_offset(light.light_shape, e.transform, e.sprite.sprite)
 	end
@@ -88,18 +109,20 @@ function Light:create_light_map(x, y, w, h, scale)
 end
 
 function Light:update_light(dt)
-	for _, e in ipair(self.pool) do
+	for _, e in ipairs(self.pool) do
 		local light = e.light
 		local timer = e.light_timer
-		local flicker = e.light_flicker
+		local recolor = e.light_recolor
 		local flash = e.light_flash
+		local flicker = e.light_flicker
+		local disabled = e.light_disabled
 
-		if light.enabled then
-			if flicker then
+		if not disabled then
+			if recolor then
 				if (timer.timer > 0) then
 					timer.timer = timer.timer - dt
 				else
-					generate_flicker(e)
+					generate_recolor(e)
 				end
 			elseif flash then
 				local max_power = flash.max_power
@@ -110,6 +133,12 @@ function Light:update_light(dt)
 					light.power = (max_power * timer.timer)/speed
 				else
 					e:remove()
+				end
+			elseif flicker then
+				if (timer.timer > 0) then
+					timer.timer = timer.timer - dt
+				else
+					generate_flicker(e)
 				end
 			end
 		end
@@ -127,8 +156,9 @@ function Light:draw_light()
 
 	for _, e in ipairs(self.pool) do
 		local light = e.light
+		local disabled = e.light_disabled
 
-		if (light.enabled) then
+		if not disabled then
 			local color = e.color.color
 			local sprite = e.sprite.sprite
 			local power = light.power
@@ -162,7 +192,6 @@ end
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
-local light_types = {"normal", "flicker", "flash"}
 local light_sprites = {"round", "rectangle", "cone"}
 local selected
 local selected_pool
@@ -188,7 +217,6 @@ function Light:update_debug()
 				:give("color", {1, 1, 1})
 				:give("light", "round", 1)
 				:give("sprite", self.resources.round)
-				:give("light_type", "normal")
 				:give("follow_mouse")
 		elseif e_mouse_light then
 			e_mouse_light:destroy()
@@ -218,7 +246,6 @@ function Light:update_debug()
 			:give("color", {1, 1, 1})
 			:give("light", "round", 1)
 			:give("sprite", self.resources.round, "round")
-			:give("light_type", "normal")
 			:give("light_timer")
 	end
 
@@ -240,12 +267,10 @@ function Light:update_debug()
 			local pos = e.position.pos
 			local color = e.color.color
 			local light = e.light
-			local light_type = e.light_type.light_type
 
 			print(id .. ":")
 			print("\tposition: ", pos.x, pos.y)
 			print("\tcolor: ", unpack(color))
-			print("\tlight_type: ", light_type)
 			print("\tlight.shape: ", light.light_shape)
 			print("\tlight.power: ", light.power)
 		end
@@ -266,22 +291,13 @@ function Light:edit_light()
 	local color = e.color
 	local sprite = e.sprite
 	local flash = e.light_flash ~= nil
-	local flicker = e.light_flicker ~= nil
+	local recolor = e.light_recolor ~= nil
 
 	is_open = Slab.BeginWindow("LightEdit", {
 		Title = id, IsOpen = is_open})
 
 	Slab.Text("Shape:")
 	Slab.SameLine()
-
-	if Slab.BeginComboBox("LightShape", {Selected = light.light_shape}) then
-		for i, v in ipairs(light_types) do
-			if Slab.TextSelectable(v) then
-				e:give("light", v, light.power)
-			end
-		end
-		Slab.EndComboBox()
-	end
 
 	Slab.Text("Sprite:")
 	Slab.SameLine()
@@ -296,7 +312,7 @@ function Light:edit_light()
 		Slab.EndComboBox()
 	end
 
-	--TODO if flash is enabled, disabled toggling of flicker and vice-versa
+	--TODO if flash is enabled, disabled toggling of recolor and vice-versa
 
 	if Slab.CheckBox(flash, "Flash") then
 		if flash then
@@ -307,11 +323,11 @@ function Light:edit_light()
 		end
 	end
 
-	if Slab.CheckBox(flicker, "Flicker") then
-		if flicker then
-			e:remove("light_flicker"):remove("light_timer")
+	if Slab.CheckBox(recolor, "Recolor") then
+		if recolor then
+			e:remove("light_recolor"):remove("light_timer")
 		else
-			e:give("light_flicker", {
+			e:give("light_recolor", {
 				min = {0, 0, 0},
 				max = {1, 1, 1}
 			}, vec2:new(0, 1), vec2:new(0, 1))
@@ -365,7 +381,7 @@ function Light:edit_light()
 	end
 
 	flash = e.light_flash
-	flicker = e.light_flicker
+	recolor = e.light_recolor
 
 	if flash then
 		Slab.Text("Flash:")
@@ -384,12 +400,12 @@ function Light:edit_light()
 		end
 	end
 
-	if flicker then
-		local color_range = flicker.color_range
-		local speed_range = flicker.speed_range
-		local power_range = flicker.power_range
+	if recolor then
+		local color_range = recolor.color_range
+		local speed_range = recolor.speed_range
+		local power_range = recolor.power_range
 
-		Slab.Text("Flicker:")
+		Slab.Text("recolor:")
 		Slab.Indent()
 		Slab.Text("Color Range:")
 

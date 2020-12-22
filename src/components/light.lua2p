@@ -1,12 +1,9 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local light_types = Enum("normal", "flicker", "flash")
 local light_shapes = Enum("round", "rectangle", "cone")
 
-Concord.component("light_type", function(c, light_type)
-	c.light_type = light_types[light_type]
-end)
+Concord.component("light_disabled")
 
 Concord.component("light", function(c, light_shape, power)
 	!if _ASSERT then
@@ -16,14 +13,21 @@ Concord.component("light", function(c, light_shape, power)
 
 	c.light_shape = light_shapes[light_shape]
 	c.power = power
-	c.enabled = true
 end)
 
 Concord.component("light_timer", function(c)
 	c.timer = 0
 end)
 
-Concord.component("light_flicker", function(c, color_range, power_range, speed_range)
+Concord.component("light_flicker", function(c, off_chance)
+	!if _ASSERT then
+	Assert.must(off_chance, Types.T_NUMBER)
+	!end
+
+	c.off_chance = off_chance
+end)
+
+Concord.component("light_recolor", function(c, color_range, power_range, speed_range)
 	!if _ASSERT then
 	Assert.must(color_range, Types.T_TABLE)
 	Assert.must(color_range.min, Types.T_TABLE)
