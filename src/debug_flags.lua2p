@@ -13,6 +13,7 @@ DebugFlags = {
         light = false,
 		logs = true,
 		mouse_info = false,
+		parallax = false,
 		player = false,
 		quad_bounds = false,
 		quad_transform = false,

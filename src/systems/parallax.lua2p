@@ -4,7 +4,10 @@ local Parallax = Concord.system({
 	pool = {"parallax", "quad", "sprite"},
 })
 
-function Parallax:init()
+function Parallax:init(world)
+	self.world = world
+	self.stopped = false
+
 	self.pool.onEntityAdded = function(pool, e)
 		e.sprite.sprite:setWrap("repeat")
 	end
@@ -17,6 +20,8 @@ function Parallax:stop_parallax()
 end
 
 function Parallax:slow_parallax(amount)
+	if self.stopped then return end
+
 	for _, e in ipairs(self.pool) do
 		local parallax = e.parallax
 		local dx = parallax.speed.x * amount
@@ -26,6 +31,8 @@ function Parallax:slow_parallax(amount)
 end
 
 function Parallax:parallax_move_x(dt, dir)
+	if self.stopped then return end
+
 	for _, e in ipairs(self.pool) do
 		if not e.parallax_stop then
 			local parallax = e.parallax
@@ -37,5 +44,24 @@ function Parallax:parallax_move_x(dt, dir)
 		end
 	end
 end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local parallax_flag = false
+
+function Parallax:update_debug()
+	views.parallax = Slab.BeginWindow("parallax", {
+		Title = "Parallax", IsOpen = views.parallax})
+
+	if Slab.CheckBox(parallax_flag, "Stop") then
+		parallax_flag = not parallax_flag
+		self.stopped = not self.stopped
+	end
+
+	Slab.EndWindow()
+end
+!end
 
 return Parallax

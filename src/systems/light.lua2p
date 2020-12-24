@@ -200,7 +200,7 @@ end
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
-local light_sprites = {"round", "rectangle", "cone"}
+local light_sprites = {"round", "rectangle", "cone", "custom"}
 local selected
 local selected_pool
 local is_open
@@ -240,6 +240,16 @@ function Light:update_debug()
 	end
 
 	if Slab.Button("Ambient Color") then cp_a = not cp_a end
+
+	Slab.SameLine()
+	if Slab.Button("Dark") then self.ambient = {0.5, 0.5, 0.5} end
+
+	Slab.SameLine()
+	if Slab.Button("Darker") then self.ambient = {0.3, 0.3, 0.3} end
+
+	Slab.SameLine()
+	if Slab.Button("Darkest") then self.ambient = {0, 0, 0} end
+
 	if cp_a then
 		local res = Slab.ColorPicker({Color = self.ambient})
 		if res.Button == 1 then self.ambient = res.Color
@@ -300,9 +310,18 @@ function Light:edit_light()
 	local sprite = e.sprite
 	local flash = e.light_flash ~= nil
 	local recolor = e.light_recolor ~= nil
+	local disabled = e.light_disabled ~= nil
 
 	is_open = Slab.BeginWindow("LightEdit", {
 		Title = id, IsOpen = is_open})
+
+	if Slab.CheckBox(disabled, "Disabled") then
+		if disabled then
+			e:remove("light_disabled")
+		else
+			e:give("light_disabled")
+		end
+	end
 
 	Slab.Text("Shape:")
 	Slab.SameLine()
