@@ -128,37 +128,37 @@ function StateIntro:start()
 
 	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax,
-			res_images.parallax_buildings, ssx2, "building")
+			res_images.parallax_buildings, ssx2, "building", 2, 2)
 
 	self.entities.parallax_road = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road", 2, 2)
 
 	self.entities.parallax_grass = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1", 2, 2)
 
 	self.entities.parallax_grass2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, ssx2, "grass2")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, ssx2, "grass2", 2, 2)
 
 	self.entities.parallax_grass_back = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, ssx2, "grass_back")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, ssx2, "grass_back", 2, 2)
 
 	self.entities.parallax_grass_front = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front", 2, 2)
 
 	self.entities.parallax_trees_bg = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_bg, ssx2, "bg_trees")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_bg, ssx2, "bg_trees", 2, 2)
 
 	self.entities.bg_tree_cover = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_cover, res_images.bg_tree_cover)
 
 	self.entities.parallax_trees_fg = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_fg, ssx2, "fg_trees", 2, 2)
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_fg, ssx2, "fg_trees", 3, 3)
 
 	self.entities.post = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post", 2, 2)
 
 	self.entities.post_light = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.post_light, ssx2, "post_light")
+		:assemble(Assemblages.Intro.parallax, res_images.post_light, ssx2, "post_light", 2, 2)
 		:give("transform", 0, 1, 1)
 		:give("light", "custom", 1)
 		:give("color", {1, 1, 1})

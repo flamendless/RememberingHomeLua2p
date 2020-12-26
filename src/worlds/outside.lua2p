@@ -344,7 +344,6 @@ function StateOutside:start()
 		:give("color", {1, 1, 1})
 		:give("light", "round", 0.8)
 		:give("sprite", res_images.light_round, "round")
-		:give("light_type", "normal")
 
 	self.entities.backdoor_key2 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)

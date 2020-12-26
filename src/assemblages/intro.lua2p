@@ -54,7 +54,7 @@ function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 		e:give("parallax_stop")
 		:give("bg_tree")
 	elseif tag == "fg_trees" then
-		y = 64
+		y = 172
 	end
 
 	e:give("id", "parallax_" .. tag)
