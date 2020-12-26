@@ -109,6 +109,10 @@ function Light:create_light_map(x, y, w, h, scale)
 end
 
 function Light:update_light(dt)
+	!if _PROF then
+	Jprof.push("update_light")
+	!end
+
 	for _, e in ipairs(self.pool) do
 		local light = e.light
 		local timer = e.light_timer
@@ -143,6 +147,10 @@ function Light:update_light(dt)
 			end
 		end
 	end
+
+	!if _PROF then
+	Jprof.pop("update_light")
+	!end
 end
 
 function Light:draw_light_start()
@@ -152,6 +160,10 @@ function Light:draw_light_start()
 end
 
 function Light:draw_light()
+	!if _PROF then
+	Jprof.push("draw_light")
+	!end
+
 	local _r, _g, _b, _a = love.graphics.getColor()
 
 	for _, e in ipairs(self.pool) do
@@ -182,7 +194,10 @@ function Light:draw_light()
 
 	love.graphics.setColor(_r, _g, _b, _a)
 	love.graphics.setBlendMode("alpha")
-	-- love.graphics.setCanvas()
+
+	!if _PROF then
+	Jprof.pop("draw_light")
+	!end
 end
 
 function Light:draw_light_end(x, y)
@@ -212,7 +227,7 @@ local cp = false
 local cp_min, cp_max = false, false
 local show_canvas = false
 
-function Light:update_debug()
+function Light:draw_slab()
 	views.light = Slab.BeginWindow("Light", {
 		Title = "Light", IsOpen = views.light})
 

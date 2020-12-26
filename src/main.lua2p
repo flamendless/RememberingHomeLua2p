@@ -19,6 +19,11 @@ require("modules.batteries"):export()
 require("modules.strict")
 !end
 
+!if _PROF then
+PROF_CAPTURE = true
+Jprof = require("modules.jprof.jprof")
+!end
+
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
@@ -65,6 +70,11 @@ local function custom_loading_screen()
 end
 
 function love.load()
+	!if _PROF then
+	Jprof.push("frame")
+	Jprof.push("love load")
+	!end
+
 	Log.info(format("Starting... Game Version: %s", this_version))
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
 	!if _NETWORK then
@@ -86,19 +96,37 @@ function love.load()
 	!if _RELEASE then
 	GameStates.switch("Splash")
 	!else
-	GameStates.switch("Outside")
+	-- GameStates.switch("Outside")
+	GameStates.switch("Intro")
 	-- GameStates.switch("Test")
+	!end
+
+	!if _PROF then
+	Jprof.pop("love load")
+	Jprof.pop("frame")
 	!end
 end
 
 function love.update(dt)
+	!if _PROF then
+	Jprof.push("frame")
+	!end
+
 	Timer.update(dt)
 	Flux.update(dt)
 	EventManager.update(dt)
 	GameStates.update(dt)
+
+	!if _PROF then
+	Jprof.pop("frame")
+	!end
 end
 
 function love.draw()
+	!if _PROF then
+	Jprof.push("frame")
+	!end
+
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
 
@@ -108,6 +136,18 @@ function love.draw()
 
 	!if not _RELEASE then
 	DebugFlags.t_stats = getStats()
+
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.setFont(font_preload)
+		!if _PROF then
+		love.graphics.print("prof")
+		!else
+		love.graphics.print("dev")
+		!end
+	!end
+
+	!if _PROF then
+	Jprof.pop("frame")
 	!end
 end
 
@@ -149,5 +189,9 @@ function love.quit()
 
 	!if not _RELEASE and _LOG_SAVE then
 	Log.quit(!(_LOG_OUTPUT))
+	!end
+
+	!if _PROF then
+	Jprof.write("prof.mpack")
 	!end
 end

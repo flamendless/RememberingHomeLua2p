@@ -5,7 +5,6 @@ local random = love.math.random
 local Outside = {}
 
 local z_index = {
-	bg_sky = -1,
 	bg_house = 0,
 	firefly = 1,
 	--player = 2,
@@ -37,13 +36,6 @@ local data = {
 		col = vec3:new(76, 28, 18),
 	}
 }
-
-function Outside.bg_sky(e, sprite)
-	e:give("id", "bg_sky")
-	:give("sprite", sprite)
-	:give("position", vec2:new())
-	:give("z_index", z_index.bg_sky)
-end
 
 function Outside.bg_house(e, sprite, pos, quad)
 	e:give("id", "bg_house")

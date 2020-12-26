@@ -64,3 +64,6 @@
 [submodule "modules/cartographer"]
 	path = modules/cartographer
 	url = https://github.com/tesselode/cartographer/
+[submodule "modules/jprof"]
+	path = modules/jprof
+	url = https://github.com/pfirsich/jprof

@@ -48,6 +48,7 @@ local current_effect
 local is_raining = false
 local is_switching = false
 local rain_amount = {16, 32, 96}
+local should_fade = false
 
 function StateIntro:update_rain(i)
 	!if _ASSERT then
@@ -86,6 +87,10 @@ function StateIntro:load()
 end
 
 function StateIntro:start()
+	!if _PROF then
+	Jprof.push("frame", "intro_start")
+	Jprof.push("intro start")
+	!end
 	ECSData.load_systems(self.id, self.world)
 
 	local w, h = res_images.bg:getDimensions()
@@ -118,11 +123,6 @@ function StateIntro:start()
 	self.world:emit("debug_particle_system", self.ps2.system)
 	self.world:emit("debug_camera", self.camera)
 	!end
-
-	self.entities.bg = Concord.entity(self.world)
-		:give("id", "bg")
-		:give("sprite", res_images.bg)
-		:give("position", vec2:new())
 
 	local ssx2 = screen_size.x * 2
 
@@ -163,6 +163,7 @@ function StateIntro:start()
 		:give("light", "custom", 1)
 		:give("color", {1, 1, 1})
 		:give("light_flicker", 0.1)
+		:give("light_disabled")
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
@@ -266,6 +267,7 @@ function StateIntro:start()
 
 		local cx, cy = self.camera:getPosition()
 
+		self.entities.post_light:remove("light_disabled")
 		self.entities.car_light:remove("light_disabled")
 		Flux.to(ambient_color, 15, {
 			[1] = 0.3, [2] = 0.3, [3] = 0.3,
@@ -347,6 +349,11 @@ function StateIntro:start()
 			:assemble(Assemblages.Common.skip, str_skip, res_fonts.ui,
 				vec2:new(screen_size.x/2, screen_size.y - 8))
 	end
+
+	!if _PROF then
+	Jprof.pop("intro start")
+	Jprof.pop("frame")
+	!end
 end
 
 function StateIntro:update(dt)
@@ -388,6 +395,7 @@ function StateIntro:custom_draw(canvas)
 			current_effect:apply()
 		end
 
+		love.graphics.draw(res_images.bg)
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
@@ -399,18 +407,19 @@ function StateIntro:custom_draw(canvas)
 		love.graphics.setShader()
 
 		self.world:emit("draw_light_end", x, y)
-
-		!if not _RELEASE then
-		self.world:emit("debugging_draw", l, t, w, h)
-		!end
 	end)
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
-	Fade.draw()
+
+	if should_fade then Fade.draw() end
 
 	love.graphics.setCanvas()
 	canvas:render()
+
+	!if not _RELEASE then
+	self.world:emit("debugging_draw")
+	!end
 end
 
 function StateIntro:keypressed(key)
@@ -431,6 +440,7 @@ function StateIntro:keypressed(key)
 		if not is_switching then
 			if Inputs.is_pressed("ui_skip", key) then
 				self.entities.skip_intro:destroy()
+				should_fade = true
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)
 					is_raining = false

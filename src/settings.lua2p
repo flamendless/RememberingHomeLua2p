@@ -12,7 +12,11 @@ local Settings = {
 		window_mode = 1,
 		game_sounds = true,
 		game_music = true,
+		!if not _RELEASE then
+		graphics_quality = "low",
+		!else
 		graphics_quality = "high",
+		!end
 	}
 }
 

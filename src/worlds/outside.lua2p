@@ -198,9 +198,6 @@ function StateOutside:start()
 	self.entities.backdoor_key = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
-	self.entities.bg_sky = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.bg_sky, res_images.bg_sky)
-
 	local bg_house = res_images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
 	local div = 4
@@ -530,6 +527,8 @@ function StateOutside:custom_draw(canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		effect:apply()
+
+		love.graphics.draw(res_images.bg_sky)
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
@@ -545,10 +544,6 @@ function StateOutside:custom_draw(canvas)
 			love.graphics.setColor(overlay)
 			love.graphics.rectangle("fill", l, t, w, h)
 		end
-
-		!if not _RELEASE then
-		self.world:emit("debugging_draw", l, t, w, h)
-		!end
 	end)
 
 	self.world:emit("draw_clip")
@@ -557,6 +552,10 @@ function StateOutside:custom_draw(canvas)
 
 	love.graphics.setCanvas()
 	canvas:render()
+
+	!if not _RELEASE then
+	self.world:emit("debugging_draw")
+	!end
 end
 
 function StateOutside:mousemoved(mx, my)

@@ -89,7 +89,7 @@ function Debugging:debug_camera(camera)
 	self.camera = camera
 end
 
-function Debugging:update(dt)
+function Debugging:debug_particle_update(dt)
 	local c = 0
 
 	for i, ps in ipairs(self.ps) do
@@ -103,15 +103,16 @@ function Debugging:debugging_update(dt)
 	if not DebugFlags.draw_all then return end
 
 	Slab.Update(dt)
+	self:debug_particle_update(dt)
 	self.world:emit("update_debug", dt)
 	self.world:emit("draw_slab", dt)
 end
 
-function Debugging:debugging_draw(l, t, w, h)
+function Debugging:debugging_draw()
 	if not DebugFlags.draw_all then return end
 
 	love.graphics.setFont(font)
-	self.world:emit("draw_debug", l, t, w, h)
+	self.world:emit("draw_debug")
 
 	love.graphics.push()
 	love.graphics.origin()

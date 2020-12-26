@@ -49,14 +49,12 @@ end
 local Slab = require("modules.slab")
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
-local parallax_flag = false
 
-function Parallax:update_debug()
+function Parallax:draw_slab()
 	views.parallax = Slab.BeginWindow("parallax", {
 		Title = "Parallax", IsOpen = views.parallax})
 
-	if Slab.CheckBox(parallax_flag, "Stop") then
-		parallax_flag = not parallax_flag
+	if Slab.CheckBox(self.stopped, "Stop") then
 		self.stopped = not self.stopped
 	end
 

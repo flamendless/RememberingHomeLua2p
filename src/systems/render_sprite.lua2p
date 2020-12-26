@@ -25,7 +25,8 @@ local function draw(sprite, ...)
 	love.graphics.draw(sprite, ...)
 end
 
-function RenderSprite:init()
+function RenderSprite:init(world)
+	self.world = world
 	self.custom_pool_z = {}
 
 	self.pool_z.onEntityAdded = function(pool, e)

@@ -16,6 +16,10 @@ if args[1] == "test" then
 elseif args[1] == "dev" then
 	_RELEASE = false
 	_ASSERT = true
+elseif args[1] == "prof" then
+	_RELEASE = false
+	_ASSERT = true
+	_PROF = true
 end
 
 _REPORTING = false
@@ -86,7 +90,7 @@ _TOOLS = {
 _LIBS = {
 	"Anim8", "Arson", "Batteries", "Bump-niji", "Cartographer",
 	"Concord", "Crush", "Enum", "Flux", "Gamera",
-	"HTTPS", "HUMP", "JSON", "Lily", "Log",
+	"HTTPS", "HUMP", "jprof", "JSON", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
 	"Semver", "Slab", "Splashes", "TimelineEvents",
 }
