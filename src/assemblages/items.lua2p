@@ -1,0 +1,41 @@
+local Palette = require("palette")
+local ItemsData = require("data.items_data")
+
+local Items = {}
+
+local function item(e, id)
+	e:give("id", id)
+	:give("item", ItemsData.get_desc(id))
+	:give("hoverable")
+	:give("clickable")
+	:give("color", Palette.get("white", 0))
+	:give("hidden")
+	:give("ui_element")
+	:give("camera")
+	:give("hover_emit")
+end
+
+function Items.backdoor_key(e, sprite, bg_sprite)
+	e:assemble(item, "item_backdoor_key")
+	:give("sprite", sprite)
+end
+
+function Items.inventory_cell(e, sprite)
+	e:give("id", "inventory_cell")
+	:give("sprite", sprite)
+	:give("color", Palette.get("white", 0))
+	:give("hidden")
+	:give("ui_element")
+	:give("inventory_cell")
+end
+
+function Items.inventory_desc(e, sprite)
+	e:give("id", "inventory_desc")
+	:give("sprite", sprite)
+	:give("color", Palette.get("white", 0))
+	:give("hidden")
+	:give("ui_element")
+	:give("inventory_desc")
+end
+
+return Items

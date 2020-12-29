@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local floor = math.floor
+Concord.component("override_animation")
 
 Concord.component("animation", function(c, stop_on_last)
 	!if _ASSERT then
@@ -41,9 +41,6 @@ Concord.component("animation_stop", function(c, event)
 	!end
 
 	c.event = event
-end)
-
-Concord.component("override_animation", function(c)
 end)
 
 Concord.component("animation_on_loop", function(c, callback, event, remove_at_end)

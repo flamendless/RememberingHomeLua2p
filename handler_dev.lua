@@ -1,12 +1,23 @@
-_RELEASE = false
-_REPORTING = false
-_NETWORK = false
-_ASSERT = true
-_LOG_SAVE = false
+local test = false
+
+if test then
+	_RELEASE = true
+	_REPORTING = false
+	_NETWORK = false
+	_ASSERT = false
+	_LOG_SAVE = false
+else
+	_RELEASE = false
+	_REPORTING = false
+	_NETWORK = false
+	_ASSERT = true
+	_LOG_SAVE = false
+end
 
 _OS = "Linux"
 _PLATFORM = "desktop"
 _GAME_TITLE  = "Going Home: Revisited"
+_GAME_TITLE_SECRET  = "COMING SOON"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
 
@@ -21,7 +32,7 @@ _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
 _CANVAS_FILTER = "nearest"
 
-_EMAIL = "flamendless8@gmail.com"
+_EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
 _GITHUB_URL_RELEASE = ""
 
@@ -33,22 +44,33 @@ _SAVE_KEY = "data_store"
 _KEYBINDINGS_FILENAME = "keybindings.json"
 _KEYBINDINGS_DEF_FILENAME = "data/keybindings_default.json"
 
-_URL_TWITTER = "https://twitter.com/@flamendless"
-_URL_WEBSITE = "https://flamendless.github.io/goinghomerevisited"
-_URL_MAIL = "mailto:flamendless8@gmail.com"
+_URL_TWITTER = "https://twitter.com/@flam8studio"
+_URL_DISCORD = "https://discord.gg/2W4tyyV"
+_URL_WEBSITE = "https://flamendless.itch.io"
+_URL_MAIL = "mailto:flamendless.studio@gmail.com"
+
+_ABOUT_LINKS = {
+	_URL_TWITTER,
+	_URL_DISCORD,
+	_URL_WEBSITE,
+	_URL_MAIL
+}
 
 _NAME_DEVELOPER = "Brandon"
 _NAME_ARTIST = "Conrad"
+_NAME_DESIGNER = "Piolo Maurice"
 _NAME_MUSICIAN = "???"
 
 _FULL_NAME_DEVELOPER = "Brandon Blanker Lim-it"
 _FULL_NAME_ARTIST = "Conrad Reyes"
+_FULL_NAME_DESIGNER = "Piolo Maurice Laudencia"
 
 _TWITTER_DEVELOPER = "@flamendless"
 _TWITTER_ARTIST = "@wits"
+_TWITTER_DESIGNER = "@piotato"
 
 _TOOLS = {
-	"Brave Browser", "Manjaro", "i3-Gaps", "Discord", "Löve Framework",
+	"Manjaro", "i3-Gaps", "Discord", "Löve Framework",
 	"Vim", "Trello", "Aseprite", "Audacity",
 }
 
@@ -56,8 +78,8 @@ _LIBS = {
 	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
 	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
 	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "SDF", "Semver", "Slab",
-	"Splashes", "TimelineEvents",
+	"Lume", "NGrading", "ReflowPrint", "SDF", "Semver",
+	"Slab", "Splashes", "TimelineEvents",
 }
 
 return {}

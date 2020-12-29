@@ -20,3 +20,15 @@ Concord.component("typewriter_on_finish", function(c, callback, delay)
 	c.callback = callback
 	c.delay = delay or 0
 end)
+
+Concord.component("reflowprint", function(c, width, alignment)
+	!if _ASSERT then
+	Assert.must(width, Types.T_NUMBER)
+	Assert.must(alignment, Types.T_STRING)
+	!end
+
+	c.width = width
+	c.alignment = alignment
+	c.dt = 0
+	c.current = 1
+end)

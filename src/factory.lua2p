@@ -21,6 +21,7 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 	t.key = Concord.entity(world)
 		:assemble(UI.key, key_id, vec2:new(pos.x, pos.y - 4), font)
 		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 3)
 
 	local key_pos = t.key.position.pos
 	local orig = t.key.position.original_pos
@@ -37,6 +38,7 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 			end
 		end)
 		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 2)
 
 	return t
 end
@@ -130,32 +132,6 @@ function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	t.key_down = Concord.entity(world)
 		:assemble(UI.key, key_down, pos_key_down, font_sdf)
 		:give("sdf", scale, scale)
-
-	return t
-end
-
-function Factory.ui_controls(world, sheet_eye, sheet_hand, sheet_bag, sheet_cancel, dur)
-	!if _ASSERT then
-	Assert.must(sheet_eye, Types.T_IMAGE)
-	Assert.must(sheet_hand, Types.T_IMAGE)
-	Assert.must(sheet_bag, Types.T_IMAGE)
-	Assert.must(sheet_cancel, Types.T_IMAGE)
-	Assert.safe.must(dur, Types.T_NUMBER)
-	!end
-
-	local t = {}
-
-	t.eye = Concord.entity(world)
-		:assemble(UI.action_eye, sheet_eye, dur)
-
-	t.hand = Concord.entity(world)
-		:assemble(UI.action_hand, sheet_hand, dur)
-
-	t.bag = Concord.entity(world)
-		:assemble(UI.action_bag, sheet_bag, dur)
-
-	t.cancel = Concord.entity(world)
-		:assemble(UI.action_cancel, sheet_cancel, dur)
 
 	return t
 end

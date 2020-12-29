@@ -3,8 +3,7 @@ local Enum = require("modules.enum.enum")
 
 local filters = Enum("slide", "cross", "bounce")
 
-Concord.component("bump3d", function(c)
-end)
+Concord.component("bump3d")
 
 Concord.component("collider3d", function(c, size, filter)
 	!if _ASSERT then
@@ -12,11 +11,17 @@ Concord.component("collider3d", function(c, size, filter)
 	!end
 
 	c.size = size
+	c.prev_hit = false
 	c.is_hit = false
 	c.filter = nil
-	c.normal = vec2:new()
+	c.normal = vec3:new()
 
 	if filter then
 		c.filter = filters[filter]
 	end
+
+	!if not _RELEASE then
+	c.view = true
+	c.focus_view = false
+	!end
 end)

@@ -1,6 +1,9 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("hover_emit")
+
 Concord.component("hoverable", function(c)
+	c.prev_hovered = false
 	c.is_hovered = false
 end)
 

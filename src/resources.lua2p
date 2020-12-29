@@ -7,6 +7,7 @@ local Resources = {
 }
 
 local path_images = "res/images/"
+local path_items = path_images .. "items/"
 local path_lut = "res/lut/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
@@ -32,15 +33,17 @@ Resources.data.menu = {
 		{"sheet_desk", path_images .. "menu/sheet_desk.png"},
 		{"title", path_images .. "menu/title.png"},
 		{"subtitle", path_images .. "menu/subtitle.png"},
-		{"twitter", path_images .. "menu/twitter.png"},
-		{"website", path_images .. "menu/website.png"},
-		{"mail", path_images .. "menu/mail.png"},
+		{"discord", path_images .. "menu/icon_discord.png"},
+		{"twitter", path_images .. "menu/icon_twitter.png"},
+		{"website", path_images .. "menu/icon_website.png"},
+		{"mail", path_images .. "menu/icon_mail.png"},
+		{"btn_back", path_images .. "menu/btn_back.png"},
 		{"flowfield", path_textures .. "perlin.png"},
 	},
 
 	font = {
 		{"menu", path_fonts .. "Jamboree.ttf", 24, "default"},
-		{"about", path_fonts .. "DigitalDisco.ttf", 24},
+		{"about", path_fonts .. "DigitalDisco.ttf", 20},
 		{"about", path_fonts .. "DigitalDisco.ttf", 64},
 	}
 }
@@ -60,7 +63,7 @@ Resources.data.intro = {
 		{"parallax_grass_front", path_images .. "intro/parallax_grass_front.png"},
 		{"sheet_car", path_images .. "intro/sheet_car.png"},
 		{"sheet_car_reflect", path_images .. "intro/sheet_car_reflect.png"},
-		{"sheet_paint", path_ui .. "sheet_paint.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
@@ -86,21 +89,35 @@ Resources.data.outside = {
 		{"car", path_images .. "house_outside/car.png"},
 		{"fence", path_images .. "house_outside/fence.png"},
 		{"gate", path_images .. "house_outside/gate.png"},
+		{"railings", path_images .. "house_outside/railings.png"},
 		{"sheet_player_idle", path_images .. "player/player_idle.png"},
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},
 		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
+		{"sheet_player_upstairs", path_images .. "player/sheet_player_upstairs.png"},
+		{"sheet_player_downstairs", path_images .. "player/sheet_player_downstairs.png"},
 		{"firefly", path_images .. "house_outside/firefly.png"},
 		{"splashes", path_images .. "house_outside/splashes.png"},
 		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
 		{"rain_drop", path_images .. "rain/rain_drop.png"},
 		{"rain_drop2", path_images .. "rain/rain_drop2.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
+		{"sheet_brush", path_ui .. "sheet_brush.png"},
+		{"sheet_dialogue_arrow", path_ui .. "sheet_dialogue_arrow.png"},
 		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
 		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
 		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},
 		{"sheet_ui_hand", path_ui .. "ui_action_hand.png"},
 		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
+		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
+		{"sheet_ui_use", path_ui .. "ui_action_use.png"},
+		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
+		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
+		{"question_mark", path_ui .. "question_mark.png"},
+		{"bg_item", path_items .. "bg_item.png"},
+		{"bg_desc", path_items .. "bg_desc.png"},
+		{"backdoor_key", path_items .. "backdoor_key.png"},
 	},
 
 	image_data = {
@@ -110,6 +127,9 @@ Resources.data.outside = {
 
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
+		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
 	},
 }
 

@@ -30,7 +30,7 @@ local Systems = {
 	RenderSprite = require("systems.render_sprite"),
 	RenderText = require("systems.render_text"),
 	Transform = require("systems.transform"),
-	Typewriter = require("systems.typewriter"),
+	TypewriterSplash = require("systems.typewriter_splash"),
 }
 
 !if not _RELEASE then
@@ -64,7 +64,7 @@ local function switch(gamestate)
 
 	is_switching = true
 	Fade.fade_out(function()
-		Save.set_flag("intro_done", true)
+		Save.toggle_flag("intro_done", true)
 		gamestate.switch("Menu")
 	end)
 end
@@ -110,7 +110,7 @@ end
 function StateSplash:start()
 	self.world:addSystems(Systems.GhostEffect)
 	self.world:addSystems(Systems.GlitchEffect)
-	self.world:addSystem(Systems.Typewriter)
+	self.world:addSystem(Systems.TypewriterSplash)
 	self.world:addSystem(Systems.Transform)
 	self.world:addSystem(Systems.Animation)
 	self.world:addSystem(Systems.Color)
@@ -137,7 +137,7 @@ function StateSplash:start()
 				rows_count = 4,
 				columns_count = 3,
 			}, vec2:new(ww/2, wh/2))
-		:give("color", Palette.colors.white)
+		:give("color", Palette.get("white"))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)

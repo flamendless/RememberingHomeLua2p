@@ -3,14 +3,16 @@ local DebugFlags
 
 DebugFlags = {
 	views = {
-		b3d_bounds = false,
+		animation = false,
 		b3d_list = false,
+		bounding_box = false,
 		camera = true,
 		colliders = false,
-		cross = false,
 		ent_count = true,
+		layers = false,
 		logs = true,
-		player = true,
+		mouse_info = false,
+		player = false,
 		quad_bounds = false,
 		quad_transform = false,
 		stats = true,

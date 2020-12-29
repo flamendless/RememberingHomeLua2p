@@ -1,0 +1,18 @@
+local ItemsData = {}
+
+local items_desc = {
+	item_backdoor_key = "The key for the backdoor",
+}
+
+function ItemsData.get_desc(id)
+	local desc = items_desc[id]
+
+	!if _ASSERT then
+	Assert.must(id, Types.T_STRING)
+	Assert.exists(items_desc[id])
+	!end
+
+	return desc
+end
+
+return ItemsData

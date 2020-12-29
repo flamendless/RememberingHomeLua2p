@@ -11,7 +11,31 @@ local z_index = {
 	--player = 2,
 	car = 3,
 	fence = 4,
+	railings = 10,
 	splashes = 11,
+}
+
+local data = {
+	house_left = {
+		pos = vec2:new(240, 128),
+		col = vec3:new(180, 140, 64),
+	},
+	house_right = {
+		pos = vec2:new(480, 128),
+		col = vec3:new(80, 140, 64),
+	},
+	house_top = {
+		pos = vec2:new(420, 180),
+		col = vec3:new(150, 45, 64),
+	},
+	col_railing_left = {
+		pos = vec2:new(420, 236),
+		col = vec3:new(14, 18, 18),
+	},
+	col_railing_right = {
+		pos = vec2:new(484, 240),
+		col = vec3:new(76, 28, 18),
+	}
 }
 
 function Outside.bg_sky(e, sprite)
@@ -26,7 +50,26 @@ function Outside.bg_house(e, sprite, pos, quad)
 	:give("sprite", sprite)
 	:give("position", pos)
 	:give("quad", quad)
-	:give("z_index", z_index.bg_house)
+	:give("z_index", z_index.bg_house, false)
+end
+
+function Outside.railings(e, sprite)
+	e:give("id", "railings")
+	:give("sprite", sprite)
+	:give("position", vec2:new(421, 220))
+	:give("z_index", z_index.railings, false)
+	:give("railings")
+	:give("hidden")
+end
+
+function Outside.col_railing(e, part)
+	local id = "col_railing_" .. part
+	local data = data[id]
+
+	e:give("id", id)
+	:give("position", data.pos)
+	:give("collider3d", data.col)
+	:give("bump3d")
 end
 
 function Outside.left_bounds(e)
@@ -107,26 +150,35 @@ function Outside.car(e, sprite)
 	:give("z_index", z_index.car)
 end
 
-function Outside.house(e)
-	e:give("id", "house")
-	:give("position", vec2:new(240, 128))
-	:give("collider3d", vec3:new(350, 140, 64))
+function Outside.house(e, part)
+	local id = "house_" .. part
+	local data = data[id]
+
+	e:give("id", id)
+	:give("position", data.pos)
+	:give("collider3d", data.col)
 	:give("bump3d")
 end
 
 function Outside.house_side(e)
 	e:give("id", "house_side")
-	:give("position", vec2:new(580, 200))
-	:give("collider3d", vec3:new(60, 60, 64))
+	:give("position", vec2:new(565, 200))
+	:give("collider3d", vec3:new(65, 60, 64))
 	:give("bump3d")
 end
 
-function Outside.door(e)
-	e:give("id", "door")
-	:give("position", vec2:new(580, 250))
-	:give("collider3d", vec3:new(24, 36, 8), "cross")
+function Outside.left_railing(e)
+	e:give("id", "left_railing")
+	:give("position", vec2:new(420, 237))
+	:give("collider3d", vec3:new(20, 4, 22), "cross")
 	:give("bump3d")
-	:give("item")
+end
+
+function Outside.right_railing(e)
+	e:give("id", "right_railing")
+	:give("position", vec2:new(480, 237))
+	:give("collider3d", vec3:new(72, 4, 22), "cross")
+	:give("bump3d")
 end
 
 function Outside.left_wall(e)
