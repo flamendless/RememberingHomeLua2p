@@ -278,6 +278,9 @@ function StateOutside:start()
 	self.entities.cloud_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.cloud_data, res_images.sheet_cloud)
 
+	self.entities.house_light = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.house_light, res_images.house_light)
+
 	for k, v in pairs(Assemblages.InteractiveOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end

@@ -128,6 +128,7 @@ Resources.data.outside = {
 		{"light_round", path_lights .. "round.png"},
 		{"light_rectangle", path_lights .. "rectangle.png"},
 		{"light_cone", path_lights .. "cone.png"},
+		{"house_light", path_lights .. "house_light.png"},
 	},
 
 	image_data = {

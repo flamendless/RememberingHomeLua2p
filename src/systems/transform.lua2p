@@ -208,6 +208,13 @@ function Transform:debug_modify()
 	is_open_transform = Slab.BeginWindow("transform_e", {
 			Title = "Transform", IsOpen = is_open_transform
 		})
+
+	local sprite = selected_e.sprite
+
+	if sprite then
+		Slab.Image("Sprite", {Image = sprite.sprite})
+	end
+
 	local pos = selected_e.position
 
 	if pos then

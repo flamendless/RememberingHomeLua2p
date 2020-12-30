@@ -97,7 +97,7 @@ function love.load()
 	GameStates.switch("Splash")
 	!else
 	-- GameStates.switch("Outside")
-	GameStates.switch("Intro")
+	GameStates.switch("Outside")
 	-- GameStates.switch("Test")
 	!end
 
