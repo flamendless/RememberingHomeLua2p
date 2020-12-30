@@ -200,11 +200,12 @@ end
 
 function Outside.house_light(e, sprite)
 	e:give("id", "house_light")
-	:give("position", vec2:new(420, 210))
-	:give("transform", 0, 1.25, 1.5)
+	:give("position", vec2:new(419, 213))
+	:give("transform", 0, 1.25, 1.25)
 	:give("color", {1, 1, 1})
 	:give("light", "custom", 0.8)
 	:give("sprite", sprite)
+	:give("light_flicker", 0.075)
 end
 
 return Outside

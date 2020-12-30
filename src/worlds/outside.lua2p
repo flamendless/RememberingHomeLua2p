@@ -54,6 +54,7 @@ local effect
 local fireflies_flag = false
 local overlay_flag = false
 local overlay = {0, 0, 0, 1}
+local ambient_color = {0.3, 0.3, 0.3}
 
 local tasks = {
 	"Get out of the car",
@@ -147,6 +148,7 @@ function StateOutside:start()
 	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_gamestate", self.gamestate)
+	self.world:emit("set_ambient_light", ambient_color)
 
 	self.world:emit("set_dialogue_config", {
 			pos = vec2:new(ww/2, hh * 0.87),
@@ -334,16 +336,6 @@ function StateOutside:start()
 	!if not _RELEASE then
 	self:spawn_player(1.5)
 	self.entities.player.body.can_move = true
-
-	local ppx, ppy = self.entities.player.position.pos:unpack()
-
-	self.entities.test_light = Concord.entity(self.world)
-		:give("id", "test_light")
-		:give("position", vec2:new(ppx, ppy))
-		:give("transform", 0, 1, 1)
-		:give("color", {1, 1, 1})
-		:give("light", "round", 0.8)
-		:give("sprite", res_images.light_round, "round")
 
 	self.entities.backdoor_key2 = Concord.entity(self.world)
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
