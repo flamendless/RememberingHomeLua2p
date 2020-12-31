@@ -67,3 +67,6 @@
 [submodule "modules/jprof"]
 	path = modules/jprof
 	url = https://github.com/pfirsich/jprof
+[submodule "modules/strictness"]
+	path = modules/strictness
+	url = https://github.com/Yonaba/strictness

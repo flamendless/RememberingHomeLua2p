@@ -162,7 +162,7 @@ local selected_e
 
 function Transform:draw_debug()
 	views.transform = Slab.BeginWindow("transform", {
-			Title = "Transform List", IsOpen = views.transform})
+		Title = "Transform List", IsOpen = views.transform})
 
 	for _, e in ipairs(self.pool) do
 		local id = e.id
@@ -199,7 +199,7 @@ function Transform:draw_debug()
 	end
 	Slab.EndWindow()
 
-	if not selected_e then return end
+	if not is_open_transform then return end
 
 	self:debug_modify()
 end
@@ -212,7 +212,8 @@ function Transform:debug_modify()
 	local sprite = selected_e.sprite
 
 	if sprite then
-		Slab.Image("Sprite", {Image = sprite.sprite})
+		local id = selected_e.id.id
+		Slab.Image("Sprite " .. id, {Image = sprite.sprite})
 	end
 
 	local pos = selected_e.position

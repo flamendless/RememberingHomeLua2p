@@ -3,7 +3,7 @@ local Palette = require("palette")
 local Intro = {}
 
 local speed = {
-	building = 32,
+	building = 8,
 	road = 512,
 	post = 512,
 	post_light = 512,
@@ -114,32 +114,12 @@ function Intro.car_light(e, sprite, car)
 	e:give("id", "car_light")
 	:give("position", vec2:new())
 	:give("transform", 0, 1, 1)
-	:give("color", {1, 1, 1})
+	:give("color", Palette.car_light)
 	:give("light", "cone", 0.8)
 	:give("sprite", sprite, "cone")
 	:give("light_flicker", 0.075)
 	:give("attach_to", car)
 	:give("attach_to_offset", vec2:new(112, 24))
-end
-
-function Intro.dialogues(e, id, dialogues, font, pos)
-	e:give("id", id)
-	:give("dialogues", id, dialogues)
-	:give("font", font)
-	:give("position", pos)
-end
-
-function Intro.dialogue_text(e, text, font, pos)
-	e:give("id", "dialogue")
-	:give("static_text", text)
-	:give("font", font)
-	:give("position", pos)
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", Palette.get("white", 0))
-	:give("ui_element")
-	:give("hidden")
-	-- TODO add voice acting dialogue
-	-- :give("sound", sound_voice)
 end
 
 function Intro.title(e, sprite, pos)
@@ -150,6 +130,17 @@ function Intro.title(e, sprite, pos)
 	:give("transform", 0, 6, 6, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
 	:give("ui_element")
+end
+
+function Intro.title_light(e, sprite)
+	e:give("id", "title_light")
+	:give("sprite", sprite)
+	:give("position", vec2:new(142, 64))
+	:give("transform", 0, 4, 4, 0.5, 0.5)
+	:give("color", {1, 1, 1})
+	:give("light", "custom", 1)
+	:give("light_flicker", 0.075)
+	:give("light_disabled")
 end
 
 return Intro

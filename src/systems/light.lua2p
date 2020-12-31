@@ -169,8 +169,9 @@ function Light:draw_light()
 	for _, e in ipairs(self.pool) do
 		local light = e.light
 		local disabled = e.light_disabled
+		local hidden = e.hidden
 
-		if not disabled then
+		if not (disabled or hidden) then
 			local color = e.color.color
 			local sprite = e.sprite.sprite
 			local power = light.power
@@ -338,8 +339,7 @@ function Light:edit_light()
 		end
 	end
 
-	Slab.Text("Shape:")
-	Slab.SameLine()
+	Slab.Text("Shape: " .. light.light_shape)
 
 	Slab.Text("Sprite:")
 	Slab.SameLine()

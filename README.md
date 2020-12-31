@@ -43,6 +43,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [semver](https://github.com/kikito/semver) - for semantic versioning
 * [Slab](https://github.com/coding-jackalope/Slab) - for GUI and in-game editor tools
 * [splashes](https://github.com/love2d-community/splashes) - for löve splash screen
+* [strictness](https://github.com/Yonaba/strictness) - trackes accesses and assignments of undefined variables in Lua
 * [TimelineEvents](https://github.com/flamendless/TimelineEvents) - for coroutine based event system
 
 ## Tools:

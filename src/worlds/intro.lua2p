@@ -6,7 +6,6 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local ECSData = require("data.ecs_data")
-local Dialogues = require("dialogues")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
@@ -161,7 +160,7 @@ function StateIntro:start()
 		:assemble(Assemblages.Intro.parallax, res_images.post_light, ssx2, "post_light", 2, 2)
 		:give("transform", 0, 1, 1)
 		:give("light", "custom", 1)
-		:give("color", {1, 1, 1})
+		:give("color", Palette.post_light)
 		:give("light_flicker", 0.1)
 		:give("light_disabled")
 
@@ -222,22 +221,23 @@ function StateIntro:start()
 		:assemble(Assemblages.UI.ui_text, !("music by " .. _NAME_MUSICIAN),
 			res_fonts.ui, vec2:new(32, 32))
 
+	self.entities.title_light = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.title_light,
+			res_images.title_light, vec2:new(screen_size.x/2, screen_size.y/2))
+
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title,
 			res_images.title, vec2:new(screen_size.x/2, screen_size.y/2))
 
-	self.entities.dialogue = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.dialogues, "dialogue_intro",
-			Dialogues.get("intro_rain"), res_fonts.dialogue,
-			vec2:new(screen_size.x/2, 64))
-
 	self.timeline = TLE.Do(function()
-		local ambient_color = {0.9, 0.9, 0.9}
-		self.world:emit("set_ambient_light", ambient_color)
-
 		!if not _RELEASE then
+		local ambient_color = {0.5, 0.5, 0.5}
+		self.world:emit("set_ambient_light", ambient_color)
 		self.timeline:Pause()
 		!end
+
+		local ambient_color = {0.9, 0.9, 0.9}
+		self.world:emit("set_ambient_light", ambient_color)
 
 		local car_pos = self.entities.car.position.pos
 		self.camera:setScale(15)
@@ -258,6 +258,7 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, {x = cx + 160, y = cy - 32})
 		Flux.to(car_pos, 5, {x = 128})
 
+		self:update_rain(1)
 		self.world:emit("fade_text", self.entities.intro_txt2,
 			fade_duration, self.timeline, true)
 		self.timeline:Pause()
@@ -290,18 +291,7 @@ function StateIntro:start()
 			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
-		self:update_rain(1)
-
-		-- TODO play intro radio
-		-- TLE.Event.Wait(3)
-
-		self:update_rain(2)
-
 		TLE.Event.Wait(3)
-		self.world:emit("start_dialogue", "dialogue_intro",
-			self.timeline, dur_in, dur_out)
-		self.timeline:Pause()
-
 		self:update_rain(3)
 
 		TLE.Event.Wait(2)
@@ -317,6 +307,7 @@ function StateIntro:start()
 		end
 
 		TLE.Event.Wait(1)
+		self.entities.title_light:remove("light_disabled")
 		self.entities.title:remove("hidden")
 			:give("color_fade_in", 4, nil, function()
 				self.timeline:Unpause()
@@ -330,6 +321,7 @@ function StateIntro:start()
 
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
+			should_fade = true
 			Fade.fade_out(function()
 				Save.toggle_flag("intro_done", true)
 				is_raining = false

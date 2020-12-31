@@ -149,13 +149,27 @@ function Debugging:draw_slab()
 
 		for _, e in ipairs(self.pool_id) do
 			local id = e.id.id
+			local hidden = e.hidden
+			local txt
 
-			Slab.Text(id)
+			if hidden then txt = "Show"
+			else txt = "Hide"
+			end
+
+			if Slab.Button(txt) then
+				if hidden then
+					e:remove("hidden")
+				else
+					e:give("hidden")
+				end
+			end
+
 			Slab.SameLine()
 
-			if Slab.Button("x") then
-				e:destroy()
-			end
+			if Slab.Button("x") then e:destroy() end
+
+			Slab.SameLine()
+			Slab.Text(id)
 		end
 
 		Slab.EndWindow()

@@ -27,5 +27,8 @@ DebugFlags = {
 	draw_all = false,
 }
 
+local Strictness = require("modules.strictness.strictness")
+Strictness.strict(DebugFlags)
+
 return DebugFlags
 !end

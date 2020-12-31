@@ -317,7 +317,7 @@ function StateOutside:start()
 	end
 
 	self.world:emit("generate_fireflies",
-		random(5, 20), res_images.firefly,
+		random(5, 20), res_images.firefly, res_images.firefly_light,
 		vec2:new(670, 222), vec2:new(1136, 286))
 
 	local lut_size, lut_dusk
@@ -334,28 +334,31 @@ function StateOutside:start()
 
 	--TEST
 	!if not _RELEASE then
-	self:spawn_player(1.5)
-	self.entities.player.body.can_move = true
-
-	self.entities.backdoor_key2 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-		:give("id", "item_test")
-	self.entities.backdoor_key3 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key4 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key5 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key6 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-
-	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.position.pos:unpack())
+	-- self:spawn_player(1.5)
+	-- self.entities.player.body.can_move = true
+    --
+	-- self.entities.backdoor_key2 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- 	:give("id", "item_test")
+	-- self.entities.backdoor_key3 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key4 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key5 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key6 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+    --
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(self.entities.player.position.pos:unpack())
 	!end
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then
+		self.world:emit("show_fireflies", 5, function()
+				self.world:emit("flicker_fireflies", 3, 5)
+			end)
 		self.timeline:Pause()
 		!end
 

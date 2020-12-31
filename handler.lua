@@ -92,7 +92,7 @@ _LIBS = {
 	"Concord", "Crush", "Enum", "Flux", "Gamera",
 	"HTTPS", "HUMP", "jprof", "JSON", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
-	"Semver", "Slab", "Splashes", "TimelineEvents",
+	"Semver", "Slab", "Splashes", "strictness", "TimelineEvents",
 }
 
 return {}

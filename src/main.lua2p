@@ -7,17 +7,13 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 !if not _RELEASE then
 io.stdout:setvbuf("no")
 local getStats = love.graphics.getStats
-!if _ASSERT then
-Assert = require("assert")
-Types = Assert.types
-!end
+	!if _ASSERT then
+	Assert = require("assert")
+	Types = Assert.types
+	!end
 !end
 
 require("modules.batteries"):export()
-
-!if not _RELEASE then
-require("modules.strict")
-!end
 
 !if _PROF then
 PROF_CAPTURE = true
@@ -69,6 +65,11 @@ local function custom_loading_screen()
 	love.graphics.print(str_loading, w/2, h * 0.75, 0, 1, 1, ox, oy)
 end
 
+!if not _RELEASE then
+local Strictness = require("modules.strictness.strictness")
+Strictness.strict(_G)
+!end
+
 function love.load()
 	!if _PROF then
 	Jprof.push("frame")
@@ -96,8 +97,8 @@ function love.load()
 	!if _RELEASE then
 	GameStates.switch("Splash")
 	!else
-	-- GameStates.switch("Outside")
 	GameStates.switch("Outside")
+	-- GameStates.switch("Intro")
 	-- GameStates.switch("Test")
 	!end
 
