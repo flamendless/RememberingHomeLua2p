@@ -162,4 +162,30 @@ function Player.outside_house(e,
 	:give("camera_follow_offset", vec2:new(0, 32))
 end
 
+!if not _RELEASE then
+function Player.test(e, sheet_idle, sheet_walk, sheet_run)
+	local pos = vec2:new(14 * 32, 5 * 32)
+
+	e:assemble(Player.base, "topdown",
+		pos,
+		{
+			idle = vec2:new(),
+			walk = vec2:new(128, 92),
+			run = vec2:new(180, 144),
+		},
+		320,
+		{
+			sheet_idle = sheet_idle,
+			sheet_walk = sheet_walk,
+			sheet_run = sheet_run,
+		},
+		{
+			can_move = true,
+			can_run = true,
+			can_open_door = false,
+		})
+	:give("z_index", 2)
+end
+!end
+
 return Player

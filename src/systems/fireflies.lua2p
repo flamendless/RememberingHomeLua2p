@@ -83,10 +83,11 @@ function Fireflies:update(dt)
 	self.timer:update(dt)
 end
 
-function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
+function Fireflies:generate_fireflies(n, sprite, sprite_light, min_pos, max_pos)
 	!if _ASSERT then
 	Assert.must(n, Types.T_NUMBER)
 	Assert.must(sprite, Types.T_IMAGE)
+	Assert.must(sprite_light, Types.T_IMAGE)
 	Assert.is(min_pos, Types.T_VEC2)
 	Assert.is(max_pos, Types.T_VEC2)
 	!end
@@ -98,6 +99,8 @@ function Fireflies:generate_fireflies(n, sprite, min_pos, max_pos)
 
 		local e = Concord.entity(self.world)
 			:assemble(Outside.firefly, sprite, vec2:new(x, y), points)
+		local f = Concord.entity(self.world)
+			:assemble(Outside.firefly_light, sprite_light, e)
 	end
 end
 

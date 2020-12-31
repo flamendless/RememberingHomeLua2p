@@ -40,6 +40,7 @@ function Info.initialize()
 	data.processor_count = love.system.getProcessorCount()
 	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
 	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+	data.git_version = !(_COMMIT_VERSION)
 	data.limits = love.graphics.getSystemLimits()
 	data.canvasformats = love.graphics.getCanvasFormats()
 	data.imageformats = love.graphics.getImageFormats()
@@ -54,6 +55,7 @@ function Info.initialize()
 
 	local str = {
 		format("Game Version: %s", data.game_version),
+		format("Git Commit Version: %s", data.git_version),
 		format("OS: %s", data.info_os),
 
 		format("Processor Count: %s", data.processor_count),

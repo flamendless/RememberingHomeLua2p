@@ -121,10 +121,17 @@ end
 function Transform:update_attachment(e)
 	local attach = e.attach_to
 	local pos = e.position
+	local offset = e.attach_to_offset
 	local target = attach.target_e
-	local t_pos = target.position
+	local tx, ty = target.position.pos:unpack()
 
-	pos.pos = t_pos.pos:copy()
+	if offset then
+		tx = tx + offset.offset.x
+		ty = ty + offset.offset.y
+	end
+
+	pos.pos.x = tx
+	pos.pos.y = ty
 end
 
 function Transform:update(dt)
@@ -155,7 +162,7 @@ local selected_e
 
 function Transform:draw_debug()
 	views.transform = Slab.BeginWindow("transform", {
-			Title = "Transform List", IsOpen = views.transform})
+		Title = "Transform List", IsOpen = views.transform})
 
 	for _, e in ipairs(self.pool) do
 		local id = e.id
@@ -192,7 +199,7 @@ function Transform:draw_debug()
 	end
 	Slab.EndWindow()
 
-	if not selected_e then return end
+	if not is_open_transform then return end
 
 	self:debug_modify()
 end
@@ -201,6 +208,14 @@ function Transform:debug_modify()
 	is_open_transform = Slab.BeginWindow("transform_e", {
 			Title = "Transform", IsOpen = is_open_transform
 		})
+
+	local sprite = selected_e.sprite
+
+	if sprite then
+		local id = selected_e.id.id
+		Slab.Image("Sprite " .. id, {Image = sprite.sprite})
+	end
+
 	local pos = selected_e.position
 
 	if pos then

@@ -287,12 +287,14 @@ function Animation:draw_debug()
 
 		Slab.Text(id)
 		Slab.SameLine()
+
 		if Slab.Button("edit") then
 			is_open = true
 			selected_e = e
 			break
 		end
 	end
+
 	Slab.EndWindow()
 	if not is_open then return end
 	self:modify_e()
@@ -314,9 +316,11 @@ function Animation:modify_e()
 
 	is_open = Slab.BeginWindow("AnimationEdit", {
 		Title = id, IsOpen = is_open})
+
 	Slab.Image("Spritesheet", {Image = data.spritesheet, Scale = zoom_sheet})
 	Slab.Text("Zoom: " .. zoom_sheet)
 	Slab.SameLine()
+
 	if Slab.Button("-") then zoom_sheet = max(min_zoom, zoom_sheet - 0.5) end
 	Slab.SameLine()
 	if Slab.Button("+") then zoom_sheet = min(max_zoom, zoom_sheet + 0.5) end
@@ -326,13 +330,18 @@ function Animation:modify_e()
 		Title = "Preview", IsOpen = is_open_preview})
 
 	local a = anim.anim_debug
+	local sheet = data.spritesheet
 	local w, h = data.frame_width, data.frame_height
 	local quad = a:getFrameInfo()
 	local qx, qy, qw, qh = quad:getViewport()
 
 	Slab.Image("Image", {
-		Image = quad,
+		Image = sheet,
 		Scale = zoom_preview,
+		SubX = qx,
+		SubY = qy,
+		SubW = qw,
+		SubH = qh,
 	})
 
 	Slab.Text("Tag: " .. anim.current_tag)
@@ -353,8 +362,10 @@ function Animation:modify_e()
 	end
 
 	local f = format("%i/%i", frame_n, data.n_frames)
+	local p = format("%i,%i", x_offset, y_offset)
 	Slab.Text("Frame: " .. f)
 	Slab.SameLine()
+	Slab.Text("Coordinate: " .. p)
 
 	if Slab.Button("<") then
 		frame_n = max(0, frame_n - 1)

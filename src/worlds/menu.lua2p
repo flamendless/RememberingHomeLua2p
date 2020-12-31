@@ -6,6 +6,7 @@ local Log = require("modules.log.log")
 local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
+local ECSData = require("data.ecs_data")
 local Resources = require("resources")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
@@ -15,9 +16,6 @@ local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
-!if not _RELEASE then
-local Tracker = require("tracker")
-!end
 
 local max = math.max
 local min = math.min
@@ -31,24 +29,6 @@ StateMenu.id = "Menu"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
-local Systems = {
-	Animation = require("systems.animation"),
-	BoundingBox = require("systems.bounding_box"),
-	Click = require("systems.click"),
-	Color = require("systems.color"),
-	HoverEffect = require("systems.hover_effect"),
-	Menu = require("systems.menu"),
-	MenuSettings = require("systems.menu_settings"),
-	MouseHover = require("systems.mouse_hover"),
-	Move = require("systems.move"),
-	RenderText = require("systems.render_text"),
-	RenderSprite = require("systems.render_sprite"),
-	Transform = require("systems.transform"),
-}
-
-!if not _RELEASE then
-local Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Menu = require("assemblages.menu"),
@@ -490,7 +470,6 @@ function StateMenu:new()
 end
 
 function StateMenu:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("menu")
 
 	Preloader.start(resources_data, resources,
@@ -505,22 +484,7 @@ function StateMenu:load()
 end
 
 function StateMenu:start()
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystems(Systems.RenderSprite)
-	self.world:addSystems(Systems.RenderText)
-	self.world:addSystems(Systems.Menu)
-	self.world:addSystems(Systems.Click)
-	self.world:addSystems(Systems.Color)
-	self.world:addSystems(Systems.BoundingBox)
-	self.world:addSystems(Systems.MouseHover)
-	self.world:addSystems(Systems.HoverEffect)
-	self.world:addSystems(Systems.Transform)
-	self.world:addSystems(Systems.Move)
-	self.world:addSystems(Systems.MenuSettings)
-
-	!if not _RELEASE then
-	Tracker.warn_on_ref_count(Systems, 0)
-	!end
+	ECSData.load_systems(self.id, self.world)
 
 	local ww = love.graphics.getWidth()
 	local wh = love.graphics.getHeight()

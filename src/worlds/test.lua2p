@@ -1,29 +1,12 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
-local Slab = require("modules.slab")
 
+local ECSData = require("data.ecs_data")
 local Resources = require("resources")
 local Preloader = require("preloader")
-local Tracker = require("tracker")
 
 local StateTest = class()
 StateTest.id = "Test"
-
-local Components = {}
-Concord.utils.loadNamespace("components", Components)
-local Systems = {
-	Animation = require("systems.animation"),
-	BumpCollision = require("systems.bump_collision"),
-	Collision = require("systems.collision"),
-	PlayerController = require("systems.player_controller"),
-	Movement = require("systems.movement"),
-	RenderSprite = require("systems.render_sprite"),
-	RenderText = require("systems.render_text"),
-}
-
-!if not _RELEASE then
-Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -31,11 +14,16 @@ local Assemblages = {
 	Outside = require("assemblages.outside"),
 }
 
+local path_lights = "res/lights/"
 local resources_data = {
 	image = {
+		{"bg", "res/test/bg.png"},
 		{"sheet_player_idle", "res/images/player/player_idle.png"},
 		{"sheet_player_walk", "res/images/player/player_walk.png"},
 		{"sheet_player_run", "res/images/player/player_run.png"},
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
 	},
 }
 local resources = {images = {}}
@@ -55,50 +43,62 @@ function StateTest:load()
 		function()
 			self.is_ready = true
 			self:start()
-			Slab.Initialize()
 		end)
 end
 
 function StateTest:start()
+	ECSData.load_systems(self.id, self.world)
+
 	local ww, wh = love.graphics.getDimensions()
+	local w, h = ww, wh
 
 	self.camera = Gamera.new(0, 0, ww, wh)
 	self.camera:setWindow(0, 0, ww, wh)
+	self.entities.camera = Concord.entity(self.world)
+		:assemble(Assemblages.Common.camera, self.camera, 1, w, h)
 
-	self.world:addSystem(Systems.Collision)
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.BumpCollision)
-	self.world:addSystem(Systems.PlayerController)
-	self.world:addSystem(Systems.Movement)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.RenderText)
+	self.world:emit("create_light_map", w, h)
+	local lw, lh = resources.images.light_round:getDimensions()
+	local ox, oy = lw/2, lh/2
+	self.entities.test_light = Concord.entity(self.world)
+		:give("id", "test_light")
+		:give("position", vec2:new(w/2, h/2))
+		:give("transform", 0, 1, 1, ox, oy)
+		:give("color", {0.9, 1, 0})
+		:give("light", "round", resources.images.light_round, 1)
+		:give("light_type", "normal")
 
-	!if not _RELEASE then
-	Tracker.error_on_ref_count(Systems, 0)
-	!end
+	self.entities.test_light2 = Concord.entity(self.world)
+		:give("id", "test_light")
+		:give("position", vec2:new(w/3, h/3))
+		:give("transform", 0, 1, 1, ox, oy)
+		:give("color", {0.8, 0.8, 0.8})
+		:give("light", "round", resources.images.light_round, 1)
+		:give("light_type", "normal")
 
 	local ground = Concord.entity(self.world)
-		:give("position", vec2:new(256, 412))
-		:give("collider", vec2:new(512, 128))
-		:give("bump")
+		:give("position", vec3:new(256, 412, 32))
+		:give("collider3d", vec3:new(512, 128, 32))
+		:give("bump3d")
+		:give("z_index", 0)
 
 	local left_wall = Concord.entity(self.world)
-		:give("position", vec2:new(230, 284))
-		:give("collider", vec2:new(64, 128))
-		:give("bump", "wall")
+		:give("position", vec3:new(230, 284))
+		:give("collider3d", vec3:new(64, 128))
+		:give("collider3d", vec3:new(512, 128, 32))
+		:give("bump3d", "wall")
+		:give("z_index", 0)
 
 	local right_wall = Concord.entity(self.world)
-		:give("position", vec2:new(768, 284))
-		:give("collider", vec2:new(64, 128))
-		:give("bump")
+		:give("position", vec3:new(768, 284))
+		:give("collider3d", vec3:new(64, 128))
+		:give("collider3d", vec3:new(512, 128, 32))
+		:give("bump3d")
+		:give("z_index", 0)
 
-	self.item1 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item1",
-			vec2:new(512, 360), vec2:new(32, 32))
-
-	self.item2 = Concord.entity(self.world)
-		:assemble(Assemblages.Common.item, "item2",
-			vec2:new(560, 360), vec2:new(32, 32))
+	local bg = Concord.entity(self.world)
+		:give("sprite", resources.images.bg)
+		:give("position", vec2:new(0, 0))
 
 	self.player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.base, "topdown",
@@ -109,15 +109,8 @@ function StateTest:start()
 				sheet_idle = resources.images.sheet_player_idle,
 				sheet_walk = resources.images.sheet_player_walk,
 				sheet_run = resources.images.sheet_player_run,
-			})
-
-	self.test_rect = Concord.entity(self.world)
-		:give("position", vec2:new(512, 128))
-		:give("collider", vec2:new(64, 64))
-
-	self.ent_mouse = Concord.entity(self.world)
-		:give("position", vec2:new())
-		:give("collider_circle", 8)
+			}, {can_move = true})
+		:give("z_index", 2)
 end
 
 function StateTest:update(dt)
@@ -126,34 +119,29 @@ function StateTest:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update_topdown", dt)
 	self.world:emit("update", dt)
-
-	local mx, my = love.mouse.getPosition()
-	local mpos = self.ent_mouse:get("position").pos
-
-	mpos.x = mx
-	mpos.y = my
-	self.world:emit("check_collision", self.test_rect)
-
-	Slab.Update(dt)
-	self.world:emit("draw_slab")
+	self.world:emit("update_light", dt)
 end
 
-function StateTest:draw()
+function StateTest:custom_draw(canvas)
 	if not self.is_ready then return end
 	self.camera:draw(function()
+		self.world:emit("draw_light_start")
+		self.world:emit("draw_light")
+
+		-- canvas:attach()
+		-- love.graphics.clear()
+		love.graphics.setBlendMode("alpha")
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.setCanvas(canvas.canvas)
+
 		self.world:emit("draw")
-		self.world:emit("draw_debug")
+		self.world:emit("draw_z")
 
-		love.graphics.setColor(1, 0, 0, 1)
-
-		local cx, cy = self.camera:getPosition()
-		local l, t, w, h = self.camera:getVisible()
-
-		love.graphics.circle("fill", cx, cy, 8)
-		love.graphics.circle("fill", l, t, 16)
-		love.graphics.circle("fill", w, h, 16)
+		self.world:emit("draw_light_end")
+		love.graphics.setCanvas()
+		-- love.graphics.draw(canvas.canvas)
+		canvas:render()
 	end)
-	Slab.Draw()
 end
 
 function StateTest:keypressed(key)

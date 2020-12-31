@@ -7,16 +7,17 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 !if not _RELEASE then
 io.stdout:setvbuf("no")
 local getStats = love.graphics.getStats
-!if _ASSERT then
-Assert = require("assert")
-Types = Assert.types
-!end
+	!if _ASSERT then
+	Assert = require("assert")
+	Types = Assert.types
+	!end
 !end
 
 require("modules.batteries"):export()
 
-!if not _RELEASE then
-require("modules.strict")
+!if _PROF then
+PROF_CAPTURE = true
+Jprof = require("modules.jprof.jprof")
 !end
 
 local Flux = require("modules.flux.flux")
@@ -64,8 +65,19 @@ local function custom_loading_screen()
 	love.graphics.print(str_loading, w/2, h * 0.75, 0, 1, 1, ox, oy)
 end
 
+!if not _RELEASE then
+local Strictness = require("modules.strictness.strictness")
+Strictness.strict(_G)
+!end
+
 function love.load()
+	!if _PROF then
+	Jprof.push("frame")
+	Jprof.push("love load")
+	!end
+
 	Log.info(format("Starting... Game Version: %s", this_version))
+	Log.info(!("Commit: " .. _COMMIT_VERSION))
 	!if _NETWORK then
 	Log.info("Network is enabled")
 	Network.check_latest_version(this_semver)
@@ -86,17 +98,36 @@ function love.load()
 	GameStates.switch("Splash")
 	!else
 	GameStates.switch("Outside")
+	-- GameStates.switch("Intro")
+	-- GameStates.switch("Test")
+	!end
+
+	!if _PROF then
+	Jprof.pop("love load")
+	Jprof.pop("frame")
 	!end
 end
 
 function love.update(dt)
+	!if _PROF then
+	Jprof.push("frame")
+	!end
+
 	Timer.update(dt)
 	Flux.update(dt)
 	EventManager.update(dt)
 	GameStates.update(dt)
+
+	!if _PROF then
+	Jprof.pop("frame")
+	!end
 end
 
 function love.draw()
+	!if _PROF then
+	Jprof.push("frame")
+	!end
+
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
 
@@ -106,6 +137,18 @@ function love.draw()
 
 	!if not _RELEASE then
 	DebugFlags.t_stats = getStats()
+
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.setFont(font_preload)
+		!if _PROF then
+		love.graphics.print("prof")
+		!else
+		love.graphics.print("dev")
+		!end
+	!end
+
+	!if _PROF then
+	Jprof.pop("frame")
 	!end
 end
 
@@ -147,5 +190,9 @@ function love.quit()
 
 	!if not _RELEASE and _LOG_SAVE then
 	Log.quit(!(_LOG_OUTPUT))
+	!end
+
+	!if _PROF then
+	Jprof.write("prof.mpack")
 	!end
 end

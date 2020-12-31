@@ -2,11 +2,13 @@
 
 os=$(uname)
 lpp_path=./libs/Luapreprocess/preprocess-cl.lua
-handler=handler_dev.lua
+gv=$(git log -1 --format='v%cd.%h' --date=short 2>/dev/null)
+data=dev
+handler=handler.lua
 
 dir_modules=modules
 dir_res=res
-dir_output=output
+dir_output=output_dev
 dir_source=src
 
 dir_sub=(assemblages components shaders systems worlds)
@@ -54,7 +56,7 @@ function process_file()
 	local out=$dir_output/$2/$file
 
 	if [ "$ext" == "lua2p" ]; then
-		lua "$lpp_path" --handler="$handler" --outputpaths "$1" "$out".lua --silent;
+		lua "$lpp_path" --handler="$handler" --data="$data $gv" --outputpaths "$1" "$out".lua --silent;
 		if [ $? -ne 0 ]; then
 			exit;
 		fi
@@ -101,17 +103,30 @@ function rebuild()
 
 function run()
 {
-	echo "Running buid.sh"
+	echo "Running build.sh"
 	process_src "$dir_source"
 	love "$dir_output"
-	echo "Completed buid.sh"
+	echo "Completed build.sh"
 }
 
 function test()
 {
+	data=test
 	dir_output=output_test
-	clean_logs
 	run
+}
+
+function profile()
+{
+	data=prof
+	dir_output=output_dev
+	run
+	prof_viewer
+}
+
+function prof_viewer()
+{
+	love modules/jprof goinghomerevisited prof.mpack
 }
 
 if [ $# -eq 0 ]; then

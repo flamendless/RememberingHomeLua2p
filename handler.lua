@@ -1,18 +1,30 @@
-local test = false
+local args = dataFromCommandLine
 
-if test then
-	_RELEASE = true
-	_REPORTING = false
-	_NETWORK = false
-	_ASSERT = false
-	_LOG_SAVE = false
-else
-	_RELEASE = false
-	_REPORTING = false
-	_NETWORK = false
-	_ASSERT = true
-	_LOG_SAVE = false
+local function split(str)
+	local t = {}
+	for arg in string.gmatch(str, "([^%s]+)") do
+		table.insert(t, arg)
+	end
+	return t
 end
+
+args = split(args)
+
+if args[1] == "test" then
+	_RELEASE = true
+	_ASSERT = false
+elseif args[1] == "dev" then
+	_RELEASE = false
+	_ASSERT = true
+elseif args[1] == "prof" then
+	_RELEASE = false
+	_ASSERT = true
+	_PROF = true
+end
+
+_REPORTING = false
+_NETWORK = false
+_LOG_SAVE = false
 
 _OS = "Linux"
 _PLATFORM = "desktop"
@@ -24,6 +36,7 @@ _GAME_BASE_SIZE = { x = 128, y = 32 }
 _IDENTITY = "goinghomerevisited"
 _LOVE_VERSION = "11.3"
 _GAME_VERSION = { 0, 0, 1 }
+_COMMIT_VERSION = args[2]
 
 _MIN_GL_VERSION = "2.1"
 
@@ -75,11 +88,11 @@ _TOOLS = {
 }
 
 _LIBS = {
-	"Anim8", "Arson", "Batteries", "Bump-niji", "Concord",
-	"Crush", "Enum", "Flux", "Gamera", "HTTPS",
-	"HUMP", "JSON", "Lily", "Log", "Luapreprocessor",
-	"Lume", "NGrading", "ReflowPrint", "SDF", "Semver",
-	"Slab", "Splashes", "TimelineEvents",
+	"Anim8", "Arson", "Batteries", "Bump-niji", "Cartographer",
+	"Concord", "Crush", "Enum", "Flux", "Gamera",
+	"HTTPS", "HUMP", "jprof", "JSON", "Lily", "Log",
+	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
+	"Semver", "Slab", "Splashes", "strictness", "TimelineEvents",
 }
 
 return {}

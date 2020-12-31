@@ -9,6 +9,7 @@ local Resources = {
 local path_images = "res/images/"
 local path_items = path_images .. "items/"
 local path_lut = "res/lut/"
+local path_lights = "res/lights/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
@@ -67,6 +68,12 @@ Resources.data.intro = {
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
+		{"post_light", path_lights .. "post_light.png"},
+		{"car_headlight", path_lights .. "car_headlight.png"},
+		{"title_light", path_lights .. "title.png"},
 	},
 
 	image_data = {
@@ -118,6 +125,12 @@ Resources.data.outside = {
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
 		{"backdoor_key", path_items .. "backdoor_key.png"},
+
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
+		{"house_light", path_lights .. "house_light.png"},
+		{"firefly_light", path_lights .. "firefly_light.png"},
 	},
 
 	image_data = {
@@ -131,6 +144,15 @@ Resources.data.outside = {
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
 	},
+}
+
+Resources.data.storage_room = {
+	image = {
+		{"sheet_player_idle", path_images .. "player/player_idle.png"},
+		{"sheet_player_walk", path_images .. "player/player_walk.png"},
+		{"sheet_player_run", path_images .. "player/player_run.png"},
+	},
+	font = {},
 }
 
 function Resources.get(key)

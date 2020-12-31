@@ -87,6 +87,7 @@ local views = DebugFlags.views
 local view_b3d_bounds = false
 local win_col3d = false
 local current_item, current_item_id
+local current_dummy = 1
 
 function Bump3DCollision:focus_view(except, bool)
 	for _, e in ipairs(self.pool) do
@@ -99,6 +100,16 @@ end
 function Bump3DCollision:draw_slab(dt)
 	views.b3d_list = Slab.BeginWindow("b3d", {
 		Title = "Bump3DCollision", IsOpen = views.b3d_list})
+
+	if Slab.Button("+") then
+		local e = Concord.entity(self.world)
+			:give("id", "dummy" .. current_dummy)
+			:give("position", vec2:new())
+			:give("collider3d", vec3:new(32, 32, 32))
+			:give("bump3d")
+
+		current_dummy = current_dummy + 1
+	end
 
 	local items, len = self.bump3d_world:getItems()
 

@@ -1,12 +1,11 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local Flux = require("modules.flux.flux")
-local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
-local Dialogues = require("dialogues")
+local ECSData = require("data.ecs_data")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
@@ -15,11 +14,7 @@ local Palette = require("palette")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
-
-!if not _RELEASE then
-local DebugFlags = require("debug_flags")
-local Tracker = require("tracker")
-!end
+local ScreenInfo = require("screen_info")
 
 local format = string.format
 local min = math.min
@@ -29,28 +24,6 @@ StateIntro.id = "Intro"
 
 local Components = {}
 Concord.utils.loadNamespace("components", Components)
-
-local Systems = {
-	!if not _RELEASE then
-	Debugging = require("systems.debugging"),
-	!end
-
-	Animation = require("systems.animation"),
-	Camera = require("systems.camera"),
-	Color = require("systems.color"),
-	DialoguesIntro = require("systems.dialogues_intro"),
-	Parallax = require("systems.parallax"),
-	Tree = require("systems.tree"),
-	RenderSprite = require("systems.render_sprite"),
-	RenderText = require("systems.render_text"),
-	RenderUI = require("systems.render_ui"),
-	TextPaintIntro = require("systems.text_paint_intro"),
-	Transform = require("systems.transform"),
-}
-
-!if not _RELEASE then
-local Systems = Tracker.track(Systems)
-!end
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -74,6 +47,7 @@ local current_effect
 local is_raining = false
 local is_switching = false
 local rain_amount = {16, 32, 96}
+local should_fade = false
 
 function StateIntro:update_rain(i)
 	!if _ASSERT then
@@ -94,12 +68,12 @@ function StateIntro:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
+		main_canvas = true,
 		gamestate = nil
 	})
 end
 
 function StateIntro:load()
-	Log.info("State Load: ", self.id)
 	local resources_data = Resources.get("intro")
 
 	Preloader.start(resources_data, resources,
@@ -112,27 +86,17 @@ function StateIntro:load()
 end
 
 function StateIntro:start()
-	self.world:addSystem(Systems.Camera)
-	self.world:addSystem(Systems.Color)
-	self.world:addSystem(Systems.TextPaintIntro)
-	self.world:addSystem(Systems.Transform)
-	self.world:addSystem(Systems.Parallax)
-	self.world:addSystem(Systems.Tree)
-	self.world:addSystem(Systems.RenderSprite)
-	self.world:addSystem(Systems.RenderText)
-	self.world:addSystem(Systems.RenderUI)
-	self.world:addSystem(Systems.Animation)
-	self.world:addSystem(Systems.DialoguesIntro)
-
-	!if not _RELEASE then
-	self.world:addSystem(Systems.Debugging)
-	Tracker.warn_on_ref_count(Systems, 0)
+	!if _PROF then
+	Jprof.push("frame", "intro_start")
+	Jprof.push("intro start")
 	!end
+	ECSData.load_systems(self.id, self.world)
 
 	local w, h = res_images.bg:getDimensions()
 
 	screen_size = vec2:new(love.graphics.getDimensions())
 	self.scale = min(screen_size.x/w, screen_size.y/h)
+
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, screen_size.x, screen_size.y)
 	self.camera:setScale(self.scale)
@@ -142,54 +106,71 @@ function StateIntro:start()
 		:give("camera_transform", 0, self.scale)
 		:give("camera_clip", w, h, Palette.get("camera_clip"))
 
+	ScreenInfo.set(w, h, w, h)
+	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
+	self.world:emit("set_light_resources", {
+			round = res_images.light_round,
+			rectangle = res_images.light_rectangle,
+			cone = res_images.light_cone,
+		})
+
 	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)
 
 	!if not _RELEASE then
 	self.world:emit("debug_particle_system", self.ps1.system)
 	self.world:emit("debug_particle_system", self.ps2.system)
+	self.world:emit("debug_camera", self.camera)
 	!end
-
-	self.entities.bg = Concord.entity(self.world)
-		:give("id", "bg")
-		:give("sprite", res_images.bg)
-		:give("position", vec2:new())
 
 	local ssx2 = screen_size.x * 2
 
 	self.entities.parallax_building = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.parallax,
-			res_images.parallax_buildings, ssx2, "building")
+			res_images.parallax_buildings, ssx2, "building", 2, 2)
 
 	self.entities.parallax_road = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_road, ssx2, "road", 2, 2)
 
 	self.entities.parallax_grass = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass, ssx2, "grass1", 2, 2)
 
 	self.entities.parallax_grass2 = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, ssx2, "grass2")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass2, ssx2, "grass2", 2, 2)
 
 	self.entities.parallax_grass_back = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, ssx2, "grass_back")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_back, ssx2, "grass_back", 2, 2)
 
 	self.entities.parallax_grass_front = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_grass_front, ssx2, "grass_front", 2, 2)
 
 	self.entities.parallax_trees_bg = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_bg, ssx2, "bg_trees")
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_bg, ssx2, "bg_trees", 2, 2)
 
 	self.entities.bg_tree_cover = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.bg_tree_cover, res_images.bg_tree_cover)
 
 	self.entities.parallax_trees_fg = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_fg, ssx2, "fg_trees", 2, 2)
+		:assemble(Assemblages.Intro.parallax, res_images.parallax_trees_fg, ssx2, "fg_trees", 3, 3)
 
 	self.entities.post = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post")
+		:assemble(Assemblages.Intro.parallax, res_images.bg_post, ssx2, "post", 2, 2)
+
+	self.entities.post_light = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.parallax, res_images.post_light, ssx2, "post_light", 2, 2)
+		:give("transform", 0, 1, 1)
+		:give("light", "custom", 1)
+		:give("color", Palette.post_light)
+		:give("light_flicker", 0.1)
+		:give("light_disabled")
 
 	self.entities.car = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car, res_images.sheet_car)
+
+	self.entities.car_light = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.car_light, res_images.car_headlight,
+			self.entities.car)
+		:give("light_disabled")
 
 	self.entities.car_reflect = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.car_reflect,
@@ -240,16 +221,24 @@ function StateIntro:start()
 		:assemble(Assemblages.UI.ui_text, !("music by " .. _NAME_MUSICIAN),
 			res_fonts.ui, vec2:new(32, 32))
 
+	self.entities.title_light = Concord.entity(self.world)
+		:assemble(Assemblages.Intro.title_light,
+			res_images.title_light, vec2:new(screen_size.x/2, screen_size.y/2))
+
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title,
 			res_images.title, vec2:new(screen_size.x/2, screen_size.y/2))
 
-	self.entities.dialogue = Concord.entity(self.world)
-		:assemble(Assemblages.Intro.dialogues, "dialogue_intro",
-			Dialogues.get("intro_rain"), res_fonts.dialogue,
-			vec2:new(screen_size.x/2, 64))
-
 	self.timeline = TLE.Do(function()
+		!if not _RELEASE then
+		local ambient_color = {0.5, 0.5, 0.5}
+		self.world:emit("set_ambient_light", ambient_color)
+		self.timeline:Pause()
+		!end
+
+		local ambient_color = {0.9, 0.9, 0.9}
+		self.world:emit("set_ambient_light", ambient_color)
+
 		local car_pos = self.entities.car.position.pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
@@ -269,6 +258,7 @@ function StateIntro:start()
 		Flux.to(self.camera, 5, {x = cx + 160, y = cy - 32})
 		Flux.to(car_pos, 5, {x = 128})
 
+		self:update_rain(1)
 		self.world:emit("fade_text", self.entities.intro_txt2,
 			fade_duration, self.timeline, true)
 		self.timeline:Pause()
@@ -277,6 +267,14 @@ function StateIntro:start()
 		self.world:emit("start_trees", -320)
 
 		local cx, cy = self.camera:getPosition()
+
+		self.entities.post_light:remove("light_disabled")
+		self.entities.car_light:remove("light_disabled")
+		Flux.to(ambient_color, 15, {
+			[1] = 0.3, [2] = 0.3, [3] = 0.3,
+		}):onupdate(function()
+			self.world:emit("set_ambient_light", ambient_color)
+		end)
 
 		effect.status = 2
 		current_effect = effect.multi
@@ -293,18 +291,7 @@ function StateIntro:start()
 			fade_duration, self.timeline, true)
 		self.timeline:Pause()
 
-		self:update_rain(1)
-
-		-- TODO play intro radio
-		-- TLE.Event.Wait(3)
-
-		self:update_rain(2)
-
 		TLE.Event.Wait(3)
-		self.world:emit("start_dialogue", "dialogue_intro",
-			self.timeline, dur_in, dur_out)
-		self.timeline:Pause()
-
 		self:update_rain(3)
 
 		TLE.Event.Wait(2)
@@ -320,6 +307,7 @@ function StateIntro:start()
 		end
 
 		TLE.Event.Wait(1)
+		self.entities.title_light:remove("light_disabled")
 		self.entities.title:remove("hidden")
 			:give("color_fade_in", 4, nil, function()
 				self.timeline:Unpause()
@@ -333,6 +321,7 @@ function StateIntro:start()
 
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
+			should_fade = true
 			Fade.fade_out(function()
 				Save.toggle_flag("intro_done", true)
 				is_raining = false
@@ -352,6 +341,11 @@ function StateIntro:start()
 			:assemble(Assemblages.Common.skip, str_skip, res_fonts.ui,
 				vec2:new(screen_size.x/2, screen_size.y - 8))
 	end
+
+	!if _PROF then
+	Jprof.pop("intro start")
+	Jprof.pop("frame")
+	!end
 end
 
 function StateIntro:update(dt)
@@ -369,20 +363,31 @@ function StateIntro:update(dt)
 	end
 
 	self.world:emit("update", dt)
+	self.world:emit("update_light", dt)
 
 	!if not _RELEASE then
 	self.world:emit("debugging_update", dt)
 	!end
 end
 
-function StateIntro:draw()
+function StateIntro:custom_draw(canvas)
 	if not self.is_ready then return end
+
+	local x, y = canvas.x, canvas.y
+
+	self.world:emit("draw_light_start")
+	self.world:emit("draw_light")
+
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setCanvas(canvas.canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		if current_effect then
 			current_effect:apply()
 		end
 
+		love.graphics.draw(res_images.bg)
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
@@ -393,23 +398,28 @@ function StateIntro:draw()
 
 		love.graphics.setShader()
 
-		!if not _RELEASE then
-		self.world:emit("debugging_draw", l, t, w, h)
-		!end
+		self.world:emit("draw_light_end", x, y)
 	end)
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 
-	Fade.draw()
+	if should_fade then Fade.draw() end
+
+	love.graphics.setCanvas()
+	canvas:render()
+
+	!if not _RELEASE then
+	self.world:emit("debugging_draw")
+	!end
 end
 
 function StateIntro:keypressed(key)
 	if not self.is_ready then return end
-
 	!if not _RELEASE then
-	self.world:emit("keypress", key)
-	if key == "1" then
+	if key == "space" then
+		self.timeline:Unpause()
+	elseif key == "1" then
 		self:update_rain(1)
 	elseif key == "2" then
 		self:update_rain(2)
@@ -420,9 +430,9 @@ function StateIntro:keypressed(key)
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		if not is_switching then
-			self.entities.skip_intro:destroy()
-
 			if Inputs.is_pressed("ui_skip", key) then
+				self.entities.skip_intro:destroy()
+				should_fade = true
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)
 					is_raining = false
@@ -434,6 +444,8 @@ function StateIntro:keypressed(key)
 			end
 		end
 	end
+
+	self.world:emit("keypressed", key)
 end
 
 function StateIntro:exit()

@@ -5,6 +5,7 @@ local Slab = require("modules.slab")
 
 local DebugFlags = require("debug_flags")
 local views = DebugFlags.views
+local order = {}
 
 local insert = table.insert
 local remove = table.remove
@@ -28,8 +29,11 @@ function Debugging:init(world)
 	self.is_open_list = false
 	self.camera = nil
 
+	for k, v in pairs(views) do insert(order, k) end
+	table.insertion_sort(order)
+
 	if not slab_init then
-		Slab.Initialize()
+		Slab.Initialize({"NoDocks"})
 		slab_init = true
 	end
 
@@ -85,7 +89,7 @@ function Debugging:debug_camera(camera)
 	self.camera = camera
 end
 
-function Debugging:update(dt)
+function Debugging:debug_particle_update(dt)
 	local c = 0
 
 	for i, ps in ipairs(self.ps) do
@@ -99,15 +103,16 @@ function Debugging:debugging_update(dt)
 	if not DebugFlags.draw_all then return end
 
 	Slab.Update(dt)
+	self:debug_particle_update(dt)
 	self.world:emit("update_debug", dt)
 	self.world:emit("draw_slab", dt)
 end
 
-function Debugging:debugging_draw(l, t, w, h)
+function Debugging:debugging_draw()
 	if not DebugFlags.draw_all then return end
 
 	love.graphics.setFont(font)
-	self.world:emit("draw_debug", l, t, w, h)
+	self.world:emit("draw_debug")
 
 	love.graphics.push()
 	love.graphics.origin()
@@ -122,8 +127,8 @@ function Debugging:draw_slab()
 	self.is_open = Slab.BeginWindow("debugging",
 		{Title = "Debugging", IsOpen = self.is_open})
 
-	for id, open in pairs(views) do
-		if Slab.CheckBox(open, id) then
+	for _, id in ipairs(order) do
+		if Slab.CheckBox(views[id], id) then
 			views[id] = not views[id]
 		end
 	end
@@ -144,13 +149,27 @@ function Debugging:draw_slab()
 
 		for _, e in ipairs(self.pool_id) do
 			local id = e.id.id
+			local hidden = e.hidden
+			local txt
 
-			Slab.Text(id)
+			if hidden then txt = "Show"
+			else txt = "Hide"
+			end
+
+			if Slab.Button(txt) then
+				if hidden then
+					e:remove("hidden")
+				else
+					e:give("hidden")
+				end
+			end
+
 			Slab.SameLine()
 
-			if Slab.Button("x") then
-				e:destroy()
-			end
+			if Slab.Button("x") then e:destroy() end
+
+			Slab.SameLine()
+			Slab.Text(id)
 		end
 
 		Slab.EndWindow()

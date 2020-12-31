@@ -45,6 +45,8 @@ function GameStates.init()
 			top_canvas = top_canvas,
 			bot_canvas = bot_canvas
 		}
+	elseif GameStates.current_world.main_canvas then
+		GameStates.current_world.main_canvas = main_canvas
 	end
 end
 
@@ -73,6 +75,8 @@ function GameStates.switch(next_id)
 	Log.trace(str)
 
 	GameStates.init()
+
+	Log.info("State Load: ", GameStates.current_id)
 	GameStates.current_world:load()
 	GameStates.current_world.gamestate = GameStates
 end
@@ -210,6 +214,10 @@ function GameStates.draw()
 		main_canvas:detach()
 		main_canvas:render()
 	end
+
+    if GameStates.current_world.custom_draw then
+		GameStates.current_world:custom_draw(main_canvas)
+    end
 end
 
 function GameStates.keypressed(key)

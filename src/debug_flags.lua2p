@@ -10,12 +10,15 @@ DebugFlags = {
 		colliders = false,
 		ent_count = true,
 		layers = false,
+        light = false,
 		logs = true,
 		mouse_info = false,
+		parallax = false,
 		player = false,
 		quad_bounds = false,
 		quad_transform = false,
 		stats = true,
+		tilemap = true,
 		transform = false,
 		text = false,
 		z_index = false,
@@ -23,6 +26,9 @@ DebugFlags = {
 	t_stats = {},
 	draw_all = false,
 }
+
+local Strictness = require("modules.strictness.strictness")
+Strictness.strict(DebugFlags)
 
 return DebugFlags
 !end

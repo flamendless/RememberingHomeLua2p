@@ -313,6 +313,7 @@ end
 
 function Inventory:combined_item_success(res, a, b)
 	--TODO play sound combine success
+	--TODO success color feedback
 	self.is_combining = false
 
 	a.id.id = res.id
@@ -322,6 +323,7 @@ end
 
 function Inventory:combined_item_fail()
 	--TODO play sound unable to combine
+	--TODO fail color feedback
 	self.is_combining = false
 	self.pool_desc[1].text.text = "Items can not be combined"
 end

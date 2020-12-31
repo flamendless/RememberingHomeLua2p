@@ -5,17 +5,17 @@ local dialogues = {
 		unable_to_use = "Item can not be used here.",
 	},
 
-	intro_rain = {
-		"Hey, latest reports came in a few minutes ago.",
-		"Apparently another case occured.",
-		"This one's more disturbing.",
-		"Anyways, I know you are on the road.",
-		"I'll send the files over as soon as them",
-		"investigators are done in the crime scene.",
-		"I know you're on the road so yeah,",
-		"make sure to check it when you got home okay?",
-		"Man! Things keep getting worse and wor--"
-	},
+	-- intro_rain = {
+	-- 	"Hey, latest reports came in a few minutes ago.",
+	-- 	"Apparently another case occured.",
+	-- 	"This one's more disturbing.",
+	-- 	"Anyways, I know you are on the road.",
+	-- 	"I'll send the files over as soon as them",
+	-- 	"investigators are done in the crime scene.",
+	-- 	"I know you're on the road so yeah,",
+	-- 	"make sure to check it when you got home okay?",
+	-- 	"Man! Things keep getting worse and wor--"
+	-- },
 
 	outside = {
 		car_eye = "A xxxx car",

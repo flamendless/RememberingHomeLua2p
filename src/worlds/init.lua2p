@@ -8,6 +8,7 @@ local worlds = {
 	Menu = req("menu"),
 	Intro = req("intro"),
 	Outside = req("outside"),
+	StorageRoom = req("storage_room"),
 
 	!if not _RELEASE then
 	Test = req("test"),

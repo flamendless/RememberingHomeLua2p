@@ -26,13 +26,14 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [Batteries](https://github.com/1bardesign/batteries) - for class, vec2, vec3, math, string, table, etc.
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
 * [bump-3dpd](https://github.com/oniietzschan/bump-3dpd) - for 3D collision detection
+* [cartographer](https://github.com/tesselode/cartographer/) - for Tilemaps
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System
 * [Crush](modules/crush) - for error reporting
 * [Enum](https://github.com/Tjakka5/Enum) - for Enums
 * [gamera](https://github.com/kikito/gamera) - for camera
 * [luajit-request](https://github.com/LPGhatguy/luajit-request) - for HTTPS requests
 * [HUMP](https://github.com/vrld/hump) - for Timer
-* [inspect](https://github.com/kikito/inspect.lua) - for debugging Lua tables
+* [jprof](https://github.com/pfirsich/jprof) - for profiling
 * [json.lua](https://github.com/kikito/json.lua) - for serialization/deserialization of json files
 * [lily](https://github.com/MikuAuahDark/lily) - for asynchronous loading of assets
 * [log](https://github.com/flamendless/log.lua) - for logging
@@ -42,6 +43,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [semver](https://github.com/kikito/semver) - for semantic versioning
 * [Slab](https://github.com/coding-jackalope/Slab) - for GUI and in-game editor tools
 * [splashes](https://github.com/love2d-community/splashes) - for löve splash screen
+* [strictness](https://github.com/Yonaba/strictness) - trackes accesses and assignments of undefined variables in Lua
 * [TimelineEvents](https://github.com/flamendless/TimelineEvents) - for coroutine based event system
 
 ## Tools:
