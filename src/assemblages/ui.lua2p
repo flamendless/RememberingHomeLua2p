@@ -207,7 +207,7 @@ function UI.question_mark(e, sprite, dur)
 	:give("color", Palette.get("ui_not_hovered", 0))
 	:give("tween_dur", dur)
 	:give("notification")
-	:give("z_index", 99)
+	:give("z_index", 99, false)
 	:give("no_shader")
 end
 

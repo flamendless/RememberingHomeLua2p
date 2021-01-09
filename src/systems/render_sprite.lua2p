@@ -6,9 +6,11 @@ local remove = table.remove
 local Helper = require("helper")
 
 local RenderSprite = Concord.system({
-	pool = {"position", "sprite"},
+	pool = {"position", "sprite",
+		"!z_index", "!quad", "!ui_element", "!light"},
+	pool_z = {"position", "sprite", "z_index",
+		"!ui_element", "!light"},
 	pool_quad = {"position", "sprite", "quad"},
-	pool_z = {"position", "sprite", "z_index"},
 })
 
 local function sort_z(a, b) return a.z_index.z < b.z_index.z end
@@ -27,25 +29,10 @@ end
 
 function RenderSprite:init(world)
 	self.world = world
-	self.custom_pool_z = {}
-
-	self.pool_z.onEntityAdded = function(pool, e)
-		insert(self.custom_pool_z, e)
-		tablex.insertion_sort(self.custom_pool_z, sort_z)
-	end
-
-	self.pool_z.onEntityRemoved = function(pool, e)
-		for i = #self.custom_pool_z, 1, -1 do
-			if e == self.custom_pool_z[i] then
-				remove(self.custom_pool_z, i)
-				break
-			end
-		end
-	end
 end
 
 function RenderSprite:sort_z()
-	tablex.stable_sort(self.custom_pool_z, sort_z_ex)
+	tablex.stable_sort(self.pool_z, sort_z_ex)
 end
 
 function RenderSprite:draw_sprite_ex(e)
@@ -105,17 +92,13 @@ end
 
 function RenderSprite:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.z_index and not e.ui_element and not e.light then
-			self:draw_sprite_ex(e)
-		end
+		self:draw_sprite_ex(e)
 	end
 end
 
 function RenderSprite:draw_z()
-	for _, e in ipairs(self.custom_pool_z) do
-		if not e.ui_element and not e.light then
-			self:draw_sprite_ex(e)
-		end
+	for _, e in ipairs(self.pool_z) do
+		self:draw_sprite_ex(e)
 	end
 end
 
@@ -185,7 +168,7 @@ function RenderSprite:draw_debug()
 	views.z_index = Slab.BeginWindow("ZIndex", {
 		Title = "Z Index", IsOpen = views.z_index})
 
-	for _, e in ipairs(self.custom_pool_z) do
+	for _, e in ipairs(self.pool_z) do
 		local id = e.id.id
 
 		Slab.Text(id)
