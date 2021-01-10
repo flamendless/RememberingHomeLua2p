@@ -4,7 +4,7 @@ local insert = table.insert
 local remove = table.remove
 
 local RenderUI = Concord.system({
-	pool_ui = {"ui_element", "position"},
+	pool_ui = {"ui_element", "position", "!layer"},
 	pool_layer = {"ui_element", "position", "layer"},
 });
 
@@ -47,16 +47,13 @@ function RenderUI:draw_ui()
 		local text = e.text
 		local stext = e.static_text
 		local sprite = e.sprite
-		local layer = e.layer
 
-		if not layer then
-			if sprite then
-				self.world:emit("draw_sprite_ex", e)
-			end
+		if text or stext then
+			self.world:emit("draw_text_ex", e)
+		end
 
-			if text or stext then
-				self.world:emit("draw_text_ex", e)
-			end
+		if sprite then
+			self.world:emit("draw_sprite_ex", e)
 		end
 	end
 
@@ -70,12 +67,12 @@ function RenderUI:draw_ui()
 
 			self.world:emit("draw_ui_layer_ex", layer_id, i)
 
-			if sprite then
-				self.world:emit("draw_sprite_ex", e)
-			end
-
 			if text or stext then
 				self.world:emit("draw_text_ex", e)
+			end
+
+			if sprite then
+				self.world:emit("draw_sprite_ex", e)
 			end
 		end
 	end

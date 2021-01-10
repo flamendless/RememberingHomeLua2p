@@ -15,11 +15,17 @@ local RenderSprite = Concord.system({
 
 local function sort_z(a, b) return a.z_index.z < b.z_index.z end
 local function sort_z_ex(a, b)
-	if a.z_index.sortable then
-		return a.position.pos.y < b.position.pos.y
-	else
-		return a.z_index.z < b.z_index.z
+	local a_z = a.z_index
+	local b_z = b.z_index
+
+	if a_z.sortable or b_z.sortable then
+		local a_pos = a.position.pos
+		local b_pos = b.position.pos
+
+		return a_pos.y < b_pos.y
 	end
+
+	return a_z.z < b_z.z
 end
 
 local function draw(sprite, ...)
@@ -32,7 +38,7 @@ function RenderSprite:init(world)
 end
 
 function RenderSprite:sort_z()
-	tablex.stable_sort(self.pool_z, sort_z_ex)
+	self.pool_z:sort(sort_z_ex)
 end
 
 function RenderSprite:draw_sprite_ex(e)
