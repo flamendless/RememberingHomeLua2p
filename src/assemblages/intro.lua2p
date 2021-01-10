@@ -62,7 +62,7 @@ function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	:give("quad", quad)
 	:give("position", vec2:new(x, y))
 	:give("parallax", vec2:new(speed[tag], 0))
-	:give("z_index", z_index[tag])
+	:give("z_index", z_index[tag], false)
 end
 
 function Intro.bg_tree_cover(e, sprite)

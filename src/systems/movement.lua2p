@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
 local Movement = Concord.system({
-	pool_topdown = {"speed", "body", "movement_topdown"},
-	pool_platformer = {"speed", "gravity", "body", "movement_platformer"},
+	pool_topdown = {"speed", "body", "movement_topdown", "!movement_platformer"},
+	pool_platformer = {"speed", "gravity", "body", "movement_platformer", "!movement_topdown"},
 })
 
 function Movement:update_topdown(dt)

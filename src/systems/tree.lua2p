@@ -5,10 +5,6 @@ local Tree = Concord.system({
 	pool_bg_tree_move = {"bg_tree", "position", "hspeed"},
 })
 
-function Tree:init()
-	self.world = self:getWorld()
-end
-
 function Tree:start_trees(speed)
 	!if _ASSERT then
 	Assert.must(speed, Types.T_NUMBER)
