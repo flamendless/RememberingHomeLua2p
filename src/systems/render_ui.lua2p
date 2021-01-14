@@ -1,45 +1,44 @@
 local Concord = require("modules.concord.concord")
+local ListCtor = require("ctor.layer_list")
 
 local insert = table.insert
 local remove = table.remove
 
 local RenderUI = Concord.system({
+	pool_intro = {
+		constructor = ListCtor,
+		layer = "intro",
+		"ui_element",
+	},
+	pool_hold_key = {
+		constructor = ListCtor,
+		layer = "hold_key",
+		"ui_element",
+	},
+	pool_inventory = {
+		constructor = ListCtor,
+		layer = "inventory",
+		"ui_element",
+	},
+	pool_inventory_buttons = {
+		constructor = ListCtor,
+		layer = "inventory_buttons",
+		"ui_element",
+	},
+	pool_dialogue = {
+		constructor = ListCtor,
+		layer = "dialogue",
+		"ui_element",
+	},
 	pool_ui = {"ui_element", "position", "!layer"},
-	pool_layer = {"ui_element", "position", "layer"},
 });
-
-local function sort(a, b) return a.layer.n < b.layer.n end
 
 function RenderUI:init(world)
 	self.world = world
-	self.layers = {}
-	self.layer_id = {}
-	self.map_layers = unique_mapping:new()
-
-	self.pool_layer.onEntityAdded = function(pool, e)
-		local layer_id = e.layer.id
-		local unique_id = self.map_layers:map(layer_id)
-
-		if not self.layers[unique_id] then
-			self.layers[unique_id] = {}
-		end
-
-		local t = self.layers[unique_id]
-
-		insert(t, e)
-		self.layer_id[unique_id] = layer_id
-		tablex.insertion_sort(t, sort)
-	end
-
-	self.pool_layer.onEntityRemoved = function(pool, e)
-		local layer_id = e.layer.id
-		local unique_id = self.map_layers:map(layer_id)
-		local t = self.layers[unique_id]
-
-		for i = #t, 1, -1 do
-			if e == t[i] then remove(t, i) end
-		end
-	end
+	self.layers = {
+		self.pool_intro, self.pool_hold_key, self.pool_inventory,
+		self.pool_inventory_buttons, self.pool_dialogue,
+	}
 end
 
 function RenderUI:draw_ui()
@@ -57,15 +56,13 @@ function RenderUI:draw_ui()
 		end
 	end
 
-	for n, t in ipairs(self.layers) do
-		local layer_id = self.layer_id[n]
-
-		for i, e in ipairs(t) do
+	for i, pool in ipairs(self.layers) do
+		for _, e in ipairs(pool) do
 			local text = e.text
 			local stext = e.static_text
 			local sprite = e.sprite
 
-			self.world:emit("draw_ui_layer_ex", layer_id, i)
+			self.world:emit("draw_ui_layer_ex", pool.layer_id)
 
 			if text or stext then
 				self.world:emit("draw_text_ex", e)
@@ -87,25 +84,28 @@ local list, list_i, list_t
 function RenderUI:draw_debug()
 	views.layers = Slab.BeginWindow("Layers", {
 		Title = "Layers", IsOpen = views.layers})
-	for id, i in pairs(self.map_layers) do
-		Slab.Text(i .. " " .. id)
+
+	for i, pool in ipairs(self.layers) do
+		Slab.Text(i .. " " .. pool.layer_id)
 		Slab.SameLine()
 
 		if Slab.Button("list") then
 			list = true
 			list_i = i
-			list_t = id
+			list_t = pool
 		end
 	end
 
 	if list then
 		list = Slab.BeginWindow("LayersList", {
-			Title = list_t, IsOpen = list})
+			Title = list_t.id, IsOpen = list})
+
 		Slab.Indent()
-		for n, e in ipairs(self.layers[list_i]) do
-			local e_id = e.id.id
-			Slab.Text(e_id)
+
+		for _, e in ipairs(list_t) do
+			Slab.Text(e.id.id)
 		end
+
 		Slab.Unindent()
 		Slab.EndWindow()
 	end
