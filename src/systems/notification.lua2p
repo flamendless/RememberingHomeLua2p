@@ -18,11 +18,11 @@ function Notification:init(world)
 		local e = Concord.entity(self.world):give("empty_notification")
 	end
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		self.current = self.current + 1
 	end
 
-	self.pool.onEntityRemoved = function(pool, e)
+	self.pool.onRemoved = function(pool, e)
 		self.current = self.current - 1
 		e:give("empty_notification")
 		:remove("id")

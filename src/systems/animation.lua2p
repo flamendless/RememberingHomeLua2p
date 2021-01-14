@@ -1,10 +1,6 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
-local floor = math.floor
-local insert = table.insert
-local remove = table.remove
-
 local Animation = Concord.system({
 	pool = {"animation", "animation_data", "position"},
 	pool_multi = {"multi_animation_data", "animation", "position"},
@@ -111,7 +107,7 @@ local setup_animation = function(e, data, on_loop)
 end
 
 function Animation:init()
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local data = e.animation_data
 		local animation = e.animation
 		local on_loop = setup_on_loop(e, animation)
@@ -119,7 +115,7 @@ function Animation:init()
 		setup_animation(e, data, on_loop)
 	end
 
-	self.pool_multi.onEntityAdded = function(pool, e)
+	self.pool_multi.onAdded = function(pool, e)
 		local multi = e.multi_animation_data
 		local animation = e.animation
 		local on_loop = setup_on_loop(e, animation)
@@ -129,7 +125,7 @@ function Animation:init()
 		e:give("animation_data", data)
 	end
 
-	self.pool_pause.onEntityAdded = function(pool, e)
+	self.pool_pause.onAdded = function(pool, e)
 		local data = e.animation_data
 		local animation = e.animation
 		local pause_at = e.animation_pause_at
@@ -149,13 +145,13 @@ function Animation:init()
 		end
 	end
 
-	self.pool_pause.onEntityRemoved = function(pool, e)
+	self.pool_pause.onRemoved = function(pool, e)
 		local animation = e.animation
 
 		animation.animation:resume()
 	end
 
-	self.pool_change.onEntityAdded = function(pool, e)
+	self.pool_change.onAdded = function(pool, e)
 		self:switch_animation_tag(e, e.change_animation_tag.new_tag)
 	end
 end

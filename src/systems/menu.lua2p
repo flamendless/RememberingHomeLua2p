@@ -51,7 +51,7 @@ function Menu:init()
 	self.keys = {}
 	self.flags = {allow_cursor = false}
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		if not e.option_disabled then
 			local option_key = e.option_key
 			local page = option_key.page
@@ -64,7 +64,7 @@ function Menu:init()
 		end
 	end
 
-	self.pool_disabled.onEntityAdded = function(pool, e)
+	self.pool_disabled.onAdded = function(pool, e)
 		local option_key = e.option_key
 		local t = self.keys[option_key.page]
 

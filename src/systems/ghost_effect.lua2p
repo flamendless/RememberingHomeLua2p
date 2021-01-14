@@ -10,7 +10,7 @@ local GhostEffect = Concord.system({
 })
 
 function GhostEffect:init()
-	self.pool_text.onEntityAdded = function(pool, e)
+	self.pool_text.onAdded = function(pool, e)
 		local c = e.ghost_effect
 
 		c.timer_ghost = Timer()

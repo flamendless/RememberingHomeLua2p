@@ -13,7 +13,7 @@ function Camera:init(world)
 	self.dur_scale = 0.25
 	self.can_scale = true
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local cam = e.camera.camera
 
 		if e.camera_transform then

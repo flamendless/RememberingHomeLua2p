@@ -13,11 +13,11 @@ local Transform = Concord.system({
 })
 
 function Transform:init()
-	self.pool_anchor.onEntityAdded = function(pool, e)
+	self.pool_anchor.onAdded = function(pool, e)
 		self:update_anchor(e)
 	end
 
-	self.pool_attach.onEntityAdded = function(pool, e)
+	self.pool_attach.onAdded = function(pool, e)
 		local attach = e.attach_to
 		local target = attach.target_e
 
@@ -28,7 +28,7 @@ function Transform:init()
 		!end
 	end
 
-	self.pool_auto_scale.onEntityAdded = function(pool, e)
+	self.pool_auto_scale.onAdded = function(pool, e)
 		local auto_scale = e.auto_scale
 		local transform = e.transform
 		local anim_data = e.animation_data

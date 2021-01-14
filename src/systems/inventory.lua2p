@@ -35,7 +35,7 @@ function Inventory:init(world)
 	self.is_combining = false
 	self.sheets = nil
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local pos = self.pool_cell[#pool].position.pos:copy()
 		self.current_n = self.current_n + 1
 
@@ -54,12 +54,12 @@ function Inventory:init(world)
 		:give("inventory_slot_number", self.current_n)
 	end
 
-	self.pool.onEntityRemoved = function(pool, e)
+	self.pool.onRemoved = function(pool, e)
 		self.current_n = self.current_n - 1
 	end
 
 	!if not _RELEASE and _ASSERT then
-	self.pool_desc.onEntityAdded = function(pool, e)
+	self.pool_desc.onAdded = function(pool, e)
 		if #pool > 1 then error("There should only be one inventory_desc") end
 	end
 	!end
@@ -361,7 +361,7 @@ function Inventory:destroyed_dialogue(id)
 	end
 end
 
-function Inventory:draw_ui_layer_ex(layer_id, layer_n)
+function Inventory:draw_ui_layer_ex(layer_id)
 	if not (layer_id == "inventory") then return end
 
 	for _, e in ipairs(self.pool) do

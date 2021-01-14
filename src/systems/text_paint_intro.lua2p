@@ -9,7 +9,7 @@ local TextPaintIntro = Concord.system({
 function TextPaintIntro:init(world)
 	self.world = world
 
-	self.pool_data.onEntityAdded = function(pool, e)
+	self.pool_data.onAdded = function(pool, e)
 		self.paint_data = e.text_paint_data.data
 	end
 end

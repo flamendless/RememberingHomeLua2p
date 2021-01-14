@@ -15,7 +15,7 @@ function BumpCollision:init(world)
 	self.world = world
 	self.bump_world = Bump.newWorld()
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local x = e.position.pos.x + e.collider.offset.x
 		local y = e.position.pos.y + e.collider.offset.y
 

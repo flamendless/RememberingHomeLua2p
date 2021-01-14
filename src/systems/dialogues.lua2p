@@ -27,16 +27,16 @@ function Dialogues:init(world)
 	self.has_dialogue = false
 	self.arrow = nil
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		self.has_dialogue = true
 		self.current_d = e
 	end
 
-	self.pool_arrow.onEntityAdded = function(pool, e)
+	self.pool_arrow.onAdded = function(pool, e)
 		self.arrow = e
 	end
 
-	self.pool.onEntityRemoved = function(pool, e)
+	self.pool.onRemoved = function(pool, e)
 		local dialogue_interactive = e.dialogue_interactive
 		local interactive_id
 

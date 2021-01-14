@@ -14,7 +14,7 @@ local MouseHover = require("systems.mouse_hover")
 function HoverEffect:init(world)
 	self.world = world
 
-	self.pool_change_scale.onEntityRemoved = function(pool, e)
+	self.pool_change_scale.onRemoved = function(pool, e)
 		local transform = e.transform
 
 		transform.sx = transform.orig_sx

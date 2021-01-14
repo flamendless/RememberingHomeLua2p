@@ -39,7 +39,7 @@ function Debugging:init(world)
 
 	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
 
-	self.pool_id.onEntityAdded = function(pool, e)
+	self.pool_id.onAdded = function(pool, e)
 		local id = e.id
 
 		if not e.preserve_id then
@@ -56,7 +56,7 @@ function Debugging:init(world)
 		Log.info("Added entity: " .. id.id)
 	end
 
-	self.pool_id.onEntityRemoved = function(pool, e)
+	self.pool_id.onRemoved = function(pool, e)
 		local id = e.id and e.id.id
 
 		if id then

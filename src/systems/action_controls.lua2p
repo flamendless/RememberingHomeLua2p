@@ -44,7 +44,7 @@ function ActionControls:init(world)
 		local e = Concord.entity(self.world):give("empty_action")
 	end
 
-	self.pool_actions.onEntityRemoved = function(pool, e)
+	self.pool_actions.onRemoved = function(pool, e)
 		self.current = self.current - 1
 		e:give("empty_action")
 		:remove("id")

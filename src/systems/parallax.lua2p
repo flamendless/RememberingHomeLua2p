@@ -8,7 +8,7 @@ function Parallax:init(world)
 	self.world = world
 	self.stopped = false
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		e.sprite.sprite:setWrap("repeat")
 	end
 end

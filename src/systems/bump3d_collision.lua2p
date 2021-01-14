@@ -16,7 +16,7 @@ function Bump3DCollision:init(world)
 	self.world = world
 	self.bump3d_world = Bump3D.newWorld()
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local x = e.position.pos.x
 		local y = e.position.pos.y
 
@@ -24,7 +24,7 @@ function Bump3DCollision:init(world)
 			e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
 	end
 
-	self.pool.onEntityRemoved = function(pool, e)
+	self.pool.onRemoved = function(pool, e)
 		self.bump3d_world:remove(e)
 	end
 end

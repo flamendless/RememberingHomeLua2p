@@ -44,7 +44,7 @@ local function lerp_colors(lc, color)
 end
 
 function Color:init()
-	self.pool_fade_in.onEntityAdded = function(pool, e)
+	self.pool_fade_in.onAdded = function(pool, e)
 		local c = e.color_fade_in
 		local f_in = e.fade_in_target_alpha
 		local target = 1
@@ -68,7 +68,7 @@ function Color:init()
 		if e.ease then f:ease(e.ease.ease) end
 	end
 
-	self.pool_fade_out.onEntityAdded = function(pool, e)
+	self.pool_fade_out.onAdded = function(pool, e)
 		local f = Flux.to(e.color.color, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
@@ -84,7 +84,7 @@ function Color:init()
 		if e.ease then f:ease(e.ease.ease) end
 	end
 
-	self.pool_fade_in_out.onEntityAdded = function(pool, e)
+	self.pool_fade_in_out.onAdded = function(pool, e)
 		local color = e.color
 		local f_in_out = e.color_fade_in_out
 		local ease = e.ease
@@ -129,7 +129,7 @@ function Color:init()
 		end
 	end
 
-	self.pool_color.onEntityAdded = function(pool, e)
+	self.pool_color.onAdded = function(pool, e)
 		local color = e.color
 		local target = e.target_color
 		local target_color = e.target_color.target_color

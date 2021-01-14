@@ -10,7 +10,7 @@ local GlitchEffect = Concord.system({
 })
 
 function GlitchEffect:init()
-	self.pool_text.onEntityAdded = function(pool, e)
+	self.pool_text.onAdded = function(pool, e)
 		local c = e.glitch_effect
 		local colors = e.glitch_colors
 

@@ -4,8 +4,7 @@ local format = string.format
 local random = love.math.random
 
 local Light = Concord.system({
-	pool = {"id", "position", "transform", "color",
-		"light", "sprite",
+	pool = {"id", "position", "transform", "color", "light", "sprite",
 	},
 })
 
@@ -58,7 +57,7 @@ function Light:init(world)
 	self.world = world
 	self.ambient = {0, 0, 0}
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local light = e.light
 		local recolor = e.light_recolor
 		local flash = e.light_flash

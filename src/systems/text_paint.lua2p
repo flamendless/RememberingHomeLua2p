@@ -32,7 +32,7 @@ function TextPaint:init(world)
 	self.world = world
 	self.paint_data = {}
 
-	self.pool_data.onEntityAdded = function(pool, e)
+	self.pool_data.onAdded = function(pool, e)
 		local tpd = e.text_paint_data
 		local id = tpd.id
 		local data = tpd.data

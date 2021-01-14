@@ -1,8 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local insert = table.insert
-local remove = table.remove
-
 local Helper = require("helper")
 
 local RenderSprite = Concord.system({
@@ -35,11 +32,11 @@ end
 function RenderSprite:init(world)
 	self.world = world
 
-	self.pool_z.onEntityAdded = function(pool, e)
+	self.pool_z.onAdded = function(pool, e)
 		self:sort_z()
 	end
 
-	self.pool_z.onEntityRemoved = function(pool, e)
+	self.pool_z.onRemoved = function(pool, e)
 		self:sort_z()
 	end
 end

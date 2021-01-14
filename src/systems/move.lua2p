@@ -37,13 +37,13 @@ local function internal_move_by(e, is_repeat)
 end
 
 function Move:init()
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local is_repeat = e.move_repeat ~= nil
 
 		internal_move_by(e, is_repeat)
 	end
 
-	self.pool_move_x.onEntityAdded = function(pool, e)
+	self.pool_move_x.onAdded = function(pool, e)
 		local pos = e.position
 		local target = e.move_to_x
 		local on_complete = e.move_on_complete
@@ -60,7 +60,7 @@ function Move:init()
 			end)
 	end
 
-	self.pool_original.onEntityAdded = function(pool, e)
+	self.pool_original.onAdded = function(pool, e)
 		local pos = e.position
 		local move = e.move_to_original
 		local on_complete = e.move_on_complete

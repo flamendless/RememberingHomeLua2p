@@ -11,7 +11,7 @@ local RenderText = Concord.system({
 function RenderText:init(world)
 	self.world = world
 
-	self.pool_static.onEntityAdded = function(pool, e)
+	self.pool_static.onAdded = function(pool, e)
 		!if _ASSERT then
 		if e.sdf then
 			error("static_font can't use sdf font")

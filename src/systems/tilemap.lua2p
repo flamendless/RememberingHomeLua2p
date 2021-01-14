@@ -9,7 +9,7 @@ function Tilemap:init(world)
 	self.world = world
 	self.maps = {}
 
-	self.pool.onEntityAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local id = e.id.id
 		local tilemap = e.tilemap
 		local map = Cartographer.load(tilemap.path)
