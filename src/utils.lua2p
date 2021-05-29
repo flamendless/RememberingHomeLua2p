@@ -2,139 +2,94 @@ local Bitser = require("modules.bitser.bitser")
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
-local find = string.find
 local format = string.format
-local sub = string.sub
-local max = math.max
 
-local Utils = {}
+local Utils = {
+	file = {},
+	json = {},
+	serial = {},
+	hash = {},
+	string = {},
+}
 
-function Utils.read_file(filename)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
+function Utils.file.read(filename)
+	@@assert(type(filename) == "string")
 	local file = love.filesystem.getInfo(filename)
 	Log.info(format("'%s' exists: %s", filename, file ~= nil))
-
 	if file then
 		local content = love.filesystem.read(filename)
-
 		return content, true
 	end
 
 	return false
 end
 
-function Utils.write_to_file(filename, data)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
+function Utils.file.write(filename, data)
+	@@assert(type(filesystem) == "string")
 	love.filesystem.write(filename, data)
 	Log.info(format("'%s' written", filename))
 end
 
-function Utils.write_to_file_json(filename, data)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
-	local to_write = JSON.encode(data)
-
-	Utils.write_to_file(filename, to_write)
+function Utils.json.write(filename, data)
+	@@assert(type(filename) == "string")
+	Utils.file.write(filename, JSON.encode(data))
 end
 
-function Utils.serialize_to_file(filename, data)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
+function Utils.serial.write(filename, data)
+	@@assert(type(filename) == "string")
 	local to_write = Bitser.dumps(data)
-
-	Utils.write_to_file(filename, to_write)
+	Utils.file.write(filename, to_write)
 
 	return to_write
 end
 
-function Utils.deserialize_from_file(filename)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
-	local content, exists = Utils.read_file(filename)
-	local data = Bitser.loads(content)
-
-	return data, exists
-end
-
-function Utils.deserialize(content)
-	return Bitser.loads(content)
-end
-
-function Utils.parse_json(filename)
-	!if _ASSERT then
-	Assert.must(filename, Types.T_STRING)
-	!end
-
-	local content, exists = Utils.read_file(filename)
-
+function Utils.json.parse(filename)
+	@@assert(type(filename) == "string")
+	local content, exists = Utils.file.read(filename)
 	if exists then
-		local parsed = JSON.decode(content)
-
-		return parsed, true
+		return JSON.decode(content), true
 	end
 
 	return false
 end
 
-function Utils.compare_hash_key(a, key)
-	!if _ASSERT then
-	Assert.must(a, Types.T_STRING)
-	Assert.must(key, Types.T_STRING)
-	!end
+function Utils.serial.read(filename)
+	@@assert(type(filename) == "string")
+	local content, exists = Utils.file.read(filename)
+	local data = Bitser.loads(content)
 
-	local a = love.data.hash("sha256", a)
-
-	return a == key
+	return data, exists
 end
 
-function Utils.hash_and_compare(a, b)
-	!if _ASSERT then
-	Assert.must(a, Types.T_STRING)
-	Assert.must(b, Types.T_STRING)
-	!end
+function Utils.serial.de(content)
+	return Bitser.loads(content)
+end
 
+function Utils.hash.compare(a, b)
+	@@assert(type(a) == "string")
+	@@assert(type(b) == "string")
 	local hashed_a = love.data.hash("md5", a)
 	local hashed_b = love.data.hash("md5", b)
 
 	return hashed_a == hashed_b
 end
 
-function Utils.get_substring(str, sep)
-	!if _ASSERT then
-	Assert.must(str, Types.T_STRING)
-	Assert.must(sep, Types.T_STRING)
-	!end
+function Utils.string.get_substr(str, sep)
+	@@assert(type(str) == "string")
+	@@assert(type(sep) == "string")
+	local n = string.find(str, sep)
 
-	local n = find(str, sep)
-	local s = sub(str, 1, n - 1)
-
-	return s
+	return string.sub(str, 1, n - 1)
 end
 
-function Utils.get_widest_str(t)
-	!if _ASSERT then
-	Assert.must(t, Types.T_TABLE)
-	if #t == 0 then error("Passed table's length is 0") end
-	!end
-
+function Utils.string.get_widest(t)
+	@@assert(type(t) == "table")
+	@@assert(#t != 0)
 	local n = 0
 	local widest
 
 	for i, str in ipairs(t) do
 		local l = #str
-
 		if l > n then
 			n = l
 			widest = str

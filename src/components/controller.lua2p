@@ -1,7 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("controller", function(c)
-end)
-
-Concord.component("player_controller", function(c)
-end)

@@ -1,8 +1,0 @@
-local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
-
-local modes = Enum("fill", "line")
-
-Concord.component("draw_mode", function(c, draw_mode)
-	c.draw_mode = modes[draw_mode]
-end)

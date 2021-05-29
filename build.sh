@@ -1,7 +1,7 @@
 #!/bin/bash
 
 os=$(uname)
-lpp_path=./libs/Luapreprocess/preprocess-cl.lua
+lpp_path=./libs/LPP/preprocess-cl.lua
 gv=$(git log -1 --format='v%cd.%h' --date=short 2>/dev/null)
 data=dev
 handler=handler.lua
@@ -107,13 +107,6 @@ function run()
 	process_src "$dir_source"
 	love "$dir_output"
 	echo "Completed build.sh"
-}
-
-function test()
-{
-	data=test
-	dir_output=output_test
-	run
 }
 
 function profile()

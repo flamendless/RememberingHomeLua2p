@@ -10,13 +10,18 @@ end
 
 args = split(args)
 
-if args[1] == "test" then
-	_RELEASE = true
-	_ASSERT = false
-elseif args[1] == "dev" then
+if args[1] == "dev" then
+	_DEV = true
 	_RELEASE = false
 	_ASSERT = true
+	_PROF = false
+elseif args[1] == "release" then
+	_DEV = false
+	_RELEASE = true
+	_ASSERT = false
+	_PROF = false
 elseif args[1] == "prof" then
+	_DEV = true
 	_RELEASE = false
 	_ASSERT = true
 	_PROF = true
@@ -44,6 +49,23 @@ _DEFAULT_FILTER = "nearest"
 _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
 _CANVAS_FILTER = "nearest"
+
+_WINDOW_MODES = {
+	{
+		width = _GAME_SIZE.x,
+		height = _GAME_SIZE.y
+	}
+}
+_WINDOW_MODES_STR = {
+	(_GAME_SIZE.x .. "x" .. _GAME_SIZE.y),
+}
+
+_GFX_QUALITY
+if _DEV then
+	_GFX_QUALITY = "low"
+else
+	_GFX_QUALITY = "high"
+end
 
 _EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"

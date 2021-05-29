@@ -4,196 +4,73 @@ Author: Brandon Blanker Lim-it @flamendless
 Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
 
-!if not _RELEASE then
-io.stdout:setvbuf("no")
-local getStats = love.graphics.getStats
-	!if _ASSERT then
-	Assert = require("assert")
-	Types = Assert.types
-	!end
-!end
+!(
+function assert(cond, msg)
+	if _RELEASE then return "" end
+	msg = msg or string.format("%q", "Assertion failed: " .. cond)
+	return "if not (" .. cond .. ") then error(" .. msg ..") end"
+end
+)
 
 require("modules.batteries"):export()
 
 !if _PROF then
 PROF_CAPTURE = true
-Jprof = require("modules.jprof.jprof")
+JPROF = require("modules.jprof.jprof")
 !end
 
 local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 Log.lovesave = true
-local Semver = require("modules.semver.semver")
 local SDF = require("modules.sdf").mount()
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
+local Config = require("config")
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
 local DebugFlags = require("debug_flags")
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")
-local Network = require("network")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
 local EventManager = require("event_manager")
 local WindowMode = require("window_mode")
 
-local format = string.format
-
-local this_version = !(("%i.%i.%i"):format(unpack((_GAME_VERSION))))
-local this_semver = Semver(this_version)
-
-local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
-font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
-
-local function custom_loading_screen()
-	local w, h = love.graphics.getDimensions()
-
-	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", 0, 0, w, h)
-
-	local str_loading = format("LOADING: %i%%", Preloader.percent)
-	local ox = font_preload:getWidth(str_loading)/2
-	local oy = font_preload:getHeight(str_loading)/2
-
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(font_preload)
-	love.graphics.print(str_loading, w/2, h * 0.75, 0, 1, 1, ox, oy)
-end
-
-!if not _RELEASE then
-local Strictness = require("modules.strictness.strictness")
-Strictness.strict(_G)
+!if _DEV then
+require("strict")
 !end
+
+local custom_loading_screen
 
 function love.load()
 	!if _PROF then
-	Jprof.push("frame")
-	Jprof.push("love load")
+	JPROF.push("frame")
+	JPROF.push("love load")
 	!end
 
-	Log.info(format("Starting... Game Version: %s", this_version))
+	Log.info(string.format("Starting... Game Version : %s", Config.this_version))
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
-	!if _NETWORK then
-	Log.info("Network is enabled")
-	Network.check_latest_version(this_semver)
-	!end
 
-	love.math.setRandomSeed(love.timer.getTime())
+	love.maath.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
-
-	Info.initialize()
-	WindowMode.initialize()
-	Save.initialize()
-	Settings.initialize()
-	Inputs.initialize()
+	Info.init()
+	Save.init()
+	Settings.init()
+	Inputs.init()
 	TLE.Attach()
-	GameStates.canvas_resize()
 
 	!if _RELEASE then
 	GameStates.switch("Splash")
 	!else
-	-- GameStates.switch("Splash")
-	GameStates.switch("Intro")
-	-- GameStates.switch("Outside")
-	-- GameStates.switch("Test")
+	GameStates.switch("Splash")
 	!end
 
 	!if _PROF then
-	Jprof.pop("love load")
-	Jprof.pop("frame")
-	!end
-end
-
-function love.update(dt)
-	!if _PROF then
-	Jprof.push("frame")
-	!end
-
-	Timer.update(dt)
-	Flux.update(dt)
-	EventManager.update(dt)
-	GameStates.update(dt)
-
-	!if _PROF then
-	Jprof.pop("frame")
-	!end
-end
-
-function love.draw()
-	!if _PROF then
-	Jprof.push("frame")
-	!end
-
-	love.graphics.setColor(1, 1, 1, 1)
-	GameStates.draw()
-
-	if not GameStates.is_ready() then
-		custom_loading_screen()
-	end
-
-	!if not _RELEASE then
-	DebugFlags.t_stats = getStats()
-
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.setFont(font_preload)
-		!if _PROF then
-		love.graphics.print("prof")
-		!else
-		love.graphics.print("dev")
-		!end
-	!end
-
-	!if _PROF then
-	Jprof.pop("frame")
-	!end
-end
-
-function love.keypressed(key)
-	!if not _RELEASE then
-	if key == "t" then
-		if GameStates.getID() == "Test" then
-			GameStates.switch_to_previous()
-		else
-			GameStates.switch("Test")
-		end
-	elseif key == "r" then
-		love.event.quit("restart")
-	end
-	!end
-
-	GameStates.keypressed(key)
-end
-
-function love.keyreleased(key)
-	GameStates.keyreleased(key)
-end
-
-function love.mousemoved(mx, my)
-	GameStates.mousemoved(mx, my)
-end
-
-function love.mousepressed(mx, my, mb)
-	GameStates.mousepressed(mx, my, mb)
-end
-
-function love.mousereleased(mx, my, mb)
-	GameStates.mousereleased(mx, my, mb)
-end
-
-function love.quit()
-	Lily.quit()
-	Log.info("Quitting...")
-
-	!if not _RELEASE and _LOG_SAVE then
-	Log.quit(!(_LOG_OUTPUT))
-	!end
-
-	!if _PROF then
-	Jprof.write("prof.mpack")
+	JPROF.pop("love load")
+	JPROF.pop("frame")
 	!end
 end

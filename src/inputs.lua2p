@@ -20,25 +20,24 @@ Inputs.key_constants = {
 	"escape", "return", "backspace", "space"
 }
 
-function Inputs.initialize()
-	local content, exists = Utils.parse_json(!(_KEYBINDINGS_FILENAME))
-
+function Inputs.init()
+	local content, exists = Utils.json.parse(!(_KEYBINDINGS_FILENAME))
 	if exists then
 		for id, key in pairs(content) do
-			local tag = Utils.get_substring(id, "_")
-
+			local tag = Utils.string.get_substr(id, "_")
 			Inputs.register(id, key, tag)
 		end
 	end
+	Inputs.init_def(exists)
+end
 
-	local content_def, exists_def = Utils.parse_json(!(_KEYBINDINGS_DEF_FILENAME))
-
-	if exists_def then
-		for id, key in pairs(content_def) do
+function Inputs.init_def(user_exists)
+	local content, exists = Utils.json.parse(!(_KEYBINDINGS_DEF_FILENAME))
+	if exists then
+		for id, key in pairs(content) do
 			Inputs.register(id, key, "defaults")
-			if not exists then
-				local tag = Utils.get_substring(id, "_")
-
+			if not user_exists then
+				local tag = Utils.string.get_substr(id, "_")
 				Inputs.register(id, key, tag)
 			end
 		end
@@ -46,38 +45,27 @@ function Inputs.initialize()
 end
 
 function Inputs.register(id, key, tag)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.safe.must(tag, Types.T_STRING)
+	@@assert(type(id) == "string")
+	@@assert(tag ~= nil and type(tag) == "string")
 	if not (tag and tag == "defaults") then
-		Assert.empty(Inputs.keys[id])
+		@@assert(Inputs.keys[id] == nil)
 	end
-	!end
-
 	local storage = Inputs.keys
-
 	if tag and tag == "defaults" then
 		storage = Inputs.defaults
 	end
-
 	storage[id] = key
-
 	if tag then
 		local t = Inputs.tags[tag]
-
 		if not t then
 			Inputs.tags[tag] = {}
 		end
-
 		insert(Inputs.tags[tag], id)
 	end
 end
 
 function Inputs.unregister(id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	!end
-
+	@@assert(type(id) == "string")
 	Inputs.keys[id] = nil
 end
 
@@ -88,14 +76,13 @@ function Inputs.unregister_all()
 end
 
 function Inputs.is_pressed(id, key)
-	!if not _RELEASE then
+	!if _DEV then
 	if Inputs.keys[id] == nil then
 		Log.warn(format("Key ID '%s' was not registered", id))
 	end
 	!end
 
 	local keys = Inputs.keys[id]
-
 	if keys == key then
 		return true
 	elseif type(keys) == "table" then
@@ -110,10 +97,7 @@ function Inputs.is_pressed(id, key)
 end
 
 function Inputs.is_down(id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	!end
-
+	@@assert(type(id) == "string")
 	local keys = Inputs.keys[id]
 
 	return love.keyboard.isDown(keys)
@@ -121,44 +105,29 @@ end
 
 function Inputs.save_keybindings()
 	local to_write = JSON.encode(Inputs.keys)
-
-	Utils.write_to_file(!(_KEYBINDINGS_FILENAME), to_write)
+	Utils.file.write(!(_KEYBINDINGS_FILENAME), to_write)
 end
 
 function Inputs.update_keybindings(new_keys)
-	!if _ASSERT then
-	Assert.must(new_keys, Types.T_TABLE)
-	!end
-
+	@@assert(type(new_keys) == "table")
 	tablex.copy(new_keys, Inputs.keys)
 end
 
 function Inputs.get_by_tag(tag)
-	!if _ASSERT then
-	Assert.must(tag, Types.T_STRING)
-	!end
-
+	@@assert(type(tag) == "string")
 	local t = {}
-	local keys = Inputs.keys
-
 	for i, id in ipairs(Inputs.tags[tag]) do
-		t[id] = keys[id]
+		t[id] = Inputs.keys[id]
 	end
 
 	return t
 end
 
 function Inputs.reset_by_tag(tag)
-	!if _ASSERT then
-	Assert.must(tag, Types.T_STRING)
-	!end
-
-	local tags = Inputs.tags[tag]
-
-	for _, id in ipairs(tags) do
+	@@assert(type(tag) == "string")
+	for _, id in ipairs(Inputs.tags[tag]) do
 		local def = Inputs.defaults[id]
 		local reg = Inputs.keys[id]
-
 		tablex.copy(def, reg)
 	end
 end
@@ -166,11 +135,8 @@ end
 function Inputs.get(id)
 	local keys = Inputs.keys
 	local result = keys[id]
-
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.exists(result)
-	!end
+	@@assert(type(id) == "string")
+	@@assert(result)
 
 	return result
 end

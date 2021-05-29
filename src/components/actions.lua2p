@@ -1,7 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("empty_action")
-Concord.component("action_eye")
-Concord.component("action_hand")
-Concord.component("action_bag")
-Concord.component("action_cancel")

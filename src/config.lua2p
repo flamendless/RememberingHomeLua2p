@@ -1,0 +1,8 @@
+local Semver = require("modules.semver.semver")
+
+local Config = {}
+
+Config.this_version = !(("%i.%i.%i"):format(unpack((_GAME_VERSION))))
+Config.this_semver = Semver(Config.this_version)
+
+return Config
