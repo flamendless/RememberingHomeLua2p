@@ -1,0 +1,508 @@
+local Concord = require("modules.concord.concord")
+
+local format = string.format
+local random = love.math.random
+
+local Light = Concord.system({
+	pool = {"id", "position", "transform", "color", "light", "sprite",
+	},
+})
+
+local function randomf(min, max)
+	return min + random() * (max - min)
+end
+
+local function generate_recolor(e)
+	local light = e.light
+	local color = e.color.color
+	local timer = e.light_timer
+	local range = e.light_recolor.color_range
+	local power_range = e.light_recolor.power_range
+	local speed_range = e.light_recolor.speed_range
+
+	color[1] = randomf(range.min[1], range.max[1])
+	color[2] = randomf(range.min[2], range.max[2])
+	color[3] = randomf(range.min[3], range.max[3])
+
+	light.power = randomf(power_range.x, power_range.y)
+	timer.timer = randomf(speed_range.x, speed_range.y)
+end
+
+local function generate_flicker(e)
+	local timer = e.light_timer
+	local flicker = e.light_flicker.off_chance
+	local color = e.color.color
+	local r = random()
+
+	if r < flicker then
+		color[4] = 0.3
+	else
+		color[4] = 1
+	end
+end
+
+local function manage_offset(shape, transform, sprite)
+	local w, h = sprite:getDimensions()
+
+	if shape == "round" or shape == "rectangle" then
+		transform.ox = w/2
+		transform.oy = h/2
+	elseif shape == "cone" then
+		transform.ox = 0
+		transform.oy = h/2
+	end
+end
+
+function Light:init(world)
+	self.world = world
+	self.ambient = {0, 0, 0}
+
+	self.pool.onAdded = function(pool, e)
+		local light = e.light
+		local recolor = e.light_recolor
+		local flash = e.light_flash
+		local flicker = e.light_flicker
+
+		if recolor or flash or flicker then
+			e:give("light_timer")
+		end
+
+		manage_offset(light.light_shape, e.transform, e.sprite.sprite)
+	end
+end
+
+function Light:set_ambient_light(color)
+	!if _ASSERT then
+	Assert.color(color)
+	!end
+
+	self.ambient = color
+end
+
+function Light:set_light_resources(res)
+    !if _ASSERT then
+    Assert.must(res, Types.T_TABLE)
+    Assert.must(res.round, Types.T_IMAGE)
+    Assert.must(res.rectangle, Types.T_IMAGE)
+    Assert.must(res.cone, Types.T_IMAGE)
+    !end
+
+    self.resources = res
+end
+
+function Light:create_light_map(x, y, w, h, scale)
+	!if _ASSERT then
+	Assert.must(x, Types.T_NUMBER)
+	Assert.must(y, Types.T_NUMBER)
+	Assert.must(w, Types.T_NUMBER)
+	Assert.must(h, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
+	!end
+
+	self.x = x
+	self.y = y
+    self.w = w
+    self.h = h
+	self.scale = scale or 1
+	self.light_map = love.graphics.newCanvas(w, h)
+end
+
+function Light:update_light(dt)
+	!if _PROF then
+	Jprof.push("update_light")
+	!end
+
+	for _, e in ipairs(self.pool) do
+		local light = e.light
+		local timer = e.light_timer
+		local recolor = e.light_recolor
+		local flash = e.light_flash
+		local flicker = e.light_flicker
+		local disabled = e.light_disabled
+
+		if not disabled then
+			if recolor then
+				if (timer.timer > 0) then
+					timer.timer = timer.timer - dt
+				else
+					generate_recolor(e)
+				end
+			elseif flash then
+				local max_power = flash.max_power
+				local speed = flash.speed
+
+				timer.timer = timer.timer + dt
+				if (light.power < max_power) then
+					light.power = (max_power * timer.timer)/speed
+				else
+					e:remove()
+				end
+			elseif flicker then
+				if (timer.timer > 0) then
+					timer.timer = timer.timer - dt
+				else
+					generate_flicker(e)
+				end
+			end
+		end
+	end
+
+	!if _PROF then
+	Jprof.pop("update_light")
+	!end
+end
+
+function Light:draw_light_start()
+	love.graphics.setCanvas(self.light_map)
+	love.graphics.setBlendMode("add")
+	love.graphics.clear(self.ambient)
+end
+
+function Light:draw_light()
+	!if _PROF then
+	Jprof.push("draw_light")
+	!end
+
+	local _r, _g, _b, _a = love.graphics.getColor()
+
+	for _, e in ipairs(self.pool) do
+		local light = e.light
+		local disabled = e.light_disabled
+		local hidden = e.hidden
+
+		if not (disabled or hidden) then
+			local color = e.color.color
+			local sprite = e.sprite.sprite
+			local power = light.power
+			local pos = e.position.pos
+			local transform = e.transform
+			local quad = e.quad
+
+			love.graphics.setColor(color)
+
+			if quad then
+				love.graphics.draw(sprite, quad.quad, pos.x, pos.y, transform.rot,
+					transform.sx * power, transform.sy * power,
+					transform.ox, transform.oy)
+			else
+				love.graphics.draw(sprite, pos.x, pos.y, transform.rot,
+					transform.sx * power, transform.sy * power,
+					transform.ox, transform.oy)
+			end
+		end
+	end
+
+	love.graphics.setColor(_r, _g, _b, _a)
+	love.graphics.setBlendMode("alpha")
+
+	!if _PROF then
+	Jprof.pop("draw_light")
+	!end
+end
+
+function Light:draw_light_end(x, y)
+	love.graphics.setBlendMode("multiply", "premultiplied")
+	love.graphics.draw(self.light_map, x, y, 0, self.scale, self.scale)
+	love.graphics.setBlendMode("alpha")
+end
+
+function Light:cleanup()
+	self.world:clear()
+	self.light_map:release()
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local light_sprites = {"round", "rectangle", "cone", "custom"}
+local selected
+local selected_pool
+local is_open
+local selected_e
+local mouse_light = false
+local e_mouse_light
+local cp_a = false
+local cp = false
+local cp_min, cp_max = false, false
+local show_canvas = false
+
+function Light:draw_slab()
+	views.light = Slab.BeginWindow("Light", {
+		Title = "Light", IsOpen = views.light})
+
+	if Slab.CheckBox(mouse_light, "Mouse Light") then
+		if (not mouse_light) and (not e_mouse_light) then
+			e_mouse_light = Concord.entity(self.world)
+				:give("id", "mouse_light")
+				:give("position", vec2:new(0, 0))
+				:give("transform", 0, 1, 1)
+				:give("color", {1, 1, 1})
+				:give("light", "round", 1)
+				:give("sprite", self.resources.round)
+				:give("follow_mouse")
+		elseif e_mouse_light then
+			e_mouse_light:destroy()
+		end
+
+		mouse_light = not mouse_light
+	end
+
+	Slab.SameLine()
+
+	if Slab.CheckBox(show_canvas, "Show Light Map") then
+		show_canvas = not show_canvas
+	end
+
+	if Slab.Button("Ambient Color") then cp_a = not cp_a end
+
+	Slab.SameLine()
+	if Slab.Button("Dark") then self.ambient = {0.5, 0.5, 0.5} end
+
+	Slab.SameLine()
+	if Slab.Button("Darker") then self.ambient = {0.3, 0.3, 0.3} end
+
+	Slab.SameLine()
+	if Slab.Button("Darkest") then self.ambient = {0, 0, 0} end
+
+	if cp_a then
+		local res = Slab.ColorPicker({Color = self.ambient})
+		if res.Button == 1 then self.ambient = res.Color
+		elseif res.Button == -1 then cp_a = false end
+	end
+
+	if Slab.Button("Add Light") then
+		local e = Concord.entity(self.world)
+			:give("id", "test_light")
+			:give("position", vec2:new(self.w/2, self.h/2))
+			:give("transform", 0, 1, 1)
+			:give("color", {1, 1, 1})
+			:give("light", "round", 1)
+			:give("sprite", self.resources.round, "round")
+			:give("light_timer")
+	end
+
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+
+		Slab.Text(id)
+		Slab.SameLine()
+
+		if Slab.Button("edit") then
+			selected_e = e
+			is_open = true
+		end
+	end
+
+	if Slab.Button("Print") then
+		for _, e in ipairs(self.pool) do
+			local id = e.id.id
+			local pos = e.position.pos
+			local color = e.color.color
+			local light = e.light
+
+			print(id .. ":")
+			print("\tposition: ", pos.x, pos.y)
+			print("\tcolor: ", unpack(color))
+			print("\tlight.shape: ", light.light_shape)
+			print("\tlight.power: ", light.power)
+		end
+	end
+
+	Slab.EndWindow()
+
+	if is_open then
+		self:edit_light()
+	end
+end
+
+function Light:edit_light()
+	local e = selected_e
+	local id = e.id.id
+	local pos = e.position.pos
+	local light = e.light
+	local color = e.color
+	local sprite = e.sprite
+	local flash = e.light_flash ~= nil
+	local recolor = e.light_recolor ~= nil
+	local disabled = e.light_disabled ~= nil
+
+	is_open = Slab.BeginWindow("LightEdit", {
+		Title = id, IsOpen = is_open})
+
+	if Slab.CheckBox(disabled, "Disabled") then
+		if disabled then
+			e:remove("light_disabled")
+		else
+			e:give("light_disabled")
+		end
+	end
+
+	Slab.Text("Shape: " .. light.light_shape)
+
+	Slab.Text("Sprite:")
+	Slab.SameLine()
+	if Slab.BeginComboBox("LightSprite", {Selected = sprite.name}) then
+		for i, v in ipairs(light_sprites) do
+			if Slab.TextSelectable(v) then
+				local spr = self.resources[v]
+				e:give("sprite", spr, v)
+				manage_offset(v, e.transform, spr)
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	--TODO if flash is enabled, disabled toggling of recolor and vice-versa
+
+	if Slab.CheckBox(flash, "Flash") then
+		if flash then
+			e:remove("light_flash"):remove("light_timer")
+		else
+			e:give("light_flash", 360, 8)
+			:give("light_timer")
+		end
+	end
+
+	if Slab.CheckBox(recolor, "Recolor") then
+		if recolor then
+			e:remove("light_recolor"):remove("light_timer")
+		else
+			e:give("light_recolor", {
+				min = {0, 0, 0},
+				max = {1, 1, 1}
+			}, vec2:new(0, 1), vec2:new(0, 1))
+			:give("light_timer")
+		end
+	end
+
+	Slab.Text("Position: ")
+	Slab.SameLine()
+
+	if Slab.Input("x", {
+		Text = tostring(pos.x), ReturnOnText = false, NumbersOnly = true}) then
+		pos.x = Slab.GetInputNumber()
+	end
+
+	Slab.SameLine()
+
+	if Slab.Input("y", {
+		Text = tostring(pos.y), ReturnOnText = false, NumbersOnly = true}) then
+		pos.y = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Power:")
+	Slab.SameLine()
+
+	if Slab.InputNumberSlider("power", light.power, 0, 4) then
+		light.power = Slab.GetInputNumber()
+	end
+
+	Slab.Text("Color:")
+	Slab.SameLine()
+
+	if Slab.Button("Color Wheel") then cp = not cp end
+
+	if cp then
+		local res = Slab.ColorPicker({Color = color.color})
+		if res.Button == 1 then color.color = res.Color
+		elseif res.Button == -1 then cp = false end
+	end
+
+	if cp_min then
+		local res = Slab.ColorPicker({Color = color_range.min})
+		if res.Button then color_range.min = res.Color
+		elseif res.Button == -1 then cp_min = false end
+	end
+
+	if cp_max then
+		local res = Slab.ColorPicker({Color = color_range.max})
+		if res.Button then color_range.max = res.Color
+		elseif res.Button == -1 then cp_max = false end
+	end
+
+	flash = e.light_flash
+	recolor = e.light_recolor
+
+	if flash then
+		Slab.Text("Flash:")
+
+		Slab.Indent()
+		Slab.Text("Max Power:")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("max_power", flash.max_power, 0, 1) then
+			flash.max_power = Slab.GetInputNumber()
+		end
+
+		Slab.Text("Speed")
+		Slab.SameLine()
+		if Slab.InputNumberSlider("speed", flash.speed, 0, 1) then
+			flash.speed = Slab.GetInputNumber()
+		end
+	end
+
+	if recolor then
+		local color_range = recolor.color_range
+		local speed_range = recolor.speed_range
+		local power_range = recolor.power_range
+
+		Slab.Text("recolor:")
+		Slab.Indent()
+		Slab.Text("Color Range:")
+
+		Slab.SameLine()
+		if Slab.Button("Color Wheel (min)") then
+			cp_min = not cp_min
+		end
+
+		Slab.SameLine()
+		if Slab.Button("Color Wheel (Max)") then
+			cp_max = not cp_max
+		end
+
+		Slab.Text("Speed Range:")
+		Slab.Indent()
+		Slab.Text("Min:")
+		Slab.SameLine()
+		if Slab.Input("speed_range_min", {Text = tostring(speed_range.x),
+			ReturnOnText = false, NumbersOnly = true}) then
+			speed_range.x = Slab.GetInputNumber()
+		end
+
+		Slab.Text("Max:")
+		Slab.SameLine()
+		if Slab.Input("speed_range_max", {Text = tostring(speed_range.y),
+			ReturnOnText = false, NumbersOnly = true}) then
+			speed_range.y = Slab.GetInputNumber()
+		end
+
+		Slab.Unindent()
+		Slab.Text("Power Range:")
+		Slab.Indent()
+		Slab.Text("Min:")
+		Slab.SameLine()
+		if Slab.Input("power_range_min", {Text = tostring(power_range.x),
+			ReturnOnText = false, NumbersOnly = true}) then
+			power_range.x = Slab.GetInputNumber()
+		end
+
+		Slab.Text("Max:")
+		Slab.SameLine()
+		if Slab.Input("power_range_max", {Text = tostring(power_range.y),
+			ReturnOnText = false, NumbersOnly = true}) then
+			power_range.y = Slab.GetInputNumber()
+		end
+	end
+
+	Slab.EndWindow()
+end
+
+function Light:draw_debug()
+	if show_canvas then
+		love.graphics.setColor(1, 0, 0, 1)
+		love.graphics.rectangle("line", self.x, self.y, self.w * self.scale, self.h * self.scale)
+	end
+end
+!end
+
+return Light

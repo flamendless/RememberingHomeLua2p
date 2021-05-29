@@ -1,0 +1,46 @@
+local Palette = require("palette")
+
+local Common = {}
+
+function Common.text(e, pos, str, font, color)
+	e:give("id", "text")
+	:give("text", str)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", color)
+end
+
+function Common.static_text(e, pos, str, font, color)
+	e:give("id", "static_text")
+	:give("static_text", str)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", color)
+end
+
+function Common.animated_sprite(e, animation_data, pos, stop_on_last)
+	e:give("id", "animated_sprite")
+	:give("animation_data", animation_data)
+	:give("position", pos)
+	:give("animation", stop_on_last)
+end
+
+function Common.skip(e, text, font, pos)
+	e:give("id", "skip")
+	:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("ui_skip"))
+	:give("ui_element")
+	:give("transform", 0, 1, 1, 0.5, 1)
+	:give("color_fade_in_out", 1)
+end
+
+function Common.camera(e, cam, scale, w, h)
+	e:give("id", "camera")
+	:give("camera", cam, true)
+	:give("camera_transform", 0, scale)
+	:give("camera_clip", w, h, Palette.get("camera_clip"))
+end
+
+return Common

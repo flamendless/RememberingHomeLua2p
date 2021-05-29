@@ -1,0 +1,37 @@
+local Concord = require("modules.concord.concord")
+
+local Tree = Concord.system({
+	pool_bg_tree = {"bg_tree", "position", "!hspeed"},
+	pool_bg_tree_move = {"bg_tree", "position", "hspeed"},
+})
+
+function Tree:start_trees(speed)
+	!if _ASSERT then
+	Assert.must(speed, Types.T_NUMBER)
+	!end
+
+	for _, e in ipairs(self.pool_bg_tree) do
+		e:give("hspeed", speed)
+	end
+end
+
+function Tree:update(dt)
+	for _, e in ipairs(self.pool_bg_tree_move) do
+		local pos = e.position.pos
+		local hspeed = e.hspeed.hspeed
+
+		pos.x = pos.x + hspeed * dt
+
+		if pos.x < 0 then
+			if e.bg_tree.is_cover then
+				e:destroy()
+			end
+
+			e:remove("parallax_stop")
+			:remove("hspeed")
+			:remove("bg_tree")
+		end
+	end
+end
+
+return Tree

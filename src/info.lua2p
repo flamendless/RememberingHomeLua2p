@@ -1,10 +1,10 @@
 local Log = require("modules.log.log")
 
-local WindowMode = require("window_mode")
 local Utils = require("utils")
 
 local format = string.format
 local concat = table.concat
+local insert = table.insert
 
 local Info = {
 	data = {},
@@ -18,7 +18,7 @@ local function insert_str(src, dest)
 	@@assert(type(dest) == "table")
 	for k, v in pairs(src) do
 		local str = format("\t%s: %s\n", k, v)
-		insert(des, str)
+		insert(dest, str)
 	end
 end
 
@@ -30,10 +30,15 @@ function Info.init()
 	local image_formats = {}
 	local texture_types = {}
 	local supported = {}
+	local name, version, vendor, device = love.graphics.getRendererInfo()
+	data.renderer = {
+		name = name,
+		version = version,
+		vendor = vendor,
+		device = device
+	}
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
-	data.renderer = {love.graphics.getRendererInfo()}
-	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
 	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
 	data.git_version = !(_COMMIT_VERSION)
 	data.limits = love.graphics.getSystemLimits()
@@ -107,3 +112,5 @@ function Info.is_texturesize_compatible(size)
 	local max_size = Info.data.limits.texturesize
 	return size <= max_size
 end
+
+return Info

@@ -1,0 +1,259 @@
+local Enum = require("modules.enum.enum")
+
+local Palette = require("palette")
+
+local UI = {}
+
+local dirs = Enum("up", "down", "left", "right")
+local line_width = 7
+
+function UI.cloud_data(e, sheet)
+	e:give("id", "cloud_data")
+	:give("text_paint_data", "cloud", {
+			spritesheet = sheet,
+			frames = {"1-10", 1, "1-10", 2, "1-10", 3, "1-10", 4, "1-10", 5},
+			delay = 0.05,
+			rows_count = 5,
+			columns_count = 10,
+			n_frames = 50
+		})
+end
+
+function UI.splat_data(e, sheet)
+	e:give("id", "splat_data")
+	:give("text_paint_data", "splat", {
+			spritesheet = sheet,
+			frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5},
+			delay = 0.1,
+			rows_count = 5,
+			columns_count = 3,
+			n_frames = 13
+		})
+end
+
+function UI.brush_data(e, sheet)
+	e:give("id", "brush_data")
+	:give("text_paint_data", "brush", {
+			spritesheet = sheet,
+			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
+			delay = 0.1,
+			rows_count = 3,
+			columns_count = 7,
+			n_frames = 21
+		})
+end
+
+function UI.ui_text(e, text, font, pos)
+	e:give("id", "ui_text")
+	:give("static_text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("white", 0))
+	:give("ui_element")
+	:give("hidden")
+	:give("layer", "intro", 2)
+end
+
+function UI.ui_text_paint(e, id, text, font, pos)
+	e:assemble(UI.ui_text, text, font, pos)
+	:give("text_with_paint", id)
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+end
+
+function UI.dialogue_text(e, id, text, font, pos)
+	e:give("id", id)
+	:give("text", text)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("ui_dialogue", 0))
+	:give("dialogue")
+	:give("ui_element")
+	:give("hidden")
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("text_with_paint", "splat")
+	:give("layer", "dialogue", 3)
+end
+
+function UI.dialogue_arrow(e, sheet, pos)
+	e:give("id", "dialogue_arrow")
+	:give("position", pos)
+	:give("animation", true)
+	:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-8", 1},
+			delay = {["1-4"] = 0.05, ["5-8"] = 0.1},
+			rows_count = 1,
+			columns_count = 8,
+			n_frames = 8,
+		})
+	:give("color", Palette.get("ui_dialogue", 0))
+	:give("transform", 0, 2, 2, 0.5, 0.5)
+	:give("dialogue_arrow")
+	:give("ui_element")
+	:give("direction")
+	:give("layer", "dialogue", 2)
+end
+
+function UI.hold_progress_bg(e, pos, radius, segments)
+	e:give("id", "hold_progress_bg")
+	:give("position", pos)
+	:give("arc", radius, segments)
+	:give("line_width", line_width * 2)
+	:give("color", Palette.get("ui_hold_progress", 0))
+	:give("draw_mode", "line")
+	:give("arc_type", "open")
+	:give("ui_element")
+end
+
+function UI.hold_progress(e, pos, timer, radius, segments)
+	e:give("id", "hold_progress")
+	:give("position", pos)
+	:give("hold", timer)
+	:give("arc", radius, segments)
+	:give("line_width", line_width)
+	:give("color", Palette.get("ui_hold_progress", 0))
+	:give("draw_mode", "line")
+	:give("arc_type", "open")
+	:give("ui_element")
+end
+
+function UI.keypress(e, is_hold, sheet, target)
+	!if _ASSERT then
+	Assert.must(is_hold, Types.T_BOOLEAN)
+	!end
+
+	local delay = is_hold and {0.5, 0.5, 2} or 0.5
+
+	e:give("id", "keypress")
+	:give("ui_element")
+	:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-3", 1},
+			delay = delay,
+			rows_count = 1,
+			columns_count = 3,
+			n_frames = 3,
+		})
+	:give("animation")
+	:give("position", vec2:new())
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("color", {1, 1, 1, 0})
+	:give("attach_to", target)
+end
+
+function UI.key(e, key, pos, font)
+	e:give("id", "key_" .. key)
+	:give("text", key)
+	:give("font", font)
+	:give("position", pos)
+	:give("color", Palette.get("ui_key", 0))
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("ui_element")
+end
+
+function UI.arrow(e, dir, sheet, pos)
+	!if _ASSERT then
+	Assert.must(dir, Types.T_STRING)
+	!end
+
+	local d = dirs[dir]
+	local q
+
+	if d == "up" then
+		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
+	elseif d == "down" then
+		q = love.graphics.newQuad(192, 0, 64, 64, sheet:getDimensions())
+	elseif d == "left" then
+		q = love.graphics.newQuad(64, 0, 64, 64, sheet:getDimensions())
+	elseif d == "right" then
+		q = love.graphics.newQuad(0, 0, 64, 64, sheet:getDimensions())
+	end
+
+	e:give("id", "arrow_" .. dir)
+	:give("sprite", sheet)
+	:give("position", pos)
+	:give("quad", q)
+	:give("color", {1, 1, 1, 0})
+	:give("ui_element")
+end
+
+function UI.action(e, sheet)
+	local scale = 0.25
+
+	e:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-5", 1},
+			delay = 0.2,
+			rows_count = 1,
+			columns_count = 5,
+			n_frames = 5,
+		})
+	:give("ease", "backout")
+	:give("bounding_box", vec2:new(), vec2:new(96 * scale, 96 * scale))
+	:give("hover_change_color", Palette.get("ui_hovered"), 0.1)
+	:give("hover_change_scale", scale + 0.1, 0.25)
+	:give("transform", 0, scale, scale, 0.5, 0.5)
+	:give("z_index", 99, false)
+	:give("no_shader")
+	:give("preserve_id")
+
+	return e
+end
+
+function UI.question_mark(e, sprite, dur)
+	e:give("id", "question_mark", false)
+	:give("sprite", sprite)
+	:give("transform", 0, 0.25, 0.25, 0.5, 1)
+	:give("color", Palette.get("ui_not_hovered", 0))
+	:give("tween_dur", dur)
+	:give("notification")
+	:give("z_index", 99, false)
+	:give("no_shader")
+end
+
+function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
+	local color_hovered, color_unhovered_def, color_unhovered
+
+	if id == "close" then
+		color_hovered = Palette.get("ui_hovered")
+		color_unhovered_def = Palette.get("ui_not_hovered", 0)
+		color_unhovered = Palette.get("ui_not_hovered")
+	else
+		color_hovered = Palette.get("inventory_btn_hovered")
+		color_unhovered_def = Palette.get("inventory_btn_unhovered", 0)
+		color_unhovered = Palette.get("inventory_btn_unhovered")
+	end
+
+	e:give("id", "inventory_" .. id)
+	:give("animation_data", {
+			spritesheet = sheet,
+			frames = {"1-5", 1},
+			delay = 0.2,
+			rows_count = 1,
+			columns_count = 5,
+			n_frames = 5,
+		})
+	:give("position", pos)
+	:give("transform", 0, scale, scale, ox, oy)
+	:give("ease", "backout")
+	:give("hover_change_color", color_hovered, 0.1)
+	:give("color", color_unhovered_def, color_unhovered)
+	:give("no_shader")
+	:give("preserve_id")
+	:give("ui_element")
+	:give("layer", "inventory_buttons", 4)
+	:give("animation", true)
+
+	local w = e.animation_data.frame_width
+	local h = e.animation_data.frame_height
+
+	e:give("bounding_box", vec2:new(), vec2:new(w * scale, h * scale))
+
+	if id == "close" then
+		e:give("hover_change_scale", scale + 0.1, 0.25)
+	end
+
+	return e
+end
+
+return UI

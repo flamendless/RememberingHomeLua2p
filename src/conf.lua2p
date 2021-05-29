@@ -1,0 +1,9 @@
+function love.conf(t)
+	t.window.title = !(_GAME_TITLE)
+	t.window.width = !(_GAME_SIZE.x)
+	t.window.height = !(_GAME_SIZE.y)
+	t.window.resizable = false
+
+	t.identity = !(_IDENTITY)
+	t.version = !(_LOVE_VERSION)
+end

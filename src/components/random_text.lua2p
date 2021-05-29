@@ -1,0 +1,15 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("random_text", function(c, text)
+	!if _ASSERT then
+	Assert.either_type(text, Types.T_STRING, Types.T_TABLE)
+	!end
+
+	if type(text) == "string" then
+		c.use_string = true
+	elseif type(text) == "table" then
+		c.use_table = true
+	end
+
+	c.text = text
+end)

@@ -1,0 +1,10 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("glitch_colors", function(c, colors)
+	!if _ASSERT then
+	Assert.must(colors, Types.T_TABLE)
+	!end
+
+	c.current = 1
+	c.colors = colors
+end)

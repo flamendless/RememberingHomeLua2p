@@ -1,0 +1,195 @@
+-- NPad's Color Grading Library
+--[[---------------------------------------------------------------------------
+-- Copyright (c) 2020 Miku AuahDark
+-- MODIFIED for GH:R by @flamendless
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a
+-- copy of this software and associated documentation files (the "Software"),
+-- to deal in the Software without restriction, including without limitation
+-- the rights to use, copy, modify, merge, publish, distribute, sublicense,
+-- and/or sell copies of the Software, and to permit persons to whom the
+-- Software is furnished to do so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in
+-- all copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+-- OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+-- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-- DEALINGS IN THE SOFTWARE.
+--]]---------------------------------------------------------------------------
+
+local floor = math.floor
+
+local NGrading = class()
+
+local shaders = {
+	old = "shaders/ngrading_old.glsl",
+	volume = "shaders/ngrading_volume.glsl",
+	volume_multi = "shaders/ngrading_volume_multi.glsl",
+}
+local default_setting = {linear = true, dpiscale = 1}
+
+function NGrading:new_single(img, cs)
+	@@assert(img:type() == "ImageData")
+	local data = img
+	local tw = floor(data:getWidth() / cs)
+	local th = floor(data:getHeight() / cs)
+	local used_shader = love.graphics.getTextureTypes().volume
+	local volume_img, image
+	local shader
+	if used_shader == 0 then used_shader = false end
+	used_shader = used_shader and "volume" or "old"
+	if used_shader == "volume" then
+		local imgs = {}
+		local fmt = data:getFormat()
+
+		for j = 0, th - 1 do
+			for i = 0, tw - 1 do
+				local nimg = love.image.newImageData(cs, cs, fmt)
+
+				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
+				imgs[#imgs + 1] = nimg
+			end
+		end
+
+		volume_img = love.graphics.newVolumeImage(imgs, default_setting)
+		volume_img:setFilter("linear", "linear")
+		volume_img:setWrap("clamp", "clamp", "clamp")
+	else
+		image = love.graphics.newImage(data, default_setting)
+		image:setFilter("linear", "linear")
+		image:setWrap("clamp", "clamp")
+	end
+
+	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
+
+	return self:init({
+		tile_size = {tw, th},
+		cell_size = cs,
+		volume_img = volume_img,
+		image = image,
+		shader = default_shader_obj,
+	})
+end
+
+function NGrading:new_multi(img, img2, cs)
+	@@assert(img:type() == "ImageData")
+	@@assert(img2:type() == "ImageData")
+	@@assert(type(cs) == "number")
+	local data = img
+	local data2 = img2
+	local tw = floor(data:getWidth() / cs)
+	local th = floor(data:getHeight() / cs)
+	local volume_img, image
+	local volume_img2, image2
+	local used_shader = love.graphics.getTextureTypes().volume
+	if used_shader == 0 then used_shader = false end
+	used_shader = used_shader and "volume_multi" or "old_multi"
+	if used_shader == "volume_multi" then
+		local imgs = {}
+		local imgs2 = {}
+		local fmt = data:getFormat()
+		local fmt2 = data2:getFormat()
+
+		for j = 0, th - 1 do
+			for i = 0, tw - 1 do
+				local nimg = love.image.newImageData(cs, cs, fmt)
+				local nimg2 = love.image.newImageData(cs, cs, fmt2)
+
+				nimg:paste(data, 0, 0, i * cs, j * cs, cs, cs)
+				nimg2:paste(data2, 0, 0, i * cs, j * cs, cs, cs)
+				imgs[#imgs + 1] = nimg
+				imgs2[#imgs2 + 1] = nimg2
+			end
+		end
+
+		volume_img = love.graphics.newVolumeImage(imgs, default_setting)
+		volume_img:setFilter("linear", "linear")
+		volume_img:setWrap("clamp", "clamp", "clamp")
+
+		volume_img2 = love.graphics.newVolumeImage(imgs2, default_setting)
+		volume_img2:setFilter("linear", "linear")
+		volume_img2:setWrap("clamp", "clamp", "clamp")
+	else
+		image = love.graphics.newImage(data, default_setting)
+		image:setFilter("linear", "linear")
+		image:setWrap("clamp", "clamp")
+
+		image2 = love.graphics.newImage(data2, default_setting)
+		image2:setFilter("linear", "linear")
+		image2:setWrap("clamp", "clamp")
+	end
+
+	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
+
+	return self:init({
+		is_multi = true,
+		tile_size = {tw, th},
+		cell_size = cs,
+		volume_img = volume_img,
+		volume_img2 = volume_img2,
+		image = image,
+		image2 = image2,
+		shader = default_shader_obj,
+	})
+end
+
+function NGrading:new(arg1, arg2, arg3)
+	if type(arg2) == "number" then
+		local effect = self:new_single(arg1, arg2)
+		effect:setup_data()
+
+		return effect
+	else
+		local effect = self:new_multi(arg1, arg2, arg3)
+		effect:setup_data()
+
+		return effect
+	end
+end
+
+function NGrading:set_dt(dt)
+	if self.is_multi then
+		self.shader:send("dt", dt)
+	end
+end
+
+function NGrading:setup_data()
+	if self.is_multi then
+		if self.image then
+			self.shader:send("lut", self.image)
+			self.shader:send("cell_size", self.cell_size)
+			self.shader:send("cell_dimensions", self.tile_size)
+		else
+			self.shader:send("lut", self.volume_img)
+		end
+
+		if self.image2 then
+			self.shader:send("lut2", self.image)
+		else
+			self.shader:send("lut2", self.volume_img2)
+		end
+	else
+		if self.image then
+			self.shader:send("lut", self.image)
+			self.shader:send("cell_size", self.cell_size)
+			self.shader:send("cell_dimensions", self.tile_size)
+		else
+			self.shader:send("lut", self.volume_img)
+		end
+	end
+end
+
+function NGrading:apply()
+	love.graphics.setShader(self.shader)
+end
+
+function NGrading:unapply()
+	love.graphics.setShader()
+end
+
+return NGrading

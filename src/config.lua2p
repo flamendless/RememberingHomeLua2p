@@ -4,5 +4,12 @@ local Config = {}
 
 Config.this_version = !(("%i.%i.%i"):format(unpack((_GAME_VERSION))))
 Config.this_semver = Semver(Config.this_version)
+Config.current_wm = 1
+Config.window_modes = !(_WINDOW_MODES)
+Config.window_modes_str = !(_WINDOW_MODES_STR)
+
+function Config.getWindowMode()
+	return Config.window_modes[Config.current_wm]
+end
 
 return Config

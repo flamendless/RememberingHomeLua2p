@@ -1,0 +1,246 @@
+!if not _RELEASE then
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+local Slab = require("modules.slab")
+
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local order = {}
+
+local insert = table.insert
+local remove = table.remove
+local getFPS = love.timer.getFPS
+
+local Debugging = Concord.system({
+	pool = {},
+	pool_id = {"id"},
+	pool_log = {"log"}
+})
+
+local slab_init = false
+local font = love.graphics.getFont()
+
+function Debugging:init(world)
+	self.world = world
+	self.ps = {}
+	self.ps_count = 0
+	self.ref_id = {}
+	self.is_open = true
+	self.is_open_list = false
+	self.camera = nil
+
+	for k, v in pairs(views) do insert(order, k) end
+	table.insertion_sort(order)
+
+	if not slab_init then
+		Slab.Initialize({"NoDocks"})
+		slab_init = true
+	end
+
+	DebugFlags.t_stats = love.graphics.getStats(DebugFlags.t_stats)
+
+	self.pool_id.onAdded = function(pool, e)
+		local id = e.id
+
+		if not e.preserve_id then
+			local ref_id = self.ref_id[id.id]
+
+			if ref_id then
+				self.ref_id[id.id] = self.ref_id[id.id] + 1
+				id.id = id.id .. self.ref_id[id.id]
+			else
+				self.ref_id[id.id] = 1
+			end
+		end
+
+		Log.info("Added entity: " .. id.id)
+	end
+
+	self.pool_id.onRemoved = function(pool, e)
+		local id = e.id and e.id.id
+
+		if id then
+			self.ref_id[e.id.id] = nil
+		else
+			for i = #pool, 1, -1 do
+				if e == pool[i] then
+					remove(self.ref_id, i)
+				end
+			end
+		end
+
+		Log.info("Removed entity: " .. (id or tostring(e)))
+	end
+end
+
+function Debugging:debug_particle_system(ps)
+	!if _ASSERT then
+	Assert.must(ps, Types.T_PARTICLE_SYSTEM)
+	!end
+
+	insert(self.ps, ps)
+end
+
+function Debugging:debug_camera(camera)
+	!if _ASSERT then
+	Assert.is(camera, Types.T_GAMERA)
+	!end
+
+	self.camera = camera
+end
+
+function Debugging:debug_particle_update(dt)
+	local c = 0
+
+	for i, ps in ipairs(self.ps) do
+		c = c + ps:getCount()
+	end
+
+	self.ps_count = c
+end
+
+function Debugging:debugging_update(dt)
+	if not DebugFlags.draw_all then return end
+
+	Slab.Update(dt)
+	self:debug_particle_update(dt)
+	self.world:emit("update_debug", dt)
+	self.world:emit("draw_slab", dt)
+end
+
+function Debugging:debugging_draw()
+	if not DebugFlags.draw_all then return end
+
+	love.graphics.setFont(font)
+	self.world:emit("draw_debug")
+
+	love.graphics.push()
+	love.graphics.origin()
+	love.graphics.setLineWidth(1)
+	self.world:emit("debug_draw_ui")
+	love.graphics.pop()
+
+	Slab.Draw()
+end
+
+function Debugging:draw_slab()
+	self.is_open = Slab.BeginWindow("debugging",
+		{Title = "Debugging", IsOpen = self.is_open})
+
+	for _, id in ipairs(order) do
+		if Slab.CheckBox(views[id], id) then
+			views[id] = not views[id]
+		end
+	end
+
+	Slab.EndWindow()
+
+	views.ent_count = Slab.BeginWindow("ecs", {Title = "ECS", IsOpen = views.ent_count})
+	Slab.Text("# of entities: " .. #self.pool)
+	Slab.Text("# of entities with id: " .. #self.pool_id)
+
+	if Slab.Button("View List") then
+		self.is_open_list = true
+	end
+
+	if self.is_open_list then
+		self.is_open_list = Slab.BeginWindow("ent_list", {
+			Title = "Entity List", IsOpen = self.is_open_list})
+
+		for _, e in ipairs(self.pool_id) do
+			local id = e.id.id
+			local hidden = e.hidden
+			local txt
+
+			if hidden then txt = "Show"
+			else txt = "Hide"
+			end
+
+			if Slab.Button(txt) then
+				if hidden then
+					e:remove("hidden")
+				else
+					e:give("hidden")
+				end
+			end
+
+			Slab.SameLine()
+
+			if Slab.Button("x") then e:destroy() end
+
+			Slab.SameLine()
+			Slab.Text(id)
+		end
+
+		Slab.EndWindow()
+	end
+
+	Slab.EndWindow()
+
+	views.logs = Slab.BeginWindow("log",
+		{Title = "log", IsOpen = views.logs, AutoSizeWindow = false})
+
+	for _, e in ipairs(self.pool_log) do
+		Slab.Text(e.log.log)
+	end
+
+	Slab.EndWindow()
+
+	views.mouse_info = Slab.BeginWindow("mouse_info",
+		{Title = "mouse info", IsOpen = views.mouse_info})
+	local mx, my = love.mouse.getPosition()
+	local cx, cy = self.camera:toWorld(mx, my)
+
+	Slab.Text("mx: " .. mx)
+	Slab.Text("my: " .. my)
+	Slab.Text("cx: " .. cx)
+	Slab.Text("cy: " .. cy)
+
+	Slab.EndWindow()
+
+	views.stats = Slab.BeginWindow("stats",
+		{Title = "stats", IsOpen = views.stats})
+	Slab.Text("FPS: " .. getFPS())
+	Slab.Text("Particle Count: " .. self.ps_count)
+	for k, v in pairs(DebugFlags.t_stats) do
+		Slab.Text(k .. ": " .. v)
+	end
+
+	Slab.EndWindow()
+end
+
+function Debugging:draw_debug(l, t, w, h)
+	if not views.cross then return end
+
+	local hw, hh = w/2, h/2
+
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.setLineWidth(1)
+	love.graphics.line(hw, 0, hw, h)
+	love.graphics.line(0, hh, w, hh)
+end
+
+function Debugging:keypressed(key)
+	if key == "`" then
+		DebugFlags.draw_all = not DebugFlags.draw_all
+	end
+end
+
+function Debugging:cleanup()
+	self.ps_count = 0
+
+	for i, ps in ipairs(self.ps) do
+		self.ps[i] = nil
+	end
+
+	for _, e in ipairs(self.pool_id) do
+		Log.warn(e.id.id .. " not destroyed")
+	end
+
+	for _, e in ipairs(self.pool_log) do
+		e:destroy()
+	end
+end
+
+return Debugging
+!end

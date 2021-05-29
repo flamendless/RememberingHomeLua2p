@@ -1,0 +1,54 @@
+local Concord = require("modules.concord.concord")
+
+local ECS = {}
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+
+local Systems = {}
+Concord.utils.loadNamespace("systems", Systems)
+
+local systems = {}
+
+systems.Splash = {
+	"animation", "color", "ghost_effect", "render_sprite", "render_text",
+	"transform", "typewriter_splash",
+}
+
+systems.Menu = {
+	"animation", "bounding_box", "click", "color", "hover_effect", "menu",
+	"menu_settings", "mouse_hover", "move", "render_text", "render_sprite",
+	"transform"
+}
+
+systems.Intro = {
+	"animation", "camera", "color", "light", "parallax",
+	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
+	"transform", "follow"
+}
+
+systems.Outside = {
+	"action_controls", "animation", "bounding_box", "bump3d_collision", "camera",
+	"click", "climb_staircase", "collision", "color", "dialogues", "fireflies",
+	"follow", "hover_effect", "interactive", "inventory", "items", "light",
+	"map", "move", "movement", "mouse_hover", "notification", "outside_house",
+	"player_controller", "render_circle", "render_sprite", "render_text",
+	"render_ui", "text_paint", "transform", "typewriter",
+}
+
+systems.StorageRoom = {
+	"animation", "bump3d_collision", "camera", "map", "movement",
+	"player_controller", "render_sprite", "tilemap"
+}
+
+function ECS.load_systems(id, world)
+	@@assert(type(id) == "string")
+	@@assert(systems[id])
+	@@assert(world == "__isWorld")
+
+	for _, v in ipairs(systems[id]) do
+		world:addSystem(Systems[v])
+	end
+end
+
+return ECS

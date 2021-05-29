@@ -1,0 +1,118 @@
+local Concord = require("modules.concord.concord")
+local ListCtor = require("ctor.layer_list")
+
+local insert = table.insert
+local remove = table.remove
+
+local RenderUI = Concord.system({
+	pool_intro = {
+		constructor = ListCtor,
+		layer = "intro",
+		"ui_element",
+	},
+	pool_hold_key = {
+		constructor = ListCtor,
+		layer = "hold_key",
+		"ui_element",
+	},
+	pool_inventory = {
+		constructor = ListCtor,
+		layer = "inventory",
+		"ui_element",
+	},
+	pool_inventory_buttons = {
+		constructor = ListCtor,
+		layer = "inventory_buttons",
+		"ui_element",
+	},
+	pool_dialogue = {
+		constructor = ListCtor,
+		layer = "dialogue",
+		"ui_element",
+	},
+	pool_ui = {"ui_element", "position", "!layer"},
+});
+
+function RenderUI:init(world)
+	self.world = world
+	self.layers = {
+		self.pool_intro, self.pool_hold_key, self.pool_inventory,
+		self.pool_inventory_buttons, self.pool_dialogue,
+	}
+end
+
+function RenderUI:draw_ui()
+	for _, e in ipairs(self.pool_ui) do
+		local text = e.text
+		local stext = e.static_text
+		local sprite = e.sprite
+
+		if text or stext then
+			self.world:emit("draw_text_ex", e)
+		end
+
+		if sprite then
+			self.world:emit("draw_sprite_ex", e)
+		end
+	end
+
+	for i, pool in ipairs(self.layers) do
+		for _, e in ipairs(pool) do
+			local text = e.text
+			local stext = e.static_text
+			local sprite = e.sprite
+
+			self.world:emit("draw_ui_layer_ex", pool.layer_id)
+
+			if text or stext then
+				self.world:emit("draw_text_ex", e)
+			end
+
+			if sprite then
+				self.world:emit("draw_sprite_ex", e)
+			end
+		end
+	end
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local list, list_i, list_t
+
+function RenderUI:draw_debug()
+	views.layers = Slab.BeginWindow("Layers", {
+		Title = "Layers", IsOpen = views.layers})
+
+	for i, pool in ipairs(self.layers) do
+		Slab.Text(i .. " " .. pool.layer_id)
+		Slab.SameLine()
+
+		if Slab.Button("list") then
+			list = true
+			list_i = i
+			list_t = pool
+		end
+	end
+
+	if list then
+		list = Slab.BeginWindow("LayersList", {
+			Title = list_t.id, IsOpen = list})
+
+		Slab.Indent()
+
+		for _, e in ipairs(list_t) do
+			Slab.Text(e.id.id)
+		end
+
+		Slab.Unindent()
+		Slab.EndWindow()
+	end
+
+	Slab.EndWindow()
+end
+
+!end
+
+return RenderUI

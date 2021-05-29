@@ -1,0 +1,191 @@
+local Player = {}
+
+function Player.base(e, movement, pos, speed_data, gravity, resources, defaults)
+	!if _ASSERT then
+	Assert.either_value(movement, "platformer", "topdown")
+	if Assert.safe.must(defaults, Types.T_TABLE) then
+		Assert.safe.must(defaults.can_move, Types.T_BOOLEAN)
+		Assert.safe.must(defaults.can_run, Types.T_BOOLEAN)
+		Assert.safe.must(defaults.can_open_door, Types.T_BOOLEAN)
+	end
+	!end
+
+	local can_move = defaults.can_move
+	local can_run = defaults.can_run
+	local can_open_door = defaults.can_open_door
+
+	local multi_data = {
+		idle = {
+			spritesheet = resources.sheet_idle,
+			frames = {"1-5", 1, "1-5", 2},
+			delay = 0.1,
+			rows_count = 2,
+			columns_count = 5,
+			n_frames = 10,
+		},
+		walk = {
+			spritesheet = resources.sheet_walk,
+			frames = {"1-4", 1, "1-4", 2},
+			delay = 0.1,
+			rows_count = 2,
+			columns_count = 4,
+			n_frames = 8,
+		},
+		run = {
+			spritesheet = resources.sheet_run,
+			frames = {"1-6", 1},
+			delay = 0.1,
+			rows_count = 1,
+			columns_count = 6,
+			n_frames = 6,
+		},
+	}
+
+	local multi_data_modifier = {
+		--copy (1) as (2) applying (3)
+		idle = {"idle_left",  "flipH"},
+		walk = {"walk_left",  "flipH"},
+		run = {"run_left", "flipH"},
+	}
+
+	if can_open_door then
+		multi_data.open_door = {
+			spritesheet = resources.sheet_open_door,
+			frames = {"1-7", 1},
+			delay = 0.15,
+			rows_count = 1,
+			columns_count = 7,
+			n_frames = 7,
+		}
+		multi_data_modifier.open_door = {"open_door_left", "flipH"}
+
+		multi_data.open_door_reverse = {
+			spritesheet = resources.sheet_open_door,
+			frames = {
+				"1-7", 1, -- 1-7
+				"7-5", 1, -- 8-10
+				"5-7", 1, -- 11-13
+				"7-1", 1, -- 13-20
+			},
+			delay = {
+				["1-6"] = 0.15,
+				["7-8"] = 0.25,
+				["9-13"] = 0.075,
+				["14-20"] = 0.15,
+			},
+			rows_count = 1,
+			columns_count = 7,
+			n_frames = 7,
+		}
+		multi_data_modifier.open_door_reverse = {"open_door_reverse_left", "flipH"}
+	end
+
+	if resources.sheet_upstairs then
+		multi_data.upstairs = {
+			spritesheet = resources.sheet_upstairs,
+			frames = {"1-8", 1},
+			delay = 0.15,
+			rows_count = 1,
+			columns_count = 8,
+			n_frames = 8,
+		}
+	end
+
+	if resources.sheet_downstairs then
+		multi_data.downstairs = {
+			spritesheet = resources.sheet_downstairs,
+			frames = {"1-8", 1},
+			delay = 0.15,
+			rows_count = 1,
+			columns_count = 8,
+			n_frames = 8,
+		}
+	end
+
+	e:give("id", "player")
+	:give("player")
+	:give("position", pos)
+	:give("transform", 0, 1, 1, 18, 0)
+	:give("collider3d", vec3:new(24, 12, 64))
+	:give("bump3d")
+	:give("speed")
+	:give("speed_data", speed_data)
+	:give("gravity", gravity)
+	:give("animation")
+	:give("player_controller")
+	:give("body", can_move, can_run)
+	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
+	:give("spawn_point_action_controls")
+	:give("spawn_point_question_mark")
+
+	if movement == "platformer" then
+		e:give("movement_platformer")
+	elseif movement == "topdown" then
+		e:give("movement_topdown")
+	end
+end
+
+function Player.outside_house(e,
+		sheet_idle, sheet_walk, sheet_run, sheet_open_door,
+		sheet_upstairs, sheet_downstairs,
+		can_move, can_run)
+
+	!if not _RELEASE then
+	-- local pos = vec2:new(439, 270)
+	local pos = vec2:new(910, 270)
+	!else
+	local pos = vec2:new(910, 270)
+	!end
+
+	e:assemble(Player.base, "topdown",
+		pos,
+		{
+			idle = vec2:new(),
+			walk = vec2:new(128, 92),
+			run = vec2:new(180, 144),
+		},
+		320,
+		{
+			sheet_idle = sheet_idle,
+			sheet_walk = sheet_walk,
+			sheet_run = sheet_run,
+			sheet_open_door = sheet_open_door,
+			sheet_upstairs = sheet_upstairs,
+			sheet_downstairs = sheet_downstairs,
+		},
+		{
+			can_move = can_move,
+			can_run = can_run,
+			can_open_door = true,
+		})
+	:give("z_index", 2)
+	:give("camera_follow_offset", vec2:new(0, 32))
+end
+
+!if not _RELEASE then
+function Player.test(e, sheet_idle, sheet_walk, sheet_run)
+	local pos = vec2:new(14 * 32, 5 * 32)
+
+	e:assemble(Player.base, "topdown",
+		pos,
+		{
+			idle = vec2:new(),
+			walk = vec2:new(128, 92),
+			run = vec2:new(180, 144),
+		},
+		320,
+		{
+			sheet_idle = sheet_idle,
+			sheet_walk = sheet_walk,
+			sheet_run = sheet_run,
+		},
+		{
+			can_move = true,
+			can_run = true,
+			can_open_door = false,
+		})
+	:give("z_index", 2)
+end
+!end
+
+return Player

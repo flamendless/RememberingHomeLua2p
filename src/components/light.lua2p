@@ -1,0 +1,52 @@
+local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+
+local light_shapes = Enum("round", "rectangle", "cone", "custom")
+
+Concord.component("light_disabled")
+
+Concord.component("light", function(c, light_shape, power)
+	!if _ASSERT then
+	Assert.must(power, Types.T_NUMBER)
+	Assert.within_range(power, 0, 4)
+	!end
+
+	c.light_shape = light_shapes[light_shape]
+	c.power = power
+end)
+
+Concord.component("light_timer", function(c)
+	c.timer = 0
+end)
+
+Concord.component("light_flicker", function(c, off_chance)
+	!if _ASSERT then
+	Assert.must(off_chance, Types.T_NUMBER)
+	!end
+
+	c.off_chance = off_chance
+end)
+
+Concord.component("light_recolor", function(c, color_range, power_range, speed_range)
+	!if _ASSERT then
+	Assert.must(color_range, Types.T_TABLE)
+	Assert.must(color_range.min, Types.T_TABLE)
+	Assert.must(color_range.max, Types.T_TABLE)
+	Assert.is(power_range, Types.T_VEC2)
+	Assert.is(speed_range, Types.T_VEC2)
+	!end
+
+	c.color_range = color_range
+	c.power_range = power_range
+	c.speed_range = speed_range
+end)
+
+Concord.component("light_flash", function(c, max_power, speed)
+	!if _ASSERT then
+	Assert.must(max_power, Types.T_NUMBER)
+	Assert.must(speed, Types.T_NUMBER)
+	!end
+
+	c.max_power = max_power
+	c.speed = speed
+end)

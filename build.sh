@@ -11,7 +11,7 @@ dir_res=res
 dir_output=output_dev
 dir_source=src
 
-dir_sub=(assemblages components shaders systems worlds)
+dir_sub=(assemblages components shaders states systems)
 appdata=~/.local/share/love/goinghomerevisited
 
 meta_exclude_modules=(spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml changelog.txt README.md MakeSingle.mak bench CHANGELOG.md *.rockspec config.ld performance_test.lua USAGE.md img)

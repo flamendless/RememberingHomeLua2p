@@ -1,0 +1,94 @@
+local Concord = require("modules.concord.concord")
+
+local ClimbStaircase = Concord.system({
+	pool = {"staircase", "collider3d", "bump3d", "position"},
+	pool_col = {"id", "position", "collider3d", "bump3d"}
+})
+
+local xspeed = 12
+local yspeed = 36
+
+function ClimbStaircase:init(world)
+	self.world = world
+end
+
+function ClimbStaircase:interactive_collided(e, interactive)
+	local id = interactive.id.id
+
+	if id == "interactive_staircase" then
+		local interactive_pos = interactive.position.pos
+		local pos = e.position.pos
+		local body = e.body
+		body.dx = 0
+		body.dy = 0
+		body.vel_x = 0
+		body.vel_y = 0
+
+		if interactive_pos.y < pos.y then
+			e:give("climb_up")
+			self.world:emit("interacted_stairs", e, "upstairs", function(dt)
+				pos.x = pos.x + xspeed * dt
+				pos.y = pos.y - yspeed * dt
+
+				self.world:emit("sort_z")
+			end)
+		else
+			e:give("climb_down")
+			self.world:emit("interacted_stairs", e, "downstairs", function(dt)
+				pos.x = pos.x - xspeed * dt
+				pos.y = pos.y + yspeed * dt
+
+				self.world:emit("sort_z")
+			end)
+		end
+	elseif id == "interactive_staircase_bottom" then
+		if e.climb_down then
+			e:remove("climb_down")
+			:remove("override_animation")
+			:remove("animation_on_update")
+
+			self.world:emit("climbed_staircase", "down")
+		end
+	end
+end
+
+function ClimbStaircase:interacted_stairs()
+	for _, e in ipairs(self.pool_col) do
+		local id = e.id.id
+
+		if id == "col_railing_left" or
+			id == "left_railing" then
+			e.collider3d.filter = "cross"
+		end
+	end
+end
+
+function ClimbStaircase:climbed_staircase(dir)
+	for _, e in ipairs(self.pool_col) do
+		local id = e.id.id
+
+		if dir == "up" then
+			if id == "left_railing" or
+				id == "right_railing" then
+				e.collider3d.filter = "slide"
+			elseif id == "col_railing_left" or
+				id == "col_railing_right" then
+				e.collider3d.filter = "cross"
+			elseif id == "house_right" then
+				e.collider3d.filter = "cross"
+			end
+		elseif dir == "down" then
+			if id == "left_railing" or
+				id == "right_railing" then
+				e.collider3d.filter = "cross"
+			elseif id == "col_railing_left" or
+				id == "col_railing_right" then
+				e.collider3d.filter = "slide"
+			elseif id == "house_right" then
+				e.collider3d.filter = "slide"
+			end
+		end
+	end
+end
+
+return ClimbStaircase

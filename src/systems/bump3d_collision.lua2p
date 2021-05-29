@@ -1,0 +1,318 @@
+local Concord = require("modules.concord.concord")
+local Bump3D = require("modules.bump3d.bump-3dpd")
+local Timer = require("modules.hump.timer")
+
+local Bump3DCollision = Concord.system({
+	pool = {"collider3d", "position", "bump3d", "id"},
+})
+
+local function filter(item, other)
+	local other_col = other.collider3d
+
+	return other_col.filter or "slide"
+end
+
+function Bump3DCollision:init(world)
+	self.world = world
+	self.bump3d_world = Bump3D.newWorld()
+
+	self.pool.onAdded = function(pool, e)
+		local x = e.position.pos.x
+		local y = e.position.pos.y
+
+		self.bump3d_world:add(e, x, y, 0,
+			e.collider3d.size.x, e.collider3d.size.y, e.collider3d.size.z)
+	end
+
+	self.pool.onRemoved = function(pool, e)
+		self.bump3d_world:remove(e)
+	end
+end
+
+function Bump3DCollision:preupdate(dt)
+	for _, e in ipairs(self.pool) do
+		local col = e.collider3d
+
+		col.is_hit = false
+	end
+end
+
+function Bump3DCollision:update(dt)
+	for _, e in ipairs(self.pool) do
+		if e.body then
+			self:update_body(e)
+		end
+	end
+end
+
+function Bump3DCollision:update_body(e)
+	local pos = e.position.pos
+	local cols, len, z
+
+	pos.x, pos.y, z, cols, len = self.bump3d_world:move(e,
+		pos.x + e.body.vel_x,
+		pos.y + e.body.vel_y,
+		0, filter)
+
+	for i = 1, len do
+		local c = cols[i]
+		local other = c.other
+		local other_col = other.collider3d
+		local other_id = other.bump3d.id
+
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
+		other_col.normal.z = c.normalZ
+
+		if other.interactive then
+			if not other_col.prev_hit then
+				other_col.prev_hit = true
+				self.world:emit("interactive_collided", e, other)
+			end
+		end
+	end
+
+	if e.z_index.sortable then
+		self.world:emit("sort_z")
+	end
+
+	self.bump3d_world.freeCollisions(cols)
+end
+
+!if not _RELEASE then
+local Slab = require("modules.slab")
+local DebugFlags = require("debug_flags")
+local views = DebugFlags.views
+local view_b3d_bounds = false
+local win_col3d = false
+local current_item, current_item_id
+local current_dummy = 1
+
+function Bump3DCollision:focus_view(except, bool)
+	for _, e in ipairs(self.pool) do
+		if not (e == except) then
+			e.collider3d.view = bool
+		end
+	end
+end
+
+function Bump3DCollision:draw_slab(dt)
+	views.b3d_list = Slab.BeginWindow("b3d", {
+		Title = "Bump3DCollision", IsOpen = views.b3d_list})
+
+	if Slab.Button("+") then
+		local e = Concord.entity(self.world)
+			:give("id", "dummy" .. current_dummy)
+			:give("position", vec2:new())
+			:give("collider3d", vec3:new(32, 32, 32))
+			:give("bump3d")
+
+		current_dummy = current_dummy + 1
+	end
+
+	local items, len = self.bump3d_world:getItems()
+
+	Slab.Text("number:")
+	Slab.SameLine()
+	Slab.Text(len)
+	Slab.SameLine()
+
+	if Slab.Button("view bounds") then
+		view_b3d_bounds = not view_b3d_bounds
+	end
+
+	Slab.SameLine()
+
+	if Slab.Button("reset view") then
+		for _, e in ipairs(self.pool) do
+			local col = e.collider3d
+
+			col.view = true
+			col.focus_view = false
+		end
+	end
+
+	for _, e in ipairs(self.pool) do
+		local id = e.id.id
+		local col = e.collider3d
+
+		Slab.BeginLayout("b3d_layout", {Columns = 2})
+		Slab.SetLayoutColumn(1)
+		Slab.Text(id)
+		Slab.SameLine()
+		Slab.SetLayoutColumn(2)
+
+		if Slab.Button("edit") then
+			win_col3d = true
+			current_item = e
+			current_item_id = id
+			col.focus_view = true
+			self:focus_view(e, false)
+		end
+
+		Slab.SameLine()
+
+		if Slab.Button("ping") then
+			col.highlight = true
+			Timer.after(1, function()
+				col.highlight = false
+			end)
+		end
+
+		Slab.SameLine()
+
+		if Slab.Button("focus") then
+			col.focus_view = not col.focus_view
+			self:focus_view(e, false)
+		end
+
+		Slab.EndLayout()
+	end
+
+	Slab.EndWindow()
+
+	if not win_col3d then
+		current_item = nil
+		current_item_id = nil
+	else
+		local e = current_item
+		local id = current_item_id
+		local col = e.collider3d
+
+		win_col3d = Slab.BeginWindow("EditCollider", {
+			Title = "Collider3d", IsOpen = win_col3d})
+		Slab.Text(id)
+		Slab.Indent()
+
+		local x = e.position.pos.x
+		local y = e.position.pos.y
+		local w = col.size.x
+		local h = col.size.y
+		local d = col.size.z
+
+		Slab.Text("x: ")
+		Slab.SameLine()
+
+		if Slab.Input("input_x", {
+				Text = tostring(x), ReturnOnText = false, NumbersOnly = true}) then
+			x = Slab.GetInputNumber()
+		end
+
+		Slab.Text("y: ")
+		Slab.SameLine()
+
+		if Slab.Input("input_y", {
+				Text = tostring(y), ReturnOnText = false, NumbersOnly = true}) then
+			y = Slab.GetInputNumber()
+		end
+
+		Slab.Text("w: ")
+		Slab.SameLine()
+
+		if Slab.Input("input_w", {
+				Text = tostring(w), ReturnOnText = false, NumbersOnly = true}) then
+			w = Slab.GetInputNumber()
+		end
+
+		Slab.Text("h: ")
+		Slab.SameLine()
+
+		if Slab.Input("input_h", {
+				Text = tostring(h), ReturnOnText = false, NumbersOnly = true}) then
+			h = Slab.GetInputNumber()
+		end
+
+		Slab.Text("d: ")
+		Slab.SameLine()
+
+		if Slab.Input("input_d", {
+				Text = tostring(d), ReturnOnText = false, NumbersOnly = true}) then
+			d = Slab.GetInputNumber()
+		end
+
+		local ox, oy
+
+		if e.transform then
+			ox = e.transform.ox
+			oy = e.transform.oy
+
+			Slab.Text("ox: ")
+			Slab.SameLine()
+
+			if Slab.Input("input_ox", {
+					Text = tostring(ox), ReturnOnText = false, NumbersOnly = true}) then
+				ox = Slab.GetInputNumber()
+			end
+
+			Slab.Text("oy: ")
+			Slab.SameLine()
+
+			if Slab.Input("input_oy", {
+					Text = tostring(oy), ReturnOnText = false, NumbersOnly = true}) then
+				oy = Slab.GetInputNumber()
+			end
+
+			e.transform.ox = ox
+			e.transform.oy = oy
+		end
+
+		e.position.pos.x = x
+		e.position.pos.y = y
+		col.size.x = w
+		col.size.y = h
+		col.size.z = d
+
+		self.bump3d_world:update(e, x, y, 0, w, h, d)
+
+		if Slab.Button("print") then
+			print(id, "position:", x, y)
+			print(id, "collider3d: ", w, h, d)
+
+			if ox or oy then
+				print(id, "offset:", ox, oy)
+			end
+		end
+
+		Slab.Unindent()
+		Slab.EndWindow()
+	end
+end
+
+function Bump3DCollision:internal_draw(e, override)
+	local id = e.id.id
+	local x, y, z, w, h, d = self.bump3d_world:getCube(e)
+	local col = e.collider3d
+
+	if col.focus_view or override or col.view then
+		if col.highlight then
+			love.graphics.setColor(1, 0, 1, 1)
+		elseif col.is_hit then
+			love.graphics.setColor(1, 0, 0, 0.8)
+		else
+			if e.item then
+				love.graphics.setColor(0, 0, 1, 1)
+			else
+				love.graphics.setColor(0, 1, 0, 0.3)
+			end
+		end
+
+		love.graphics.rectangle("line", x, y + z + h, w, d)
+		love.graphics.rectangle("line", x, y + z, w, h)
+
+		love.graphics.print(id, x, y)
+	end
+end
+
+function Bump3DCollision:draw_debug()
+	if not view_b3d_bounds then return end
+
+	local items, len = self.bump3d_world:getItems()
+
+	for i = 1, len do
+		self:internal_draw(items[i])
+	end
+end
+!end
+
+return Bump3DCollision

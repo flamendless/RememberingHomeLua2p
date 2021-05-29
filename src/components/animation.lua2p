@@ -1,0 +1,64 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("override_animation")
+
+Concord.component("animation", function(c, stop_on_last)
+	!if _ASSERT then
+	Assert.safe.must(stop_on_last, Types.T_BOOLEAN)
+	!end
+
+	c.grid = nil
+	c.animation = nil
+	c.current_tag = "default"
+	c.is_playing = true
+	c.stop_on_last = (stop_on_last == true) and true or false
+end)
+
+Concord.component("change_animation_tag", function(c, new_tag, override)
+	!if _ASSERT then
+	Assert.must(new_tag, Types.T_STRING)
+	Assert.safe.must(override, Types.T_BOOLEAN)
+	!end
+
+	c.new_tag = new_tag
+	c.override = override
+end)
+
+Concord.component("animation_pause_at", function(c, at_frame)
+	!if _ASSERT then
+	Assert.either_type(at_frame, Types.T_NUMBER, Types.T_STRING)
+	if type(at_frame) == "string" then
+		Assert.either_value(at_frame, "first", "last")
+	end
+	!end
+
+	c.at_frame = at_frame
+end)
+
+Concord.component("animation_stop", function(c, event)
+	!if _ASSERT then
+	Assert.either_value(event, "pauseAtEnd", "pauseAtStart")
+	!end
+
+	c.event = event
+end)
+
+Concord.component("animation_on_loop", function(c, callback, event, remove_at_end)
+	!if _ASSERT then
+	Assert.must(callback, Types.T_FUNCTION)
+	Assert.safe.either_value(event, "pauseAtEnd", "pauseAtStart")
+	Assert.safe.must(remove_at_end, Types.T_BOOLEAN)
+	!end
+
+	c.callback = callback
+	c.event = event
+	c.remove_at_end = remove_at_end
+end)
+
+Concord.component("animation_on_update", function(c, on_update)
+	!if _ASSERT then
+	Assert.must(on_update, Types.T_FUNCTION)
+	!end
+
+	c.on_update = on_update
+end)

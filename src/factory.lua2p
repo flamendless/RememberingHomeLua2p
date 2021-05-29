@@ -1,0 +1,139 @@
+local Concord = require("modules.concord.concord")
+
+local Inputs = require("inputs")
+local Palette = require("palette")
+
+local UI = require("assemblages.ui")
+
+local Factory = {}
+
+function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fade_in)
+	local t = {}
+
+	t.progress_bg = Concord.entity(world)
+		:assemble(UI.hold_progress_bg, pos, radius)
+		:give("target_color", Palette.get("ui_hold_progress", 0.3), dur_fade_in)
+
+	t.progress = Concord.entity(world)
+		:assemble(UI.hold_progress, pos, timer, radius)
+		:give("color_fade_in", dur_fade_in)
+
+	t.key = Concord.entity(world)
+		:assemble(UI.key, key_id, vec2:new(pos.x, pos.y - 4), font)
+		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 3)
+
+	local key_pos = t.key.position.pos
+	local orig = t.key.position.original_pos
+
+	t.keypress = Concord.entity(world)
+		:assemble(UI.keypress, true, sheet, t.progress)
+		:give("animation_on_update", function(dt, current_frame)
+			if current_frame == 1 then
+				key_pos.y = orig.y
+			elseif current_frame == 2 then
+				key_pos.y = orig.y + 4
+			elseif current_frame == 3 then
+				key_pos.y = orig.y + 8
+			end
+		end)
+		:give("color_fade_in", dur_fade_in)
+		:give("layer", "hold_key", 2)
+
+	return t
+end
+
+function Factory.arrows(world, sheet, pos, offset, scale)
+	!if _ASSERT then
+	Assert.must(sheet, Types.T_IMAGE)
+	Assert.is(pos, Types.T_VEC2)
+	Assert.must(offset, Types.T_NUMBER)
+	Assert.safe.must(scale, Types.T_NUMBER)
+	!end
+
+	local t = {}
+
+	local size = sheet:getWidth()/4 + offset
+	local scale = scale or 1
+
+	t.left = Concord.entity(world)
+		:assemble(UI.arrow, "left", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size, size/2)
+		:give("quad_size", size)
+
+	t.right = Concord.entity(world)
+		:assemble(UI.arrow, "right", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, 0, size/2)
+		:give("quad_size", size)
+
+	t.up = Concord.entity(world)
+		:assemble(UI.arrow, "up", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size/2, size)
+		:give("quad_size", size)
+
+	t.down = Concord.entity(world)
+		:assemble(UI.arrow, "down", sheet, pos:copy())
+		:give("quad_transform", 0, scale, scale, size/2, 0)
+		:give("quad_size", size)
+
+	return t
+end
+
+function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
+	!if _ASSERT then
+	Assert.is(world, Types.T_WORLD)
+	Assert.must(arrows, Types.T_TABLE)
+	Assert.must(font_sdf, Types.T_FONT_SDF)
+	Assert.is(pos, Types.T_VEC2)
+	Assert.must(scale, Types.T_NUMBER)
+	!end
+
+	local key_left = Inputs.get("player_move_left")
+	local key_right = Inputs.get("player_move_right")
+	local key_up = Inputs.get("player_move_up")
+	local key_down = Inputs.get("player_move_down")
+
+	local size = arrows.left.quad_size.size
+	local lt = arrows.left.quad_transform
+	local rt = arrows.right.quad_transform
+	local ut = arrows.up.quad_transform
+	local dt = arrows.down.quad_transform
+
+	local pos_key_left = vec2:new(
+		pos.x - (lt.ox * lt.sx) * 0.65,
+		pos.y - (lt.oy * lt.sy) * 0.35)
+
+	local pos_key_right = vec2:new(
+		pos.x + size * 0.8,
+		pos.y - (rt.oy * rt.sy) * 0.35)
+
+	local pos_key_up = vec2:new(
+		pos.x - font_sdf:getWidth(key_up) * 0.35,
+		pos.y - (ut.oy * ut.sy) * 0.65)
+
+	local pos_key_down = vec2:new(
+		pos_key_up.x,
+		pos.y + size * 0.6)
+
+	local t = {}
+
+	t.key_left = Concord.entity(world)
+		:assemble(UI.key, key_left, pos_key_left, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_right = Concord.entity(world)
+		:assemble(UI.key, key_right, pos_key_right, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_up = Concord.entity(world)
+		:assemble(UI.key, key_up, pos_key_up, font_sdf)
+		:give("sdf", scale, scale)
+
+	t.key_down = Concord.entity(world)
+		:assemble(UI.key, key_down, pos_key_down, font_sdf)
+		:give("sdf", scale, scale)
+
+	return t
+end
+
+return Factory

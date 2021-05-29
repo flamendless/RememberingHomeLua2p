@@ -25,7 +25,7 @@ function Utils.file.read(filename)
 end
 
 function Utils.file.write(filename, data)
-	@@assert(type(filesystem) == "string")
+	@@assert(type(filename) == "string")
 	love.filesystem.write(filename, data)
 	Log.info(format("'%s' written", filename))
 end
@@ -84,7 +84,7 @@ end
 
 function Utils.string.get_widest(t)
 	@@assert(type(t) == "table")
-	@@assert(#t != 0)
+	@@assert(#t ~= 0)
 	local n = 0
 	local widest
 

@@ -1,0 +1,173 @@
+local Log = require("modules.log.log")
+
+local format = string.format
+
+local Resources = {
+	data = {}
+}
+
+local path_images = "res/images/"
+local path_items = path_images .. "items/"
+local path_lut = "res/lut/"
+local path_lights = "res/lights/"
+local path_textures = "res/textures/"
+local path_ui = "res/ui/"
+local path_fonts = "res/fonts/"
+
+Resources.data.splash = {
+	image = {
+		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
+		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
+	},
+
+	font = {
+		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"firefly", path_fonts .. "Firefly.ttf", 172, "default"},
+		{"uncle_type", path_fonts .. "uncle_type.ttf", 32},
+	}
+}
+
+Resources.data.menu = {
+	image = {
+		{"bg_door", path_images .. "menu/bg_door.png"},
+		{"bg_hallway", path_images .. "menu/bg_hallway.png"},
+		{"sheet_desk", path_images .. "menu/sheet_desk.png"},
+		{"title", path_images .. "menu/title.png"},
+		{"subtitle", path_images .. "menu/subtitle.png"},
+		{"discord", path_images .. "menu/icon_discord.png"},
+		{"twitter", path_images .. "menu/icon_twitter.png"},
+		{"website", path_images .. "menu/icon_website.png"},
+		{"mail", path_images .. "menu/icon_mail.png"},
+		{"btn_back", path_images .. "menu/btn_back.png"},
+		{"flowfield", path_textures .. "perlin.png"},
+	},
+
+	font = {
+		{"menu", path_fonts .. "Jamboree.ttf", 24, "default"},
+		{"about", path_fonts .. "DigitalDisco.ttf", 20},
+		{"about", path_fonts .. "DigitalDisco.ttf", 64},
+	}
+}
+
+Resources.data.intro = {
+	image = {
+		{"bg", path_images .. "intro/bg.png"},
+		{"bg_post", path_images .. "intro/bg_post.png"},
+		{"bg_tree_cover", path_images .. "intro/bg_tree_cover.png"},
+		{"parallax_buildings", path_images .. "intro/parallax_buildings.png"},
+		{"parallax_trees_bg", path_images .. "intro/parallax_trees_bg.png"},
+		{"parallax_trees_fg", path_images .. "intro/parallax_trees_fg.png"},
+		{"parallax_road", path_images .. "intro/parallax_road.png"},
+		{"parallax_grass", path_images .. "intro/parallax_grass.png"},
+		{"parallax_grass2", path_images .. "intro/parallax_grass2.png"},
+		{"parallax_grass_back", path_images .. "intro/parallax_grass_back.png"},
+		{"parallax_grass_front", path_images .. "intro/parallax_grass_front.png"},
+		{"sheet_car", path_images .. "intro/sheet_car.png"},
+		{"sheet_car_reflect", path_images .. "intro/sheet_car_reflect.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
+		{"title", path_images .. "menu/title.png"},
+		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
+		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
+		{"post_light", path_lights .. "post_light.png"},
+		{"car_headlight", path_lights .. "car_headlight.png"},
+		{"title_light", path_lights .. "title.png"},
+	},
+
+	image_data = {
+		{"lut_afternoon_16", path_lut .. "lut_afternoon_16.png"},
+		{"lut_afternoon_64", path_lut .. "lut_afternoon_64.png"},
+		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
+		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+	},
+
+	font = {
+		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+	},
+}
+
+Resources.data.outside = {
+	image = {
+		{"bg_sky", path_images .. "house_outside/bg_sky.png"},
+		{"bg_house", path_images .. "house_outside/bg_house.png"},
+		{"car", path_images .. "house_outside/car.png"},
+		{"fence", path_images .. "house_outside/fence.png"},
+		{"gate", path_images .. "house_outside/gate.png"},
+		{"railings", path_images .. "house_outside/railings.png"},
+		{"sheet_player_idle", path_images .. "player/player_idle.png"},
+		{"sheet_player_walk", path_images .. "player/player_walk.png"},
+		{"sheet_player_run", path_images .. "player/player_run.png"},
+		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
+		{"sheet_player_upstairs", path_images .. "player/sheet_player_upstairs.png"},
+		{"sheet_player_downstairs", path_images .. "player/sheet_player_downstairs.png"},
+		{"firefly", path_images .. "house_outside/firefly.png"},
+		{"splashes", path_images .. "house_outside/splashes.png"},
+		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
+		{"rain_drop", path_images .. "rain/rain_drop.png"},
+		{"rain_drop2", path_images .. "rain/rain_drop2.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
+		{"sheet_splat", path_ui .. "sheet_splat.png"},
+		{"sheet_brush", path_ui .. "sheet_brush.png"},
+		{"sheet_dialogue_arrow", path_ui .. "sheet_dialogue_arrow.png"},
+		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
+		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
+		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},
+		{"sheet_ui_hand", path_ui .. "ui_action_hand.png"},
+		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
+		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
+		{"sheet_ui_use", path_ui .. "ui_action_use.png"},
+		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
+		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
+		{"question_mark", path_ui .. "question_mark.png"},
+		{"bg_item", path_items .. "bg_item.png"},
+		{"bg_desc", path_items .. "bg_desc.png"},
+		{"backdoor_key", path_items .. "backdoor_key.png"},
+
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
+		{"house_light", path_lights .. "house_light.png"},
+		{"firefly_light", path_lights .. "firefly_light.png"},
+	},
+
+	image_data = {
+		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
+		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+	},
+
+	font = {
+		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
+		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
+	},
+}
+
+Resources.data.storage_room = {
+	image = {
+		{"sheet_player_idle", path_images .. "player/player_idle.png"},
+		{"sheet_player_walk", path_images .. "player/player_walk.png"},
+		{"sheet_player_run", path_images .. "player/player_run.png"},
+	},
+	font = {},
+}
+
+function Resources.get(key)
+	@@assert(type(key) == "string")
+	return Resources.data[key]
+end
+
+function Resources.clean(res)
+	@@assert(type(res) == "table")
+	for k, t in pairs(res) do
+		for name, obj in pairs(t) do
+			res[k][name]:release()
+			Log.trace(format("'%s':'%s' cleaned", k, name))
+		end
+	end
+end
+
+return Resources

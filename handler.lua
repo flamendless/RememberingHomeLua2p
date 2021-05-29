@@ -8,6 +8,18 @@ local function split(str)
 	return t
 end
 
+function assert(cond, msg)
+	if _RELEASE then return "" end
+	msg = msg or string.format("%q", "Assertion failed: " .. cond)
+	return "if not (" .. cond .. ") then error(" .. msg ..") end"
+end
+
+function sassert(v, cond, msg)
+	if _RELEASE then return "" end
+	local str = assert(cond, msg)
+	return "if " .. v .. " then " .. str .. " end"
+end
+
 args = split(args)
 
 if args[1] == "dev" then
@@ -27,6 +39,12 @@ elseif args[1] == "prof" then
 	_PROF = true
 end
 
+_IDENTITY = "goinghomerevisited"
+_LOVE_VERSION = "11.3"
+_GAME_VERSION = { 0, 0, 1 }
+_COMMIT_VERSION = args[2]
+
+_MODE = args[1]
 _REPORTING = false
 _NETWORK = false
 _LOG_SAVE = false
@@ -37,11 +55,6 @@ _GAME_TITLE  = "Going Home: Revisited"
 _GAME_TITLE_SECRET  = "COMING SOON"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
-
-_IDENTITY = "goinghomerevisited"
-_LOVE_VERSION = "11.3"
-_GAME_VERSION = { 0, 0, 1 }
-_COMMIT_VERSION = args[2]
 
 _MIN_GL_VERSION = "2.1"
 
@@ -60,7 +73,7 @@ _WINDOW_MODES_STR = {
 	(_GAME_SIZE.x .. "x" .. _GAME_SIZE.y),
 }
 
-_GFX_QUALITY
+_GFX_QUALITY = nil
 if _DEV then
 	_GFX_QUALITY = "low"
 else
