@@ -30,7 +30,7 @@ local RenderUI = Concord.system({
 		layer = "dialogue",
 		"ui_element",
 	},
-	pool_ui = {"ui_element", "position", "!layer"},
+	pool_ui = {"ui_element", "pos", "!layer"},
 });
 
 function RenderUI:init(world)

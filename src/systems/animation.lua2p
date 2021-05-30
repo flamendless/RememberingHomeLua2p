@@ -2,8 +2,8 @@ local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
 
 local Animation = Concord.system({
-	pool = {"animation", "animation_data", "position"},
-	pool_multi = {"multi_animation_data", "animation", "position"},
+	pool = {"animation", "animation_data"},
+	pool_multi = {"multi_animation_data", "animation"},
 	pool_pause = {"animation", "animation_data", "animation_pause_at"},
 	pool_change = {"animation", "animation_data", "change_animation_tag"}
 })
@@ -11,9 +11,7 @@ local Animation = Concord.system({
 local cache_multi_animation = {}
 
 local setup_on_loop = function(e, animation)
-	!if _ASSERT then
-	Assert.is(animation, Types.T_COMPONENT)
-	!end
+	@@assert(animation.__isComponent)
 
 	local cb = e.animation_on_loop
 	local on_loop
@@ -137,9 +135,7 @@ function Animation:init()
 				animation.animation:pauseAtEnd()
 			end
 		elseif type(pause_at.at_frame) == "number" then
-			!if _ASSERT then
-			Assert.truthy(pause_at.at_frame <= data.n_frames)
-			!end
+			@@assert(pause_at.at_frame <= data.n_frames)
 			animation.animation:gotoFrame(pause_at.at_frame)
 			animation.animation:pause()
 		end
@@ -157,18 +153,14 @@ function Animation:init()
 end
 
 function Animation:switch_animation_tag(e, new_tag, override)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.must(new_tag, Types.T_STRING)
-	Assert.safe.must(override, Types.T_BOOLEAN)
-	!end
+	@@assert(e.__isEntity)
+	@@assert(type(tag) == "string")
+	@@sassert(override, type(override) == "boolean")
 
 	local multi = e.multi_animation_data
 	local data = multi.data[new_tag]
 
-	!if _ASSERT then
-	Assert.exists(data)
-	!end
+	@@assert(data)
 
 	local animation = e.animation
 	local on_loop = setup_on_loop(e, animation)
@@ -186,10 +178,8 @@ function Animation:switch_animation_tag(e, new_tag, override)
 end
 
 function Animation:update_animation_data(e, data)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.must(data, Types.T_TABLE)
-	!end
+	@@assert(e.__isEntity)
+	@@assert(type(data) == "table")
 
 	local animation = e.animation
 	animation.stop_on_last = data.stop_on_last
@@ -228,7 +218,7 @@ function Animation:update(dt)
 				animation.animation:update(dt)
 
 				if on_update then
-					on_update.on_update(dt, animation.animation.position)
+					on_update.on_update(dt, animation.animation.pos)
 				end
 			end
 
@@ -238,128 +228,5 @@ function Animation:update(dt)
 		end
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-local min, max = math.min, math.max
-local format = string.format
-local is_open = false
-local selected_e
-
-local min_zoom, max_zoom = 1, 3
-local zoom_sheet = 1
-local zoom_preview = 1
-local is_open_preview = false
-local frame_n = 0
-
-function Animation:draw_debug()
-	views.animation = Slab.BeginWindow("Animation", {
-		Title = "Animation", IsOpen = views.animation})
-	for _, e in ipairs(self.pool) do
-		local id = e.id.id
-
-		Slab.Text(id)
-		Slab.SameLine()
-
-		if Slab.Button("edit") then
-			is_open = true
-			selected_e = e
-			break
-		end
-	end
-
-	Slab.EndWindow()
-	if not is_open then return end
-	self:modify_e()
-end
-
-function Animation:update_debug(dt)
-	if is_open_preview then
-		local anim = selected_e.animation.anim_debug
-
-		anim:update(dt)
-	end
-end
-
-function Animation:modify_e()
-	local e = selected_e
-	local id = e.id.id
-	local anim = e.animation
-	local data = e.animation_data
-
-	is_open = Slab.BeginWindow("AnimationEdit", {
-		Title = id, IsOpen = is_open})
-
-	Slab.Image("Spritesheet", {Image = data.spritesheet, Scale = zoom_sheet})
-	Slab.Text("Zoom: " .. zoom_sheet)
-	Slab.SameLine()
-
-	if Slab.Button("-") then zoom_sheet = max(min_zoom, zoom_sheet - 0.5) end
-	Slab.SameLine()
-	if Slab.Button("+") then zoom_sheet = min(max_zoom, zoom_sheet + 0.5) end
-	if Slab.Button("preview") then is_open_preview = not is_open_preview end
-
-	is_open_preview = Slab.BeginWindow("Preview", {
-		Title = "Preview", IsOpen = is_open_preview})
-
-	local a = anim.anim_debug
-	local sheet = data.spritesheet
-	local w, h = data.frame_width, data.frame_height
-	local quad = a:getFrameInfo()
-	local qx, qy, qw, qh = quad:getViewport()
-
-	Slab.Image("Image", {
-		Image = sheet,
-		Scale = zoom_preview,
-		SubX = qx,
-		SubY = qy,
-		SubW = qw,
-		SubH = qh,
-	})
-
-	Slab.Text("Tag: " .. anim.current_tag)
-
-	if Slab.Button("play") then
-		a:resume()
-	end
-	Slab.SameLine()
-
-	if Slab.Button("pause") then
-		a:pause()
-	end
-	Slab.SameLine()
-
-	if Slab.Button("stop") then
-		a:gotoFrame(1)
-		a:pause()
-	end
-
-	local f = format("%i/%i", frame_n, data.n_frames)
-	local p = format("%i,%i", x_offset, y_offset)
-	Slab.Text("Frame: " .. f)
-	Slab.SameLine()
-	Slab.Text("Coordinate: " .. p)
-
-	if Slab.Button("<") then
-		frame_n = max(0, frame_n - 1)
-	end
-	Slab.SameLine()
-
-	if Slab.Button(">") then
-		frame_n = min(data.n_frames, frame_n + 1)
-	end
-
-	Slab.Text("Zoom: " .. zoom_preview)
-	Slab.SameLine()
-	if Slab.Button("-") then zoom_preview = max(min_zoom, zoom_preview - 0.5) end
-	Slab.SameLine()
-	if Slab.Button("+") then zoom_preview = min(max_zoom, zoom_preview + 0.5) end
-
-	Slab.EndWindow()
-	Slab.EndWindow()
-end
-!end
 
 return Animation

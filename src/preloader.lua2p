@@ -23,7 +23,7 @@ function Preloader.start(resources, container, on_complete)
 	local data = {}
 	local userdata = {}
 	local cache = {}
-	for kind, t in ipairs(resources) do
+	for kind, t in pairs(resources) do
 		for j = 1, #t do
 			local id = t[j][1]
 			local path = t[j][2]
@@ -64,7 +64,7 @@ function Preloader.load(data, userdata, container, on_complete)
 	preloader:onComplete(function(id, tbl_data)
 		for i, tbl in ipairs(tbl_data) do
 			local id = id[i]
-			local data = tbl[i]
+			local data = tbl[1]
 			local dt = data:type()
 			if dt == "Image" then
 				@@assert(container.images)
@@ -86,7 +86,7 @@ function Preloader.load(data, userdata, container, on_complete)
 				container.fonts[id] = data
 			end
 
-			local str = format("Loaded: #%i - %s : %s", i, data_type, id)
+			local str = format("Loaded: #%i - %s : %s", i, dt, id)
 			Log.trace(str)
 		end
 

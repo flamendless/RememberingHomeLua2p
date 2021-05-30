@@ -122,7 +122,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 	local str_h = font:getHeight(str)
 	local offset = 96
 	local x, y
-	local text_pos = e.position.pos
+	local text_pos = e.pos.pos
 	local chance = Lume.randomchoice({true, false})
 	local sx = chance == true and -1 or 1
 	local sy = 0.75
@@ -140,7 +140,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 	local paint = Concord.entity(self.world)
 		:give("id", "text_paint")
 		:give("animation_data", self.paint_data[paint_id])
-		:give("position", pos)
+		:give("pos", pos)
 		:give("animation", true)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, sy, 0.5, 0.5)

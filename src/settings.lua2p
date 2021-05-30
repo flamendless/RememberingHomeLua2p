@@ -6,6 +6,7 @@ local Utils = require("utils")
 
 local Settings = {
 	current = {
+		key_map = 1,
 		window_mode = 1,
 		sounds = true,
 		music = true,
@@ -33,6 +34,7 @@ function Settings.create_new()
 		Settings.current.graphics_quality = "high"
 	end
 
+	Settings.current.key_map = 1
 	Settings.current.window_mode = 1
 	Settings.current.sounds = true
 	Settings.current.music = true

@@ -4,8 +4,8 @@ local max = math.max
 local min = math.min
 
 local Collision = Concord.system({
-	pool = {"position", "collider"},
-	pool_circle = {"position", "collider_circle"},
+	pool = {"pos", "collider"},
+	pool_circle = {"pos", "collider_circle"},
 })
 
 local function circle_rect(cx, cy, cr, rx, ry, rw, rh)
@@ -17,7 +17,7 @@ end
 
 function Collision:check_circle_to_rect(cx, cy, cr)
 	for _, er in ipairs(self.pool) do
-		local pos = er.position.pos
+		local pos = er.pos.pos
 		local col = er.collider
 		local rx = pos.x
 		local ry = pos.y
@@ -43,7 +43,7 @@ end
 
 function Collision:check_rect_to_circle(rx, ry, rw, rh)
 	for _, ec in ipairs(self.pool_circle) do
-		local pos = ec.position.pos
+		local pos = ec.pos.pos
 		local col = ec.collider_circle
 		local cx = pos.x
 		local cy = pos.y
@@ -67,7 +67,7 @@ function Collision:check_rect_to_circle(rx, ry, rw, rh)
 end
 
 function Collision:check_collision(e)
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local col = e.collider
 	local col_c = e.collider_circle
 
@@ -111,7 +111,7 @@ function Collision:draw_debug()
 
 	for _, e in ipairs(self.pool) do
 		if not e.bump then
-			local pos = e.position.pos
+			local pos = e.pos.pos
 			local col_r = e.collider
 			local size = col_r.size
 			local x = pos.x
@@ -133,7 +133,7 @@ function Collision:draw_debug()
 	end
 
 	for _, e in ipairs(self.pool_circle) do
-		local pos = e.position.pos
+		local pos = e.pos.pos
 		local col_c = e.collider_circle
 		local x = pos.x
 		local y = pos.y

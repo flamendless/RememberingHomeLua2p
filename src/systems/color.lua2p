@@ -15,7 +15,7 @@ local function lerp_colors(lc, color)
 	local duration = lc.duration
 	local delay = lc.delay
 	local ease = lc.ease
-	local next_value = lc.current_color + 1
+	local next_value = lc.index + 1
 
 	if next_value > #lc.colors then
 		next_value = 1
@@ -31,10 +31,10 @@ local function lerp_colors(lc, color)
 		})
 		:delay(delay)
 		:oncomplete(function()
-			lc.current_color = next_value
+			lc.current = next_value
 
-			if lc.current_color > #lc.colors then
-				lc.current_color = 1
+			if lc.current > #lc.colors then
+				lc.current = 1
 			end
 
 			lerp_colors(lc, color)

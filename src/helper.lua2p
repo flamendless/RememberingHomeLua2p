@@ -52,7 +52,7 @@ function Helper.get_real_pos_box(e)
 	!end
 
 	local box = e.bounding_box
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local transform = e.transform
 	local camera = e.camera
 

@@ -79,7 +79,7 @@ function Camera:get_follow_coords(target)
 	Assert.is(target, Types.T_ENTITY)
 	!end
 
-	local pos = target.position.pos
+	local pos = target.pos.pos
 	local x = pos.x
 	local y = pos.y
 
@@ -202,7 +202,7 @@ function Camera:draw_debug()
 	end
 
 	local x, y = self.main_camera:getPosition()
-	local str_pos = format("position: (%i, %i)", x, y)
+	local str_pos = format("pos: (%i, %i)", x, y)
 
 	Slab.Text(str_pos)
 

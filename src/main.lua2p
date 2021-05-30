@@ -87,6 +87,7 @@ function love.update(dt)
 	Jprof.push("frame")
 	!end
 
+	Inputs.update()
 	Timer.update(dt)
 	Flux.update(dt)
 	-- EventManager.update(dt)
@@ -127,10 +128,12 @@ function love.keypressed(key)
 		love.event.quit("restart")
 	end
 	!end
+	Inputs.keypressed(key)
 	GameStates.keypressed(key)
 end
 
 function love.keyreleased(key)
+	Inputs.keyreleased(key)
 	GameStates.keyreleased(key)
 end
 

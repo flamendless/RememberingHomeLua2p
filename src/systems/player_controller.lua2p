@@ -77,7 +77,7 @@ end
 
 function PlayerController:update_spawn_point(e)
 	local dir = e.body.dir
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local sp_ac = e.spawn_point_action_controls
 	local sp_qm = e.spawn_point_question_mark
 

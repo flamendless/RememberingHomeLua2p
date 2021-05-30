@@ -3,8 +3,8 @@ local Concord = require("modules.concord.concord")
 local Fade = require("fade")
 
 local OutsideHouse = Concord.system({
-	pool_door = {"door", "collider3d", "bump3d", "position"},
-	pool_col = {"id", "position", "collider3d", "bump3d"},
+	pool_door = {"door", "collider3d", "bump3d", "pos"},
+	pool_col = {"id", "pos", "collider3d", "bump3d"},
 	pool_railings = {"railings"}
 })
 

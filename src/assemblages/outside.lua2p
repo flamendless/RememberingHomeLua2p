@@ -40,7 +40,7 @@ local data = {
 function Outside.bg_house(e, sprite, pos, quad)
 	e:give("id", "bg_house")
 	:give("sprite", sprite)
-	:give("position", pos)
+	:give("pos", pos)
 	:give("quad", quad)
 	:give("z_index", z_index.bg_house, false)
 end
@@ -48,7 +48,7 @@ end
 function Outside.railings(e, sprite)
 	e:give("id", "railings")
 	:give("sprite", sprite)
-	:give("position", vec2:new(421, 220))
+	:give("pos", vec2:new(421, 220))
 	:give("z_index", z_index.railings, false)
 	:give("railings")
 	:give("hidden")
@@ -59,28 +59,28 @@ function Outside.col_railing(e, part)
 	local data = data[id]
 
 	e:give("id", id)
-	:give("position", data.pos)
+	:give("pos", data.pos)
 	:give("collider3d", data.col)
 	:give("bump3d")
 end
 
 function Outside.left_bounds(e)
 	e:give("id", "left_bounds")
-	:give("position", vec2:new(80, 260))
+	:give("pos", vec2:new(80, 260))
 	:give("collider3d", vec3:new(92, 100, 16))
 	:give("bump3d")
 end
 
 function Outside.right_bounds(e)
 	e:give("id", "right_bounds")
-	:give("position", vec2:new(1160, 250))
+	:give("pos", vec2:new(1160, 250))
 	:give("collider3d", vec3:new(32, 100, 32))
 	:give("bump3d")
 end
 
 function Outside.wood(e)
 	e:give("id", "wood")
-	:give("position", vec2:new(210, 270))
+	:give("pos", vec2:new(210, 270))
 	:give("collider3d", vec3:new(50, 10, 16))
 	:give("bump3d")
 end
@@ -88,7 +88,7 @@ end
 function Outside.fence(e, sprite)
 	e:give("id", "fence")
 	:give("sprite", sprite)
-	:give("position", vec2:new(-47, 330))
+	:give("pos", vec2:new(-47, 330))
 	:give("collider3d", vec3:new(850, 16, 61))
 	:give("z_index", z_index.fence)
 	:give("bump3d")
@@ -97,7 +97,7 @@ end
 function Outside.gate(e, sprite)
 	e:give("id", "gate")
 	:give("sprite", sprite)
-	:give("position", vec2:new(800, 330))
+	:give("pos", vec2:new(800, 330))
 	:give("transform", 0, 1, 1, 0, 16)
 	:give("collider3d", vec3:new(200, 8, 32))
 	:give("bump3d")
@@ -106,7 +106,7 @@ end
 
 function Outside.splashes(e, spritesheet, pos, is_compatible)
 	e:give("id", "splashes")
-	:give("position", pos)
+	:give("pos", pos)
 	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
@@ -127,7 +127,7 @@ end
 
 function Outside.fence_right(e)
 	e:give("id", "fence_right")
-	:give("position", vec2:new(1000, 330))
+	:give("pos", vec2:new(1000, 330))
 	:give("collider3d", vec3:new(407, 16, 61))
 	:give("bump3d")
 end
@@ -135,7 +135,7 @@ end
 function Outside.car(e, sprite)
 	e:give("id", "car")
 	:give("sprite", sprite)
-	:give("position", vec2:new(934, 260))
+	:give("pos", vec2:new(934, 260))
 	:give("collider3d", vec3:new(78, 8, 50))
 	:give("bump3d")
 	:give("transform", 0, 1, 1, 0, -16)
@@ -147,42 +147,42 @@ function Outside.house(e, part)
 	local data = data[id]
 
 	e:give("id", id)
-	:give("position", data.pos)
+	:give("pos", data.pos)
 	:give("collider3d", data.col)
 	:give("bump3d")
 end
 
 function Outside.house_side(e)
 	e:give("id", "house_side")
-	:give("position", vec2:new(565, 200))
+	:give("pos", vec2:new(565, 200))
 	:give("collider3d", vec3:new(65, 60, 64))
 	:give("bump3d")
 end
 
 function Outside.left_railing(e)
 	e:give("id", "left_railing")
-	:give("position", vec2:new(420, 237))
+	:give("pos", vec2:new(420, 237))
 	:give("collider3d", vec3:new(20, 4, 22), "cross")
 	:give("bump3d")
 end
 
 function Outside.right_railing(e)
 	e:give("id", "right_railing")
-	:give("position", vec2:new(480, 237))
+	:give("pos", vec2:new(480, 237))
 	:give("collider3d", vec3:new(72, 4, 22), "cross")
 	:give("bump3d")
 end
 
 function Outside.left_wall(e)
 	e:give("id", "left_wall")
-	:give("position", vec2:new(96, 160))
+	:give("pos", vec2:new(96, 160))
 	:give("collider3d", vec3:new(120, 100, 64))
 	:give("bump3d")
 end
 
 function Outside.right_wall(e)
 	e:give("id", "right_wall")
-	:give("position", vec2:new(640, 185))
+	:give("pos", vec2:new(640, 185))
 	:give("collider3d", vec3:new(520, 60, 64))
 	:give("bump3d")
 end
@@ -190,7 +190,7 @@ end
 function Outside.firefly(e, sprite, pos, points)
 	e:give("id", "firefly")
 	:give("sprite", sprite)
-	:give("position", pos)
+	:give("pos", pos)
 	:give("path", points)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("z_index", z_index.firefly)
@@ -201,7 +201,7 @@ end
 
 function Outside.firefly_light(e, sprite, e_firefly)
 	e:give("id", "firefly_light")
-	:give("position", vec2:new())
+	:give("pos", vec2:new())
 	:give("transform", 0, 1, 1)
 	:give("color", Palette.colors.firefly_light)
 	:give("light", "round", 1)
@@ -213,7 +213,7 @@ end
 
 function Outside.house_light(e, sprite)
 	e:give("id", "house_light")
-	:give("position", vec2:new(419, 213))
+	:give("pos", vec2:new(419, 213))
 	:give("transform", 0, 1.25, 1.25)
 	:give("color", Palette.colors.house_light)
 	:give("light", "custom", 0.8)

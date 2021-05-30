@@ -4,8 +4,8 @@ local ReflowPrint = require("modules.reflowprint.reflowprint")
 local ceil = math.ceil
 
 local RenderText = Concord.system({
-	pool = {"position", "text"},
-	pool_static = {"position", "static_text", "font"},
+	pool = {"pos", "text"},
+	pool_static = {"pos", "static_text", "font"},
 })
 
 function RenderText:init(world)
@@ -24,7 +24,7 @@ end
 
 function RenderText:draw_text_ex(e)
 	if not e.hidden then
-		local pos = e.position
+		local pos = e.pos
 		local color = e.color
 		local text = e.text
 		local textf = e.textf

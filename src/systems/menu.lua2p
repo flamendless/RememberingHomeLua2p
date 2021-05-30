@@ -7,7 +7,7 @@ local insert = table.insert
 local remove = table.remove
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "position", "text", "on_enter"},
+	pool = {"option_key", "color", "pos", "text", "on_enter"},
 	pool_disabled = {"option_key", "option_disabled"}
 })
 
@@ -131,7 +131,7 @@ end
 function Menu:update_cursor_color()
 	for _, e in ipairs(self.pool) do
 		local option_key = e.option_key
-		local pos = e.position
+		local pos = e.pos
 		local color = e.color
 		local disabled = e.option_disabled
 

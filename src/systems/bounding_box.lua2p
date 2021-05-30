@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local BoundingBox = Concord.system({
-	pool = {"bounding_box", "position"},
+	pool = {"bounding_box", "pos"},
 })
 
 function BoundingBox:init(world)
@@ -24,7 +24,7 @@ function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
 		local ui = e.ui_element
 		local box = e.bounding_box
-		local pos = e.position.pos
+		local pos = e.pos.pos
 		local bx, by
 
 		if ui then
@@ -58,7 +58,7 @@ function BoundingBox:debug_draw_ui()
 			local size = e.bounding_box.size
 			local hoverable = e.hoverable
 			local transform = e.transform
-			local pos = e.position.pos
+			local pos = e.pos.pos
 			local w, h = size.x, size.y
 			local ox, oy = Helper.get_offset(e)
 

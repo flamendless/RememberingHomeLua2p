@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local Bump = require("modules.bump.bump-niji")
 
 local BumpCollision = Concord.system({
-	pool = {"collider", "position", "bump"},
+	pool = {"collider", "pos", "bump"},
 })
 
 local function filter(item, other)
@@ -16,8 +16,8 @@ function BumpCollision:init(world)
 	self.bump_world = Bump.newWorld()
 
 	self.pool.onAdded = function(pool, e)
-		local x = e.position.pos.x + e.collider.offset.x
-		local y = e.position.pos.y + e.collider.offset.y
+		local x = e.pos.pos.x + e.collider.offset.x
+		local y = e.pos.pos.y + e.collider.offset.y
 
 		self.bump_world:add(e, x, y, e.collider.size.x, e.collider.size.y)
 	end
@@ -36,7 +36,7 @@ function BumpCollision:update(dt)
 		if body then
 			if body.vel_x ~= 0 or body.vel_y ~= 0 then
 				local collider = e.collider
-				local pos = e.position.pos
+				local pos = e.pos.pos
 				local cols, len
 
 				pos.x, pos.y, cols, len = self.bump_world:move(e,

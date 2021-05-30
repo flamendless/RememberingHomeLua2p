@@ -36,10 +36,10 @@ function Inventory:init(world)
 	self.sheets = nil
 
 	self.pool.onAdded = function(pool, e)
-		local pos = self.pool_cell[#pool].position.pos:copy()
+		local pos = self.pool_cell[#pool].pos.pos:copy()
 		self.current_n = self.current_n + 1
 
-		e:give("position", pos)
+		e:give("pos", pos)
 		:give("bounding_box", pos:copy(), item_size:copy())
 		:give("layer", "inventory", 3)
 		:give("transform", 0, scale, scale, 0.5, 0.5)
@@ -93,7 +93,7 @@ function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 		local ox, oy = 0.5, 0.5
 		local e_cell = Concord.entity(self.world)
 			:assemble(Items.inventory_cell, spr_item)
-			:give("position", pos:copy())
+			:give("pos", pos:copy())
 			:give("transform", 0, bg_scale, bg_scale, ox, oy)
 			:give("layer", "inventory", 1)
 
@@ -108,7 +108,7 @@ function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 
 	local e_desc_bg = Concord.entity(self.world)
 		:assemble(Items.inventory_desc, spr_desc)
-		:give("position", last_pos)
+		:give("pos", last_pos)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
 		:give("textf", spr_desc:getWidth(), "center")
@@ -132,7 +132,7 @@ function Inventory:item_clicked(e)
 	local dir = (slot == 3 or slot == 6) and -1 or 1
 	local ox = (slot == 3 or slot == 6) and 1 or 0
 	local oy = 0.5
-	local ix, iy = e.position.pos:unpack()
+	local ix, iy = e.pos.pos:unpack()
 	local x = ix + (spr_w * dir) * transform.sx * transform.oy
 	local pos_use = vec2:new(x, iy)
 	local sheets = self.sheets
@@ -222,7 +222,7 @@ end
 
 function Inventory:displayed_inventory()
 	local e = self.pool_cell[2]
-	local base = e.position.pos
+	local base = e.pos.pos
 	local sprite = e.sprite.sprite
 	local transform = e.transform
 	local x = base.x

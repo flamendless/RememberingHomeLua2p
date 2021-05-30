@@ -350,7 +350,7 @@ function StateOutside:start()
 		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.position.pos:unpack())
+	self.camera:setPosition(self.entities.player.pos.pos:unpack())
 	!end
 
 	--TIMELINE

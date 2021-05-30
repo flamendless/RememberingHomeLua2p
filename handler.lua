@@ -89,8 +89,6 @@ _LOG_INFO = "info.txt"
 _SETTINGS_FILENAME = "user_settings.json"
 _SAVE_FILENAME = "save_data"
 _SAVE_KEY = "data_store"
-_KEYBINDINGS_FILENAME = "keybindings.json"
-_KEYBINDINGS_DEF_FILENAME = "data/keybindings_default.json"
 
 _URL_TWITTER = "https://twitter.com/@flam8studio"
 _URL_DISCORD = "https://discord.gg/2W4tyyV"

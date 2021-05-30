@@ -44,7 +44,7 @@ systems.StorageRoom = {
 function ECS.load_systems(id, world)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
-	@@assert(world == "__isWorld")
+	@@assert(world.__isWorld)
 
 	for _, v in ipairs(systems[id]) do
 		world:addSystem(Systems[v])

@@ -23,8 +23,8 @@ function Factory.hold_key(world, key_id, pos, timer, radius, sheet, font, dur_fa
 		:give("color_fade_in", dur_fade_in)
 		:give("layer", "hold_key", 3)
 
-	local key_pos = t.key.position.pos
-	local orig = t.key.position.original_pos
+	local key_pos = t.key.pos.pos
+	local orig = t.key.pos.original_pos
 
 	t.keypress = Concord.entity(world)
 		:assemble(UI.keypress, true, sheet, t.progress)

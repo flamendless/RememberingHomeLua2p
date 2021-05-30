@@ -6,7 +6,7 @@ local randomf = Lume.random
 local weightedchoice = Lume.weightedchoice
 
 local GlitchEffect = Concord.system({
-	pool_text = {"glitch_effect", "random_text", "glitch_colors", "color", "position"}
+	pool_text = {"glitch_effect", "random_text", "glitch_colors", "color", "pos"}
 })
 
 function GlitchEffect:init()
@@ -52,7 +52,7 @@ function GlitchEffect:effect_draw()
 		local glitch_effect = e.glitch_effect
 		local glitch_colors = e.glitch_colors
 		local color = e.color
-		local pos = e.position
+		local pos = e.pos
 		local transform = e.transform
 		local text
 

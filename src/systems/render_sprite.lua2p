@@ -3,11 +3,11 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local RenderSprite = Concord.system({
-	pool = {"position", "sprite",
+	pool = {"pos", "sprite",
 		"!z_index", "!ui_element", "!light"},
-	pool_z = {"position", "sprite", "z_index",
+	pool_z = {"pos", "sprite", "z_index",
 		"!ui_element", "!light"},
-	pool_quad = {"position", "sprite", "quad"},
+	pool_quad = {"pos", "sprite", "quad"},
 })
 
 local function sort_z_ex(a, b)
@@ -15,8 +15,8 @@ local function sort_z_ex(a, b)
 	local b_z = b.z_index
 
 	if a_z.sortable and b_z.sortable then
-		local a_pos = a.position.pos
-		local b_pos = b.position.pos
+		local a_pos = a.pos.pos
+		local b_pos = b.pos.pos
 
 		return a_pos.y < b_pos.y
 	end
@@ -48,7 +48,7 @@ end
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
 	if not hidden then
-		local pos = e.position.pos
+		local pos = e.pos.pos
 		local quad = e.quad
 		local color = e.color
 		local sprite = e.sprite
@@ -120,7 +120,7 @@ local views = DebugFlags.views
 local function debug_internal_draw(e)
 	local hidden = e.hidden
 	local qx, qy, qw, qh = e.quad.quad:getViewport()
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local transform = e.transform
 	local qt = e.quad_transform
 	local sp_ac = e.spawn_point_action_controls

@@ -3,9 +3,9 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local MouseHover = Concord.system({
-	pool_bb = {"bounding_box", "hoverable", "position"},
-	pool_bb_ui = {"bounding_box", "hoverable", "position", "ui_element"},
-	pool_bb_emit = {"bounding_box", "hoverable", "position", "hover_emit"},
+	pool_bb = {"bounding_box", "hoverable", "pos"},
+	pool_bb_ui = {"bounding_box", "hoverable", "pos", "ui_element"},
+	pool_bb_emit = {"bounding_box", "hoverable", "pos", "hover_emit"},
 })
 
 function MouseHover:init(world)

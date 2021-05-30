@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Follow = Concord.system({
-	pool_mouse = {"follow_mouse", "position"}
+	pool_mouse = {"follow_mouse", "pos"}
 })
 
 function Follow:init(world)
@@ -20,7 +20,7 @@ end
 function Follow:update(dt)
 	if self.camera then
 		for _, e in ipairs(self.pool_mouse) do
-			local pos = e.position.pos
+			local pos = e.pos.pos
 			local mx, my = love.mouse.getPosition()
 			local smx, smy = self.camera:toWorld(mx, my)
 

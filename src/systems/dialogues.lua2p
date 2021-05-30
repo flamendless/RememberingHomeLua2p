@@ -147,8 +147,8 @@ function Dialogues:update(dt)
 	self.timer:update(dt)
 
 	if self.arrow then
-		local orig = self.arrow.position.original_pos
-		local pos = self.arrow.position.pos
+		local orig = self.arrow.pos.original_pos
+		local pos = self.arrow.pos.pos
 		local dir = self.arrow.direction
 
 		pos.y = pos.y + 16 * dir.dir * dt

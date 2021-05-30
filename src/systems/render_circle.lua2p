@@ -3,14 +3,14 @@ local Concord = require("modules.concord.concord")
 local pi = math.pi
 
 local RenderCircle = Concord.system({
-	pool = {"position", "circle", "draw_mode", "!ui_element"},
-	pool_arc = {"position", "arc", "draw_mode", "!ui_element"},
-	pool_ui = {"position", "circle", "draw_mode"},
-	pool_arc_ui = {"position", "arc", "draw_mode"},
+	pool = {"pos", "circle", "draw_mode", "!ui_element"},
+	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
+	pool_ui = {"pos", "circle", "draw_mode"},
+	pool_arc_ui = {"pos", "arc", "draw_mode"},
 })
 
 function RenderCircle:internal_draw(e)
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local circle = e.circle
 	local color = e.color
 	local line_width = e.line_width
@@ -28,7 +28,7 @@ function RenderCircle:internal_draw(e)
 end
 
 function RenderCircle:internal_draw_arc(e)
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local arc = e.arc
 	local arc_type = e.arc_type
 	local hold = e.hold

@@ -6,139 +6,74 @@ local format = string.format
 
 local Utils = require("utils")
 
-local Inputs = {
-	keys = {},
-	defaults = {},
-	tags = {},
+local maps = {
+	--map_arrows
+	 {
+		left = "left",
+		right = "right",
+		up = "up",
+		down = "down",
+		z = "interact",
+		x = "cancel",
+	},
+	--map_wasd
+	{
+		a = "left",
+		d = "right",
+		w = "up",
+		s = "down",
+		e = "interact",
+		q = "cancel",
+	}
 }
 
-Inputs.key_constants = {
-	"q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
-	"a", "s", "d", "f", "g", "h", "i", "j", "k", "l",
-	"z", "x", "c", "v", "b", "n", "m",
-	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-	"escape", "return", "backspace", "space"
+local Inputs = {
+	map = maps[1],
+	previous = {},
+	current = {},
 }
 
 function Inputs.init()
-	local content, exists = Utils.json.parse(!(_KEYBINDINGS_FILENAME))
-	if exists then
-		for id, key in pairs(content) do
-			local tag = Utils.string.get_substr(id, "_")
-			Inputs.register(id, key, tag)
-		end
-	end
-	Inputs.init_def(exists)
-end
-
-function Inputs.init_def(user_exists)
-	local content, exists = Utils.json.parse(!(_KEYBINDINGS_DEF_FILENAME))
-	if exists then
-		for id, key in pairs(content) do
-			Inputs.register(id, key, "defaults")
-			if not user_exists then
-				local tag = Utils.string.get_substr(id, "_")
-				Inputs.register(id, key, tag)
-			end
-		end
+	local n = Settings.current.key_map
+	@@assert(maps[n])
+	Inputs.map = maps[n]
+	for k, v in pairs(Inputs.map) do
+		Inputs.previous[v] = false
+		Inputs.current[v] = false
 	end
 end
 
-function Inputs.register(id, key, tag)
-	@@assert(type(id) == "string")
-	@@assert(tag ~= nil and type(tag) == "string")
-	if not (tag and tag == "defaults") then
-		@@assert(Inputs.keys[id] == nil)
+function Inputs.pressed(key)
+	@@assert(type(key) == "string")
+	return Inputs.current[key] and not Inputs.previous[key]
+end
+
+function Inputs.released(key)
+	@@assert(type(key) == "string")
+	return Inputs.current[key] and Inputs.previous[key]
+end
+
+function Inputs.down(key)
+	@@assert(type(key) == "string")
+	return Inputs.current[key]
+end
+
+function Inputs.keypressed(key)
+	@@assert(type(key) == "string")
+	if not Inputs.map[key] then return end
+	Inputs.current[Inputs.map[key]] = true
+end
+
+function Inputs.keyreleased(key)
+	@@assert(type(key) == "string")
+	if not Inputs.map[key] then return end
+	Inputs.current[Inputs.map[key]] = false
+end
+
+function Inputs.update()
+	for k, v in pairs(Inputs.current) do
+		Inputs.previous[k] = v
 	end
-	local storage = Inputs.keys
-	if tag and tag == "defaults" then
-		storage = Inputs.defaults
-	end
-	storage[id] = key
-	if tag then
-		local t = Inputs.tags[tag]
-		if not t then
-			Inputs.tags[tag] = {}
-		end
-		insert(Inputs.tags[tag], id)
-	end
-end
-
-function Inputs.unregister(id)
-	@@assert(type(id) == "string")
-	Inputs.keys[id] = nil
-end
-
-function Inputs.unregister_all()
-	for id, v in pairs(Inputs.keys) do
-		Inputs.keys[id] = nil
-	end
-end
-
-function Inputs.is_pressed(id, key)
-	!if _DEV then
-	if Inputs.keys[id] == nil then
-		Log.warn(format("Key ID '%s' was not registered", id))
-	end
-	!end
-
-	local keys = Inputs.keys[id]
-	if keys == key then
-		return true
-	elseif type(keys) == "table" then
-		for i, v in ipairs(keys) do
-			if v == key then
-				return true
-			end
-		end
-	end
-
-	return false
-end
-
-function Inputs.is_down(id)
-	@@assert(type(id) == "string")
-	local keys = Inputs.keys[id]
-
-	return love.keyboard.isDown(keys)
-end
-
-function Inputs.save_keybindings()
-	local to_write = JSON.encode(Inputs.keys)
-	Utils.file.write(!(_KEYBINDINGS_FILENAME), to_write)
-end
-
-function Inputs.update_keybindings(new_keys)
-	@@assert(type(new_keys) == "table")
-	tablex.copy(new_keys, Inputs.keys)
-end
-
-function Inputs.get_by_tag(tag)
-	@@assert(type(tag) == "string")
-	local t = {}
-	for i, id in ipairs(Inputs.tags[tag]) do
-		t[id] = Inputs.keys[id]
-	end
-
-	return t
-end
-
-function Inputs.reset_by_tag(tag)
-	@@assert(type(tag) == "string")
-	for _, id in ipairs(Inputs.tags[tag]) do
-		local def = Inputs.defaults[id]
-		local reg = Inputs.keys[id]
-		tablex.copy(def, reg)
-	end
-end
-
-function Inputs.get(id)
-	local keys = Inputs.keys
-	local result = keys[id]
-	@@assert(type(id) == "string")
-	@@assert(result)
-
-	return result
 end
 
 return Inputs

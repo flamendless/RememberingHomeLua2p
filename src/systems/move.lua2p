@@ -2,13 +2,13 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
 local Move = Concord.system({
-	pool = {"position", "move_by"},
-	pool_move_x = {"position", "move_to_x"},
-	pool_original = {"position", "move_to_original"},
+	pool = {"pos", "move_by"},
+	pool_move_x = {"pos", "move_to_x"},
+	pool_original = {"pos", "move_to_original"},
 })
 
 local function internal_move_by(e, is_repeat)
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local move_by = e.move_by
 	local mb_pos = move_by.pos
 
@@ -44,7 +44,7 @@ function Move:init()
 	end
 
 	self.pool_move_x.onAdded = function(pool, e)
-		local pos = e.position
+		local pos = e.pos
 		local target = e.move_to_x
 		local on_complete = e.move_on_complete
 
@@ -61,7 +61,7 @@ function Move:init()
 	end
 
 	self.pool_original.onAdded = function(pool, e)
-		local pos = e.position
+		local pos = e.pos
 		local move = e.move_to_original
 		local on_complete = e.move_on_complete
 

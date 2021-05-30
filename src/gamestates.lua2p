@@ -14,8 +14,6 @@ local GameStates = {
 local window_size = !(_GAME_SIZE)
 
 !if _DEV then
-local last_scale = 1
-
 local methods = {
 	"update", "draw", "keypressed", "keyreleased",
 	!if _PLATFORM == "desktop" then

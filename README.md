@@ -25,13 +25,11 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [arson.lua](https://github.com/flamendless/arson.lua) - for registering custom data types for encoding and decoding
 * [Batteries](https://github.com/1bardesign/batteries) - for class, vec2, vec3, math, string, table, etc.
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
-* [bump-3dpd](https://github.com/oniietzschan/bump-3dpd) - for 3D collision detection
 * [cartographer](https://github.com/tesselode/cartographer/) - for Tilemaps
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System
 * [Crush](modules/crush) - for error reporting
 * [Enum](https://github.com/Tjakka5/Enum) - for Enums
 * [gamera](https://github.com/kikito/gamera) - for camera
-* [luajit-request](https://github.com/LPGhatguy/luajit-request) - for HTTPS requests
 * [HUMP](https://github.com/vrld/hump) - for Timer
 * [jprof](https://github.com/pfirsich/jprof) - for profiling
 * [json.lua](https://github.com/kikito/json.lua) - for serialization/deserialization of json files
@@ -55,7 +53,6 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## Dependencies:
 
-* [Curl](https://curl.haxx.se/download.html) - For Windows, version 7.38.0 is needed to work with luajit-request
 * [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
 
 ## Coding Style Guide

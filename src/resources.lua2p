@@ -14,7 +14,7 @@ local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
 
-Resources.data.splash = {
+Resources.data.Splash = {
 	image = {
 		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
 		{"sheet_wits", path_images .. "splash/sheet_wits.png"},

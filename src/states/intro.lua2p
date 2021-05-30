@@ -239,7 +239,7 @@ function StateIntro:start()
 		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
 
-		local car_pos = self.entities.car.position.pos
+		local car_pos = self.entities.car.pos.pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
 

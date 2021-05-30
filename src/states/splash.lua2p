@@ -59,9 +59,7 @@ function StateSplash:new()
 end
 
 function StateSplash:load()
-	local resources_data = Resources.get("splash")
-
-	Preloader.start(resources_data, resources,
+	Preloader.start(Resources.get(self.id), resources,
 		function()
 			res_images = resources.images
 			res_fonts = resources.fonts
@@ -136,12 +134,12 @@ function StateSplash:start()
 		:give("glitch_colors", Palette.color_glitches)
 		:give("color", color_a)
 		:give("lerp_colors", {color_a, color_b})
-		:give("position", vec2:new(ww/2, wh * 0.85))
+		:give("pos", vec2:new(ww/2, wh * 0.85))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	self.entities.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
-		:give("position", vec2:new(ww/2, wh * 0.2))
+		:give("pos", vec2:new(ww/2, wh * 0.2))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
 		:give("font", res_fonts.uncle_type_32)

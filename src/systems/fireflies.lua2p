@@ -122,7 +122,7 @@ end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
-		move_to_next_point(e.path, e.position.pos)
+		move_to_next_point(e.path, e.pos.pos)
 	end
 end
 
