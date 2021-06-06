@@ -5,7 +5,8 @@ Concord.component("pos", function(c, x, y)
 	@@assert(type(y) == "number")
 	c.x = x
 	c.y = y
-	c.original = vec2(x, y)
+	c.orig_x = x
+	c.orig_y = y
 end)
 
 Concord.component("spawn_point_action_controls", function(c)

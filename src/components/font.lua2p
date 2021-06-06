@@ -1,19 +1,13 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("font", function(c, font)
-	!if _ASSERT then
-	Assert.either_type(font, Types.T_FONT, Types.T_FONT_SDF)
-	!end
-
-	c.font = font
+	@@assert(font:type() == "Font" or font:type() == "fontsdf")
+	c.value = font
 end)
 
 Concord.component("sdf", function(c, sx, sy)
-	!if _ASSERT then
-	Assert.safe.must(sx, Types.T_NUMBER)
-	Assert.safe.must(sy, Types.T_NUMBER)
-	!end
-
+	@@sassert(sx, type(sx) == "number")
+	@@sassert(sy, type(sy) == "number")
 	c.sx = sx or 1
 	c.sy = sy or 1
 end)

@@ -7,6 +7,7 @@ local Slab = require("modules.slab")
 local Timer = require("modules.hump.timer")
 
 local ECS = require("ecs")
+local Canvas = require("canvas")
 local Resources = require("resources")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
@@ -61,7 +62,7 @@ local tx = 176
 local tools = !(_TOOLS)
 local libs = !(_LIBS)
 
-!if not _RELEASE and _ASSERT then
+!if _DEV then
 for i, str in ipairs(options) do
 	local lstr = lower(str)
 	local test = states[lstr]
@@ -92,7 +93,7 @@ function StateMenu:hide_main_menu(duration)
 			:give("lerp_on_complete", function()
 					e:give("hidden")
 				end)
-			:give("move_by", vec2:new(tx, 0), duration or duration_pos)
+			:give("move_by", tx, 0, duration or duration_pos)
 	end
 end
 
@@ -123,7 +124,7 @@ function StateMenu:hide_sub_menu(duration)
 			:give("lerp_on_complete", function()
 				e:give("hidden")
 			end)
-			:give("move_by", vec2:new(tx, 0), duration or duration_pos)
+			:give("move_by", tx, 0, duration or duration_pos)
 	end
 end
 
@@ -136,8 +137,7 @@ function StateMenu:on_play()
 end
 
 function StateMenu:on_newgame()
-	local ww = love.graphics.getWidth()
-	local wh = love.graphics.getHeight()
+	local ww, wh = love.graphics.getDimensions()
 	local dur = 2
 	local timer = 1.25
 	-- TODO turn off BGM
@@ -209,8 +209,7 @@ function StateMenu:on_exit()
 end
 
 function StateMenu:setup_menu()
-	local ww = love.graphics.getWidth()
-	local wh = love.graphics.getHeight()
+	local ww, wh = love.graphics.getDimensions()
 	local bg_door = res_images.bg_door
 	local bg_hallway = res_images.bg_hallway
 	local title = res_images.title
@@ -229,28 +228,27 @@ function StateMenu:setup_menu()
 
 	self.entities.bg_door = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_door,
-			bg_door, vec2:new(ww * 1.5, wh/2), scale, bg_door_w/2, bg_door_h/2)
+			bg_door, ww * 1.5, wh/2, scale, bg_door_w/2, bg_door_h/2)
 
 	self.entities.bg_hallway = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_hallway,
-			bg_hallway, vec2:new(ww/2, wh * 1.5), scale_hallway, bg_hw_w/2, bg_hw_h/2)
+			bg_hallway, ww/2, wh * 1.5, scale_hallway, bg_hw_w/2, bg_hw_h/2)
 
 	self.entities.desk = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.desk, res_images.sheet_desk, ww, wh)
 
 	!if not _RELEASE then
 	self.entities.secret_title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.secret_title, res_fonts.about_64, vec2:new(32, wh/2))
-
+		:assemble(Assemblages.Menu.secret_title, res_fonts.about_64, 32, wh/2)
 	self.entities.secret_title:give("color_fade_in", 5, 3)
 	!end
 
 	self.entities.title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.title, title, vec2:new(ww * 0.25, wh/2 - 36),
+		:assemble(Assemblages.Menu.title, title, ww * 0.25, wh/2 - 36,
 			scale_title, title_w/2, title_h/2)
 
 	self.entities.subtitle = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.subtitle, subtitle, vec2:new(ww * 0.25, wh * 1.5),
+		:assemble(Assemblages.Menu.subtitle, subtitle, ww * 0.25, wh * 1.5,
 			self.entities.title, scale_subt, subt_w/2, subt_h/2)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
@@ -268,11 +266,10 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
-		local pos = vec2:new(x, y)
 		local id = "text_" .. lstr
 
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, pos, scale, i, 1)
+			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, x, y, scale, i, 1)
 			:give("on_enter", function()
 				current_state = states[lstr]
 				Log.info("Switched Menu State to: ", current_state)
@@ -287,11 +284,10 @@ function StateMenu:setup_menu()
 		local str_w = sdf_menu:getWidth(str) * scale
 		local x = self.canvases.bot_canvas.width - str_w - offset
 		local y = self.canvases.bot_canvas.y + (i * str_h) + (padding * i) - offset
-		local pos = vec2:new(x, y)
 		local id = "text_sub_" .. lstr
 
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, pos, scale, i, 2)
+			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, x, y, scale, i, 2)
 			:give("on_enter", function()
 				self["on_" .. lstr](self)
 			end)
@@ -380,7 +376,7 @@ function StateMenu:setup_about()
 	local color = Palette.get("about_normal")
 
 	self.entities.btn_back = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.btn_back, res_images.btn_back, vec2:new(8, base_y))
+		:assemble(Assemblages.Menu.btn_back, res_images.btn_back, 8, base_y)
 		:give("on_click", 1, function()
 			self:keypressed(Inputs.get("ui_back"))
 		end)
@@ -420,10 +416,9 @@ function StateMenu:setup_about()
 				end
 
 				local id = "about_text_" .. i
-				local pos = vec2:new(x, y)
 
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Menu.about_text, id, str, font, pos, color)
+					:assemble(Assemblages.Menu.about_text, id, str, font, x, y, color)
 
 				if dt_color then
 					color = Palette.get("about_normal")
@@ -441,11 +436,10 @@ function StateMenu:setup_about()
 				local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
 				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
 				local y = base_y + image:getHeight()/2 - pad
-				local pos = vec2:new(x, y)
 				img_h = image:getHeight()
 
 				self.entities[id] = Concord.entity(self.world)
-					:assemble(Assemblages.Menu.about_ext_link, id, image, pos)
+					:assemble(Assemblages.Menu.about_ext_link, id, image, x, y)
 					:give("on_click", 1, function()
 						local url = about_links[i2]
 
@@ -486,14 +480,13 @@ end
 function StateMenu:start()
 	ECS.load_systems(self.id, self.world)
 
-	local ww = love.graphics.getWidth()
-	local wh = love.graphics.getHeight()
+	local ww, wh = love.graphics.getDimensions()
 	local img_ff = Image.resize_image(res_images.flowfield)
 
 	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 	self.camera:setWindow(0, 0, ww, wh)
-	self.canvas_main = self.canvases.main_canvas
-	self.mb_main = MotionBlur:new(self.canvas_main)
+	Canvas.init_canvases(self.canvases)
+	self.mb_main = MotionBlur:new(self.canvases.main_canvas)
 	self.dissolve_ff = Dissolve:new(img_ff, 2)
 
 	self:setup_menu()
@@ -512,8 +505,32 @@ end
 function StateMenu:update(dt)
 	if not self.is_ready then return end
 
-	local mx, my = love.mouse.getPosition()
+	local dt = 0
+	if Inputs.pressed("down") then
+		dt = 1
+	elseif Inputs.pressed("up") then
+		dt = -1
+	end
 
+	if Inputs.pressed("interact") and not is_transition then
+		self.world:emit("enter_option")
+	end
+	self.world:emit("update_cursor", dt)
+
+	if Inputs.down("cancel") then
+		if current_state == states.play and is_sub_menu and
+			not is_transition then
+			is_transition = true
+			is_sub_menu = false
+			self.world:emit("allow_cursor", false)
+			self:hide_sub_menu()
+			self:show_main_menu()
+		elseif current_state ~= states.menu and current_state ~= states.play then
+			self:MB_return()
+		end
+	end
+
+	local mx, my = love.mouse.getPosition()
 	self.world:emit("update", dt)
 	self.world:emit("check_mouse_hover", mx, my)
 	self.world:emit("hover_effects")
@@ -535,7 +552,7 @@ function StateMenu:draw()
 		current_state == states.about or
 		current_state == states.play then
 
-		self.canvas_main:attach()
+		self.canvases.main_canvas:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
 
@@ -548,43 +565,15 @@ function StateMenu:draw()
 
 			Fade.draw()
 		end)
-		self.canvas_main:detach()
+		self.canvases.main_canvas:detach()
 		self.mb_main:post_process_draw()
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
 			self.world:emit("draw")
 		end)
 	end
-end
 
-function StateMenu:keypressed(key)
-	if not self.is_ready then return end
-
-	-- TODO add keypress sounds (up = down, enter, disabled, escape)
-	local dt = 0
-	if Inputs.is_pressed("ui_down", key) then
-		dt = 1
-	elseif Inputs.is_pressed("ui_up", key) then
-		dt = -1
-	end
-
-	if Inputs.is_pressed("ui_interact", key) and not is_transition then
-		self.world:emit("enter_option")
-	end
-
-	self.world:emit("update_cursor", dt)
-
-	if Inputs.is_pressed("ui_back", key) then
-		if current_state == states.play and is_sub_menu and not is_transition then
-			is_transition = true
-			is_sub_menu = false
-			self.world:emit("allow_cursor", false)
-			self:hide_sub_menu()
-			self:show_main_menu()
-		elseif current_state ~= states.menu and current_state ~= states.play then
-			self:MB_return()
-		end
-	end
+	self.canvases.main_canvas:render()
 end
 
 function StateMenu:mousepressed(mx, my, mb)

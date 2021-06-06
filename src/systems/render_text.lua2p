@@ -18,7 +18,7 @@ function RenderText:init(world)
 		end
 		!end
 
-		e.static_text.obj = love.graphics.newText(e.font.font, e.static_text.value)
+		e.static_text.obj = love.graphics.newText(e.font.value, e.static_text.value)
 	end
 end
 
@@ -40,7 +40,7 @@ function RenderText:draw_text_ex(e)
 		end
 
 		if font then
-			love.graphics.setFont(font.font)
+			love.graphics.setFont(font.value)
 		end
 
 		local str = text and text.value

@@ -70,7 +70,7 @@ function GhostEffect:effect_draw()
 
 		if ghost_effect.is_ghost then
 			if font then
-				love.graphics.setFont(font.font)
+				love.graphics.setFont(font.value)
 			end
 
 			love.graphics.setColor(ghost_effect.effect_color)

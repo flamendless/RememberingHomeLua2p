@@ -8,9 +8,9 @@ local Move = Concord.system({
 })
 
 local function internal_move_by(e, is_repeat)
-	local pos = e.pos.pos
+	local pos = e.pos
 	local move_by = e.move_by
-	local mb_pos = move_by.pos
+	local mb_pos = move_by
 
 	local f = Flux.to(pos, move_by.duration, {
 			x = pos.x + mb_pos.x,
@@ -48,7 +48,7 @@ function Move:init()
 		local target = e.move_to_x
 		local on_complete = e.move_on_complete
 
-		Flux.to(pos.pos, target.duration, {x = target.target_x})
+		Flux.to(pos, target.duration, {x = target.target_x})
 			:delay(target.delay)
 			:oncomplete(function()
 				if on_complete then
@@ -65,9 +65,9 @@ function Move:init()
 		local move = e.move_to_original
 		local on_complete = e.move_on_complete
 
-		Flux.to(pos.pos, move.duration, {
-				x = pos.original_pos.x,
-				y = pos.original_pos.y,
+		Flux.to(pos, move.duration, {
+				x = pos.orig_x,
+				y = pos.orig_y,
 			})
 			:delay(move.delay)
 			:oncomplete(function()

@@ -14,7 +14,7 @@ function Menu.desk_fast(e, sheet, ww, wh)
 			columns_count = 3,
 			n_frames = 7
 		})
-	:give("pos", vec2:new(ww/2, wh/2))
+	:give("pos", ww/2, wh/2)
 	:give("animation", false)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("auto_scale", ww, wh, true)
@@ -31,96 +31,96 @@ function Menu.desk(e, sheet, ww, wh)
 			columns_count = 3,
 			n_frames = 7
 		})
-	:give("pos", vec2:new(ww/2, wh/2))
+	:give("pos", ww/2, wh/2)
 	:give("animation", false)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("auto_scale", ww, wh, true)
 	:give("color", Palette.get("white"))
 end
 
-function Menu.bg_door(e, sprite, pos, scale, ox, oy)
+function Menu.bg_door(e, sprite, x, y, scale, ox, oy)
 	e:give("id", "bg_door")
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.bg_hallway(e, sprite, pos, scale, ox, oy)
+function Menu.bg_hallway(e, sprite, x, y, scale, ox, oy)
 	e:give("id", "bg_hallway")
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.title(e, sprite, pos, scale, ox, oy)
+function Menu.title(e, sprite, x, y, scale, ox, oy)
 	e:give("id", "title")
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.75))
 end
 
-function Menu.subtitle(e, sprite, pos, target, scale, ox, oy)
+function Menu.subtitle(e, sprite, x, y, target, scale, ox, oy)
 	e:give("id", "subtitle")
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("anchor", target, "center", "bottom")
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.5))
 end
 
-function Menu.option_item(e, id, str, font, pos, scale, i, sub_i)
+function Menu.option_item(e, id, str, font, x, y, scale, i, sub_i)
 	e:give("id", id)
 	:give("text", str)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("sdf", scale, scale)
 	:give("option_key", i, sub_i)
 	:give("color", Palette.get("menu_text"))
 end
 
-function Menu.about_text(e, id, str, font, pos, color)
+function Menu.about_text(e, id, str, font, x, y, color)
 	e:give("id", id)
 	:give("static_text", str)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", color)
 	:give("camera")
 end
 
-function Menu.about_ext_link(e, id, sprite, pos)
+function Menu.about_ext_link(e, id, sprite, x, y)
 	local w, h = sprite:getDimensions()
 
 	e:give("id", id)
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("white"))
 	:give("camera")
-	:give("bounding_box", pos:copy(), vec2:new(w, h))
+	:give("bounding_box", x, y, w, h)
 	:give("clickable")
 	:give("hoverable")
 	:give("hover_change_color", Palette.get("about_hint"), 0.25)
 	:give("transform", 0, 0.75, 0.75)
 end
 
-function Menu.btn_back(e, spr, pos)
+function Menu.btn_back(e, spr, x, y)
 	e:give("id", "btn_back")
 	:give("sprite", spr)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("ui_not_hovered"))
 	:give("camera")
-	:give("bounding_box", pos:copy(), vec2:new(59, 45))
+	:give("bounding_box", x, y, 59, 45)
 	:give("clickable")
 	:give("hoverable")
 	:give("hover_change_color", Palette.get("ui_hovered"), 0.2)
 end
 
 !if not _RELEASE then
-function Menu.secret_title(e, font, pos)
+function Menu.secret_title(e, font, x, y)
 	e:give("id", "secret_title")
 	:give("text", !(_GAME_TITLE_SECRET))
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("red_desaturated", 0))
 	:give("transform", 0, 2, 2, 0, 0.5)
 end

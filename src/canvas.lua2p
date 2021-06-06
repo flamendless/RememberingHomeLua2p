@@ -2,16 +2,77 @@ local Canvas = class()
 
 local type_id = "CustomCanvas"
 
-function Canvas:new_default(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(width, Types.T_NUMBER)
-	Assert.must(height, Types.T_NUMBER)
-	Assert.must(rotation, Types.T_NUMBER)
-	Assert.must(scale, Types.T_NUMBER)
-	!end
+local floor = math.floor
 
+function Canvas.init_canvases(canvases)
+	@@assert(type(canvases) == "table")
+	local game_size = !(_GAME_BASE_SIZE)
+	local ww, wh = love.graphics.getDimensions()
+	local scale = math.min(ww/game_size.x, wh/game_size.y)
+
+	local main_canvas_prop = {}
+	local mid_canvas_prop = {}
+	local top_canvas_prop = {}
+	local bot_canvas_prop = {}
+
+	main_canvas_prop.width = ww
+	main_canvas_prop.height = wh
+	main_canvas_prop.x = 0
+	main_canvas_prop.y = 0
+	main_canvas_prop.scale = 1
+
+	mid_canvas_prop.width = game_size.x * scale
+	mid_canvas_prop.height = game_size.y * scale
+	mid_canvas_prop.x = 0
+	mid_canvas_prop.y = floor(wh/2 - mid_canvas_prop.height/2)
+	mid_canvas_prop.scale = scale
+
+	local rem_height = wh - mid_canvas_prop.height
+
+	top_canvas_prop.width = ww
+	top_canvas_prop.height = floor(rem_height/2)
+	top_canvas_prop.x = 0
+	top_canvas_prop.y = 0
+	top_canvas_prop.scale = scale
+
+	bot_canvas_prop.width = ww
+	bot_canvas_prop.height = floor(rem_height/2)
+	bot_canvas_prop.x = 0
+	bot_canvas_prop.y = floor(wh/2 + mid_canvas_prop.height/2)
+	bot_canvas_prop.scale = scale
+
+	if canvases.main_canvas == nil then
+		canvases.main_canvas = Canvas:new(main_canvas_prop)
+	else
+		canvases.main_canvas:set(main_canvas_prop)
+	end
+
+	if canvases.top_canvas == nil then
+		canvases.top_canvas = Canvas:new(top_canvas_prop)
+	else
+		canvases.top_canvas:set(top_canvas_prop)
+	end
+
+	if canvases.mid_canvas == nil then
+		canvases.mid_canvas = Canvas:new(mid_canvas_prop)
+	else
+		canvases.mid_canvas:set(mid_canvas_prop)
+	end
+
+	if canvases.bot_canvas == nil then
+		canvases.bot_canvas = Canvas:new(bot_canvas_prop)
+	else
+		canvases.bot_canvas:set(bot_canvas_prop)
+	end
+end
+
+function Canvas:new_default(x, y, width, height, rotation, scale)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(width) == "number")
+	@@assert(type(height) == "number")
+	@@assert(type(rotation) == "number")
+	@@assert(type(scale) == "number")
 	local _canvas = love.graphics.newCanvas(width, height)
 
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
@@ -26,10 +87,7 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 end
 
 function Canvas:new_from_table(tbl)
-	!if _ASSERT then
-	Assert.must(tbl, Types.T_TABLE)
-	!end
-
+	@@assert(type(tbl) == "table")
 	local _x = tbl.x
 	local _y = tbl.y
 	local _w = tbl.width
@@ -50,10 +108,7 @@ function Canvas:new_from_table(tbl)
 end
 
 function Canvas:new_from_canvas(source)
-	!if _ASSERT then
-	Assert.must(scale, Types.T_CUSTOM_CANVAS)
-	!end
-
+	@@assert(source:type() == type_id)
 	local _canvas = love.graphics.newCanvas(source.width, source.height)
 
 	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
@@ -68,15 +123,12 @@ function Canvas:new_from_canvas(source)
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.either_type(x, Types.T_NUMBER, Types.T_TABLE)
-	Assert.safe.must(y, Types.T_NUMBER)
-	Assert.safe.must(width, Types.T_NUMBER)
-	Assert.safe.must(height, Types.T_NUMBER)
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x) == "number" or type(x) == "table")
+	@@sassert(y, type(y) == "number")
+	@@sassert(width, type(width) == "number")
+	@@sassert(height, type(height) == "number")
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(scale, type(scale) == "number")
 	local c
 
 	if type(x) == "table" then
@@ -93,15 +145,12 @@ function Canvas:new(x, y, width, height, rotation, scale)
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(width, Types.T_NUMBER)
-	Assert.must(height, Types.T_NUMBER)
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(width) == "number")
+	@@assert(type(height) == "number")
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(scale, type(scale) == "number")
 	local _x, _y, _w, _h, _rotation, _scale
 
 	if type(x) == "number" then

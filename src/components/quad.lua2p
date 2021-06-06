@@ -1,19 +1,13 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("quad", function(c, quad, info)
-	!if _ASSERT then
-	Assert.must(quad, Types.T_QUAD)
-	Assert.safe.must(info, Types.T_TABLE)
-	!end
-
+	@@assert(quad:type() == "Quad")
+	@@sassert(info, type(info) == "table")
 	c.quad = quad
 	c.info = info
 end)
 
 Concord.component("quad_size", function(c, size)
-	!if _ASSERT then
-	Assert.must(size, Types.T_NUMBER)
-	!end
-
-	c.size = size
+	@@assert(type(size) == "number")
+	c.value = size
 end)

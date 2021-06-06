@@ -11,7 +11,6 @@ WindowMode.list = {}
 function WindowMode.initialize()
 	for i, t in ipairs(WindowMode.modes) do
 		local str = t.width .. "x" .. t.height
-
 		insert(WindowMode.list, str)
 	end
 end

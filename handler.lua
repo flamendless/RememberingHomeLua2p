@@ -25,6 +25,7 @@ args = split(args)
 if args[1] == "dev" then
 	_DEV = true
 	_RELEASE = false
+	_ASSERT = true
 	_PROF = false
 elseif args[1] == "release" then
 	_DEV = false

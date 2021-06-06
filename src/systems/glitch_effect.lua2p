@@ -72,7 +72,7 @@ function GlitchEffect:effect_draw()
 		end
 
 		if font then
-			love.graphics.setFont(font.font)
+			love.graphics.setFont(font.value)
 		end
 
 		local rotation, sx, sy, ox, oy

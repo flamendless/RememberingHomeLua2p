@@ -116,7 +116,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 	else str = text.text
 	end
 
-	local font = e.font.font
+	local font = e.font.value
 	local transform = e.transform
 	local str_w = font:getWidth(widest or str)
 	local str_h = font:getHeight(str)

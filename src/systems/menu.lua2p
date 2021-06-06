@@ -18,7 +18,7 @@ local color_select = Palette.get("menu_select", 1)
 local color_disabled = Palette.get("menu_disabled", 1)
 
 local function color_to_select(color)
-	Flux.to(color.color, dur_in, {
+	Flux.to(color.value, dur_in, {
 			[1] = color_select[1],
 			[2] = color_select[2],
 			[3] = color_select[3],
@@ -27,16 +27,16 @@ local function color_to_select(color)
 end
 
 local function color_to_white(color)
-	Flux.to(color.color, dur_out, {
-			[1] = color.orig_color[1],
-			[2] = color.orig_color[2],
-			[3] = color.orig_color[3],
-			[4] = color.orig_color[4],
+	Flux.to(color.value, dur_out, {
+			[1] = color.original[1],
+			[2] = color.original[2],
+			[3] = color.original[3],
+			[4] = color.original[4],
 		})
 end
 
 local function color_to_disabled(color)
-	Flux.to(color.color, dur_out, {
+	Flux.to(color.value, dur_out, {
 			[1] = color_disabled[1],
 			[2] = color_disabled[2],
 			[3] = color_disabled[3],
@@ -81,28 +81,19 @@ function Menu:init()
 end
 
 function Menu:set_page(page)
-	!if _ASSERT then
-	Assert.must(page, Types.T_NUMBER)
-	Assert.exists(self.keys[page])
-	!end
-
+	@@assert(type(page) == "number")
+	@@assert(self.keys[page])
 	self.current_page = page
 	self:update_cursor_color()
 end
 
 function Menu:allow_cursor(flag)
-	!if _ASSERT then
-	Assert.must(flag, Types.T_BOOLEAN)
-	!end
-
+	@@assert(type(flag) == "boolean")
 	self.flags.allow_cursor = flag
 end
 
 function Menu:set_cursor(cursor)
-	!if _ASSERT then
-	Assert.must(cursor, Types.T_NUMBER)
-	!end
-
+	@@assert(type(cursor) == "number")
 	self.cursor = cursor
 	self:update_cursor_color()
 end
@@ -141,10 +132,10 @@ function Menu:update_cursor_color()
 			else
 				if self.cursor == option_key.id then
 					color_to_select(color)
-					Flux.to(pos.pos, dur_in, {x = pos.original_pos.x - offset_x})
+					Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
 				else
 					color_to_white(color)
-					Flux.to(pos.pos, dur_out, {x = pos.original_pos.x})
+					Flux.to(pos, dur_out, {x = pos.orig_x})
 				end
 			end
 		end

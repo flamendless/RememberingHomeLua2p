@@ -9,11 +9,8 @@ local function smootherstep(v)
 end
 
 function Dissolve:new(texture, duration)
-	!if _ASSERT then
-	Assert.must(texture, Types.T_IMAGE)
-	Assert.must(duration, Types.T_NUMBER)
-	!end
-
+	@@assert(texture:type() == "Image")
+	@@assert(type(duration) == "number")
 	local shader_code = love.graphics.newShader("shaders/dissolve.glsl")
 
 	shader_code:send("tex", texture)
@@ -29,10 +26,7 @@ function Dissolve:new(texture, duration)
 end
 
 function Dissolve:set_kind(kind)
-	!if _ASSERT then
-	Assert.must(kind, Types.T_NUMBER)
-	!end
-
+	@@assert(type(kind) == "number")
 	self.kind = kind
 end
 
@@ -56,10 +50,7 @@ function Dissolve:update(dt)
 end
 
 function Dissolve:draw(fn)
-	!if _ASSERT then
-	Assert.must(fn, Types.T_FUNCTION)
-	!end
-
+	@@assert(type(fn) == "function")
 	if self.flag_process then
 		love.graphics.setShader(self.shader_code)
 		fn()

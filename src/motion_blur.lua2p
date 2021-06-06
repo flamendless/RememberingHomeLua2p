@@ -1,15 +1,10 @@
 local MotionBlur = class()
 
 function MotionBlur:new(canvas, config)
-	!if _ASSERT then
-	Assert.must(canvas, Types.T_CUSTOM_CANVAS)
-	Assert.safe.must(config, Types.T_TABLE)
-	!end
-
+	@@assert(canvas:type() == "CustomCanvas")
+	@@sassert(config, type(config) == "table")
 	local shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
-
 	shader_code:send("strength", 0.1)
-
 	return self:init({
 		flag_process = false,
 		shader_code = shader_code,
@@ -24,24 +19,17 @@ function MotionBlur:store_previous(x, y, angle)
 end
 
 function MotionBlur:set_angle(angle)
-	!if _ASSERT then
-	Assert.must(angle, Types.T_NUMBER)
-	!end
-
+	@@assert(type(angle) == "number")
 	self.shader_code:send("angle", angle)
 end
 
 function MotionBlur:set_strength(strength)
-	!if _ASSERT then
-	Assert.must(strength, Types.T_NUMBER)
-	!end
-
+	@@assert(type(strength) == "number")
 	self.shader_code:send("strength", strength)
 end
 
 function MotionBlur:post_process_draw()
 	if not self.flag_process then return end
-
 	love.graphics.setShader(self.shader_code)
 	self.canvas:render()
 	love.graphics.setShader()

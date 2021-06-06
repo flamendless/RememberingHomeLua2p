@@ -132,7 +132,7 @@ function Color:init()
 	self.pool_color.onAdded = function(pool, e)
 		local color = e.color
 		local target = e.target_color
-		local target_color = e.target_color.target_color
+		local target_color = e.target_color.target
 		local on_complete = e.lerp_on_complete
 		local ease = e.ease
 

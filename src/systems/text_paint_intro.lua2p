@@ -42,7 +42,7 @@ function TextPaintIntro:generate_paint(e, dur_in, dur_out)
 
 	local transform = e.transform
 	local text = e.static_text.text
-	local font = e.font.font
+	local font = e.font.value
 	local str_w = font:getWidth(text)
 	local str_h = font:getHeight(text)
 	local offset = 96

@@ -93,7 +93,7 @@ function Factory.arrows_keys(world, arrows, font_sdf, pos, scale)
 	local key_up = Inputs.get("player_move_up")
 	local key_down = Inputs.get("player_move_down")
 
-	local size = arrows.left.quad_size.size
+	local size = arrows.left.quad_size.value
 	local lt = arrows.left.quad_transform
 	local rt = arrows.right.quad_transform
 	local ut = arrows.up.quad_transform
