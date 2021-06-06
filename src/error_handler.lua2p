@@ -90,7 +90,7 @@ function ErrorHandler.callback(msg)
 
 	local sanitized_msg = {}
 
-	for char in msg:gmatch(Utf8.charpattern) do
+	for char in msg:gmatch(UTF8.charpattern) do
 		insert(sanitized_msg, char)
 	end
 

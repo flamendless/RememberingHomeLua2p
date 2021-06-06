@@ -3,16 +3,14 @@ local Concord = require("modules.concord.concord")
 local floor = math.floor
 
 Concord.component("animation_data", function(c, data)
-	!if _ASSERT then
-	Assert.must(data, Types.T_TABLE)
-	Assert.must(data.spritesheet, Types.T_IMAGE)
-	Assert.must(data.frames, Types.T_TABLE)
-	Assert.must(data.rows_count, Types.T_NUMBER)
-	Assert.must(data.columns_count, Types.T_NUMBER)
-	Assert.safe.must(data.n_frames, Types.T_NUMBER)
-	Assert.safe.within_range(data.start_frame, 1, data.n_frames)
-	Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
-	!end
+	@@assert(type(data) == "table")
+	@@assert(data.spritesheet:type() == "Image")
+	@@assert(type(data.frames) == "table")
+	@@assert(type(data.rows_count) == "number")
+	@@assert(type(data.columns_count) == "number")
+	@@sassert(data.n_frames, type(data.n_frames) == "number")
+	@@sassert(data.start_frame, data.start_frame >= 1 and data.start_frame <= data.n_frames)
+	@@sassert(data.delay, type(data.delay) == "table" or type(data.delay) == "number")
 
 	c.spritesheet = data.spritesheet
 	c.frames = data.frames

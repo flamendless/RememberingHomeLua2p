@@ -5,9 +5,7 @@ function Helper.check_point_rect(px, py, x, y, w, h)
 end
 
 function Helper.get_offset(e)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	!end
+	@@assert(e.__isEntity)
 
 	local transform = e.transform
 	local anim_data = e.animation_data
@@ -28,7 +26,7 @@ function Helper.get_offset(e)
 			oy = anim_data.frame_height
 		end
 	elseif sprite then
-		local spr = sprite.sprite
+		local spr = sprite.image
 
 		if transform.ox == 0.5 then
 			ox = spr:getWidth()/2
@@ -47,17 +45,14 @@ function Helper.get_offset(e)
 end
 
 function Helper.get_real_pos_box(e)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	!end
+	@@assert(e.__isEntity)
 
 	local box = e.bounding_box
-	local pos = e.pos.pos
 	local transform = e.transform
 	local camera = e.camera
 
-	local x = pos.x
-	local y = pos.y
+	local x = e.pos.x
+	local y = e.pos.y
 
 	if transform then
 		local ox, oy = Helper.get_offset(e)

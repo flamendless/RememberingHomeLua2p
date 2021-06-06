@@ -39,7 +39,7 @@ function GameStates.switch(next_id)
 	GameStates.prev_state = GameStates.current_state
 
 	if GameStates.prev_state then
-		GameStates.prev_world:exit()
+		GameStates.prev_state:exit()
 	end
 
 	local next_state = States[next_id]:new()

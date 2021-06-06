@@ -4,6 +4,7 @@ local Log = require("modules.log.log")
 local insert = table.insert
 local format = string.format
 
+local Settings = require("settings")
 local Utils = require("utils")
 
 local maps = {

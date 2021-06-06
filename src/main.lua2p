@@ -15,14 +15,13 @@ local Flux = require("modules.flux.flux")
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 Log.lovesave = true
-local SDF = require("modules.sdf").mount()
+require("modules.sdf").mount()
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local Config = require("config")
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
--- local DebugFlags = require("debug_flags")
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")

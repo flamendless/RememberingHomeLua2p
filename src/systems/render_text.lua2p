@@ -24,7 +24,6 @@ end
 
 function RenderText:draw_text_ex(e)
 	if not e.hidden then
-		local pos = e.pos
 		local color = e.color
 		local text = e.text
 		local textf = e.textf
@@ -37,7 +36,7 @@ function RenderText:draw_text_ex(e)
 		love.graphics.setColor(1, 1, 1, 1)
 
 		if color then
-			love.graphics.setColor(color.color)
+			love.graphics.setColor(color.value)
 		end
 
 		if font then
@@ -89,8 +88,8 @@ function RenderText:draw_text_ex(e)
 			sy = sdf.sy
 		end
 
-		local x = pos.pos.x
-		local y = pos.pos.y
+		local x = e.pos.x
+		local y = e.pos.y
 
 		if rfp then
 			x = x - ox

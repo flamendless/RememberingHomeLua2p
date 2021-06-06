@@ -1,15 +1,13 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
-	!if _ASSERT then
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(sx, Types.T_NUMBER)
-	Assert.safe.must(sy, Types.T_NUMBER)
-	Assert.safe.must(ox, Types.T_NUMBER)
-	Assert.safe.must(oy, Types.T_NUMBER)
-	Assert.safe.must(kx, Types.T_NUMBER)
-	Assert.safe.must(ky, Types.T_NUMBER)
-	!end
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(sx, type(sx) == "number")
+	@@sassert(sy, type(sy) == "number")
+	@@sassert(ox, type(ox) == "number")
+	@@sassert(oy, type(oy) == "number")
+	@@sassert(kx, type(kx) == "number")
+	@@sassert(ky, type(ky) == "number")
 
 	c.rotation = rotation or 0
 	c.sx = sx or 1
@@ -18,21 +16,18 @@ Concord.component("transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
 	c.oy = oy or 0
 	c.kx = kx or 0
 	c.ky = ky or 0
-
 	c.orig_sx = c.sx
 	c.orig_sy = c.sy
 end)
 
 Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
-	!if _ASSERT then
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(sx, Types.T_NUMBER)
-	Assert.safe.must(sy, Types.T_NUMBER)
-	Assert.safe.must(ox, Types.T_NUMBER)
-	Assert.safe.must(oy, Types.T_NUMBER)
-	Assert.safe.must(kx, Types.T_NUMBER)
-	Assert.safe.must(ky, Types.T_NUMBER)
-	!end
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(sx, type(sx) == "number")
+	@@sassert(sy, type(sy) == "number")
+	@@sassert(ox, type(ox) == "number")
+	@@sassert(oy, type(oy) == "number")
+	@@sassert(kx, type(kx) == "number")
+	@@sassert(ky, type(ky) == "number")
 
 	c.rotation = rotation or 0
 	c.sx = sx or 1

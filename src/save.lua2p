@@ -53,7 +53,7 @@ end
 function Save.toggle_flag(id, should_overwrite)
 	should_overwrite = should_overwrite or false
 	@@assert(type(id) == "string")
-	@@assert(Save.data[id])
+	@@assert(Save.data[id] ~= nil)
 	@@assert(should_overwrite)
 	Save.data[id] = not Save.data[id]
 	if should_overwrite then

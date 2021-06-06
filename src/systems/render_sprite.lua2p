@@ -15,8 +15,8 @@ local function sort_z_ex(a, b)
 	local b_z = b.z_index
 
 	if a_z.sortable and b_z.sortable then
-		local a_pos = a.pos.pos
-		local b_pos = b.pos.pos
+		local a_pos = a.pos
+		local b_pos = b.pos
 
 		return a_pos.y < b_pos.y
 	end
@@ -48,7 +48,7 @@ end
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
 	if not hidden then
-		local pos = e.pos.pos
+		local pos = e.pos
 		local quad = e.quad
 		local color = e.color
 		local sprite = e.sprite
@@ -58,7 +58,7 @@ function RenderSprite:draw_sprite_ex(e)
 
 		love.graphics.setColor(1, 1, 1, 1)
 
-		if color then love.graphics.setColor(color.color) end
+		if color then love.graphics.setColor(color.value) end
 
 		local rot, sx, sy, ox, oy, kx, ky
 
@@ -89,9 +89,9 @@ function RenderSprite:draw_sprite_ex(e)
 				ky = quad_transform.ky
 			end
 
-			draw(sprite.sprite, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+			draw(sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		else
-			draw(sprite.sprite, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+			draw(sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		end
 
 		if e.no_shader then
@@ -111,102 +111,5 @@ function RenderSprite:draw_z()
 		self:draw_sprite_ex(e)
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-
-local function debug_internal_draw(e)
-	local hidden = e.hidden
-	local qx, qy, qw, qh = e.quad.quad:getViewport()
-	local pos = e.pos.pos
-	local transform = e.transform
-	local qt = e.quad_transform
-	local sp_ac = e.spawn_point_action_controls
-	local sp_qm = e.spawn_point_question_mark
-
-	local x = pos.x
-	local y = pos.y
-	local w = qw
-	local h = qh
-	local sx, sy, ox, oy = 1, 1, 0, 0
-	local a = (hidden == nil) and 1 or 0.2
-	local id = e.id.id
-
-	if transform then
-		ox, oy = Helper.get_offset(e)
-		sx = transform.sx
-		sy = transform.sy
-	end
-
-	if qt then
-		sx = qt.sx
-		sy = qt.sy
-		ox = qt.ox
-		oy = qt.oy
-	end
-
-	x = x - ox * sx
-	y = y - oy * sy
-	w = w * sx
-	h = h * sy
-
-	love.graphics.setColor(1, 0, 0, a)
-	love.graphics.print(id, pos.x, pos.y)
-	love.graphics.rectangle("line", x, y, w, h)
-
-	if sp_ac then
-		local sp = sp_ac.pos
-
-		love.graphics.setColor(0, 1, 0, a)
-		love.graphics.circle("fill", sp.x, sp.y, 2)
-	end
-
-	if sp_qm then
-		local sp = sp_qm.pos
-
-		love.graphics.setColor(0, 0, 1, a)
-		love.graphics.circle("fill", sp.x, sp.y, 2)
-	end
-
-	love.graphics.setColor(1, 0, 0, a)
-	love.graphics.circle("fill", pos.x, pos.y, 2)
-end
-
-function RenderSprite:draw_debug()
-	views.z_index = Slab.BeginWindow("ZIndex", {
-		Title = "Z Index", IsOpen = views.z_index})
-
-	for _, e in ipairs(self.pool_z) do
-		local id = e.id.id
-
-		Slab.Text(id)
-		Slab.SameLine()
-		Slab.Text("z: " .. e.z_index.z)
-	end
-
-	Slab.EndWindow()
-
-	if views.quad_bounds then
-		for _, e in ipairs(self.pool_quad) do
-			if not e.ui_element then
-				debug_internal_draw(e)
-			end
-		end
-	end
-end
-
-function RenderSprite:debug_draw_ui()
-	if views.quad_bounds then
-		for _, e in ipairs(self.pool_quad) do
-			if e.ui_element then
-				debug_internal_draw(e)
-			end
-		end
-	end
-end
-
-!end
 
 return RenderSprite

@@ -25,17 +25,14 @@ args = split(args)
 if args[1] == "dev" then
 	_DEV = true
 	_RELEASE = false
-	_ASSERT = true
 	_PROF = false
 elseif args[1] == "release" then
 	_DEV = false
 	_RELEASE = true
-	_ASSERT = false
 	_PROF = false
 elseif args[1] == "prof" then
 	_DEV = true
 	_RELEASE = false
-	_ASSERT = true
 	_PROF = true
 end
 

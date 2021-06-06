@@ -23,7 +23,7 @@ local function lerp_colors(lc, color)
 
 	local next_color = lc.colors[next_value]
 
-	lc.flux = Flux.to(color.color, duration, {
+	lc.flux = Flux.to(color.value, duration, {
 			[1] = next_color[1],
 			[2] = next_color[2],
 			[3] = next_color[3],
@@ -53,7 +53,7 @@ function Color:init()
 			target = f_in.alpha
 		end
 
-		local f = Flux.to(e.color.color, c.duration, {[4] = target})
+		local f = Flux.to(e.color.value, c.duration, {[4] = target})
 			:delay(c.delay)
 			:oncomplete(function()
 				local on_complete = c.on_complete
@@ -69,7 +69,7 @@ function Color:init()
 	end
 
 	self.pool_fade_out.onAdded = function(pool, e)
-		local f = Flux.to(e.color.color, e.color_fade_out.duration, {[4] = 0})
+		local f = Flux.to(e.color.value, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
 				local on_complete = e.color_fade_out.on_complete
@@ -93,7 +93,7 @@ function Color:init()
 		local fn_out, fn_in
 
 		fn_out = function()
-			f = Flux.to(color.color, f_in_out.duration, {[4] = 0})
+			f = Flux.to(color.value, f_in_out.duration, {[4] = 0})
 				:oncomplete(function()
 					fn_in()
 					count = count + 1
@@ -108,7 +108,7 @@ function Color:init()
 		end
 
 		fn_in = function()
-			f = Flux.to(color.color, f_in_out.duration, {[4] = 1})
+			f = Flux.to(color.value, f_in_out.duration, {[4] = 1})
 				:oncomplete(function()
 					fn_out()
 					count = count + 1
@@ -122,9 +122,9 @@ function Color:init()
 			if ease then f:ease(ease.ease) end
 		end
 
-		if color.color[4] == 1 then
+		if color.value[4] == 1 then
 			fn_out()
-		elseif color.color[4] == 0 then
+		elseif color.value[4] == 0 then
 			fn_in()
 		end
 	end
@@ -136,7 +136,7 @@ function Color:init()
 		local on_complete = e.lerp_on_complete
 		local ease = e.ease
 
-		local f = Flux.to(color.color, target.duration, {
+		local f = Flux.to(color.value, target.duration, {
 				[1] = target_color[1],
 				[2] = target_color[2],
 				[3] = target_color[3],
@@ -162,7 +162,7 @@ function Color:start_fade()
 		local fade = e.fade_to_black
 		local ease = e.ease
 
-		local f = Flux.to(color.color, fade.duration, {
+		local f = Flux.to(color.value, fade.duration, {
 				[1] = 0, [2] = 0, [3] = 0, [4] = 0
 			})
 			:delay(fade.delay)
