@@ -1,9 +1,6 @@
 local Concord = require("modules.concord.concord")
 local ListCtor = require("ctor.layer_list")
 
-local insert = table.insert
-local remove = table.remove
-
 local RenderUI = Concord.system({
 	pool_intro = {
 		constructor = ListCtor,
@@ -74,45 +71,5 @@ function RenderUI:draw_ui()
 		end
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-local list, list_i, list_t
-
-function RenderUI:draw_debug()
-	views.layers = Slab.BeginWindow("Layers", {
-		Title = "Layers", IsOpen = views.layers})
-
-	for i, pool in ipairs(self.layers) do
-		Slab.Text(i .. " " .. pool.layer_id)
-		Slab.SameLine()
-
-		if Slab.Button("list") then
-			list = true
-			list_i = i
-			list_t = pool
-		end
-	end
-
-	if list then
-		list = Slab.BeginWindow("LayersList", {
-			Title = list_t.id, IsOpen = list})
-
-		Slab.Indent()
-
-		for _, e in ipairs(list_t) do
-			Slab.Text(e.id.id)
-		end
-
-		Slab.Unindent()
-		Slab.EndWindow()
-	end
-
-	Slab.EndWindow()
-end
-
-!end
 
 return RenderUI

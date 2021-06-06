@@ -12,13 +12,13 @@ function RenderText:init(world)
 	self.world = world
 
 	self.pool_static.onAdded = function(pool, e)
-		!if _ASSERT then
+		!if _DEV then
 		if e.sdf then
 			error("static_font can't use sdf font")
 		end
 		!end
 
-		e.static_text.text_obj = love.graphics.newText(e.font.font, e.static_text.text)
+		e.static_text.obj = love.graphics.newText(e.font.font, e.static_text.value)
 	end
 end
 
@@ -43,7 +43,7 @@ function RenderText:draw_text_ex(e)
 			love.graphics.setFont(font.font)
 		end
 
-		local str = text and text.text
+		local str = text and text.value
 		local current_font = love.graphics.getFont()
 		local r, sx, sy, ox, oy
 
@@ -56,7 +56,7 @@ function RenderText:draw_text_ex(e)
 
 			if transform.ox == 0.5 then
 				if static_text then
-					ox = static_text.text_obj:getWidth()/2
+					ox = static_text.obj:getWidth()/2
 				elseif textf then
 					ox = textf.limit/2
 				else
@@ -66,7 +66,7 @@ function RenderText:draw_text_ex(e)
 
 			if transform.oy == 0.5 then
 				if static_text then
-					oy = static_text.text_obj:getHeight()/2
+					oy = static_text.obj:getHeight()/2
 				elseif textf then
 					local lines = current_font:getWidth(str)/textf.limit
 					lines = ceil(lines)
@@ -76,7 +76,7 @@ function RenderText:draw_text_ex(e)
 				end
 			elseif transform.oy == 1 then
 				if static_text then
-					oy = static_text.text_obj:getHeight()
+					oy = static_text.obj:getHeight()
 				else
 					oy = current_font:getHeight(str)
 				end
@@ -97,7 +97,7 @@ function RenderText:draw_text_ex(e)
 			ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
 		else
 			if static_text then
-				love.graphics.draw(static_text.text_obj, x, y, r, sx, sy, ox, oy)
+				love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy)
 			else
 				if textf then
 					love.graphics.printf(str, x, y, textf.limit, textf.align,
@@ -123,107 +123,5 @@ function RenderText:draw()
 		end
 	end
 end
-
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-local is_open_text = false
-local is_open_sdf = false
-local t_comp
-local selected_e
-
-function RenderText:draw_debug()
-	views.text = Slab.BeginWindow("Text", {Title = "Text List", IsOpen = views.text})
-
-	for _, e in ipairs(self.pool) do
-		Slab.Text(e.id.id)
-		Slab.SameLine()
-
-		if Slab.Button("Modify Text") then
-			is_open_text = true
-			is_open_sdf = false
-			selected_e = e
-			t_comp = e.text
-
-			break
-		end
-
-
-		if e.sdf then
-			Slab.SameLine()
-
-			if Slab.Button("Modify SDF") then
-				is_open_sdf = true
-				is_open_text = false
-				selected_e = e
-				t_comp = e.sdf
-
-				break
-			end
-		end
-	end
-
-	Slab.EndWindow()
-
-	if not selected_e then return end
-
-	if is_open_text then
-		self:debug_modify_text()
-	elseif is_open_sdf then
-		self:debug_modify_sdf()
-	end
-end
-
-function RenderText:debug_modify_text()
-	is_open_text = Slab.BeginWindow("text_e", {
-			Title = "Text", IsOpen = is_open_text
-		})
-	Slab.Text("Text:")
-	Slab.SameLine()
-
-	if Slab.Input("text_text", {Text = tostring(t_comp.text)}) then
-		t_comp.text = Slab.GetInputText()
-	end
-
-	Slab.EndWindow()
-end
-
-function RenderText:debug_modify_sdf()
-	is_open_sdf = Slab.BeginWindow("sdf_e", {
-			Title = "SDF", IsOpen = is_open_sdf
-		})
-	Slab.Text("Scale X and Y:")
-	Slab.SameLine()
-
-	if Slab.Input("sdf_s", {
-			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
-		}) then
-		t_comp.sx = Slab.GetInputNumber()
-		t_comp.sy = Slab.GetInputNumber()
-	end
-
-	Slab.Text("Scale X:")
-	Slab.SameLine()
-
-	if Slab.Input("sdf_sx", {
-			Text = tostring(t_comp.sx), ReturnOnText = false, NumbersOnly = true
-		}) then
-		t_comp.sx = Slab.GetInputNumber()
-	end
-
-	Slab.Text("Scale Y:")
-	Slab.SameLine()
-
-	if Slab.Input("sdf_sy", {
-			Text = tostring(t_comp.sy), ReturnOnText = false, NumbersOnly = true
-		}) then
-		t_comp.sy = Slab.GetInputNumber()
-	end
-
-	Slab.EndWindow()
-end
-
-!end
 
 return RenderText

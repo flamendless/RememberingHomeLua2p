@@ -41,7 +41,7 @@ local function switch(gamestate)
 
 	is_switching = true
 	Fade.fade_out(function()
-		Save.toggle_flag("intro_done", true)
+		Save.set_flag("splash_done", true, true)
 		gamestate.switch("Menu")
 	end)
 end
@@ -147,7 +147,7 @@ function StateSplash:start()
 
 	if Save.data.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, res_fonts.ui, vec2:new(ww/2, wh - 8))
+			:assemble(Assemblages.Common.skip, res_fonts.ui, ww/2, wh - 8)
 	end
 end
 
@@ -163,6 +163,24 @@ function StateSplash:update(dt)
 	elseif current_state == states.splash_flam then
 		self.world:emit("update", dt)
 		timer_flam_skip:update(dt)
+	end
+
+	if Save.data.splash_done then
+		if Inputs.released("skip") then
+			if splash_love and splash_love_skippable then
+				splash_love:skip()
+			end
+
+			if current_state == states.splash_wits and splash_wits_skippable then
+				self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
+				splash_wits_skippable = false
+			end
+
+			if current_state == states.splash_flam and splash_flam_skippable then
+				switch(self.gamestate)
+				splash_flam_skippable = false
+			end
+		end
 	end
 end
 
@@ -180,28 +198,6 @@ function StateSplash:draw()
 
 	self.world:emit("draw_ui")
 	Fade.draw()
-end
-
-function StateSplash:keypressed(key)
-	if not self.is_ready then return end
-
-	if Save.data.splash_done then
-		if Inputs.is_pressed("ui_skip", key) then
-			if splash_love and splash_love_skippable then
-				splash_love:skip()
-			end
-
-			if current_state == states.splash_wits and splash_wits_skippable then
-				self.entities.splash_wits:give("animation_stop", "pauseAtEnd")
-				splash_wits_skippable = false
-			end
-
-			if current_state == states.splash_flam and splash_flam_skippable then
-				switch(self.gamestate)
-				splash_flam_skippable = false
-			end
-		end
-	end
 end
 
 function StateSplash:exit()

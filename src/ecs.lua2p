@@ -12,7 +12,7 @@ local systems = {}
 
 systems.Splash = {
 	"animation", "color", "ghost_effect", "render_sprite", "render_text",
-	"transform", "typewriter_splash",
+	"transform", "typewriter_splash", "render_ui",
 }
 
 systems.Menu = {

@@ -1,4 +1,5 @@
 local Palette = require("palette")
+local Inputs = require("inputs")
 
 local Common = {}
 
@@ -25,11 +26,14 @@ function Common.animated_sprite(e, animation_data, x, y, stop_on_last)
 	:give("animation", stop_on_last)
 end
 
-function Common.skip(e, text, font, pos)
+function Common.skip(e, font, x, y)
+	local key = Inputs.rev_map.skip
+	local text = "Press '" ..  key .. "' to skip"
+
 	e:give("id", "skip")
 	:give("static_text", text)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("ui_skip"))
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0.5, 1)

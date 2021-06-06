@@ -16,6 +16,7 @@ local maps = {
 		down = "down",
 		z = "interact",
 		x = "cancel",
+		space = "skip",
 	},
 	--map_wasd
 	{
@@ -25,11 +26,13 @@ local maps = {
 		s = "down",
 		e = "interact",
 		q = "cancel",
+		escape = "skip",
 	}
 }
 
 local Inputs = {
 	map = maps[1],
+	rev_map = {},
 	previous = {},
 	current = {},
 }
@@ -41,6 +44,7 @@ function Inputs.init()
 	for k, v in pairs(Inputs.map) do
 		Inputs.previous[v] = false
 		Inputs.current[v] = false
+		Inputs.rev_map[v] = k
 	end
 end
 
