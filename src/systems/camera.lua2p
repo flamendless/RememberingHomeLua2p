@@ -84,8 +84,7 @@ function Camera:get_follow_coords(target)
 	local y = pos.y
 
 	if target.camera_follow_offset then
-		local offset = target.camera_follow_offset.offset
-
+		local offset = target.camera_follow_offset
 		x = x + offset.x
 		y = y + offset.y
 	end

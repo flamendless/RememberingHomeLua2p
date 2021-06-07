@@ -12,9 +12,8 @@ end
 
 function BoundingBox:update(dt)
 	for _, e in ipairs(self.pool) do
-		local box = e.bounding_box.pos
+		local box = e.bounding_box
 		local x, y = Helper.get_real_pos_box(e)
-
 		box.x = x
 		box.y = y
 	end
@@ -24,13 +23,14 @@ function BoundingBox:on_camera_move(camera)
 	for _, e in ipairs(self.pool) do
 		local ui = e.ui_element
 		local box = e.bounding_box
-		local pos = e.pos.pos
+		local pos = e.pos
 		local bx, by
 
 		if ui then
 			local transform = e.transform
 
-			bx, by = pos:unpack()
+			bx = pos.x
+			by = pos.y
 
 			if transform then
 				local ox, oy = Helper.get_offset(e)
@@ -46,60 +46,5 @@ function BoundingBox:on_camera_move(camera)
 		box.screen_pos.y = by
 	end
 end
-
-!if not _RELEASE then
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-
-function BoundingBox:debug_draw_ui()
-	if not views.bounding_box then return end
-	for _, e in ipairs(self.pool) do
-		if not e.hidden and e.ui_element then
-			local size = e.bounding_box.size
-			local hoverable = e.hoverable
-			local transform = e.transform
-			local pos = e.pos.pos
-			local w, h = size.x, size.y
-			local ox, oy = Helper.get_offset(e)
-
-			if hoverable and hoverable.is_hovered then
-				love.graphics.setColor(1, 0, 0, 1)
-			else
-				love.graphics.setColor(0, 1, 0, 1)
-			end
-
-			local x = pos.x
-			local y = pos.y
-
-			if transform then
-				x = x - ox * transform.orig_sx
-				y = y - oy * transform.orig_sy
-			end
-
-			love.graphics.rectangle("line", x, y, w, h)
-		end
-	end
-end
-
-function BoundingBox:draw_debug()
-	if not views.bounding_box then return end
-	for _, e in ipairs(self.pool) do
-		if not e.hidden and not e.ui_element then
-			local size = e.bounding_box.size
-			local hoverable = e.hoverable
-			local x, y = Helper.get_real_pos_box(e)
-			local w, h = size.x, size.y
-
-			if hoverable and hoverable.is_hovered then
-				love.graphics.setColor(1, 0, 0, 1)
-			else
-				love.graphics.setColor(0, 1, 0, 1)
-			end
-
-			love.graphics.rectangle("line", x, y, w, h)
-		end
-	end
-end
-!end
 
 return BoundingBox

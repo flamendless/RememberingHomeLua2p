@@ -378,7 +378,7 @@ function StateMenu:setup_about()
 	self.entities.btn_back = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.btn_back, res_images.btn_back, 8, base_y)
 		:give("on_click", 1, function()
-			self:keypressed(Inputs.get("ui_back"))
+			self:esc()
 		end)
 
 	for i, el in ipairs(about) do
@@ -441,9 +441,7 @@ function StateMenu:setup_about()
 				self.entities[id] = Concord.entity(self.world)
 					:assemble(Assemblages.Menu.about_ext_link, id, image, x, y)
 					:give("on_click", 1, function()
-						local url = about_links[i2]
-
-						love.system.openURL(url)
+						love.system.openURL(about_links[i2])
 					end)
 			end
 
@@ -502,6 +500,19 @@ function StateMenu:start()
 	end, 1.5, 0.25)
 end
 
+function StateMenu:esc()
+	if current_state == states.play and is_sub_menu and
+		not is_transition then
+		is_transition = true
+		is_sub_menu = false
+		self.world:emit("allow_cursor", false)
+		self:hide_sub_menu()
+		self:show_main_menu()
+	elseif current_state ~= states.menu and current_state ~= states.play then
+		self:MB_return()
+	end
+end
+
 function StateMenu:update(dt)
 	if not self.is_ready then return end
 
@@ -517,17 +528,8 @@ function StateMenu:update(dt)
 	end
 	self.world:emit("update_cursor", dt)
 
-	if Inputs.down("cancel") then
-		if current_state == states.play and is_sub_menu and
-			not is_transition then
-			is_transition = true
-			is_sub_menu = false
-			self.world:emit("allow_cursor", false)
-			self:hide_sub_menu()
-			self:show_main_menu()
-		elseif current_state ~= states.menu and current_state ~= states.play then
-			self:MB_return()
-		end
+	if Inputs.released("cancel") then
+		self:esc()
 	end
 
 	local mx, my = love.mouse.getPosition()

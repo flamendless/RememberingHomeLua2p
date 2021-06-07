@@ -86,11 +86,11 @@ function love.update(dt)
 	Jprof.push("frame")
 	!end
 
-	Inputs.update()
 	Timer.update(dt)
 	Flux.update(dt)
 	-- EventManager.update(dt)
 	GameStates.update(dt)
+	Inputs.update()
 
 	!if _PROF then
 	Jprof.pop("frame")

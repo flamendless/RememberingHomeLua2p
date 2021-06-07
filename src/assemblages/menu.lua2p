@@ -38,31 +38,31 @@ function Menu.desk(e, sheet, ww, wh)
 	:give("color", Palette.get("white"))
 end
 
-function Menu.bg_door(e, sprite, x, y, scale, ox, oy)
+function Menu.bg_door(e, image, x, y, scale, ox, oy)
 	e:give("id", "bg_door")
-	:give("sprite", sprite)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.bg_hallway(e, sprite, x, y, scale, ox, oy)
+function Menu.bg_hallway(e, image, x, y, scale, ox, oy)
 	e:give("id", "bg_hallway")
-	:give("sprite", sprite)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.title(e, sprite, x, y, scale, ox, oy)
+function Menu.title(e, image, x, y, scale, ox, oy)
 	e:give("id", "title")
-	:give("sprite", sprite)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.75))
 end
 
-function Menu.subtitle(e, sprite, x, y, target, scale, ox, oy)
+function Menu.subtitle(e, image, x, y, target, scale, ox, oy)
 	e:give("id", "subtitle")
-	:give("sprite", sprite)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("anchor", target, "center", "bottom")
 	:give("transform", 0, scale, scale, ox, oy)
@@ -88,11 +88,11 @@ function Menu.about_text(e, id, str, font, x, y, color)
 	:give("camera")
 end
 
-function Menu.about_ext_link(e, id, sprite, x, y)
-	local w, h = sprite:getDimensions()
+function Menu.about_ext_link(e, id, image, x, y)
+	local w, h = image:getDimensions()
 
 	e:give("id", id)
-	:give("sprite", sprite)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("color", Palette.get("white"))
 	:give("camera")
@@ -103,9 +103,9 @@ function Menu.about_ext_link(e, id, sprite, x, y)
 	:give("transform", 0, 0.75, 0.75)
 end
 
-function Menu.btn_back(e, spr, x, y)
+function Menu.btn_back(e, image, x, y)
 	e:give("id", "btn_back")
-	:give("sprite", spr)
+	:give("sprite", image)
 	:give("pos", x, y)
 	:give("color", Palette.get("ui_not_hovered"))
 	:give("camera")

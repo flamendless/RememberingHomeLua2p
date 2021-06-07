@@ -16,7 +16,7 @@ function Click:mousepressed(mx, my, mb)
 				local id = e.id.id
 				local box = e.bounding_box
 				local bx, by = Helper.get_real_pos_box(e)
-				local bw, bh = box.size.x, box.size.y
+				local bw, bh = box.w, box.h
 				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 				if result then on_click.on_click(id) end
@@ -34,7 +34,7 @@ function Click:mousepressed_ui(mx, my, mb)
 				local id = e.id.id
 				local box = e.bounding_box
 				local bx, by = box.screen_pos:unpack()
-				local bw, bh = box.size:unpack()
+				local bw, bh = box.w, box.h
 				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 				if result then on_click.on_click(id) end

@@ -17,7 +17,7 @@ systems.Splash = {
 
 systems.Menu = {
 	"animation", "bounding_box", "click", "color", "hover_effect", "menu",
-	"menu_settings", "mouse_hover", "move", "render_text", "render_sprite",
+	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
 	"transform"
 }
 

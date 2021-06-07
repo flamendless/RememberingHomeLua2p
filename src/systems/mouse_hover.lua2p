@@ -33,9 +33,8 @@ function MouseHover:check_mouse_hover(mx, my)
 		if not e.hidden and not e.ui_element then
 			local hoverable = e.hoverable
 			local box = e.bounding_box
-			local size = box.size
 			local bx, by = Helper.get_real_pos_box(e)
-			local bw, bh = size.x, size.y
+			local bw, bh = box.w, box.h
 			local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 			hoverable.is_hovered = result
@@ -50,7 +49,7 @@ function MouseHover:check_mouse_hover_ui(mx, my)
 			local hover_emit = e.hover_emit
 			local box = e.bounding_box
 			local bx, by = box.screen_pos:unpack()
-			local bw, bh = box.size:unpack()
+			local bw, bh = box.w, box.h
 			local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
 
 			hoverable.is_hovered = result

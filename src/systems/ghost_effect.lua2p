@@ -61,7 +61,7 @@ function GhostEffect:effect_draw()
 		local text
 
 		if random_text.use_string then
-			text = random_text.text
+			text = random_text.value
 		elseif random_text.use_table then
 			local r = love.math.random(1, #random_text.text)
 

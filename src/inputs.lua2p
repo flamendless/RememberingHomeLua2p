@@ -1,11 +1,7 @@
 local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
-local insert = table.insert
-local format = string.format
-
 local Settings = require("settings")
-local Utils = require("utils")
 
 local maps = {
 	--map_wasd
@@ -57,7 +53,7 @@ end
 function Inputs.released(key)
 	@@assert(type(key) == "string")
 	@@assert(Inputs.current[key] ~= nil)
-	return Inputs.current[key] and Inputs.previous[key]
+	return not Inputs.current[key] and Inputs.previous[key]
 end
 
 function Inputs.down(key)

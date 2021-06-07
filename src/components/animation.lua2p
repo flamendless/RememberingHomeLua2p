@@ -25,7 +25,7 @@ Concord.component("animation_pause_at", function(c, at_frame)
 end)
 
 Concord.component("animation_stop", function(c, event)
-	@@assert(at_frame == "pauseAtEnd" or at_frame == "pauseAtStart")
+	@@assert(event == "pauseAtEnd" or event == "pauseAtStart")
 	c.event = event
 end)
 

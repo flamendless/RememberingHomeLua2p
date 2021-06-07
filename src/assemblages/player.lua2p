@@ -159,7 +159,7 @@ function Player.outside_house(e,
 			can_open_door = true,
 		})
 	:give("z_index", 2)
-	:give("camera_follow_offset", vec2:new(0, 32))
+	:give("camera_follow_offset", 0, 32)
 end
 
 !if not _RELEASE then

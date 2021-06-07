@@ -1,41 +1,33 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("camera", function(c, camera, is_main)
-	!if _ASSERT then
-	Assert.safe.is(camera, Types.T_GAMERA)
-	Assert.safe.must(is_main, Types.T_BOOLEAN)
-	!end
+local Gamera = require("modules.gamera.gamera")
 
+Concord.component("camera", function(c, camera, is_main)
+	@@sassert(camera, Gamera.isCamera(camera))
+	@@sassert(is_main, type(is_main) == "boolean")
 	c.camera = camera
 	c.is_main = is_main
 end)
 
 Concord.component("camera_transform", function(c, rot, scale)
-	!if _ASSERT then
-	Assert.must(rot, Types.T_NUMBER)
-	Assert.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(rot) == "number")
+	@@assert(type(scale) == "number")
 	c.rot = rot
 	c.scale = scale
 end)
 
 Concord.component("camera_clip", function(c, w, h, color)
-	!if _ASSERT then
-	Assert.must(w, Types.T_NUMBER)
-	Assert.must(h, Types.T_NUMBER)
-	Assert.color(color)
-	!end
-
+	@@assert(type(w) == "number")
+	@@assert(type(h) == "number")
+	@@assert(type(color) == "table")
 	c.w = w
 	c.h = h
 	c.color = color
 end)
 
-Concord.component("camera_follow_offset", function(c, offset)
-	!if _ASSERT then
-	Assert.safe.is(offset, Types.T_VEC2)
-	!end
-
-	c.offset = offset or vec2:new()
+Concord.component("camera_follow_offset", function(c, x, y)
+	@@sassert(x, type(x) == "number")
+	@@sassert(y, type(y) == "number")
+	c.x = x or 0
+	c.y = y or 0
 end)
