@@ -19,6 +19,7 @@ require("modules.sdf").mount()
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
+local Audio = require("audio")
 local Config = require("config")
 local ErrorHandler = require("error_handler")
 love.errhand = ErrorHandler.callback
@@ -29,6 +30,7 @@ local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
 -- local EventManager = require("event_manager")
+local WindowMode = require("window_mode")
 
 !if _DEV then
 require("strict")
@@ -63,9 +65,11 @@ function love.load()
 
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
+	WindowMode.init()
 	Info.init()
 	Save.init()
 	Settings.init()
+	Audio.init()
 	Inputs.init()
 	TLE.Attach()
 
@@ -113,7 +117,8 @@ function love.draw()
 	-- DebugFlags.t_stats = love.graphics.getStats()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setFont(font_preload)
-	love.graphics.print(!(_MODE))
+	love.graphics.print(love.timer.getFPS())
+	love.graphics.print(!(_MODE), love.graphics.getWidth() - font_preload:getWidth(!(_MODE)))
 	!end
 
 	!if _PROF then

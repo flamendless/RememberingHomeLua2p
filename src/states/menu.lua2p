@@ -477,6 +477,7 @@ end
 
 function StateMenu:start()
 	ECS.load_systems(self.id, self.world)
+	self.world.state = self
 
 	local ww, wh = love.graphics.getDimensions()
 	local img_ff = Image.resize_image(res_images.flowfield)
@@ -516,17 +517,17 @@ end
 function StateMenu:update(dt)
 	if not self.is_ready then return end
 
-	local dt = 0
+	local dir = 0
 	if Inputs.pressed("down") then
-		dt = 1
+		dir = 1
 	elseif Inputs.pressed("up") then
-		dt = -1
+		dir = -1
 	end
 
 	if Inputs.pressed("interact") and not is_transition then
 		self.world:emit("enter_option")
 	end
-	self.world:emit("update_cursor", dt)
+	self.world:emit("update_cursor", dir)
 
 	if Inputs.released("cancel") then
 		self:esc()
@@ -564,18 +565,16 @@ function StateMenu:draw()
 				self.world:emit("draw_settings")
 				love.graphics.pop()
 			end
-
 			Fade.draw()
 		end)
 		self.canvases.main_canvas:detach()
 		self.mb_main:post_process_draw()
+		self.canvases.main_canvas:render()
 	elseif current_state == states.exit then
 		self.dissolve_ff:draw(function()
 			self.world:emit("draw")
 		end)
 	end
-
-	self.canvases.main_canvas:render()
 end
 
 function StateMenu:mousepressed(mx, my, mb)

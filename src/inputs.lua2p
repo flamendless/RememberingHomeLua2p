@@ -25,6 +25,7 @@ local maps = {
 		space = "skip",
 	},
 }
+local map_names = { "WASD", "Arrows" }
 
 local Inputs = {
 	map = maps[1],
@@ -33,10 +34,14 @@ local Inputs = {
 	current = {},
 }
 
-function Inputs.init()
-	local n = Settings.current.key_map
+function Inputs.init(key_map)
+	@@sassert(key_map, type(key_map) == "number")
+	local n = key_map or Settings.current.key_map
 	@@assert(maps[n])
 	Inputs.map = maps[n]
+	tablex.clear(Inputs.previous)
+	tablex.clear(Inputs.current)
+	tablex.clear(Inputs.rev_map)
 	for k, v in pairs(Inputs.map) do
 		Inputs.previous[v] = false
 		Inputs.current[v] = false
@@ -78,6 +83,18 @@ function Inputs.update()
 	for k, v in pairs(Inputs.current) do
 		Inputs.previous[k] = v
 	end
+end
+
+function Inputs.get_map_keys()
+	return maps
+end
+
+function Inputs.get_map_names()
+	return map_names
+end
+
+function Inputs.get_current_map_name()
+	return map_names[Settings.current.key_map]
 end
 
 return Inputs

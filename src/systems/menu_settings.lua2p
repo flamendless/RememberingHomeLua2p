@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
+local Style = Slab.GetStyle()
 
+local Audio = require("audio")
 local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
@@ -10,24 +12,24 @@ local MenuSettings = Concord.system({})
 
 function MenuSettings:init(world)
 	self.world = world
+	Style.API.LoadStyle("slab.style", true)
 end
 
 function MenuSettings:init_settings()
-	local settings_current = Settings.current
+	local sc = Settings.current
 
 	self.show_message_box_reset = false
-	self.current_gq = settings_current.graphics_quality
-	self.current_wm = settings_current.window_mode
+	self.current_gq = sc.graphics_quality
+	self.current_wm = sc.window_mode
 	self.window_mode = WindowMode.list[self.current_wm]
-	self.flags = {
-		game_sounds = settings_current.game_sounds,
-		game_music = settings_current.game_music,
-	}
 	self.wm_list = WindowMode.list
-	self.list_gq = Settings.get_gq_list()
+	self.list_gq = Settings.get_available_graphics_quality()
 	self.ww = love.graphics.getWidth()
 	self.wh = love.graphics.getHeight()
-	self.inputs_ui = Inputs.get_by_tag("ui")
+	self.key_id = sc.key_map
+	self.key_map = Inputs.map
+	self.muted = sc.muted
+	self.volume = sc.volume
 end
 
 function MenuSettings:update_settings(dt)
@@ -54,13 +56,12 @@ function MenuSettings:update_desktop(dt)
 	local y = 64
 	local width = self.ww - (x * 2)
 	local height = self.wh - (y * 2)
-	local flags = self.flags
+	Style.API.SetStyle("slab")
 
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
 			X = x, Y = y, W = width, H = height,
 			AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
-			BgColor = Palette.windows.settings
 		})
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
@@ -70,13 +71,8 @@ function MenuSettings:update_desktop(dt)
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Window Resolution")
 		Slab.Text("Graphics Quality")
-
-		if Slab.CheckBox(flags.game_sounds, "Game Sounds") then
-			flags.game_sounds = not flags.game_sounds
-		end
-
-		if Slab.CheckBox(flags.game_music, "Game Music") then
-			flags.game_music = not flags.game_music
+		if Slab.CheckBox(self.sounds, "Sounds") then
+			self.sounds = not self.sounds
 		end
 
 		Slab.SetLayoutColumn(2)
@@ -102,68 +98,59 @@ function MenuSettings:update_desktop(dt)
 			Slab.EndComboBox()
 		end
 
-		-- TODO add sliders here
-		Slab.Text("Volume Game Sounds")
-		Slab.Text("Volume Game Music")
+		if Slab.InputNumberSlider("Sounds Volume", self.volume, 0, 100) then
+			Audio.set_volume(self.muted, self.volume)
+		end
 	Slab.EndLayout()
 	Slab.Separator()
 
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
-	Slab.BeginLayout("KeybindingsLayout", {AlignX = "center", AlignY = "top", Columns = 3})
-		for key_name, key_table in pairs(self.inputs_ui) do
-			local id = key_name
-
-			Slab.SetLayoutColumn(1)
-			Slab.Text(id)
-
-			for i, key_ui in ipairs(key_table) do
-				Slab.SetLayoutColumn(i + 1)
-
-				local id2 = id .. "_" .. i
-
-				if Slab.BeginComboBox(id2, { Selected =  key_ui }) then
-					for j, new_key_ui in ipairs(Inputs.key_constants) do
-						if Slab.TextSelectable(new_key_ui) then
-							key_table[i] = new_key_ui
-						end
-					end
-
-					Slab.EndComboBox()
+	Slab.BeginLayout("KeybindingsLayout", {AlignX = "center", AlignY = "top", Columns = 2})
+		Slab.SetLayoutColumn(1)
+		Slab.Text("Key Map")
+		Slab.SetLayoutColumn(2)
+		if Slab.BeginComboBox("KeyMap", {Selected = Inputs.get_map_names()[self.key_id]}) then
+			for i, id in ipairs(Inputs.get_map_names()) do
+				if Slab.TextSelectable(id) then
+					self.key_id = i
+					self.key_map = Inputs.get_map_keys()[i]
 				end
 			end
-
-			if #key_table == 1 then
-				Slab.SetLayoutColumn(3)
-				Slab.NewLine()
-			end
+			Slab.EndComboBox()
 		end
 
+		for key, name in pairs(self.key_map) do
+			Slab.SetLayoutColumn(1)
+			Slab.Text(key)
+			Slab.SetLayoutColumn(2)
+			Slab.Text(name)
+		end
 	Slab.EndLayout()
 	Slab.Separator()
 
 	Slab.BeginLayout("GeneralOptionsLayout", {
 			AlignX = "center", AlignY = "bottom", Columns = 1
 		})
-
-		if Slab.Button("Reset to defaults") then
-			self.show_message_box_reset = true
-		end
-
 		if Slab.Button("Apply") then
 			Settings.set_from_table({
 					graphics_quality = self.current_gq,
 					window_mode = self.current_wm,
-					game_sounds = flags.game_sounds,
-					game_music = flags.game_music,
+					muted = self.muted,
+					volume = self.volume,
+					key_id = self.key_id,
 				}, true)
-			Inputs.update_keybindings(self.inputs_ui)
-			Inputs.save_keybindings()
+			Inputs.init(self.key_id)
 		end
+		Slab.SameLine()
+
+		if Slab.Button("Reset to defaults") then
+			self.show_message_box_reset = true
+		end
+		Slab.SameLine()
 
 		if Slab.Button("Return to Main Menu") then
-			love.keypressed("escape")
+			self.world.state:esc()
 		end
-
 	Slab.EndLayout()
 
 	if self.show_message_box_reset then
@@ -172,9 +159,8 @@ function MenuSettings:update_desktop(dt)
 			{Buttons = {"Confirm", "Cancel"}})
 
 		if res ~= "" then
-			Inputs.reset_by_tag("ui")
-			Inputs.save_keybindings()
 			Settings.create_new()
+			Inputs.init()
 			self:init_settings()
 			self.show_message_box_reset = false
 		end

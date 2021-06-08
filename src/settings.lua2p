@@ -8,8 +8,8 @@ local Settings = {
 	current = {
 		key_map = 1,
 		window_mode = 1,
-		sounds = true,
-		music = true,
+		muted = false,
+		volume = 100,
 		graphics_quality = !(_GFX_QUALITY),
 	}
 }
@@ -36,8 +36,8 @@ function Settings.create_new()
 
 	Settings.current.key_map = 1
 	Settings.current.window_mode = 1
-	Settings.current.sounds = true
-	Settings.current.music = true
+	Settings.current.muted = false
+	Settings.current.volume = 100
 	Settings.overwrite()
 end
 
