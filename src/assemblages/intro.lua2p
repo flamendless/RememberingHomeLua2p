@@ -31,14 +31,11 @@ local z_index = {
 }
 
 function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
-	!if _ASSERT then
-	Assert.exists(speed[tag])
-	Assert.exists(z_index[tag])
-	Assert.must(quad_width, Types.T_NUMBER)
-	Assert.safe.must(sx, Types.T_NUMBER)
-	Assert.safe.must(sy, Types.T_NUMBER)
-	!end
-
+	@@assert(speed[tag])
+	@@assert(z_index[tag])
+	@@assert(type(quad_width) == "number")
+	@@sassert(sx, type(sx) == "number")
+	@@sassert(sy, type(sy) == "number")
 	local scale_x = sx or 1
 	local scale_y = sy or 1
 	local w, h = sprite:getDimensions()
@@ -60,15 +57,15 @@ function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	e:give("id", "parallax_" .. tag)
 	:give("sprite", sprite)
 	:give("quad", quad)
-	:give("pos", vec2:new(x, y))
-	:give("parallax", vec2:new(speed[tag], 0))
+	:give("pos", x, y)
+	:give("parallax", speed[tag], 0)
 	:give("z_index", z_index[tag], false)
 end
 
 function Intro.bg_tree_cover(e, sprite)
 	e:give("id", "bg_tree_cover")
 	:give("sprite", sprite)
-	:give("pos", vec2:new(love.graphics.getWidth(), 90))
+	:give("pos", love.graphics.getWidth(), 90)
 	:give("transform", 0, 1, 1, sprite:getWidth()/2)
 	:give("z_index", z_index.bg_tree_cover)
 	:give("bg_tree", true)
@@ -83,11 +80,9 @@ function Intro.car(e, spritesheet)
 		columns_count = 3,
 		n_frames = 12
 	}
-	local car_init_pos = vec2:new(16, 325)
-
 	e:give("id", "car")
 	:give("animation_data", data)
-	:give("pos", car_init_pos)
+	:give("pos", 16, 325)
 	:give("animation", false)
 	:give("z_index", z_index.car)
 end
@@ -104,7 +99,7 @@ function Intro.car_reflect(e, spritesheet, car)
 
 	e:give("id", "car_reflect")
 	:give("animation_data", data)
-	:give("pos", vec2:new())
+	:give("pos", 0, 0)
 	:give("animation", false)
 	:give("attach_to", car)
 	:give("z_index", z_index.car)
@@ -112,20 +107,20 @@ end
 
 function Intro.car_light(e, sprite, car)
 	e:give("id", "car_light")
-	:give("pos", vec2:new())
+	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1)
 	:give("color", Palette.colors.car_light)
 	:give("light", "cone", 0.8)
 	:give("sprite", sprite, "cone")
 	:give("light_flicker", 0.075)
 	:give("attach_to", car)
-	:give("attach_to_offset", vec2:new(112, 24))
+	:give("attach_to_offset", 112, 24)
 end
 
-function Intro.title(e, sprite, pos)
+function Intro.title(e, sprite, x, y)
 	e:give("id", "title")
 	:give("sprite", sprite)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("hidden")
 	:give("transform", 0, 6, 6, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
@@ -135,7 +130,7 @@ end
 function Intro.title_light(e, sprite)
 	e:give("id", "title_light")
 	:give("sprite", sprite)
-	:give("pos", vec2:new(142, 64))
+	:give("pos", 142, 64)
 	:give("transform", 0, 4, 4, 0.5, 0.5)
 	:give("color", {1, 1, 1})
 	:give("light", "custom", 1)

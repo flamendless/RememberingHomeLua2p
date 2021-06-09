@@ -4,8 +4,7 @@ local format = string.format
 local random = love.math.random
 
 local Light = Concord.system({
-	pool = {"id", "pos", "transform", "color", "light", "sprite",
-	},
+	pool = {"id", "pos", "transform", "color", "light", "sprite"},
 })
 
 local function randomf(min, max)
@@ -14,7 +13,7 @@ end
 
 local function generate_recolor(e)
 	local light = e.light
-	local color = e.color.color
+	local color = e.color.value
 	local timer = e.light_timer
 	local range = e.light_recolor.color_range
 	local power_range = e.light_recolor.power_range
@@ -31,7 +30,7 @@ end
 local function generate_flicker(e)
 	local timer = e.light_timer
 	local flicker = e.light_flicker.off_chance
-	local color = e.color.color
+	local color = e.color.value
 	local r = random()
 
 	if r < flicker then
@@ -67,38 +66,29 @@ function Light:init(world)
 			e:give("light_timer")
 		end
 
-		manage_offset(light.light_shape, e.transform, e.sprite.sprite)
+		manage_offset(light.light_shape, e.transform, e.sprite.image)
 	end
 end
 
 function Light:set_ambient_light(color)
-	!if _ASSERT then
-	Assert.color(color)
-	!end
-
+	@@assert(type(color) == "table")
 	self.ambient = color
 end
 
 function Light:set_light_resources(res)
-    !if _ASSERT then
-    Assert.must(res, Types.T_TABLE)
-    Assert.must(res.round, Types.T_IMAGE)
-    Assert.must(res.rectangle, Types.T_IMAGE)
-    Assert.must(res.cone, Types.T_IMAGE)
-    !end
-
+	@@assert(type(res) == "table")
+	@@assert(res.round:type() == "Image")
+	@@assert(res.rectangle:type() == "Image")
+	@@assert(res.cone:type() == "Image")
     self.resources = res
 end
 
 function Light:create_light_map(x, y, w, h, scale)
-	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(w, Types.T_NUMBER)
-	Assert.must(h, Types.T_NUMBER)
-	Assert.safe.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(w) == "number")
+	@@assert(type(h) == "number")
+	@@sassert(scale, type(scale) == "number")
 	self.x = x
 	self.y = y
     self.w = w
@@ -171,10 +161,10 @@ function Light:draw_light()
 		local hidden = e.hidden
 
 		if not (disabled or hidden) then
-			local color = e.color.color
-			local sprite = e.sprite.sprite
+			local color = e.color.value
+			local sprite = e.sprite.image
 			local power = light.power
-			local pos = e.pos.pos
+			local pos = e.pos
 			local transform = e.transform
 			local quad = e.quad
 

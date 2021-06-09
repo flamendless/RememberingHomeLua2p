@@ -1,25 +1,20 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("attach_to", function(c, target_e)
-	!if _ASSERT then
-	Assert.is(target_e, Types.T_ENTITY)
-	!end
-
+	@@assert(target_e.__isEntity)
 	c.target_e = target_e
 end)
 
-Concord.component("attach_to_offset", function(c, offset)
-	!if _ASSERT then
-	Assert.is(offset, Types.T_VEC2)
-	!end
-
-	c.offset = offset
+Concord.component("attach_to_offset", function(c, ox, oy)
+	@@assert(type(ox) == "number")
+	@@assert(type(oy) == "number")
+	c.ox = ox
+	c.oy = oy
 end)
 
-Concord.component("attach_to_spawn_point", function(c, pos)
-	!if _ASSERT then
-	Assert.is(pos, Types.T_VEC2)
-	!end
-
-	c.pos = pos
+Concord.component("attach_to_spawn_point", function(c, x, y)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	c.x = x
+	c.y = y
 end)

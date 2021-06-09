@@ -17,7 +17,6 @@ end
 
 function MenuSettings:init_settings()
 	local sc = Settings.current
-
 	self.show_message_box_reset = false
 	self.current_gq = sc.graphics_quality
 	self.current_wm = sc.window_mode

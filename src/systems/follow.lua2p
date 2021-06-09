@@ -10,20 +10,16 @@ function Follow:init(world)
 end
 
 function Follow:on_camera_created(camera)
-	!if _ASSERT then
-	Assert.truthy(camera.__camera)
-	!end
-
+	@@assert(camera.__camera)
 	self.camera = camera
 end
 
 function Follow:update(dt)
 	if self.camera then
 		for _, e in ipairs(self.pool_mouse) do
-			local pos = e.pos.pos
+			local pos = e.pos
 			local mx, my = love.mouse.getPosition()
 			local smx, smy = self.camera:toWorld(mx, my)
-
 			pos.x = smx
 			pos.y = smy
 		end

@@ -2,20 +2,16 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("ui_element")
 
-Concord.component("ui_offset", function(c, offset)
-	!if _ASSERT then
-	Assert.is(offset, Types.T_VEC2)
-	!end
-
-	c.offset = offset
+Concord.component("ui_offset", function(c, ox, oy)
+	@@assert(type(ox) == "number")
+	@@assert(type(oy) == "number")
+	c.ox = ox
+	c.oy = oy
 end)
 
 Concord.component("layer", function(c, id, n)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.safe.must(n, Types.T_NUMBER)
-	!end
-
+	@@assert(type(id) == "string")
+	@@sassert(n, type(n) == "number")
 	c.id = id
 	c.n = n or 0
 end)

@@ -25,7 +25,7 @@ local methods = {
 
 local function check_state(cw, method)
 	if (cw[method] == nil) or type(cw[method]) ~= "function" then
-		Log.fatal(format("'%s' does not have a '%s' method", cw.id, method))
+		Log.warn(format("'%s' does not have a '%s' method", cw.id, method))
 	end
 end
 !end

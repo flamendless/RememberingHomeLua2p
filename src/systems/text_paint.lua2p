@@ -36,46 +36,34 @@ function TextPaint:init(world)
 		local tpd = e.text_paint_data
 		local id = tpd.id
 		local data = tpd.data
-
-		!if _ASSERT then
-		Assert.must(data, Types.T_TABLE)
-		Assert.must(data.spritesheet, Types.T_IMAGE)
-		Assert.must(data.frames, Types.T_TABLE)
-		Assert.must(data.rows_count, Types.T_NUMBER)
-		Assert.must(data.columns_count, Types.T_NUMBER)
-		Assert.safe.must(data.n_frames, Types.T_NUMBER)
-		Assert.safe.within_range(data.start_frame, 1, data.n_frames)
-		Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
-		!end
-
+		@@assert(type(data) == "table")
+		@@assert(data.spritesheet:type() == "Image")
+		@@assert(type(data.frames) == "table")
+		@@assert(type(data.rows_count) == "number")
+		@@assert(type(data.columns_count) == "number")
+		@@sassert(data.n_frames, type(data.n_frames) == "number")
+		@@sassert(data.start_frame, data.start_frame >= 1 and data.start_frame <= data.n_frames)
+		@@assert(type(data.delay) == "number" or type(data.delay) == "table")
 		self.paint_data[id] = data
 	end
 end
 
 function TextPaint:show_text_paint(e, dur, widest)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.safe.must(widest, Types.T_STRING)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.text_with_paint)
+	@@assert(type(dur) == "number")
+	@@sassert(widest, type(widest) == "string")
 	self:show_paint(e, dur, widest)
 	e:remove("hidden")
-
 	Flux.to(e.color.color, dur, {[4] = 1})
 end
 
 function TextPaint:fade_text_paint(e, dur, on_complete)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint)
-	Assert.is(e.text_with_paint.paint, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint.paint.paint)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.safe.must(on_complete, Types.T_FUNCTION)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.text_with_paint)
+	@@assert(e.text_with_paint.paint.paint)
+	@@assert(type(dur) == "number")
+	@@sassert(on_complete, type(on_complete) == "function")
 	local delay = 0
 
 	if e.task then
@@ -100,14 +88,11 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 end
 
 function TextPaint:show_paint(e, dur_in, widest)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.must(dur_in, Types.T_NUMBER)
-	Assert.safe.must(widest, Types.T_STRING)
-	Assert.safe.exists(e.static_text)
-	Assert.safe.exists(e.text)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(type(dur_in) == "number")
+	@@sassert(widest, type(widest) == "string")
+	@@sassert(e.static_text, e.static_text ~= nil)
+	@@sassert(e.text, e.text ~= nil)
 	local str
 	local text = e.text
 	local static_text = e.static_text
@@ -153,13 +138,10 @@ function TextPaint:show_paint(e, dur_in, widest)
 end
 
 function TextPaint:fade_paint(paint, dur, delay)
-	!if _ASSERT then
-	Assert.is(paint, Types.T_ENTITY)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.exists(paint.paint)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
+	@@assert(paint.__isEntity)
+	@@assert(type(dur) == "number")
+	@@assert(paint.paint)
+	@@sassert(delay, type(delay) == "number")
 	Flux.to(paint.color.color, dur, {[4] = 0})
 		:delay(delay or def_delay_paint)
 		:oncomplete(function()

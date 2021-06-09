@@ -21,7 +21,7 @@ local function sort_z_ex(a, b)
 		return a_pos.y < b_pos.y
 	end
 
-	return a_z.z < b_z.z
+	return a_z.value < b_z.value
 end
 
 local function draw(sprite, ...)

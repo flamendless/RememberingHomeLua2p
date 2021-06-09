@@ -147,6 +147,9 @@ function StateMenu:on_newgame()
 	--TODO change target_color
 	self.entities.title:give("target_color", Palette.get("white", 0), dur)
 	self.entities.subtitle:give("target_color", Palette.get("white", 0), dur)
+	!if _DEV then
+	self.entities.secret_title:give("target_color", Palette.get("white", 0), dur)
+	!end
 
 	self.entities.desk_fast = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.desk_fast, res_images.sheet_desk, ww, wh)

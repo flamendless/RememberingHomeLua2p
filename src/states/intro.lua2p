@@ -6,6 +6,7 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local ECS = require("ecs")
+local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
@@ -50,13 +51,9 @@ local rain_amount = {16, 32, 96}
 local should_fade = false
 
 function StateIntro:update_rain(i)
-	!if _ASSERT then
-	Assert.must(i, Types.T_NUMBER)
-	Assert.exists(rain_amount[i])
-	!end
-
+	@@assert(type(i) == "number")
+	@@assert(rain_amount[i])
 	local amount = rain_amount[i]
-
 	is_raining = true
 	self.ps1.system:setEmissionRate(amount)
 	self.ps2.system:setEmissionRate(amount)
@@ -91,6 +88,7 @@ function StateIntro:start()
 	Jprof.push("intro start")
 	!end
 	ECS.load_systems(self.id, self.world)
+	self.main_canvas = Canvas.create_main({})
 
 	local w, h = res_images.bg:getDimensions()
 
@@ -207,27 +205,27 @@ function StateIntro:start()
 
 	self.entities.intro_txt1 = Concord.entity(self.world)
 		:assemble(Assemblages.UI.ui_text, "flamendless studio presents",
-			res_fonts.ui, vec2:new(32, 32))
+			res_fonts.ui, 32, 32)
 
 	self.entities.intro_txt2 = Concord.entity(self.world)
 		:assemble(Assemblages.UI.ui_text, !("a game by " .. _NAME_DEVELOPER),
-			res_fonts.ui, vec2:new(32, 32))
+			res_fonts.ui, 32, 32)
 
 	self.entities.intro_txt3 = Concord.entity(self.world)
 		:assemble(Assemblages.UI.ui_text, !("arts by " .. _NAME_ARTIST),
-			res_fonts.ui, vec2:new(32, 32))
+			res_fonts.ui, 32, 32)
 
 	self.entities.intro_txt4 = Concord.entity(self.world)
 		:assemble(Assemblages.UI.ui_text, !("music by " .. _NAME_MUSICIAN),
-			res_fonts.ui, vec2:new(32, 32))
+			res_fonts.ui, 32, 32)
 
 	self.entities.title_light = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title_light,
-			res_images.title_light, vec2:new(screen_size.x/2, screen_size.y/2))
+			res_images.title_light, screen_size.x/2, screen_size.y/2)
 
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title,
-			res_images.title, vec2:new(screen_size.x/2, screen_size.y/2))
+			res_images.title, screen_size.x/2, screen_size.y/2)
 
 	self.timeline = TLE.Do(function()
 		!if not _RELEASE then
@@ -239,7 +237,7 @@ function StateIntro:start()
 		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
 
-		local car_pos = self.entities.car.pos.pos
+		local car_pos = self.entities.car.pos
 		self.camera:setScale(15)
 		self.camera:setPosition(53, 544)
 
@@ -334,12 +332,8 @@ function StateIntro:start()
 	end)
 
 	if Save.data.intro_done or not !(_RELEASE) then
-		local key_skip = Inputs.get("ui_skip")
-		local str_skip = format("Press %s/%s to skip", unpack(key_skip))
-
 		self.entities.skip_intro = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, str_skip, res_fonts.ui,
-				vec2:new(screen_size.x/2, screen_size.y - 8))
+			:assemble(Assemblages.Common.skip, res_fonts.ui, screen_size.x/2, screen_size.y - 8)
 	end
 
 	!if _PROF then
@@ -350,6 +344,29 @@ end
 
 function StateIntro:update(dt)
 	if not self.is_ready then return end
+
+	!if _DEV then
+	if Inputs.pressed("interact") then
+		self.timeline:Unpause()
+	end
+	!end
+
+	if Save.data.intro_done or !(_DEV) then
+		if not is_switching then
+			if Inputs.pressed("skip") then
+				self.entities.skip_intro:destroy()
+				should_fade = true
+				Fade.fade_out(function()
+					Save.toggle_flag("intro_done", true)
+					is_raining = false
+					is_switching = true
+					self.ps1.system:stop()
+					self.ps2.system:stop()
+					self.gamestate.switch("Outside")
+				end, 2)
+			end
+		end
+	end
 
 	if is_raining then
 		self.ps1:update(dt)
@@ -364,23 +381,17 @@ function StateIntro:update(dt)
 
 	self.world:emit("update", dt)
 	self.world:emit("update_light", dt)
-
-	!if not _RELEASE then
-	self.world:emit("debugging_update", dt)
-	!end
 end
 
-function StateIntro:custom_draw(canvas)
+function StateIntro:draw()
 	if not self.is_ready then return end
-
-	local x, y = canvas.x, canvas.y
 
 	self.world:emit("draw_light_start")
 	self.world:emit("draw_light")
 
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(canvas.canvas)
+	love.graphics.setCanvas(self.main_canvas.canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		if current_effect then
@@ -398,7 +409,7 @@ function StateIntro:custom_draw(canvas)
 
 		love.graphics.setShader()
 
-		self.world:emit("draw_light_end", x, y)
+		self.world:emit("draw_light_end", self.main_canvas.x, self.main_canvas.y)
 	end)
 
 	self.world:emit("draw_clip")
@@ -407,44 +418,10 @@ function StateIntro:custom_draw(canvas)
 	if should_fade then Fade.draw() end
 
 	love.graphics.setCanvas()
-	canvas:render()
-
-	!if not _RELEASE then
-	self.world:emit("debugging_draw")
-	!end
+	self.main_canvas:render()
 end
 
 function StateIntro:keypressed(key)
-	if not self.is_ready then return end
-	!if not _RELEASE then
-	if key == "space" then
-		self.timeline:Unpause()
-	elseif key == "1" then
-		self:update_rain(1)
-	elseif key == "2" then
-		self:update_rain(2)
-	elseif key == "3" then
-		self:update_rain(3)
-	end
-	!end
-
-	if Save.data.intro_done or not !(_RELEASE) then
-		if not is_switching then
-			if Inputs.is_pressed("ui_skip", key) then
-				self.entities.skip_intro:destroy()
-				should_fade = true
-				Fade.fade_out(function()
-					Save.toggle_flag("intro_done", true)
-					is_raining = false
-					is_switching = true
-					self.ps1.system:stop()
-					self.ps2.system:stop()
-					self.gamestate.switch("Outside")
-				end, 2)
-			end
-		end
-	end
-
 	self.world:emit("keypressed", key)
 end
 

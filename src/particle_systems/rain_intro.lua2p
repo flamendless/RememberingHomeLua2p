@@ -3,12 +3,9 @@ local lg = love.graphics
 local RainIntroParticles = class()
 
 function RainIntroParticles:new(image, buffer, w)
-	!if _ASSERT then
-	Assert.must(image, Types.T_IMAGE)
-	Assert.must(buffer, Types.T_NUMBER)
-	Assert.must(w, Types.T_NUMBER)
-	!end
-
+	@@assert(image:type() == "Image")
+	@@assert(type(buffer) == "number")
+	@@assert(type(w) == "number")
 	local ps = lg.newParticleSystem(image, buffer)
 
 	ps:setColors(1, 1, 1, 0.6)

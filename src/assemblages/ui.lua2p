@@ -43,28 +43,28 @@ function UI.brush_data(e, sheet)
 		})
 end
 
-function UI.ui_text(e, text, font, pos)
+function UI.ui_text(e, text, font, x, y)
 	e:give("id", "ui_text")
 	:give("static_text", text)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("white", 0))
 	:give("ui_element")
 	:give("hidden")
 	:give("layer", "intro", 2)
 end
 
-function UI.ui_text_paint(e, id, text, font, pos)
-	e:assemble(UI.ui_text, text, font, pos)
+function UI.ui_text_paint(e, id, text, font, x, y)
+	e:assemble(UI.ui_text, text, font, x, y)
 	:give("text_with_paint", id)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 end
 
-function UI.dialogue_text(e, id, text, font, pos)
+function UI.dialogue_text(e, id, text, font, x, y)
 	e:give("id", id)
 	:give("text", text)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("ui_dialogue", 0))
 	:give("dialogue")
 	:give("ui_element")
@@ -74,9 +74,9 @@ function UI.dialogue_text(e, id, text, font, pos)
 	:give("layer", "dialogue", 3)
 end
 
-function UI.dialogue_arrow(e, sheet, pos)
+function UI.dialogue_arrow(e, sheet, x, y)
 	e:give("id", "dialogue_arrow")
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("animation", true)
 	:give("animation_data", {
 			spritesheet = sheet,
@@ -94,9 +94,9 @@ function UI.dialogue_arrow(e, sheet, pos)
 	:give("layer", "dialogue", 2)
 end
 
-function UI.hold_progress_bg(e, pos, radius, segments)
+function UI.hold_progress_bg(e, x, y, radius, segments)
 	e:give("id", "hold_progress_bg")
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("arc", radius, segments)
 	:give("line_width", line_width * 2)
 	:give("color", Palette.get("ui_hold_progress", 0))
@@ -105,9 +105,9 @@ function UI.hold_progress_bg(e, pos, radius, segments)
 	:give("ui_element")
 end
 
-function UI.hold_progress(e, pos, timer, radius, segments)
+function UI.hold_progress(e, x, y, timer, radius, segments)
 	e:give("id", "hold_progress")
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("hold", timer)
 	:give("arc", radius, segments)
 	:give("line_width", line_width)
@@ -118,10 +118,7 @@ function UI.hold_progress(e, pos, timer, radius, segments)
 end
 
 function UI.keypress(e, is_hold, sheet, target)
-	!if _ASSERT then
-	Assert.must(is_hold, Types.T_BOOLEAN)
-	!end
-
+	@@assert(type(is_hold) == "boolean")
 	local delay = is_hold and {0.5, 0.5, 2} or 0.5
 
 	e:give("id", "keypress")
@@ -135,27 +132,24 @@ function UI.keypress(e, is_hold, sheet, target)
 			n_frames = 3,
 		})
 	:give("animation")
-	:give("pos", vec2:new())
+	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
 	:give("attach_to", target)
 end
 
-function UI.key(e, key, pos, font)
+function UI.key(e, key, x, y, font)
 	e:give("id", "key_" .. key)
 	:give("text", key)
 	:give("font", font)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_element")
 end
 
-function UI.arrow(e, dir, sheet, pos)
-	!if _ASSERT then
-	Assert.must(dir, Types.T_STRING)
-	!end
-
+function UI.arrow(e, dir, sheet, x, y)
+	@@assert(type(dir) == "string")
 	local d = dirs[dir]
 	local q
 
@@ -171,7 +165,7 @@ function UI.arrow(e, dir, sheet, pos)
 
 	e:give("id", "arrow_" .. dir)
 	:give("sprite", sheet)
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("quad", q)
 	:give("color", {1, 1, 1, 0})
 	:give("ui_element")
@@ -211,7 +205,7 @@ function UI.question_mark(e, sprite, dur)
 	:give("no_shader")
 end
 
-function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
+function UI.inventory_btn(e, id, sheet, x, y, scale, ox, oy)
 	local color_hovered, color_unhovered_def, color_unhovered
 
 	if id == "close" then
@@ -233,7 +227,7 @@ function UI.inventory_btn(e, id, sheet, pos, scale, ox, oy)
 			columns_count = 5,
 			n_frames = 5,
 		})
-	:give("pos", pos)
+	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("ease", "backout")
 	:give("hover_change_color", color_hovered, 0.1)
