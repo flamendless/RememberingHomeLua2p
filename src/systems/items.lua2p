@@ -15,11 +15,12 @@ function Items:init(world)
 end
 
 function Items:set_items_resources(t)
-	!if _ASSERT then
-	Assert.must(t, Types.T_TABLE)
-	Assert.k_every(t, Types.T_IMAGE)
+	@@assert(type(t) == "table")
+	!if _DEV then
+	for k, v in pairs(t) do
+		@@assert(v:type() == "Image")
+	end
 	!end
-
 	self.sprites = t
 end
 
@@ -42,10 +43,7 @@ function Items:item_clicked_combine(combine_b)
 		local res_id = ItemCombinations.get(id_a, id_b)
 
 		if res_id then
-			!if _ASSERT then
-			Assert.exists(self.sprites[res_id])
-			!end
-
+			@@assert(self.sprites[res_id])
 			res = {
 				id = res_id,
 				spr = self.sprites[res_id],

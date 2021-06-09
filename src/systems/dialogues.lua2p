@@ -57,16 +57,17 @@ function Dialogues:init(world)
 end
 
 function Dialogues:set_dialogue_config(t)
-	!if _ASSERT then
-	Assert.must(t, Types.T_TABLE)
-	Assert.is(t.pos, Types.T_VEC2)
-	Assert.is(t.pos_arrow, Types.T_VEC2)
-	Assert.must(t.font, Types.T_FONT)
-	Assert.must(t.sheet_arrow, Types.T_IMAGE)
-	Assert.safe.must(t.dur_show, Types.T_NUMBER)
-	Assert.safe.must(t.dur_hide, Types.T_NUMBER)
-	!end
-
+	@@assert(type(t) == "table")
+	@@assert(type(t.pos) == "table")
+	@@assert(type(t.pos.x) == "number")
+	@@assert(type(t.pos.y) == "number")
+	@@assert(type(t.pos_arrow) == "table")
+	@@assert(type(t.pos_arrow.x) == "number")
+	@@assert(type(t.pos_arrow.y) == "number")
+	@@assert(t.font:type() == "Font")
+	@@assert(t.sheet_arrow:type() == "Image")
+	@@sassert(t.dur_show, type(t.dur_show) == "number")
+	@@sassert(t.dur_hide, type(t.dur_hide) == "number")
 	self.pos = t.pos
 	self.pos_arrow = t.pos_arrow
 	self.font = t.font
@@ -76,13 +77,10 @@ function Dialogues:set_dialogue_config(t)
 end
 
 function Dialogues:show_dialogue(id, sub, interactive_id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.must(sub, Types.T_STRING)
-	Assert.safe.must(interactive_id, Types.T_STRING)
-	Assert.exists(self.font)
-	!end
-
+	@@assert(type(id) == "string")
+	@@assert(type(sub) == "string")
+	@@sassert(interactive_id, type(interactive_id) == "string")
+	@@assert(self.font)
 	local dialogue = DialoguesList.get_spec(id, sub)
 	local text
 	local widest

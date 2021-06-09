@@ -154,7 +154,7 @@ end
 
 function Animation:switch_animation_tag(e, new_tag, override)
 	@@assert(e.__isEntity)
-	@@assert(type(tag) == "string")
+	@@assert(type(new_tag) == "string")
 	@@sassert(override, type(override) == "boolean")
 
 	local multi = e.multi_animation_data

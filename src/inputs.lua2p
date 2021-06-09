@@ -12,6 +12,7 @@ local maps = {
 		s = "down",
 		e = "interact",
 		q = "cancel",
+		i = "inventory",
 		escape = "skip",
 	},
 	--map_arrows
@@ -22,6 +23,7 @@ local maps = {
 		down = "down",
 		z = "interact",
 		x = "cancel",
+		c = "inventory",
 		space = "skip",
 	},
 }
@@ -39,6 +41,9 @@ function Inputs.init(key_map)
 	local n = key_map or Settings.current.key_map
 	@@assert(maps[n])
 	Inputs.map = maps[n]
+	!if _DEV then
+	Inputs.map.space = "play"
+	!end
 	tablex.clear(Inputs.previous)
 	tablex.clear(Inputs.current)
 	tablex.clear(Inputs.rev_map)

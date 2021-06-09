@@ -3,28 +3,25 @@ local Concord = require("modules.concord.concord")
 local floor = math.floor
 
 Concord.component("multi_animation_data", function(c, first, data, modifier)
-	!if _ASSERT then
-	Assert.must(first, Types.T_STRING)
-	Assert.must(data, Types.T_TABLE)
-	Assert.exists(data[first])
-
+	@@assert(type(first) == "string")
+	@@assert(type(data) == "table")
+	@@assert(data[first])
+	!if _DEV then
 	for k, v in pairs(data) do
-		Assert.exists(v.spritesheet)
-		Assert.must(v.spritesheet, Types.T_IMAGE)
-		Assert.either_type(v.delay, Types.T_NUMBER, Types.T_TABLE)
-		Assert.must(v.rows_count, Types.T_NUMBER)
-		Assert.must(v.columns_count, Types.T_NUMBER)
-		Assert.must(v.n_frames, Types.T_NUMBER)
+		@@assert(v.spritesheet)
+		@@assert(v.spritesheet:type() == "Image")
+		@@assert(type(v.delay) == "number" or type(v.delay) == "table")
+		@@assert(type(v.rows_count) == "number")
+		@@assert(type(v.columns_count) == "number")
+		@@assert(type(v.n_frames) == "number")
 	end
 
-	if Assert.safe.must(modifier, Types.T_TABLE) then
+	@@sassert(modifier, type(modifier) == "table")
+	if (modifier) then
 		for id, v in pairs(modifier) do
-			local target = v[1]
-			local action = v[2]
-
-			Assert.exists(data[id])
-			Assert.must(target, Types.T_STRING)
-			Assert.must(action, Types.T_STRING)
+			@@assert(data[id])
+			@@assert(type(v[1]) == "string")
+			@@assert(type(v[2]) == "string")
 		end
 	end
 	!end

@@ -5,23 +5,19 @@ local filters = Enum("slide", "cross", "bounce")
 
 Concord.component("bump3d")
 
-Concord.component("collider3d", function(c, size, filter)
-	!if _ASSERT then
-	Assert.is(size, Types.T_VEC3)
-	!end
-
-	c.size = size
+Concord.component("collider3d", function(c, x, y, z, filter)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(z) == "number")
+	c.x = x
+	c.y = y
+	c.z = z
 	c.prev_hit = false
 	c.is_hit = false
 	c.filter = nil
-	c.normal = vec3:new()
+	c.normal = {x = x, y = y, z = z}
 
 	if filter then
 		c.filter = filters[filter]
 	end
-
-	!if not _RELEASE then
-	c.view = true
-	c.focus_view = false
-	!end
 end)

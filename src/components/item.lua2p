@@ -7,17 +7,11 @@ Concord.component("inventory_cell")
 Concord.component("inventory_desc")
 
 Concord.component("item", function(c, desc)
-	!if _ASSERT then
-	Assert.must(desc, Types.T_STRING)
-	!end
-
-	c.desc = desc
+	@@assert(type(desc) == "string")
+	c.value = desc
 end)
 
 Concord.component("inventory_slot_number", function(c, slot)
-	!if _ASSERT then
-	Assert.must(slot, Types.T_NUMBER)
-	!end
-
-	c.slot = slot
+	@@assert(type(slot) == "number")
+	c.value = slot
 end)

@@ -15,22 +15,18 @@ local function arrows_keys_fade(arrow, key, dur)
 end
 
 function EventsList.hold_key(key, input_id, timer, e)
-	!if _ASSERT then
-	Assert.must(key, Types.T_STRING)
-	Assert.must(input_id, Types.T_STRING)
-	Assert.must(timer, Types.T_NUMBER)
-	if timer <= 0 then error("timer must not be zero or negative") end
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.hold)
-	!end
-
+	@@assert(type(key) == "string")
+	@@assert(type(input_id) == "string")
+	@@assert(type(timer) == "number")
+	@@assert(timer > 0)
+	@@assert(e.__isEntity)
+	@@assert(e.hold)
 	local id = "hold_key_" .. key
 	local ev = Event:new(id, {timer = 0})
 
 	ev.update = function(task, dt)
 		local data = task.data
-
-		if Inputs.is_down(input_id) then
+		if Inputs.down(input_id) then
 			data.timer = math.lerp(data.timer, data.timer + dt, 0.75)
 		else
 			data.timer = math.lerp(data.timer, 0, 0.25)
@@ -44,18 +40,13 @@ function EventsList.hold_key(key, input_id, timer, e)
 end
 
 function EventsList.arrows_keys(arrows, arrows_keys, dur)
-	!if _ASSERT then
-	Assert.must(arrows, Types.T_TABLE)
-	Assert.must(arrows_keys, Types.T_TABLE)
-	Assert.must(dur, Types.T_NUMBER)
-	!end
-
+	@@assert(type(arrows) == "table")
+	@@assert(type(arrows_keys) == "table")
+	@@assert(type(dur) == "number")
 	local id = "arrows_keys"
-	local ev = Event:new(id, {left = false, right = false, up = false, down = false})
+	local ev = Event:new(id, {left = false, right = false})
 	local key_left = "player_move_left"
 	local key_right = "player_move_right"
-	local key_up = "player_move_up"
-	local key_down = "player_move_down"
 
 	ev.update = function(task, dt)
 		local data = task.data
@@ -68,16 +59,6 @@ function EventsList.arrows_keys(arrows, arrows_keys, dur)
 		if not data.right and Inputs.is_down(key_right) then
 			data.right = true
 			arrows_keys_fade(arrows.right, arrows_keys.key_right, dur)
-		end
-
-		if not data.up and Inputs.is_down(key_up) then
-			data.up = true
-			arrows_keys_fade(arrows.up, arrows_keys.key_up, dur)
-		end
-
-		if not data.down and Inputs.is_down(key_down) then
-			data.down = true
-			arrows_keys_fade(arrows.down, arrows_keys.key_down, dur)
 		end
 	end
 

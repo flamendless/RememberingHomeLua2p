@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body", "collider3d"},
+	pool = {"player_controller", "body", "collider"},
 })
 
 function PlayerController:init(world)
@@ -40,17 +40,18 @@ function PlayerController:update(dt)
 
 		if e.override_animation then return end
 		if not e.body.can_move then return end
-
+		local player = e.player
+		local interactive = e.within_interactive
 		local body = e.body
 
-		if Inputs.is_down("player_move_left") then
+		if Inputs.down("left") then
 			if body.can_run then
 				body.is_run = Inputs.is_down("player_run_mod")
 			end
 
 			body.dir = -1
 			body.dx = -1
-		elseif Inputs.is_down("player_move_right") then
+		elseif Inputs.down("right") then
 			if body.can_run then
 				body.is_run = Inputs.is_down("player_run_mod")
 			end
@@ -61,23 +62,40 @@ function PlayerController:update(dt)
 			body.dx = 0
 		end
 
-		if Inputs.is_down("player_move_up") then
+		if Inputs.down("up") then
 			body.dy = -1
-		elseif Inputs.is_down("player_move_down") then
+		elseif Inputs.down("down") then
 			body.dy = 1
 		else
 			body.dy = 0
 		end
 
-		local anim_name = self:update_animation(e)
+		if Inputs.pressed("interact") then
+			if player.can_interact and interactive then
+				self.world:emit("interactive_interacted", e, interactive.interactive)
+			end
+		elseif Inputs.pressed("cancel") then
+			local interact = player.can_interact
+			local in_dialogue = e.in_dialogue
+			local in_inventory = e.inventory_open
 
+			if not interact and not in_dialogue and not in_inventory then
+				self.world:emit("interact_cancelled", e, interactive.interactive)
+			end
+
+			if not interact and not in_dialogue and in_inventory then
+				e:remove("inventory_open")
+			end
+		end
+
+		local anim_name = self:update_animation(e)
 		self:update_speed(e, anim_name)
 	end
 end
 
 function PlayerController:update_spawn_point(e)
 	local dir = e.body.dir
-	local pos = e.pos.pos
+	local pos = e.pos
 	local sp_ac = e.spawn_point_action_controls
 	local sp_qm = e.spawn_point_question_mark
 
@@ -134,19 +152,17 @@ function PlayerController:update_speed(e, anim_name)
 
 	if speed and speed_data then
 		local body = e.body
-		local old_speed = speed.speed
+		local osx, osy = speed.vx, speed.vy
 		local new_speed = speed_data.speed_data[anim_name]
 
 		if body.dx ~= 0 then
-			local speed_dt = mathx.lerp(old_speed.x, new_speed.x, 0.5)
-
-			speed.speed.x = speed_dt
+			local speed_dt = mathx.lerp(osx, new_speed.x, 0.5)
+			speed.vx = speed_dt
 		end
 
 		if body.dy ~= 0 then
-			local speed_dt = mathx.lerp(old_speed.y, new_speed.y, 0.5)
-
-			speed.speed.y = speed_dt
+			local speed_dt = mathx.lerp(osy, new_speed.y, 0.5)
+			speed.vy = speed_dt
 		end
 	end
 end
@@ -231,93 +247,5 @@ function PlayerController:interacted_stairs(e, tag, fn)
 	:give("override_animation")
 	:give("animation_on_update", fn)
 end
-
-function PlayerController:keypressed(key)
-	if Inputs.is_pressed("player_interact", key) then
-		for _, e in ipairs(self.pool) do
-			local player = e.player
-			local interactive = e.within_interactive
-
-			if player.can_interact and interactive then
-				self.world:emit("interactive_interacted", e, interactive.interactive)
-			end
-		end
-	elseif Inputs.is_pressed("ui_back", key) then
-		for _, e in ipairs(self.pool) do
-			local player = e.player
-			local interact = player.can_interact
-			local interactive = e.within_interactive
-			local in_dialogue = e.in_dialogue
-			local in_inventory = e.inventory_open
-
-			if not interact and not in_dialogue and not in_inventory then
-				self.world:emit("interact_cancelled", e, interactive.interactive)
-			end
-
-			if not interact and not in_dialogue and in_inventory then
-				self.world:emit("keypressed_back", e)
-			end
-		end
-	end
-end
-
-function PlayerController:keypressed_back()
-	for _, e in ipairs(self.pool) do
-		e:remove("inventory_open")
-	end
-end
-
-!if _ASSERT then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-local format = string.format
-
-function PlayerController:draw_debug()
-	views.player = Slab.BeginWindow("player", {Title = "Player", IsOpen = views.player})
-
-	for _, e in ipairs(self.pool) do
-		local body = e.body
-		local player = e.player
-		local within_interactive = e.within_interactive
-
-		Slab.Text("Body:")
-		Slab.Indent()
-		Slab.Text("dxy: " .. format("(%i, %i)", body.dx, body.dy))
-		Slab.Text("dir: " .. body.dir)
-
-		if Slab.CheckBox(body.can_move, "can_move") then
-			body.can_move = not body.can_move
-		end
-
-		if Slab.CheckBox(body.can_run, "can_run") then
-			body.can_run = not body.can_run
-		end
-
-		if Slab.CheckBox(player.can_interact, "can_interact") then
-			player.can_interact = not player.can_interact
-		end
-
-		Slab.Text("is_run: " .. tostring(body.is_run))
-
-		Slab.Unindent()
-
-		if within_interactive then
-			Slab.Text("Within interactive: " .. within_interactive.interactive_id)
-		end
-
-		Slab.Text("Override: " .. tostring(e.override_animation ~= nil))
-		Slab.Text("Current: " .. e.animation.current_tag)
-		Slab.Text("Playing: " .. tostring(e.animation.is_playing))
-		Slab.Text("Tags:")
-		Slab.Indent()
-
-		for k, _ in pairs(e.multi_animation_data.data) do
-			Slab.Text(k)
-		end
-	end
-	Slab.EndWindow()
-end
-!end
 
 return PlayerController

@@ -5,14 +5,9 @@ local items_desc = {
 }
 
 function ItemsData.get_desc(id)
-	local desc = items_desc[id]
-
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.exists(items_desc[id])
-	!end
-
-	return desc
+	@@assert(type(id) == "string")
+	@@assert(items_desc[id])
+	return items_desc[id]
 end
 
 return ItemsData

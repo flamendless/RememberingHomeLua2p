@@ -38,21 +38,15 @@ local dialogues = {
 }
 
 function Dialogues.get(id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.exists(dialogues[id])
-	!end
-
+	@@assert(type(id) == "string")
+	@@assert(dialogues[id])
 	return dialogues[id]
 end
 
 function Dialogues.get_spec(id, sub)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.must(sub, Types.T_STRING)
-	Assert.exists(dialogues[id][sub])
-	!end
-
+	@@assert(type(id) == "string")
+	@@assert(type(sub) == "string")
+	@@assert(dialogues[id][sub])
 	return dialogues[id][sub]
 end
 

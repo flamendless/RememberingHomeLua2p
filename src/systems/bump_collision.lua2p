@@ -7,7 +7,6 @@ local BumpCollision = Concord.system({
 
 local function filter(item, other)
 	local other_col = other.collider
-
 	return other_col.filter or "slide"
 end
 
@@ -16,10 +15,9 @@ function BumpCollision:init(world)
 	self.bump_world = Bump.newWorld()
 
 	self.pool.onAdded = function(pool, e)
-		local x = e.pos.pos.x + e.collider.offset.x
-		local y = e.pos.pos.y + e.collider.offset.y
-
-		self.bump_world:add(e, x, y, e.collider.size.x, e.collider.size.y)
+		local x = e.pos.x + e.collider.ox
+		local y = e.pos.y + e.collider.oy
+		self.bump_world:add(e, x, y, e.collider.w, e.collider.h)
 	end
 end
 
@@ -31,67 +29,42 @@ end
 
 function BumpCollision:update(dt)
 	for _, e in ipairs(self.pool) do
-		local body = e.body
+		if e.body then
+			self:update_body(e)
+		end
+	end
+end
 
-		if body then
-			if body.vel_x ~= 0 or body.vel_y ~= 0 then
-				local collider = e.collider
-				local pos = e.pos.pos
-				local cols, len
+function BumpCollision:update_body(e)
+	local body = e.body
+	local pos = e.pos
+	local cols, len
 
-				pos.x, pos.y, cols, len = self.bump_world:move(e,
-					pos.x + body.vel_x, pos.y + body.vel_y, filter)
+	pos.x, pos.y, cols, len = self.bump_world:move(e,
+		pos.x + body.vel_x,
+		pos.y + body.vel_y,
+		filter)
 
-				for i = 1, len do
-					local c = cols[i]
+	for i = 1, len do
+		local c = cols[i]
 
-					local other = c.other
-					local other_col = other.collider
-					local other_id = other.bump.id
+		local other = c.other
+		local other_col = other.collider
+		local other_id = other.bump.id
 
-					other_col.is_hit = true
-					other_col.normal.x = c.normalX
-					other_col.normal.y = c.normalY
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
 
-					local interactive = c.interactive
-					local interactive_col = interactive.collider
-
-					interactive_col.is_hit = true
-					interactive_col.normal.x = c.normalX
-					interactive_col.normal.y = c.normalY
-
-					if other_id then
-						--TODO wall collision animation
-						if other_id == "wall" then
-							self.world:emit("collision_wall", e, other)
-
-							return
-						end
-					end
-				end
-
-				self.bump_world.freeCollisions(cols)
+		if other.interactive then
+			if not other_col.prev_hit then
+				other_col.prev_hit = true
+				self.world:emit("interactive_collided", e, other)
 			end
 		end
 	end
+
+	self.bump_world.freeCollisions(cols)
 end
-
-!if not _RELEASE then
-function BumpCollision:draw_debug()
-	local items, len = self.bump_world:getItems()
-	for i = 1, len do
-		local e = items[i]
-		local x, y, w, h = self.bump_world:getRect(e)
-
-		if e.collider.is_hit then
-			love.graphics.setColor(1, 0, 0, 0.5)
-		else
-			love.graphics.setColor(0, 1, 0, 0.5)
-		end
-
-		love.graphics.rectangle("line", x, y, w, h)
-	end
-end
-!end
 
 return BumpCollision

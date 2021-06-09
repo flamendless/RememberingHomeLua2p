@@ -46,7 +46,6 @@ local function move_to_next_point(path, pos)
 
 	for i = low, high do
 		local nx, ny = path.points[i]:unpack()
-
 		insert(points, nx)
 		insert(points, ny)
 	end
@@ -57,7 +56,6 @@ local function move_to_next_point(path, pos)
 
 	f:onupdate(function()
 		local dx, dy = b:evaluate(state.time)
-
 		pos.x = dx
 		pos.y = dy
 	end)
@@ -84,35 +82,33 @@ function Fireflies:update(dt)
 end
 
 function Fireflies:generate_fireflies(n, sprite, sprite_light, min_pos, max_pos)
-	!if _ASSERT then
-	Assert.must(n, Types.T_NUMBER)
-	Assert.must(sprite, Types.T_IMAGE)
-	Assert.must(sprite_light, Types.T_IMAGE)
-	Assert.is(min_pos, Types.T_VEC2)
-	Assert.is(max_pos, Types.T_VEC2)
-	!end
-
+	@@assert(type(n) == "number")
+	@@assert(sprite:type() == "Image")
+	@@assert(sprite_light:type() == "Image")
+	@@assert(type(min_pos) == "table")
+	@@assert(type(min_pos.x) == "number")
+	@@assert(type(min_pos.y) == "number")
+	@@assert(type(max_pos) == "table")
+	@@assert(type(max_pos.x) == "number")
+	@@assert(type(max_pos.y) == "number")
 	for i = 1, n do
 		local x = random(min_pos.x, max_pos.x)
 		local y = random(min_pos.y, max_pos.y)
 		local points = generate_points(x, y, 64)
 
 		local e = Concord.entity(self.world)
-			:assemble(Outside.firefly, sprite, vec2:new(x, y), points)
+			:assemble(Outside.firefly, sprite, x, y, points)
 		local f = Concord.entity(self.world)
 			:assemble(Outside.firefly_light, sprite_light, e)
 	end
 end
 
 function Fireflies:show_fireflies(dur, fn)
-	!if _ASSERT then
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.must(fn, Types.T_FUNCTION)
-	!end
-
+	@@assert(type(dur) == "number")
+	@@assert(type(fn) == "function")
 	for _, e in ipairs(self.pool) do
 		e:remove("hidden")
-		Flux.to(e.color.color, dur, {[4] = 1})
+		Flux.to(e.color.value, dur, {[4] = 1})
 			:oncomplete(function()
 				e.firefly.can_flicker = true
 				fn()
@@ -122,20 +118,17 @@ end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
-		move_to_next_point(e.path, e.pos.pos)
+		move_to_next_point(e.path, e.pos)
 	end
 end
 
 function Fireflies:flicker_fireflies(start_time, end_time)
-	!if _ASSERT then
-	Assert.must(start_time, Types.T_NUMBER)
-	Assert.must(end_time, Types.T_NUMBER)
-	!end
-
+	@@assert(type(start_time) == "number")
+	@@assert(type(end_time) == "number")
 	for _, e in ipairs(self.pool) do
 		if e.firefly.can_flicker then
-			local color = e.color.color
-			local colors = e.firefly.colors
+			local color = e.color.value
+			local colors = e.firefly.value
 			local time = random(start_time, end_time)
 
 			local timer = self.timer:during(time, function()

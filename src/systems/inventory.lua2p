@@ -16,7 +16,7 @@ local UI = require("assemblages.ui")
 
 local scale = 1
 local img_w, img_h = 64, 64
-local item_size = vec2:new(img_w * scale, img_h * scale)
+local item_w, item_h = img_w * scale, img_h * scale
 
 local line_width = 3
 local color_combine = Palette.get("item_combine")
@@ -36,11 +36,11 @@ function Inventory:init(world)
 	self.sheets = nil
 
 	self.pool.onAdded = function(pool, e)
-		local pos = self.pool_cell[#pool].pos.pos:copy()
+		local pos = self.pool_cell[#pool].pos
 		self.current_n = self.current_n + 1
 
-		e:give("pos", pos)
-		:give("bounding_box", pos:copy(), item_size:copy())
+		e:give("pos", pos.x, pos.y)
+		:give("bounding_box", pos.x, pos.y, item_w, item_h)
 		:give("layer", "inventory", 3)
 		:give("transform", 0, scale, scale, 0.5, 0.5)
 		:give("on_click", 1, function()
@@ -66,19 +66,16 @@ function Inventory:init(world)
 end
 
 function Inventory:set_action_controls_resources(sheets)
-	!if _ASSERT then
-	Assert.must(sheets, Types.T_TABLE)
-	Assert.exists(sheets.use)
-	Assert.exists(sheets.combine)
-	Assert.exists(sheets.back)
-	!end
-
+	@@assert(type(sheets) == "table")
+	@@assert(sheets.use)
+	@@assert(sheets.combine)
+	@@assert(sheets.back)
 	self.sheets = sheets
 end
 
 function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 	local limit = self.rows + self.cols
-	local last_pos
+	local last_pos_x, last_pos_y
 
 	for n = 1, limit do
 		local base_x = ScreenInfo.ww * 0.7
@@ -88,27 +85,26 @@ function Inventory:create_inventory_cell(spr_item, spr_desc, font)
 		local j = floor(p/self.rows)
 		local x = base_x + (self.offset * scale * i)
 		local y = base_y + (self.offset * scale * j)
-		local pos = vec2:new(x, y)
 		local bg_scale = scale + 0.25
 		local ox, oy = 0.5, 0.5
 		local e_cell = Concord.entity(self.world)
 			:assemble(Items.inventory_cell, spr_item)
-			:give("pos", pos:copy())
+			:give("pos", x, y)
 			:give("transform", 0, bg_scale, bg_scale, ox, oy)
 			:give("layer", "inventory", 1)
 
 		if n == limit - 1 then
 			local sprite = spr_item
-			local lx = pos.x
-			local ly = pos.y + (oy * 2 * sprite:getHeight() * bg_scale) + 32
-
-			last_pos = vec2:new(lx, ly)
+			local lx = x
+			local ly = y + (oy * 2 * sprite:getHeight() * bg_scale) + 32
+			last_pos_x = lx
+			last_pos_y = ly
 		end
 	end
 
 	local e_desc_bg = Concord.entity(self.world)
 		:assemble(Items.inventory_desc, spr_desc)
-		:give("pos", last_pos)
+		:give("pos", last_pos_x, last_pos_y)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
 		:give("textf", spr_desc:getWidth(), "center")
@@ -128,13 +124,12 @@ function Inventory:item_clicked(e)
 	local scale = 1
 	local transform = e.transform
 	local spr_w, spr_h = e.sprite.sprite:getDimensions()
-	local slot = e.inventory_slot_number.slot
+	local slot = e.inventory_slot_number.value
 	local dir = (slot == 3 or slot == 6) and -1 or 1
 	local ox = (slot == 3 or slot == 6) and 1 or 0
 	local oy = 0.5
-	local ix, iy = e.pos.pos:unpack()
+	local ix, iy = e.pos.x, e.pos.y
 	local x = ix + (spr_w * dir) * transform.sx * transform.oy
-	local pos_use = vec2:new(x, iy)
 	local sheets = self.sheets
 
 	if self.btn_use then self.btn_use:destroy() end
@@ -142,7 +137,7 @@ function Inventory:item_clicked(e)
 	if self.btn_back then self.btn_back:destroy() end
 
 	self.btn_use = Concord.entity(self.world)
-		:assemble(UI.inventory_btn, "use", sheets.use, pos_use, scale, ox, oy)
+		:assemble(UI.inventory_btn, "use", sheets.use, x, iy, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_use:give("hoverable"):give("clickable")
 		end)
@@ -151,10 +146,9 @@ function Inventory:item_clicked(e)
 		end)
 
 	local frame_height = self.btn_use.animation_data.frame_height * scale
-	local pos_combine = vec2:new(x, iy + frame_height)
 
 	self.btn_combine = Concord.entity(self.world)
-		:assemble(UI.inventory_btn, "combine", sheets.combine, pos_combine, scale, ox, oy)
+		:assemble(UI.inventory_btn, "combine", sheets.combine, x, iy + frame_height, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_combine:give("hoverable"):give("clickable")
 		end)
@@ -162,10 +156,8 @@ function Inventory:item_clicked(e)
 			self.world:emit("clicked_inventory_combine", e)
 		end)
 
-	local pos_back = vec2:new(x, iy + frame_height * 2)
-
 	self.btn_back = Concord.entity(self.world)
-		:assemble(UI.inventory_btn, "back", sheets.back, pos_back, scale, ox, oy)
+		:assemble(UI.inventory_btn, "back", sheets.back, x, iy + frame_height * 2, scale, ox, oy)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_back:give("hoverable"):give("clickable")
 		end)
@@ -184,7 +176,7 @@ function Inventory:clicked_inventory_back(e)
 end
 
 function Inventory:mouse_hovered_item(e)
-	local desc = e.item.desc
+	local desc = e.item.value
 	local e_desc_text = self.pool_desc[1].text
 
 	e_desc_text.text = desc
@@ -222,16 +214,15 @@ end
 
 function Inventory:displayed_inventory()
 	local e = self.pool_cell[2]
-	local base = e.pos.pos
+	local base = e.pos
 	local sprite = e.sprite.sprite
 	local transform = e.transform
 	local x = base.x
 	local y = base.y - (transform.oy * 2 * sprite:getHeight() * transform.sy)
-	local pos = vec2:new(x, y)
 	local scale = 0.75
 
 	self.btn_close = Concord.entity(self.world)
-		:assemble(UI.inventory_btn, "close", self.sheets.cancel, pos, scale, 0.5, 0.5)
+		:assemble(UI.inventory_btn, "close", self.sheets.cancel, x, y, scale, 0.5, 0.5)
 		:give("color_fade_in", self.dur_show, nil, function()
 			self.btn_close:give("hoverable"):give("clickable")
 		end)
@@ -318,7 +309,7 @@ function Inventory:combined_item_success(res, a, b)
 
 	a.id.id = res.id
 	a.sprite.sprite = res.spr
-	a.item.desc = res.desc
+	a.item.value = res.desc
 end
 
 function Inventory:combined_item_fail()
@@ -371,7 +362,7 @@ function Inventory:draw_ui_layer_ex(layer_id)
 			local transform = e.transform
 			local bbox = e.bounding_box
 			local a = e.color.color[4]
-			local x, y = bbox.screen_pos:unpack()
+			local x, y = bbox.x, bbox.y
 			local w, h = bbox.size:unpack()
 
 			if transform then

@@ -28,16 +28,16 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"action_controls", "animation", "bounding_box", "bump3d_collision", "camera",
-	"click", "climb_staircase", "collision", "color", "dialogues", "fireflies",
+	"action_controls", "animation", "bounding_box", "bump_collision", "camera",
+	"click", "collision", "color", "dialogues", "fireflies",
 	"follow", "hover_effect", "interactive", "inventory", "items", "light",
-	"map", "move", "movement", "mouse_hover", "notification", "outside_house",
+	"move", "movement", "mouse_hover", "notification", "outside_house",
 	"player_controller", "render_circle", "render_sprite", "render_text",
 	"render_ui", "text_paint", "transform", "typewriter",
 }
 
 systems.StorageRoom = {
-	"animation", "bump3d_collision", "camera", "map", "movement",
+	"animation", "bump_collision", "camera", "map", "movement",
 	"player_controller", "render_sprite", "tilemap"
 }
 
@@ -47,6 +47,7 @@ function ECS.load_systems(id, world)
 	@@assert(world.__isWorld)
 
 	for _, v in ipairs(systems[id]) do
+		@@assert(Systems[v], string.format("id = %s, i = %d", id, _))
 		world:addSystem(Systems[v])
 	end
 end

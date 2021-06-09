@@ -5,6 +5,7 @@ local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
+local Canvas = require("canvas")
 local ECS = require("ecs")
 local EventsList = require("data.events_list")
 local EventManager = require("event_manager")
@@ -74,13 +75,14 @@ function StateOutside:show_arrows_keys()
 	local dur = 1.75
 	local scale = 1.75
 	local scale_sdf = scale - 0.75
-	local pos_arrows = vec2:new(screen_size.x * 0.35, screen_size.y * 0.5)
+	local ax = screen_size.x * 0.35
+	local ay = screen_size.y * 0.5
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
 	local jamboree_png = "res/fonts/Jamboree.png"
 	local font_sdf = love.graphics.newFontMSDF(jamboree_fnt, jamboree_png)
 
-	local e_arrows = Factory.arrows(self.world, res_images.sheet_arrows, pos_arrows, 16, scale)
-	local e_arrows_keys = Factory.arrows_keys(self.world, e_arrows, font_sdf, pos_arrows, scale_sdf)
+	local e_arrows = Factory.arrows(self.world, res_images.sheet_arrows, ax, ay, 16, scale)
+	local e_arrows_keys = Factory.arrows_keys(self.world, e_arrows, font_sdf, ax, ay, scale_sdf)
 
 	for _, e in pairs(e_arrows) do e:give("color_fade_in", dur) end
 	for _, e in pairs(e_arrows_keys) do e:give("color_fade_in", dur) end
@@ -109,7 +111,6 @@ function StateOutside:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
-		main_canvas = true,
 		gamestate = nil
 	})
 end
@@ -121,11 +122,9 @@ function StateOutside:load()
 		function()
 			res_images = resources.images
 			res_fonts = resources.fonts
-
 			!if not _RELEASE then
 			world = self.world
 			!end
-
 			self.is_ready = true
 			self:start()
 		end)
@@ -136,6 +135,8 @@ function StateOutside:start()
 
 	local w, h = res_images.bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
+
+	self.main_canvas = Canvas.create_main({})
 
 	screen_size = vec2:new(ww, hh)
 	self.scale = min(screen_size.x/w, screen_size.y/h)
@@ -151,8 +152,8 @@ function StateOutside:start()
 	self.world:emit("set_ambient_light", ambient_color)
 
 	self.world:emit("set_dialogue_config", {
-			pos = vec2:new(ww/2, hh * 0.87),
-			pos_arrow = vec2:new(ww/2, hh * 0.94),
+			pos = {x = ww/2, y = hh * 0.87},
+			pos_arrow = {x = ww/2, y = hh * 0.94},
 			font = res_fonts.dialogue,
 			sheet_arrow = res_images.sheet_dialogue_arrow,
 		})
@@ -210,11 +211,10 @@ function StateOutside:start()
 		local id = "bg_house_" .. i
 		local x = bg_house_w * ((i - 1) % div)/div
 		local y = bg_house_h * floor((i - 1)/div)/div
-		local pos = vec2:new(x, y)
 		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
 
 		self.entities[id] = Concord.entity(self.world)
-			:assemble(Assemblages.Outside.bg_house, bg_house, pos, quad)
+			:assemble(Assemblages.Outside.bg_house, bg_house, x, y, quad)
 	end
 
 	self.entities.railings = Concord.entity(self.world)
@@ -287,12 +287,10 @@ function StateOutside:start()
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end
 
-	local pos_ui = vec2:new(screen_size.x/2, screen_size.y * 0.9)
-
 	for i, str in ipairs(tasks) do
 		self.entities["task" .. i] = Concord.entity(self.world)
 			:assemble(Assemblages.UI.ui_text_paint, "brush",
-				str, res_fonts.task, pos_ui:copy())
+				str, res_fonts.task, screen_size.x/2, screen_size.y * 0.9)
 			:give("task", Palette.get("ui_feedback"))
 	end
 
@@ -309,16 +307,15 @@ function StateOutside:start()
 	for i = 1, 3 do
 		local x = (i == 1) and 0 or random(-16, 0)
 		local y = (i == 1) and 0 or random(-8, 8)
-		local pos = vec2:new(x, y)
 		local e = Concord.entity(self.world)
-			:assemble(Assemblages.Outside.splashes, splashes, pos, is_compatible)
+			:assemble(Assemblages.Outside.splashes, splashes, x, y, is_compatible)
 
 		insert(self.splashes, e)
 	end
 
 	self.world:emit("generate_fireflies",
 		random(5, 20), res_images.firefly, res_images.firefly_light,
-		vec2:new(670, 222), vec2:new(1136, 286))
+		{x = 670, y = 222}, {x = 1136, y = 286})
 
 	local lut_size, lut_dusk
 
@@ -333,31 +330,33 @@ function StateOutside:start()
 	effect = NGrading:new(lut_dusk, lut_size)
 
 	--TEST
-	!if not _RELEASE then
-	self:spawn_player(1.5)
-	self.entities.player.body.can_move = true
-
-	self.entities.backdoor_key2 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-		:give("id", "item_test")
-	self.entities.backdoor_key3 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key4 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key5 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key6 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-
-	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.pos.pos:unpack())
+	!if _DEV then
+	self.world:emit("move_fireflies")
+	-- self:spawn_player(1.5)
+	-- self.entities.player.body.can_move = true
+    --
+	-- self.entities.backdoor_key2 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- 	:give("id", "item_test")
+	-- self.entities.backdoor_key3 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key4 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key5 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key6 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+    --
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	--TIMELINE
 	self.timeline = TLE.Do(function()
-		!if not _RELEASE then
+		!if _DEV then
 		self.world:emit("show_fireflies", 5, function()
 				self.world:emit("flicker_fireflies", 3, 5)
+				self.world:emit("move_fireflies")
 			end)
 		self.timeline:Pause()
 		!end
@@ -435,15 +434,15 @@ function StateOutside:start()
 		local dur_fade_task = 1.25
 		local dur_fade_hold = 0.75
 		local dur_camera_follow = 1.5
-		local p_interact_id = "player_interact"
-		local key_id = Inputs.get(p_interact_id)
+		local p_interact_id = "interact"
+		local key_id = Inputs.rev_map[p_interact_id]
 
 		tle_log("task: " .. tasks[1])
 		self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
 
 		tle_log("wait for action")
-		local pos = vec2:new(screen_size.x/2, screen_size.y/2)
-		local e_hold_key = Factory.hold_key(self.world, key_id, pos, timer_hold_key,
+		local e_hold_key = Factory.hold_key(self.world, key_id,
+			screen_size.x/2, screen_size.y/2, timer_hold_key,
 			64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
 		local ev1 = EventsList.hold_key(key_id, p_interact_id,
@@ -491,7 +490,15 @@ function StateOutside:update(dt)
 	if not self.is_ready then return end
 
 	self.world:emit("preupdate", dt)
-	self.world:emit("update_topdown", dt)
+
+	!if _DEV then
+	if Inputs.pressed("play") then
+		self.timeline:Unpause()
+	elseif Inputs.pressed("inventory") then
+		self.world:emit("action_interacted_bag", self.entities.interactive_car, self.entities.player)
+	end
+	!end
+
 	self.world:emit("update", dt)
 	self.world:emit("update_light", dt)
 	self.world:emit("on_camera_move", self.camera)
@@ -507,13 +514,9 @@ function StateOutside:update(dt)
 		self.ps1:update(dt)
 		self.ps2:update(dt)
 	end
-
-	!if not _RELEASE then
-	self.world:emit("debugging_update", dt)
-	!end
 end
 
-function StateOutside:custom_draw(canvas)
+function StateOutside:draw()
 	if not self.is_ready then return end
 
 	self.world:emit("draw_light_start")
@@ -521,7 +524,7 @@ function StateOutside:custom_draw(canvas)
 
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(canvas.canvas)
+	love.graphics.setCanvas(self.main_canvas.canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		effect:apply()
@@ -549,11 +552,7 @@ function StateOutside:custom_draw(canvas)
 	Fade.draw()
 
 	love.graphics.setCanvas()
-	canvas:render()
-
-	!if not _RELEASE then
-	self.world:emit("debugging_draw")
-	!end
+	self.main_canvas:render()
 end
 
 function StateOutside:mousemoved(mx, my)
@@ -571,15 +570,6 @@ end
 
 function StateOutside:keypressed(key)
 	if not self.is_ready then return end
-
-	!if not _RELEASE then
-	if key == "space" then
-		self.timeline:Unpause()
-	elseif key == "i" then
-		self.world:emit("action_interacted_bag", self.entities.interactive_car, self.entities.player)
-	end
-	!end
-
 	self.world:emit("keypressed", key)
 end
 

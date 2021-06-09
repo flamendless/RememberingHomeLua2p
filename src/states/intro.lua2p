@@ -65,7 +65,6 @@ function StateIntro:new()
 		world = Concord.world(),
 		entities = {},
 		camera = nil,
-		main_canvas = true,
 		gamestate = nil
 	})
 end
@@ -228,7 +227,7 @@ function StateIntro:start()
 			res_images.title, screen_size.x/2, screen_size.y/2)
 
 	self.timeline = TLE.Do(function()
-		!if not _RELEASE then
+		!if _DEV then
 		local ambient_color = {0.5, 0.5, 0.5}
 		self.world:emit("set_ambient_light", ambient_color)
 		self.timeline:Pause()
@@ -346,7 +345,7 @@ function StateIntro:update(dt)
 	if not self.is_ready then return end
 
 	!if _DEV then
-	if Inputs.pressed("interact") then
+	if Inputs.pressed("play") then
 		self.timeline:Unpause()
 	end
 	!end

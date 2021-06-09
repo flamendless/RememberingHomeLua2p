@@ -1,13 +1,13 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("path", function(c, points)
-	!if _ASSERT then
-	Assert.must(points, Types.T_TABLE)
+	@@assert(type(points) == "table")
+	!if _DEV then
 	for i, v in ipairs(points) do
-		Assert.is(v, Types.T_VEC2)
+		@@assert(type(v.x) == "number")
+		@@assert(type(v.y) == "number")
 	end
 	!end
-
 	c.points = points
 	c.n_points = #points
 	c.current_point = 1

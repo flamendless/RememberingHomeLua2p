@@ -1,13 +1,12 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("firefly", function(c, colors)
-	!if _ASSERT then
-	Assert.must(colors, Types.T_TABLE)
+	@@assert(type(colors) == "table")
+	!if _DEV then
 	for i, v in ipairs(colors) do
-		Assert.color(v)
+		@@assert(type(v) == "table")
 	end
 	!end
-
-	c.colors = colors
+	c.value = colors
 	c.can_flicker = false
 end)

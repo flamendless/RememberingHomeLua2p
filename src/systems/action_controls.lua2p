@@ -27,8 +27,7 @@ end
 
 local function get_offset(i)
 	local off = offsets[i]
-
-	return vec2:new(off[1], off[2])
+	return off[1], off[2]
 end
 
 function ActionControls:init(world)
@@ -52,14 +51,11 @@ function ActionControls:init(world)
 end
 
 function ActionControls:set_action_controls_resources(sheets)
-	!if _ASSERT then
-	Assert.must(sheets, Types.T_TABLE)
-	Assert.exists(sheets.eye)
-	Assert.exists(sheets.hand)
-	Assert.exists(sheets.bag)
-	Assert.exists(sheets.cancel)
-	!end
-
+	@@assert(type(sheets) == "table")
+	@@assert(sheets.eye)
+	@@assert(sheets.hand)
+	@@assert(sheets.bag)
+	@@assert(sheets.cancel)
 	self.sheets = sheets
 end
 
@@ -74,11 +70,11 @@ function ActionControls:show_action_controls(player, target_interactive)
 
 	for _, id in ipairs(self.actions_map) do
 		if actions[id] then
-			local off = get_offset(i)
+			local off_x, off_y = get_offset(i)
 			local dir = -player.body.dir
 			local pspawn = player.spawn_point_action_controls.pos
-			local x = pspawn.x + (off.x * dir)
-			local y = pspawn.y + off.y
+			local x = pspawn.x + (off_x * dir)
+			local y = pspawn.y + off_y
 			local e = self.pool_empty[self.current]
 
 			if e then
@@ -152,28 +148,19 @@ function ActionControls:interactive_interacted(player, target_interactive)
 end
 
 function ActionControls:action_interacted_eye(target_interactive, player)
-	!if _ASSERT then
-	Assert.is(target_interactive, Types.T_ENTITY)
-	!end
-
+	@@assert(target_interactive.__isEntity)
 	local id = target_interactive.id.id
 	self:toggle_action_controls(false)
 end
 
 function ActionControls:action_interacted_hand(target_interactive, player)
-	!if _ASSERT then
-	Assert.is(target_interactive, Types.T_ENTITY)
-	!end
-
+	@@assert(target_interactive.__isEntity)
 	local id = target_interactive.id.id
 	self:toggle_action_controls(false)
 end
 
 function ActionControls:action_interacted_bag(target_interactive, player)
-	!if _ASSERT then
-	Assert.is(target_interactive, Types.T_ENTITY)
-	!end
-
+	@@assert(target_interactive.__isEntity)
 	local id = target_interactive.id.id
 	self:toggle_action_controls(false)
 end

@@ -67,7 +67,7 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 	local delay = 0
 
 	if e.task then
-		local target = e.task.color
+		local target = e.task.value
 		local original = {unpack(e.color.color)}
 
 		flash_to_color(e.color.color, target, original, dur_flash, 2)
