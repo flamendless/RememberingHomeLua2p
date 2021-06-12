@@ -1,0 +1,39 @@
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+
+local ID = Concord.system({
+	pool = {"id"},
+})
+
+function ID:init()
+	self.ref_id = {}
+	self.pool.onAdded = function(pool, e)
+		local id = e.id
+		if not e.preserve_id then
+			local ref_id = self.ref_id[id.value]
+			if ref_id then
+				self.ref_id[id.value] = self.ref_id[id.value] + 1
+				id.value = id.value .. self.ref_id[id.value]
+			else
+				self.ref_id[id.value] = 1
+			end
+		end
+		Log.info("Added entity: " .. id.value)
+	end
+
+	self.pool.onRemoved = function(pool, e)
+		local id = e.id and e.id.value
+		if id then
+			self.ref_id[e.id.value] = nil
+		else
+			for i = #pool, 1, -1 do
+				if e == pool[i] then
+					remove(self.ref_id, i)
+				end
+			end
+		end
+		Log.info("Removed entity: " .. (id or tostring(e)))
+	end
+end
+
+return ID

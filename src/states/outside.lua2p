@@ -64,11 +64,7 @@ local tasks = {
 
 local function tle_log(msg)
 	local str = format("TLE: %s", msg)
-	!if not _RELEASE then
-	local e = Concord.entity(world):give("log", str)
-	!else
 	Log.debug(str)
-	!end
 end
 
 function StateOutside:show_arrows_keys()
@@ -332,23 +328,23 @@ function StateOutside:start()
 	--TEST
 	!if _DEV then
 	self.world:emit("move_fireflies")
-	-- self:spawn_player(1.5)
-	-- self.entities.player.body.can_move = true
-    --
-	-- self.entities.backdoor_key2 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- 	:give("id", "item_test")
-	-- self.entities.backdoor_key3 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key4 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key5 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key6 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-    --
-	-- self.camera:setScale(3)
-	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
+	self:spawn_player(1.5)
+	self.entities.player.body.can_move = true
+
+	self.entities.backdoor_key2 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+		:give("id", "item_test")
+	self.entities.backdoor_key3 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key4 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key5 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	self.entities.backdoor_key6 = Concord.entity(self.world)
+		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+
+	self.camera:setScale(3)
+	self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	--TIMELINE

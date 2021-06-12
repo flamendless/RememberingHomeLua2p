@@ -1,4 +1,3 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("hidden", function(c)
-end)
+Concord.component("hidden")

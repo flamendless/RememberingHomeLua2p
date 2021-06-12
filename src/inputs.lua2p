@@ -13,7 +13,7 @@ local maps = {
 		e = "interact",
 		q = "cancel",
 		i = "inventory",
-		escape = "skip",
+		space = "skip",
 	},
 	--map_arrows
 	 {

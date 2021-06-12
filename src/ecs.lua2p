@@ -49,7 +49,23 @@ function ECS.load_systems(id, world)
 	for _, v in ipairs(systems[id]) do
 		@@assert(Systems[v], string.format("id = %s, i = %d", id, _))
 		world:addSystem(Systems[v])
+		!if _DEV then
+		local sys = Systems[v]
+		sys.debug_show = true
+		sys.debug_title = v
+		!end
 	end
+
+	!if _DEV then
+	Systems.id.debug_show = true
+	Systems.id.debug_title = "ID"
+	world:addSystem(Systems.id)
+	for _, system in ipairs(world:getSystems()) do
+		if system.validate_dependencies then
+			system:validate_dependencies()
+		end
+	end
+	!end
 end
 
 return ECS

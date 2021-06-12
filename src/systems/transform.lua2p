@@ -21,7 +21,7 @@ function Transform:init()
 		local attach = e.attach_to
 		local target = attach.target_e
 
-		!if _ASSERT then
+		!if _DEV then
 		if not target:has("pos") then
 			error("Target entity must have a pos component")
 		end

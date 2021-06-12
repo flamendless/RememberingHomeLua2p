@@ -67,4 +67,9 @@ function BumpCollision:update_body(e)
 	self.bump_world.freeCollisions(cols)
 end
 
+!if _DEV then
+function BumpCollision:debug_update(dt)
+end
+!end
+
 return BumpCollision

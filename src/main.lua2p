@@ -34,6 +34,7 @@ local WindowMode = require("window_mode")
 
 !if _DEV then
 require("strict")
+local DevTools = require("devtools")
 !end
 
 local format = string.format
@@ -73,10 +74,11 @@ function love.load()
 	Inputs.init()
 	TLE.Attach()
 
-	!if _RELEASE then
-	GameStates.switch("Splash")
-	!else
+	!if _DEV then
 	GameStates.switch("Outside")
+	DevTools.init()
+	!else
+	GameStates.switch("Splash")
 	!end
 
 	!if _PROF then
@@ -88,6 +90,10 @@ end
 function love.update(dt)
 	!if _PROF then
 	Jprof.push("frame")
+	!end
+
+	!if _DEV then
+	DevTools.update(dt)
 	!end
 
 	Timer.update(dt)
@@ -114,11 +120,12 @@ function love.draw()
 	end
 
 	!if _DEV then
-	-- DebugFlags.t_stats = love.graphics.getStats()
+	DevTools.draw()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setFont(font_preload)
 	love.graphics.print(love.timer.getFPS())
 	love.graphics.print(!(_MODE), love.graphics.getWidth() - font_preload:getWidth(!(_MODE)))
+	DevTools.end_draw()
 	!end
 
 	!if _PROF then
@@ -128,9 +135,7 @@ end
 
 function love.keypressed(key)
 	!if _DEV then
-	if key == "r" then
-		love.event.quit("restart")
-	end
+	DevTools.keypressed(key)
 	!end
 	Inputs.keypressed(key)
 	GameStates.keypressed(key)
