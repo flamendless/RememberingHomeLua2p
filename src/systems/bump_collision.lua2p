@@ -113,7 +113,7 @@ function BumpCollision:debug_update(dt)
 	Slab.SameLine()
 	if Slab.CheckBox(flags.drag, "Drag") then
 		flags.drag = not flags.drag
-		self.world:emit("debug_disable_gravity", flags.drag)
+		self.world:emit("debug_on_drag", flags.drag)
 	end
 
 	local items, len = self.bump_world:getItems()

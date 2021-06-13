@@ -12,7 +12,7 @@ local maps = {
 		s = "down",
 		e = "interact",
 		q = "cancel",
-		i = "inventory",
+		t = "inventory",
 		space = "skip",
 	},
 	--map_arrows
@@ -43,6 +43,10 @@ function Inputs.init(key_map)
 	Inputs.map = maps[n]
 	!if _DEV then
 	Inputs.map.p = "play"
+	Inputs.map.k = "camera_down"
+	Inputs.map.i = "camera_up"
+	Inputs.map.j = "camera_left"
+	Inputs.map.l = "camera_right"
 	!end
 	tablex.clear(Inputs.previous)
 	tablex.clear(Inputs.current)

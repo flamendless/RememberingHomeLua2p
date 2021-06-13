@@ -48,7 +48,7 @@ function Movement:debug_update(dt)
 	Slab.EndWindow()
 end
 
-function Movement:debug_disable_gravity(bool)
+function Movement:debug_on_drag(bool)
 	@@assert(type(bool) == "boolean")
 	for _, e in ipairs(self.pool) do
 		local gravity = e.gravity

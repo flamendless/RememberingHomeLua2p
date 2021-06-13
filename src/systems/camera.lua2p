@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
+local Inputs = require("inputs")
+
 local Camera = Concord.system({
 	pool = {"camera"},
 	pool_clip = {"camera", "camera_clip"},
@@ -12,7 +14,8 @@ function Camera:init(world)
 	self.to_follow = nil
 	self.dur_scale = 0.25
 	self.can_scale = true
-	self.clip = true
+	self.clip = false
+	self.follow = false
 
 	self.pool.onAdded = function(pool, e)
 		local cam = e.camera.camera
@@ -28,6 +31,14 @@ function Camera:init(world)
 			self.main_camera = cam
 			self.world:emit("on_camera_created", cam)
 		end
+	end
+
+	self.pool_clip.onAdded = function(pool, e)
+		self.clip = true
+	end
+
+	self.pool_clip.onRemoved = function(pool, e)
+		self.clip = #pool == 0
 	end
 end
 
@@ -90,6 +101,7 @@ end
 function Camera:camera_follow(target, dur)
 	@@assert(target.__isEntity)
 	@@assert(type(dur) == "number")
+	self.follow = true
 	local x, y = self:get_follow_coords(target)
 
 	Flux.to(self.main_camera, dur or 1, {x = x, y = y})
@@ -99,7 +111,7 @@ function Camera:camera_follow(target, dur)
 end
 
 function Camera:update(dt)
-	if self.to_follow then
+	if self.follow and self.to_follow then
 		local x, y = self:get_follow_coords(self.to_follow)
 		self.main_camera:setPosition(x, y)
 	end
@@ -123,8 +135,8 @@ end
 local Slab = require("modules.slab")
 local format = string.format
 local flags = {
-	visible = true,
 	center = true,
+	visible = false,
 	world = false,
 	window = false,
 }
@@ -147,6 +159,7 @@ function Camera:debug_update(dt)
 		local str_window = format("Window: (%d, %d, %d, %d)", sx, sy, sw, sh)
 		local str_visible = format("Visible: (%d, %d, %d, %d)", vx, vy, vw, vh)
 		Slab.Text("Pos:")
+		Slab.Indent()
 		Slab.Text("x:")
 		Slab.SameLine()
 		if Slab.InputNumberSlider("x", x, 0, sw, {
@@ -154,7 +167,7 @@ function Camera:debug_update(dt)
 			NumbersOnly = true,
 			Precision = 1,
 		}) then
-			self.to_follow = false
+			self.follow = false
 			x = Slab.GetInputNumber()
 			self.main_camera:setPosition(x, y)
 		end
@@ -165,10 +178,11 @@ function Camera:debug_update(dt)
 			NumbersOnly = true,
 			Precision = 1,
 		}) then
-			self.to_follow = false
+			self.follow = false
 			y = Slab.GetInputNumber()
 			self.main_camera:setPosition(x, y)
 		end
+		Slab.Unindent()
 
 		Slab.Text("Scale:")
 		Slab.SameLine()
@@ -184,7 +198,7 @@ function Camera:debug_update(dt)
 		Slab.Text(str_window)
 		Slab.Text(str_visible)
 
-		if Slab.CheckBox(self.to_follow, "Follow") then self.to_follow = not self.to_follow end
+		if Slab.CheckBox(self.follow, "Follow") then self.follow = not self.follow end
 		Slab.SameLine()
 		if Slab.CheckBox(self.clip, "Clip") then self.clip = not self.clip end
 
@@ -198,6 +212,27 @@ function Camera:debug_update(dt)
 		Slab.Text("No camera in current state")
 	end
 	Slab.EndWindow()
+
+	local speed = 64
+	local dx, dy = 0, 0
+	if Inputs.down("camera_down") then
+		dy = 1
+	elseif Inputs.down("camera_up") then
+		dy = -1
+	end
+	if Inputs.down("camera_left") then
+		dx = -1
+	elseif Inputs.down("camera_right") then
+		dx = 1
+	end
+
+	if dx ~= 0 or dy ~= 0 then
+		local x, y = self.main_camera:getPosition()
+		x = x + speed * dt * dx
+		y = y + speed * dt * dy
+		self.follow = false
+		self.main_camera:setPosition(x, y)
+	end
 end
 
 function Camera:debug_draw()
@@ -238,6 +273,11 @@ function Camera:debug_draw()
 			love.graphics.circle("line", vx + vw/2, vy + vh/2, 1)
 		end
 	end
+end
+
+function Camera:debug_on_drag(bool)
+	@@assert(type(bool) == "boolean")
+	self.follow = not bool
 end
 
 !end
