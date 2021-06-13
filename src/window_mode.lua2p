@@ -15,7 +15,7 @@ function WindowMode.init()
 	end
 end
 
-function WindowMode.getCurrent()
+function WindowMode.get_current()
 	return WindowMode.modes[WindowMode.current]
 end
 

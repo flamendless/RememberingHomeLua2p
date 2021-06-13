@@ -21,4 +21,45 @@ function Movement:update(dt)
 	end
 end
 
+!if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	gravity = true,
+}
+
+function Movement:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("Movement", {
+		Title = self.debug_title,
+		IsOpen = self.debug_show
+	})
+	if Slab.CheckBox(flags.gravity, "gravity") then
+		flags.gravity = not flags.gravity
+		for _, e in ipairs(self.pool) do
+			local gravity = e.gravity
+			if not flags.gravity then
+				gravity.temp = gravity.value
+				gravity.value = 0
+			else
+				gravity.value = gravity.temp
+			end
+		end
+	end
+	Slab.EndWindow()
+end
+
+function Movement:debug_disable_gravity(bool)
+	@@assert(type(bool) == "boolean")
+	for _, e in ipairs(self.pool) do
+		local gravity = e.gravity
+		if bool then
+			gravity.temp = gravity.value
+			gravity.value = 0
+		else
+			gravity.value = gravity.temp
+		end
+	end
+end
+!end
+
 return Movement

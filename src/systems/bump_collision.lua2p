@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Bump = require("modules.bump.bump-niji")
 
+local WindowMode = require("window_mode")
+
 local BumpCollision = Concord.system({
 	pool = {"collider", "pos", "bump"},
 })
@@ -30,6 +32,11 @@ end
 function BumpCollision:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e.body then
+			!if _DEV then
+			if e.bump.debug_clicked then
+				return
+			end
+			!end
 			self:update_body(e)
 		end
 	end
@@ -68,7 +75,156 @@ function BumpCollision:update_body(e)
 end
 
 !if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	ids = false,
+	bodies = true,
+	drag = false,
+	list = true,
+}
+
+local function slider_edit(id, value, min, max, e)
+	Slab.Text(id .. ":")
+	Slab.SameLine()
+	if Slab.InputNumberSlider(id, value, min, max, {
+		ReturnOnText = false,
+		NumbersOnly = true,
+		Precision = 0,
+	}) then
+		value = Slab.GetInputNumber()
+		e.pos[id] = value
+	end
+	return value
+end
+
 function BumpCollision:debug_update(dt)
+	local win_size = WindowMode.get_current()
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("BumpCollision", {
+		Title = self.debug_title,
+		IsOpen = self.debug_show
+	})
+	if Slab.CheckBox(flags.bodies, "Bodies") then
+		flags.bodies = not flags.bodies
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.ids, "IDs") then
+		flags.ids = not flags.ids
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.drag, "Drag") then
+		flags.drag = not flags.drag
+		self.world:emit("debug_disable_gravity", flags.drag)
+	end
+
+	local items, len = self.bump_world:getItems()
+	flags.list = Slab.BeginTree("List", {Title = "List", IsOpen = flags.list})
+	Slab.Indent()
+	for i = 1, len do
+		local e = items[i]
+		local id = e.id.value
+		if Slab.BeginTree(id, {Title = id}) then
+			Slab.Indent()
+			local x, y, w, h = self.bump_world:getRect(e)
+			x = slider_edit("x", x, 0, win_size.width, e)
+			y = slider_edit("y", y, 0, win_size.width, e)
+			w = slider_edit("w", w, 2, win_size.width, e)
+			h = slider_edit("h", h, 2, win_size.width, e)
+			self.bump_world:update(e, x, y, w, h)
+			Slab.EndTree()
+		end
+	end
+	Slab.EndTree()
+
+	if flags.drag then
+		for i = 1, len do
+			local e = items[i]
+			local x, y, w, h = self.bump_world:getRect(e)
+			local mx, my = love.mouse.getPosition()
+			local camera = self.world.current_state.camera
+			if camera then
+				mx, my = camera:toWorld(mx, my)
+			end
+			local c = vec2(x + w/2, y + h/2)
+			local hs = vec2(w/2, h/2)
+			local res = intersect.aabb_point_overlap(c, hs, vec2(mx, my))
+			e.bump.debug_hovered = res
+		end
+	end
+	Slab.EndWindow()
+end
+
+function BumpCollision:debug_draw()
+	if flags.bodies then
+		local items, len = self.bump_world:getItems()
+		for i = 1, len do
+			local e = items[i]
+			local id = e.id.value
+			local x, y, w, h = self.bump_world:getRect(e)
+
+			love.graphics.setLineWidth(1)
+			if flags.drag and e.bump.debug_hovered then
+				love.graphics.setColor(1, 1, 0, 0.5)
+			else
+				love.graphics.setColor(1, 0, 0, 0.5)
+			end
+			love.graphics.rectangle("line", x, y, w, h)
+			if flags.ids then
+				love.graphics.print(id, x, y)
+			end
+		end
+	end
+end
+
+function BumpCollision:debug_mousemoved(mx, my, dx, dy)
+	if flags.drag then
+		local items, len = self.bump_world:getItems()
+		for i = 1, len do
+			local e = items[i]
+			if e.bump.debug_clicked then
+				local x, y, w, h = self.bump_world:getRect(e)
+				local camera = self.world.current_state.camera
+				if camera then
+					mx, my = camera:toWorld(mx, my)
+				end
+				e.pos.x = mx
+				e.pos.y = my
+				self.bump_world:update(e, e.pos.x, e.pos.y, w, h)
+			end
+		end
+	end
+end
+
+function BumpCollision:debug_mousepressed(mx, my, mb)
+	if flags.drag and mb == 1 then
+		local items, len = self.bump_world:getItems()
+		for i = 1, len do
+			local e = items[i]
+			if e.bump.debug_hovered then
+				e.bump.debug_clicked = true
+			end
+		end
+	end
+end
+
+function BumpCollision:debug_mousereleased(mx, my, mb)
+	if flags.drag and mb == 1 then
+		local items, len = self.bump_world:getItems()
+		for i = 1, len do
+			local e = items[i]
+			if e.bump.debug_clicked then
+				local x, y, w, h = self.bump_world:getRect(e)
+				local camera = self.world.current_state.camera
+				if camera then
+					mx, my = camera:toWorld(mx, my)
+				end
+				e.pos.x = mx
+				e.pos.y = my
+				e.bump.debug_clicked = false
+				self.bump_world:update(e, e.pos.x, e.pos.y, w, h)
+			end
+		end
+	end
 end
 !end
 

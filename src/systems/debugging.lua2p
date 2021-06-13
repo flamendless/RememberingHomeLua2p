@@ -13,7 +13,6 @@ local getFPS = love.timer.getFPS
 local Debugging = Concord.system({
 	pool = {},
 	pool_id = {"id"},
-	pool_log = {"log"}
 })
 
 local slab_init = false

@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Interactive = Concord.system({
-	pool = {"id", "interactive", "collider3d"},
+	pool = {"id", "interactive", "collider"},
 })
 
 function Interactive:init(world)
@@ -32,7 +32,7 @@ end
 
 function Interactive:check_on_leave_interactives(player)
 	for _, e in ipairs(self.pool) do
-		local col = e.collider3d
+		local col = e.collider
 
 		if col.prev_hit and not col.is_hit then
 			col.prev_hit = false

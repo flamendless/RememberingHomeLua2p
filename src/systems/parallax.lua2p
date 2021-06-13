@@ -44,21 +44,4 @@ function Parallax:parallax_move_x(dt, dir)
 	end
 end
 
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-
-function Parallax:draw_slab()
-	views.parallax = Slab.BeginWindow("parallax", {
-		Title = "Parallax", IsOpen = views.parallax})
-
-	if Slab.CheckBox(self.stopped, "Stop") then
-		self.stopped = not self.stopped
-	end
-
-	Slab.EndWindow()
-end
-!end
-
 return Parallax

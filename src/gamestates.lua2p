@@ -59,6 +59,10 @@ function GameStates.switch(next_id)
 	Log.info("State Load: ", GameStates.current_id)
 	GameStates.current_state:load()
 	GameStates.current_state.gamestate = GameStates
+
+	!if _DEV then
+	GameStates.current_state.world.current_state = GameStates.current_state
+	!end
 end
 
 function GameStates.switch_to_previous()
@@ -89,9 +93,9 @@ function GameStates.keyreleased(key)
 	end
 end
 
-function GameStates.mousemoved(mx, my)
+function GameStates.mousemoved(mx, my, dx, dy)
 	if GameStates.current_state.mousemoved then
-		GameStates.current_state:mousemoved(mx, my)
+		GameStates.current_state:mousemoved(mx, my, dx, dy)
 	end
 end
 

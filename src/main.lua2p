@@ -146,15 +146,24 @@ function love.keyreleased(key)
 	GameStates.keyreleased(key)
 end
 
-function love.mousemoved(mx, my)
-	GameStates.mousemoved(mx, my)
+function love.mousemoved(mx, my, dx, dy)
+	!if _DEV then
+	DevTools.mousemoved(mx, my, dx, dy)
+	!end
+	GameStates.mousemoved(mx, my, dx, dy)
 end
 
 function love.mousepressed(mx, my, mb)
+	!if _DEV then
+	DevTools.mousepressed(mx, my, mb)
+	!end
 	GameStates.mousepressed(mx, my, mb)
 end
 
 function love.mousereleased(mx, my, mb)
+	!if _DEV then
+	DevTools.mousereleased(mx, my, mb)
+	!end
 	GameStates.mousereleased(mx, my, mb)
 end
 

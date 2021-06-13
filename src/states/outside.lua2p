@@ -327,7 +327,7 @@ function StateOutside:start()
 
 	--TEST
 	!if _DEV then
-	self.world:emit("move_fireflies")
+	-- self.world:emit("move_fireflies")
 	self:spawn_player(1.5)
 	self.entities.player.body.can_move = true
 
@@ -549,10 +549,6 @@ function StateOutside:draw()
 
 	love.graphics.setCanvas()
 	self.main_canvas:render()
-end
-
-function StateOutside:mousemoved(mx, my)
-	if not self.is_ready then return end
 end
 
 function StateOutside:mousepressed(mx, my, mb)
