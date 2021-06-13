@@ -42,7 +42,7 @@ function Inputs.init(key_map)
 	@@assert(maps[n])
 	Inputs.map = maps[n]
 	!if _DEV then
-	Inputs.map.space = "play"
+	Inputs.map.p = "play"
 	!end
 	tablex.clear(Inputs.previous)
 	tablex.clear(Inputs.current)

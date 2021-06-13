@@ -16,11 +16,7 @@ local stats = {
 }
 local mouse = {
 	show = true,
-	title = "Mouse",
-}
-local camera = {
-	show = true,
-	title = "Camera",
+	title = "Mouse Info",
 }
 local entity_list = {
 	show = false,
@@ -41,7 +37,6 @@ local debug_list = {
 local list = {
 	stats,
 	mouse,
-	camera,
 	entity_list,
 	systems_list,
 	debug_list,
@@ -69,7 +64,6 @@ function DevTools.update(dt)
 
 	DevTools.draw_stats()
 	DevTools.draw_mouse()
-	DevTools.draw_camera()
 	DevTools.draw_entities_list()
 	DevTools.draw_systems_list()
 	DevTools.draw_debug_list()
@@ -118,34 +112,6 @@ function DevTools.draw_mouse()
 	local str_c = format("Camera: (%d, %d)", cx, cy)
 	Slab.Text(str_m)
 	Slab.Text(str_c)
-	Slab.EndWindow()
-end
-
-function DevTools.draw_camera()
-	if not camera.show then return end
-	camera.show = Slab.BeginWindow("camera", {
-		Title = camera.title,
-		IsOpen = camera.show,
-	})
-	local camera = GameStates.current_state.camera
-	if camera then
-		local x, y = camera:getPosition()
-		local scale = camera:getScale()
-		local wx, wy, ww, wh = camera:getWorld()
-		local sx, sy, sw, sh = camera:getWindow()
-		local vx, vy, vw, vh = camera:getVisible()
-		local str_pos = format("Pos: (%d, %d)", x, y)
-		local str_world = format("World: (%d, %d, %d, %d)", wx, wy, ww, wh)
-		local str_window = format("Window: (%d, %d, %d, %d)", sx, sy, sw, sh)
-		local str_visible = format("Visible: (%d, %d, %d, %d)", vx, vy, vw, vh)
-		Slab.Text(str_pos)
-		Slab.Text("Scale: " .. scale)
-		Slab.Text(str_world)
-		Slab.Text(str_window)
-		Slab.Text(str_visible)
-	else
-		Slab.Text("No camera in current state")
-	end
 	Slab.EndWindow()
 end
 
