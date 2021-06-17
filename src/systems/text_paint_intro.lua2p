@@ -14,7 +14,8 @@ function TextPaintIntro:init(world)
 	end
 end
 
-function TextPaintIntro:fade_text(e, dur, timeline, should_destroy)
+function TextPaintIntro:fade_text(e, dur, on_finish)
+	@@assert(type(on_finish) == "function")
 	self:generate_paint(e, dur)
 	e:remove("hidden")
 
@@ -22,14 +23,7 @@ function TextPaintIntro:fade_text(e, dur, timeline, should_destroy)
 	Flux.to(color.value, dur, {[4] = 1})
 		:oncomplete(function()
 			Flux.to(color.value, dur, {[4] = 0})
-				:oncomplete(function()
-					timeline:Unpause()
-					e:give("hidden")
-
-					if should_destroy then
-						e:destroy()
-					end
-				end)
+				:oncomplete(on_finish)
 		end)
 end
 

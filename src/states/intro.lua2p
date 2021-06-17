@@ -8,6 +8,7 @@ local TLE = require("modules.tle.timeline")
 local ECS = require("ecs")
 local Canvas = require("canvas")
 local Fade = require("fade")
+local Fog = require("fog")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -17,7 +18,6 @@ local Save = require("save")
 local Settings = require("settings")
 local ScreenInfo = require("screen_info")
 
-local format = string.format
 local min = math.min
 
 local StateIntro = class()
@@ -41,8 +41,6 @@ local res_images, res_fonts
 local screen_size
 
 local effect = {dt = 0, dt2 = 0, status = 1}
-local dur_in = 2.5
-local dur_out = 1.5
 local fade_duration = 4
 local current_effect
 local is_raining = false
@@ -83,13 +81,14 @@ end
 
 function StateIntro:start()
 	!if _PROF then
-	Jprof.push("frame", "intro_start")
-	Jprof.push("intro start")
+	JPROF.push("frame", "intro_start")
+	JPROF.push("intro start")
 	!end
 	ECS.load_systems(self.id, self.world)
-	self.main_canvas = Canvas.create_main({})
 
 	local w, h = res_images.bg:getDimensions()
+	self.main_canvas = Canvas.create_main({})
+	self.fog_effect = Fog:new(self.main_canvas, {w = w, h = h, scale = 8})
 
 	screen_size = vec2:new(love.graphics.getDimensions())
 	self.scale = min(screen_size.x/w, screen_size.y/h)
@@ -111,12 +110,6 @@ function StateIntro:start()
 
 	self.ps1 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(res_images.rain_drop_tilted2, 128, w)
-
-	!if not _RELEASE then
-	self.world:emit("debug_particle_system", self.ps1.system)
-	self.world:emit("debug_particle_system", self.ps2.system)
-	self.world:emit("debug_camera", self.camera)
-	!end
 
 	local ssx2 = screen_size.x * 2
 
@@ -245,7 +238,10 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("fade_text", self.entities.intro_txt1,
-			fade_duration, self.timeline, true)
+			fade_duration, function()
+				self.timeline:Unpause()
+				self.entities.intro_txt1:destroy()
+			end)
 		self.timeline:Pause()
 
 		local cx, cy = self.camera:getPosition()
@@ -255,7 +251,10 @@ function StateIntro:start()
 
 		self:update_rain(1)
 		self.world:emit("fade_text", self.entities.intro_txt2,
-			fade_duration, self.timeline, true)
+			fade_duration, function()
+				self.timeline:Unpause()
+				self.entities.intro_txt2:destroy()
+			end)
 		self.timeline:Pause()
 
 		--Enter forest
@@ -279,11 +278,17 @@ function StateIntro:start()
 		Flux.to(car_pos, 3, {x = 160})
 
 		self.world:emit("fade_text", self.entities.intro_txt3,
-			fade_duration, self.timeline, true)
+			fade_duration, function()
+				self.timeline:Unpause()
+				self.entities.intro_txt3:destroy()
+			end)
 		self.timeline:Pause()
 
 		self.world:emit("fade_text", self.entities.intro_txt4,
-			fade_duration, self.timeline, true)
+			fade_duration, function()
+				self.timeline:Unpause()
+				self.entities.intro_txt4:destroy()
+			end)
 		self.timeline:Pause()
 
 		TLE.Event.Wait(3)
@@ -334,8 +339,8 @@ function StateIntro:start()
 	end
 
 	!if _PROF then
-	Jprof.pop("intro start")
-	Jprof.pop("frame")
+	JPROF.pop("intro start")
+	JPROF.pop("frame")
 	!end
 end
 
@@ -394,6 +399,7 @@ function StateIntro:draw()
 		if current_effect then
 			current_effect:apply()
 		end
+		self.fog_effect:apply()
 
 		love.graphics.draw(res_images.bg)
 		self.world:emit("draw")
@@ -405,7 +411,6 @@ function StateIntro:draw()
 		end
 
 		love.graphics.setShader()
-
 		self.world:emit("draw_light_end", self.main_canvas.x, self.main_canvas.y)
 	end)
 

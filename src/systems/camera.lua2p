@@ -139,6 +139,7 @@ local flags = {
 	visible = false,
 	world = false,
 	window = false,
+	clip = false,
 }
 
 function Camera:debug_update(dt)
@@ -194,6 +195,7 @@ function Camera:debug_update(dt)
 			scale = Slab.GetInputNumber()
 			self.main_camera:setScale(scale)
 		end
+
 		Slab.Text(str_world)
 		Slab.Text(str_window)
 		Slab.Text(str_visible)
@@ -201,12 +203,23 @@ function Camera:debug_update(dt)
 		if Slab.CheckBox(self.follow, "Follow") then self.follow = not self.follow end
 		Slab.SameLine()
 		if Slab.CheckBox(self.clip, "Clip") then self.clip = not self.clip end
-
+		if Slab.CheckBox(flags.clip, "Debug Clip") then
+			flags.clip = not flags.clip
+			for  _, e in ipairs(self.pool_clip) do
+				local clip = e.camera_clip
+				if flags.clip then
+					clip.debug_prev = clip.color
+					clip.color = {1, 0, 0, 1}
+				else
+					clip.color = clip.debug_prev
+				end
+			end
+		end
+		Slab.SameLine()
 		if Slab.CheckBox(flags.center, "Center") then flags.center = not flags.center end
-		Slab.SameLine()
 		if Slab.CheckBox(flags.world, "World") then flags.world = not flags.world end
-		if Slab.CheckBox(flags.window, "Window") then flags.window = not flags.window end
 		Slab.SameLine()
+		if Slab.CheckBox(flags.window, "Window") then flags.window = not flags.window end
 		if Slab.CheckBox(flags.visible, "Visible") then flags.visible = not flags.visible end
 	else
 		Slab.Text("No camera in current state")

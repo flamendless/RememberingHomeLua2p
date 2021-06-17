@@ -7,6 +7,10 @@ local format = string.format
 
 local DevTools = {
 	show = false,
+	flags = {
+		ngrading = true,
+		fog = false,
+	},
 }
 
 local stats = {
@@ -55,6 +59,12 @@ function DevTools.update(dt)
 	Slab.Update(dt)
 
 	Slab.BeginWindow("list", {Title = "DevTools"})
+	if Slab.CheckBox(DevTools.flags.ngrading, "NGrading") then
+		DevTools.flags.ngrading = not DevTools.flags.ngrading
+	end
+	if Slab.CheckBox(DevTools.flags.fog, "Fog") then
+		DevTools.flags.fog = not DevTools.flags.fog
+	end
 	for _, v in ipairs(list) do
 		if Slab.CheckBox(v.show, v.title) then
 			v.show = not v.show

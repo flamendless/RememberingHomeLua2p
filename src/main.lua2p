@@ -75,7 +75,10 @@ function love.load()
 	TLE.Attach()
 
 	!if _DEV then
-	GameStates.switch("Outside")
+	-- GameStates.switch("Splash")
+	-- GameStates.switch("Menu")
+	GameStates.switch("Intro")
+	-- GameStates.switch("Outside")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")

@@ -58,6 +58,7 @@ function Movement:debug_on_drag(bool)
 		else
 			gravity.value = gravity.temp
 		end
+		flags.gravity = not bool
 	end
 end
 !end

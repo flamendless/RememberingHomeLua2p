@@ -29,7 +29,7 @@ local insert = table.insert
 local StateOutside = class()
 StateOutside.id = "Outside"
 
-!if not _RELEASE then
+!if _DEV then
 local world
 !end
 
@@ -328,6 +328,7 @@ function StateOutside:start()
 	--TEST
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
+	Fade.set_alpha(0)
 	self:spawn_player(1.5)
 	self.entities.player.body.can_move = true
 
@@ -533,6 +534,7 @@ function StateOutside:draw()
 			self.ps1:draw(0, -16)
 			self.ps2:draw(0, -16)
 		end
+
 		love.graphics.setShader()
 
 		self.world:emit("draw_light_end")

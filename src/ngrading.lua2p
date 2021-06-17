@@ -26,6 +26,10 @@ local floor = math.floor
 
 local NGrading = class()
 
+!if _DEV then
+local DevTools
+!end
+
 local shaders = {
 	old = "shaders/ngrading_old.glsl",
 	volume = "shaders/ngrading_volume.glsl",
@@ -139,6 +143,9 @@ function NGrading:new_multi(img, img2, cs)
 end
 
 function NGrading:new(arg1, arg2, arg3)
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
 	if type(arg2) == "number" then
 		local effect = self:new_single(arg1, arg2)
 		effect:setup_data()
@@ -185,11 +192,23 @@ function NGrading:setup_data()
 end
 
 function NGrading:apply()
+	!if _DEV then
+	if DevTools.flags.ngrading then
+		love.graphics.setShader(self.shader)
+	end
+	!else
 	love.graphics.setShader(self.shader)
+	!end
 end
 
 function NGrading:unapply()
+	!if _DEV then
+	if DevTools.flags.ngrading then
+		love.graphics.setShader()
+	end
+	!else
 	love.graphics.setShader()
+	!end
 end
 
 return NGrading

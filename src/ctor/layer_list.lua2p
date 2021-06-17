@@ -11,12 +11,20 @@ LayerList.__mt = {
 	__index = LayerList,
 }
 
+local function sort_id(a, b)
+	return a.layer.n < b.layer.n
+end
+
 local LayerListConstructor = function(def)
 	local self = setmetatable(List(), LayerList.__mt)
 
 	self.layer_id = def.layer
 
 	insert(def, "layer")
+
+	self.onAdded = function(e)
+		sort.insertion_sort(self, sort_id)
+	end
 
 	return self
 end

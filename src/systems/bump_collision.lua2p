@@ -82,22 +82,21 @@ local flags = {
 	drag = false,
 }
 
-local function slider_edit(id, value, min, max, e)
+local function edit(id, value, t)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
-	if Slab.InputNumberSlider(id, value, min, max, {
+	if Slab.Input(id, {
+		Text = tostring(value),
 		ReturnOnText = false,
 		NumbersOnly = true,
-		Precision = 0,
 	}) then
 		value = Slab.GetInputNumber()
-		e.pos[id] = value
+		t[id] = value
 	end
 	return value
 end
 
 function BumpCollision:debug_update(dt)
-	local win_size = WindowMode.get_current()
 	if not self.debug_show then return end
 	self.debug_show = Slab.BeginWindow("BumpCollision", {
 		Title = self.debug_title,
@@ -122,13 +121,13 @@ function BumpCollision:debug_update(dt)
 		for i = 1, len do
 			local e = items[i]
 			local id = e.id.value
-			if Slab.BeginTree(id, {Title = id}) then
+			if Slab.BeginTree(id, {Title = id, IsOpen = e.bump.debug_selected}) then
 				Slab.Indent()
 				local x, y, w, h = self.bump_world:getRect(e)
-				x = slider_edit("x", x, 0, win_size.width, e)
-				y = slider_edit("y", y, 0, win_size.width, e)
-				w = slider_edit("w", w, 2, win_size.width, e)
-				h = slider_edit("h", h, 2, win_size.width, e)
+				x = edit("x", x, e.pos)
+				y = edit("y", y, e.pos)
+				w = edit("w", w, e.collider)
+				h = edit("h", h, e.collider)
 				self.bump_world:update(e, x, y, w, h)
 				Slab.EndTree()
 			end
@@ -136,20 +135,19 @@ function BumpCollision:debug_update(dt)
 		Slab.EndTree()
 	end
 
-	if flags.drag then
-		for i = 1, len do
-			local e = items[i]
-			local x, y, w, h = self.bump_world:getRect(e)
-			local mx, my = love.mouse.getPosition()
-			local camera = self.world.current_state.camera
-			if camera then
-				mx, my = camera:toWorld(mx, my)
-			end
-			local c = vec2(x + w/2, y + h/2)
-			local hs = vec2(w/2, h/2)
-			local res = intersect.aabb_point_overlap(c, hs, vec2(mx, my))
-			e.bump.debug_hovered = res
+	for i = 1, len do
+		local e = items[i]
+		local x, y, w, h = self.bump_world:getRect(e)
+		local mx, my = love.mouse.getPosition()
+		local camera = self.world.current_state.camera
+		if camera then
+			mx, my = camera:toWorld(mx, my)
 		end
+		local c = vec2(x + w/2, y + h/2)
+		local hs = vec2(w/2, h/2)
+		local res = intersect.aabb_point_overlap(c, hs, vec2(mx, my))
+		e.bump.debug_hovered = res
+		e.bump.debug_selected = res and love.mouse.isDown(2)
 	end
 	Slab.EndWindow()
 end
@@ -166,7 +164,7 @@ function BumpCollision:debug_draw()
 			if camera then scale = camera:getScale() end
 
 			love.graphics.setLineWidth(1/scale)
-			if flags.drag and e.bump.debug_hovered then
+			if e.bump.debug_hovered then
 				love.graphics.setColor(1, 1, 0, 0.7)
 			else
 				love.graphics.setColor(1, 0, 0, 0.7)
@@ -199,13 +197,13 @@ function BumpCollision:debug_mousemoved(mx, my, dx, dy)
 end
 
 function BumpCollision:debug_mousepressed(mx, my, mb)
-	if flags.drag and mb == 1 then
-		local items, len = self.bump_world:getItems()
-		for i = 1, len do
-			local e = items[i]
-			if e.bump.debug_hovered then
-				e.bump.debug_clicked = true
-			end
+	if not flags.drag then return end
+	if mb ~= 1 then return end
+	local items, len = self.bump_world:getItems()
+	for i = 1, len do
+		local e = items[i]
+		if e.bump.debug_hovered then
+			e.bump.debug_clicked = true
 		end
 	end
 end
