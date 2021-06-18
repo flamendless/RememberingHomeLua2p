@@ -1,0 +1,55 @@
+local SortedTable = {}
+
+local insert = table.insert
+local remove = table.remove
+
+SortedTable.__mt = {
+	__index = SortedTable,
+}
+
+local sort_by_id = function(a, b)
+	return a.layer.n < b.layer.n
+end
+
+local ctor = function(def)
+	local self = setmetatable({}, SortedTable.__mt)
+	self.layer_id = def.layer
+	insert(def, "layer")
+
+	return self
+end
+
+function SortedTable:add(entity)
+	if entity.layer.id == self.layer_id then
+		insert(self, entity)
+		sort.insertion_sort(self, sort_by_id)
+		return true
+	end
+	return false
+end
+
+function SortedTable:remove(entity)
+	for i, e in ipairs(self) do
+		if e == entity then
+			remove(self, i)
+			return
+		end
+	end
+end
+
+function SortedTable:has(entity)
+	for _, e in ipairs(self) do
+		if e == entity then
+			return true
+		end
+	end
+	return false
+end
+
+function SortedTable:clear()
+	for i = #self, 1, -1 do
+		self[i] = nil
+	end
+end
+
+return ctor

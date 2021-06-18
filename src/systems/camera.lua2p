@@ -227,6 +227,10 @@ function Camera:debug_update(dt)
 	Slab.EndWindow()
 
 	local speed = 64
+	if love.keyboard.isDown("lshift") then
+		speed = 128
+	end
+
 	local dx, dy = 0, 0
 	if Inputs.down("camera_down") then
 		dy = 1

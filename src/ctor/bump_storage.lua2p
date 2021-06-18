@@ -1,0 +1,43 @@
+local Bump = require("modules.bump.bump-niji")
+
+local BumpStorage = {}
+
+local insert = table.insert
+local remove = table.remove
+
+BumpStorage.__mt = {
+	__index = BumpStorage,
+}
+
+local ctor = function(def)
+	local self = setmetatable({}, BumpStorage.__mt)
+	self.bump_world = Bump.newWorld()
+
+	return self
+end
+
+function BumpStorage:add(entity)
+	local x = entity.pos.x + entity.collider.ox
+	local y = entity.pos.y + entity.collider.oy
+	local w = entity.collider.w
+	local h = entity.collider.h
+	self.bump_world:add(entity, x, y, w, h)
+end
+
+function BumpStorage:remove(entity)
+	self.bump_world:remove(entity)
+end
+
+function BumpStorage:has(entity)
+	return self.bump_world:hasItem(entity)
+end
+
+function BumpStorage:clear()
+	self.bump_world = Bump.newWorld()
+end
+
+function BumpStorage:ipairs()
+	return ipairs(self.bump_world:getItems())
+end
+
+return ctor

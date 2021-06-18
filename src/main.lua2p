@@ -77,8 +77,8 @@ function love.load()
 	!if _DEV then
 	-- GameStates.switch("Splash")
 	-- GameStates.switch("Menu")
-	GameStates.switch("Intro")
-	-- GameStates.switch("Outside")
+	-- GameStates.switch("Intro")
+	GameStates.switch("Outside")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")
@@ -95,15 +95,15 @@ function love.update(dt)
 	Jprof.push("frame")
 	!end
 
-	!if _DEV then
-	DevTools.update(dt)
-	!end
-
 	Timer.update(dt)
 	Flux.update(dt)
 	EventManager.update(dt)
 	GameStates.update(dt)
 	Inputs.update()
+
+	!if _DEV then
+	DevTools.update(dt)
+	!end
 
 	!if _PROF then
 	Jprof.pop("frame")

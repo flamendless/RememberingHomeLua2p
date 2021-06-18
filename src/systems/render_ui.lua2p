@@ -1,29 +1,29 @@
 local Concord = require("modules.concord.concord")
-local ListCtor = require("ctor.layer_list")
+local SortedTable = require("ctor.sorted_table")
 
 local RenderUI = Concord.system({
 	pool_intro = {
-		constructor = ListCtor,
+		constructor = SortedTable,
 		layer = "intro",
 		"ui_element",
 	},
 	pool_hold_key = {
-		constructor = ListCtor,
+		constructor = SortedTable,
 		layer = "hold_key",
 		"ui_element",
 	},
 	pool_inventory = {
-		constructor = ListCtor,
+		constructor = SortedTable,
 		layer = "inventory",
 		"ui_element",
 	},
 	pool_inventory_buttons = {
-		constructor = ListCtor,
+		constructor = SortedTable,
 		layer = "inventory_buttons",
 		"ui_element",
 	},
 	pool_dialogue = {
-		constructor = ListCtor,
+		constructor = SortedTable,
 		layer = "dialogue",
 		"ui_element",
 	},
@@ -69,6 +69,12 @@ function RenderUI:draw_ui()
 				self.world:emit("draw_sprite_ex", e)
 			end
 		end
+	end
+end
+
+function RenderUI:cleanup()
+	for _, pool in ipairs(self.layers) do
+		pool:clear()
 	end
 end
 
