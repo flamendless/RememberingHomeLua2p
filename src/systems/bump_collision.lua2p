@@ -36,7 +36,7 @@ function BumpCollision:init(world)
 end
 
 function BumpCollision:preupdate(dt)
-	for _, e in self.pool:ipairs() do
+	for _, e in ipairs(self.pool:getItems()) do
 		e.collider.is_hit = false
 		!if _DEV then
 		e.bump.debug_hovered = false
@@ -46,7 +46,7 @@ end
 
 function BumpCollision:update(dt)
 	local x, y, w, h = get_query_rect(self)
-	local items, len = self.pool.bump_world:queryRect(x, y, w, h)
+	local items, len = self.pool:queryRect(x, y, w, h)
 	for i = 1, len do
 		local e = items[i]
 		if e.body then
@@ -65,7 +65,7 @@ function BumpCollision:update_body(e)
 	local pos = e.pos
 	local cols, len
 
-	pos.x, pos.y, cols, len = self.pool.bump_world:move(e,
+	pos.x, pos.y, cols, len = self.pool:move(e,
 		pos.x + body.vel_x,
 		pos.y + body.vel_y,
 		filter)
@@ -89,7 +89,7 @@ function BumpCollision:update_body(e)
 		end
 	end
 
-	self.pool.bump_world.freeCollisions(cols)
+	self.pool.freeCollisions(cols)
 end
 
 !if _DEV then
@@ -142,9 +142,9 @@ function BumpCollision:debug_update(dt)
 		local items, len
 		if flags.visible_only then
 			local x, y, w, h = get_query_rect(self)
-			items, len = self.pool.bump_world:queryRect(x, y, w, h)
+			items, len = self.pool:queryRect(x, y, w, h)
 		else
-			items, len = self.pool.bump_world:getItems()
+			items, len = self.pool:getItems()
 		end
 
 		for i = 1, len do
@@ -152,12 +152,12 @@ function BumpCollision:debug_update(dt)
 			local id = e.id.value
 			if Slab.BeginTree(id, {Title = id, IsOpen = e.bump.debug_selected}) then
 				Slab.Indent()
-				local x, y, w, h = self.pool.bump_world:getRect(e)
+				local x, y, w, h = self.pool:getRect(e)
 				x = edit("x", x, e.pos)
 				y = edit("y", y, e.pos)
 				w = edit("w", w, e.collider)
 				h = edit("h", h, e.collider)
-				self.pool.bump_world:update(e, x, y, w, h)
+				self.pool:update(e, x, y, w, h)
 				Slab.EndTree()
 			end
 		end
@@ -165,7 +165,7 @@ function BumpCollision:debug_update(dt)
 	end
 
 	local mx, my = get_query_point(self)
-	local items, len = self.pool.bump_world:queryPoint(mx, my)
+	local items, len = self.pool:queryPoint(mx, my)
 	for i = 1, len do
 		local e = items[i]
 		e.bump.debug_hovered = true
@@ -177,11 +177,11 @@ end
 function BumpCollision:debug_draw()
 	if flags.bodies then
 		local x, y, w, h = get_query_rect(self)
-		local items, len = self.pool.bump_world:queryRect(x, y, w, h)
+		local items, len = self.pool:queryRect(x, y, w, h)
 		for i = 1, len do
 			local e = items[i]
 			local id = e.id.value
-			local x, y, w, h = self.pool.bump_world:getRect(e)
+			local x, y, w, h = self.pool:getRect(e)
 			local scale = 1
 			local camera = self.world.current_state.camera
 			if camera then scale = camera:getScale() end
@@ -204,14 +204,14 @@ function BumpCollision:debug_mousemoved(mx, my, dx, dy)
 	if flags.drag then
 		mx, my = get_query_point(self)
 		local x, y, w, h = get_query_rect(self)
-		local items, len = self.pool.bump_world:queryRect(x, y, w, h)
+		local items, len = self.pool:queryRect(x, y, w, h)
 		for i = 1, len do
 			local e = items[i]
 			if e.bump.debug_clicked then
-				local x, y, w, h = self.pool.bump_world:getRect(e)
+				local x, y, w, h = self.pool:getRect(e)
 				e.pos.x = mx
 				e.pos.y = my
-				self.pool.bump_world:update(e, e.pos.x, e.pos.y, w, h)
+				self.pool:update(e, e.pos.x, e.pos.y, w, h)
 			end
 		end
 	end
@@ -221,7 +221,7 @@ function BumpCollision:debug_mousepressed(mx, my, mb)
 	if not flags.drag then return end
 	if mb ~= 1 then return end
 	mx, my = get_query_point(self)
-	local items, len = self.pool.bump_world:queryPoint(mx, my)
+	local items, len = self.pool:queryPoint(mx, my)
 	for i = 1, len do
 		local e = items[i]
 		if e.bump.debug_hovered then
@@ -234,15 +234,15 @@ function BumpCollision:debug_mousereleased(mx, my, mb)
 	if flags.drag and mb == 1 then
 		mx, my = get_query_point(self)
 		local x, y, w, h = get_query_rect(self)
-		local items, len = self.pool.bump_world:queryRect(x, y, w, h)
+		local items, len = self.pool:queryRect(x, y, w, h)
 		for i = 1, len do
 			local e = items[i]
 			if e.bump.debug_clicked then
-				local x, y, w, h = self.pool.bump_world:getRect(e)
+				local x, y, w, h = self.pool:getRect(e)
 				e.pos.x = mx
 				e.pos.y = my
 				e.bump.debug_clicked = false
-				self.pool.bump_world:update(e, e.pos.x, e.pos.y, w, h)
+				self.pool:update(e, e.pos.x, e.pos.y, w, h)
 			end
 		end
 	end

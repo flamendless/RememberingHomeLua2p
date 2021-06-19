@@ -5,14 +5,15 @@ local BumpStorage = {}
 local insert = table.insert
 local remove = table.remove
 
+local meta = getmetatable(Bump.newWorld())
+local BumpStorage = setmetatable({super = meta.__index}, meta)
+
 BumpStorage.__mt = {
 	__index = BumpStorage,
 }
 
 local ctor = function(def)
-	local self = setmetatable({}, BumpStorage.__mt)
-	self.bump_world = Bump.newWorld()
-
+	local self = setmetatable(Bump.newWorld(), BumpStorage.__mt)
 	return self
 end
 
@@ -21,23 +22,17 @@ function BumpStorage:add(entity)
 	local y = entity.pos.y + entity.collider.oy
 	local w = entity.collider.w
 	local h = entity.collider.h
-	self.bump_world:add(entity, x, y, w, h)
-end
-
-function BumpStorage:remove(entity)
-	self.bump_world:remove(entity)
+	self.super.add(self, entity, x, y, w, h)
 end
 
 function BumpStorage:has(entity)
-	return self.bump_world:hasItem(entity)
+	return self:hasItem(entity)
 end
 
 function BumpStorage:clear()
-	self.bump_world = Bump.newWorld()
-end
-
-function BumpStorage:ipairs()
-	return ipairs(self.bump_world:getItems())
+	for _, e in ipairs(self:getItems()) do
+		self:remove(item)
+	end
 end
 
 return ctor
