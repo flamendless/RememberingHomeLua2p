@@ -9,4 +9,8 @@ Concord.component("firefly", function(c, colors)
 	!end
 	c.value = colors
 	c.can_flicker = false
+	c.timer = nil
 end)
+
+Concord.component("firefly_move")
+Concord.component("firefly_light")

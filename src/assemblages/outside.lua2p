@@ -201,6 +201,7 @@ end
 
 function Outside.firefly_light(e, sprite, e_firefly)
 	e:give("id", "firefly_light")
+	:give("firefly_light")
 	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1)
 	:give("color", Palette.colors.firefly_light)
@@ -208,7 +209,8 @@ function Outside.firefly_light(e, sprite, e_firefly)
 	:give("sprite", sprite, "round")
 	:give("light_flicker", 0.05)
 	:give("attach_to", e_firefly)
-	:give("z_index", z_index.firefly)
+	:give("z_index", z_index.firefly + 1)
+	:give("hidden")
 end
 
 function Outside.house_light(e, sprite)

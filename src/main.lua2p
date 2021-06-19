@@ -92,7 +92,7 @@ end
 
 function love.update(dt)
 	!if _PROF then
-	Jprof.push("frame")
+	JPROF.push("frame")
 	!end
 
 	Timer.update(dt)
@@ -106,13 +106,13 @@ function love.update(dt)
 	!end
 
 	!if _PROF then
-	Jprof.pop("frame")
+	JPROF.pop("frame")
 	!end
 end
 
 function love.draw()
 	!if _PROF then
-	Jprof.push("frame")
+	JPROF.push("frame")
 	!end
 
 	love.graphics.setColor(1, 1, 1, 1)
@@ -132,7 +132,7 @@ function love.draw()
 	!end
 
 	!if _PROF then
-	Jprof.pop("frame")
+	JPROF.pop("frame")
 	!end
 end
 
@@ -179,6 +179,6 @@ function love.quit()
 	!end
 
 	!if _PROF then
-	Jprof.write("prof.mpack")
+	JPROF.write("prof.mpack")
 	!end
 end

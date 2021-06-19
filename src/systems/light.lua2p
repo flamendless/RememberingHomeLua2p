@@ -99,7 +99,7 @@ end
 
 function Light:update_light(dt)
 	!if _PROF then
-	Jprof.push("update_light")
+	JPROF.push("update_light")
 	!end
 
 	for _, e in ipairs(self.pool) do
@@ -138,7 +138,7 @@ function Light:update_light(dt)
 	end
 
 	!if _PROF then
-	Jprof.pop("update_light")
+	JPROF.pop("update_light")
 	!end
 end
 
@@ -150,7 +150,7 @@ end
 
 function Light:draw_light()
 	!if _PROF then
-	Jprof.push("draw_light")
+	JPROF.push("draw_light")
 	!end
 
 	local _r, _g, _b, _a = love.graphics.getColor()
@@ -186,7 +186,7 @@ function Light:draw_light()
 	love.graphics.setBlendMode("alpha")
 
 	!if _PROF then
-	Jprof.pop("draw_light")
+	JPROF.pop("draw_light")
 	!end
 end
 

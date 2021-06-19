@@ -351,10 +351,6 @@ function StateOutside:start()
 	--TIMELINE
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		self.world:emit("show_fireflies", 5, function()
-				self.world:emit("flicker_fireflies", 3, 5)
-				self.world:emit("move_fireflies")
-			end)
 		self.timeline:Pause()
 		!end
 

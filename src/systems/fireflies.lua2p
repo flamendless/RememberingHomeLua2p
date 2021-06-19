@@ -10,31 +10,33 @@ local random = love.math.random
 
 local Fireflies = Concord.system({
 	pool = {"firefly", "color"},
+	pool_light = {"firefly_light", "light"},
 })
 
 local Outside = require("assemblages.outside")
 
-local offset = 8
-
 local function generate_points(x, y, n)
-	local points = {vec2:new(x, y)}
+	local offset = 8
+	local points = {x = x, y = y}
 	local prev_x = x
 	local prev_y = y
 
 	for i = 1, n - 1 do
 		local px = random(prev_x - offset, prev_x + offset)
 		local py = random(prev_y - offset, prev_y + offset)
-		local pv = vec2:new(px, py)
+		local p = {x = px, y = py}
 
 		prev_x = px
 		prev_y = py
-		insert(points, pv)
+		insert(points, p)
 	end
 
 	return points
 end
 
-local function move_to_next_point(path, pos)
+local function move_to_next_point(e, path, pos)
+	@@assert(e.__isEntity)
+	@@assert(e.firefly)
 	local low = path.current_point
 	local dur = random(2, 8)
 	local high = low + dur
@@ -45,9 +47,9 @@ local function move_to_next_point(path, pos)
 	end
 
 	for i = low, high do
-		local nx, ny = path.points[i]:unpack()
-		insert(points, nx)
-		insert(points, ny)
+		local p = path.points[i]
+		insert(points, p.x)
+		insert(points, p.y)
 	end
 
 	local b = love.math.newBezierCurve(unpack(points))
@@ -62,19 +64,24 @@ local function move_to_next_point(path, pos)
 
 	f:oncomplete(function()
 		path.current_point = high
-
 		if path.current_point >= path.n_points then
 			path.current_point = 1
 			tablex.reverse(path.points)
 		end
 
-		move_to_next_point(path, pos)
+		if e.firefly_move then
+			move_to_next_point(e, path, pos)
+		end
 	end)
 end
 
 function Fireflies:init(world)
 	self.world = world
 	self.timer = Timer()
+	!if _DEV then
+	self.debug_fireflies = false
+	self.debug_lights = false
+	!end
 end
 
 function Fireflies:update(dt)
@@ -108,53 +115,191 @@ function Fireflies:show_fireflies(dur, fn)
 	@@assert(type(fn) == "function")
 	for _, e in ipairs(self.pool) do
 		e:remove("hidden")
-		Flux.to(e.color.value, dur, {[4] = 1})
+		local f = Flux.to(e.color.value, dur, {[4] = 1})
 			:oncomplete(function()
 				e.firefly.can_flicker = true
+				!if _DEV then
+				self.debug_flicker = true
+				!end
 				fn()
 			end)
 	end
+
+	for _, e in ipairs(self.pool_light) do
+		e:remove("hidden")
+	end
+
+	!if _DEV then
+	self.debug_fireflies = true
+	!end
+end
+
+function Fireflies:hide_fireflies(dur, fn)
+	@@assert(type(dur) == "number")
+	@@assert(type(fn) == "function")
+	for _, e in ipairs(self.pool) do
+		local f = Flux.to(e.color.value, dur, {[4] = 0})
+			:oncomplete(function()
+				e.firefly.can_flicker = false
+				!if _DEV then
+				self.debug_flicker = false
+				!end
+				e:give("hidden")
+				fn()
+			end)
+	end
+
+	for _, e in ipairs(self.pool_light) do
+		e:give("hidden")
+	end
+
+	!if _DEV then
+	self.debug_fireflies = false
+	!end
 end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
-		move_to_next_point(e.path, e.pos)
+		e:give("firefly_move")
+		move_to_next_point(e, e.path, e.pos)
 	end
+	!if _DEV then
+	self.debug_move = true
+	!end
+end
+
+function Fireflies:stop_fireflies()
+	for _, e in ipairs(self.pool) do
+		e:remove("firefly_move")
+	end
+	!if _DEV then
+	self.debug_move = false
+	!end
 end
 
 function Fireflies:flicker_fireflies(start_time, end_time)
 	@@assert(type(start_time) == "number")
 	@@assert(type(end_time) == "number")
 	for _, e in ipairs(self.pool) do
-		if e.firefly.can_flicker then
+		local firefly = e.firefly
+		if firefly.can_flicker then
 			local color = e.color.value
-			local colors = e.firefly.value
+			local colors = firefly.value
 			local time = random(start_time, end_time)
-
-			local timer = self.timer:during(time, function()
+			firefly.timer = self.timer:during(time,
+				function()
 					local chance = Lume.weightedchoice({yes = 0.25, no = 0.75})
 
 					if chance == "yes" then
 						local target = colors[random(1, #colors)]
-
-						Flux.to(color, 0.25, {
+						local f = Flux.to(color, 0.25, {
 								[1] = target[1],
 								[2] = target[2],
 								[3] = target[3],
 								[4] = target[4],
 							})
 					end
-			end,
-			function()
-				local next_run = random(start_time, end_time)
-
-				local timer2 = Timer.after(next_run, function()
-					self.timer:clear()
-					self:flicker_fireflies(start_time, end_time)
+				end,
+				function()
+					local next_run = random(start_time, end_time)
+					local timer2 = Timer.after(next_run, function()
+						self.timer:clear()
+						self:flicker_fireflies(start_time, end_time)
+					end)
 				end)
-			end)
+		end
+	end
+	!if _DEV then
+	self.debug_flicker = true
+	!end
+end
+
+function Fireflies:stop_flicker_fireflies()
+	for _, e in ipairs(self.pool) do
+		local firefly = e.firefly
+		firefly.can_flicker = false
+		if firefly.timer then
+			firefly.timer:cancel()
+		end
+	end
+	!if _DEV then
+	self.debug_flicker = false
+	!end
+end
+
+function Fireflies:cleanup()
+	self.timer:clear()
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	show = true,
+	path = false,
+}
+
+function Fireflies:debug_update(dt)
+	if not self.debug_show then return end
+	flags.show = Slab.BeginWindow("Fireflies", {Title = "Fireflies", IsOpen = flags.show})
+
+	if Slab.CheckBox(self.debug_fireflies, "Show") then
+		self.debug_fireflies = not self.debug_fireflies
+		if self.debug_fireflies then
+			self:show_fireflies(0, function() end)
+		else
+			self:hide_fireflies(0, function() end)
+		end
+	end
+
+	if Slab.CheckBox(self.debug_move, "Move") then
+		self.debug_move = not self.debug_move
+		if self.debug_move then
+			self:move_fireflies()
+		else
+			self:stop_fireflies()
+		end
+	end
+
+	if Slab.CheckBox(self.debug_flicker, "Flicker") then
+		self.debug_flicker = not self.debug_flicker
+		if self.debug_flicker then
+			self:flicker_fireflies(3, 5)
+		else
+			self:stop_flicker_fireflies()
+		end
+	end
+
+	if Slab.CheckBox(flags.path, "Path") then
+		flags.path = not flags.path
+	end
+
+	Slab.EndWindow()
+end
+
+function Fireflies:debug_draw()
+	if not self.debug_show then return end
+	if flags.path then
+		local scale = 1
+		if self.world.current_state.camera then
+			scale = 1/self.world.current_state.camera:getScale()
+		end
+		love.graphics.setLineWidth(scale)
+		for _, e in ipairs(self.pool) do
+			local path = e.path
+			for i = 1, path.n_points - 1 do
+				local a = path.points[i]
+				local b = path.points[i + 1]
+
+				if i < path.current_point then
+					love.graphics.setColor(1, 0, 0, 0.6)
+				else
+					love.graphics.setColor(1, 1, 0, 0.6)
+				end
+				love.graphics.line(a.x, a.y, b.x, b.y)
+			end
 		end
 	end
 end
+!end
 
 return Fireflies
