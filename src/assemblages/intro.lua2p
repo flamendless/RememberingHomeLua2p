@@ -66,7 +66,7 @@ function Intro.bg_tree_cover(e, sprite)
 	e:give("id", "bg_tree_cover")
 	:give("sprite", sprite)
 	:give("pos", love.graphics.getWidth(), 90)
-	:give("transform", 0, 1, 1, sprite:getWidth()/2)
+	:give("transform", 0, 1, 1, sprite:getWidth() * 0.5)
 	:give("z_index", z_index.bg_tree_cover)
 	:give("bg_tree", true)
 end

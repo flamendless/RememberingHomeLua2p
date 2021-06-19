@@ -4,7 +4,7 @@ local Enum = require("modules.enum.enum")
 local types = Enum("pie", "open", "closed")
 
 local pi = math.pi
-local half_pi = pi/2
+local half_pi = pi * 0.5
 local two_pi = pi * 2
 
 Concord.component("arc", function(c, radius, segments, start_angle, end_angle)

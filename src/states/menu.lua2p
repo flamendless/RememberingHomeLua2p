@@ -231,28 +231,28 @@ function StateMenu:setup_menu()
 
 	self.entities.bg_door = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_door,
-			bg_door, ww * 1.5, wh/2, scale, bg_door_w/2, bg_door_h/2)
+			bg_door, ww * 1.5, wh * 0.5, scale, bg_door_w * 0.5, bg_door_h * 0.5)
 
 	self.entities.bg_hallway = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_hallway,
-			bg_hallway, ww/2, wh * 1.5, scale_hallway, bg_hw_w/2, bg_hw_h/2)
+			bg_hallway, ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
 
 	self.entities.desk = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.desk, res_images.sheet_desk, ww, wh)
 
 	!if not _RELEASE then
 	self.entities.secret_title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.secret_title, res_fonts.about_64, 32, wh/2)
+		:assemble(Assemblages.Menu.secret_title, res_fonts.about_64, 32, wh * 0.5)
 	self.entities.secret_title:give("color_fade_in", 5, 3)
 	!end
 
 	self.entities.title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.title, title, ww * 0.25, wh/2 - 36,
-			scale_title, title_w/2, title_h/2)
+		:assemble(Assemblages.Menu.title, title, ww * 0.25, wh * 0.5 - 36,
+			scale_title, title_w * 0.5, title_h * 0.5)
 
 	self.entities.subtitle = Concord.entity(self.world)
 		:assemble(Assemblages.Menu.subtitle, subtitle, ww * 0.25, wh * 1.5,
-			self.entities.title, scale_subt, subt_w/2, subt_h/2)
+			self.entities.title, scale_subt, subt_w * 0.5, subt_h * 0.5)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
 	local jamboree_png = "res/fonts/Jamboree.png"
@@ -370,7 +370,7 @@ function StateMenu:setup_about()
 	!!local about_links = _ABOUT_LINKS
 	local l, t, w, h = self.camera:getVisible()
 	local font_about = res_fonts.about_20
-	local base_x = w/2
+	local base_x = w * 0.5
 	local base_y = h + 16
 	local layout = false
 	local layout_base_y = 0
@@ -391,7 +391,7 @@ function StateMenu:setup_about()
 			local space = el[3]
 			local str_w = font:getWidth(str)
 			local str_h = font:getHeight(str)
-			local x = base_x - str_w/2
+			local x = base_x - str_w * 0.5
 			local y = base_y
 
 			if space then base_y = base_y + space end
@@ -405,7 +405,7 @@ function StateMenu:setup_about()
 				layout_base_y = base_y
 				layout = true
 			elseif str == "@LAYOUT:CENTER" then
-				base_x = w/2
+				base_x = w * 0.5
 				base_y = largest
 				layout = false
 			elseif str == "@COLOR" then
@@ -436,9 +436,9 @@ function StateMenu:setup_about()
 
 			for i2, image in ipairs(el) do
 				local id = "about_image_" .. (i + i2)
-				local image_base_x = base_x - (#el/2 * image:getWidth()) - pad
+				local image_base_x = base_x - (#el * 0.5 * image:getWidth()) - pad
 				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
-				local y = base_y + image:getHeight()/2 - pad
+				local y = base_y + image:getHeight() * 0.5 - pad
 				img_h = image:getHeight()
 
 				self.entities[id] = Concord.entity(self.world)

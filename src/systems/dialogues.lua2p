@@ -99,7 +99,7 @@ function Dialogues:show_dialogue(id, sub, interactive_id)
 
 	local e_dialogue = Concord.entity(self.world)
 		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos_dialogue)
-		:give("reflowprint", ScreenInfo.w/2, "left")
+		:give("reflowprint", ScreenInfo.w * 0.5, "left")
 
 	if interactive_id then
 		e_dialogue:give("dialogue_interactive", interactive_id)

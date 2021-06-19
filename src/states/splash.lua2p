@@ -88,7 +88,7 @@ function StateSplash:start()
 
 	self.entities.flamendless = Concord.entity(self.world)
 		:give("sprite", res_images.flamendless_logo)
-		:give("pos", ww/2, wh/2)
+		:give("pos", ww * 0.5, wh * 0.5)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("color", {1, 1, 1, 0})
 
@@ -99,7 +99,7 @@ function StateSplash:start()
 				delay = 0.15,
 				rows_count = 4,
 				columns_count = 3,
-			}, ww/2, wh/2)
+			}, ww * 0.5, wh * 0.5)
 		:give("color", Palette.get("white"))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
@@ -131,12 +131,12 @@ function StateSplash:start()
 		:give("glitch_colors", Palette.color_glitches)
 		:give("color", color_a)
 		:give("lerp_colors", {color_a, color_b})
-		:give("pos", ww/2, wh * 0.85)
+		:give("pos", ww * 0.5, wh * 0.85)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 
 	self.entities.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
-		:give("pos", ww/2, wh * 0.2)
+		:give("pos", ww * 0.5, wh * 0.2)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
 		:give("font", res_fonts.uncle_type_32)
@@ -147,7 +147,7 @@ function StateSplash:start()
 
 	if Save.data.splash_done then
 		self.entities.skip_splash = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, res_fonts.ui, ww/2, wh - 8)
+			:assemble(Assemblages.Common.skip, res_fonts.ui, ww * 0.5, wh - 8)
 	end
 end
 

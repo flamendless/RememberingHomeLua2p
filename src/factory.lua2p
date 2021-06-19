@@ -55,22 +55,22 @@ function Factory.arrows(world, sheet, x, y, offset, scale)
 
 	t.left = Concord.entity(world)
 		:assemble(UI.arrow, "left", sheet, x, y)
-		:give("quad_transform", 0, scale, scale, size, size/2)
+		:give("quad_transform", 0, scale, scale, size, size * 0.5)
 		:give("quad_size", size)
 
 	t.right = Concord.entity(world)
 		:assemble(UI.arrow, "right", sheet, x, y)
-		:give("quad_transform", 0, scale, scale, 0, size/2)
+		:give("quad_transform", 0, scale, scale, 0, size * 0.5)
 		:give("quad_size", size)
 
 	t.up = Concord.entity(world)
 		:assemble(UI.arrow, "up", sheet, x, y)
-		:give("quad_transform", 0, scale, scale, size/2, size)
+		:give("quad_transform", 0, scale, scale, size * 0.5, size)
 		:give("quad_size", size)
 
 	t.down = Concord.entity(world)
 		:assemble(UI.arrow, "down", sheet, x, y)
-		:give("quad_transform", 0, scale, scale, size/2, 0)
+		:give("quad_transform", 0, scale, scale, size * 0.5, 0)
 		:give("quad_size", size)
 
 	return t

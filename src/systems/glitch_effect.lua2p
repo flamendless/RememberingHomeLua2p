@@ -83,11 +83,11 @@ function GlitchEffect:effect_draw()
 			sy = transform.sy
 
 			if transform.ox == 0.5 then
-				ox = love.graphics.getFont():getWidth(text)/2
+				ox = love.graphics.getFont():getWidth(text) * 0.5
 			end
 
 			if transform.oy == 0.5 then
-				oy = love.graphics.getFont():getHeight(text)/2
+				oy = love.graphics.getFont():getHeight(text) * 0.5
 			end
 		end
 

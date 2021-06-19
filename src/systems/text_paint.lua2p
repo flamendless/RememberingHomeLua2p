@@ -116,8 +116,8 @@ function TextPaint:show_paint(e, dur_in, widest)
 		x = text_pos.x
 		y = text_pos.y
 	else
-		x = text_pos.x + str_w/2
-		y = text_pos.y + str_h/2
+		x = text_pos.x + str_w * 0.5
+		y = text_pos.y + str_h * 0.5
 	end
 
 	local pos = vec2:new(x, y)

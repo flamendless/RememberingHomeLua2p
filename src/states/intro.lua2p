@@ -211,11 +211,11 @@ function StateIntro:start()
 
 	self.entities.title_light = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title_light,
-			res_images.title_light, screen_size.x/2, screen_size.y/2)
+			res_images.title_light, screen_size.x * 0.5, screen_size.y * 0.5)
 
 	self.entities.title = Concord.entity(self.world)
 		:assemble(Assemblages.Intro.title,
-			res_images.title, screen_size.x/2, screen_size.y/2)
+			res_images.title, screen_size.x * 0.5, screen_size.y * 0.5)
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
@@ -296,11 +296,11 @@ function StateIntro:start()
 
 		TLE.Event.Wait(2)
 		self.world:emit("slow_parallax", 0.75)
-		Flux.to(car_pos, 3, {x = screen_size.x/2})
+		Flux.to(car_pos, 3, {x = screen_size.x * 0.5})
 
 		TLE.Event.Wait(2)
 		Flux.to(self.camera, 5, {scale = self.scale})
-		Flux.to(self.camera, 5, {x = w/2, y = h/2})
+		Flux.to(self.camera, 5, {x = w * 0.5, y = h * 0.5})
 
 		if self.entities.skip_intro then
 			self.entities.skip_intro:destroy()
@@ -335,7 +335,7 @@ function StateIntro:start()
 
 	if Save.data.intro_done or not !(_RELEASE) then
 		self.entities.skip_intro = Concord.entity(self.world)
-			:assemble(Assemblages.Common.skip, res_fonts.ui, screen_size.x/2, screen_size.y - 8)
+			:assemble(Assemblages.Common.skip, res_fonts.ui, screen_size.x * 0.5, screen_size.y - 8)
 	end
 
 	!if _PROF then

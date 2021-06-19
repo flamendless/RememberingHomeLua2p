@@ -148,8 +148,8 @@ function StateOutside:start()
 	self.world:emit("set_ambient_light", ambient_color)
 
 	self.world:emit("set_dialogue_config", {
-			pos = {x = ww/2, y = hh * 0.87},
-			pos_arrow = {x = ww/2, y = hh * 0.94},
+			pos = {x = ww * 0.5, y = hh * 0.87},
+			pos_arrow = {x = ww * 0.5, y = hh * 0.94},
 			font = res_fonts.dialogue,
 			sheet_arrow = res_images.sheet_dialogue_arrow,
 		})
@@ -286,7 +286,7 @@ function StateOutside:start()
 	for i, str in ipairs(tasks) do
 		self.entities["task" .. i] = Concord.entity(self.world)
 			:assemble(Assemblages.UI.ui_text_paint, "brush",
-				str, res_fonts.task, screen_size.x/2, screen_size.y * 0.9)
+				str, res_fonts.task, screen_size.x * 0.5, screen_size.y * 0.9)
 			:give("task", Palette.get("ui_feedback"))
 	end
 
@@ -435,7 +435,7 @@ function StateOutside:start()
 
 		tle_log("wait for action")
 		local e_hold_key = Factory.hold_key(self.world, key_id,
-			screen_size.x/2, screen_size.y/2, timer_hold_key,
+			screen_size.x * 0.5, screen_size.y * 0.5, timer_hold_key,
 			64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
 
 		local ev1 = EventsList.hold_key(key_id, p_interact_id,

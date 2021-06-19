@@ -15,13 +15,13 @@ function Helper.get_offset(e)
 
 	if anim_data then
 		if transform.ox == 0.5 then
-			ox = anim_data.frame_width/2
+			ox = anim_data.frame_width * 0.5
 		elseif transform.ox == 1 then
 			ox = anim_data.frame_width
 		end
 
 		if transform.oy == 0.5 then
-			oy = anim_data.frame_height/2
+			oy = anim_data.frame_height * 0.5
 		elseif transform.oy == 1 then
 			oy = anim_data.frame_height
 		end
@@ -29,13 +29,13 @@ function Helper.get_offset(e)
 		local spr = sprite.image
 
 		if transform.ox == 0.5 then
-			ox = spr:getWidth()/2
+			ox = spr:getWidth() * 0.5
 		elseif transform.ox == 1 then
 			ox = spr:getWidth()
 		end
 
 		if transform.oy == 0.5 then
-			oy = spr:getHeight()/2
+			oy = spr:getHeight() * 0.5
 		elseif transform.oy == 1 then
 			oy = spr:getHeight()
 		end
