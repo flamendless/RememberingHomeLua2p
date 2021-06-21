@@ -93,10 +93,6 @@ Resources.data.outside = {
 	image = {
 		{"bg_sky", path_images .. "house_outside/bg_sky.png"},
 		{"bg_house", path_images .. "house_outside/bg_house.png"},
-		{"car", path_images .. "house_outside/car.png"},
-		{"fence", path_images .. "house_outside/fence.png"},
-		{"gate", path_images .. "house_outside/gate.png"},
-		{"railings", path_images .. "house_outside/railings.png"},
 		{"sheet_player_idle", path_images .. "player/player_idle.png"},
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},

@@ -1,5 +1,9 @@
 local Concord = require("modules.concord.concord")
 
+!if _DEV then
+local DevTools
+!end
+
 local ECS = {}
 
 local Components = {}
@@ -46,19 +50,23 @@ function ECS.load_systems(id, world)
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
 
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
+
 	for _, v in ipairs(systems[id]) do
 		@@assert(Systems[v], string.format("id = %s, i = %d", id, _))
 		world:addSystem(Systems[v])
 		!if _DEV then
 		local sys = Systems[v]
-		sys.debug_show = sys.debug_update or sys.debug_draw
+		sys.debug_show = DevTools.flags[v]
 		sys.debug_enabled = true
 		sys.debug_title = v
 		!end
 	end
 
 	!if _DEV then
-	Systems.id.debug_show = Systems.id.debug_update or Systems.id.debug_draw
+	Systems.id.debug_show = true
 	Systems.id.debug_enabled = true
 	Systems.id.debug_title = "ID"
 	world:addSystem(Systems.id)

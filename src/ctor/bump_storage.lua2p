@@ -18,10 +18,16 @@ local ctor = function(def)
 end
 
 function BumpStorage:add(entity)
-	local x = entity.pos.x + entity.collider.ox
-	local y = entity.pos.y + entity.collider.oy
+	local x = entity.pos.x
+	local y = entity.pos.y
 	local w = entity.collider.w
 	local h = entity.collider.h
+
+	local col_offset = entity.collider_offset
+	if col_offset then
+		x = x + col_offset.ox
+		y = y + col_offset.oy
+	end
 	self.super.add(self, entity, x, y, w, h)
 end
 

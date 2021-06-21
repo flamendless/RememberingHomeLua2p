@@ -5,16 +5,12 @@ local filters = Enum("slide", "cross", "bounce", "cross")
 
 Concord.component("bump")
 
-Concord.component("collider", function(c, w, h, ox, oy, filter)
+Concord.component("collider", function(c, w, h, filter)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")
-	@@sassert(ox, type(ox) == "number")
-	@@sassert(oy, type(oy) == "number")
 	@@sassert(filter, type(filter) == "string")
 	c.w = w
 	c.h = h
-	c.ox = ox or 0
-	c.oy = oy or 0
 	c.is_hit = false
 	c.filter = nil
 	c.normal = {x = 0, y = 0}
@@ -22,6 +18,13 @@ Concord.component("collider", function(c, w, h, ox, oy, filter)
 	if filter then
 		c.filter = filters[filter]
 	end
+end)
+
+Concord.component("collider_offset", function(c, ox, oy)
+	@@assert(type(ox) == "number")
+	@@assert(type(oy) == "number")
+	c.ox = ox
+	c.oy = oy
 end)
 
 Concord.component("collider_circle", function(c, size, ox, oy)

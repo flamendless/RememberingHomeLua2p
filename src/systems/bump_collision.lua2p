@@ -99,6 +99,7 @@ local flags = {
 	bodies = true,
 	drag = false,
 	visible_only = true,
+	fill = false,
 }
 
 local function edit(id, value, t)
@@ -135,6 +136,10 @@ function BumpCollision:debug_update(dt)
 	end
 	if Slab.CheckBox(flags.visible_only, "Visible Only") then
 		flags.visible_only = not flags.visible_only
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.fill, "Fil") then
+		flags.fill = not flags.fill
 	end
 
 	if Slab.BeginTree("List", {Title = "List"}) then
@@ -186,6 +191,11 @@ function BumpCollision:debug_draw()
 			local camera = self.world.current_state.camera
 			if camera then scale = camera:getScale() end
 
+			if flags.fill then
+				love.graphics.setColor(1, 0, 0, 0.3)
+				love.graphics.rectangle("fill", x, y, w, h)
+			end
+
 			love.graphics.setLineWidth(1/scale)
 			if e.bump.debug_hovered then
 				love.graphics.setColor(1, 1, 0, 0.7)
@@ -193,6 +203,7 @@ function BumpCollision:debug_draw()
 				love.graphics.setColor(1, 0, 0, 0.7)
 			end
 			love.graphics.rectangle("line", x, y, w, h)
+
 			if flags.ids then
 				love.graphics.print(id, x, y)
 			end

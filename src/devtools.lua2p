@@ -10,6 +10,10 @@ local DevTools = {
 	flags = {
 		ngrading = true,
 		fog = false,
+		movement = false,
+		bump_collision = true,
+		camera = true,
+		fireflies = false,
 	},
 }
 
@@ -219,6 +223,7 @@ end
 function DevTools.keypressed(key)
 	if key == "`" then
 		DevTools.show = not DevTools.show
+		DevTools.flags.ngrading = not DevTools.show
 	elseif key == "r" then
 		love.event.quit("restart")
 	elseif key == "escape" then

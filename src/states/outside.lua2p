@@ -183,12 +183,6 @@ function StateOutside:start()
 	self.ps1 = ParticleSystems.RainOutside:new(res_images.rain_drop, 128, cw)
 	self.ps2 = ParticleSystems.RainOutside:new(res_images.rain_drop2, 128, cw)
 
-	!if not _RELEASE then
-	self.world:emit("debug_particle_system", self.ps1.system)
-	self.world:emit("debug_particle_system", self.ps2.system)
-	self.world:emit("debug_camera", self.camera)
-	!end
-
 	self.world:emit("create_inventory_cell",
 		res_images.bg_item,
 		res_images.bg_desc,
@@ -213,60 +207,6 @@ function StateOutside:start()
 			:assemble(Assemblages.Outside.bg_house, bg_house, x, y, quad)
 	end
 
-	self.entities.railings = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.railings, res_images.railings)
-
-	self.entities.left_bounds = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.left_bounds)
-
-	self.entities.right_bounds = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.right_bounds)
-
-	self.entities.left_wall = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.left_wall)
-
-	self.entities.right_wall = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.right_wall)
-
-	self.entities.wood = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.wood)
-
-	self.entities.house_left = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house, "left")
-
-	self.entities.house_right = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house, "right")
-
-	self.entities.house_top = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house, "top")
-
-	self.entities.left_railing = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.left_railing)
-
-	self.entities.right_railing = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.right_railing)
-
-	self.entities.col_railing_left = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.col_railing, "left")
-
-	self.entities.col_railing_right = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.col_railing, "right")
-
-	self.entities.house_side = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.house_side)
-
-	self.entities.car = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.car, res_images.car)
-
-	self.entities.fence = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.fence, res_images.fence)
-
-	self.entities.fence_right = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.fence_right)
-
-	self.entities.gate = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.gate, res_images.gate)
-
 	self.entities.splat_data = Concord.entity(self.world)
 		:assemble(Assemblages.UI.splat_data, res_images.sheet_splat)
 
@@ -279,6 +219,11 @@ function StateOutside:start()
 	self.entities.house_light = Concord.entity(self.world)
 		:assemble(Assemblages.Outside.house_light, res_images.house_light)
 
+	--setup colliders
+	self.entities.col_ground = Concord.entity(self.world)
+		:assemble(Assemblages.Outside.col_ground, w, h)
+
+	--TODO
 	for k, v in pairs(Assemblages.InteractiveOutside) do
 		self.entities[k] = Concord.entity(self.world):assemble(v)
 	end
@@ -329,23 +274,23 @@ function StateOutside:start()
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
 	Fade.set_alpha(0)
-	self:spawn_player(1.5)
-	self.entities.player.body.can_move = true
-
-	self.entities.backdoor_key2 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-		:give("id", "item_test")
-	self.entities.backdoor_key3 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key4 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key5 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	self.entities.backdoor_key6 = Concord.entity(self.world)
-		:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self:spawn_player(1.5)
+	-- self.entities.player.body.can_move = true
+    --
+	-- self.entities.backdoor_key2 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- 	:give("id", "item_test")
+	-- self.entities.backdoor_key3 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key4 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key5 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
+	-- self.entities.backdoor_key6 = Concord.entity(self.world)
+	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
+	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	--TIMELINE
