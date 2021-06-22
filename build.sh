@@ -65,6 +65,22 @@ function process_file()
 	fi
 }
 
+function check()
+{
+	# https://luacheck.readthedocs.io/en/stable/cli.html
+	local file="$dir_output"
+	if [ $# -eq 2 ]; then
+		file="${file}/$2"
+	fi
+	luacheck $file -q \
+		--exclude-files "output_dev/modules/**/*.lua" \
+		--std luajit \
+		--globals love stringx mathx tablex \
+		--no-max-line-length \
+		--ignore 611 \
+		--jobs 2
+}
+
 function copy_modules()
 {
 	rsync -av --progress "$dir_modules" "$dir_output" "${exclude_modules[@]}"
@@ -105,6 +121,7 @@ function run()
 {
 	echo "Running build.sh"
 	process_src "$dir_source"
+	check "$dir_output"
 	love "$dir_output"
 	echo "Completed build.sh"
 }
