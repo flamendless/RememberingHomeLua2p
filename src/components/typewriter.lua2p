@@ -8,13 +8,6 @@ Concord.component("typewriter", function(c, target_text, every)
 	c.timer = nil
 end)
 
-Concord.component("typewriter_on_finish", function(c, callback, delay)
-	@@assert(type(callback) == "function")
-	@@assert(type(delay) == "number")
-	c.callback = callback
-	c.delay = delay or 0
-end)
-
 Concord.component("reflowprint", function(c, width, alignment)
 	@@assert(type(width) == "number")
 	@@assert(type(alignment) == "string")

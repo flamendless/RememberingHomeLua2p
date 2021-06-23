@@ -1,5 +1,6 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
+local Timer = require("modules.hump.timer")
 
 local Animation = Concord.system({
 	pool = {"animation", "animation_data"},
@@ -10,18 +11,24 @@ local Animation = Concord.system({
 
 local cache_multi_animation = {}
 
-local setup_on_loop = function(e, animation)
+function Animation:setup_on_loop(e, animation)
 	@@assert(animation.__isComponent)
 
 	local cb = e.animation_on_loop
+	local on_finish = e.animation_on_finish
 	local on_loop
 
 	if cb then
 		on_loop = function()
-			cb.callback()
 			if cb.event then
 				animation.is_playing = false
 				animation.animation[cb.event](animation.animation)
+
+				if on_finish then
+					Timer.after(on_finish.delay, function()
+						self.world:emit(on_finish.signal, unpack(on_finish.args))
+					end)
+				end
 
 				if cb.remove_at_end then
 					e:remove("animation_on_loop")
@@ -104,11 +111,12 @@ local setup_animation = function(e, data, on_loop)
 	!end
 end
 
-function Animation:init()
+function Animation:init(world)
+	self.world = world
 	self.pool.onAdded = function(pool, e)
 		local data = e.animation_data
 		local animation = e.animation
-		local on_loop = setup_on_loop(e, animation)
+		local on_loop = self:setup_on_loop(e, animation)
 
 		setup_animation(e, data, on_loop)
 	end
@@ -116,7 +124,7 @@ function Animation:init()
 	self.pool_multi.onAdded = function(pool, e)
 		local multi = e.multi_animation_data
 		local animation = e.animation
-		local on_loop = setup_on_loop(e, animation)
+		self:setup_on_loop(e, animation)
 		local data = multi.data[multi.first]
 
 		animation.current_tag = multi.first
@@ -163,7 +171,7 @@ function Animation:switch_animation_tag(e, new_tag, override)
 	@@assert(data)
 
 	local animation = e.animation
-	local on_loop = setup_on_loop(e, animation)
+	local on_loop = self:setup_on_loop(e, animation)
 	animation.is_playing = true
 
 	if not (new_tag == animation.current_tag) then
@@ -184,7 +192,7 @@ function Animation:update_animation_data(e, data)
 	local animation = e.animation
 	animation.stop_on_last = data.stop_on_last
 	animation.is_playing = true
-	local on_loop = setup_on_loop(e, animation)
+	local on_loop = self:setup_on_loop(e, animation)
 
 	setup_animation(e, data, on_loop)
 end
@@ -208,10 +216,11 @@ function Animation:update(dt)
 					animation.is_playing = false
 					animation.animation[stop.event](animation.animation)
 
-					local cb = e.animation_on_loop
-
-					if cb then
-						cb.callback()
+					local on_finish = e.animation_on_finish
+					if on_finish then
+						Timer.after(on_finish.delay, function()
+							self.world:emit(on_finish.signal, unpack(on_finish.args))
+						end)
 					end
 				end
 
@@ -227,6 +236,15 @@ function Animation:update(dt)
 			quad.quad = current_quad
 		end
 	end
+end
+
+function Animation:splash_wits_done(timeline)
+	self.world:emit("start_fade")
+	Timer.after(2, function()
+		self.world:emit("start_colors_lerp")
+		self.world:emit("start_typewriter")
+		timeline:Unpause()
+	end)
 end
 
 return Animation

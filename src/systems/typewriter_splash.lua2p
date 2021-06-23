@@ -5,11 +5,15 @@ local TypewriterSplash = Concord.system({
 	pool = {"text", "typewriter", "pos"}
 })
 
+function TypewriterSplash:init(world)
+	self.world = world
+end
+
 function TypewriterSplash:start_typewriter()
 	for _, e in ipairs(self.pool) do
 		local text = e.text
 		local typewriter = e.typewriter
-		local cb_on_finish = e.typewriter_on_finish
+		local cb = e.typewriter_on_finish
 
 		if not typewriter.timer then
 			typewriter.timer = Timer()
@@ -20,12 +24,11 @@ function TypewriterSplash:start_typewriter()
 					local ch = target:sub(#text.value + 1, #text.value + 1)
 
 					text.value = text.value .. ch
-				else
-					if cb_on_finish then
-						typewriter.timer:after(cb_on_finish.delay, function()
-							cb_on_finish.callback()
-						end)
-					end
+				elseif cb then
+					typewriter.timer:after(cb.delay, function()
+						self.world:emit(cb.signal, unpack(cb.args))
+						e:remove("typewriter_on_finish")
+					end)
 				end
 			end)
 		end

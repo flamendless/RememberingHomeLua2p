@@ -1,0 +1,29 @@
+local Concord = require("modules.concord.concord")
+
+local Fade = require("fade")
+
+local GS
+local Save = require("save")
+
+local GameStates = Concord.system({
+})
+
+function GameStates:init(world)
+	GS = require("gamestates")
+	self.world = world
+	self.is_switching = false
+end
+
+function GameStates:switch_state(next_state)
+	if self.is_switching then return end
+	self.is_switching = true
+	Fade.fade_out(function()
+		if GS.current_id == "Splash" then
+			Save.set_flag("splash_done", true, true)
+		end
+		GS.switch(next_state)
+		self.is_switching = false
+	end)
+end
+
+return GameStates

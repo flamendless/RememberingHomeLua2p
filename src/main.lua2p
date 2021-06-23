@@ -76,9 +76,9 @@ function love.load()
 
 	!if _DEV then
 	-- GameStates.switch("Splash")
-	-- GameStates.switch("Menu")
+	GameStates.switch("Menu")
 	-- GameStates.switch("Intro")
-	GameStates.switch("Outside")
+	-- GameStates.switch("Outside")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")
