@@ -102,9 +102,14 @@ function Camera:camera_follow(target, dur)
 	@@assert(target.__isEntity)
 	@@assert(type(dur) == "number")
 	self.follow = true
-	local x, y = self:get_follow_coords(target)
+	local cx, cy = self.main_camera:getPosition()
+	local tx, ty = self:get_follow_coords(target)
+	local dt = {x = cx, y = cy}
 
-	Flux.to(self.main_camera, dur or 1, {x = x, y = y})
+	Flux.to(dt, dur or 1, {x = tx, y = ty})
+		:onupdate(function()
+			self.main_camera:setPosition(dt.x, dt.y)
+		end)
 		:oncomplete(function()
 			self.to_follow = target
 		end)
@@ -155,7 +160,6 @@ function Camera:debug_update(dt)
 		local wx, wy, ww, wh = camera:getWorld()
 		local sx, sy, sw, sh = camera:getWindow()
 		local vx, vy, vw, vh = camera:getVisible()
-		local str_pos = format("Pos: (%d, %d)", x, y)
 		local str_world = format("World: (%d, %d, %d, %d)", wx, wy, ww, wh)
 		local str_window = format("Window: (%d, %d, %d, %d)", sx, sy, sw, sh)
 		local str_visible = format("Visible: (%d, %d, %d, %d)", vx, vy, vw, vh)
@@ -254,7 +258,6 @@ end
 
 function Camera:debug_draw()
 	if not self.debug_show then return end
-	local x, y = self.main_camera:getPosition()
 	local scale = self.main_camera:getScale()
 	local wx, wy, ww, wh = self.main_camera:getWorld()
 	local sx, sy, sw, sh = self.main_camera:getWindow()

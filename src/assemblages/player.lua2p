@@ -1,5 +1,7 @@
 local Player = {}
 
+local player_h = 64
+
 function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 	@@sassert(defaults, type(defaults) == "table")
 	@@sassert(defaults.can_move, type(defaults.can_move) == "boolean")
@@ -101,7 +103,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 	:give("player")
 	:give("pos", x, y)
 	:give("transform", 0, 1, 1, 18, 0)
-	:give("collider", 24, 12)
+	:give("collider", 24, player_h)
 	:give("bump")
 	:give("speed")
 	:give("speed_data", speed_data)
@@ -121,7 +123,7 @@ function Player.outside_house(e,
 		can_move, can_run)
 
 	!if _DEV then
-	local x, y = 910, 270
+	local x, y = 800, 270
 	!else
 	-- local x, y = 439, 270
 	local x, y = 910, 270
@@ -149,7 +151,7 @@ function Player.outside_house(e,
 			can_open_door = true,
 		})
 	:give("z_index", 2)
-	:give("camera_follow_offset", 0, 32)
+	-- :give("camera_follow_offset", 0, 0)
 end
 
 return Player

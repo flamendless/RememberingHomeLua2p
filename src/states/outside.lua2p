@@ -29,10 +29,6 @@ local insert = table.insert
 local StateOutside = class()
 StateOutside.id = "Outside"
 
-!if _DEV then
-local world
-!end
-
 local Assemblages = {
 	Common = require("assemblages.common"),
 	InteractiveOutside = require("assemblages.interactive_outside"),
@@ -118,9 +114,6 @@ function StateOutside:load()
 		function()
 			res_images = resources.images
 			res_fonts = resources.fonts
-			!if not _RELEASE then
-			world = self.world
-			!end
 			self.is_ready = true
 			self:start()
 		end)
@@ -178,8 +171,7 @@ function StateOutside:start()
 			question_mark = res_images.question_mark
 		})
 
-	local cx, cy, cw, ch = self.camera:getVisible()
-
+	local _, _, cw, _ = self.camera:getVisible()
 	self.ps1 = ParticleSystems.RainOutside:new(res_images.rain_drop, 128, cw)
 	self.ps2 = ParticleSystems.RainOutside:new(res_images.rain_drop2, 128, cw)
 
@@ -220,13 +212,15 @@ function StateOutside:start()
 		:assemble(Assemblages.Outside.house_light, res_images.house_light)
 
 	--setup colliders
-	self.entities.col_ground = Concord.entity(self.world)
-		:assemble(Assemblages.Outside.col_ground, w, h)
+	for k, v in pairs(Assemblages.Outside.colliders) do
+		self.entities[k] = Concord.entity(self.world)
+			:assemble(v, w, h)
+	end
 
 	--TODO
-	for k, v in pairs(Assemblages.InteractiveOutside) do
-		self.entities[k] = Concord.entity(self.world):assemble(v)
-	end
+	-- for k, v in pairs(Assemblages.InteractiveOutside) do
+	-- 	self.entities[k] = Concord.entity(self.world):assemble(v)
+	-- end
 
 	for i, str in ipairs(tasks) do
 		self.entities["task" .. i] = Concord.entity(self.world)
@@ -250,7 +244,6 @@ function StateOutside:start()
 		local y = (i == 1) and 0 or random(-8, 8)
 		local e = Concord.entity(self.world)
 			:assemble(Assemblages.Outside.splashes, splashes, x, y, is_compatible)
-
 		insert(self.splashes, e)
 	end
 
@@ -274,9 +267,9 @@ function StateOutside:start()
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
 	Fade.set_alpha(0)
-	-- self:spawn_player(1.5)
-	-- self.entities.player.body.can_move = true
-    --
+	self:spawn_player(1.5)
+	self.entities.player.body.can_move = true
+
 	-- self.entities.backdoor_key2 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	-- 	:give("id", "item_test")
@@ -290,7 +283,7 @@ function StateOutside:start()
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	self.camera:setScale(3)
-	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
+	self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	--TIMELINE
@@ -388,13 +381,13 @@ function StateOutside:start()
 		ev1.on_complete = function()
 			tle_log("action completed")
 
-			for id, e in pairs(e_hold_key) do
+			for _, e in pairs(e_hold_key) do
 				e:give("color_fade_out", dur_fade_hold)
 			end
 
 			self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
 				function()
-					for id, e in pairs(e_hold_key) do
+					for _, e in pairs(e_hold_key) do
 						e:destroy()
 					end
 					self.timeline:Unpause()
@@ -521,7 +514,7 @@ function StateOutside:exit()
 	self.world:emit("cleanup")
 	self.world:clear()
 
-	for i, e in ipairs(self.world:getEntities()) do
+	for _, e in ipairs(self.world:getEntities()) do
 		e:destroy()
 	end
 

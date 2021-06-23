@@ -14,11 +14,12 @@ local DevTools = {
 		bump_collision = true,
 		camera = true,
 		fireflies = false,
+		transform = false,
 	},
 }
 
 local stats = {
-	show = true,
+	show = false,
 	stats = {},
 	title = "Stats",
 }
@@ -38,7 +39,7 @@ local systems_list = {
 	title = "Systems List",
 }
 local debug_list = {
-	show = true,
+	show = false,
 	title = "Debug List",
 }
 
@@ -52,6 +53,7 @@ local list = {
 
 local getFPS = love.timer.getFPS
 local font = love.graphics.getFont()
+local cols = 2
 
 function DevTools.init()
 	Slab.Initialize({"NoDocks"})
@@ -148,7 +150,7 @@ function DevTools.draw_entities_list()
 	end
 	if entity_list.show_list then
 		Slab.BeginLayout("layout_e_id", {
-			Columns = 3,
+			Columns = cols,
 		})
 		local i = 1
 		for _, e in ipairs(entity_list.t_es) do
@@ -163,7 +165,7 @@ function DevTools.draw_entities_list()
 					end
 				end
 				i = i + 1
-				if i > 3 then i = 1 end
+				if i > cols then i = 1 end
 			end
 		end
 		Slab.EndLayout()

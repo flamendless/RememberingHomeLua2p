@@ -9,20 +9,14 @@ function Interactive:init(world)
 end
 
 function Interactive:interactive_collided(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(interactive.__isEntity)
 	e:give("within_interactive", interactive)
 end
 
 function Interactive:interactive_left_collision(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(interactive.__isEntity)
 	local w_interactive = e.within_interactive
 
 	if w_interactive and w_interactive.interactive.id.id == interactive.id then

@@ -2,7 +2,9 @@ local Palette = require("palette")
 
 local random = love.math.random
 
-local Outside = {}
+local Outside = {
+	colliders = {}
+}
 
 local z_index = {
 	bg_house = 0,
@@ -10,6 +12,9 @@ local z_index = {
 	--player = 2,
 	splashes = 3,
 }
+
+local ground_h = 49
+local bounds_w, bounds_h = 28, 72
 
 function Outside.bg_house(e, sprite, x, y, quad)
 	e:give("id", "bg_house")
@@ -68,7 +73,7 @@ end
 
 function Outside.house_light(e, sprite)
 	e:give("id", "house_light")
-	:give("pos", 419, 213)
+	:give("pos", 272, 212)
 	:give("transform", 0, 1.25, 1.25)
 	:give("color", Palette.colors.house_light)
 	:give("light", "custom", 0.8)
@@ -76,12 +81,25 @@ function Outside.house_light(e, sprite)
 	:give("light_flicker", 0.025)
 end
 
-function Outside.col_ground(e, w, h)
-	local ground_h = 49
+function Outside.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
 	:give("pos", 0, h - ground_h)
-	:give("bump")
 	:give("collider", w, ground_h)
+	:give("bump")
+end
+
+function Outside.colliders.left_bounds(e, w, h)
+	e:give("id", "col_left_bounds")
+	:give("pos", 0, h - ground_h - bounds_h)
+	:give("collider", bounds_w, bounds_h)
+	:give("bump")
+end
+
+function Outside.colliders.right_bounds(e, w, h)
+	e:give("id", "col_right_bounds")
+	:give("pos", w - bounds_w, h - ground_h - bounds_h)
+	:give("collider", bounds_w, bounds_h)
+	:give("bump")
 end
 
 return Outside

@@ -4,20 +4,14 @@ Concord.component("interactive")
 Concord.component("locked")
 
 Concord.component("target_interactive", function(c, interactive)
-	!if _ASSERT then
-	Assert.is(interactive, Types.T_ENTITY)
-	Assert.exists(interactive.interactive)
-	!end
-
+	@@assert(interactive.__isEntity)
+	@@assert(interactive.interactive)
 	c.interactive = interactive
 end)
 
 Concord.component("within_interactive", function(c, interactive)
-	!if _ASSERT then
-	Assert.is(interactive, Types.T_ENTITY)
-	Assert.exists(interactive.interactive)
-	!end
-
+	@@assert(interactive.__isEntity)
+	@@assert(interactive.interactive)
 	c.interactive = interactive
 	c.interactive_id = interactive.id.id
 end)

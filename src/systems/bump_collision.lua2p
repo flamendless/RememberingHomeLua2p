@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump-niji")
 local BumpStorage = require("ctor.bump_storage")
 
 local BumpCollision = Concord.system({
@@ -75,7 +74,7 @@ function BumpCollision:update_body(e)
 
 		local other = c.other
 		local other_col = other.collider
-		local other_id = other.bump.id
+		-- local other_id = other.bump.id
 
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
@@ -175,6 +174,9 @@ function BumpCollision:debug_update(dt)
 		local e = items[i]
 		e.bump.debug_hovered = true
 		e.bump.debug_selected = love.mouse.isDown(2)
+		if love.keyboard.isDown("lshift") and e.bump.debug_selected then
+			self.world:emit("debug_e_right_clicked", e)
+		end
 	end
 	Slab.EndWindow()
 end

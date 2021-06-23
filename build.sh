@@ -121,7 +121,6 @@ function run()
 {
 	echo "Running build.sh"
 	process_src "$dir_source"
-	check "$dir_output"
 	love "$dir_output"
 	echo "Completed build.sh"
 }

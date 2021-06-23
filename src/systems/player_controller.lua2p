@@ -208,12 +208,9 @@ function PlayerController:reset_player()
 end
 
 function PlayerController:player_open_door(e, fn)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.player)
-	Assert.safe.must(fn, Types.T_FUNCTION)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.player)
+	@@sassert(fn, type(fn) == "function")
 	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
 
 	e:give("change_animation_tag", tag)
@@ -222,12 +219,9 @@ function PlayerController:player_open_door(e, fn)
 end
 
 function PlayerController:player_open_locked_door(e, fn)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.player)
-	Assert.safe.must(fn, Types.T_FUNCTION)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.player)
+	@@sassert(fn, type(fn) == "function")
 	local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
 
 	e:give("change_animation_tag", tag)
@@ -236,13 +230,10 @@ function PlayerController:player_open_locked_door(e, fn)
 end
 
 function PlayerController:interacted_stairs(e, tag, fn)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.player)
-	Assert.either_value(tag, "upstairs", "downstairs")
-	Assert.safe.must(fn, Types.T_FUNCTION)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.player)
+	@@assert(tag == "upstairs" or tag == "downstairs")
+	@@sassert(fn, type(fn) == "function")
 	e:give("change_animation_tag", tag)
 	:give("override_animation")
 	:give("animation_on_update", fn)
