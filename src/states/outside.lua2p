@@ -248,11 +248,10 @@ function StateOutside:start()
 	end
 
 	self.world:emit("generate_fireflies",
-		random(5, 20), res_images.firefly, res_images.firefly_light,
-		{x = 670, y = 222}, {x = 1136, y = 286})
+		random(10, 20), res_images.firefly_light,
+		{x = 516, y = 236}, {x = 916, y = 236})
 
 	local lut_size, lut_dusk
-
 	if Settings.current.graphics_quality == "Low" then
 		lut_size = 16
 		lut_dusk = resources.image_data.lut_dusk_16
@@ -260,15 +259,14 @@ function StateOutside:start()
 		lut_size = 64
 		lut_dusk = resources.image_data.lut_dusk_64
 	end
-
 	effect = NGrading:new(lut_dusk, lut_size)
 
 	--TEST
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
-	Fade.set_alpha(0)
-	self:spawn_player(1.5)
-	self.entities.player.body.can_move = true
+	-- Fade.set_alpha(0)
+	-- self:spawn_player(1.5)
+	-- self.entities.player.body.can_move = true
 
 	-- self.entities.backdoor_key2 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
@@ -282,8 +280,8 @@ function StateOutside:start()
 	-- self.entities.backdoor_key6 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
-	self.camera:setScale(3)
-	self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	--TIMELINE
@@ -302,7 +300,7 @@ function StateOutside:start()
 
 		tle_log("begin timeline")
 		self.camera:setScale(6)
-		self.camera:setPosition(262, 61)
+		self.camera:setPosition(0, 0)
 
 		tle_log("start fade in")
 		Flux.to(overlay, 4, {[4] = 0})
@@ -312,14 +310,25 @@ function StateOutside:start()
 			end)
 
 		tle_log("start camera pan and zoom")
-		Flux.to(self.camera, 6, {x = 520, y = 193})
+		local dt_cam = {}
+		dt_cam.x, dt_cam.y = self.camera:getPosition()
+		dt_cam.scale = self.camera:getScale()
+		Flux.to(dt_cam, 6, {x = 532, y = 235, scale = 5})
 			:delay(2)
+			:onupdate(function()
+				self.camera:setPosition(dt_cam.x, dt_cam.y)
+				self.camera:setScale(dt_cam.scale)
+			end)
 			:oncomplete(function()
 				self.timeline:Unpause()
 			end)
 		self.timeline:Pause()
 
-		Flux.to(self.camera, 10, {x = 960, y = 296, scale = 3})
+		Flux.to(dt_cam, 10, {x = 800, y = 263, scale = 3})
+			:onupdate(function()
+				self.camera:setPosition(dt_cam.x, dt_cam.y)
+				self.camera:setScale(dt_cam.scale)
+			end)
 
 		tle_log("begin rain fade")
 		TLE.Event.Wait(3)
@@ -337,9 +346,7 @@ function StateOutside:start()
 				if rain_state.current <= 16 then
 					if fireflies_flag then
 						self.world:emit("move_fireflies")
-						self.world:emit("show_fireflies", 5, function()
-								self.world:emit("flicker_fireflies", 3, 5)
-							end)
+						self.world:emit("show_fireflies", 5)
 						fireflies_flag = false
 						tle_log("fireflies start")
 					end

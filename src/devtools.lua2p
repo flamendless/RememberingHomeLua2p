@@ -39,7 +39,7 @@ local systems_list = {
 	title = "Systems List",
 }
 local debug_list = {
-	show = false,
+	show = true,
 	title = "Debug List",
 }
 
@@ -202,7 +202,8 @@ function DevTools.draw_debug_list()
 	})
 	Slab.BeginLayout("layout_debug", {Columns = 2})
 	local i = 1
-	for _, v in ipairs(GameStates.current_state.world:getSystems()) do
+	local states = GameStates.current_state.world:getSystems()
+	for _, v in ipairs(states) do
 		if v.debug_update or v.debug_draw then
 			Slab.SetLayoutColumn(i)
 			if Slab.CheckBox(v.debug_show, v.debug_title) then

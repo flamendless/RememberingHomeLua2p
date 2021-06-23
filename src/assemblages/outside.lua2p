@@ -8,9 +8,9 @@ local Outside = {
 
 local z_index = {
 	bg_house = 0,
-	firefly = 1,
-	--player = 2,
-	splashes = 3,
+	firefly = 2,
+	--player = 3,
+	splashes = 4,
 }
 
 local ground_h = 49
@@ -47,27 +47,14 @@ end
 
 function Outside.firefly(e, sprite, x, y, points)
 	e:give("id", "firefly")
-	:give("sprite", sprite)
+	:give("firefly")
+	:give("sprite", sprite, "round")
 	:give("pos", x, y)
 	:give("path", points)
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("z_index", z_index.firefly)
-	:give("firefly", {Palette.colors.firefly_start, Palette.colors.firefly_end})
-	:give("color", Palette.get("firefly_start", 0))
-	:give("hidden")
-end
-
-function Outside.firefly_light(e, sprite, e_firefly)
-	e:give("id", "firefly_light")
-	:give("firefly_light")
-	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1)
-	:give("color", Palette.colors.firefly_light)
+	:give("z_index", z_index.firefly)
+	:give("color", Palette.get("firefly_start", 0))
 	:give("light", "round", 1)
-	:give("sprite", sprite, "round")
-	:give("light_flicker", 0.05)
-	:give("attach_to", e_firefly)
-	:give("z_index", z_index.firefly + 1)
 	:give("hidden")
 end
 

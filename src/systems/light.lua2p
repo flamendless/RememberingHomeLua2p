@@ -1,6 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local format = string.format
 local random = love.math.random
 
 local Light = Concord.system({
@@ -24,7 +23,7 @@ local function generate_recolor(e)
 	color[3] = randomf(range.min[3], range.max[3])
 
 	light.power = randomf(power_range.x, power_range.y)
-	timer.timer = randomf(speed_range.x, speed_range.y)
+	timer.value = randomf(speed_range.x, speed_range.y)
 end
 
 local function generate_flicker(e)
@@ -110,10 +109,10 @@ function Light:update_light(dt)
 		local flicker = e.light_flicker
 		local disabled = e.light_disabled
 
-		if not disabled then
+		if not disabled and timer then
 			if recolor then
-				if (timer.timer > 0) then
-					timer.timer = timer.timer - dt
+				if (timer.value > 0) then
+					timer.value = timer.value - dt
 				else
 					generate_recolor(e)
 				end
@@ -121,15 +120,16 @@ function Light:update_light(dt)
 				local max_power = flash.max_power
 				local speed = flash.speed
 
-				timer.timer = timer.timer + dt
+				timer.value = timer.value + dt
 				if (light.power < max_power) then
-					light.power = (max_power * timer.timer)/speed
+					light.power = (max_power * timer.value)/speed
 				else
+					--TODO do not remove the entity
 					e:remove()
 				end
 			elseif flicker then
-				if (timer.timer > 0) then
-					timer.timer = timer.timer - dt
+				if (timer.value > 0) then
+					timer.value = timer.value - dt
 				else
 					generate_flicker(e)
 				end
@@ -169,7 +169,6 @@ function Light:draw_light()
 			local quad = e.quad
 
 			love.graphics.setColor(color)
-
 			if quad then
 				love.graphics.draw(sprite, quad.quad, pos.x, pos.y, transform.rot,
 					transform.sx * power, transform.sy * power,

@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 Concord.component("path", function(c, points)
 	@@assert(type(points) == "table")
 	!if _DEV then
-	for i, v in ipairs(points) do
+	for _, v in ipairs(points) do
 		@@assert(type(v.x) == "number")
 		@@assert(type(v.y) == "number")
 	end
@@ -12,3 +12,5 @@ Concord.component("path", function(c, points)
 	c.n_points = #points
 	c.current_point = 1
 end)
+
+Concord.component("path_loop")

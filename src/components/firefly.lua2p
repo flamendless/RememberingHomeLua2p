@@ -1,16 +1,4 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("firefly", function(c, colors)
-	@@assert(type(colors) == "table")
-	!if _DEV then
-	for i, v in ipairs(colors) do
-		@@assert(type(v) == "table")
-	end
-	!end
-	c.value = colors
-	c.can_flicker = false
-	c.timer = nil
-end)
-
+Concord.component("firefly")
 Concord.component("firefly_move")
-Concord.component("firefly_light")

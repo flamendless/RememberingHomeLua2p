@@ -55,7 +55,7 @@ function TextPaint:show_text_paint(e, dur, widest)
 	@@sassert(widest, type(widest) == "string")
 	self:show_paint(e, dur, widest)
 	e:remove("hidden")
-	Flux.to(e.color.color, dur, {[4] = 1})
+	Flux.to(e.color.value, dur, {[4] = 1})
 end
 
 function TextPaint:fade_text_paint(e, dur, on_complete)
@@ -74,7 +74,7 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 		delay = def_delay_task
 	end
 
-	Flux.to(e.color.color, dur, {[4] = 0})
+	Flux.to(e.color.value, dur, {[4] = 0})
 		:delay(delay)
 		:oncomplete(function()
 			if on_complete then
@@ -97,8 +97,10 @@ function TextPaint:show_paint(e, dur_in, widest)
 	local text = e.text
 	local static_text = e.static_text
 
-	if static_text then str = static_text.text
-	else str = text.text
+	if static_text then
+		str = static_text.value
+	else
+		str = text.value
 	end
 
 	local font = e.font.value
@@ -107,7 +109,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 	local str_h = font:getHeight(str)
 	local offset = 96
 	local x, y
-	local text_pos = e.pos.pos
+	local text_pos = e.pos
 	local chance = Lume.randomchoice({true, false})
 	local sx = chance == true and -1 or 1
 	local sy = 0.75
@@ -120,12 +122,11 @@ function TextPaint:show_paint(e, dur_in, widest)
 		y = text_pos.y + str_h * 0.5
 	end
 
-	local pos = vec2:new(x, y)
 	local paint_id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
 		:give("id", "text_paint")
 		:give("animation_data", self.paint_data[paint_id])
-		:give("pos", pos)
+		:give("pos", x, y)
 		:give("animation", true)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, sy, 0.5, 0.5)
@@ -134,7 +135,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 		:give("ui_element")
 
 	e.text_with_paint.paint = paint
-	Flux.to(paint.color.color, dur_in, {[4] = 1})
+	Flux.to(paint.color.value, dur_in, {[4] = 1})
 end
 
 function TextPaint:fade_paint(paint, dur, delay)
@@ -142,7 +143,7 @@ function TextPaint:fade_paint(paint, dur, delay)
 	@@assert(type(dur) == "number")
 	@@assert(paint.paint)
 	@@sassert(delay, type(delay) == "number")
-	Flux.to(paint.color.color, dur, {[4] = 0})
+	Flux.to(paint.color.value, dur, {[4] = 0})
 		:delay(delay or def_delay_paint)
 		:oncomplete(function()
 			paint:destroy()
