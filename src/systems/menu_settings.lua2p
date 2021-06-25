@@ -148,7 +148,7 @@ function MenuSettings:update_desktop(dt)
 		Slab.SameLine()
 
 		if Slab.Button("Return to Main Menu") then
-			self.world.state:esc()
+			self.world:emit("back")
 		end
 	Slab.EndLayout()
 

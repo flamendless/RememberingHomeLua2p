@@ -150,7 +150,7 @@ function Color:init(world)
 					Timer.after(on_finish.delay, function()
 						self.world:emit(on_finish.signal, unpack(on_finish.args))
 					end)
-					e:remove("lerp_on_complete")
+					e:remove("lerp_on_finish")
 				end
 
 				e:remove("target_color")

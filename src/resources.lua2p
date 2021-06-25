@@ -4,8 +4,13 @@ local format = string.format
 
 local Resources = {
 	meta = {},
-	data = nil,
+	data = {},
 }
+
+local mt = {}
+mt.__index = function(t, i)
+	error(i .. " is invalid key for Resources")
+end
 
 local path_images = "res/images/"
 local path_items = path_images .. "items/"
@@ -151,7 +156,12 @@ end
 
 function Resources.set_resources(t)
 	@@assert(type(t) == "table")
-	Resources.data = t
+	tablex.clear(Resources.data)
+	@@assert(#Resources.data == 0)
+	for k, v in pairs(t) do
+		Resources.data[k] = t[k]
+		setmetatable(Resources.data[k], mt)
+	end
 end
 
 function Resources.clean()

@@ -15,12 +15,21 @@ local GameStates = {
 }
 
 function GameStates.preload()
-	local resources = { images = {}, fonts = {} }
+	local resources = { images = {}, fonts = {}, image_data = {} }
 	local list = Resources.get_meta(GameStates.current_id)
 	Log.info("Preloading: " .. GameStates.current_id)
 	Preloader.start(list, resources, function()
 		GameStates.start(resources)
 	end)
+end
+
+function GameStates.start(resources)
+	Resources.set_resources(resources)
+	GameStates.is_ready = true
+	GameStates.world = Concord.world()
+	ECS.load_systems(GameStates.current_id, GameStates.world)
+	GameStates.world:emit("state_setup")
+	GameStates.world:emit("state_init")
 end
 
 function GameStates.switch(next_id)
@@ -39,14 +48,6 @@ end
 
 function GameStates.switch_to_previous()
 	GameStates.switch(GameStates.prev_id)
-end
-
-function GameStates.start(resources)
-	Resources.set_resources(resources)
-	GameStates.is_ready = true
-	GameStates.world = Concord.world()
-	ECS.load_systems(GameStates.current_id, GameStates.world)
-	GameStates.world:emit("state_init")
 end
 
 function GameStates.update(dt)
@@ -90,6 +91,9 @@ function GameStates.exit()
 	GameStates.world:clear()
 	for _, e in ipairs(GameStates.world:getEntities()) do
 		e:destroy()
+	end
+	for _, s in ipairs(GameStates.world:getSystems()) do
+		GameStates.world:removeSystem(s)
 	end
 end
 

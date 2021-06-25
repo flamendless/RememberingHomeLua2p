@@ -185,11 +185,6 @@ function Splash:cleanup()
 		self.timer_skip:clear()
 	end
 	self.splash_love = nil
-	self.splash_wits:destroy()
-	self.splash_flamendless:destroy()
-	self.ghost_effect:destroy()
-	self.glitch_effect:destroy()
-	self.typewriter:destroy()
 end
 
 return Splash
