@@ -70,7 +70,11 @@ function check()
 	# https://luacheck.readthedocs.io/en/stable/cli.html
 	local file="$dir_output"
 	if [ $# -eq 2 ]; then
-		file="${file}/$2"
+		if [[ $2 == src* ]]; then
+			file="${file}/${2:4}"
+		else
+			file="${file}/$2"
+		fi
 	fi
 	luacheck $file -q \
 		--exclude-files "output_dev/modules/**/*.lua" \
