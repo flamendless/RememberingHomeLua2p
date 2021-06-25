@@ -1,0 +1,195 @@
+local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+local LoveSplash = require("modules.splashes.o-ten-one")
+local TLE = require("modules.tle.timeline")
+local Timer = require("modules.hump.timer")
+
+local Fade = require("fade")
+local Inputs = require("inputs")
+local Resources = require("resources")
+local Palette = require("palette")
+local Save = require("save")
+
+local Assemblages = {
+	Common = require("assemblages.common")
+}
+local states = Enum("splash_love", "splash_wits", "splash_flam")
+local delay_skip = 0.5
+
+local Splash = Concord.system({
+	pool = {"splash"}
+})
+
+function Splash:init(world)
+	self.world = world
+	self.color_a = {0.898, 0.48627451, 0.074509804, 1}
+	self.color_b = {0.952941176, 0.952941176, 0.054901961, 1}
+end
+
+function Splash:set_skippable_timer()
+	if Save.data.splash_done then
+		self.timer_skip = Timer()
+		self.timer_skip:after(delay_skip, function()
+			self.skippable = true
+		end)
+	end
+end
+
+function Splash:create_splash_love()
+	self.splash_love = LoveSplash()
+	self.splash_love.onDone = function()
+		self.timeline:Unpause()
+	end
+end
+
+function Splash:create_splash_wits()
+	local ww, wh = love.graphics.getDimensions()
+	self.splash_wits = Concord.entity(self.world)
+		:assemble(Assemblages.Common.animated_sprite, {
+				spritesheet = Resources.data.images.sheet_wits,
+				frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
+				delay = 0.15,
+				rows_count = 4,
+				columns_count = 3,
+			}, ww * 0.5, wh * 0.5)
+		:give("color", Palette.get("white"))
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("auto_scale", ww, wh, true)
+		:give("fade_to_black", 1.5, 1)
+		:give("animation_on_finish", "splash_wits_done")
+		:give("animation_on_loop", "pauseAtEnd")
+		:give("splash")
+end
+
+function Splash:create_splash_flamendless()
+	local ww, wh = love.graphics.getDimensions()
+	self.splash_flamendless = Concord.entity(self.world)
+		:give("sprite", Resources.data.images.flamendless_logo)
+		:give("pos", ww * 0.5, wh * 0.5)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("color", {1, 1, 1, 0})
+		:give("color_fade_in", 2)
+		:give("splash")
+end
+
+function Splash:create_effects()
+	local ww, wh = love.graphics.getDimensions()
+	local font = Resources.data.fonts.firefly
+	self.ghost_effect = Concord.entity(self.world)
+		:give("random_text", "flamendless")
+		:give("font", font)
+		:give("ghost_effect")
+		:give("splash")
+
+	self.glitch_effect = Concord.entity(self.world)
+		:give("random_text", {"flamendless", "brandon"})
+		:give("font", font)
+		:give("glitch_effect")
+		:give("glitch_colors", Palette.color_glitches)
+		:give("color", self.color_a)
+		:give("lerp_colors", {self.color_a, self.color_b})
+		:give("pos", ww * 0.5, wh * 0.85)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("splash")
+
+	self.typewriter = Concord.entity(self.world)
+		:give("color", Palette.colors.white)
+		:give("pos", ww * 0.5, wh * 0.2)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("text", "")
+		:give("font", Resources.data.fonts.uncle_type_32)
+		:give("typewriter", "a game by", 0.2)
+		:give("typewriter_on_finish", "switch_state", 1.25, "Menu")
+		:give("splash")
+end
+
+function Splash:splash_wits_done()
+	self.world:emit("start_fade")
+	self:create_effects()
+	Timer.after(2, function()
+		self.world:emit("start_colors_lerp")
+		self.world:emit("start_typewriter")
+		self.timeline:Unpause()
+	end)
+end
+
+function Splash:state_init()
+	if Save.data.splash_done then
+		self.world:emit("create_skip")
+	end
+
+	self.timeline = TLE.Do(function()
+		self.current_state = states.splash_love
+		self:set_skippable_timer()
+		self:create_splash_love()
+		self.timeline:Pause()
+
+		self.current_state = states.splash_wits
+		self:set_skippable_timer()
+		self:create_splash_wits()
+		self.timeline:Pause()
+
+		self.current_state = states.splash_flam
+		self:set_skippable_timer()
+		self:create_splash_flamendless()
+		self.timeline:Pause()
+	end)
+end
+
+function Splash:state_update(dt)
+	if self.timer_skip then
+		self.timer_skip:update(dt)
+	end
+
+	if self.current_state == states.splash_love then
+		self.splash_love:update(dt)
+	else
+		self.world:emit("update", dt)
+	end
+
+	if Save.data.splash_done then
+		if Inputs.released("skip") then
+			if self.current_state == states.splash_love and self.skippable then
+				self.splash_love:skip()
+				self.skippable = false
+			end
+
+			if self.current_state == states.splash_wits and self.skippable then
+				self.splash_wits:give("animation_stop", "pauseAtEnd")
+				self.skippable = false
+			end
+
+			if self.current_state == states.splash_flam and self.skippable then
+				self.world:emit("switch_state", "Menu")
+				self.skippable = false
+			end
+		end
+	end
+end
+
+function Splash:state_draw()
+	if self.current_state == states.splash_love then
+		self.splash_love:draw()
+	else
+		self.world:emit("draw")
+		if self.current_state == states.splash_flam then
+			self.world:emit("effect_draw")
+		end
+	end
+	self.world:emit("draw_ui")
+	Fade.draw()
+end
+
+function Splash:cleanup()
+	if self.timer_skip then
+		self.timer_skip:clear()
+	end
+	self.splash_love = nil
+	self.splash_wits:destroy()
+	self.splash_flamendless:destroy()
+	self.ghost_effect:destroy()
+	self.glitch_effect:destroy()
+	self.typewriter:destroy()
+end
+
+return Splash

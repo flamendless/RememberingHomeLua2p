@@ -1,5 +1,9 @@
 local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
+local Fade = require("fade")
 local Flux = require("modules.flux.flux")
+local Gamera = require("modules.gamera.gamera")
+local Timer = require("modules.hump.timer")
 
 local Palette = require("palette")
 
@@ -7,15 +11,29 @@ local insert = table.insert
 local remove = table.remove
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "pos", "text", "on_enter"},
-	pool_disabled = {"option_key", "option_disabled"}
+	pool = {"option_key", "color", "pos", "text", "on_enter_menu"},
+	pool_disabled = {"option_key", "option_disabled"},
+	pool_opt = {"menu_opt"},
+	pool_sub_opt = {"menu_sub_opt"},
+	pool_desk = {"menu_desk"},
+	pool_text = {"menu_text"},
 })
 
+local states = Enum("menu", "play", "settings", "about", "exit")
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
 local color_select = Palette.get("menu_select", 1)
 local color_disabled = Palette.get("menu_disabled", 1)
+local about_done = false
+local ANGLE_UP = 90
+local ANGLE_DOWN = 270
+local ANGLE_LEFT = 180
+local ANGLE_RIGHT = 0
+local duration_show = 0.75
+local duration_hide = 0.75
+local duration_pos = 0.75
+local tx = 176
 
 local function color_to_select(color)
 	Flux.to(color.value, dur_in, {
@@ -44,22 +62,24 @@ local function color_to_disabled(color)
 		})
 end
 
-function Menu:init()
+function Menu:init(world)
+	self.world = world
 	self.cursor = 1
 	self.prev_cursor = self.cursor
 	self.current_page = 1
 	self.keys = {}
 	self.flags = {allow_cursor = false}
+	self.transition = false
+	self.is_sub_menu = false
+	self.current_state = states.menu
 
 	self.pool.onAdded = function(pool, e)
 		if not e.option_disabled then
 			local option_key = e.option_key
 			local page = option_key.page
-
 			if not self.keys[page] then
 				self.keys[page] = {}
 			end
-
 			insert(self.keys[page], option_key.id)
 		end
 	end
@@ -67,17 +87,125 @@ function Menu:init()
 	self.pool_disabled.onAdded = function(pool, e)
 		local option_key = e.option_key
 		local t = self.keys[option_key.page]
-
 		for i = #t, 1, -1 do
 			local key = t[i]
-
 			if key == option_key.id then
 				remove(t, key)
-
 				break
 			end
 		end
 	end
+end
+
+function Menu:init_menu(camera, mb, dissolve)
+	@@assert(Gamera.isCamera(camera))
+	@@assert(mb.type == "MotionBlur")
+	@@assert(dissolve.type == "Dissolve")
+	self.camera = camera
+	self.mb = mb
+	self.dissolve = dissolve
+end
+
+function Menu:update_menu(dt)
+	if self.current_state == states.settings and not self.mb.flag_process then
+		self.world:emit("update_settings", dt)
+	elseif self.current_state == states.exit then
+		self.dissolve:update(dt)
+	end
+end
+
+function Menu:draw_menu(main_canvas)
+	@@assert(main_canvas:type() == "CustomCanvas")
+	if self.current_state == states.menu or
+		self.current_state == states.settings or
+		self.current_state == states.about or
+		self.current_state == states.play then
+
+		main_canvas:attach()
+		self.camera:draw(function(l, t, w, h)
+			self.world:emit("draw")
+			if self.current_state == states.settings and not self.mb.flag_process then
+				love.graphics.push()
+				love.graphics.translate(l, t)
+				self.world:emit("draw_settings")
+				love.graphics.pop()
+			end
+			Fade.draw()
+		end)
+		main_canvas:detach()
+		self.mb:post_process_draw()
+		main_canvas:render()
+	elseif self.current_state == states.exit then
+		self.dissolve:draw(function()
+			self.world:emit("draw")
+		end)
+	end
+end
+
+function Menu:show_main_menu()
+	for _, e in ipairs(self.pool_opt) do
+		e:remove("hidden")
+		:give("target_color", Palette.get("white", 1), duration_show)
+		:give("lerp_on_finish", "enable_main_menu")
+		:give("move_to_original", duration_pos)
+	end
+end
+
+function Menu:hide_main_menu()
+	for _, e in ipairs(self.pool_opt) do
+		e:give("target_color", Palette.get("white", 0), duration_hide)
+		:give("lerp_on_finish", "hide_entity", 0, e)
+		:give("move_by", tx, 0, duration_pos)
+	end
+end
+
+function Menu:show_sub_menu()
+	local next_cursor = (Save.valid_checkpoints == true) and 1 or 2
+	for i, e in ipairs(self.pool_sub_opt) do
+		e:remove("hidden")
+		:give("target_color", Palette.get("white", 1), duration_show)
+		:give("lerp_on_finish", "enable_sub_menu", 0, next_cursor)
+		:give("move_to_original", duration_pos)
+
+		if next_cursor == 2 and i == 1 then
+			e:give("option_disabled")
+		end
+	end
+	self:set_page(2)
+end
+
+function Menu:hide_sub_menu()
+	for i, e in ipairs(self.pool_sub_opt) do
+		e:give("target_color", Palette.get("white", 0), duration_hide)
+		:give("lerp_on_finish", "hide_entity", 0, e)
+		:give("move_by", tx, 0, duration_pos)
+	end
+end
+
+function Menu:on_menu()
+	self:allow_cursor(true)
+	self:set_to_prev_cursor()
+	self:set_page(1)
+end
+
+function Menu:on_play()
+	self.is_transition = true
+	self.is_sub_menu = true
+	self:allow_cursor(false)
+	self:hide_main_menu()
+	self:show_sub_menu()
+end
+
+function Menu:enable_main_menu()
+	self:on_menu()
+	self.is_transition = false
+end
+
+function Menu:enable_sub_menu(next_cursor)
+	@@assert(type(next_cursor) == "boolean")
+	self:allow_cursor(true)
+	self:set_cursor(next_cursor)
+	self.is_transition = false
 end
 
 function Menu:set_page(page)
@@ -105,17 +233,13 @@ end
 
 function Menu:update_cursor(dt)
 	if dt == 0 then return end
-
 	if not self.flags.allow_cursor then return end
-
 	local t = self.keys[self.current_page]
-
 	if dt > 0 then
 		self.cursor = t[self.cursor + 1] or t[1]
 	elseif dt < 0 then
 		self.cursor = t[self.cursor - 1] or t[#t]
 	end
-
 	self:update_cursor_color()
 end
 
@@ -144,26 +268,178 @@ end
 
 function Menu:enter_option()
 	if self.cursor == 0 then return end
-
 	if not self.flags.allow_cursor then return end
-
 	for _, e in ipairs(self.pool) do
 		local option_key = e.option_key
 		local text = e.text
-		local callback = e.on_enter
+		local cb_on_menu = e.on_enter_menu
+		local menu_opt = e.menu_opt
 		local t = self.keys[self.current_page]
 
 		if self.current_page == option_key.page then
 			for i, key in ipairs(self.keys[self.current_page]) do
 				if key == option_key.id and key == self.cursor then
 					self.prev_cursor = option_key.id
-					callback.callback()
-
+					if cb_on_menu then
+						self.world:emit(cb_on_menu.signal)
+						if menu_opt then
+							self.current_state = cb_on_menu.args[1]
+						end
+					end
 					return
 				end
 			end
 		end
 	end
+end
+
+function Menu:on_newgame()
+	local ww, wh = love.graphics.getDimensions()
+	local dur = 2
+	local timer = 1.25
+	-- TODO turn off BGM
+
+	self:hide_sub_menu()
+	for _, e in ipairs(self.pool_desk) do
+		e:give("hidden")
+	end
+
+	--TODO change target_color
+	for _, e in ipairs(self.pool_text) do
+		e:give("target_color", Palette.get("white", 0), dur)
+	end
+
+	local e_desk_fast = Concord.entity(self.world)
+		:assemble(Assemblages.Menu.desk_fast, res_images.sheet_desk, ww, wh)
+
+	Timer.after(timer, function()
+		-- TODO add sudden static sound
+		e_desk_fast:give("hidden")
+
+		Timer.after(timer, function()
+			self.world:emit("switch_state", "Intro")
+		end)
+	end)
+end
+
+function Menu:on_continue()
+	-- TODO load saved game here
+end
+
+function Menu:on_settings()
+	local l, t, w, h = self.camera:getWorld()
+	local cworld = {x = l, y = t, w = w, h = h}
+
+	self:allow_cursor(true)
+	self:init_settings()
+	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
+end
+
+function Menu:on_about()
+	local l, t, w, h = self.camera:getWorld()
+	local cworld = {x = l, y = t, w = w, h = h}
+
+	if not about_done then
+		self:setup_about()
+		about_done = true
+	end
+
+	self.world:emit("allow_cursor", false)
+	self:MB_move(nil, cworld.h, ANGLE_UP)
+end
+
+function Menu:on_exit()
+	self.world:emit("allow_cursor", false)
+	!if _PLATFORM == "desktop" then
+	local btn = love.window.showMessageBox("Alert",
+		"Are you sure you want to exit the game?",
+		{"Exit", "Cancel", escapebutton = 2})
+
+	if btn == 1 then
+		self:hide_main_menu()
+		self.dissolve.flag_process = true
+		self.dissolve.on_complete = function()
+			love.event.quit()
+		end
+	elseif btn == 2 then
+		self.current_state = states.menu
+		Log.info("Switched Menu State to: ", self.current_state)
+		self:on_menu()
+	end
+	!end
+end
+
+function Menu:esc()
+	if self.current_state == states.play and self.is_sub_menu and
+		not self.is_transition then
+		self.is_transition = true
+		self.is_sub_menu = false
+		self:allow_cursor(false)
+		self:hide_sub_menu()
+		self:show_main_menu()
+	elseif self.current_state ~= states.menu and self.current_state ~= states.play then
+		self:MB_return()
+	end
+end
+
+function Menu:MB_move(tx, ty, angle)
+	-- TODO add motion blur sound
+	local l, t, w, h = self.camera:getWorld()
+	local cx, cy = self.camera:getPosition()
+	local cworld = {x = l, y = t, w = w, h = h}
+	local cpos = {x = cx, y = cy}
+	local duration = 1
+	local distance = {1.0}
+	local prev_angle = (angle + 180) % 360
+
+	self.mb_main.flag_process = true
+	Flux.to(cpos, duration, {x = tx, y = ty})
+		:onstart(function()
+			self.mb_main:store_previous(cx, cy, prev_angle)
+			self.mb_main:set_angle(angle)
+			Flux.to(distance, duration, {[1] = 0.0})
+				:onupdate(function()
+					self.mb:set_strength(distance[1])
+				end)
+		end)
+		:onupdate(function()
+			self.camera:setPosition(cpos.x, cpos.y)
+			self.world:emit("on_camera_move", self.camera)
+		end)
+		:oncomplete(function()
+			self.mb_main.flag_process = false
+		end)
+end
+
+function Menu:MB_return()
+	-- TODO add motion blur sound
+	local l, t, w, h = self.camera:getWorld()
+	local cx, cy = self.camera:getPosition()
+	local cworld = {x = l, y = t, w = w, h = h}
+	local cpos = vec2:new(cx, cy)
+	local duration = 1
+	local distance = {1.0}
+	local temp_mb = self.mb_main.previous
+
+	self.mb_main.flag_process = true
+	Flux.to(cpos, duration, {x = temp_mb.target.x, y = temp_mb.target.y})
+		:onstart(function()
+			self.mb_main:set_angle(temp_mb.angle)
+			Flux.to(distance, duration, {[1] = 0.0})
+				:onupdate(function()
+					self.mb_main:set_strength(distance[1])
+				end)
+		end)
+		:onupdate(function()
+			self.camera:setPosition(cpos.x, cpos.y)
+			self.world:emit("on_camera_move", self.camera)
+		end)
+		:oncomplete(function()
+			current_state = states.menu
+			Log.info("Switched Menu State to: ", current_state)
+			self.mb_main.flag_process = false
+			self:on_menu()
+		end)
 end
 
 return Menu

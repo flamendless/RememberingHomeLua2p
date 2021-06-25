@@ -238,13 +238,4 @@ function Animation:update(dt)
 	end
 end
 
-function Animation:splash_wits_done(timeline)
-	self.world:emit("start_fade")
-	Timer.after(2, function()
-		self.world:emit("start_colors_lerp")
-		self.world:emit("start_typewriter")
-		timeline:Unpause()
-	end)
-end
-
 return Animation

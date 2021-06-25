@@ -1,0 +1,20 @@
+local Concord = require("modules.concord.concord")
+
+local Resources = require("resources")
+local Common = require("assemblages.common")
+
+local Skip = Concord.system({
+	pool = {"skip"},
+})
+
+function Skip:init(world)
+	self.world = world
+end
+
+function Skip:create_skip()
+	local ww, wh = love.graphics.getDimensions()
+	Concord.entity(self.world)
+		:assemble(Common.skip, Resources.data.fonts.ui, ww * 0.5, wh - 8)
+end
+
+return Skip

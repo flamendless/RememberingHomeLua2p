@@ -3,7 +3,8 @@ local Log = require("modules.log.log")
 local format = string.format
 
 local Resources = {
-	data = {}
+	meta = {},
+	data = nil,
 }
 
 local path_images = "res/images/"
@@ -14,7 +15,7 @@ local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
 
-Resources.data.Splash = {
+Resources.meta.Splash = {
 	image = {
 		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
 		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
@@ -27,7 +28,7 @@ Resources.data.Splash = {
 	}
 }
 
-Resources.data.menu = {
+Resources.meta.Menu = {
 	image = {
 		{"bg_door", path_images .. "menu/bg_door.png"},
 		{"bg_hallway", path_images .. "menu/bg_hallway.png"},
@@ -49,7 +50,7 @@ Resources.data.menu = {
 	}
 }
 
-Resources.data.intro = {
+Resources.meta.Intro = {
 	image = {
 		{"bg", path_images .. "intro/bg.png"},
 		{"bg_post", path_images .. "intro/bg_post.png"},
@@ -89,7 +90,7 @@ Resources.data.intro = {
 	},
 }
 
-Resources.data.outside = {
+Resources.meta.Outside = {
 	image = {
 		{"bg_sky", path_images .. "house_outside/bg_sky.png"},
 		{"bg_house", path_images .. "house_outside/bg_house.png"},
@@ -142,27 +143,25 @@ Resources.data.outside = {
 	},
 }
 
-Resources.data.storage_room = {
-	image = {
-		{"sheet_player_idle", path_images .. "player/player_idle.png"},
-		{"sheet_player_walk", path_images .. "player/player_walk.png"},
-		{"sheet_player_run", path_images .. "player/player_run.png"},
-	},
-	font = {},
-}
-
-function Resources.get(key)
+function Resources.get_meta(key)
 	@@assert(type(key) == "string")
-	return Resources.data[key]
+	@@assert(Resources.meta[key], key .. " is invalid")
+	return Resources.meta[key]
 end
 
-function Resources.clean(res)
-	@@assert(type(res) == "table")
-	for k, t in pairs(res) do
-		for name, obj in pairs(t) do
-			res[k][name]:release()
+function Resources.set_resources(t)
+	@@assert(type(t) == "table")
+	Resources.data = t
+end
+
+function Resources.clean()
+	for k, t in pairs(Resources.data) do
+		for name, _ in pairs(t) do
+			Resources.data[k][name]:release()
+			Resources.data[k][name] = nil
 			Log.trace(format("'%s':'%s' cleaned", k, name))
 		end
+		Resources.data[k] = nil
 	end
 end
 

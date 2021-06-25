@@ -38,7 +38,6 @@ end
 function TypewriterSplash:update(dt)
 	for _, e in ipairs(self.pool) do
 		local typewriter = e.typewriter
-
 		if typewriter.timer then
 			typewriter.timer:update(dt)
 		end

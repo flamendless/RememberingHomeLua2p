@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
+local Timer = require("modules.hump.timer")
 
 local Color = Concord.system({
 	pool_fade_to_black = {"color", "fade_to_black"},
@@ -43,7 +44,8 @@ local function lerp_colors(lc, color)
 	if ease then lc.flux:ease(ease.ease) end
 end
 
-function Color:init()
+function Color:init(world)
+	self.world = world
 	self.pool_fade_in.onAdded = function(pool, e)
 		local c = e.color_fade_in
 		local f_in = e.fade_in_target_alpha
@@ -133,7 +135,7 @@ function Color:init()
 		local color = e.color
 		local target = e.target_color
 		local target_color = e.target_color.target
-		local on_complete = e.lerp_on_complete
+		local on_finish = e.lerp_on_finish
 		local ease = e.ease
 
 		local f = Flux.to(color.value, target.duration, {
@@ -144,8 +146,10 @@ function Color:init()
 			})
 			:delay(target.delay)
 			:oncomplete(function()
-				if on_complete then
-					on_complete.callback()
+				if on_finish then
+					Timer.after(on_finish.delay, function()
+						self.world:emit(on_finish.signal, unpack(on_finish.args))
+					end)
 					e:remove("lerp_on_complete")
 				end
 

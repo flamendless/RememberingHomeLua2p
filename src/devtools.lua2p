@@ -61,7 +61,7 @@ end
 
 function DevTools.update(dt)
 	if not DevTools.show then return end
-	if not GameStates.current_state then return end
+	if not GameStates.world then return end
 	Slab.Update(dt)
 
 	Slab.BeginWindow("list", {Title = "DevTools"})
@@ -83,20 +83,20 @@ function DevTools.update(dt)
 	DevTools.draw_entities_list()
 	DevTools.draw_systems_list()
 	DevTools.draw_debug_list()
-	GameStates.current_state.world:emit("debug_update", dt)
+	GameStates.world:emit("debug_update", dt)
 end
 
 function DevTools.draw()
 	if not DevTools.show then return end
-	if not GameStates.current_state then return end
+	if not GameStates.world then return end
 
 	love.graphics.setFont(font)
-	if GameStates.current_state.camera then
-		GameStates.current_state.camera:draw(function(l, t, w, h)
-			GameStates.current_state.world:emit("debug_draw")
+	if GameStates.camera then
+		GameStates.camera:draw(function(l, t, w, h)
+			GameStates.world:emit("debug_draw")
 		end)
 	else
-		GameStates.current_state.world:emit("debug_draw")
+		GameStates.world:emit("debug_draw")
 	end
 	Slab.Draw()
 end
@@ -122,7 +122,7 @@ function DevTools.draw_mouse()
 	})
 	local mx, my = love.mouse.getPosition()
 	local cx, cy = 0, 0
-	local camera = GameStates.current_state.camera
+	local camera = GameStates.camera
 	if camera then cx, cy = camera:toWorld(mx, my) end
 	local str_m = format("Mouse: (%d, %d)", mx, my)
 	local str_c = format("Camera: (%d, %d)", cx, cy)
@@ -137,7 +137,7 @@ function DevTools.draw_entities_list()
 		Title = entity_list.title,
 		IsOpen = entity_list.show,
 	})
-	entity_list.t_es = GameStates.current_state.world:getEntities()
+	entity_list.t_es = GameStates.world:getEntities()
 	entity_list.n_es_id = 0
 	for _, e in ipairs(entity_list.t_es) do
 		if e.id then entity_list.n_es_id = entity_list.n_es_id + 1 end
@@ -181,7 +181,7 @@ function DevTools.draw_systems_list()
 	})
 	Slab.BeginLayout("layout_systems", {Columns = 3})
 	local i = 1
-	for _, v in ipairs(GameStates.current_state.world:getSystems()) do
+	for _, v in ipairs(GameStates.world:getSystems()) do
 		Slab.SetLayoutColumn(i)
 		if Slab.CheckBox(v.debug_enabled, v.debug_title) then
 			v.debug_enabled = not v.debug_enabled
@@ -202,7 +202,7 @@ function DevTools.draw_debug_list()
 	})
 	Slab.BeginLayout("layout_debug", {Columns = 2})
 	local i = 1
-	local states = GameStates.current_state.world:getSystems()
+	local states = GameStates.world:getSystems()
 	for _, v in ipairs(states) do
 		if v.debug_update or v.debug_draw then
 			Slab.SetLayoutColumn(i)
@@ -235,18 +235,18 @@ function DevTools.keypressed(key)
 end
 
 function DevTools.mousemoved(mx, my, dx, dy)
-	if not GameStates.current_state then return end
-	GameStates.current_state.world:emit("debug_mousemoved", mx, my, dx, dy)
+	if not GameStates.world then return end
+	GameStates.world:emit("debug_mousemoved", mx, my, dx, dy)
 end
 
 function DevTools.mousepressed(mx, my, mb)
-	if not GameStates.current_state then return end
-	GameStates.current_state.world:emit("debug_mousepressed", mx, my, mb)
+	if not GameStates.world then return end
+	GameStates.world:emit("debug_mousepressed", mx, my, mb)
 end
 
 function DevTools.mousereleased(mx, my, mb)
-	if not GameStates.current_state then return end
-	GameStates.current_state.world:emit("debug_mousereleased", mx, my, mb)
+	if not GameStates.world then return end
+	GameStates.world:emit("debug_mousereleased", mx, my, mb)
 end
 
 return DevTools

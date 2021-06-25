@@ -16,13 +16,14 @@ local systems = {}
 
 systems.Splash = {
 	"animation", "color", "ghost_effect", "render_sprite", "render_text",
-	"transform", "typewriter_splash", "render_ui", "gamestates"
+	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
+	"skip",
 }
 
 systems.Menu = {
-	"animation", "bounding_box", "click", "color", "hover_effect", "menu",
+	"animation", "bounding_box", "click", "color", "hover_effect",
 	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
-	"transform"
+	"transform", "entity", "gamestates",
 }
 
 systems.Intro = {
@@ -49,6 +50,7 @@ function ECS.load_systems(id, world)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
+	@@assert(Systems[string.lower(id)])
 
 	!if _DEV then
 	DevTools = require("devtools")
@@ -64,6 +66,7 @@ function ECS.load_systems(id, world)
 		sys.debug_title = v
 		!end
 	end
+	world:addSystem(Systems[string.lower(id)])
 
 	!if _DEV then
 	Systems.id.debug_show = true

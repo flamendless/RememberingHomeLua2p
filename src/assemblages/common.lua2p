@@ -38,6 +38,7 @@ function Common.skip(e, font, x, y)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0.5, 1)
 	:give("color_fade_in_out", 1)
+	:give("skip")
 end
 
 function Common.camera(e, cam, scale, w, h)

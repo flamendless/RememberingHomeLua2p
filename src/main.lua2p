@@ -118,7 +118,7 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
 
-	if not GameStates.is_ready() then
+	if not GameStates.is_ready then
 		custom_loading_screen()
 	end
 

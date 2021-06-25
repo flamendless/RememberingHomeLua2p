@@ -1,119 +1,95 @@
+local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
-local States = require("states")
-
-local format = string.format
+local ECS = require("ecs")
+local Preloader = require("preloader")
+local Resources = require("resources")
 
 local GameStates = {
 	type_id = "GameStates",
-	prev_state = nil,
-	current_state = nil,
+	is_ready = false,
 	current_id = nil,
+	world = nil,
+	prev_id = nil,
+	prev_world = nil,
 }
 
-local window_size = !(_GAME_SIZE)
-
-!if _DEV then
-local methods = {
-	"update", "draw", "keypressed", "keyreleased",
-	!if _PLATFORM == "desktop" then
-	"mousepressed", "mousereleased", "mousemoved",
-	!elseif _PLATFORM == "mobile" then
-	"touchpressed", "touchreleased"
-	!end
-}
-
-local function check_state(cw, method)
-	if (cw[method] == nil) or type(cw[method]) ~= "function" then
-		Log.warn(format("'%s' does not have a '%s' method", cw.id, method))
-	end
-end
-!end
-
-function GameStates.init()
+function GameStates.preload()
+	local resources = { images = {}, fonts = {} }
+	local list = Resources.get_meta(GameStates.current_id)
+	Log.info("Preloading: " .. GameStates.current_id)
+	Preloader.start(list, resources, function()
+		GameStates.start(resources)
+	end)
 end
 
 function GameStates.switch(next_id)
-	@@assert(States[next_id])
-
-	GameStates.prev_state = GameStates.current_state
-
-	if GameStates.prev_state then
-		GameStates.prev_state:exit()
+	@@assert(type(next_id) == "string")
+	GameStates.is_ready = false
+	if GameStates.world then
+		GameStates.prev_world = GameStates.world
+		GameStates.prev_id = GameStates.current_id
+		GameStates.exit()
 	end
 
-	local next_state = States[next_id]:new()
-	GameStates.current_state = next_state
+	Log.info("Switching to: " .. next_id)
 	GameStates.current_id = next_id
-
-	!if _DEV then
-	for i, method in ipairs(methods) do
-		check_state(GameStates.current_state, method)
-	end
-	!end
-
-	local prev_id = (GameStates.prev_state and GameStates.prev_state.id)
-	local str = format("Switched from %s to %s", prev_id, GameStates.current_id)
-	Log.trace(str)
-	GameStates.init()
-	Log.info("State Load: ", GameStates.current_id)
-	GameStates.current_state:load()
-	GameStates.current_state.gamestate = GameStates
-
-	!if _DEV then
-	GameStates.current_state.world.current_state = GameStates.current_state
-	!end
+	GameStates.preload()
 end
 
 function GameStates.switch_to_previous()
-	GameStates.switch(GameStates.prev_state.id)
+	GameStates.switch(GameStates.prev_id)
 end
 
-function GameStates.is_ready()
-	return GameStates.current_state.is_ready
+function GameStates.start(resources)
+	Resources.set_resources(resources)
+	GameStates.is_ready = true
+	GameStates.world = Concord.world()
+	ECS.load_systems(GameStates.current_id, GameStates.world)
+	GameStates.world:emit("state_init")
 end
 
 function GameStates.update(dt)
-	GameStates.current_state:update(dt)
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_update", dt)
 end
 
 function GameStates.draw()
-	GameStates.current_state:draw()
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_draw")
 end
 
 function GameStates.keypressed(key)
-	if GameStates.current_state.keypressed then
-		GameStates.current_state:keypressed(key)
-	end
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_keypressed", key)
 end
 
 function GameStates.keyreleased(key)
-	if GameStates.current_state.keyreleased then
-		GameStates.current_state:keyreleased(key)
-	end
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_keyreleased", key)
 end
 
 function GameStates.mousemoved(mx, my, dx, dy)
-	if GameStates.current_state.mousemoved then
-		GameStates.current_state:mousemoved(mx, my, dx, dy)
-	end
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_mousemoved", mx, my, dx, dy)
 end
 
 function GameStates.mousepressed(mx, my, mb)
-	if GameStates.current_state.mousepressed then
-		GameStates.current_state:mousepressed(mx, my, mb)
-	end
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_mousepressed", mx, my, mb)
 end
 
 function GameStates.mousereleased(mx, my, mb)
-	if GameStates.current_state.mousereleased then
-		GameStates.current_state:mousereleased(mx, my, mb)
-	end
+	if not GameStates.is_ready then return end
+	GameStates.world:emit("state_mousereleased", mx, my, mb)
 end
 
-function GameStates.quit()
-	if GameStates.current_state.exit then
-		GameStates.current_state:exit()
+function GameStates.exit()
+	Resources.clean()
+	GameStates.world:emit("cleanup")
+	GameStates.world:clear()
+	for _, e in ipairs(GameStates.world:getEntities()) do
+		e:destroy()
 	end
 end
 

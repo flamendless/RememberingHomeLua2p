@@ -36,6 +36,7 @@ function Menu.desk(e, sheet, ww, wh)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("auto_scale", ww, wh, true)
 	:give("color", Palette.get("white"))
+	:give("menu_desk")
 end
 
 function Menu.bg_door(e, image, x, y, scale, ox, oy)
@@ -58,6 +59,7 @@ function Menu.title(e, image, x, y, scale, ox, oy)
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.75))
+	:give("menu_text")
 end
 
 function Menu.subtitle(e, image, x, y, target, scale, ox, oy)
@@ -67,6 +69,7 @@ function Menu.subtitle(e, image, x, y, target, scale, ox, oy)
 	:give("anchor", target, "center", "bottom")
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.5))
+	:give("menu_text")
 end
 
 function Menu.option_item(e, id, str, font, x, y, scale, i, sub_i)
@@ -123,6 +126,7 @@ function Menu.secret_title(e, font, x, y)
 	:give("pos", x, y)
 	:give("color", Palette.get("red_desaturated", 0))
 	:give("transform", 0, 2, 2, 0, 0.5)
+	:give("menu_text")
 end
 !end
 

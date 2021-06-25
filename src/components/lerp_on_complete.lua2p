@@ -1,6 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("lerp_on_complete", function(c, callback)
-	@@assert(type(callback) == "function")
-	c.callback = callback
-end)
