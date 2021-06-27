@@ -13,6 +13,7 @@ local function callback(name)
 end
 
 local names = {
+	"animation_on_loop",
 	"animation_on_finish",
 	"lerp_on_finish",
 	"typewriter_on_finish",

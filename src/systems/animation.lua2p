@@ -14,30 +14,31 @@ local cache_multi_animation = {}
 function Animation:setup_on_loop(e, animation)
 	@@assert(animation.__isComponent)
 
-	local cb = e.animation_on_loop
+	local on_loop = e.animation_on_loop
 	local on_finish = e.animation_on_finish
-	local on_loop
+	local on_loop_fn
 
-	if cb then
-		on_loop = function()
-			if cb.event then
-				animation.is_playing = false
-				animation.animation[cb.event](animation.animation)
-
-				if on_finish then
-					Timer.after(on_finish.delay, function()
-						self.world:emit(on_finish.signal, unpack(on_finish.args))
-					end)
-				end
-
-				if cb.remove_at_end then
-					e:remove("animation_on_loop")
-					cache_multi_animation[e.animation.current_tag] = nil
-				end
-			end
+	if on_loop then
+		on_loop_fn = function()
+			self.world:emit(on_loop.signal, unpack(on_loop.args))
+			-- if on_loop.event then
+			-- 	animation.is_playing = false
+			-- 	animation.animation[cb.event](animation.animation)
+            --
+			-- 	if on_finish then
+			-- 		Timer.after(on_finish.delay, function()
+			-- 			self.world:emit(on_finish.signal, unpack(on_finish.args))
+			-- 		end)
+			-- 	end
+            --
+			-- 	if cb.remove_at_end then
+			-- 		e:remove("animation_on_loop")
+			-- 		cache_multi_animation[e.animation.current_tag] = nil
+			-- 	end
+			-- end
 		end
 	else
-		on_loop = function()
+		on_loop_fn = function()
 			if animation.stop_on_last then
 				animation.is_playing = false
 				animation.animation:pauseAtEnd()
@@ -45,7 +46,7 @@ function Animation:setup_on_loop(e, animation)
 		end
 	end
 
-	return on_loop
+	return on_loop_fn
 end
 
 local setup_animation = function(e, data, on_loop)

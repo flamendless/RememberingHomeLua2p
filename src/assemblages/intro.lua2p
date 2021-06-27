@@ -62,6 +62,16 @@ function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	:give("z_index", z_index[tag], false)
 end
 
+function Intro.post_light(e, sprite, quad_width, tag, sx, sy)
+	Intro.parallax(e, sprite, quad_width, tag, sx, sy)
+	e:give("transform", 0, 1, 1)
+	:give("light", "custom", 1)
+	:give("color", Palette.colors.post_light)
+	:give("light_flicker", 0.1)
+	:give("light_disabled")
+	:give("intro_light")
+end
+
 function Intro.bg_tree_cover(e, sprite)
 	e:give("id", "bg_tree_cover")
 	:give("sprite", sprite)

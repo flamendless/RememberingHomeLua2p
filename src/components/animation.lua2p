@@ -29,13 +29,6 @@ Concord.component("animation_stop", function(c, event)
 	c.event = event
 end)
 
-Concord.component("animation_on_loop", function(c, event, remove_at_end)
-	@@sassert(event, event == "pauseAtEnd" or event == "pauseAtStart")
-	@@sassert(remove_at_end, type(remove_at_end) == "boolean")
-	c.event = event
-	c.remove_at_end = remove_at_end
-end)
-
 Concord.component("animation_on_update", function(c, on_update)
 	@@assert(type(on_update) == "function")
 	c.on_update = on_update

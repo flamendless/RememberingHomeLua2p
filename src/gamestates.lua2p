@@ -28,8 +28,23 @@ function GameStates.start(resources)
 	GameStates.is_ready = true
 	GameStates.world = Concord.world()
 	ECS.load_systems(GameStates.current_id, GameStates.world)
+
+	!if _DEV and _PROF then
+	JPROF.push("frame", "setup")
+	!end
 	GameStates.world:emit("state_setup")
+	!if DEV and _PROF then
+	JPROF.pop("frame")
+	!end
+
+	!if _DEV and _PROF then
+	JPROF.push("frame", "state_init")
+	!end
 	GameStates.world:emit("state_init")
+	!if DEV and _PROF then
+	JPROF.pop("frame")
+	!end
+
 end
 
 function GameStates.switch(next_id)
