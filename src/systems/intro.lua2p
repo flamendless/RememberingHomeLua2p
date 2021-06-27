@@ -10,7 +10,6 @@ local Fog = require("fog")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
-local Palette = require("palette")
 local Save = require("save")
 local Settings = require("settings")
 local ScreenInfo = require("screen_info")
@@ -91,14 +90,11 @@ function Intro:state_setup()
 
 	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
-	self.world:emit("set_light_resources", {
-			round = Resources.data.images.light_round,
-			rectangle = Resources.data.images.light_rectangle,
-			cone = Resources.data.images.light_cone,
-		})
-
 	self.ps1 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted2, 128, w)
+
+	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
+		Resources.data.images.parallax_clouds, ssx2, "clouds", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
 		Resources.data.images.parallax_buildings, ssx2, "building", 2, 2)
@@ -145,8 +141,8 @@ function Intro:state_setup()
 			Resources.data.images.sheet_car_reflect, self.e_car)
 		:give("animation_on_loop", "car_reflection_flicker")
 
-	Concord.entity(self.world):assemble(Assemblages.UI.cloud_data,
-		Resources.data.images.sheet_cloud)
+	Concord.entity(self.world):assemble(Assemblages.UI.splat_data,
+		Resources.data.images.sheet_splat)
 
 	local lut_size, lut_afternoon, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
@@ -197,8 +193,7 @@ function Intro:state_init()
 	local w, h = Resources.data.images.bg:getDimensions()
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		local ambient_color_tmp = {0.5, 0.5, 0.5}
-		self.world:emit("set_ambient_light", ambient_color_tmp)
+		self.world:emit("set_ambient_light", {0.5, 0.5, 0.5})
 		self.timeline:Pause()
 		!end
 

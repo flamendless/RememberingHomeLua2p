@@ -3,6 +3,7 @@ local Palette = require("palette")
 local Intro = {}
 
 local speed = {
+	clouds = 2,
 	building = 8,
 	road = 512,
 	post = 512,
@@ -16,6 +17,7 @@ local speed = {
 }
 
 local z_index = {
+	clouds = 1,
 	building = 1,
 	grass_back = 2,
 	bg_trees = 3,

@@ -27,7 +27,6 @@ local function generate_recolor(e)
 end
 
 local function generate_flicker(e)
-	local timer = e.light_timer
 	local flicker = e.light_flicker.off_chance
 	local color = e.color.value
 	local r = random()
@@ -72,14 +71,6 @@ end
 function Light:set_ambient_light(color)
 	@@assert(type(color) == "table")
 	self.ambient = color
-end
-
-function Light:set_light_resources(res)
-	@@assert(type(res) == "table")
-	@@assert(res.round:type() == "Image")
-	@@assert(res.rectangle:type() == "Image")
-	@@assert(res.cone:type() == "Image")
-    self.resources = res
 end
 
 function Light:create_light_map(x, y, w, h, scale)
@@ -199,5 +190,26 @@ function Light:cleanup()
 	self.world:clear()
 	self.light_map:release()
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+
+function Light:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("light", {
+		Title = "Light",
+		IsOpen = self.debug_show,
+	})
+	local t = {self.ambient[1], self.ambient[2], self.ambient[3], 1}
+	local ret = Slab.ColorPicker({Color = t})
+	--TODO replace this when Slab got updated
+	if ret.Button == "OK" then
+		self.ambient[1] = ret.Color[1]
+		self.ambient[2] = ret.Color[2]
+		self.ambient[3] = ret.Color[3]
+	end
+	Slab.EndWindow()
+end
+!end
 
 return Light
