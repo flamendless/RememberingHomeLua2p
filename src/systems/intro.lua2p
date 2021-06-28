@@ -40,12 +40,11 @@ local rain_amount = {16, 32, 96}
 local should_fade = false
 local intro_text_n = 1
 
-function Intro:enable_intro_text()
+function Intro:enable_next_intro_text()
 	local e = self.pool_intro_text[intro_text_n]
 	self.world:emit("fade_text", e,
 		fade_duration, function()
 			self.timeline:Unpause()
-			-- e:destroy()
 			intro_text_n = intro_text_n + 1
 		end)
 end
@@ -199,32 +198,27 @@ function Intro:state_init()
 
 		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
-
-		local car_pos = self.e_car.pos
-		self.camera:setScale(15)
-		self.camera:setPosition(53, 544)
+		self.world:emit("set_camera_transform", self.camera, {x = 53, y = 544, scale = 15})
 
 		TLE.Event.Wait(2)
-		local cx, cy = self.camera:getPosition()
-		Flux.to(self.camera, 5, {y = cy - 64})
-		Flux.to(self.camera, 5, {scale = 10})
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 0, -64)
+		self.world:emit("tween_camera_scale", self.camera, 5, 10)
 
 		TLE.Event.Wait(2)
-		self:enable_intro_text()
+		self:enable_next_intro_text()
 		self.timeline:Pause()
 
-		cx, cy = self.camera:getPosition()
-		Flux.to(self.camera, 5, {scale = 5})
-		Flux.to(self.camera, 5, {x = cx + 160, y = cy - 32})
+		local car_pos = self.e_car.pos
+		self.world:emit("tween_camera_scale", self.camera, 5, 5)
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 160, -32)
 		Flux.to(car_pos, 5, {x = 128})
 
 		self:update_rain(1)
-		self:enable_intro_text()
+		self:enable_next_intro_text()
 		self.timeline:Pause()
 
 		--Enter forest
 		self.world:emit("start_trees", -320)
-		cx, cy = self.camera:getPosition()
 		for _, e in ipairs(self.pool_light) do
 			e:remove("light_disabled")
 		end
@@ -237,14 +231,14 @@ function Intro:state_init()
 		effect.status = 2
 		current_effect = effect.multi
 		Flux.to(effect, 15, {dt = 1})
-		Flux.to(self.camera, 5, {scale = 3})
-		Flux.to(self.camera, 5, {x = cx + 72, y = cy - 32})
+		self.world:emit("tween_camera_scale", self.camera, 5, 3)
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32)
 		Flux.to(car_pos, 3, {x = 160})
 
-		self:enable_intro_text()
+		self:enable_next_intro_text()
 		self.timeline:Pause()
 
-		self:enable_intro_text()
+		self:enable_next_intro_text()
 		self.timeline:Pause()
 
 		TLE.Event.Wait(3)
@@ -255,8 +249,8 @@ function Intro:state_init()
 		Flux.to(car_pos, 3, {x = ssx * 0.5})
 
 		TLE.Event.Wait(2)
-		Flux.to(self.camera, 5, {scale = self.scale})
-		Flux.to(self.camera, 5, {x = w * 0.5, y = h * 0.5})
+		self.world:emit("tween_camera_scale", self.camera, 5, self.scale)
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, w * 0.5, h * 0.5)
 
 		self.world:emit("destroy_skip")
 

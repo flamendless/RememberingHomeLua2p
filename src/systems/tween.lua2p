@@ -1,0 +1,33 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+local Gamera = require("modules.gamera.gamera")
+
+local Tween = Concord.system({
+})
+
+function Tween:init(world)
+	self.world = world
+end
+
+function Tween:tween_camera_pos_rel(camera, dur, dx, dy)
+	@@assert(Gamera.isCamera(camera))
+	@@assert(type(dur) == "number")
+	@@assert(type(dx) == "number")
+	@@assert(type(dy) == "number")
+	local cx, cy = camera:getPosition()
+	Flux.to(camera, dur, {
+		x = cx + dx,
+		y = cy + dy,
+	})
+end
+
+function Tween:tween_camera_scale(camera, dur, scale)
+	@@assert(Gamera.isCamera(camera))
+	@@assert(type(dur) == "number")
+	@@assert(type(scale) == "number")
+	Flux.to(camera, dur, {
+		scale = scale
+	})
+end
+
+return Tween

@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
-
-local Inputs = require("inputs")
+local Gamera = require("modules.gamera.gamera")
 
 local Camera = Concord.system({
 	pool = {"camera"},
@@ -19,10 +18,8 @@ function Camera:init(world)
 
 	self.pool.onAdded = function(pool, e)
 		local cam = e.camera.camera
-
 		if e.camera_transform then
 			local t = e.camera_transform
-
 			cam:setAngle(t.rot)
 			cam:setScale(t.scale)
 		end
@@ -40,6 +37,19 @@ function Camera:init(world)
 	self.pool_clip.onRemoved = function(pool, e)
 		self.clip = #pool == 0
 	end
+end
+
+function Camera:set_camera_transform(camera, t)
+	@@assert(Gamera.isCamera(camera))
+	@@assert(type(t) == "table")
+	@@sassert(t.x, type(t.x) == "number")
+	@@sassert(t.y, type(t.y) == "number")
+	@@sassert(t.scale, type(t.scale) == "number")
+	--ALWAYS SET SCALE FIRST BEFORE POSITION
+	local scale = camera:getScale()
+	camera:setScale(t.scale or scale)
+	local x, y = camera:getPosition()
+	camera:setPosition(t.x or x, t.y or y)
 end
 
 function Camera:interactive_interacted()
@@ -138,6 +148,7 @@ end
 
 !if _DEV then
 local Slab = require("modules.slab")
+local Inputs = require("inputs")
 local format = string.format
 local flags = {
 	center = true,
