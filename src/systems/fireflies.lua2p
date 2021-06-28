@@ -42,21 +42,15 @@ function Fireflies:update(dt)
 	self.timer:update(dt)
 end
 
-function Fireflies:generate_fireflies(n, sprite_light, min_pos, max_pos)
-	@@assert(type(n) == "number")
-	@@assert(sprite_light:type() == "Image")
-	@@assert(type(min_pos) == "table")
-	@@assert(type(min_pos.x) == "number")
-	@@assert(type(min_pos.y) == "number")
-	@@assert(type(max_pos) == "table")
-	@@assert(type(max_pos.x) == "number")
-	@@assert(type(max_pos.y) == "number")
+function Fireflies:generate_fireflies(image_light)
+	@@assert(image_light:type() == "Image")
+	local n = random(10, 20)
+	local min_x, max_x = 516, 916
+	local y = 236
 	for _ = 1, n do
-		local x = random(min_pos.x, max_pos.x)
-		local y = random(min_pos.y, max_pos.y)
+		local x = random(min_x, max_x)
 		local points = generate_points(x, y, 64)
-		Concord.entity(self.world)
-			:assemble(Outside.firefly, sprite_light, x, y, points)
+		Concord.entity(self.world):assemble(Outside.firefly, image_light, x, y, points)
 	end
 end
 

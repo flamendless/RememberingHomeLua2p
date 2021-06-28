@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local BumpStorage = require("ctor.bump_storage")
+local GameStates
 
 local BumpCollision = Concord.system({
 	pool = {
@@ -9,8 +10,8 @@ local BumpCollision = Concord.system({
 })
 
 local function get_query_rect(self)
-	if self.world.current_state.camera then
-		return self.world.current_state.camera:getVisible()
+	if self.camera then
+		return self.camera:getVisible()
 	else
 		return 0, 0, love.graphics.getDimensions()
 	end
@@ -18,7 +19,7 @@ end
 
 local function get_query_point(self)
 	local mx, my = love.mouse.getPosition()
-	local camera = self.world.current_state.camera
+	local camera = self.camera
 	if camera then
 		mx, my = camera:toWorld(mx, my)
 	end
@@ -31,7 +32,9 @@ local function filter(item, other)
 end
 
 function BumpCollision:init(world)
+	GameStates = require("gamestates")
 	self.world = world
+	self.camera = GameStates.world.camera
 end
 
 function BumpCollision:preupdate(dt)
@@ -190,7 +193,7 @@ function BumpCollision:debug_draw()
 			local id = e.id.value
 			local x, y, w, h = self.pool:getRect(e)
 			local scale = 1
-			local camera = self.world.current_state.camera
+			local camera = self.camera
 			if camera then scale = camera:getScale() end
 
 			if flags.fill then

@@ -50,7 +50,7 @@ function ECS.load_systems(id, world)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
-	@@assert(Systems[string.lower(id)])
+	@@assert(Systems[string.lower(id)], id .. " state system does not exist")
 
 	!if _DEV then
 	DevTools = require("devtools")

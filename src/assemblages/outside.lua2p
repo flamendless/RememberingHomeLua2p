@@ -26,6 +26,7 @@ end
 
 function Outside.splashes(e, spritesheet, x, y, is_compatible)
 	e:give("id", "splashes")
+	:give("splashes")
 	:give("pos", x, y)
 	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
