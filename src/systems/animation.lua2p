@@ -23,7 +23,7 @@ function Animation:setup_on_loop(e, animation)
 			self.world:emit(on_loop.signal, unpack(on_loop.args))
 			-- if on_loop.event then
 			-- 	animation.is_playing = false
-			-- 	animation.animation[cb.event](animation.animation)
+			-- 	animation.anim8[cb.event](animation.anim8)
             --
 			-- 	if on_finish then
 			-- 		Timer.after(on_finish.delay, function()
@@ -41,7 +41,7 @@ function Animation:setup_on_loop(e, animation)
 		on_loop_fn = function()
 			if animation.stop_on_last then
 				animation.is_playing = false
-				animation.animation:pauseAtEnd()
+				animation.anim8:pauseAtEnd()
 			end
 		end
 	end
@@ -85,7 +85,7 @@ local setup_animation = function(e, data, on_loop)
 	end
 
 	animation.grid = obj_grid
-	animation.animation = obj_animation
+	animation.anim8 = obj_animation
 
 	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
@@ -139,21 +139,21 @@ function Animation:init(world)
 
 		if type(pause_at.at_frame) == "string" then
 			if pause_at.at_frame == "first" then
-				animation.animation:pauseAtStart()
+				animation.anim8:pauseAtStart()
 			elseif pause_at.at_frame == "last" then
-				animation.animation:pauseAtEnd()
+				animation.anim8:pauseAtEnd()
 			end
 		elseif type(pause_at.at_frame) == "number" then
 			@@assert(pause_at.at_frame <= data.n_frames)
-			animation.animation:gotoFrame(pause_at.at_frame)
-			animation.animation:pause()
+			animation.anim8:gotoFrame(pause_at.at_frame)
+			animation.anim8:pause()
 		end
 	end
 
 	self.pool_pause.onRemoved = function(pool, e)
 		local animation = e.animation
 
-		animation.animation:resume()
+		animation.anim8:resume()
 	end
 
 	self.pool_change.onAdded = function(pool, e)
@@ -202,10 +202,11 @@ function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
 		local animation = e.animation
 
-		if animation.animation then
+		if animation.anim8 then
 			local on_update = e.animation_on_update
 			local stop = e.animation_stop
 			local dt_multiplier = e.dt_multiplier
+			local current_frame = e.current_frame
 			local quad = e.quad
 
 			if dt_multiplier then
@@ -215,7 +216,7 @@ function Animation:update(dt)
 			if animation.is_playing then
 				if stop then
 					animation.is_playing = false
-					animation.animation[stop.event](animation.animation)
+					animation.anim8[stop.event](animation.anim8)
 
 					local on_finish = e.animation_on_finish
 					if on_finish then
@@ -225,15 +226,18 @@ function Animation:update(dt)
 					end
 				end
 
-				animation.animation:update(dt)
+				animation.anim8:update(dt)
+
+				if current_frame then
+					current_frame.value = animation.anim8.position
+				end
 
 				if on_update then
-					on_update.on_update(dt, animation.animation.pos)
+					self.world:emit(on_update.signal, dt, e, unpack(on_update.args))
 				end
 			end
 
-			local current_quad = animation.animation:getFrameInfo()
-
+			local current_quad = animation.anim8:getFrameInfo()
 			quad.quad = current_quad
 		end
 	end

@@ -419,7 +419,6 @@ function StateOutside:start()
 
 		self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
 
-		EventManager.add(ev2)
 		self.timeline:Pause()
 	end)
 end

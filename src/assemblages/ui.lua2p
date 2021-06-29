@@ -105,10 +105,11 @@ function UI.hold_progress_bg(e, x, y, radius, segments)
 	:give("ui_element")
 end
 
-function UI.hold_progress(e, x, y, timer, radius, segments)
+function UI.hold_progress(e, key, x, y, timer, radius, segments)
 	e:give("id", "hold_progress")
 	:give("pos", x, y)
 	:give("hold", timer)
+	:give("hold_key", key)
 	:give("arc", radius, segments)
 	:give("line_width", line_width)
 	:give("color", Palette.get("ui_hold_progress", 0))
@@ -117,7 +118,7 @@ function UI.hold_progress(e, x, y, timer, radius, segments)
 	:give("ui_element")
 end
 
-function UI.keypress(e, is_hold, sheet, target)
+function UI.keypress(e, is_hold, sheet)
 	@@assert(type(is_hold) == "boolean")
 	local delay = is_hold and {0.5, 0.5, 2} or 0.5
 
@@ -135,7 +136,6 @@ function UI.keypress(e, is_hold, sheet, target)
 	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
-	:give("attach_to", target)
 end
 
 function UI.key(e, key, x, y, font)
@@ -146,6 +146,7 @@ function UI.key(e, key, x, y, font)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_element")
+	:give("key")
 end
 
 function UI.arrow(e, dir, sheet, x, y)

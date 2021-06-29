@@ -1,10 +1,27 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("hold", function(c, max_time)
-	!if _ASSERT then
-	Assert.must(max_time, Types.T_NUMBER)
-	!end
+!if _DEV then
+local Inputs = require("inputs")
+!end
 
+Concord.component("key")
+
+Concord.component("hold", function(c, max_time)
+	@@assert(type(max_time) == "number")
 	c.current_time = 0
 	c.max_time = max_time
+	c.was_held = false
+	c.is_held = false
+end)
+
+Concord.component("hold_key", function(c, key)
+	@@assert(type(key) == "string")
+	@@assert(Inputs.rev_map[key])
+	c.value = key
+end)
+
+Concord.component("target_key", function(c, e)
+	@@assert(e.__isEntity)
+	@@assert(e.key)
+	c.target_key = e
 end)

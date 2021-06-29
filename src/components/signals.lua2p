@@ -14,10 +14,12 @@ end
 
 local names = {
 	"animation_on_loop",
+	"animation_on_update",
 	"animation_on_finish",
 	"lerp_on_finish",
 	"typewriter_on_finish",
 	"on_enter_menu",
+	"hold_on_finish",
 }
 
 for _, v in ipairs(names) do

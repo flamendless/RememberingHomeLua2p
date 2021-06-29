@@ -38,7 +38,7 @@ systems.Outside = {
 	"follow", "hover_effect", "interactive", "inventory", "items", "light",
 	"move", "movement", "mouse_hover", "notification", "outside_house",
 	"player_controller", "render_circle", "render_sprite", "render_text",
-	"render_ui", "text_paint", "transform", "typewriter", "path",
+	"render_ui", "text_paint", "transform", "typewriter", "path", "hold_key"
 }
 
 systems.StorageRoom = {

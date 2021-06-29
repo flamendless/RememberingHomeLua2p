@@ -5,7 +5,7 @@ Concord.component("override_animation")
 Concord.component("animation", function(c, stop_on_last)
 	@@sassert(stop_on_last, type(stop_on_last) == "boolean")
 	c.grid = nil
-	c.animation = nil
+	c.anim8 = nil
 	c.current_tag = "default"
 	c.is_playing = true
 	c.stop_on_last = (stop_on_last == true) and true or false
@@ -29,7 +29,11 @@ Concord.component("animation_stop", function(c, event)
 	c.event = event
 end)
 
-Concord.component("animation_on_update", function(c, on_update)
-	@@assert(type(on_update) == "function")
-	c.on_update = on_update
+Concord.component("current_frame", function(c)
+	c.value = 0
 end)
+
+-- Concord.component("animation_on_update", function(c, on_update)
+-- 	@@assert(type(on_update) == "function")
+-- 	c.on_update = on_update
+-- end)

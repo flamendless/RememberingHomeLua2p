@@ -29,7 +29,6 @@ local Inputs = require("inputs")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
-local EventManager = require("event_manager")
 local WindowMode = require("window_mode")
 
 !if _DEV then
@@ -97,7 +96,6 @@ function love.update(dt)
 
 	Timer.update(dt)
 	Flux.update(dt)
-	EventManager.update(dt)
 	GameStates.update(dt)
 	Inputs.update()
 

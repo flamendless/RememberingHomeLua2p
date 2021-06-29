@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("task_await")
+
 Concord.component("task", function(c, color)
 	@@assert(type(color) == "table")
 	c.value = color

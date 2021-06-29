@@ -32,8 +32,15 @@ local ParticleSystems = {
 	RainOutside = require("particle_systems/rain_outside"),
 }
 
+local tasks = {
+	"Get out of the car",
+	"Get inside the house",
+}
+
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
+	pool_task = {"task"},
+	pool_task_await = {"task_await"},
 })
 
 local function tle_log(msg)
@@ -47,6 +54,7 @@ function Outside:init(world)
 	self.rain_state = {current = 128}
 	self.fireflies_flag = false
 	self.overlay = {0, 0, 0, 1}
+	self.current_task = 1
 end
 
 function Outside:state_setup()
@@ -110,7 +118,6 @@ function Outside:state_setup()
 	local qh = bg_house_h
 
 	for i = 1, div do
-		local id = "bg_house_" .. i
 		local x = bg_house_w * ((i - 1) % div)/div
 		local y = bg_house_h * floor((i - 1)/div)/div
 		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
@@ -128,7 +135,7 @@ function Outside:state_setup()
 		Resources.data.images.house_light)
 
 	--setup colliders
-	for k, v in pairs(Assemblages.Outside.colliders) do
+	for _, v in pairs(Assemblages.Outside.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
@@ -137,12 +144,8 @@ function Outside:state_setup()
 	-- 	self.entities[k] = Concord.entity(self.world):assemble(v)
 	-- end
 
-	local tasks = {
-		"Get out of the car",
-		"Get inside the house",
-	}
 	local font_task = Resources.data.fonts.task
-	for i, str in ipairs(tasks) do
+	for _, str in ipairs(tasks) do
 		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
 				"brush", str, font_task, ww * 0.5, hh * 0.9)
 			:give("task", Palette.get("ui_feedback"))
@@ -177,6 +180,7 @@ end
 function Outside:state_init()
 	--TEST
 	!if _DEV then
+	self:start_tasks()
 	-- self.world:emit("move_fireflies")
 	-- Fade.set_alpha(0)
 	-- self:spawn_player(1.5)
@@ -330,7 +334,7 @@ function Outside:start_rain()
 			end
 		end)
 		:oncomplete(function()
-			for i, e in ipairs(self.pool_splashes) do
+			for _, e in ipairs(self.pool_splashes) do
 				e:destroy()
 			end
 			tle_log("splashes stopped")
@@ -346,45 +350,48 @@ end
 function Outside:start_tasks()
 	local timer_hold_key = 1
 	local dur_fade_task = 1.25
-	local dur_fade_hold = 0.75
-	local dur_camera_follow = 1.5
-	local p_interact_id = "interact"
-	local key_id = Inputs.rev_map[p_interact_id]
+	local interact_key = "interact"
+	local key_id = Inputs.rev_map[interact_key]
 
 	tle_log("task: " .. tasks[1])
-	self.world:emit("show_text_paint", self.entities.task1, dur_fade_task)
+	self.world:emit("show_text_paint", self.pool_task[self.current_task], dur_fade_task)
 
-	tle_log("wait for action")
-	local e_hold_key = Factory.hold_key(self.world, key_id,
-		screen_size.x * 0.5, screen_size.y * 0.5, timer_hold_key,
-		64, res_images.sheet_keypress, res_fonts.ui, dur_fade_task)
+	tle_log("wait for interact hold key")
+	local ww, hh = love.graphics.getDimensions()
+	local x = ww * 0.5
+	local y = hh * 0.5
+	local radius = 64
 
-	local ev1 = EventsList.hold_key(key_id, p_interact_id,
-		timer_hold_key, e_hold_key.progress)
-	ev1.on_complete = function()
-		tle_log("action completed")
-
-		for _, e in pairs(e_hold_key) do
-			e:give("color_fade_out", dur_fade_hold)
-		end
-
-		self.world:emit("fade_text_paint", self.entities.task1, dur_fade_task,
-			function()
-				for _, e in pairs(e_hold_key) do
-					e:destroy()
-				end
-				self.timeline:Unpause()
-			end)
-
-		self:spawn_player(dur_camera_follow)
-		Flux.to(self.camera, 1, {scale = 3})
-		tle_log("player created")
-	end
-
-	EventManager.add(ev1)
+	Concord.entity(self.world):assemble(Assemblages.UI.hold_progress_bg, x, y, radius)
+		:give("target_color", Palette.get("ui_hold_progress", 0.3), dur_fade_task)
+		:give("task_await")
+	local e_progress = Concord.entity(self.world):assemble(Assemblages.UI.hold_progress,
+			interact_key, x, y, timer_hold_key, radius)
+		:give("color_fade_in", dur_fade_task)
+		:give("task_await")
+		e_progress:give("hold_on_finish", "on_hold_finished")
+	local e_key = Concord.entity(self.world):assemble(Assemblages.UI.key,
+			key_id, x, y - 4, Resources.data.fonts.ui)
+		:give("color_fade_in", dur_fade_task)
+		:give("layer", "hold_key", 3)
+		:give("task_await")
+	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
+			true, Resources.data.images.sheet_keypress)
+		:give("attach_to", e_progress)
+		:give("target_key", e_key)
+		:give("color_fade_in", dur_fade_task)
+		:give("current_frame")
+		:give("layer", "hold_key", 2)
+		:give("animation_on_update", "on_holding_key")
+		:give("task_await")
 	self.timeline:Pause()
-	self.entities.player.body.can_move = true
-	self.entities.player.player.can_interact = true
+
+	self.current_task = self.current_task + 1
+	self:spawn_player(dur_camera_follow)
+	Flux.to(self.camera, 1, {scale = 3})
+	self.world:emit("player_can_move", true)
+	self.world:emit("player_can_interact", true)
+	tle_log("player created")
 
 	TLE.Event.Wait(0.25)
 	tle_log("task: " .. tasks[2])
@@ -392,10 +399,44 @@ function Outside:start_tasks()
 	local dur_fade_task2 = 2.25
 	local e_arrows, e_arrows_keys = self:show_arrows_keys()
 	local ev2 = EventsList.arrows_keys(e_arrows, e_arrows_keys, dur_fade_task2)
+end
 
-	self.world:emit("show_text_paint", self.entities.task2, dur_fade_task2)
+function Outside:on_hold_finished()
+	local dur_fade_hold = 0.75
+	local dur_fade_task = 1.25
+	local dur_camera_follow = 1.5
+	tle_log("interact hold key completed")
+	for _, e in ipairs(self.pool_task_await) do
+		e:give("color_fade_out", dur_fade_hold)
+	end
+	self.world:emit("fade_text_paint", self.pool_task[self.current_task], dur_fade_task,
+		function()
+			for _, e in ipairs(self.pool_task_await) do
+				e:destroy()
+			end
+			self.timeline:Unpause()
+		end)
+end
 
-	EventManager.add(ev2)
+function Outside:on_holding_key(dt, e)
+	@@assert(e.__isEntity)
+	local hold = e.attach_to.target_e.hold
+	local key = e.target_key.target_key
+	local pos = key.pos
+	local current_frame = e.current_frame.value
+	if current_frame == 1 then
+		pos.y = pos.orig_y
+	elseif current_frame == 2 then
+		pos.y = pos.orig_y + 4
+	elseif current_frame == 3 then
+		pos.y = pos.orig_y + 8
+	end
+
+	if hold.is_held then
+		e.animation.anim8:gotoFrame(e.animation_data.n_frames)
+	elseif hold.was_held then
+		e.animation.anim8:gotoFrame(1)
+	end
 end
 
 return Outside

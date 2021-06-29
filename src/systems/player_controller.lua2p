@@ -34,6 +34,20 @@ function PlayerController:interact_cancelled(e, interactive)
 	e.player.can_interact = true
 end
 
+function PlayerController:player_can_move(bool)
+	@@assert(type(bool) == "boolean")
+	for _, e in ipairs(self.pool) do
+		e.body.can_move = true
+	end
+end
+
+function PlayerController:player_can_interact(bool)
+	@@assert(type(bool) == "boolean")
+	for _, e in ipairs(self.pool) do
+		e.player.can_interact = true
+	end
+end
+
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		self.world:emit("check_on_leave_interactives", e)
