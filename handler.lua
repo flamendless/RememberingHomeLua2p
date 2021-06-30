@@ -43,8 +43,6 @@ _GAME_VERSION = { 0, 0, 1 }
 _COMMIT_VERSION = args[2]
 
 _MODE = args[1]
-_REPORTING = false
-_NETWORK = false
 _LOG_SAVE = false
 
 _OS = "Linux"

@@ -1,9 +1,5 @@
 local Lily = require("modules.lily.lily")
 
-!if _REPORTING then
-local Reporter = require("reporter")
-!end
-
 local UTF8 = require("utf8")
 
 local insert = table.insert
@@ -41,9 +37,6 @@ end
 
 function ErrorHandler.callback(msg)
 	msg = tostring(msg)
-	!if _REPORTING then
-	Reporter.send(msg)
-	!end
 	error_printer(msg, 2)
 
 	if not love.window or not love.graphics or not love.event then
@@ -99,7 +92,9 @@ function ErrorHandler.callback(msg)
 	local err = {}
 
 	insert(err, "SORRY! SOMETHING UNEXPECTED OCCURED!")
-	insert(err, "The developer will work on to fix this, please have patience\n")
+	insert(err, "The developer will work hard to fix this, please have patience")
+	insert(err, "You can help by submitting the error throught GitHub or Itch.io")
+	insert(err, "Thank you!\n")
 
 	!if not _RELEASE then
 	insert(err, sanitized_msg)
