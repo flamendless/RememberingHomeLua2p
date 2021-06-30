@@ -45,22 +45,18 @@ Concord.component("target_color", function(c, target, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("color_fade_in", function(c, duration, delay, on_complete)
+Concord.component("color_fade_in", function(c, duration, delay)
 	@@assert(type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
-	@@sassert(on_complete, type(on_complete) == "function")
 	c.duration = duration
 	c.delay = delay or 0
-	c.on_complete = on_complete
 end)
 
-Concord.component("color_fade_out", function(c, duration, delay, on_complete)
+Concord.component("color_fade_out", function(c, duration, delay)
 	@@assert(type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
-	@@sassert(on_complete, type(on_complete) == "function")
 	c.duration = duration
 	c.delay = delay or 0
-	c.on_complete = on_complete
 end)
 
 Concord.component("fade_in_target_alpha", function(c, alpha)

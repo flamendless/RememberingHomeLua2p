@@ -20,6 +20,9 @@ local names = {
 	"typewriter_on_finish",
 	"on_enter_menu",
 	"hold_on_finish",
+	"task_on_update",
+	"color_fade_out_finish",
+	"color_fade_in_finish",
 }
 
 for _, v in ipairs(names) do

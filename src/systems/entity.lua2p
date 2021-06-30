@@ -8,4 +8,9 @@ function Entity:hide_entity(e)
 	e:give("hidden")
 end
 
+function Entity:destroy_entity(e)
+	@@assert(e.__isEntity)
+	e:destroy()
+end
+
 return Entity

@@ -151,6 +151,7 @@ function Player.outside_house(e,
 			can_open_door = true,
 		})
 	:give("z_index", 2)
+	:give("color", {1, 1, 1, 0})
 	-- :give("camera_follow_offset", 0, 0)
 end
 

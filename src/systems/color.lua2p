@@ -58,12 +58,10 @@ function Color:init(world)
 		local f = Flux.to(e.color.value, c.duration, {[4] = target})
 			:delay(c.delay)
 			:oncomplete(function()
-				local on_complete = c.on_complete
-
+				local on_complete = e.color_fade_in_finish
 				if on_complete then
-					on_complete()
+					self.world:emit(on_complete.signal, unpack(on_complete.args))
 				end
-
 				e:remove("color_fade_in")
 			end)
 
@@ -74,12 +72,10 @@ function Color:init(world)
 		local f = Flux.to(e.color.value, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
-				local on_complete = e.color_fade_out.on_complete
-
+				local on_complete = e.color_fade_out_finish
 				if on_complete then
-					on_complete()
+					self.world:emit(on_complete.signal, unpack(on_complete.args))
 				end
-
 				e:remove("color_fade_out")
 			end)
 

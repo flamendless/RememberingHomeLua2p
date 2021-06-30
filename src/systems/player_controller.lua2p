@@ -182,6 +182,7 @@ function PlayerController:update_speed(e, anim_name)
 end
 
 function PlayerController:face_left(e)
+	@@assert(e.__isEntity and e.player_controller)
 	if e.override_animation then return end
 
 	e.body.dir = -1
@@ -189,6 +190,7 @@ function PlayerController:face_left(e)
 end
 
 function PlayerController:face_right(e)
+	@@assert(e.__isEntity and e.player_controller)
 	if e.override_animation then return end
 
 	e.body.dir = 1
@@ -196,6 +198,7 @@ function PlayerController:face_right(e)
 end
 
 function PlayerController:idle(e, stop)
+	@@assert(e.__isEntity and e.player_controller)
 	if e.override_animation then return end
 
 	local body = e.body

@@ -18,6 +18,7 @@ local format = string.format
 local min = math.min
 local floor = math.floor
 local random = math.random
+local insert = table.insert
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -36,11 +37,10 @@ local tasks = {
 	"Get out of the car",
 	"Get inside the house",
 }
+local subtasks = {}
 
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
-	pool_task = {"task"},
-	pool_task_await = {"task_await"},
 })
 
 local function tle_log(msg)
@@ -54,7 +54,6 @@ function Outside:init(world)
 	self.rain_state = {current = 128}
 	self.fireflies_flag = false
 	self.overlay = {0, 0, 0, 1}
-	self.current_task = 1
 end
 
 function Outside:state_setup()
@@ -150,6 +149,14 @@ function Outside:state_setup()
 				"brush", str, font_task, ww * 0.5, hh * 0.9)
 			:give("task", Palette.get("ui_feedback"))
 	end
+	local rev_map = Inputs.rev_map
+	insert(subtasks, format("Press and hold '%s' to interact", rev_map.interact))
+	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
+	for _, str in ipairs(subtasks) do
+		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
+				"brush", str, font_task, ww * 0.5, hh * 0.1)
+			:give("subtask", Palette.get("ui_feedback"))
+	end
 
 	local splashes = Resources.data.images.splashes
 	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
@@ -180,7 +187,6 @@ end
 function Outside:state_init()
 	--TEST
 	!if _DEV then
-	self:start_tasks()
 	-- self.world:emit("move_fireflies")
 	-- Fade.set_alpha(0)
 	-- self:spawn_player(1.5)
@@ -204,6 +210,7 @@ function Outside:state_init()
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
+		-- self:start_tasks()
 		self.timeline:Pause()
 		!end
 
@@ -242,7 +249,7 @@ function Outside:state_init()
 			end)
 		self.timeline:Pause()
 
-		Flux.to(dt_cam, 10, {x = 800, y = 263, scale = 3})
+		Flux.to(dt_cam, 10, {x = 720, y = 263, scale = 3})
 			:onupdate(function()
 				self.camera:setPosition(dt_cam.x, dt_cam.y)
 				self.camera:setScale(dt_cam.scale)
@@ -354,7 +361,9 @@ function Outside:start_tasks()
 	local key_id = Inputs.rev_map[interact_key]
 
 	tle_log("task: " .. tasks[1])
-	self.world:emit("show_text_paint", self.pool_task[self.current_task], dur_fade_task)
+	tle_log("subtask: " .. subtasks[1])
+	self.world:emit("show_next_task", dur_fade_task)
+	self.world:emit("show_next_subtask", dur_fade_task)
 
 	tle_log("wait for interact hold key")
 	local ww, hh = love.graphics.getDimensions()
@@ -369,7 +378,7 @@ function Outside:start_tasks()
 			interact_key, x, y, timer_hold_key, radius)
 		:give("color_fade_in", dur_fade_task)
 		:give("task_await")
-		e_progress:give("hold_on_finish", "on_hold_finished")
+		e_progress:give("hold_on_finish", "on_hold_finished", 0, e_progress)
 	local e_key = Concord.entity(self.world):assemble(Assemblages.UI.key,
 			key_id, x, y - 4, Resources.data.fonts.ui)
 		:give("color_fade_in", dur_fade_task)
@@ -386,8 +395,7 @@ function Outside:start_tasks()
 		:give("task_await")
 	self.timeline:Pause()
 
-	self.current_task = self.current_task + 1
-	self:spawn_player(dur_camera_follow)
+	self:spawn_player()
 	Flux.to(self.camera, 1, {scale = 3})
 	self.world:emit("player_can_move", true)
 	self.world:emit("player_can_interact", true)
@@ -395,27 +403,87 @@ function Outside:start_tasks()
 
 	TLE.Event.Wait(0.25)
 	tle_log("task: " .. tasks[2])
+	tle_log("subtask: " .. subtasks[2])
 
 	local dur_fade_task2 = 2.25
-	local e_arrows, e_arrows_keys = self:show_arrows_keys()
-	local ev2 = EventsList.arrows_keys(e_arrows, e_arrows_keys, dur_fade_task2)
+	local dur = 1.75
+	local scale = 1.75
+	local scale_sdf = scale - 0.75
+	local ax = ww * 0.35
+	local ay = hh * 0.5
+	local jamboree_fnt = "res/fonts/Jamboree.fnt"
+	local jamboree_png = "res/fonts/Jamboree.png"
+	local font_sdf = love.graphics.newFontMSDF(jamboree_fnt, jamboree_png)
+
+	local sheet = Resources.data.images.sheet_arrows
+	local offset = 16
+	local size = sheet:getWidth()/4 + offset
+	local e_left = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
+			"left", sheet, ax, ay)
+		:give("quad_transform", 0, scale, scale, size, size * 0.5)
+		:give("quad_size", size)
+		:give("color_fade_in", dur)
+		:give("task_await")
+	local e_right = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
+			"right", sheet, ax, ay)
+		:give("quad_transform", 0, scale, scale, 0, size * 0.5)
+		:give("quad_size", size)
+		:give("color_fade_in", dur)
+		:give("task_await")
+
+	local key_left = Inputs.rev_map.left
+	local key_right = Inputs.rev_map.right
+	local lt = e_left.quad_transform
+	local rt = e_right.quad_transform
+	local lx = ax - (lt.ox * lt.sx) * 0.65
+	local ly = ay - (lt.oy * lt.sy) * 0.35
+	local rx = ax + size * 0.8
+	local ry = ay - (rt.oy * rt.sy) * 0.35
+	local e_key_left = Concord.entity(self.world):assemble(Assemblages.UI.key,
+			key_left, lx, ly, font_sdf)
+		:give("sdf", scale_sdf, scale_sdf)
+		:give("color_fade_in", dur)
+	local e_key_right = Concord.entity(self.world):assemble(Assemblages.UI.key,
+			key_right, rx, ry, font_sdf)
+		:give("sdf", scale_sdf, scale_sdf)
+		:give("color_fade_in", dur)
+
+	e_key_left:give("subtask_reliance", {e_key_right})
+		:give("task_on_update", "on_keypress_update", 0, "left", e_left)
+	e_key_right:give("subtask_reliance", {e_key_left})
+		:give("task_on_update", "on_keypress_update", 0, "right", e_right)
+
+	self.world:emit("show_next_task", dur_fade_task2)
+	self.world:emit("show_next_subtask", dur_fade_task)
 end
 
-function Outside:on_hold_finished()
-	local dur_fade_hold = 0.75
-	local dur_fade_task = 1.25
-	local dur_camera_follow = 1.5
+function Outside:on_hold_finished(e)
+	@@assert(e.__isEntity)
 	tle_log("interact hold key completed")
-	for _, e in ipairs(self.pool_task_await) do
-		e:give("color_fade_out", dur_fade_hold)
+	self.world:emit("fade_out_task_await", 0.75)
+	self.world:emit("on_complete_task", self.timeline, 1.25)
+	self.world:emit("on_complete_subtask", nil, 1.25)
+	e:remove("hold_on_finish")
+end
+
+function Outside:on_keypress_update(dt, e, key_id, e_key)
+	@@assert(e.__isEntity)
+	@@assert(e_key.__isEntity)
+	local dur = 1.125
+	local tc = e.subtask_completed
+	if not tc and Inputs.pressed(key_id) then
+		e:give("subtask_completed")
+		:give("target_color", Palette.get("ui_feedback", 0), dur)
+		:give("lerp_on_finish", "destroy_entity", 0, e)
+
+		e_key:give("target_color", Palette.get("ui_feedback", 0), dur)
+		:give("lerp_on_finish", "destroy_entity", 0, e_key)
 	end
-	self.world:emit("fade_text_paint", self.pool_task[self.current_task], dur_fade_task,
-		function()
-			for _, e in ipairs(self.pool_task_await) do
-				e:destroy()
-			end
-			self.timeline:Unpause()
-		end)
+end
+
+function Outside:on_subtasks_finish()
+	self.world:emit("clear_subtasks")
+	self.world:emit("on_complete_subtask", self.timeline, 1.25)
 end
 
 function Outside:on_holding_key(dt, e)
@@ -437,6 +505,23 @@ function Outside:on_holding_key(dt, e)
 	elseif hold.was_held then
 		e.animation.anim8:gotoFrame(1)
 	end
+end
+
+function Outside:spawn_player()
+	local dur_camera_follow = 1.5
+	local e_player = Concord.entity(self.world)
+		:assemble(Assemblages.Player.outside_house,
+			Resources.data.images.sheet_player_idle,
+			Resources.data.images.sheet_player_walk,
+			Resources.data.images.sheet_player_run,
+			Resources.data.images.sheet_player_open_door,
+			Resources.data.images.sheet_player_upstairs,
+			Resources.data.images.sheet_player_downstairs,
+			false, false)
+		:give("color_fade_in", 0.25)
+
+	self.world:emit("face_left", e_player)
+	self.world:emit("camera_follow", e_player, dur_camera_follow)
 end
 
 return Outside

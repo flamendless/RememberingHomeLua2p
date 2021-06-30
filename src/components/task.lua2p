@@ -1,6 +1,24 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("task_await")
+Concord.component("task_completed")
+Concord.component("subtask_completed")
+
+Concord.component("subtask", function(c, color)
+	@@assert(type(color) == "table")
+	c.value = color
+end)
+
+Concord.component("subtask_reliance", function(c, t)
+	@@assert(type(t) == "table")
+	!if _DEV then
+	for _, v in ipairs(t) do
+		@@assert(v.__isEntity)
+	end
+	!end
+	c.list = t
+	c.completed = false
+end)
 
 Concord.component("task", function(c, color)
 	@@assert(type(color) == "table")
