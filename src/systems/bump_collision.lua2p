@@ -1,12 +1,14 @@
 local Concord = require("modules.concord.concord")
 local BumpStorage = require("ctor.bump_storage")
-local GameStates
 
 local BumpCollision = Concord.system({
 	pool = {
 		constructor = BumpStorage,
 		"collider", "pos", "bump"
 	},
+	pool_camera = {
+		"camera",
+	}
 })
 
 local function get_query_rect(self)
@@ -32,9 +34,10 @@ local function filter(item, other)
 end
 
 function BumpCollision:init(world)
-	GameStates = require("gamestates")
 	self.world = world
-	self.camera = GameStates.world.camera
+	self.pool_camera.onAdded = function(pool, e)
+		self.camera = e.camera.camera
+	end
 end
 
 function BumpCollision:preupdate(dt)
@@ -90,7 +93,6 @@ function BumpCollision:update_body(e)
 			end
 		end
 	end
-
 	self.pool.freeCollisions(cols)
 end
 

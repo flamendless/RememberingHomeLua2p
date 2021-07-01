@@ -41,6 +41,7 @@ local subtasks = {}
 
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
+	pool_interactive = {"interactive"},
 })
 
 local function tle_log(msg)
@@ -188,9 +189,11 @@ function Outside:state_init()
 	--TEST
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
-	-- Fade.set_alpha(0)
-	-- self:spawn_player(1.5)
-	-- self.entities.player.body.can_move = true
+	Fade.set_alpha(0)
+	local e_player = self:spawn_player()
+	e_player.body.can_move = true
+	self.camera:setScale(3)
+	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 
 	-- self.entities.backdoor_key2 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
@@ -204,8 +207,6 @@ function Outside:state_init()
 	-- self.entities.backdoor_key6 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
-	-- self.camera:setScale(3)
-	-- self.camera:setPosition(self.entities.player.pos.x, self.entities.player.pos.y)
 	!end
 
 	self.timeline = TLE.Do(function()
@@ -260,6 +261,9 @@ function Outside:state_init()
 		self:start_rain()
 		self.timeline:Pause()
 		self:start_tasks()
+		for _, e in ipairs(self.pool_interactive) do
+			e:give("interactive")
+		end
 		self.timeline:Pause()
 	end)
 end
@@ -522,6 +526,7 @@ function Outside:spawn_player()
 
 	self.world:emit("face_left", e_player)
 	self.world:emit("camera_follow", e_player, dur_camera_follow)
+	return e_player
 end
 
 return Outside

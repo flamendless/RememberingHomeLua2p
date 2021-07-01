@@ -1,4 +1,7 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+
+local format = string.format
 
 !if _DEV then
 local DevTools
@@ -47,18 +50,37 @@ systems.StorageRoom = {
 	"player_controller", "render_sprite", "tilemap"
 }
 
+!if _DEV then
+local fn = {
+	"state_setup", "state_init", "state_update",
+	"state_draw", "state_cleanup", "state_keypressed",
+	"state_keyreleased", "state_mousepressed", "state_mousereleased",
+	"state_mousemoved",
+}
+!end
+
 function ECS.load_systems(id, world)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
-	@@assert(Systems[string.lower(id)], id .. " state system does not exist")
+	local lid = string.lower(id)
+	@@assert(Systems[lid], id .. " state system does not exist")
+
+	!if _DEV then
+	for _, ev in ipairs(fn) do
+		if not Systems[lid][ev] then
+			local str = format("state system '%s' does not have '%s' event", lid, ev)
+			Log.warn(str)
+		end
+	end
+	!end
 
 	!if _DEV then
 	DevTools = require("devtools")
 	!end
 
 	for _, v in ipairs(systems[id]) do
-		@@assert(Systems[v], string.format("id = %s, i = %d", id, _))
+		@@assert(Systems[v], format("id = %s, i = %d", id, _))
 		world:addSystem(Systems[v])
 		!if _DEV then
 		local sys = Systems[v]
@@ -67,7 +89,7 @@ function ECS.load_systems(id, world)
 		sys.debug_title = v
 		!end
 	end
-	world:addSystem(Systems[string.lower(id)])
+	world:addSystem(Systems[lid])
 
 	!if _DEV then
 	Systems.id.debug_show = true
@@ -80,6 +102,11 @@ function ECS.load_systems(id, world)
 		end
 	end
 	!end
+end
+
+function ECS.getSystemClass(id)
+	@@assert(type(id) == "string")
+	return Systems[string.lower(id)]
 end
 
 return ECS

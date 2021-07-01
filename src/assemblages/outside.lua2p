@@ -90,4 +90,12 @@ function Outside.colliders.right_bounds(e, w, h)
 	:give("bump")
 end
 
+function Outside.colliders.car(e, w, h)
+	local car_h = 48
+	e:give("id", "col_car")
+	:give("pos", 730, h - ground_h - car_h)
+	:give("collider", 126, car_h, "cross")
+	:give("bump")
+end
+
 return Outside

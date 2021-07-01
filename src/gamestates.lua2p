@@ -45,6 +45,11 @@ function GameStates.start(resources)
 	JPROF.pop("frame")
 	!end
 
+	!if _DEV then
+	local sc = ECS.getSystemClass(GameStates.current_id)
+	local DevTools = require("devtools")
+	DevTools.camera = GameStates.world:getSystem(sc).camera
+	!end
 end
 
 function GameStates.switch(next_id)

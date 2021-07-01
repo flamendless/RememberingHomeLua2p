@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
-local filters = Enum("slide", "cross", "bounce", "cross")
+local filters = Enum("slide", "cross", "bounce")
 
 Concord.component("bump")
 
