@@ -77,17 +77,22 @@ function BumpCollision:update_body(e)
 
 	for i = 1, len do
 		local c = cols[i]
-
 		local other = c.other
 		local other_col = other.collider
-		-- local other_id = other.bump.id
-
+		local req_n = other.interactive_req_player_dir
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
 
 		if other.interactive then
-			if not other_col.prev_hit then
+			local valid = true
+			if body and req_n then
+				if req_n.x ~= body.dir then
+					valid = false
+				end
+			end
+
+			if valid and (not other_col.prev_hit) then
 				other_col.prev_hit = true
 				self.world:emit("interactive_collided", e, other)
 			end
@@ -204,7 +209,8 @@ function BumpCollision:debug_draw()
 			end
 
 			love.graphics.setLineWidth(1/scale)
-			if e.bump.debug_hovered then
+			if e.bump.debug_hovered or
+				(e.interactive and e.collider.is_hit) then
 				love.graphics.setColor(1, 1, 0, 0.7)
 			else
 				love.graphics.setColor(1, 0, 0, 0.7)

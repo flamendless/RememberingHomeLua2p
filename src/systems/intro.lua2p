@@ -4,6 +4,7 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 
+local AnimationData = require("animation_data")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Fog = require("fog")
@@ -93,55 +94,50 @@ function Intro:state_setup()
 	self.ps2 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted2, 128, w)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_clouds, ssx2, "clouds", 2, 2)
+		"parallax_clouds", ssx2, "clouds", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_buildings, ssx2, "building", 2, 2)
+		"parallax_buildings", ssx2, "building", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_road, ssx2, "road", 2, 2)
+		"parallax_road", ssx2, "road", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_grass, ssx2, "grass1", 2, 2)
+		"parallax_grass", ssx2, "grass1", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_grass2, ssx2, "grass2", 2, 2)
+		"parallax_grass2", ssx2, "grass2", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_grass_back, ssx2, "grass_back", 2, 2)
+		"parallax_grass_back", ssx2, "grass_back", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_grass_front, ssx2, "grass_front", 2, 2)
+		"parallax_grass_front", ssx2, "grass_front", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_trees_bg, ssx2, "bg_trees", 2, 2)
+		"parallax_trees_bg", ssx2, "bg_trees", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover,
-		Resources.data.images.bg_tree_cover)
+		"bg_tree_cover")
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.parallax_trees_fg, ssx2, "fg_trees", 3, 3)
+		"parallax_trees_fg", ssx2, "fg_trees", 3, 3)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		Resources.data.images.bg_post, ssx2, "post", 2, 2)
+		"bg_post", ssx2, "post", 2, 2)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.post_light,
-		Resources.data.images.post_light, ssx2, "post_light", 2, 2)
+		"post_light", ssx2, "post_light", 2, 2)
 
-	self.e_car = Concord.entity(self.world):assemble(Assemblages.Intro.car,
-		Resources.data.images.sheet_car)
+	self.e_car = Concord.entity(self.world):assemble(Assemblages.Intro.car)
 
-	Concord.entity(self.world):assemble(Assemblages.Intro.car_light,
-			Resources.data.images.car_headlight, self.e_car)
+	Concord.entity(self.world):assemble(Assemblages.Intro.car_light, self.e_car)
 		:give("light_disabled")
 		:give("intro_light")
 
 	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
-			Resources.data.images.sheet_car_reflect, self.e_car)
+			self.e_car)
 		:give("animation_on_loop", "car_reflection_flicker")
-
-	Concord.entity(self.world):assemble(Assemblages.UI.splat_data,
-		Resources.data.images.sheet_splat)
 
 	local lut_size, lut_afternoon, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
@@ -159,27 +155,31 @@ function Intro:state_setup()
 	current_effect = effect.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
-			"flamendless studio presents", Resources.data.fonts.ui, 32, 32)
+			"flamendless studio presents", "ui", 32, 32)
 		:give("intro_text")
+		:give("animation_data", AnimationData.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
-			!("a game by " .. _NAME_DEVELOPER), Resources.data.fonts.ui, 32, 32)
+			!("a game by " .. _NAME_DEVELOPER), "ui", 32, 32)
 		:give("intro_text")
+		:give("animation_data", AnimationData.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
-			!("arts by " .. _NAME_ARTIST), Resources.data.fonts.ui, 32, 32)
+			!("arts by " .. _NAME_ARTIST), "ui", 32, 32)
 		:give("intro_text")
+		:give("animation_data", AnimationData.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
-			!("music by " .. _NAME_MUSICIAN), Resources.data.fonts.ui, 32, 32)
+			!("music by " .. _NAME_MUSICIAN), "ui", 32, 32)
 		:give("intro_text")
+		:give("animation_data", AnimationData.get("splat"))
 
 	self.e_title_light = Concord.entity(self.world):assemble(Assemblages.Intro.title_light,
-			Resources.data.images.title_light, ssx * 0.5, ssy * 0.5)
+			ssx * 0.5, ssy * 0.5)
 		:give("intro_text")
 
 	self.e_title = Concord.entity(self.world):assemble(Assemblages.Intro.title,
-			Resources.data.images.title, ssx * 0.5, ssy * 0.5)
+			ssx * 0.5, ssy * 0.5)
 		:give("intro_text")
 
 	if Save.data.intro_done or !(_DEV) then
@@ -250,16 +250,14 @@ function Intro:state_init()
 
 		TLE.Event.Wait(2)
 		self.world:emit("tween_camera_scale", self.camera, 5, self.scale)
-		self.world:emit("tween_camera_pos_rel", self.camera, 5, w * 0.5, h * 0.5)
-
+		self.world:emit("tween_camera_pos", self.camera, 5, w * 0.5, h * 0.5)
 		self.world:emit("destroy_skip")
 
 		TLE.Event.Wait(1)
 		self.e_title_light:remove("light_disabled")
 		self.e_title:remove("hidden")
-			:give("color_fade_in", 4, nil, function()
-				self.timeline:Unpause()
-			end)
+			:give("color_fade_in", 4)
+			:give("color_fade_in_finish", "resume_tle")
 		self.timeline:Pause()
 
 		TLE.Event.Wait(2)
@@ -291,7 +289,7 @@ function Intro:state_update(dt)
 	if Save.data.intro_done or !(_DEV) then
 		if not is_switching then
 			if Inputs.pressed("skip") then
-				self.entities.skip_intro:destroy()
+				self.world:emit("destroy_skip")
 				should_fade = true
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)
@@ -299,7 +297,7 @@ function Intro:state_update(dt)
 					is_switching = true
 					self.ps1.system:stop()
 					self.ps2.system:stop()
-					self.gamestate.switch("Outside")
+					self.world:emit("switch_state", "Outside")
 				end, 2)
 			end
 		end
@@ -363,6 +361,18 @@ end
 function Intro:cleanup()
 	self.ps1.system:stop()
 	self.ps2.system:stop()
+	effect = {dt = 0, dt2 = 0, status = 1}
+	fade_duration = 4
+	current_effect = nil
+	is_raining = false
+	is_switching = false
+	rain_amount = {16, 32, 96}
+	should_fade = false
+	intro_text_n = 1
+end
+
+function Intro:resume_tle()
+	self.timeline:Unpause()
 end
 
 return Intro

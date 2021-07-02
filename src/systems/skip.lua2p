@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 
 local Inputs = require("inputs")
-local Resources = require("resources")
 local Palette = require("palette")
 
 local Skip = Concord.system({
@@ -20,7 +19,7 @@ function Skip:create_skip()
 	Concord.entity(self.world)
 		:give("id", "skip")
 		:give("static_text", text)
-		:give("font", Resources.data.fonts.ui)
+		:give("font", "ui")
 		:give("pos", ww * 0.5, wh - 8)
 		:give("color", Palette.get("ui_skip"))
 		:give("ui_element")

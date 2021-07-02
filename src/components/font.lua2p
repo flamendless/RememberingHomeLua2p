@@ -1,8 +1,19 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("font", function(c, font)
-	@@assert(font:type() == "Font" or font:type() == "fontsdf")
-	c.value = font
+local Resources = require("resources")
+
+Concord.component("font", function(c, resource_id)
+	@@assert(type(resource_id) == "string")
+	c.resource_id = resource_id
+	c.value = Resources.data.fonts[resource_id]
+end)
+
+Concord.component("font_sdf", function(c, fnt, png)
+	@@assert(type(fnt) == "string")
+	@@assert(type(png) == "string")
+	c.resource_fnt = fnt
+	c.resource_png = png
+	c.value = love.graphics.newFontMSDF(fnt, png)
 end)
 
 Concord.component("sdf", function(c, sx, sy)

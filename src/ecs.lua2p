@@ -32,7 +32,7 @@ systems.Menu = {
 systems.Intro = {
 	"animation", "camera", "color", "light", "parallax",
 	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
-	"transform", "follow", "skip", "tween",
+	"transform", "follow", "skip", "tween", "gamestates",
 }
 
 systems.Outside = {
@@ -42,7 +42,7 @@ systems.Outside = {
 	"move", "movement", "mouse_hover", "notification", "outside_house",
 	"player_controller", "render_circle", "render_sprite", "render_text",
 	"render_ui", "text_paint", "transform", "typewriter", "path", "hold_key",
-	"task",
+	"task", "gamestates",
 }
 
 systems.StorageRoom = {

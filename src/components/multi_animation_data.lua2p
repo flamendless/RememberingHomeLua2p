@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Resources = require("resources")
+
 local floor = math.floor
 
 Concord.component("multi_animation_data", function(c, first, data, modifier)
@@ -8,8 +10,7 @@ Concord.component("multi_animation_data", function(c, first, data, modifier)
 	@@assert(data[first])
 	!if _DEV then
 	for k, v in pairs(data) do
-		@@assert(v.spritesheet)
-		@@assert(v.spritesheet:type() == "Image")
+		@@assert(type(v.resource_id) == "string")
 		@@assert(type(v.delay) == "number" or type(v.delay) == "table")
 		@@assert(type(v.rows_count) == "number")
 		@@assert(type(v.columns_count) == "number")
@@ -27,6 +28,7 @@ Concord.component("multi_animation_data", function(c, first, data, modifier)
 	!end
 
 	for id, v in pairs(data) do
+		v.spritesheet = Resources.data.images[v.resource_id]
 		v.sheet_width = v.spritesheet:getWidth()
 		v.sheet_height = v.spritesheet:getHeight()
 		v.frame_width = floor(v.sheet_width/v.columns_count)

@@ -1,4 +1,8 @@
+local Log = require("modules.log.log")
+
+local Info = require("info")
 local Palette = require("palette")
+local Resources = require("resources")
 
 local random = love.math.random
 
@@ -16,15 +20,22 @@ local z_index = {
 local ground_h = 49
 local bounds_w, bounds_h = 28, 72
 
-function Outside.bg_house(e, sprite, x, y, quad)
+function Outside.bg_house(e, x, y, quad)
 	e:give("id", "bg_house")
-	:give("sprite", sprite)
+	:give("sprite", "bg_house")
 	:give("pos", x, y)
 	:give("quad", quad)
 	:give("z_index", z_index.bg_house, false)
 end
 
-function Outside.splashes(e, spritesheet, x, y, is_compatible)
+function Outside.splashes(e, x, y)
+	local splashes = Resources.data.images.splashes
+	local resource_id = "splashes"
+	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
+	if not is_compatible then
+		resource_id = "splashes_low"
+		Log.warn("Texture size for splashes use 'low' version")
+	end
 	e:give("id", "splashes")
 	:give("splashes")
 	:give("pos", x, y)
@@ -32,7 +43,7 @@ function Outside.splashes(e, spritesheet, x, y, is_compatible)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
 	:give("animation_data", {
-			spritesheet = spritesheet,
+			resource_id = resource_id,
 			frames = {"1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4},
 			delay = 0.2,
 			rows_count = 4,
@@ -46,10 +57,10 @@ function Outside.splashes(e, spritesheet, x, y, is_compatible)
 	end
 end
 
-function Outside.firefly(e, sprite, x, y, points)
+function Outside.firefly(e, x, y, points)
 	e:give("id", "firefly")
 	:give("firefly")
-	:give("sprite", sprite, "round")
+	:give("sprite", "firefly_light", "round")
 	:give("pos", x, y)
 	:give("path", points)
 	:give("transform", 0, 1, 1)
@@ -59,13 +70,13 @@ function Outside.firefly(e, sprite, x, y, points)
 	:give("hidden")
 end
 
-function Outside.house_light(e, sprite)
+function Outside.house_light(e)
 	e:give("id", "house_light")
 	:give("pos", 272, 212)
 	:give("transform", 0, 1.25, 1.25)
 	:give("color", Palette.colors.house_light)
 	:give("light", "custom", 0.8)
-	:give("sprite", sprite)
+	:give("sprite", "house_light")
 	:give("light_flicker", 0.025)
 end
 
@@ -95,6 +106,22 @@ function Outside.colliders.car(e, w, h)
 	e:give("id", "col_car")
 	:give("pos", 730, h - ground_h - car_h)
 	:give("collider", 126, car_h, "cross")
+	:give("bump")
+end
+
+function Outside.colliders.backdoor(e, w, h)
+	local backdoor_h = 66
+	e:give("id", "col_backdoor")
+	:give("pos", 440, h - ground_h - backdoor_h)
+	:give("collider", 8, backdoor_h, "cross")
+	:give("bump")
+end
+
+function Outside.colliders.frontdoor(e, w, h)
+	local frontdoor_h = 32
+	e:give("id", "col_frontdoor")
+	:give("pos", 300, h - ground_h - frontdoor_h)
+	:give("collider", 32, frontdoor_h, "cross")
 	:give("bump")
 end
 

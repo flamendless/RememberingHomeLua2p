@@ -89,7 +89,7 @@ local setup_animation = function(e, data, on_loop)
 
 	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
-	e:give("sprite", data.spritesheet)
+	e:give("sprite", data.resource_id)
 	e:give("quad", quad)
 
 	if data.is_flipped then

@@ -2,7 +2,8 @@ local Player = {}
 
 local player_h = 64
 
-function Player.base(e, x, y, speed_data, gravity, resources, defaults)
+function Player.base(e, x, y, speed_data, have, gravity, defaults)
+	@@sassert(have, type(have) == "table")
 	@@sassert(defaults, type(defaults) == "table")
 	@@sassert(defaults.can_move, type(defaults.can_move) == "boolean")
 	@@sassert(defaults.can_run, type(defaults.can_run) == "boolean")
@@ -13,7 +14,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 
 	local multi_data = {
 		idle = {
-			spritesheet = resources.sheet_idle,
+			resource_id = "sheet_player_idle",
 			frames = {"1-5", 1, "1-5", 2},
 			delay = 0.1,
 			rows_count = 2,
@@ -21,7 +22,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 			n_frames = 10,
 		},
 		walk = {
-			spritesheet = resources.sheet_walk,
+			resource_id = "sheet_player_walk",
 			frames = {"1-4", 1, "1-4", 2},
 			delay = 0.1,
 			rows_count = 2,
@@ -29,7 +30,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 			n_frames = 8,
 		},
 		run = {
-			spritesheet = resources.sheet_run,
+			resource_id = "sheet_player_run",
 			frames = {"1-6", 1},
 			delay = 0.1,
 			rows_count = 1,
@@ -47,7 +48,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 
 	if can_open_door then
 		multi_data.open_door = {
-			spritesheet = resources.sheet_open_door,
+			resource_id = "sheet_player_open_door",
 			frames = {"1-7", 1},
 			delay = 0.15,
 			rows_count = 1,
@@ -57,7 +58,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 		multi_data_modifier.open_door = {"open_door_left", "flipH"}
 
 		multi_data.open_door_reverse = {
-			spritesheet = resources.sheet_open_door,
+			resource_id = "sheet_player_open_door",
 			frames = {
 				"1-7", 1, -- 1-7
 				"7-5", 1, -- 8-10
@@ -77,9 +78,9 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 		multi_data_modifier.open_door_reverse = {"open_door_reverse_left", "flipH"}
 	end
 
-	if resources.sheet_upstairs then
+	if have.upstairs then
 		multi_data.upstairs = {
-			spritesheet = resources.sheet_upstairs,
+			resource_id = "sheet_player_upstairs",
 			frames = {"1-8", 1},
 			delay = 0.15,
 			rows_count = 1,
@@ -88,9 +89,9 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 		}
 	end
 
-	if resources.sheet_downstairs then
+	if have.downstairs then
 		multi_data.downstairs = {
-			spritesheet = resources.sheet_downstairs,
+			resource_id = "sheet_player_downstairs",
 			frames = {"1-8", 1},
 			delay = 0.15,
 			rows_count = 1,
@@ -117,11 +118,7 @@ function Player.base(e, x, y, speed_data, gravity, resources, defaults)
 	:give("movement")
 end
 
-function Player.outside_house(e,
-		sheet_idle, sheet_walk, sheet_run, sheet_open_door,
-		sheet_upstairs, sheet_downstairs,
-		can_move, can_run)
-
+function Player.outside_house(e, can_move, can_run)
 	!if _DEV then
 	local x, y = 800, 270
 	!else
@@ -136,15 +133,11 @@ function Player.outside_house(e,
 			walk = {x = 128, y = 92},
 			run = {x = 180, y = 144},
 		},
-		320,
 		{
-			sheet_idle = sheet_idle,
-			sheet_walk = sheet_walk,
-			sheet_run = sheet_run,
-			sheet_open_door = sheet_open_door,
-			sheet_upstairs = sheet_upstairs,
-			sheet_downstairs = sheet_downstairs,
+			upstairs = true,
+			downstairs = true,
 		},
+		320,
 		{
 			can_move = can_move,
 			can_run = can_run,

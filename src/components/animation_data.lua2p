@@ -1,10 +1,12 @@
 local Concord = require("modules.concord.concord")
 
+local Resources = require("resources")
+
 local floor = math.floor
 
 Concord.component("animation_data", function(c, data)
 	@@assert(type(data) == "table")
-	@@assert(data.spritesheet:type() == "Image")
+	@@assert(type(data.resource_id) == "string")
 	@@assert(type(data.frames) == "table")
 	@@assert(type(data.rows_count) == "number")
 	@@assert(type(data.columns_count) == "number")
@@ -12,7 +14,8 @@ Concord.component("animation_data", function(c, data)
 	@@sassert(data.start_frame, data.start_frame >= 1 and data.start_frame <= data.n_frames)
 	@@sassert(data.delay, type(data.delay) == "table" or type(data.delay) == "number")
 
-	c.spritesheet = data.spritesheet
+	c.resource_id = data.resource_id
+	c.spritesheet = Resources.data.images[c.resource_id]
 	c.frames = data.frames
 	c.delay = data.delay
 	c.rows_count = data.rows_count
@@ -24,4 +27,6 @@ Concord.component("animation_data", function(c, data)
 	c.sheet_height = c.spritesheet:getHeight()
 	c.frame_width = floor(c.sheet_width/c.columns_count)
 	c.frame_height = floor(c.sheet_height/c.rows_count)
+
+	c.data = data
 end)

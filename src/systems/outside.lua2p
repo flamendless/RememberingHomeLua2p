@@ -4,9 +4,9 @@ local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
+local AnimationData = require("animation_data")
 local Canvas = require("canvas")
 local Fade = require("fade")
-local Info = require("info")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -74,12 +74,12 @@ function Outside:state_setup()
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_ambient_light", ambient_color)
 
-	self.world:emit("set_dialogue_config", {
-		pos = {x = ww * 0.5, y = hh * 0.87},
-		pos_arrow = {x = ww * 0.5, y = hh * 0.94},
-		font = Resources.data.fonts.dialogue,
-		sheet_arrow = Resources.data.images.sheet_dialogue_arrow,
-	})
+	-- self.world:emit("set_dialogue_config", {
+	-- 	pos = {x = ww * 0.5, y = hh * 0.87},
+	-- 	pos_arrow = {x = ww * 0.5, y = hh * 0.94},
+	-- 	font = Resources.data.fonts.dialogue,
+	-- 	sheet_arrow = Resources.data.images.sheet_dialogue_arrow,
+	-- })
 
 	-- self.world:emit("set_action_controls_resources", {
 	-- 		eye = res_images.sheet_ui_eye,
@@ -122,17 +122,10 @@ function Outside:state_setup()
 		local y = bg_house_h * floor((i - 1)/div)/div
 		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
 		Concord.entity(self.world):assemble(Assemblages.Outside.bg_house,
-			bg_house, x, y, quad)
+			x, y, quad)
 	end
 
-	Concord.entity(self.world):assemble(Assemblages.UI.splat_data,
-		Resources.data.images.sheet_splat)
-	Concord.entity(self.world):assemble(Assemblages.UI.brush_data,
-		Resources.data.images.sheet_brush)
-	Concord.entity(self.world):assemble(Assemblages.UI.cloud_data,
-		Resources.data.images.sheet_cloud)
-	Concord.entity(self.world):assemble(Assemblages.Outside.house_light,
-		Resources.data.images.house_light)
+	Concord.entity(self.world):assemble(Assemblages.Outside.house_light)
 
 	--setup colliders
 	for _, v in pairs(Assemblages.Outside.colliders) do
@@ -144,10 +137,10 @@ function Outside:state_setup()
 	-- 	self.entities[k] = Concord.entity(self.world):assemble(v)
 	-- end
 
-	local font_task = Resources.data.fonts.task
 	for _, str in ipairs(tasks) do
 		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-				"brush", str, font_task, ww * 0.5, hh * 0.9)
+				str, "task", ww * 0.5, hh * 0.9)
+			:give("animation_data", AnimationData.get("brush"))
 			:give("task", Palette.get("ui_feedback"))
 	end
 	local rev_map = Inputs.rev_map
@@ -155,24 +148,18 @@ function Outside:state_setup()
 	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
 	for _, str in ipairs(subtasks) do
 		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-				"brush", str, font_task, ww * 0.5, hh * 0.1)
+				str, "task", ww * 0.5, hh * 0.1)
+			:give("animation_data", AnimationData.get("cloud"))
 			:give("subtask", Palette.get("ui_feedback"))
 	end
 
-	local splashes = Resources.data.images.splashes
-	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
-	if not is_compatible then
-		splashes = Resources.data.images.splashes_low
-		Log.warn("Texture size for splashes use 'low' version")
-	end
 	for i = 1, 3 do
 		local x = (i == 1) and 0 or random(-16, 0)
 		local y = (i == 1) and 0 or random(-8, 8)
-		Concord.entity(self.world):assemble(Assemblages.Outside.splashes,
-			splashes, x, y, is_compatible)
+		Concord.entity(self.world):assemble(Assemblages.Outside.splashes, x, y)
 	end
 
-	self.world:emit("generate_fireflies", Resources.data.images.firefly_light)
+	self.world:emit("generate_fireflies")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "Low" then
@@ -189,12 +176,11 @@ function Outside:state_init()
 	--TEST
 	!if _DEV then
 	-- self.world:emit("move_fireflies")
-	Fade.set_alpha(0)
-	local e_player = self:spawn_player()
-	e_player.body.can_move = true
-	self.camera:setScale(3)
-	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
-
+	-- Fade.set_alpha(0)
+	-- local e_player = self:spawn_player()
+	-- e_player.body.can_move = true
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	-- self.entities.backdoor_key2 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	-- 	:give("id", "item_test")
@@ -206,12 +192,11 @@ function Outside:state_init()
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	-- self.entities.backdoor_key6 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-
 	!end
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		-- self:start_tasks()
+		self:start_tasks()
 		self.timeline:Pause()
 		!end
 
@@ -384,12 +369,12 @@ function Outside:start_tasks()
 		:give("task_await")
 		e_progress:give("hold_on_finish", "on_hold_finished", 0, e_progress)
 	local e_key = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_id, x, y - 4, Resources.data.fonts.ui)
+			key_id, x, y - 4, "ui")
 		:give("color_fade_in", dur_fade_task)
 		:give("layer", "hold_key", 3)
 		:give("task_await")
 	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
-			true, Resources.data.images.sheet_keypress)
+			true, "sheet_keypress")
 		:give("attach_to", e_progress)
 		:give("target_key", e_key)
 		:give("color_fade_in", dur_fade_task)
@@ -415,21 +400,18 @@ function Outside:start_tasks()
 	local scale_sdf = scale - 0.75
 	local ax = ww * 0.35
 	local ay = hh * 0.5
-	local jamboree_fnt = "res/fonts/Jamboree.fnt"
-	local jamboree_png = "res/fonts/Jamboree.png"
-	local font_sdf = love.graphics.newFontMSDF(jamboree_fnt, jamboree_png)
 
 	local sheet = Resources.data.images.sheet_arrows
 	local offset = 16
 	local size = sheet:getWidth()/4 + offset
 	local e_left = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
-			"left", sheet, ax, ay)
+			"left", ax, ay)
 		:give("quad_transform", 0, scale, scale, size, size * 0.5)
 		:give("quad_size", size)
 		:give("color_fade_in", dur)
 		:give("task_await")
 	local e_right = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
-			"right", sheet, ax, ay)
+			"right", ax, ay)
 		:give("quad_transform", 0, scale, scale, 0, size * 0.5)
 		:give("quad_size", size)
 		:give("color_fade_in", dur)
@@ -443,12 +425,14 @@ function Outside:start_tasks()
 	local ly = ay - (lt.oy * lt.sy) * 0.35
 	local rx = ax + size * 0.8
 	local ry = ay - (rt.oy * rt.sy) * 0.35
-	local e_key_left = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_left, lx, ly, font_sdf)
+	local jamboree_fnt = "res/fonts/Jamboree.fnt"
+	local jamboree_png = "res/fonts/Jamboree.png"
+	local e_key_left = Concord.entity(self.world):assemble(Assemblages.UI.key_sdf,
+			key_left, lx, ly, jamboree_fnt, jamboree_png)
 		:give("sdf", scale_sdf, scale_sdf)
 		:give("color_fade_in", dur)
-	local e_key_right = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_right, rx, ry, font_sdf)
+	local e_key_right = Concord.entity(self.world):assemble(Assemblages.UI.key_sdf,
+			key_right, rx, ry, jamboree_fnt, jamboree_png)
 		:give("sdf", scale_sdf, scale_sdf)
 		:give("color_fade_in", dur)
 
@@ -514,14 +498,7 @@ end
 function Outside:spawn_player()
 	local dur_camera_follow = 1.5
 	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.outside_house,
-			Resources.data.images.sheet_player_idle,
-			Resources.data.images.sheet_player_walk,
-			Resources.data.images.sheet_player_run,
-			Resources.data.images.sheet_player_open_door,
-			Resources.data.images.sheet_player_upstairs,
-			Resources.data.images.sheet_player_downstairs,
-			false, false)
+		:assemble(Assemblages.Player.outside_house, false, false)
 		:give("color_fade_in", 0.25)
 
 	self.world:emit("face_left", e_player)

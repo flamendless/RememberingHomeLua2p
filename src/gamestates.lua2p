@@ -112,9 +112,6 @@ function GameStates.exit()
 	for _, e in ipairs(GameStates.world:getEntities()) do
 		e:destroy()
 	end
-	for _, s in ipairs(GameStates.world:getSystems()) do
-		GameStates.world:removeSystem(s)
-	end
 end
 
 return GameStates

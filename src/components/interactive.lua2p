@@ -15,3 +15,11 @@ Concord.component("within_interactive", function(c, interactive)
 	c.interactive = interactive
 	c.interactive_id = interactive.id.id
 end)
+
+Concord.component("interactive_req_player_dir", function(c, x, y)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	c.x = x
+	c.y = y
+end)
+

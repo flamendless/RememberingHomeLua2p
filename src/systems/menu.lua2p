@@ -87,9 +87,9 @@ local function generate_about()
 	local t = {
 		{"@COLOR"},
 		!if _RELEASE then
-		{(!(string.upper(_GAME_TITLE))), Resources.data.fonts.about_64, 12},
+		{(!(string.upper(_GAME_TITLE))), "about_64", 12},
 		!else
-		{(!(string.upper(_GAME_TITLE_SECRET))), Resources.data.fonts.about_64, 12},
+		{(!(string.upper(_GAME_TITLE_SECRET))), "about_64", 12},
 		!end
 
 		{"@COLOR"},
@@ -143,8 +143,7 @@ local function generate_about()
 	insert(t, {""})
 	insert(t, {"SPECIAL THANKS to the people at the Löve Discord server"})
 	insert(t, {
-		Resources.data.images.twitter, Resources.data.images.discord,
-		Resources.data.images.website, Resources.data.images.mail
+		"_IMAGES", "twitter", "discord", "website", "mail",
 	})
 
 	return t
@@ -287,27 +286,27 @@ function Menu:setup_menu()
 
 	Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_door,
-			bg_door, ww * 1.5, wh * 0.5, scale, bg_door_w * 0.5, bg_door_h * 0.5)
+			ww * 1.5, wh * 0.5, scale, bg_door_w * 0.5, bg_door_h * 0.5)
 
 	Concord.entity(self.world)
 		:assemble(Assemblages.Menu.bg_hallway,
-			bg_hallway, ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
+			ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
 
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.desk, Resources.data.images.sheet_desk, ww, wh)
+		:assemble(Assemblages.Menu.desk, ww, wh)
 
 	!if _DEV then
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.secret_title, Resources.data.fonts.about_64, 32, wh * 0.5)
+		:assemble(Assemblages.Menu.secret_title, 32, wh * 0.5)
 		:give("color_fade_in", 5, 3)
 	!end
 
 	self.title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.title, title, ww * 0.25, wh * 0.5 - 36,
+		:assemble(Assemblages.Menu.title, ww * 0.25, wh * 0.5 - 36,
 			scale_title, title_w * 0.5, title_h * 0.5)
 
 	self.subtitle = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.subtitle, subtitle, ww * 0.25, wh * 1.5,
+		:assemble(Assemblages.Menu.subtitle, ww * 0.25, wh * 1.5,
 			self.title, scale_subt, subt_w * 0.5, subt_h * 0.5)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
@@ -328,7 +327,8 @@ function Menu:setup_menu()
 		local id = "text_" .. lstr
 
 		Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, x, y, str_scale, i, 1)
+			:assemble(Assemblages.Menu.option_item,
+				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 1)
 			:give("on_enter_menu", "on_" .. lstr, 0, lstr)
 			:give("menu_opt")
 	end
@@ -342,7 +342,8 @@ function Menu:setup_menu()
 		local id = "text_sub_" .. lstr
 
 		Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item, id, str, sdf_menu, x, y, str_scale, i, 2)
+			:assemble(Assemblages.Menu.option_item,
+				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2)
 			:give("on_enter_menu", "on_" .. lstr)
 			:give("menu_sub_opt")
 	end
@@ -352,7 +353,6 @@ function Menu:setup_about()
 	local about = generate_about()
 	!!local about_links = _ABOUT_LINKS
 	local _, _, w, h = self.camera:getVisible()
-	local font_about = Resources.data.fonts.about_20
 	local base_x = w * 0.5
 	local base_y = h + 16
 	local layout = false
@@ -362,21 +362,21 @@ function Menu:setup_about()
 	local color = Palette.get("about_normal")
 
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.btn_back, Resources.data.images.btn_back, 8, base_y)
+		:assemble(Assemblages.Menu.btn_back, 8, base_y)
 		:give("on_click", 1, function()
 			self:back()
 		end)
 
 	for i, el in ipairs(about) do
-		if type(el[1]) == "string" then
+		if type(el[1]) == "string" and el[1] ~= "_IMAGES" then
 			local str = el[1]
-			local font = el[2] or font_about
+			local resource_id = el[2] or "about_20"
+			local font = Resources.data.fonts[resource_id]
 			local space = el[3]
 			local str_w = font:getWidth(str)
 			local str_h = font:getHeight(str)
 			local x = base_x - str_w * 0.5
 			local y = base_y
-
 			if space then base_y = base_y + space end
 
 			if str == "@LAYOUT:LEFT" then
@@ -400,37 +400,32 @@ function Menu:setup_about()
 					layout_base_y = layout_base_y + str_h
 					largest = max(largest, layout_base_y)
 				end
-
 				local id = "about_text_" .. i
-
-				Concord.entity(self.world)
-					:assemble(Assemblages.Menu.about_text, id, str, font, x, y, color)
-
+				Concord.entity(self.world):assemble(Assemblages.Menu.about_text,
+					id, resource_id, str, x, y, color)
 				if dt_color then
 					color = Palette.get("about_normal")
 					dt_color = false
 				end
-
 				if not layout then base_y = base_y + str_h end
 			end
-		elseif el[1].type and el[1]:type() == "Image" then
+		elseif type(el[1] == "string") and el[1] == "_IMAGES" then
 			local pad = 24
 			local img_h
-
-			for i2, image in ipairs(el) do
+			for i2 = 2, #el do
 				local id = "about_image_" .. (i + i2)
+				local resource_id = el[i2]
+				local image = Resources.data.images[resource_id]
 				local image_base_x = base_x - (#el * 0.5 * image:getWidth()) - pad
 				local x = image_base_x + (image:getWidth() + pad) * (i2 - 1)
 				local y = base_y + image:getHeight() * 0.5 - pad
 				img_h = image:getHeight()
-
-				Concord.entity(self.world)
-					:assemble(Assemblages.Menu.about_ext_link, id, image, x, y)
+				Concord.entity(self.world):assemble(Assemblages.Menu.about_ext_link,
+						id, resource_id, x, y)
 					:give("on_click", 1, function()
 						love.system.openURL(about_links[i2])
 					end)
 			end
-
 			base_y = base_y + img_h + pad
 		end
 	end

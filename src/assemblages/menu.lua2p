@@ -1,13 +1,12 @@
-local Concord = require("modules.concord.concord")
-
 local Palette = require("palette")
+local Resources = require("resources")
 
 local Menu = {}
 
-function Menu.desk_fast(e, sheet, ww, wh)
+function Menu.desk_fast(e, ww, wh)
 	e:give("id", "desk_fast")
 	:give("animation_data", {
-			spritesheet = sheet,
+			resource_id = "sheet_desk",
 			frames = {"1-3", 1, "1-3", 2, "1-1", 3},
 			delay = 0.001,
 			rows_count = 3,
@@ -21,10 +20,10 @@ function Menu.desk_fast(e, sheet, ww, wh)
 	:give("color", Palette.get("white"))
 end
 
-function Menu.desk(e, sheet, ww, wh)
+function Menu.desk(e, ww, wh)
 	e:give("id", "desk")
 	:give("animation_data", {
-			spritesheet = sheet,
+			resource_id = "sheet_desk",
 			frames = {"1-3", 1, "1-3", 2, "1-1", 3},
 			delay = {1, 0.1, 1, 0.1, 0.1, 0.1, 1},
 			rows_count = 3,
@@ -39,32 +38,32 @@ function Menu.desk(e, sheet, ww, wh)
 	:give("menu_desk")
 end
 
-function Menu.bg_door(e, image, x, y, scale, ox, oy)
+function Menu.bg_door(e, x, y, scale, ox, oy)
 	e:give("id", "bg_door")
-	:give("sprite", image)
+	:give("sprite", "bg_door")
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.bg_hallway(e, image, x, y, scale, ox, oy)
+function Menu.bg_hallway(e, x, y, scale, ox, oy)
 	e:give("id", "bg_hallway")
-	:give("sprite", image)
+	:give("sprite", "bg_hallway")
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 end
 
-function Menu.title(e, image, x, y, scale, ox, oy)
+function Menu.title(e, x, y, scale, ox, oy)
 	e:give("id", "title")
-	:give("sprite", image)
+	:give("sprite", "title")
 	:give("pos", x, y)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.75))
 	:give("menu_text")
 end
 
-function Menu.subtitle(e, image, x, y, target, scale, ox, oy)
+function Menu.subtitle(e, x, y, target, scale, ox, oy)
 	e:give("id", "subtitle")
-	:give("sprite", image)
+	:give("sprite", "subtitle")
 	:give("pos", x, y)
 	:give("anchor", target, "center", "bottom")
 	:give("transform", 0, scale, scale, ox, oy)
@@ -72,30 +71,30 @@ function Menu.subtitle(e, image, x, y, target, scale, ox, oy)
 	:give("menu_text")
 end
 
-function Menu.option_item(e, id, str, font, x, y, scale, i, sub_i)
+function Menu.option_item(e, id, str, fnt, png, x, y, scale, i, sub_i)
 	e:give("id", id)
 	:give("text", str)
-	:give("font", font)
+	:give("font_sdf", fnt, png)
 	:give("pos", x, y)
 	:give("sdf", scale, scale)
 	:give("option_key", i, sub_i)
 	:give("color", Palette.get("menu_text"))
 end
 
-function Menu.about_text(e, id, str, font, x, y, color)
+function Menu.about_text(e, id, resource_id, str, x, y, color)
 	e:give("id", id)
 	:give("static_text", str)
-	:give("font", font)
+	:give("font", resource_id)
 	:give("pos", x, y)
 	:give("color", color)
 	:give("camera")
 end
 
-function Menu.about_ext_link(e, id, image, x, y)
+function Menu.about_ext_link(e, id, resource_id, x, y)
+	local image = Resources.data.images[resource_id]
 	local w, h = image:getDimensions()
-
 	e:give("id", id)
-	:give("sprite", image)
+	:give("sprite", resource_id)
 	:give("pos", x, y)
 	:give("color", Palette.get("white"))
 	:give("camera")
@@ -106,9 +105,9 @@ function Menu.about_ext_link(e, id, image, x, y)
 	:give("transform", 0, 0.75, 0.75)
 end
 
-function Menu.btn_back(e, image, x, y)
+function Menu.btn_back(e, x, y)
 	e:give("id", "btn_back")
-	:give("sprite", image)
+	:give("sprite", "btn_back")
 	:give("pos", x, y)
 	:give("color", Palette.get("ui_not_hovered"))
 	:give("camera")
@@ -119,10 +118,10 @@ function Menu.btn_back(e, image, x, y)
 end
 
 !if not _RELEASE then
-function Menu.secret_title(e, font, x, y)
+function Menu.secret_title(e, x, y)
 	e:give("id", "secret_title")
 	:give("text", !(_GAME_TITLE_SECRET))
-	:give("font", font)
+	:give("font", "about_64")
 	:give("pos", x, y)
 	:give("color", Palette.get("red_desaturated", 0))
 	:give("transform", 0, 2, 2, 0, 0.5)

@@ -1,4 +1,6 @@
+local AnimationData = require("animation_data")
 local Palette = require("palette")
+local Resources = require("resources")
 
 local Intro = {}
 
@@ -32,15 +34,16 @@ local z_index = {
 	fg_trees = 14,
 }
 
-function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
+function Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
 	@@assert(speed[tag])
 	@@assert(z_index[tag])
 	@@assert(type(quad_width) == "number")
 	@@sassert(sx, type(sx) == "number")
 	@@sassert(sy, type(sy) == "number")
+	local img = Resources.data.images[resource_id]
 	local scale_x = sx or 1
 	local scale_y = sy or 1
-	local w, h = sprite:getDimensions()
+	local w, h = img:getDimensions()
 	local quad = love.graphics.newQuad(0, 0,
 		quad_width * scale_x, h * scale_y,
 		w * scale_x, h * scale_y)
@@ -57,15 +60,15 @@ function Intro.parallax(e, sprite, quad_width, tag, sx, sy)
 	end
 
 	e:give("id", "parallax_" .. tag)
-	:give("sprite", sprite)
+	:give("sprite", resource_id)
 	:give("quad", quad)
 	:give("pos", x, y)
 	:give("parallax", speed[tag], 0)
 	:give("z_index", z_index[tag], false)
 end
 
-function Intro.post_light(e, sprite, quad_width, tag, sx, sy)
-	Intro.parallax(e, sprite, quad_width, tag, sx, sy)
+function Intro.post_light(e, resource_id, quad_width, tag, sx, sy)
+	Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
 	e:give("transform", 0, 1, 1)
 	:give("light", "custom", 1)
 	:give("color", Palette.colors.post_light)
@@ -74,64 +77,48 @@ function Intro.post_light(e, sprite, quad_width, tag, sx, sy)
 	:give("intro_light")
 end
 
-function Intro.bg_tree_cover(e, sprite)
+function Intro.bg_tree_cover(e, resource_id)
+	local img = Resources.data.images[resource_id]
 	e:give("id", "bg_tree_cover")
-	:give("sprite", sprite)
+	:give("sprite", resource_id)
 	:give("pos", love.graphics.getWidth(), 90)
-	:give("transform", 0, 1, 1, sprite:getWidth() * 0.5)
+	:give("transform", 0, 1, 1, img:getWidth() * 0.5)
 	:give("z_index", z_index.bg_tree_cover)
 	:give("bg_tree", true)
 end
 
-function Intro.car(e, spritesheet)
-	local data = {
-		spritesheet = spritesheet,
-		frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
-		delay = 0.2,
-		rows_count = 4,
-		columns_count = 3,
-		n_frames = 12
-	}
+function Intro.car(e)
 	e:give("id", "car")
-	:give("animation_data", data)
+	:give("animation_data", AnimationData.get("car"))
 	:give("pos", 16, 325)
 	:give("animation", false)
 	:give("z_index", z_index.car)
 end
 
-function Intro.car_reflect(e, spritesheet, car)
-	local data = {
-		spritesheet = spritesheet,
-		frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
-		delay = 0.2,
-		rows_count = 4,
-		columns_count = 3,
-		n_frames = 12
-	}
-
+function Intro.car_reflect(e, car)
 	e:give("id", "car_reflect")
-	:give("animation_data", data)
+	:give("animation_data", AnimationData.get("car_reflect"))
 	:give("pos", 0, 0)
 	:give("animation", false)
 	:give("attach_to", car)
 	:give("z_index", z_index.car)
 end
 
-function Intro.car_light(e, sprite, car)
+function Intro.car_light(e, car)
 	e:give("id", "car_light")
 	:give("pos", 0, 0)
 	:give("transform", 0, 1, 1)
 	:give("color", Palette.colors.car_light)
 	:give("light", "cone", 0.8)
-	:give("sprite", sprite, "cone")
+	:give("sprite", "car_headlight", "cone")
 	:give("light_flicker", 0.075)
 	:give("attach_to", car)
 	:give("attach_to_offset", 112, 24)
 end
 
-function Intro.title(e, sprite, x, y)
+function Intro.title(e, x, y)
 	e:give("id", "title")
-	:give("sprite", sprite)
+	:give("sprite", "title")
 	:give("pos", x, y)
 	:give("hidden")
 	:give("transform", 0, 6, 6, 0.5, 0.5)
@@ -141,7 +128,7 @@ end
 
 function Intro.title_light(e, sprite)
 	e:give("id", "title_light")
-	:give("sprite", sprite)
+	:give("sprite", "title_light")
 	:give("pos", 142, 64)
 	:give("transform", 0, 4, 4, 0.5, 0.5)
 	:give("color", {1, 1, 1})

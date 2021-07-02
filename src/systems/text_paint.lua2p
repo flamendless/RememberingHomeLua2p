@@ -3,7 +3,6 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
 local TextPaint = Concord.system({
-	pool_data = {"text_paint_data"},
 	pool_text = {"text_with_paint"},
 	pool_paint = {"paint"},
 })
@@ -30,22 +29,6 @@ end
 
 function TextPaint:init(world)
 	self.world = world
-	self.paint_data = {}
-
-	self.pool_data.onAdded = function(pool, e)
-		local tpd = e.text_paint_data
-		local id = tpd.id
-		local data = tpd.data
-		@@assert(type(data) == "table")
-		@@assert(data.spritesheet:type() == "Image")
-		@@assert(type(data.frames) == "table")
-		@@assert(type(data.rows_count) == "number")
-		@@assert(type(data.columns_count) == "number")
-		@@sassert(data.n_frames, type(data.n_frames) == "number")
-		@@sassert(data.start_frame, data.start_frame >= 1 and data.start_frame <= data.n_frames)
-		@@assert(type(data.delay) == "number" or type(data.delay) == "table")
-		self.paint_data[id] = data
-	end
 end
 
 function TextPaint:show_text_paint(e, dur, widest)
@@ -125,8 +108,8 @@ function TextPaint:show_paint(e, dur_in, widest)
 	local paint_id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
 		:give("id", "text_paint")
-		:give("animation_data", self.paint_data[paint_id])
 		:give("pos", x, y)
+		:give("animation_data", e.animation_data.data)
 		:give("animation", true)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, sy, 0.5, 0.5)

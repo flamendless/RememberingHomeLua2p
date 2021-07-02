@@ -1,52 +1,17 @@
 local Enum = require("modules.enum.enum")
 
 local Palette = require("palette")
+local Resources = require("resources")
 
 local UI = {}
 
 local dirs = Enum("up", "down", "left", "right")
 local line_width = 7
 
-function UI.cloud_data(e, sheet)
-	e:give("id", "cloud_data")
-	:give("text_paint_data", "cloud", {
-			spritesheet = sheet,
-			frames = {"1-10", 1, "1-10", 2, "1-10", 3, "1-10", 4, "1-10", 5},
-			delay = 0.05,
-			rows_count = 5,
-			columns_count = 10,
-			n_frames = 50
-		})
-end
-
-function UI.splat_data(e, sheet)
-	e:give("id", "splat_data")
-	:give("text_paint_data", "splat", {
-			spritesheet = sheet,
-			frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5},
-			delay = 0.1,
-			rows_count = 5,
-			columns_count = 3,
-			n_frames = 13
-		})
-end
-
-function UI.brush_data(e, sheet)
-	e:give("id", "brush_data")
-	:give("text_paint_data", "brush", {
-			spritesheet = sheet,
-			frames = {"1-7", 1, "1-7", 2, "1-7", 3},
-			delay = 0.1,
-			rows_count = 3,
-			columns_count = 7,
-			n_frames = 21
-		})
-end
-
-function UI.ui_text(e, text, font, x, y)
+function UI.ui_text(e, text, resource_id, x, y)
 	e:give("id", "ui_text")
 	:give("static_text", text)
-	:give("font", font)
+	:give("font", resource_id)
 	:give("pos", x, y)
 	:give("color", Palette.get("white", 0))
 	:give("ui_element")
@@ -54,9 +19,9 @@ function UI.ui_text(e, text, font, x, y)
 	:give("layer", "intro", 2)
 end
 
-function UI.ui_text_paint(e, id, text, font, x, y)
+function UI.ui_text_paint(e, text, font, x, y)
 	e:assemble(UI.ui_text, text, font, x, y)
-	:give("text_with_paint", id)
+	:give("text_with_paint")
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 end
 
@@ -118,14 +83,14 @@ function UI.hold_progress(e, key, x, y, timer, radius, segments)
 	:give("ui_element")
 end
 
-function UI.keypress(e, is_hold, sheet)
+function UI.keypress(e, is_hold, resource_id)
 	@@assert(type(is_hold) == "boolean")
 	local delay = is_hold and {0.5, 0.5, 2} or 0.5
 
 	e:give("id", "keypress")
 	:give("ui_element")
 	:give("animation_data", {
-			spritesheet = sheet,
+			resource_id = resource_id,
 			frames = {"1-3", 1},
 			delay = delay,
 			rows_count = 1,
@@ -138,10 +103,10 @@ function UI.keypress(e, is_hold, sheet)
 	:give("color", {1, 1, 1, 0})
 end
 
-function UI.key(e, key, x, y, font)
+function UI.key(e, key, x, y, resource_id)
 	e:give("id", "key_" .. key)
 	:give("text", key)
-	:give("font", font)
+	:give("font", resource_id)
 	:give("pos", x, y)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
@@ -149,11 +114,22 @@ function UI.key(e, key, x, y, font)
 	:give("key")
 end
 
-function UI.arrow(e, dir, sheet, x, y)
+function UI.key_sdf(e, key, x, y, fnt, png)
+	e:give("id", "key_sdf_" .. key)
+	:give("text", key)
+	:give("font_sdf", fnt, png)
+	:give("pos", x, y)
+	:give("color", Palette.get("ui_key", 0))
+	:give("transform", 0, 1, 1, 0.5, 0.5)
+	:give("ui_element")
+	:give("key")
+end
+
+function UI.arrow(e, dir, x, y)
 	@@assert(type(dir) == "string")
 	local d = dirs[dir]
 	local q
-
+	local sheet = Resources.data.images.sheet_arrows
 	if d == "up" then
 		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
 	elseif d == "down" then
@@ -165,7 +141,7 @@ function UI.arrow(e, dir, sheet, x, y)
 	end
 
 	e:give("id", "arrow_" .. dir)
-	:give("sprite", sheet)
+	:give("sprite", "sheet_arrows")
 	:give("pos", x, y)
 	:give("quad", q)
 	:give("color", {1, 1, 1, 0})

@@ -1,8 +1,11 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("sprite", function(c, image, name)
-	@@assert(image:type() == "Image")
+local Resources = require("resources")
+
+Concord.component("sprite", function(c, resource_id, name)
+	@@assert(type(resource_id) == "string")
 	@@sassert(name, type(name) == "string")
-	c.image = image
+	c.resource_id = resource_id
+	c.image = Resources.data.images[resource_id]
 	c.name = name
 end)

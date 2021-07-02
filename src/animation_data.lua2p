@@ -1,0 +1,65 @@
+local Resources = require("resources")
+
+local AnimationData = {}
+local data = {}
+
+data.wits = {
+	resource_id = "sheet_wits",
+	frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
+	delay = 0.15,
+	rows_count = 4,
+	columns_count = 3,
+}
+
+data.car = {
+	resource_id = "sheet_car",
+	frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
+	delay = 0.2,
+	rows_count = 4,
+	columns_count = 3,
+	n_frames = 12
+}
+
+data.car_reflect = {
+	resource_id = "sheet_car_reflect",
+	frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4},
+	delay = 0.2,
+	rows_count = 4,
+	columns_count = 3,
+	n_frames = 12
+}
+
+data.cloud = {
+	resource_id = "sheet_cloud",
+	frames = {"1-10", 1, "1-10", 2, "1-10", 3, "1-10", 4, "1-10", 5},
+	delay = 0.05,
+	rows_count = 5,
+	columns_count = 10,
+	n_frames = 50
+}
+
+data.splat = {
+	resource_id = "sheet_splat",
+	frames = {"1-3", 1, "1-3", 2, "1-3", 3, "1-3", 4, "1-1", 5},
+	delay = 0.1,
+	rows_count = 5,
+	columns_count = 3,
+	n_frames = 13
+}
+
+data.brush = {
+	resource_id = "sheet_brush",
+	frames = {"1-7", 1, "1-7", 2, "1-7", 3},
+	delay = 0.1,
+	rows_count = 3,
+	columns_count = 7,
+	n_frames = 21
+}
+
+function AnimationData.get(id)
+	@@assert(type(id) == "string")
+	@@assert(data[id])
+	return data[id]
+end
+
+return AnimationData

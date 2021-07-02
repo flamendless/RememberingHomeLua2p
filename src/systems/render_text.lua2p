@@ -11,13 +11,23 @@ local RenderText = Concord.system({
 function RenderText:init(world)
 	self.world = world
 
+	self.pool.onAdded = function(pool, e)
+		if e.sdf then
+			if not e.font_sdf then
+				error("sdf must have font_sdf")
+			end
+			if e.font then
+				error("sdf must not have font")
+			end
+		end
+	end
+
 	self.pool_static.onAdded = function(pool, e)
 		!if _DEV then
 		if e.sdf then
 			error("static_font can't use sdf font")
 		end
 		!end
-
 		e.static_text.obj = love.graphics.newText(e.font.value, e.static_text.value)
 	end
 end
@@ -29,6 +39,7 @@ function RenderText:draw_text_ex(e)
 		local textf = e.textf
 		local static_text = e.static_text
 		local font = e.font
+		local font_sdf = e.font_sdf
 		local transform = e.transform
 		local sdf = e.sdf
 		local rfp = e.reflowprint
@@ -41,6 +52,8 @@ function RenderText:draw_text_ex(e)
 
 		if font then
 			love.graphics.setFont(font.value)
+		elseif font_sdf then
+			love.graphics.setFont(font_sdf.value)
 		end
 
 		local str = text and text.value

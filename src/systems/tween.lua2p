@@ -9,6 +9,17 @@ function Tween:init(world)
 	self.world = world
 end
 
+function Tween:tween_camera_pos(camera, dur, dx, dy)
+	@@assert(Gamera.isCamera(camera))
+	@@assert(type(dur) == "number")
+	@@assert(type(dx) == "number")
+	@@assert(type(dy) == "number")
+	Flux.to(camera, dur, {
+		x = dx,
+		y = dy,
+	})
+end
+
 function Tween:tween_camera_pos_rel(camera, dur, dx, dy)
 	@@assert(Gamera.isCamera(camera))
 	@@assert(type(dur) == "number")
