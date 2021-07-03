@@ -10,11 +10,13 @@ Concord.component("pos", function(c, x, y)
 end)
 
 Concord.component("spawn_point_action_controls", function(c)
-	c.pos = vec2:new()
+	c.x = 0
+	c.y = 0
 end)
 
 Concord.component("spawn_point_question_mark", function(c)
-	c.pos = vec2:new()
+	c.x = 0
+	c.y = 0
 end)
 
 Concord.component("size", function(c, w, h)

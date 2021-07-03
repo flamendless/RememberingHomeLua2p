@@ -8,6 +8,5 @@ Concord.component("dialogue_interactive", function(c, id)
 	!if _ASSERT then
 	Assert.must(id, Types.T_STRING)
 	!end
-
-	c.id = id
+	c.value = id
 end)

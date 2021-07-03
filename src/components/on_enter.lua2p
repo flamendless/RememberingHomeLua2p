@@ -2,5 +2,5 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("on_enter", function(c, callback)
 	@@assert(type(callback) == "function")
-	c.callback = callback
+	-- c.callback = callback
 end)

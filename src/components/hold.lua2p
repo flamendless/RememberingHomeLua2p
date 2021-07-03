@@ -4,7 +4,7 @@ local Concord = require("modules.concord.concord")
 local Inputs = require("inputs")
 !end
 
-Concord.component("key")
+Concord.component("key_input")
 
 Concord.component("hold", function(c, max_time)
 	@@assert(type(max_time) == "number")
@@ -20,8 +20,19 @@ Concord.component("hold_key", function(c, key)
 	c.value = key
 end)
 
-Concord.component("target_key", function(c, e)
+local c_tk = Concord.component("target_key", function(c, e)
 	@@assert(e.__isEntity)
-	@@assert(e.key)
+	@@assert(e.key_input)
+	e:ensure("key")
 	c.target_key = e
 end)
+
+function c_tk:serialize()
+	return {
+		e_key = self.target_key.key.value
+	}
+end
+
+function c_tk:deserialize(data)
+	self.target_key = self.__entity:getWorld():getEntityByKey(data.e_key)
+end

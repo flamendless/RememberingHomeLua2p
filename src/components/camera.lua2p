@@ -2,12 +2,19 @@ local Concord = require("modules.concord.concord")
 
 local Gamera = require("modules.gamera.gamera")
 
-Concord.component("camera", function(c, camera, is_main)
+local c_cam = Concord.component("camera", function(c, camera, is_main)
 	@@sassert(camera, Gamera.isCamera(camera))
 	@@sassert(is_main, type(is_main) == "boolean")
 	c.camera = camera
 	c.is_main = is_main
 end)
+
+function c_cam:serialize()
+	return {}
+end
+
+function c_cam:deserialize(data)
+end
 
 Concord.component("camera_transform", function(c, rot, scale)
 	@@assert(type(rot) == "number")

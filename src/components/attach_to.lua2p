@@ -1,9 +1,20 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("attach_to", function(c, target_e)
+local c_attach_to = Concord.component("attach_to", function(c, target_e)
 	@@assert(target_e.__isEntity)
+	target_e:ensure("key")
 	c.target_e = target_e
 end)
+
+function c_attach_to:serialize()
+	return {
+		target_e_key = self.target_e.key.value
+	}
+end
+
+function c_attach_to:deserialize(data)
+	self.target_e = self.__entity:getWorld():getEntityByKey(data.target_e_key)
+end
 
 Concord.component("attach_to_offset", function(c, ox, oy)
 	@@assert(type(ox) == "number")

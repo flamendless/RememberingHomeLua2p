@@ -15,6 +15,5 @@ Concord.component("ease", function(c, ease)
 	!if _ASSERT then
 	local test = eases[ease]
 	!end
-
 	c.ease = ease
 end)

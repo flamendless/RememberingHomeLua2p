@@ -4,7 +4,7 @@ local Resources = require("resources")
 
 local floor = math.floor
 
-Concord.component("animation_data", function(c, data)
+local c_anim_data = Concord.component("animation_data", function(c, data)
 	@@assert(type(data) == "table")
 	@@assert(type(data.resource_id) == "string")
 	@@assert(type(data.frames) == "table")
@@ -30,3 +30,13 @@ Concord.component("animation_data", function(c, data)
 
 	c.data = data
 end)
+
+function c_anim_data:serialize()
+	return {
+		data = self.data,
+	}
+end
+
+function c_anim_data:deserialize(data)
+	self:__populate(data.resource_id, data.data)
+end

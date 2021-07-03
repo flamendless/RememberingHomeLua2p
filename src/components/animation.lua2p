@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("override_animation")
 
-Concord.component("animation", function(c, stop_on_last)
+local c_anim = Concord.component("animation", function(c, stop_on_last)
 	@@sassert(stop_on_last, type(stop_on_last) == "boolean")
 	c.grid = nil
 	c.anim8 = nil
@@ -10,6 +10,18 @@ Concord.component("animation", function(c, stop_on_last)
 	c.is_playing = true
 	c.stop_on_last = (stop_on_last == true) and true or false
 end)
+
+function c_anim:serialize()
+	return {
+		current_tag = self.current_tag,
+		is_playing = self.is_playing,
+		stop_on_last = self.stop_on_last,
+	}
+end
+
+function c_anim:deserialize(data)
+	self:__populate(data.stop_on_last)
+end
 
 Concord.component("change_animation_tag", function(c, new_tag, override)
 	@@assert(type(new_tag) == "string")
@@ -32,8 +44,3 @@ end)
 Concord.component("current_frame", function(c)
 	c.value = 0
 end)
-
--- Concord.component("animation_on_update", function(c, on_update)
--- 	@@assert(type(on_update) == "function")
--- 	c.on_update = on_update
--- end)

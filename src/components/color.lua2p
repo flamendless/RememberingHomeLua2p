@@ -21,7 +21,7 @@ Concord.component("fade_to_black", function(c, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("lerp_colors", function(c, colors, duration, delay)
+local c_lc = Concord.component("lerp_colors", function(c, colors, duration, delay)
 	@@assert(type(colors) == "table")
 	@@sassert(duration, type(duration) == "number")
 	!if _ASSERT then
@@ -35,6 +35,22 @@ Concord.component("lerp_colors", function(c, colors, duration, delay)
 	c.duration = duration or 1.5
 	c.delay = delay or 0.15
 end)
+
+function c_lc:serialize()
+	return {
+		index = self.index,
+		colors = self.colors,
+		duration = self.duration,
+		delay = self.delay,
+	}
+end
+
+function c_lc:deserialize(data)
+	self.index = data.index
+	self.colors = data.colors
+	self.duration = data.duration
+	self.delay = data.delay
+end
 
 Concord.component("target_color", function(c, target, duration, delay)
 	@@assert(type(target) == "table")

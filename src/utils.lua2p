@@ -35,29 +35,26 @@ function Utils.json.write(filename, data)
 	Utils.file.write(filename, JSON.encode(data))
 end
 
-function Utils.serial.write(filename, data)
-	@@assert(type(filename) == "string")
-	local to_write = Bitser.dumps(data)
-	Utils.file.write(filename, to_write)
-
-	return to_write
-end
-
 function Utils.json.parse(filename)
 	@@assert(type(filename) == "string")
 	local content, exists = Utils.file.read(filename)
 	if exists then
 		return JSON.decode(content), true
 	end
-
 	return false
+end
+
+function Utils.serial.write(filename, data)
+	@@assert(type(filename) == "string")
+	local to_write = Bitser.dumps(data)
+	Utils.file.write(filename, to_write)
+	return to_write
 end
 
 function Utils.serial.read(filename)
 	@@assert(type(filename) == "string")
 	local content, exists = Utils.file.read(filename)
 	local data = Bitser.loads(content)
-
 	return data, exists
 end
 
@@ -70,7 +67,6 @@ function Utils.hash.compare(a, b)
 	@@assert(type(b) == "string")
 	local hashed_a = love.data.hash("md5", a)
 	local hashed_b = love.data.hash("md5", b)
-
 	return hashed_a == hashed_b
 end
 
@@ -78,7 +74,6 @@ function Utils.string.get_substr(str, sep)
 	@@assert(type(str) == "string")
 	@@assert(type(sep) == "string")
 	local n = string.find(str, sep)
-
 	return string.sub(str, 1, n - 1)
 end
 

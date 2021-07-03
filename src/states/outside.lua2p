@@ -194,7 +194,6 @@ function StateOutside:start()
 		local x = bg_house_w * ((i - 1) % div)/div
 		local y = bg_house_h * floor((i - 1)/div)/div
 		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
-
 		self.entities[id] = Concord.entity(self.world)
 			:assemble(Assemblages.Outside.bg_house, bg_house, x, y, quad)
 	end

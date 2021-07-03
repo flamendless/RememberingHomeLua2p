@@ -6,14 +6,16 @@ Concord.component("locked")
 Concord.component("target_interactive", function(c, interactive)
 	@@assert(interactive.__isEntity)
 	@@assert(interactive.interactive)
+	interactive:ensure("key")
 	c.interactive = interactive
 end)
 
 Concord.component("within_interactive", function(c, interactive)
 	@@assert(interactive.__isEntity)
 	@@assert(interactive.interactive)
+	interactive:ensure("key")
 	c.interactive = interactive
-	c.interactive_id = interactive.id.id
+	c.interactive_id = interactive.id.value
 end)
 
 Concord.component("interactive_req_player_dir", function(c, x, y)

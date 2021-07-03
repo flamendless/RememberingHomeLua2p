@@ -5,7 +5,6 @@ Concord.component("dialogues", function(c, id, dialogues)
 	Assert.must(id, Types.T_STRING)
 	Assert.must(dialogues, Types.T_TABLE)
 	!end
-
 	c.id = id
 	c.dialogues = dialogues
 	c.current = 1

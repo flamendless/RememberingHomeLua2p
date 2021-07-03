@@ -1,11 +1,23 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("quad", function(c, quad, info)
+local c_quad = Concord.component("quad", function(c, quad, info)
 	@@assert(quad:type() == "Quad")
 	@@sassert(info, type(info) == "table")
 	c.quad = quad
 	c.info = info
 end)
+
+function c_quad:serialize()
+	return {
+		data = {self.quad:getViewport()},
+		info = self.info
+	}
+end
+
+function c_quad:deserialize(data)
+	local quad = love.graphics.newQuad(unpack(data.data))
+	self:__populate(quad, data.info)
+end
 
 Concord.component("quad_size", function(c, size)
 	@@assert(type(size) == "number")

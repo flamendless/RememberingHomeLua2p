@@ -116,6 +116,7 @@ function TextPaint:show_paint(e, dur_in, widest)
 		:give("color", {1, 1, 1, 0})
 		:give("paint")
 		:give("ui_element")
+		:ensure("key")
 
 	e.text_with_paint.paint = paint
 	Flux.to(paint.color.value, dur_in, {[4] = 1})

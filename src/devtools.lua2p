@@ -227,6 +227,10 @@ function DevTools.keypressed(key)
 	if key == "`" then
 		DevTools.show = not DevTools.show
 		DevTools.flags.ngrading = not DevTools.show
+	elseif key == "m" then
+		GameStates.world:emit("save_game")
+	elseif key == "l" then
+		GameStates.world:emit("load_game")
 	elseif key == "r" then
 		love.event.quit("restart")
 	elseif key == "escape" then

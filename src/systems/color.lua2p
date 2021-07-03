@@ -175,7 +175,6 @@ function Color:start_colors_lerp()
 	for _, e in ipairs(self.pool_colors) do
 		local color = e.color
 		local lc = e.lerp_colors
-
 		lerp_colors(lc, color)
 	end
 end
@@ -183,7 +182,6 @@ end
 function Color:stop_colors_lerp()
 	for _, e in ipairs(self.pool_colors) do
 		local flux = e.lerp_colors.flux
-
 		if flux then
 			flux:stop()
 		end

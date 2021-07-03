@@ -111,7 +111,7 @@ function UI.key(e, key, x, y, resource_id)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_element")
-	:give("key")
+	:give("key_input")
 end
 
 function UI.key_sdf(e, key, x, y, fnt, png)
@@ -122,7 +122,7 @@ function UI.key_sdf(e, key, x, y, fnt, png)
 	:give("color", Palette.get("ui_key", 0))
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_element")
-	:give("key")
+	:give("key_input")
 end
 
 function UI.arrow(e, dir, x, y)

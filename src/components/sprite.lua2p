@@ -2,10 +2,21 @@ local Concord = require("modules.concord.concord")
 
 local Resources = require("resources")
 
-Concord.component("sprite", function(c, resource_id, name)
+local c_sprite = Concord.component("sprite", function(c, resource_id, name)
 	@@assert(type(resource_id) == "string")
 	@@sassert(name, type(name) == "string")
 	c.resource_id = resource_id
 	c.image = Resources.data.images[resource_id]
 	c.name = name
 end)
+
+function c_sprite:serialize()
+	return {
+		resource_id = self.resource_id,
+		name = self.name,
+	}
+end
+
+function c_sprite:deserialize(data)
+	self:__populate(data.resource_id, data.name)
+end

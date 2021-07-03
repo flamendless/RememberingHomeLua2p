@@ -15,8 +15,18 @@ Concord.component("textf", function(c, limit, align)
 	c.align = align_modes[align]
 end)
 
-Concord.component("static_text", function(c, text)
+local c_static_text = Concord.component("static_text", function(c, text)
 	@@assert(type(text) == "string")
 	c.value = text
 	c.obj = nil
 end)
+
+function c_static_text:serialize()
+	return {
+		value = self.value
+	}
+end
+
+function c_static_text:deserialize(data)
+	self:__populate(data.value)
+end

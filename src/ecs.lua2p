@@ -45,11 +45,6 @@ systems.Outside = {
 	"task", "gamestates",
 }
 
-systems.StorageRoom = {
-	"animation", "bump_collision", "camera", "map", "movement",
-	"player_controller", "render_sprite", "tilemap"
-}
-
 !if _DEV then
 local fn = {
 	"state_setup", "state_init", "state_update",

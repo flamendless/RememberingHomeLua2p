@@ -5,7 +5,7 @@ Concord.component("clicked")
 
 Concord.component("on_click", function(c, mb, on_click)
 	@@assert(mb >= 1 and mb <= 3)
-	@@assert(type(on_click) == "function")
+	-- @@assert(type(on_click) == "function")
 	c.mb = mb
-	c.on_click = on_click
+	-- c.on_click = on_click
 end)

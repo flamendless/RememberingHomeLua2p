@@ -32,5 +32,5 @@ end)
 
 Concord.component("move_on_complete", function(c, callback)
 	@@assert(type(callback) == "function")
-	c.callback = callback
+	-- c.callback = callback
 end)

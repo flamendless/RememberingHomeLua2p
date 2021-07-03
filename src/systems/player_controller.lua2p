@@ -114,15 +114,15 @@ function PlayerController:update_spawn_point(e)
 	local sp_qm = e.spawn_point_question_mark
 
 	if dir == -1 then
-		sp_ac.pos.x = pos.x + 24
-		sp_qm.pos.x = pos.x + 8
+		sp_ac.x = pos.x + 24
+		sp_qm.x = pos.x + 8
 	else
-		sp_ac.pos.x = pos.x + 4
-		sp_qm.pos.x = pos.x + 16
+		sp_ac.x = pos.x + 4
+		sp_qm.x = pos.x + 16
 	end
 
-	sp_ac.pos.y = pos.y + 8
-	sp_qm.pos.y = pos.y
+	sp_ac.y = pos.y + 8
+	sp_qm.y = pos.y
 end
 
 function PlayerController:update_animation(e, override_name, override_variance)
