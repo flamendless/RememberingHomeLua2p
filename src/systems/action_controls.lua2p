@@ -39,15 +39,15 @@ function ActionControls:init(world)
 	self.max_pool = 10
 	self.current = 1
 
-	for i = 1, self.max_pool do
-		local e = Concord.entity(self.world):give("empty_action")
-	end
-
-	self.pool_actions.onRemoved = function(pool, e)
-		self.current = self.current - 1
-		e:give("empty_action")
-		:remove("id")
-	end
+	-- for i = 1, self.max_pool do
+	-- 	local e = Concord.entity(self.world):give("empty_action")
+	-- end
+    --
+	-- self.pool_actions.onRemoved = function(pool, e)
+	-- 	self.current = self.current - 1
+	-- 	e:give("empty_action")
+	-- 	:remove("id")
+	-- end
 end
 
 function ActionControls:set_action_controls_resources(sheets)

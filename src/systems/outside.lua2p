@@ -175,12 +175,9 @@ end
 function Outside:state_init()
 	--TEST
 	!if _DEV then
-	-- self.world:emit("move_fireflies")
-	-- Fade.set_alpha(0)
-	-- local e_player = self:spawn_player()
-	-- e_player.body.can_move = true
-	-- self.camera:setScale(3)
-	-- self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+	local e_player = self:spawn_player()
+	self.camera:setScale(3)
+	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	-- self.entities.backdoor_key2 = Concord.entity(self.world)
 	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	-- 	:give("id", "item_test")
@@ -196,7 +193,9 @@ function Outside:state_init()
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		self:start_tasks()
+		-- self:start_tasks()
+		self.world:emit("player_can_move", true)
+		self.world:emit("player_can_interact", true)
 		self.timeline:Pause()
 		!end
 
@@ -246,9 +245,6 @@ function Outside:state_init()
 		self:start_rain()
 		self.timeline:Pause()
 		self:start_tasks()
-		for _, e in ipairs(self.pool_interactive) do
-			e:give("interactive")
-		end
 		self.timeline:Pause()
 	end)
 end

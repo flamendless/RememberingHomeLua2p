@@ -8,8 +8,10 @@ local c_quad = Concord.component("quad", function(c, quad, info)
 end)
 
 function c_quad:serialize()
+	local x, y, w, h = self.quad:getViewport()
+	local sw, sh = self.quad:getTextureDimensions( )
 	return {
-		data = {self.quad:getViewport()},
+		data = {x, y, w, h, sw, sh},
 		info = self.info
 	}
 end

@@ -10,10 +10,16 @@ local c_cam = Concord.component("camera", function(c, camera, is_main)
 end)
 
 function c_cam:serialize()
-	return {}
+	local x, y, w, h = self.camera:getWorld()
+	return {
+		data = {x, y, w, h},
+		is_main = self.is_main,
+	}
 end
 
 function c_cam:deserialize(data)
+	self.camera = Gamera.new(unpack(data.data))
+	self.is_main = data.is_main
 end
 
 Concord.component("camera_transform", function(c, rot, scale)

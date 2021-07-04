@@ -90,7 +90,11 @@ function ECS.load_systems(id, world)
 	Systems.id.debug_show = true
 	Systems.id.debug_enabled = true
 	Systems.id.debug_title = "ID"
+	Systems.log.debug_show = true
+	Systems.log.debug_enabled = true
+	Systems.log.debug_title = "Log"
 	world:addSystem(Systems.id)
+	world:addSystem(Systems.log)
 	for _, system in ipairs(world:getSystems()) do
 		if system.validate_dependencies then
 			system:validate_dependencies()

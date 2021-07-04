@@ -107,6 +107,7 @@ function Outside.colliders.car(e, w, h)
 	:give("pos", 730, h - ground_h - car_h)
 	:give("collider", 126, car_h, "cross")
 	:give("bump")
+	:give("interactive")
 end
 
 function Outside.colliders.backdoor(e, w, h)
@@ -115,6 +116,7 @@ function Outside.colliders.backdoor(e, w, h)
 	:give("pos", 440, h - ground_h - backdoor_h)
 	:give("collider", 8, backdoor_h, "cross")
 	:give("bump")
+	:give("interactive")
 end
 
 function Outside.colliders.frontdoor(e, w, h)
@@ -123,6 +125,7 @@ function Outside.colliders.frontdoor(e, w, h)
 	:give("pos", 300, h - ground_h - frontdoor_h)
 	:give("collider", 32, frontdoor_h, "cross")
 	:give("bump")
+	:give("interactive")
 end
 
 return Outside

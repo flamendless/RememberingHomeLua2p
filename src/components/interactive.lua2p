@@ -1,21 +1,22 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("can_interact")
 Concord.component("interactive")
 Concord.component("locked")
 
-Concord.component("target_interactive", function(c, interactive)
-	@@assert(interactive.__isEntity)
-	@@assert(interactive.interactive)
-	interactive:ensure("key")
-	c.interactive = interactive
+Concord.component("target_interactive", function(c, interactive_e)
+	@@assert(interactive_e.__isEntity)
+	@@assert(interactive_e.interactive)
+	interactive_e:ensure("key")
+	c.interactive_e = interactive_e
 end)
 
-Concord.component("within_interactive", function(c, interactive)
-	@@assert(interactive.__isEntity)
-	@@assert(interactive.interactive)
-	interactive:ensure("key")
-	c.interactive = interactive
-	c.interactive_id = interactive.id.value
+Concord.component("within_interactive", function(c, interactive_e)
+	@@assert(interactive_e.__isEntity)
+	@@assert(interactive_e.interactive)
+	interactive_e:ensure("key")
+	c.interactive_e = interactive_e
+	c.interactive_id = interactive_e.id.value
 end)
 
 Concord.component("interactive_req_player_dir", function(c, x, y)

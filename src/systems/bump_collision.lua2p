@@ -61,6 +61,8 @@ function BumpCollision:update(dt)
 			end
 			!end
 			self:update_body(e)
+		else
+			self:update_col(e)
 		end
 	end
 end
@@ -79,24 +81,22 @@ function BumpCollision:update_body(e)
 		local c = cols[i]
 		local other = c.other
 		local other_col = other.collider
-		local req_n = other.interactive_req_player_dir
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
+		self.world:emit("on_collision", e, other)
+	end
+	self.pool.freeCollisions(cols)
+end
 
-		if other.interactive then
-			local valid = true
-			if body and req_n then
-				if req_n.x ~= body.dir then
-					valid = false
-				end
-			end
-
-			if valid and (not other_col.prev_hit) then
-				other_col.prev_hit = true
-				self.world:emit("interactive_collided", e, other)
-			end
-		end
+function BumpCollision:update_col(e)
+	local pos = e.pos
+	local cols, len
+	local col = e.collider
+	pos.x, pos.y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
+	if not col.is_hit and col.prev_hit and len == 0 then
+		col.prev_hit = false
+		self.world:emit("on_leave_collision", e)
 	end
 	self.pool.freeCollisions(cols)
 end

@@ -8,7 +8,8 @@ local ID = Concord.system({
 	!end
 })
 
-function ID:init()
+function ID:init(world)
+	self.world = world
 	self.ref_id = {}
 	self.pool.onAdded = function(pool, e)
 		local id = e.id
@@ -21,6 +22,9 @@ function ID:init()
 				self.ref_id[id.value] = 1
 			end
 		end
+		!if _DEV then
+		self.world:emit("on_add_entity", e)
+		!end
 		Log.info("Added entity: " .. id.value)
 	end
 
@@ -35,6 +39,9 @@ function ID:init()
 				end
 			end
 		end
+		!if _DEV then
+		self.world:emit("on_remove_entity", e)
+		!end
 		Log.info("Removed entity: " .. (id or tostring(e)))
 	end
 end

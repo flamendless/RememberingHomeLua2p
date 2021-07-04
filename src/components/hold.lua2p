@@ -35,4 +35,5 @@ end
 
 function c_tk:deserialize(data)
 	self.target_key = self.__entity:getWorld():getEntityByKey(data.e_key)
+	@@assert(self.target_key)
 end

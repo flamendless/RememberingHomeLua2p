@@ -23,7 +23,7 @@ function Transform:init()
 		local target = attach.target_e
 
 		!if _DEV then
-		if not target:has("pos") then
+		if not target.pos then
 			error("Target entity must have a pos component")
 		end
 		!end

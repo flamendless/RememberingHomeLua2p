@@ -15,6 +15,7 @@ local DevTools = {
 		camera = true,
 		fireflies = false,
 		transform = false,
+		log = true,
 	},
 }
 

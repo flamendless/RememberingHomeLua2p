@@ -14,101 +14,101 @@ function Notification:init(world)
 	self.max_pool = 5
 	self.current = 1
 
-	for i = 1, self.max_pool do
-		local e = Concord.entity(self.world):give("empty_notification")
-	end
+	-- for i = 1, self.max_pool do
+	-- 	local e = Concord.entity(self.world):give("empty_notification")
+	-- end
 
-	self.pool.onAdded = function(pool, e)
-		self.current = self.current + 1
-	end
-
-	self.pool.onRemoved = function(pool, e)
-		self.current = self.current - 1
-		e:give("empty_notification")
-		:remove("id")
-	end
+	-- self.pool.onAdded = function(pool, e)
+	-- 	self.current = self.current + 1
+	-- end
+    --
+	-- self.pool.onRemoved = function(pool, e)
+	-- 	self.current = self.current - 1
+	-- 	e:give("empty_notification")
+	-- 	:remove("id")
+	-- end
 end
 
-function Notification:set_notification_resources(sheets)
-	@@assert(type(sheets) == "table")
-	@@assert(sheets.question_mark)
-	self.sheets = sheets
-end
-
-function Notification:interactive_collided(e, interactive)
-	@@assert(e.__isEntity)
-	@@assert(interactive.__isEntity)
-	local notif = interactive.notify
-
-	if notif then
-		if notif.value == "question_mark" then
-			local sp = e.spawn_point_question_mark.pos
-			local e = self.pool_empty[self.current]
-
-			e:remove("empty_notification")
-			:give("preserve_id")
-			:assemble(UI.question_mark, self.sheets.question_mark, self.dur)
-			:give("color_fade_in", self.dur)
-			:give("pos", sp.x, sp.y)
-			:give("attach_to_spawn_point", sp)
-		end
-	end
-end
-
-function Notification:interactive_left_collision(e, interactive)
-	@@assert(e.__isEntity)
-	@@assert(interactive.__isEntity)
-	local notif = interactive.notify
-	if notif then
-		self:hide_notification(notif.value)
-	end
-end
-
-function Notification:interactive_interacted(player, interactive)
-	local notif = interactive.notify
-	if notif then
-		self:toggle_notification_temp(notif.value)
-	end
-end
-
-function Notification:interact_cancelled(player, interactive)
-	local notif = interactive.notify
-	if notif then
-		self:toggle_notification_temp(notif.value)
-	end
-end
-
-function Notification:hide_notification(req_id)
-	@@assert(type(req_id) == "string")
-	for _, e in ipairs(self.pool) do
-		local id = e.id.id
-		local tween_dur = e.tween_dur
-
-		if (id == req_id) then
-			e:give("color_fade_out", tween_dur.dur, nil, function()
-				e:remove("attach_to")
-				:remove("pos")
-				:remove("notification")
-				:remove("pos")
-				:remove("attach_to_spawn_point")
-				:remove("sprite")
-			end)
-		end
-	end
-end
-
-function Notification:toggle_notification_temp(req_id)
-	@@assert(type(req_id) == "string")
-	for _, e in ipairs(self.pool) do
-		local id = e.id.id
-		local notif = e.notification
-
-		if (id == req_id) then
-			if e.hidden then e:remove("hidden")
-			else e:give("hidden")
-			end
-		end
-	end
-end
+-- function Notification:set_notification_resources(sheets)
+-- 	@@assert(type(sheets) == "table")
+-- 	@@assert(sheets.question_mark)
+-- 	self.sheets = sheets
+-- end
+--
+-- function Notification:interactive_collided(e, interactive)
+-- 	@@assert(e.__isEntity)
+-- 	@@assert(interactive.__isEntity)
+-- 	local notif = interactive.notify
+--
+-- 	if notif then
+-- 		if notif.value == "question_mark" then
+-- 			local sp = e.spawn_point_question_mark.pos
+-- 			local e = self.pool_empty[self.current]
+--
+-- 			e:remove("empty_notification")
+-- 			:give("preserve_id")
+-- 			:assemble(UI.question_mark, self.sheets.question_mark, self.dur)
+-- 			:give("color_fade_in", self.dur)
+-- 			:give("pos", sp.x, sp.y)
+-- 			:give("attach_to_spawn_point", sp)
+-- 		end
+-- 	end
+-- end
+--
+-- function Notification:interactive_left_collision(e, interactive)
+-- 	@@assert(e.__isEntity)
+-- 	@@assert(interactive.__isEntity)
+-- 	local notif = interactive.notify
+-- 	if notif then
+-- 		self:hide_notification(notif.value)
+-- 	end
+-- end
+--
+-- function Notification:interactive_interacted(player, interactive)
+-- 	local notif = interactive.notify
+-- 	if notif then
+-- 		self:toggle_notification_temp(notif.value)
+-- 	end
+-- end
+--
+-- function Notification:interact_cancelled(player, interactive)
+-- 	local notif = interactive.notify
+-- 	if notif then
+-- 		self:toggle_notification_temp(notif.value)
+-- 	end
+-- end
+--
+-- function Notification:hide_notification(req_id)
+-- 	@@assert(type(req_id) == "string")
+-- 	for _, e in ipairs(self.pool) do
+-- 		local id = e.id.id
+-- 		local tween_dur = e.tween_dur
+--
+-- 		if (id == req_id) then
+-- 			e:give("color_fade_out", tween_dur.dur, nil, function()
+-- 				e:remove("attach_to")
+-- 				:remove("pos")
+-- 				:remove("notification")
+-- 				:remove("pos")
+-- 				:remove("attach_to_spawn_point")
+-- 				:remove("sprite")
+-- 			end)
+-- 		end
+-- 	end
+-- end
+--
+-- function Notification:toggle_notification_temp(req_id)
+-- 	@@assert(type(req_id) == "string")
+-- 	for _, e in ipairs(self.pool) do
+-- 		local id = e.id.id
+-- 		local notif = e.notification
+--
+-- 		if (id == req_id) then
+-- 			if e.hidden then e:remove("hidden")
+-- 			else e:give("hidden")
+-- 			end
+-- 		end
+-- 	end
+-- end
 
 return Notification

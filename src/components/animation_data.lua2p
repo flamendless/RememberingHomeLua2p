@@ -38,5 +38,5 @@ function c_anim_data:serialize()
 end
 
 function c_anim_data:deserialize(data)
-	self:__populate(data.resource_id, data.data)
+	self:__populate(data.data)
 end
