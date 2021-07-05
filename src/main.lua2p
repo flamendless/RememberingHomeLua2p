@@ -76,8 +76,8 @@ function love.load()
 	!if _DEV then
 	-- GameStates.switch("Splash")
 	-- GameStates.switch("Menu")
-	-- GameStates.switch("Intro")
-	GameStates.switch("Outside")
+	GameStates.switch("Intro")
+	-- GameStates.switch("Outside")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")
@@ -167,6 +167,14 @@ function love.mousereleased(mx, my, mb)
 	!end
 	GameStates.mousereleased(mx, my, mb)
 end
+
+!if _DEV then
+function love.wheelmoved(wx, wy)
+	!if _DEV then
+	DevTools.wheelmoved(wx, wy)
+	!end
+end
+!end
 
 function love.quit()
 	Lily.quit()

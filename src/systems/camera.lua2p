@@ -311,5 +311,13 @@ function Camera:debug_on_drag(bool)
 	self.follow = not bool
 end
 
+function Camera:debug_wheelmoved(wx, wy)
+	if not self.debug_show then return end
+	if not self.main_camera then return end
+	local scale = self.main_camera:getScale()
+	local dy = scale + wy * 0.15
+	self.main_camera:setScale(dy)
+end
+
 !end
 return Camera

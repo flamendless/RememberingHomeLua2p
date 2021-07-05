@@ -36,4 +36,11 @@ Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy, kx, ky
 	c.oy = oy or 0
 	c.kx = kx or 0
 	c.ky = ky or 0
+	c.orig_sx = c.sx
+	c.orig_sy = c.sy
+end)
+
+Concord.component("depth_zoom", function(c, zoom_factor)
+	@@assert(type(zoom_factor) == "number")
+	c.value = zoom_factor
 end)

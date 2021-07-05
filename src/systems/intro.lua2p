@@ -74,8 +74,9 @@ end
 
 function Intro:state_setup()
 	local w, h = Resources.data.images.bg:getDimensions()
-	self.main_canvas = Canvas.create_main({})
-	self.fog_effect = Fog:new(self.main_canvas, {w = w, h = h, scale = 8})
+	self.canvases = {}
+	self.canvases.main = Canvas.create_main({})
+	self.fog_effect = Fog:new(self.canvases.main, {w = w, h = h, scale = 8})
 
 	local ssx, ssy = love.graphics.getDimensions()
 	local ssx2 = ssx * 2
@@ -89,7 +90,7 @@ function Intro:state_setup()
 		self.camera, self.scale, w, h)
 
 	ScreenInfo.set(w, h, w, h)
-	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
+	self.world:emit("create_light_map", self.canvases.main.x, self.canvases.main.y, w, h)
 	self.ps1 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted2, 128, w)
 
@@ -130,7 +131,6 @@ function Intro:state_setup()
 		"post_light", ssx2, "post_light", 2, 2)
 
 	self.e_car = Concord.entity(self.world):assemble(Assemblages.Intro.car)
-
 	Concord.entity(self.world):assemble(Assemblages.Intro.car_light, self.e_car)
 		:give("light_disabled")
 		:give("intro_light")
@@ -196,21 +196,25 @@ function Intro:state_init()
 		self.timeline:Pause()
 		!end
 
+		--how many times we will scale/move the camera for this cutscene
+		local max_n_cam_t = 4
 		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
 		self.world:emit("set_camera_transform", self.camera, {x = 53, y = 544, scale = 15})
 
 		TLE.Event.Wait(2)
-		self.world:emit("tween_camera_pos_rel", self.camera, 5, 0, -64)
-		self.world:emit("tween_camera_scale", self.camera, 5, 10)
+		self.world:emit("tween_depth_zoom", 5, 1/max_n_cam_t, "cubicinout")
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 0, -64, "cubicinout")
+		self.world:emit("tween_camera_scale", self.camera, 5, 10, "cubicinout")
 
 		TLE.Event.Wait(2)
 		self:enable_next_intro_text()
 		self.timeline:Pause()
 
 		local car_pos = self.e_car.pos
-		self.world:emit("tween_camera_scale", self.camera, 5, 5)
-		self.world:emit("tween_camera_pos_rel", self.camera, 5, 160, -32)
+		self.world:emit("tween_depth_zoom", 5, 2/max_n_cam_t, "circout")
+		self.world:emit("tween_camera_scale", self.camera, 5, 5, "circout")
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 160, -32, "circout")
 		Flux.to(car_pos, 5, {x = 128})
 
 		self:update_rain(1)
@@ -231,8 +235,9 @@ function Intro:state_init()
 		effect.status = 2
 		current_effect = effect.multi
 		Flux.to(effect, 15, {dt = 1})
-		self.world:emit("tween_camera_scale", self.camera, 5, 3)
-		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32)
+		self.world:emit("tween_depth_zoom", 5, 3/max_n_cam_t, "backout")
+		self.world:emit("tween_camera_scale", self.camera, 5, 3, "backout")
+		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32, "backout")
 		Flux.to(car_pos, 3, {x = 160})
 
 		self:enable_next_intro_text()
@@ -241,14 +246,15 @@ function Intro:state_init()
 		self:enable_next_intro_text()
 		self.timeline:Pause()
 
-		TLE.Event.Wait(3)
-		self:update_rain(3)
-
 		TLE.Event.Wait(2)
+		self:update_rain(2)
+
+		TLE.Event.Wait(1)
 		self.world:emit("slow_parallax", 0.75)
 		Flux.to(car_pos, 3, {x = ssx * 0.5})
 
 		TLE.Event.Wait(2)
+		self.world:emit("tween_depth_zoom", 5, 4/max_n_cam_t)
 		self.world:emit("tween_camera_scale", self.camera, 5, self.scale)
 		self.world:emit("tween_camera_pos", self.camera, 5, w * 0.5, h * 0.5)
 		self.world:emit("destroy_skip")
@@ -324,7 +330,7 @@ function Intro:state_draw()
 
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(self.main_canvas.canvas)
+	love.graphics.setCanvas(self.canvases.main.canvas)
 
 	self.camera:draw(function(l, t, w, h)
 		if current_effect then
@@ -342,7 +348,7 @@ function Intro:state_draw()
 		end
 
 		love.graphics.setShader()
-		self.world:emit("draw_light_end", self.main_canvas.x, self.main_canvas.y)
+		self.world:emit("draw_light_end", self.canvases.main.x, self.canvases.main.y)
 	end)
 
 	self.world:emit("draw_clip")
@@ -351,7 +357,7 @@ function Intro:state_draw()
 	if should_fade then Fade.draw() end
 
 	love.graphics.setCanvas()
-	self.main_canvas:render()
+	self.canvases.main:render()
 end
 
 function Intro:state_keypressed(key)

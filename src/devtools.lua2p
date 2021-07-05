@@ -228,10 +228,10 @@ function DevTools.keypressed(key)
 	if key == "`" then
 		DevTools.show = not DevTools.show
 		DevTools.flags.ngrading = not DevTools.show
-	elseif key == "m" then
-		GameStates.world:emit("save_game")
-	elseif key == "l" then
-		GameStates.world:emit("load_game")
+	-- elseif key == "m" then
+	-- 	GameStates.world:emit("save_game")
+	-- elseif key == "l" then
+	-- 	GameStates.world:emit("load_game")
 	elseif key == "r" then
 		love.event.quit("restart")
 	elseif key == "escape" then
@@ -252,6 +252,11 @@ end
 function DevTools.mousereleased(mx, my, mb)
 	if not GameStates.world then return end
 	GameStates.world:emit("debug_mousereleased", mx, my, mb)
+end
+
+function DevTools.wheelmoved(wx, wy)
+	if not GameStates.world then return end
+	GameStates.world:emit("debug_wheelmoved", wx, wy)
 end
 
 return DevTools

@@ -18,20 +18,21 @@ local speed = {
 	fg_trees = 530,
 }
 
+--z_index, zoom_factor
 local z_index = {
-	clouds = 1,
-	building = 1,
-	grass_back = 2,
-	bg_trees = 3,
-	bg_tree_cover = 4,
-	grass_front = 7,
-	road = 8,
-	post_light = 8,
-	post = 9,
-	grass1 = 10,
-	car = 11,
-	grass2 = 13,
-	fg_trees = 14,
+	clouds = {1, 0.005},
+	building = {1, 0.005},
+	grass_back = {2, 0.01},
+	bg_trees = {3, 0.015},
+	bg_tree_cover = {4, 0.02},
+	grass_front = {7, 0.025},
+	post_light = {8, 0.03},
+	post = {8, 0.03},
+	road = {9, 0.04},
+	grass1 = {10, 0.05},
+	car = {11, 0.04},
+	grass2 = {13, 0.06},
+	fg_trees = {14, 0.07},
 }
 
 function Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
@@ -64,17 +65,20 @@ function Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
 	:give("quad", quad)
 	:give("pos", x, y)
 	:give("parallax", speed[tag], 0)
-	:give("z_index", z_index[tag], false)
+	:give("z_index", z_index[tag][1], false)
+	:give("quad_transform")
+	:give("depth_zoom", z_index[tag][2])
 end
 
 function Intro.post_light(e, resource_id, quad_width, tag, sx, sy)
 	Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
-	e:give("transform", 0, 1, 1)
+	e:give("transform")
 	:give("light", "custom", 1)
 	:give("color", Palette.colors.post_light)
 	:give("light_flicker", 0.1)
 	:give("light_disabled")
 	:give("intro_light")
+	:give("depth_zoom", z_index.post_light[2])
 end
 
 function Intro.bg_tree_cover(e, resource_id)
@@ -83,7 +87,8 @@ function Intro.bg_tree_cover(e, resource_id)
 	:give("sprite", resource_id)
 	:give("pos", love.graphics.getWidth(), 90)
 	:give("transform", 0, 1, 1, img:getWidth() * 0.5)
-	:give("z_index", z_index.bg_tree_cover)
+	:give("z_index", z_index.bg_tree_cover[1])
+	:give("depth_zoom", z_index.bg_tree_cover[2])
 	:give("bg_tree", true)
 end
 
@@ -92,7 +97,9 @@ function Intro.car(e)
 	:give("animation_data", AnimationData.get("car"))
 	:give("pos", 16, 325)
 	:give("animation", false)
-	:give("z_index", z_index.car)
+	:give("z_index", z_index.car[1])
+	:give("depth_zoom", z_index.car[2])
+	:give("transform")
 end
 
 function Intro.car_reflect(e, car)
@@ -101,19 +108,23 @@ function Intro.car_reflect(e, car)
 	:give("pos", 0, 0)
 	:give("animation", false)
 	:give("attach_to", car)
-	:give("z_index", z_index.car)
+	:give("z_index", z_index.car[1])
+	:give("depth_zoom", z_index.car[2])
+	:give("transform")
 end
 
 function Intro.car_light(e, car)
 	e:give("id", "car_light")
 	:give("pos", 0, 0)
-	:give("transform", 0, 1, 1)
+	:give("transform")
+	:give("depth_zoom", z_index.car[2])
 	:give("color", Palette.colors.car_light)
 	:give("light", "cone", 0.8)
 	:give("sprite", "car_headlight", "cone")
 	:give("light_flicker", 0.075)
 	:give("attach_to", car)
 	:give("attach_to_offset", 112, 24)
+	:give("z_index", z_index.car[1])
 end
 
 function Intro.title(e, x, y)

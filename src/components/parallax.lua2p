@@ -1,10 +1,10 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("parallax_stop")
+
 Concord.component("parallax", function(c, vx, vy)
 	@@assert(type(vx) == "number")
 	@@assert(type(vy) == "number")
 	c.vx = vx
 	c.vy = vy
 end)
-
-Concord.component("parallax_stop")

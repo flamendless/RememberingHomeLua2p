@@ -30,7 +30,7 @@ systems.Menu = {
 }
 
 systems.Intro = {
-	"animation", "camera", "color", "light", "parallax",
+	"animation", "camera", "color", "light", "parallax", "depth",
 	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
 	"transform", "follow", "skip", "tween", "gamestates",
 }

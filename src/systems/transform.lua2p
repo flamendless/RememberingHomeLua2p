@@ -10,7 +10,7 @@ local Transform = Concord.system({
 	pool_camera = {"pos", "camera"},
 	pool_attach = {"pos", "attach_to"},
 	pool_auto_scale = {"transform", "auto_scale"},
-	pool_spawn = {"pos", "attach_to_spawn_point"}
+	pool_spawn = {"pos", "attach_to_spawn_point"},
 })
 
 function Transform:init()
@@ -145,7 +145,6 @@ function Transform:update(dt)
 	for _, e in ipairs(self.pool_spawn) do
 		local pos = e.pos
 		local sp = e.attach_to_spawn_point.pos
-
 		pos.x = sp.x
 		pos.y = sp.y
 	end
@@ -186,7 +185,6 @@ function Transform:debug_update(dt)
 	end
 	Slab.EndWindow()
 end
-
 !end
 
 return Transform

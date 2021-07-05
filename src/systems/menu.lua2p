@@ -191,7 +191,7 @@ function Menu:state_setup()
 	self.camera:setWindow(0, 0, ww, wh)
 	self.canvases = {}
 	Canvas.init_canvases(self.canvases)
-	self.mb = MotionBlur:new(self.canvases.main_canvas)
+	self.mb = MotionBlur:new(self.canvases.main)
 	self.dissolve = Dissolve:new(img_ff, 2)
 	self:setup_menu()
 end
@@ -245,7 +245,7 @@ function Menu:state_draw()
 		self.current_state == states.about or
 		self.current_state == states.play then
 
-		self.canvases.main_canvas:attach()
+		self.canvases.main:attach()
 		self.camera:draw(function(l, t, w, h)
 			self.world:emit("draw")
 			if self.current_state == states.settings and not self.mb.flag_process then
@@ -256,9 +256,9 @@ function Menu:state_draw()
 			end
 			Fade.draw()
 		end)
-		self.canvases.main_canvas:detach()
+		self.canvases.main:detach()
 		self.mb:post_process_draw()
-		self.canvases.main_canvas:render()
+		self.canvases.main:render()
 	elseif self.current_state == states.exit then
 		self.dissolve:draw(function()
 			self.world:emit("draw")

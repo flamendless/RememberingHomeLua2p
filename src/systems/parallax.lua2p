@@ -1,27 +1,30 @@
 local Concord = require("modules.concord.concord")
 
 local Parallax = Concord.system({
-	pool = {"parallax", "quad", "sprite"},
+	pool = {"parallax", "quad", "sprite", "quad_transform"},
 })
 
 function Parallax:init(world)
 	self.world = world
-	self.stopped = false
 
 	self.pool.onAdded = function(pool, e)
 		e.sprite.image:setWrap("repeat")
 	end
 end
 
+function Parallax:start_parallax()
+	for _, e in ipairs(self.pool) do
+		e:remove("parallax_stop")
+	end
+end
+
 function Parallax:stop_parallax()
 	for _, e in ipairs(self.pool) do
-		e:remove("parallax")
+		e:give("parallax_stop")
 	end
 end
 
 function Parallax:slow_parallax(amount)
-	if self.stopped then return end
-
 	for _, e in ipairs(self.pool) do
 		local parallax = e.parallax
 		local dx = parallax.vx * amount
@@ -30,8 +33,6 @@ function Parallax:slow_parallax(amount)
 end
 
 function Parallax:parallax_move_x(dt, dir)
-	if self.stopped then return end
-
 	for _, e in ipairs(self.pool) do
 		if not e.parallax_stop then
 			local parallax = e.parallax
@@ -43,5 +44,27 @@ function Parallax:parallax_move_x(dt, dir)
 		end
 	end
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local is_running = true
+
+function Parallax:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("parallax", {
+		Title = "Parallax",
+		IsOpen = self.debug_show,
+	})
+	if Slab.CheckBox(is_running, "run") then
+		is_running = not is_running
+		if is_running then
+			self:start_parallax()
+		else
+			self:stop_parallax()
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return Parallax
