@@ -25,7 +25,6 @@ args = split(args)
 if args[1] == "dev" then
 	_DEV = true
 	_RELEASE = false
-	_ASSERT = true
 	_PROF = false
 elseif args[1] == "release" then
 	_DEV = false
@@ -43,7 +42,7 @@ _GAME_VERSION = { 0, 0, 1 }
 _COMMIT_VERSION = args[2]
 
 _MODE = args[1]
-_LOG_SAVE = false
+_LOG_SAVE = true
 
 _OS = "Linux"
 _PLATFORM = "desktop"
@@ -80,7 +79,7 @@ _EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
 _GITHUB_URL_RELEASE = ""
 
-_LOG_OUTPUT = "log_output.txt"
+_LOG_OUTPUT = "log"
 _LOG_INFO = "info.txt"
 _SETTINGS_FILENAME = "user_settings.json"
 _SAVE_FILENAME = "save_data"
@@ -96,7 +95,7 @@ _ABOUT_LINKS = {
 	_URL_TWITTER,
 	_URL_DISCORD,
 	_URL_WEBSITE,
-	_URL_MAIL
+	_URL_MAIL,
 }
 
 _NAME_DEVELOPER = "Brandon"

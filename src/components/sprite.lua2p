@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 
+local Image = require("image")
 local Resources = require("resources")
 
 local c_sprite = Concord.component("sprite", function(c, resource_id, name)
@@ -19,4 +20,25 @@ end
 
 function c_sprite:deserialize(data)
 	self:__populate(data.resource_id, data.name)
+end
+
+local c_noise_tex = Concord.component("noise_texture", function(c, w, h)
+	@@assert(type(w) == "number")
+	@@assert(type(h) == "number")
+	c.w = w
+	c.h = h
+	c.texture = love.graphics.newImage(Image.generate_noise(w, h))
+	c.texture:setWrap("repeat", "repeat")
+	c.texture:setFilter("linear", "linear")
+end)
+
+function c_noise_tex:serialize()
+	return {
+		w = self.w,
+		h = self.h,
+	}
+end
+
+function c_noise_tex:deserialize(data)
+	self:__populate(data.w, data.h)
 end

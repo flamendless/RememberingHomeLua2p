@@ -81,6 +81,7 @@ Resources.meta.Intro = {
 		{"post_light", path_lights .. "post_light.png"},
 		{"car_headlight", path_lights .. "car_headlight.png"},
 		{"title_light", path_lights .. "title.png"},
+		{"dummy", path_textures .. "dummy.png"},
 	},
 
 	image_data = {

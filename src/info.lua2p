@@ -83,7 +83,6 @@ function Info.init()
 
 		"Other Info:",
 		format("Release Mode: %s", !(_RELEASE)),
-		format("Assert Mode: %s", !(_ASSERT)),
 	}
 
 	local to_write = concat(str, "\n")

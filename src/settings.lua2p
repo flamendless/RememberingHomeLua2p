@@ -4,6 +4,8 @@ local Log = require("modules.log.log")
 local Info = require("info")
 local Utils = require("utils")
 
+local format = string.format
+
 local Settings = {
 	current = {
 		key_map = 1,
@@ -21,6 +23,7 @@ function Settings.init()
 	local content, exists = Utils.file.read(filename)
 	if exists then
 		Settings.current = JSON.decode(content)
+		pretty.print(Settings.current)
 	else
 		Settings.create_new()
 	end

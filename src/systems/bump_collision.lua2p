@@ -61,9 +61,8 @@ function BumpCollision:update(dt)
 			end
 			!end
 			self:update_body(e)
-		else
-			self:update_col(e)
 		end
+		self:check_col(e)
 	end
 end
 
@@ -84,19 +83,32 @@ function BumpCollision:update_body(e)
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
-		self.world:emit("on_collision", e, other)
 	end
 	self.pool.freeCollisions(cols)
 end
 
-function BumpCollision:update_col(e)
+function BumpCollision:check_col(e)
 	local pos = e.pos
 	local cols, len
 	local col = e.collider
 	pos.x, pos.y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
-	if not col.is_hit and col.prev_hit and len == 0 then
-		col.prev_hit = false
-		self.world:emit("on_leave_collision", e)
+
+	for i = 1, len do
+		local c = cols[i]
+		local other = c.other
+		local other_col = other.collider
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
+		if e.can_interact then
+			if not e.within_interactive and other.interactive then
+				self.world:emit("on_collide_interactive", e, other)
+			end
+		end
+	end
+
+	if not col.is_hit and e.within_interactive and len == 0 then
+		self.world:emit("on_leave_interactive", e)
 	end
 	self.pool.freeCollisions(cols)
 end

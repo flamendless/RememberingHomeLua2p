@@ -11,12 +11,12 @@ Concord.component("target_interactive", function(c, interactive_e)
 	c.interactive_e = interactive_e
 end)
 
-Concord.component("within_interactive", function(c, interactive_e)
-	@@assert(interactive_e.__isEntity)
-	@@assert(interactive_e.interactive)
-	interactive_e:ensure("key")
-	c.interactive_e = interactive_e
-	c.interactive_id = interactive_e.id.value
+Concord.component("within_interactive", function(c, entity)
+	@@assert(entity.__isEntity)
+	@@assert(entity.id)
+	@@assert(entity.interactive)
+	entity:ensure("key")
+	c.entity = entity
 end)
 
 Concord.component("interactive_req_player_dir", function(c, x, y)

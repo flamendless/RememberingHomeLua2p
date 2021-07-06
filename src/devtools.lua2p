@@ -16,6 +16,7 @@ local DevTools = {
 		fireflies = false,
 		transform = false,
 		log = true,
+		bounding_box = true,
 	},
 }
 

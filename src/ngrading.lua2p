@@ -149,12 +149,10 @@ function NGrading:new(arg1, arg2, arg3)
 	if type(arg2) == "number" then
 		local effect = self:new_single(arg1, arg2)
 		effect:setup_data()
-
 		return effect
 	else
 		local effect = self:new_multi(arg1, arg2, arg3)
 		effect:setup_data()
-
 		return effect
 	end
 end

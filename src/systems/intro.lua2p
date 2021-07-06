@@ -7,7 +7,6 @@ local TLE = require("modules.tle.timeline")
 local AnimationData = require("animation_data")
 local Canvas = require("canvas")
 local Fade = require("fade")
-local Fog = require("fog")
 local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
@@ -76,7 +75,6 @@ function Intro:state_setup()
 	local w, h = Resources.data.images.bg:getDimensions()
 	self.canvases = {}
 	self.canvases.main = Canvas.create_main({})
-	self.fog_effect = Fog:new(self.canvases.main, {w = w, h = h, scale = 8})
 
 	local ssx, ssy = love.graphics.getDimensions()
 	local ssx2 = ssx * 2
@@ -135,12 +133,26 @@ function Intro:state_setup()
 		:give("light_disabled")
 		:give("intro_light")
 
+	local fw, fh = 512, 128
+	local fsx = ssx2*4/fw
+	local fsy = 2
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+		"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+		"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
+		:give("fade_in_target_alpha", 0.45)
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
+		:give("fade_in_target_alpha", 0.45)
+
 	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
 			self.e_car)
 		:give("animation_on_loop", "car_reflection_flicker")
 
 	local lut_size, lut_afternoon, lut_dusk
-	if Settings.current.graphics_quality == "Low" then
+	if Settings.current.graphics_quality == "low" then
 		lut_size = 16
 		lut_afternoon = Resources.data.image_data.lut_afternoon_16
 		lut_dusk = Resources.data.image_data.lut_dusk_16
@@ -203,6 +215,7 @@ function Intro:state_init()
 		self.world:emit("set_camera_transform", self.camera, {x = 53, y = 544, scale = 15})
 
 		TLE.Event.Wait(2)
+		self.world:emit("fade_in_fog", "fog3", 32)
 		self.world:emit("tween_depth_zoom", 5, 1/max_n_cam_t, "cubicinout")
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 0, -64, "cubicinout")
 		self.world:emit("tween_camera_scale", self.camera, 5, 10, "cubicinout")
@@ -222,6 +235,10 @@ function Intro:state_init()
 		self.timeline:Pause()
 
 		--Enter forest
+		self.world:emit("fade_out_fog", "fog1", 3)
+		self.world:emit("fade_out_fog", "fog2", 3)
+		-- self.world:emit("fade_out_fog", "fog3", 2)
+		self.world:emit("fade_in_fog", "fog4", 3)
 		self.world:emit("start_trees", -320)
 		for _, e in ipairs(self.pool_light) do
 			e:remove("light_disabled")
@@ -336,7 +353,6 @@ function Intro:state_draw()
 		if current_effect then
 			current_effect:apply()
 		end
-		self.fog_effect:apply()
 
 		love.graphics.draw(Resources.data.images.bg)
 		self.world:emit("draw")

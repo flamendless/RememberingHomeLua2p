@@ -1,12 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("dialogue")
 Concord.component("dialogue_arrow")
-Concord.component("in_dialogue")
 
-Concord.component("dialogue_interactive", function(c, id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	!end
+Concord.component("dialogue", function(c, id)
+	@@assert(type(id) == "string")
 	c.value = id
 end)

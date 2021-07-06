@@ -1,37 +1,33 @@
 local Concord = require("modules.concord.concord")
 
 local Interactive = Concord.system({
-	pool = {"id", "interactive", "collider"},
+	pool = {"id", "interactive", "collider", "bump"},
 })
 
 function Interactive:init(world)
 	self.world = world
 end
 
-function Interactive:on_collision(e, other)
+function Interactive:on_collide_interactive(e, other)
 	@@assert(e.__isEntity)
 	@@assert(other.__isEntity)
-	if e.can_interact and other.interactive then
-		local valid = true
-		local body = e.body
-		local other_col = other.collider
-		local req_n = other.interactive_req_player_dir
-		if body and req_n then
-			if req_n.x ~= body.dir then
-				valid = false
-			end
+	local valid = true
+	local body = e.body
+	local other_col = other.collider
+	local req_n = other.interactive_req_player_dir
+	if body and req_n then
+		if req_n.x ~= body.dir then
+			valid = false
 		end
-
-		if valid and (not other_col.prev_hit) then
-			other_col.prev_hit = true
-			e:give("within_interactive", other)
-			self.world:emit("on_enter_collision", e, other)
-		end
+	end
+	if valid then
+		e:give("within_interactive", other)
 	end
 end
 
-function Interactive:on_leave_collision(e)
-	-- @@assert(e.__isEntity)
+function Interactive:on_leave_interactive(e)
+	@@assert(e.__isEntity)
+	e:remove("within_interactive")
 end
 
 return Interactive

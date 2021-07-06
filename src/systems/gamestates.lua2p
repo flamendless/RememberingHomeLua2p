@@ -32,44 +32,14 @@ function GameStates:switch_state(next_state)
 	end)
 end
 
-!if _DEV then
-local function rec_print(t)
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			rec_print(v)
-		elseif type(v) == "userdata" or type(v) == "function" then
-			print(t.__name, k, v)
-		end
-	end
-end
-
-local function t_print(t)
-	local str = ""
-	for _, t in ipairs(t) do
-		for _, t2 in ipairs(t) do
-			str = str .. t2.__name .. "\n"
-			-- print(t2.__name)
-			for k, v in pairs(t2) do
-				-- print("\t", k, v)
-				str = str .. "\t " .. k .. " = " .. tostring(v) .. "\n"
-			end
-			str = str .. "\n"
-		end
-	end
-	return str
-end
-!end
-
 function GameStates:save_game()
 	local data = self.world:serialize()
-	-- local str = t_print(data)
-	-- love.filesystem.write("test_ser", str)
-	Utils.serial.write(!(_SAVESTATE_FILENAME), data)
+	-- Utils.serial.write(!(_SAVESTATE_FILENAME), data)
 end
 
 function GameStates:load_game()
 	local data = Utils.serial.read(!(_SAVESTATE_FILENAME))
-	self.world:deserialize(data, true)
+	-- self.world:deserialize(data, true)
 end
 
 return GameStates

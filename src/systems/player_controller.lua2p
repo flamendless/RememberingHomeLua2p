@@ -18,6 +18,14 @@ function PlayerController:player_can_move(bool)
 	end
 end
 
+function PlayerController:player_can_run(bool)
+	@@assert(type(bool) == "boolean")
+	@@assert(#self.pool ~= 0)
+	for _, e in ipairs(self.pool) do
+		e.body.can_run = true
+	end
+end
+
 function PlayerController:player_can_interact(bool)
 	@@assert(type(bool) == "boolean")
 	@@assert(#self.pool ~= 0)
@@ -28,8 +36,6 @@ end
 
 function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
-		self.world:emit("check_on_leave_interactives", e)
-
 		if e.override_animation then return end
 		if not e.body.can_move then return end
 		local player = e.player
@@ -38,16 +44,14 @@ function PlayerController:update(dt)
 
 		if Inputs.down("left") then
 			if body.can_run then
-				body.is_run = Inputs.is_down("player_run_mod")
+				body.is_run = Inputs.down("run_mod")
 			end
-
 			body.dir = -1
 			body.dx = -1
 		elseif Inputs.down("right") then
 			if body.can_run then
-				body.is_run = Inputs.is_down("player_run_mod")
+				body.is_run = Inputs.down("run_mod")
 			end
-
 			body.dir = 1
 			body.dx = 1
 		else
@@ -64,7 +68,7 @@ function PlayerController:update(dt)
 
 		if Inputs.pressed("interact") then
 			if player.can_interact and within_interactive then
-				self.world:emit("interactive_interacted", e, within_interactive.interactive)
+				self:player_interact(e, within_interactive.entity)
 			end
 		elseif Inputs.pressed("cancel") then
 			local interact = player.can_interact
@@ -80,18 +84,17 @@ function PlayerController:update(dt)
 			end
 		end
 
-		local anim_name = self:update_animation(e)
+		local anim_name = self:player_update_animation(e)
 		self:update_speed(e, anim_name)
 	end
 end
 
-function PlayerController:update_animation(e, override_name, override_variance)
+function PlayerController:player_update_animation(e, override_name, override_variance)
 	local anim_name = override_name
 	local anim_variance = override_variance
 	local body = e.body
 
 	if not anim_name then
-
 		if body.dx ~= 0 or body.dy ~= 0 then
 			if body.is_run then
 				anim_name = "run"
@@ -143,14 +146,14 @@ function PlayerController:face_left(e)
 	@@assert(e.__isEntity and e.player_controller)
 	if e.override_animation then return end
 	e.body.dir = -1
-	self:update_animation(e, "idle", "_left")
+	self:player_update_animation(e, "idle", "_left")
 end
 
 function PlayerController:face_right(e)
 	@@assert(e.__isEntity and e.player_controller)
 	if e.override_animation then return end
 	e.body.dir = 1
-	self:update_animation(e, "idle")
+	self:player_update_animation(e, "idle")
 end
 
 function PlayerController:idle(e, stop)
@@ -158,9 +161,9 @@ function PlayerController:idle(e, stop)
 	if e.override_animation then return end
 	local body = e.body
 	if body.dir == -1 then
-		self:update_animation(e, "idle", "_left")
+		self:player_update_animation(e, "idle", "_left")
 	else
-		self:update_animation(e, "idle")
+		self:player_update_animation(e, "idle")
 	end
 
 	if stop then
@@ -199,6 +202,11 @@ function PlayerController:interacted_stairs(e, tag, fn)
 	e:give("change_animation_tag", tag)
 	:give("override_animation")
 	:give("animation_on_update", fn)
+end
+
+function PlayerController:player_interact(player, interactive)
+	@@assert(player.__isEntity and player.player)
+	@@assert(interactive.__isEntity and interactive.interactive)
 end
 
 return PlayerController

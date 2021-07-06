@@ -22,17 +22,21 @@ local speed = {
 local z_index = {
 	clouds = {1, 0.005},
 	building = {1, 0.005},
+	fog1 = {1, 0.005},
 	grass_back = {2, 0.01},
 	bg_trees = {3, 0.015},
 	bg_tree_cover = {4, 0.02},
+	fog4 = {5, 0.02},
 	grass_front = {7, 0.025},
 	post_light = {8, 0.03},
 	post = {8, 0.03},
 	road = {9, 0.04},
 	grass1 = {10, 0.05},
 	car = {11, 0.04},
+	fog2 = {12, 0.04},
 	grass2 = {13, 0.06},
 	fg_trees = {14, 0.07},
+	fog3 = {15, 0.07},
 }
 
 function Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
@@ -146,6 +150,19 @@ function Intro.title_light(e, sprite)
 	:give("light", "custom", 1)
 	:give("light_flicker", 0.075)
 	:give("light_disabled")
+end
+
+function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, speed)
+	e:give("id", id)
+	:give("sprite", "dummy")
+	:give("noise_texture", w, h)
+	:give("pre_shader_color")
+	:give("color", color)
+	:give("pos", x, y)
+	:give("transform", 0, fsx, fsy)
+	:give("fog", speed)
+	:give("z_index", z_index[id][1], false)
+	:give("depth_zoom", z_index[id][2])
 end
 
 return Intro

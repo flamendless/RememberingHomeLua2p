@@ -180,7 +180,7 @@ function love.quit()
 	Lily.quit()
 	Log.info("Quitting...")
 
-	!if not _RELEASE and _LOG_SAVE then
+	!if _RELEASE and _LOG_SAVE then
 	Log.quit(!(_LOG_OUTPUT))
 	!end
 

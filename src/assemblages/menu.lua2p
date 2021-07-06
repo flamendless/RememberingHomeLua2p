@@ -102,7 +102,7 @@ function Menu.about_ext_link(e, id, resource_id, x, y)
 	:give("clickable")
 	:give("hoverable")
 	:give("hover_change_color", Palette.get("about_hint"), 0.25)
-	:give("transform", 0, 0.75, 0.75)
+	:give("transform", 0, 0.75, 0.75, 0, 0.5)
 end
 
 function Menu.btn_back(e, x, y)

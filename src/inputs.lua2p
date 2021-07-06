@@ -14,6 +14,7 @@ local maps = {
 		q = "cancel",
 		t = "inventory",
 		space = "skip",
+		lshift = "run_mod",
 	},
 	--map_arrows
 	 {
@@ -25,6 +26,7 @@ local maps = {
 		x = "cancel",
 		c = "inventory",
 		space = "skip",
+		lshift = "run_mod",
 	},
 }
 local map_names = { "WASD", "Arrows" }

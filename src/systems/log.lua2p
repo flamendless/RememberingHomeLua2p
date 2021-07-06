@@ -11,9 +11,9 @@ function Log:init(world)
 	self.world = world
 	self.logs = {
 		entity = {},
-		collision = {},
+		interactive = {},
 	}
-	self.tabs = {"entity", "collision"}
+	self.tabs = {"entity", "interactive"}
 	self.current = self.tabs[1]
 end
 
@@ -27,14 +27,14 @@ function Log:on_remove_entity(e)
 	insert(self.logs.entity, str)
 end
 
-function Log:on_enter_collision(e, other)
+function Log:on_collide_interactive(e, other)
 	local str = string.format("on_col: %s, %s", e.id.value, other.id.value)
-	insert(self.logs.collision, str)
+	insert(self.logs.interactive, str)
 end
 
-function Log:on_leave_collision(e)
+function Log:on_leave_interactive(e)
 	local str = "on_leave_col: " .. e.id.value
-	insert(self.logs.collision, str)
+	insert(self.logs.interactive, str)
 end
 
 function Log:debug_update(dt)

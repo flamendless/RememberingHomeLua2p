@@ -8,72 +8,22 @@ local ScreenInfo = require("screen_info")
 local Utils = require("utils")
 
 local Dialogues = Concord.system({
-	pool = {"id", "dialogue"},
-	pool_arrow = {"id", "dialogue_arrow"},
 })
 
 local UI = require("assemblages.ui")
 
 function Dialogues:init(world)
 	self.world = world
-	self.pos = nil
-	self.pos_arrow = nil
-	self.font = nil
-	self.sheet_arrow = nil
-
-	self.timer = Timer()
-	self.dur_show = 0.5
-	self.dur_hide = 0.5
-	self.has_dialogue = false
-	self.arrow = nil
-
-	self.pool.onAdded = function(pool, e)
-		self.has_dialogue = true
-		self.current_d = e
-	end
-
-	self.pool_arrow.onAdded = function(pool, e)
-		self.arrow = e
-	end
-
-	self.pool.onRemoved = function(pool, e)
-		local dialogue_interactive = e.dialogue_interactive
-		local interactive_id
-
-		if dialogue_interactive then
-			interactive_id = dialogue_interactive.id
-		end
-
-		self.world:emit("destroyed_dialogue", interactive_id)
-		self.current_d = nil
-		self.current_i = nil
-		self.dialogue_t = nil
-		self.arrow:destroy()
-
-		if #self.pool == 0 then
-			self.has_dialogue = false
-		end
-	end
 end
 
-function Dialogues:set_dialogue_config(t)
-	@@assert(type(t) == "table")
-	@@assert(type(t.pos) == "table")
-	@@assert(type(t.pos.x) == "number")
-	@@assert(type(t.pos.y) == "number")
-	@@assert(type(t.pos_arrow) == "table")
-	@@assert(type(t.pos_arrow.x) == "number")
-	@@assert(type(t.pos_arrow.y) == "number")
-	@@assert(t.font:type() == "Font")
-	@@assert(t.sheet_arrow:type() == "Image")
-	@@sassert(t.dur_show, type(t.dur_show) == "number")
-	@@sassert(t.dur_hide, type(t.dur_hide) == "number")
-	self.pos = t.pos
-	self.pos_arrow = t.pos_arrow
-	self.font = t.font
-	self.sheet_arrow = t.sheet_arrow
-	self.dur_show = t.dur_show or self.dur_show
-	self.dur_hide = t.dur_hide or self.dur_hide
+function Dialogues:on_collision_dialogue(e, other)
+	@@assert(e.__isEntity)
+	@@assert(other.__isEntity)
+	local body = e.body
+	local other_col = other.collider
+	if not e.within_dialogue then
+		e:give("within_dialogue", other)
+	end
 end
 
 function Dialogues:show_dialogue(id, sub, interactive_id)
@@ -142,7 +92,7 @@ function Dialogues:next_dialogue()
 end
 
 function Dialogues:update(dt)
-	self.timer:update(dt)
+	-- self.timer:update(dt)
 
 	if self.arrow then
 		local orig = self.arrow.pos.original_pos

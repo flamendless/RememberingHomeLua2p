@@ -22,7 +22,6 @@ local insert = table.insert
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	InteractiveOutside = require("assemblages.interactive_outside"),
 	Items = require("assemblages.items"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
@@ -81,35 +80,9 @@ function Outside:state_setup()
 	-- 	sheet_arrow = Resources.data.images.sheet_dialogue_arrow,
 	-- })
 
-	-- self.world:emit("set_action_controls_resources", {
-	-- 		eye = res_images.sheet_ui_eye,
-	-- 		hand = res_images.sheet_ui_hand,
-	-- 		bag = res_images.sheet_ui_bag,
-	-- 		cancel = res_images.sheet_ui_cancel,
-	-- 		use = res_images.sheet_ui_use,
-	-- 		combine = res_images.sheet_ui_combine,
-	-- 		back = res_images.sheet_ui_back,
-	-- 	})
-
-	-- self.world:emit("set_items_resources", {
-	-- 		item_backdoor_key = res_images.backdoor_key,
-	-- 	})
-
-	-- self.world:emit("set_notification_resources", {
-	-- 		question_mark = res_images.question_mark
-	-- 	})
-
 	local _, _, cw, _ = self.camera:getVisible()
 	self.ps1 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop, 128, cw)
 	self.ps2 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop2, 128, cw)
-
-	-- self.world:emit("create_inventory_cell",
-	-- 	res_images.bg_item,
-	-- 	res_images.bg_desc,
-	-- 	res_fonts.item_desc)
-
-	-- self.entities.backdoor_key = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 
 	local bg_house = Resources.data.images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
@@ -131,11 +104,6 @@ function Outside:state_setup()
 	for _, v in pairs(Assemblages.Outside.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-
-	--TODO
-	-- for k, v in pairs(Assemblages.InteractiveOutside) do
-	-- 	self.entities[k] = Concord.entity(self.world):assemble(v)
-	-- end
 
 	for _, str in ipairs(tasks) do
 		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
@@ -162,7 +130,7 @@ function Outside:state_setup()
 	self.world:emit("generate_fireflies")
 
 	local lut_size, lut_dusk
-	if Settings.current.graphics_quality == "Low" then
+	if Settings.current.graphics_quality == "low" then
 		lut_size = 16
 		lut_dusk = Resources.data.image_data.lut_dusk_16
 	else
@@ -196,6 +164,7 @@ function Outside:state_init()
 		-- self:start_tasks()
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
+		self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 		!end
 

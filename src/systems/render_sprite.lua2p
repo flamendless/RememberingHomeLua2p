@@ -54,14 +54,11 @@ function RenderSprite:draw_sprite_ex(e)
 		local sprite = e.sprite
 		local transform = e.transform
 		local quad_transform = e.quad_transform
-		local animation_data = e.animation_data
 
 		love.graphics.setColor(1, 1, 1, 1)
-
 		if color then love.graphics.setColor(color.value) end
 
 		local rot, sx, sy, ox, oy, kx, ky
-
 		if transform then
 			rot = transform.rotation
 			ox, oy = Helper.get_offset(e)
@@ -72,7 +69,6 @@ function RenderSprite:draw_sprite_ex(e)
 		end
 
 		local temp_shader
-
 		if e.no_shader then
 			temp_shader = love.graphics.getShader()
 			love.graphics.setShader()
@@ -88,7 +84,6 @@ function RenderSprite:draw_sprite_ex(e)
 				kx = quad_transform.kx
 				ky = quad_transform.ky
 			end
-
 			draw(sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 		else
 			draw(sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
@@ -107,8 +102,19 @@ function RenderSprite:draw()
 end
 
 function RenderSprite:draw_z()
+	local temp
 	for _, e in ipairs(self.pool_z) do
-		self:draw_sprite_ex(e)
+		if e.fog then
+			temp = love.graphics.getShader()
+			self.world:emit("draw_fog", e)
+			self:draw_sprite_ex(e)
+			self.world:emit("end_draw_fog")
+		else
+			if temp then
+				love.graphics.setShader(temp)
+			end
+			self:draw_sprite_ex(e)
+		end
 	end
 end
 

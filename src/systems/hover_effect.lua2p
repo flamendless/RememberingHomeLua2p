@@ -7,7 +7,7 @@ local HoverEffect = Concord.system({
 	pool_change_scale = {"bounding_box", "hoverable", "transform", "hover_change_scale"},
 })
 
-!if _ASSERT then
+!if _DEV then
 local MouseHover = require("systems.mouse_hover")
 !end
 
