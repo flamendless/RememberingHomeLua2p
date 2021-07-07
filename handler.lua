@@ -20,6 +20,20 @@ function sassert(v, cond, msg)
 	return "if " .. v .. " then " .. str .. " end"
 end
 
+function profb(a, b)
+	if not _PROF then return "" end
+	if b then
+		return string.format("JPROF.push(%s, %s)", a, b)
+	else
+		return "JPROF.push(" .. a .. ")"
+	end
+end
+
+function profe(a)
+	if not _PROF then return "" end
+	return "JPROF.pop(" .. a .. ")"
+end
+
 args = split(args)
 
 if args[1] == "dev" then

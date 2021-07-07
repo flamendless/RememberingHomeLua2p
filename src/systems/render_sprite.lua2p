@@ -7,7 +7,6 @@ local RenderSprite = Concord.system({
 		"!z_index", "!ui_element", "!light"},
 	pool_z = {"pos", "sprite", "z_index",
 		"!ui_element", "!light"},
-	pool_quad = {"pos", "sprite", "quad"},
 })
 
 local function sort_z_ex(a, b)
@@ -96,19 +95,24 @@ function RenderSprite:draw_sprite_ex(e)
 end
 
 function RenderSprite:draw()
+	@@profb("render_sprite")
 	for _, e in ipairs(self.pool) do
 		self:draw_sprite_ex(e)
 	end
+	@@profe("render_sprite")
 end
 
 function RenderSprite:draw_z()
+	@@profb("render_sprite_z")
 	local temp
 	for _, e in ipairs(self.pool_z) do
-		if e.fog then
+		if e.fog and not e.hidden then
 			temp = love.graphics.getShader()
+			@@profb("draw_fog")
 			self.world:emit("draw_fog", e)
 			self:draw_sprite_ex(e)
 			self.world:emit("end_draw_fog")
+			@@profe("draw_fog")
 		else
 			if temp then
 				love.graphics.setShader(temp)
@@ -116,6 +120,7 @@ function RenderSprite:draw_z()
 			self:draw_sprite_ex(e)
 		end
 	end
+	@@profe("render_sprite_z")
 end
 
 return RenderSprite

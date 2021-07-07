@@ -246,7 +246,8 @@ function Menu:state_draw()
 		self.current_state == states.play then
 
 		self.canvases.main:attach()
-		self.camera:draw(function(l, t, w, h)
+		self.camera:attach()
+			local l, t = self.camera:getVisible()
 			self.world:emit("draw")
 			if self.current_state == states.settings and not self.mb.flag_process then
 				love.graphics.push()
@@ -255,7 +256,7 @@ function Menu:state_draw()
 				love.graphics.pop()
 			end
 			Fade.draw()
-		end)
+		self.camera:detach()
 		self.canvases.main:detach()
 		self.mb:post_process_draw()
 		self.canvases.main:render()

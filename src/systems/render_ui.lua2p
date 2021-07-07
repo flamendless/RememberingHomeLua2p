@@ -39,6 +39,8 @@ function RenderUI:init(world)
 end
 
 function RenderUI:draw_ui()
+	@@profb("render_ui_draw")
+	@@profb("render_ui")
 	for _, e in ipairs(self.pool_ui) do
 		local text = e.text
 		local stext = e.static_text
@@ -52,7 +54,9 @@ function RenderUI:draw_ui()
 			self.world:emit("draw_sprite_ex", e)
 		end
 	end
+	@@profe("render_ui")
 
+	@@profb("render_ui_layers")
 	for i, pool in ipairs(self.layers) do
 		for _, e in ipairs(pool) do
 			local text = e.text
@@ -70,6 +74,8 @@ function RenderUI:draw_ui()
 			end
 		end
 	end
+	@@profe("render_ui_layers")
+	@@profe("render_ui_draw")
 end
 
 function RenderUI:cleanup()

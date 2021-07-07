@@ -55,10 +55,8 @@ local function custom_loading_screen()
 end
 
 function love.load()
-	!if _PROF then
-	JPROF.push("frame")
-	JPROF.push("love load")
-	!end
+	@@profb("frame")
+	@@profb("love load")
 
 	Log.info(string.format("Starting... Game Version : %s", Config.this_version))
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
@@ -83,16 +81,12 @@ function love.load()
 	GameStates.switch("Splash")
 	!end
 
-	!if _PROF then
-	JPROF.pop("love load")
-	JPROF.pop("frame")
-	!end
+	@@profe("love load")
+	@@profe("frame")
 end
 
 function love.update(dt)
-	!if _PROF then
-	JPROF.push("frame")
-	!end
+	@@profb("love.update")
 
 	Timer.update(dt)
 	Flux.update(dt)
@@ -103,15 +97,11 @@ function love.update(dt)
 	DevTools.update(dt)
 	!end
 
-	!if _PROF then
-	JPROF.pop("frame")
-	!end
+	@@profe("love.update")
 end
 
 function love.draw()
-	!if _PROF then
-	JPROF.push("frame")
-	!end
+	@@profb("love.draw")
 
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
@@ -129,9 +119,7 @@ function love.draw()
 	DevTools.end_draw()
 	!end
 
-	!if _PROF then
-	JPROF.pop("frame")
-	!end
+	@@profe("love.draw")
 end
 
 function love.keypressed(key)
@@ -185,6 +173,51 @@ function love.quit()
 	!end
 
 	!if _PROF then
+	JPROF.popAll()
 	JPROF.write("prof.mpack")
 	!end
+end
+
+function love.run()
+	if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
+	if love.timer then love.timer.step() end
+	local dt = 0
+	-- Main loop time.
+	return function()
+		-- Process events.
+		@@profb("frame")
+		@@profb("love.run")
+
+		if love.event then
+			@@profb("love.event")
+			love.event.pump()
+			for name, a,b,c,d,e,f in love.event.poll() do
+				@@profb(name)
+				if name == "quit" then
+					if not love.quit or not love.quit() then
+						return a or 0
+					end
+				end
+				love.handlers[name](a,b,c,d,e,f)
+				@@profe(name)
+			end
+			@@profe("love.event")
+		end
+
+		if love.timer then dt = love.timer.step() end
+		if love.update then love.update(dt) end
+		if love.graphics and love.graphics.isActive() then
+			love.graphics.origin()
+			love.graphics.clear(love.graphics.getBackgroundColor())
+			if love.draw then love.draw() end
+			@@profb("present")
+			love.graphics.present()
+			@@profe("present")
+		end
+		@@profb("sleep")
+		if love.timer then love.timer.sleep(0.001) end
+		@@profe("sleep")
+		@@profe("love.run")
+		@@profe("frame")
+	end
 end

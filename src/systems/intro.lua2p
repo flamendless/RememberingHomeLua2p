@@ -39,11 +39,12 @@ local is_switching = false
 local rain_amount = {16, 32, 96}
 local should_fade = false
 local intro_text_n = 1
+local img_bg
 
 function Intro:enable_next_intro_text()
 	local e = self.pool_intro_text[intro_text_n]
-	self.world:emit("fade_text", e,
-		fade_duration, function()
+	self.world:emit("fade_text", e, fade_duration,
+		function()
 			self.timeline:Unpause()
 			intro_text_n = intro_text_n + 1
 		end)
@@ -72,7 +73,8 @@ function Intro:init(world)
 end
 
 function Intro:state_setup()
-	local w, h = Resources.data.images.bg:getDimensions()
+	img_bg = Resources.data.images.bg
+	local w, h = img_bg:getDimensions()
 	self.canvases = {}
 	self.canvases.main = Canvas.create_main({})
 
@@ -143,9 +145,11 @@ function Intro:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
 			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
 		:give("fade_in_target_alpha", 0.45)
+		:give("hidden")
 	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
 			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
 		:give("fade_in_target_alpha", 0.45)
+		:give("hidden")
 
 	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
 			self.e_car)
@@ -201,7 +205,7 @@ end
 
 function Intro:state_init()
 	local ssx = love.graphics.getWidth()
-	local w, h = Resources.data.images.bg:getDimensions()
+	local w, h = img_bg:getDimensions()
 	self.timeline = TLE.Do(function()
 		!if _DEV then
 		self.world:emit("set_ambient_light", {0.5, 0.5, 0.5})
@@ -303,6 +307,7 @@ function Intro:state_init()
 end
 
 function Intro:state_update(dt)
+	@@profb("intro_update")
 	!if _DEV then
 	if Inputs.pressed("play") then
 		self.timeline:Unpause()
@@ -327,21 +332,28 @@ function Intro:state_update(dt)
 	end
 
 	if is_raining then
+		@@profb("intro_rain_update")
 		self.ps1:update(dt)
 		self.ps2:update(dt)
+		@@profe("intro_rain_update")
 	end
 
 	self.world:emit("parallax_move_x", dt, 1)
 
 	if effect.status == 2 then
+		@@profb("intro_ngrading_multi")
 		effect.multi:set_dt(effect.dt)
+		@@profe("intro_ngrading_multi")
 	end
 
 	self.world:emit("update", dt)
 	self.world:emit("update_light", dt)
+	@@profe("intro_update")
 end
 
 function Intro:state_draw()
+	@@profb("intro_draw")
+	@@profb("draw_light")
 	self.world:emit("draw_light_start")
 	self.world:emit("draw_light")
 
@@ -349,31 +361,36 @@ function Intro:state_draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas(self.canvases.main.canvas)
 
-	self.camera:draw(function(l, t, w, h)
+	@@profb("intro_camera_draw")
+	self.camera:attach()
 		if current_effect then
 			current_effect:apply()
 		end
 
-		love.graphics.draw(Resources.data.images.bg)
+		love.graphics.draw(img_bg)
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 
 		if is_raining then
+			@@profb("intro_rain_draw")
 			self.ps1:draw(0, -16)
 			self.ps2:draw(0, -16)
+			@@profe("intro_rain_draw")
 		end
 
 		love.graphics.setShader()
 		self.world:emit("draw_light_end", self.canvases.main.x, self.canvases.main.y)
-	end)
+	self.camera:detach()
+	@@profe("intro_camera_draw")
+	@@profe("draw_light")
 
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
-
 	if should_fade then Fade.draw() end
 
 	love.graphics.setCanvas()
 	self.canvases.main:render()
+	@@profe("intro_draw")
 end
 
 function Intro:state_keypressed(key)
@@ -391,6 +408,7 @@ function Intro:cleanup()
 	rain_amount = {16, 32, 96}
 	should_fade = false
 	intro_text_n = 1
+	img_bg = nil
 end
 
 function Intro:resume_tle()

@@ -88,10 +88,7 @@ function Light:create_light_map(x, y, w, h, scale)
 end
 
 function Light:update_light(dt)
-	!if _PROF then
-	JPROF.push("update_light")
-	!end
-
+	@@profb("update_light")
 	for _, e in ipairs(self.pool) do
 		local light = e.light
 		local timer = e.light_timer
@@ -127,10 +124,7 @@ function Light:update_light(dt)
 			end
 		end
 	end
-
-	!if _PROF then
-	JPROF.pop("update_light")
-	!end
+	@@profe("update_light")
 end
 
 function Light:draw_light_start()
@@ -140,10 +134,6 @@ function Light:draw_light_start()
 end
 
 function Light:draw_light()
-	!if _PROF then
-	JPROF.push("draw_light")
-	!end
-
 	local _r, _g, _b, _a = love.graphics.getColor()
 
 	for _, e in ipairs(self.pool) do
@@ -174,10 +164,6 @@ function Light:draw_light()
 
 	love.graphics.setColor(_r, _g, _b, _a)
 	love.graphics.setBlendMode("alpha")
-
-	!if _PROF then
-	JPROF.pop("draw_light")
-	!end
 end
 
 function Light:draw_light_end(x, y)

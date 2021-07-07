@@ -34,6 +34,7 @@ local entity_list = {
 	show_list = false,
 	t_es = {},
 	n_es_id = 0,
+	n_active = 0,
 	title = "Entity List",
 }
 local systems_list = {
@@ -64,6 +65,7 @@ end
 function DevTools.update(dt)
 	if not DevTools.show then return end
 	if not GameStates.world then return end
+	@@profb("devtools_update")
 	Slab.Update(dt)
 
 	Slab.BeginWindow("list", {Title = "DevTools"})
@@ -86,12 +88,14 @@ function DevTools.update(dt)
 	DevTools.draw_systems_list()
 	DevTools.draw_debug_list()
 	GameStates.world:emit("debug_update", dt)
+	@@profe("devtools_update")
 end
 
 function DevTools.draw()
 	if not DevTools.show then return end
 	if not GameStates.world then return end
 
+	@@profb("devtools_draw")
 	love.graphics.setFont(font)
 	if DevTools.camera then
 		DevTools.camera:draw(function(l, t, w, h)
@@ -101,6 +105,7 @@ function DevTools.draw()
 		GameStates.world:emit("debug_draw")
 	end
 	Slab.Draw()
+	@@profe("devtools_draw")
 end
 
 function DevTools.draw_stats()
@@ -141,11 +146,14 @@ function DevTools.draw_entities_list()
 	})
 	entity_list.t_es = GameStates.world:getEntities()
 	entity_list.n_es_id = 0
+	entity_list.n_active = 0
 	for _, e in ipairs(entity_list.t_es) do
 		if e.id then entity_list.n_es_id = entity_list.n_es_id + 1 end
+		if not e.hidden then entity_list.n_active = entity_list.n_active + 1 end
 	end
 	Slab.Text("# of entities: " .. #entity_list.t_es)
 	Slab.Text("# of entities with id: " .. entity_list.n_es_id)
+	Slab.Text("# of active entities: " .. entity_list.n_active)
 
 	if Slab.Button("Toggle List (with ID)") then
 		entity_list.show_list = not entity_list.show_list

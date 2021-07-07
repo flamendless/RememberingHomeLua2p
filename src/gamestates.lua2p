@@ -24,36 +24,32 @@ function GameStates.preload()
 end
 
 function GameStates.start(resources)
+	@@profb("gs_start")
 	Resources.set_resources(resources)
 	GameStates.is_ready = true
 	GameStates.world = Concord.world()
 	ECS.load_systems(GameStates.current_id, GameStates.world)
 
-	!if _DEV and _PROF then
-	JPROF.push("frame", "setup")
-	!end
+	@@profb("state_setup")
 	GameStates.world:emit("state_setup")
-	!if DEV and _PROF then
-	JPROF.pop("frame")
-	!end
+	@@profe("state_setup")
 
-	!if _DEV and _PROF then
-	JPROF.push("frame", "state_init")
-	!end
+	@@profb("state_init")
 	GameStates.world:emit("state_init")
-	!if DEV and _PROF then
-	JPROF.pop("frame")
-	!end
+	@@profe("state_init")
 
 	!if _DEV then
 	local sc = ECS.getSystemClass(GameStates.current_id)
 	local DevTools = require("devtools")
 	DevTools.camera = GameStates.world:getSystem(sc).camera
 	!end
+	@@profe("gs_start")
 end
 
 function GameStates.switch(next_id)
 	@@assert(type(next_id) == "string")
+	@@profb("gs_switch")
+
 	GameStates.is_ready = false
 	if GameStates.world then
 		GameStates.prev_world = GameStates.world
@@ -63,7 +59,10 @@ function GameStates.switch(next_id)
 
 	Log.info("Switching to: " .. next_id)
 	GameStates.current_id = next_id
+	@@profb("preload")
 	GameStates.preload()
+	@@profe("preload")
+	@@profe("gs_switch")
 end
 
 function GameStates.switch_to_previous()

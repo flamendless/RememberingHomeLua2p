@@ -14,7 +14,7 @@ end
 
 function Fog:update(_)
 	for _, e in ipairs(self.pool) do
-		if not e.hide then
+		if not e.hidden then
 			local fog = e.fog
 			fog.shader:send("fog_speed", fog.speed)
 			fog.shader:send("t", love.timer.getTime())
@@ -39,7 +39,8 @@ function Fog:fade_in_fog(target_id, dur)
 	for _, e in ipairs(self.pool) do
 		local id = e.id.value
 		if id == target_id then
-			e:give("color_fade_in", dur)
+			e:remove("hidden")
+			:give("color_fade_in", dur)
 			break
 		end
 	end
