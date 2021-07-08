@@ -23,6 +23,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 * [anim8](https://github.com/kikito/anim8) - for sprite animation
 * [Batteries](https://github.com/1bardesign/batteries) - for class, vec2, vec3, math, string, table, etc.
+* [bitser](https://github.com/gvx/bitser) - for serialization/deserialization of lua data to binary files
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System
 * [Enum](https://github.com/Tjakka5/Enum) - for Enums
@@ -35,7 +36,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [love-sdf-text](https://github.com/Tjakka5/love-sdf-text) - for SDF rendering
 * [ReflowPrint](https://github.com/josefnpat/reflowprint) - for alignment of text that is shown one character at a time.
 * [semver](https://github.com/kikito/semver) - for semantic versioning
-* [Slab](https://github.com/coding-jackalope/Slab) - for GUI and in-game editor tools
+* [Slab](https://github.com/flamendless/Slab) - for GUI and in-game editor tools
 * [splashes](https://github.com/love2d-community/splashes) - for löve splash screen
 * [strict.lua](https://github.com/rxi/lite/blob/master/data/core/strict.lua) - tracks accesses and assignments of undefined variables in Lua
 * [TimelineEvents](https://github.com/flamendless/TimelineEvents) - for coroutine based event system

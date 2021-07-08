@@ -131,7 +131,7 @@ _TOOLS = {
 }
 
 _LIBS = {
-	"Anim8", "Batteries", "Bump-niji",
+	"Anim8", "Batteries", "Bitser", "Bump-niji",
 	"Concord", "Enum", "Flux", "Gamera",
 	"HUMP", "JProf", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
