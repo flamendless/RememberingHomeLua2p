@@ -1,4 +1,3 @@
-local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
 local Info = require("info")
@@ -20,9 +19,9 @@ local filename = !(_SETTINGS_FILENAME)
 local graphics_quality = {"low", "high"}
 
 function Settings.init()
-	local content, exists = Utils.file.read(filename)
+	local content, exists = Utils.serial.read(filename)
 	if exists then
-		Settings.current = JSON.decode(content)
+		Settings.current = content
 		pretty.print(Settings.current)
 	else
 		Settings.create_new()
@@ -45,7 +44,7 @@ function Settings.create_new()
 end
 
 function Settings.overwrite()
-	Utils.json.write(filename, Settings.current)
+	Utils.serial.write(filename, Settings.current)
 end
 
 function Settings.set(id, value, should_overwrite)

@@ -95,7 +95,7 @@ _GITHUB_URL_RELEASE = ""
 
 _LOG_OUTPUT = "log"
 _LOG_INFO = "info.txt"
-_SETTINGS_FILENAME = "user_settings.json"
+_SETTINGS_FILENAME = "user_settings"
 _SAVE_FILENAME = "save_data"
 _SAVESTATE_FILENAME = "save_state"
 _SAVE_KEY = "data_store"
@@ -133,7 +133,7 @@ _TOOLS = {
 _LIBS = {
 	"Anim8", "Batteries", "Bump-niji",
 	"Concord", "Enum", "Flux", "Gamera",
-	"HUMP", "JProf", "JSON", "Lily", "Log",
+	"HUMP", "JProf", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
 	"Semver", "Slab", "Splashes", "strict", "TimelineEvents",
 }

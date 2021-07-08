@@ -43,9 +43,6 @@
 [submodule "modules/tle"]
 	path = modules/tle
 	url = https://github.com/flamendless/TimelineEvents
-[submodule "modules/json"]
-	path = modules/json
-	url = https://github.com/rxi/json.lua.git
 [submodule "modules/bump"]
 	path = modules/bump
 	url = https://github.com/oniietzschan/bump-niji

@@ -1,4 +1,3 @@
-local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
 local Settings = require("settings")

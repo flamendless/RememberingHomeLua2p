@@ -1,12 +1,10 @@
 local Bitser = require("modules.bitser.bitser")
-local JSON = require("modules.json.json")
 local Log = require("modules.log.log")
 
 local format = string.format
 
 local Utils = {
 	file = {},
-	json = {},
 	serial = {},
 	hash = {},
 	string = {},
@@ -30,20 +28,6 @@ function Utils.file.write(filename, data)
 	Log.info(format("'%s' written", filename))
 end
 
-function Utils.json.write(filename, data)
-	@@assert(type(filename) == "string")
-	Utils.file.write(filename, JSON.encode(data))
-end
-
-function Utils.json.parse(filename)
-	@@assert(type(filename) == "string")
-	local content, exists = Utils.file.read(filename)
-	if exists then
-		return JSON.decode(content), true
-	end
-	return false
-end
-
 function Utils.serial.write(filename, data)
 	@@assert(type(filename) == "string")
 	local to_write = Bitser.dumps(data)
@@ -54,8 +38,11 @@ end
 function Utils.serial.read(filename)
 	@@assert(type(filename) == "string")
 	local content, exists = Utils.file.read(filename)
-	local data = Bitser.loads(content)
-	return data, exists
+	if exists then
+		local data = Bitser.loads(content)
+		return data, exists
+	end
+	return false
 end
 
 function Utils.serial.de(content)
