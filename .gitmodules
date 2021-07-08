@@ -36,40 +36,25 @@
 	url = https://github.com/flamendless/gamera
 [submodule "modules/slab"]
 	path = modules/slab
-	url = https://github.com/coding-jackalope/Slab
+	url = https://github.com/flamendless/Slab
 [submodule "modules/sdf"]
 	path = modules/sdf
 	url = https://github.com/flamendless/love-sdf-text.git
-[submodule "modules/https"]
-	path = modules/https
-	url = https://github.com/LPGhatguy/luajit-request.git
 [submodule "modules/tle"]
 	path = modules/tle
 	url = https://github.com/flamendless/TimelineEvents
 [submodule "modules/json"]
 	path = modules/json
 	url = https://github.com/rxi/json.lua.git
-[submodule "modules/arson"]
-	path = modules/arson
-	url = https://github.com/flamendless/arson.lua
 [submodule "modules/bump"]
 	path = modules/bump
 	url = https://github.com/oniietzschan/bump-niji
-[submodule "modules/bump3d"]
-	path = modules/bump3d
-	url = https://github.com/oniietzschan/bump-3dpd/
 [submodule "modules/bitser"]
 	path = modules/bitser
 	url = https://github.com/gvx/bitser
-[submodule "modules/cartographer"]
-	path = modules/cartographer
-	url = https://github.com/tesselode/cartographer/
 [submodule "modules/jprof"]
 	path = modules/jprof
 	url = https://github.com/pfirsich/jprof
-[submodule "modules/strictness"]
-	path = modules/strictness
-	url = https://github.com/Yonaba/strictness
 [submodule "libs/LPP"]
 	path = libs/LPP
 	url = https://github.com/ReFreezed/LuaPreprocess/

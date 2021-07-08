@@ -131,11 +131,11 @@ _TOOLS = {
 }
 
 _LIBS = {
-	"Anim8", "Arson", "Batteries", "Bump-niji", "Cartographer",
-	"Concord", "Crush", "Enum", "Flux", "Gamera",
+	"Anim8", "Batteries", "Bump-niji",
+	"Concord", "Enum", "Flux", "Gamera",
 	"HUMP", "JProf", "JSON", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
-	"Semver", "Slab", "Splashes", "TimelineEvents",
+	"Semver", "Slab", "Splashes", "strict", "TimelineEvents",
 }
 
 return {}
