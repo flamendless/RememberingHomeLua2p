@@ -2,9 +2,9 @@ local Concord = require("modules.concord.concord")
 local SortedTable = require("ctor.sorted_table")
 
 local RenderUI = Concord.system({
-	pool_intro = {
+	pool_text = {
 		constructor = SortedTable,
-		layer = "intro",
+		layer = "text",
 		"ui_element",
 	},
 	pool_hold_key = {
@@ -27,14 +27,20 @@ local RenderUI = Concord.system({
 		layer = "dialogue",
 		"ui_element",
 	},
+	pool_hud = {
+		constructor = SortedTable,
+		layer = "hud",
+		"ui_element",
+	},
 	pool_ui = {"ui_element", "pos", "!layer"},
 });
 
 function RenderUI:init(world)
 	self.world = world
 	self.layers = {
-		self.pool_intro, self.pool_hold_key, self.pool_inventory,
+		self.pool_text, self.pool_hold_key, self.pool_inventory,
 		self.pool_inventory_buttons, self.pool_dialogue,
+		self.pool_hud,
 	}
 end
 
@@ -57,13 +63,11 @@ function RenderUI:draw_ui()
 	@@profe("render_ui")
 
 	@@profb("render_ui_layers")
-	for i, pool in ipairs(self.layers) do
+	for _, pool in ipairs(self.layers) do
 		for _, e in ipairs(pool) do
 			local text = e.text
 			local stext = e.static_text
 			local sprite = e.sprite
-
-			self.world:emit("draw_ui_layer_ex", pool.layer_id)
 
 			if text or stext then
 				self.world:emit("draw_text_ex", e)

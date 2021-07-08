@@ -1,5 +1,6 @@
 local Enum = require("modules.enum.enum")
 
+local AnimationData = require("animation_data")
 local Palette = require("palette")
 local Resources = require("resources")
 
@@ -16,7 +17,7 @@ function UI.ui_text(e, text, resource_id, x, y)
 	:give("color", Palette.get("white", 0))
 	:give("ui_element")
 	:give("hidden")
-	:give("layer", "intro", 2)
+	:give("layer", "text", 2)
 end
 
 function UI.ui_text_paint(e, text, font, x, y)
@@ -123,6 +124,19 @@ function UI.key_sdf(e, key, x, y, fnt, png)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("ui_element")
 	:give("key_input")
+end
+
+function UI.speech_bubble(e, x, y)
+	e:give("id", "speech_bubble")
+	:give("pos", x, y)
+	:give("color", {1, 1, 1, 1})
+	:give("animation_data", AnimationData.get("speech_bubble"))
+	:give("animation")
+	:give("no_shader")
+	:give("z_index", 99)
+	:give("transform", 0, 1, 1)
+	-- :give("ui_element")
+	-- :give("layer", "hud", 2)
 end
 
 function UI.arrow(e, dir, x, y)

@@ -177,8 +177,14 @@ function Transform:debug_update(dt)
 		if Slab.BeginTree(id, {Title = id}) then
 			Slab.Indent()
 			local pos = e.pos
+			local t = e.transform or e.quad_transform
 			pos.x = edit("x", pos.x)
 			pos.y = edit("y", pos.y)
+			if t then
+				t.r = edit("r", t.r)
+				t.sx = edit("sx", t.sx)
+				t.sy = edit("sy", t.sy)
+			end
 			Slab.EndTree()
 			Slab.Unindent()
 		end

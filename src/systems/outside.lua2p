@@ -22,7 +22,6 @@ local insert = table.insert
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Items = require("assemblages.items"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),

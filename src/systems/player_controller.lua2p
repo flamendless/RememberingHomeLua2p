@@ -1,5 +1,8 @@
 local Concord = require("modules.concord.concord")
 
+local Assemblages = {
+	UI = require("assemblages.ui"),
+}
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
@@ -40,6 +43,7 @@ function PlayerController:update(dt)
 		if not e.body.can_move then return end
 		local player = e.player
 		local within_interactive = e.within_interactive
+		local can_interact = e.can_interact
 		local body = e.body
 
 		if Inputs.down("left") then
@@ -67,7 +71,7 @@ function PlayerController:update(dt)
 		end
 
 		if Inputs.pressed("interact") then
-			if player.can_interact and within_interactive then
+			if can_interact and within_interactive then
 				self:player_interact(e, within_interactive.entity)
 			end
 		elseif Inputs.pressed("cancel") then
@@ -207,6 +211,9 @@ end
 function PlayerController:player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
+	local pos = player.pos
+	Concord.entity(self.world):assemble(Assemblages.UI.speech_bubble,
+		pos.x, pos.y)
 end
 
 return PlayerController

@@ -125,6 +125,7 @@ Resources.meta.Outside = {
 		{"sheet_ui_use", path_ui .. "ui_action_use.png"},
 		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
 		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
+		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
 		{"question_mark", path_ui .. "question_mark.png"},
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},

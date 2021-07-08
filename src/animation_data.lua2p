@@ -1,5 +1,3 @@
-local Resources = require("resources")
-
 local AnimationData = {}
 local data = {}
 
@@ -54,6 +52,15 @@ data.brush = {
 	rows_count = 3,
 	columns_count = 7,
 	n_frames = 21
+}
+
+data.speech_bubble = {
+	resource_id = "sheet_speech_bubble",
+	frames = {"1-5", 1, "1-5", 2},
+	delay = 0.1,
+	rows_count = 2,
+	columns_count = 5,
+	n_frames = 10,
 }
 
 function AnimationData.get(id)
