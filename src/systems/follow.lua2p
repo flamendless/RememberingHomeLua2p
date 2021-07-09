@@ -9,11 +9,6 @@ function Follow:init(world)
 	self.camera = nil
 end
 
-function Follow:on_camera_created(camera)
-	@@assert(camera.__camera)
-	self.camera = camera
-end
-
 function Follow:update(dt)
 	if self.camera then
 		for _, e in ipairs(self.pool_mouse) do

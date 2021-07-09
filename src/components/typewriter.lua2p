@@ -8,11 +8,13 @@ Concord.component("typewriter", function(c, target_text, every)
 	c.timer = nil
 end)
 
-Concord.component("reflowprint", function(c, width, alignment)
+Concord.component("reflowprint", function(c, width, alignment, speed)
 	@@assert(type(width) == "number")
 	@@assert(type(alignment) == "string")
+	@@sassert(speed, type(speed) == "number")
 	c.width = width
 	c.alignment = alignment
 	c.dt = 0
 	c.current = 1
+	c.speed = speed or 1
 end)

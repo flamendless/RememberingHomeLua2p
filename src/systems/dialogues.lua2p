@@ -1,132 +1,81 @@
 local Concord = require("modules.concord.concord")
-local Timer = require("modules.hump.timer")
 
 local DialoguesList = require("dialogues")
 local Inputs = require("inputs")
-local Palette = require("palette")
-local ScreenInfo = require("screen_info")
-local Utils = require("utils")
 
 local Dialogues = Concord.system({
+	pool_camera = {"camera"},
+	pool = {"dialogue_item", "text_t"},
 })
 
 local UI = require("assemblages.ui")
 
 function Dialogues:init(world)
 	self.world = world
-end
+	self.main_camera = nil
+	self.pool_camera.onAdded = function(pool, e)
+		local camera = e.camera
+		if camera.is_main then
+			self.main_camera = camera.camera
+		end
+	end
 
-function Dialogues:on_collision_dialogue(e, other)
-	@@assert(e.__isEntity)
-	@@assert(other.__isEntity)
-	local body = e.body
-	local other_col = other.collider
-	if not e.within_dialogue then
-		e:give("within_dialogue", other)
+	self.pool.onAdded = function(pool, e)
+		local t = e.text_t
+		e:give("text", t.value[t.current_index])
 	end
 end
 
-function Dialogues:show_dialogue(id, sub, interactive_id)
-	@@assert(type(id) == "string")
+function Dialogues:player_interact(player, interactive)
+	@@assert(player.__isEntity and player.player)
+	@@assert(interactive.__isEntity and interactive.interactive and interactive.dialogue)
+	local d = interactive.dialogue
+	self:show_dialogue(d.main, d.sub)
+end
+
+function Dialogues:show_dialogue(main, sub)
+	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
-	@@sassert(interactive_id, type(interactive_id) == "string")
-	@@assert(self.font)
-	local dialogue = DialoguesList.get_spec(id, sub)
-	local text
-	local widest
-
-	if type(dialogue) == "string" then
-		text = dialogue
-	elseif type(dialogue) == "table" then
-		self.dialogue_t = dialogue
-		self.current_i = 1
-		text = dialogue[1]
-		widest = Utils.get_widest_str(dialogue)
-	end
-
-	local pos_dialogue = self.pos:copy()
-	local pos_arrow = self.pos_arrow:copy()
-
-	local e_dialogue = Concord.entity(self.world)
-		:assemble(UI.dialogue_text, "d_" .. id, text, self.font, pos_dialogue)
-		:give("reflowprint", ScreenInfo.w * 0.5, "left")
-
-	if interactive_id then
-		e_dialogue:give("dialogue_interactive", interactive_id)
-	end
-
-	local e_arrow = Concord.entity(self.world)
-		:assemble(UI.dialogue_arrow, self.sheet_arrow, pos_arrow)
-		:give("color_fade_in", self.dur_show)
-
-	self.world:emit("show_text_paint", e_dialogue, self.dur_show, widest)
-	e_dialogue.text_with_paint.paint:give("layer", "dialogue", 1)
-	self.world:emit("displayed_dialogue")
-end
-
-function Dialogues:hide_dialogue(e)
-	self.world:emit("fade_text_paint", e, self.dur_hide)
-	self.arrow:give("color_fade_out", self.dur_hide)
-	self.world:emit("fading_out_dialogue")
-end
-
-function Dialogues:next_dialogue()
-	self.current_i = self.current_i + 1
-
-	local next_dialogue = self.dialogue_t[self.current_i]
-
-	if next_dialogue then
-		local rfp = self.current_d.reflowprint
-
-		rfp.dt = 0
-		rfp.current = 1
-		self.current_d.text.text = next_dialogue
-	else
-		self:hide_dialogue(self.current_d)
-	end
-
-	local arrow_anim = self.arrow.animation
-	arrow_anim.is_playing = true
-	arrow_anim.animation:gotoFrame(1)
-	arrow_anim.animation:resume()
+	local dialogue = DialoguesList.get(main, sub)
+	local l, _, w, h = self.main_camera:getWindow()
+	local pad = 32
+	local x = l + pad
+	local y = h - h * 0.15 * 0.5
+	Concord.entity(self.world):assemble(UI.dialogue_text,
+			main .. "_" .. sub, dialogue, x, y)
+		:give("reflowprint", w - pad * 2, "left")
 end
 
 function Dialogues:update(dt)
-	-- self.timer:update(dt)
-
-	if self.arrow then
-		local orig = self.arrow.pos.original_pos
-		local pos = self.arrow.pos.pos
-		local dir = self.arrow.direction
-
-		pos.y = pos.y + 16 * dir.dir * dt
-
-		if pos.y > orig.y + 8 then
-			dir.dir = -1
-		elseif pos.y <= orig.y then
-			dir.dir = 1
+	if Inputs.released("interact") then
+		for _, e in ipairs(self.pool) do
+			local d = e.dialogue_item
+			if d.can_proceed then
+				local rfp = e.reflowprint
+				local text_t = e.text_t
+				local text = e.text
+				rfp.dt = 0
+				rfp.current = 1
+				text_t.current_index = text_t.current_index + 1
+				if text_t.current_index > text_t.max_n then
+					self.world:emit("dialogue_finished", e)
+				else
+					text.value = text_t.value[text_t.current_index]
+				end
+			end
 		end
 	end
 end
 
-function Dialogues:keypressed(key)
-	if self.has_dialogue then
-		if Inputs.is_pressed("ui_interact", key) then
-			if self.dialogue_t then
-				self:next_dialogue()
-			else
-				self:hide_dialogue(self.pool[1])
-			end
-		end
-	end
+function Dialogues:dialogue_finished(e)
+	@@assert(e.__isEntity)
+	e:destroy()
 end
 
 function Dialogues:cleanup()
 	for _, e in ipairs(self.pool) do
 		e:destroy()
 	end
-
-	self.timer:clear()
 end
 
 return Dialogues

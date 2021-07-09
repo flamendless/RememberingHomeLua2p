@@ -1,9 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("notify", function(c, id)
+Concord.component("empty_notification")
+
+Concord.component("notification", function(c, id)
 	@@assert(type(id) == "string")
 	c.value = id
 end)
-
-Concord.component("empty_notification")
-Concord.component("notification")

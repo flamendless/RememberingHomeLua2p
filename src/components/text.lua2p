@@ -8,6 +8,13 @@ Concord.component("text", function(c, text)
 	c.value = text
 end)
 
+Concord.component("text_t", function(c, t)
+	@@assert(type(t) == "table")
+	c.value = t
+	c.current_index = 1
+	c.max_n = #t
+end)
+
 Concord.component("textf", function(c, limit, align)
 	@@assert(type(limit) == "number")
 	@@assert(type(align) == "string")

@@ -11,22 +11,20 @@ function Camera:init(world)
 	self.world = world
 	self.main_camera = nil
 	self.to_follow = nil
-	self.dur_scale = 0.25
-	self.can_scale = true
 	self.clip = false
 	self.follow = false
+	self.bars = false
 
 	self.pool.onAdded = function(pool, e)
-		local cam = e.camera.camera
+		local camera = e.camera
 		if e.camera_transform then
 			local t = e.camera_transform
-			cam:setAngle(t.rot)
-			cam:setScale(t.scale)
+			camera.camera:setAngle(t.rot)
+			camera.camera:setScale(t.scale)
 		end
 
-		if e.camera.is_main then
-			self.main_camera = cam
-			self.world:emit("on_camera_created", cam)
+		if camera.is_main then
+			self.main_camera = camera.camera
 		end
 	end
 
@@ -50,47 +48,6 @@ function Camera:set_camera_transform(camera, t)
 	camera:setScale(t.scale or scale)
 	local x, y = camera:getPosition()
 	camera:setPosition(t.x or x, t.y or y)
-end
-
-function Camera:interactive_interacted()
-	if self.can_scale then
-		self.can_scale = false
-		self.prev_scale = self.main_camera.scale
-		self.target_scale = self.prev_scale + 1
-		self.flux = Flux.to(self.main_camera, self.dur_scale, {scale = self.target_scale})
-			:oncomplete(function() self.can_scale = true end)
-	else
-		self.flux:stop()
-		self.main_camera.scale = self.target_scale
-		self.can_scale = true
-	end
-end
-
-function Camera:interact_cancelled()
-	if self.can_scale then
-		self.can_scale = false
-		self.target_scale = self.prev_scale
-		self.flux = Flux.to(self.main_camera, self.dur_scale, {scale = self.target_scale})
-			:oncomplete(function() self.can_scale = true end)
-	else
-		self.flux:stop()
-		self.main_camera.scale = self.prev_scale
-		self.can_scale = true
-	end
-end
-
-function Camera:set_camera_scale_ex(inc, dur)
-	@@assert(type(inc) == "number")
-	@@assert(type(dur) == "number")
-	if self.can_scale_lerp then
-		self.can_scale_lerp = false
-		self.prev_scale = self.main_camera:getScale()
-		self.target_scale = self.prev_scale + inc
-		self.flux = Flux.to(self.main_camera, dur, {scale = self.target_scale})
-			:oncomplete(function()
-				self.can_scale_lerp = true
-			end)
-	end
 end
 
 function Camera:get_follow_coords(target)
@@ -139,11 +96,68 @@ function Camera:draw_clip()
 		local cx, cy, cw, ch = cam:getWindow()
 		local scale = cam:getScale()
 		local diff = (ch - e.camera_clip.h * scale) * 0.5
-
 		love.graphics.setColor(e.camera_clip.color)
 		love.graphics.rectangle("fill", cx, cy, cw, diff)
 		love.graphics.rectangle("fill", cx, ch - diff, cw, diff)
 	end
+
+	if self.bars then
+		local bt = self.bar_top
+		local bb = self.bar_bot
+		love.graphics.setColor(0, 0, 0, 1)
+		love.graphics.rectangle("fill", bt.x, bt.y, bt.w, bt.h)
+		love.graphics.rectangle("fill", bb.x, bb.y, bb.w, bb.h)
+	end
+end
+
+function Camera:player_interact(player, interactive)
+	@@assert(player.__isEntity and player.player)
+	@@assert(interactive.__isEntity and interactive.interactive)
+	for _, e in ipairs(self.pool) do
+		local camera = e.camera.camera
+		local prev_scale = camera:getScale()
+		local t = { scale = prev_scale, }
+		e:give("prev_camera_scale", prev_scale)
+		Flux.to(t, 0.25, {
+			scale = prev_scale + 0.25
+		}):ease("circout")
+		:onupdate(function()
+			camera:setScale(t.scale)
+		end)
+	end
+	self:display_bars()
+end
+
+function Camera:display_bars()
+	local l, t, w, h = self.main_camera:getWindow()
+	local p = 0.15
+	self.bars = true
+	self.bar_top = { x = l, y = t, w = w, h = 0, }
+	self.bar_bot = { x = l, y = h, w = w, h = 0, }
+	Flux.to(self.bar_top, 0.25, { h = h * p }):ease("circout")
+	Flux.to(self.bar_bot, 0.25, { h = -h * p }):ease("circout")
+end
+
+function Camera:hide_bars()
+	Flux.to(self.bar_top, 0.25, { h = 0 }):ease("circout")
+	Flux.to(self.bar_bot, 0.25, { h = 0 }):ease("circout")
+		:oncomplete(function() self.bars = false end)
+end
+
+function Camera:dialogue_finished(_)
+	for _, e in ipairs(self.pool) do
+		local camera = e.camera.camera
+		local prev_scale = e.prev_camera_scale.value
+		local t = { scale = camera:getScale() }
+		Flux.to(t, 0.25, {
+			scale = prev_scale
+		}):ease("circout")
+		:onupdate(function()
+			camera:setScale(t.scale)
+		end)
+		e:remove("prev_camera_scale")
+	end
+	self:hide_bars()
 end
 
 !if _DEV then

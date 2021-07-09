@@ -1,8 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local min = math.min
-local getDelta = love.timer.getDelta
-
 local Typewriter = Concord.system({
 	pool = {"text", "reflowprint"},
 })
@@ -13,17 +10,14 @@ end
 
 function Typewriter:update(dt)
 	for _, e in ipairs(self.pool) do
-		local rfp = e.reflowprint
-
-		dt = min(rfp.current, dt + 1)
-	end
-end
-
-function Typewriter:draw()
-	for _, e in ipairs(self.pool) do
-		local rfp = e.reflowprint
-
-		rfp.dt = rfp.dt + getDelta()
+		if not e.dialogue_finished then
+			local text = e.text.value
+			local rfp = e.reflowprint
+			rfp.dt = rfp.dt + dt * rfp.speed
+			if rfp.dt * #text > #text then
+				e.dialogue_item.can_proceed = true
+			end
+		end
 	end
 end
 

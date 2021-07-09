@@ -1,8 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local Assemblages = {
-	UI = require("assemblages.ui"),
-}
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
@@ -46,33 +43,22 @@ function PlayerController:update(dt)
 		local can_interact = e.can_interact
 		local body = e.body
 
+		body.dx = 0
+
+		if body.can_run then
+			body.is_run = Inputs.down("run_mod")
+		end
 		if Inputs.down("left") then
-			if body.can_run then
-				body.is_run = Inputs.down("run_mod")
-			end
 			body.dir = -1
 			body.dx = -1
 		elseif Inputs.down("right") then
-			if body.can_run then
-				body.is_run = Inputs.down("run_mod")
-			end
 			body.dir = 1
 			body.dx = 1
-		else
-			body.dx = 0
-		end
-
-		if Inputs.down("up") then
-			body.dy = -1
-		elseif Inputs.down("down") then
-			body.dy = 1
-		else
-			body.dy = 0
 		end
 
 		if Inputs.pressed("interact") then
 			if can_interact and within_interactive then
-				self:player_interact(e, within_interactive.entity)
+				self.world:emit("player_interact", e, within_interactive.entity)
 			end
 		elseif Inputs.pressed("cancel") then
 			local interact = player.can_interact
@@ -93,13 +79,13 @@ function PlayerController:update(dt)
 	end
 end
 
-function PlayerController:player_update_animation(e, override_name, override_variance)
+function PlayerController:player_update_animation(e, override_name, override_variant)
 	local anim_name = override_name
-	local anim_variance = override_variance
+	local anim_variant = override_variant
 	local body = e.body
 
 	if not anim_name then
-		if body.dx ~= 0 or body.dy ~= 0 then
+		if body.dx ~= 0 then
 			if body.is_run then
 				anim_name = "run"
 			else
@@ -110,14 +96,14 @@ function PlayerController:player_update_animation(e, override_name, override_var
 		end
 	end
 
-	if not anim_variance then
+	if not anim_variant then
 		if body.dir == -1 then
-			anim_variance = "_left"
+			anim_variant = "_left"
 		end
 	end
 
-	if anim_variance then
-		self.world:emit("switch_animation_tag", e, anim_name .. anim_variance)
+	if anim_variant then
+		self.world:emit("switch_animation_tag", e, anim_name .. anim_variant)
 	else
 		self.world:emit("switch_animation_tag", e, anim_name)
 	end
@@ -131,17 +117,11 @@ function PlayerController:update_speed(e, anim_name)
 
 	if speed and speed_data then
 		local body = e.body
-		local osx, osy = speed.vx, speed.vy
 		local new_speed = speed_data.speed_data[anim_name]
 
 		if body.dx ~= 0 then
-			local speed_dt = mathx.lerp(osx, new_speed.x, 0.5)
+			local speed_dt = mathx.lerp(speed.vx, new_speed.x, 0.5)
 			speed.vx = speed_dt
-		end
-
-		if body.dy ~= 0 then
-			local speed_dt = mathx.lerp(osy, new_speed.y, 0.5)
-			speed.vy = speed_dt
 		end
 	end
 end
@@ -172,7 +152,6 @@ function PlayerController:idle(e, stop)
 
 	if stop then
 		body.dx = 0
-		body.dy = 0
 		body.vel_x = 0
 		body.vel_y = 0
 	end
@@ -211,9 +190,29 @@ end
 function PlayerController:player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
-	local pos = player.pos
-	Concord.entity(self.world):assemble(Assemblages.UI.speech_bubble,
-		pos.x, pos.y)
+	player.body.can_move = false
+	player:remove("can_interact")
+		:give("is_interacting")
+end
+
+function PlayerController:dialogue_finished(_)
+	for _, e in ipairs(self.pool) do
+		local body = e.body
+		body.can_move = true
+		e:give("can_interact")
+		:remove("is_interacting")
+	end
+end
+
+function PlayerController:on_collide_interactive(e, interactive)
+	@@assert(e.__isEntity)
+	@@assert(interactive.__isEntity)
+	self.world:emit("create_speech_bubble", e)
+end
+
+function PlayerController:on_leave_interactive(e)
+	@@assert(e.__isEntity)
+	self.world:emit("remove_speech_bubble")
 end
 
 return PlayerController

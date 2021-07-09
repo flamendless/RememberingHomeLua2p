@@ -1,8 +1,12 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("dialogue_arrow")
+Concord.component("dialogue_item", function(c)
+	c.can_proceed = false
+end)
 
-Concord.component("dialogue", function(c, id)
-	@@assert(type(id) == "string")
-	c.value = id
+Concord.component("dialogue", function(c, main, sub)
+	@@assert(type(main) == "string")
+	@@assert(type(sub) == "string")
+	c.main = main
+	c.sub = sub
 end)

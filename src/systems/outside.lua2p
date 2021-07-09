@@ -72,13 +72,6 @@ function Outside:state_setup()
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_ambient_light", ambient_color)
 
-	-- self.world:emit("set_dialogue_config", {
-	-- 	pos = {x = ww * 0.5, y = hh * 0.87},
-	-- 	pos_arrow = {x = ww * 0.5, y = hh * 0.94},
-	-- 	font = Resources.data.fonts.dialogue,
-	-- 	sheet_arrow = Resources.data.images.sheet_dialogue_arrow,
-	-- })
-
 	local _, _, cw, _ = self.camera:getVisible()
 	self.ps1 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop, 128, cw)
 	self.ps2 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop2, 128, cw)
@@ -145,17 +138,6 @@ function Outside:state_init()
 	local e_player = self:spawn_player()
 	self.camera:setScale(3)
 	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
-	-- self.entities.backdoor_key2 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- 	:give("id", "item_test")
-	-- self.entities.backdoor_key3 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key4 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key5 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
-	-- self.entities.backdoor_key6 = Concord.entity(self.world)
-	-- 	:assemble(Assemblages.Items.backdoor_key, res_images.backdoor_key)
 	!end
 
 	self.timeline = TLE.Do(function()

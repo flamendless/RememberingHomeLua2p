@@ -18,16 +18,15 @@ function Transform:init()
 		self:update_anchor(e)
 	end
 
+	!if _DEV then
 	self.pool_attach.onAdded = function(pool, e)
 		local attach = e.attach_to
 		local target = attach.target_e
-
-		!if _DEV then
 		if not target.pos then
 			error("Target entity must have a pos component")
 		end
-		!end
 	end
+	!end
 
 	self.pool_auto_scale.onAdded = function(pool, e)
 		local auto_scale = e.auto_scale

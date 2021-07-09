@@ -1,6 +1,7 @@
 local Bitser = require("modules.bitser.bitser")
 local Log = require("modules.log.log")
 
+local max = math.max
 local format = string.format
 
 local Utils = {
@@ -67,17 +68,10 @@ end
 function Utils.string.get_widest(t)
 	@@assert(type(t) == "table")
 	@@assert(#t ~= 0)
-	local n = 0
-	local widest
-
+	local widest = 0
 	for i, str in ipairs(t) do
-		local l = #str
-		if l > n then
-			n = l
-			widest = str
-		end
+		widest = math.max(widest, #str)
 	end
-
 	return widest
 end
 

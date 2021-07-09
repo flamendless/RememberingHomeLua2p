@@ -2,16 +2,20 @@ local Dialogues = {}
 
 local dialogues = {
 	outside = {
-		car = {"A vintage dsadsa"},
+		car = {
+			"A vintage car",
+			"The model I know not",
+			"Does it run on gas or diesel?",
+		},
 	}
 }
 
 function Dialogues.get(main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
-	@@assert(dialogues[id])
-	@@assert(dialogues[id][sub])
-	return dialogues[id][sub]
+	@@assert(dialogues[main])
+	@@assert(dialogues[main][sub])
+	return dialogues[main][sub]
 end
 
 return Dialogues

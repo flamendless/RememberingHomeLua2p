@@ -106,10 +106,6 @@ local setup_animation = function(e, data, on_loop)
 	if data.start_frame then
 		obj_animation:gotoFrame(data.start_frame)
 	end
-
-	!if not _RELEASE then
-	animation.anim_debug = obj_animation:clone()
-	!end
 end
 
 function Animation:init(world)

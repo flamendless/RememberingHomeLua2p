@@ -26,17 +26,15 @@ function UI.ui_text_paint(e, text, font, x, y)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 end
 
-function UI.dialogue_text(e, id, text, font, x, y)
+function UI.dialogue_text(e, id, dialogues, x, y)
 	e:give("id", id)
-	:give("text", text)
-	:give("font", font)
+	:give("text_t", dialogues)
+	:give("font", "ui")
 	:give("pos", x, y)
-	:give("color", Palette.get("ui_dialogue", 0))
-	:give("dialogue")
+	:give("color", Palette.get("ui_dialogue"))
+	:give("dialogue_item")
 	:give("ui_element")
-	:give("hidden")
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("text_with_paint", "splat")
+	:give("transform", 0, 1, 1, 0, 0.5)
 	:give("layer", "dialogue", 3)
 end
 
@@ -126,7 +124,7 @@ function UI.key_sdf(e, key, x, y, fnt, png)
 	:give("key_input")
 end
 
-function UI.speech_bubble(e, x, y)
+function UI.speech_bubble(e, player, x, y)
 	e:give("id", "speech_bubble")
 	:give("pos", x, y)
 	:give("color", {1, 1, 1, 1})
@@ -134,9 +132,12 @@ function UI.speech_bubble(e, x, y)
 	:give("animation")
 	:give("no_shader")
 	:give("z_index", 99)
-	:give("transform", 0, 1, 1)
-	-- :give("ui_element")
-	-- :give("layer", "hud", 2)
+	:give("transform", 0, 0.5, 0.5, 0, 1)
+	:give("current_frame")
+	:give("animation_on_update", "speech_bubble_update")
+	:give("notification", "speech_bubble")
+	:give("attach_to", player)
+	:give("attach_to_offset", 12, 16)
 end
 
 function UI.arrow(e, dir, x, y)
@@ -164,7 +165,6 @@ end
 
 function UI.action(e, sheet)
 	local scale = 0.25
-
 	e:give("animation_data", {
 			spritesheet = sheet,
 			frames = {"1-5", 1},

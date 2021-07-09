@@ -108,7 +108,7 @@ function Outside.colliders.car(e, w, h)
 	:give("collider", 126, car_h, "cross")
 	:give("bump")
 	:give("interactive")
-	:give("dialogue", "outside_car")
+	:give("dialogue", "outside", "car")
 end
 
 function Outside.colliders.backdoor(e, w, h)
