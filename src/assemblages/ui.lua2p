@@ -38,24 +38,17 @@ function UI.dialogue_text(e, id, dialogues, x, y)
 	:give("layer", "dialogue", 3)
 end
 
-function UI.dialogue_arrow(e, sheet, x, y)
-	e:give("id", "dialogue_arrow")
+function UI.choice(e, id, text, text_t, x, y)
+	e:give("id", id)
+	:give("text", text)
+	:give("text_t", text_t)
+	:give("font", "ui")
 	:give("pos", x, y)
-	:give("animation", true)
-	:give("animation_data", {
-			spritesheet = sheet,
-			frames = {"1-8", 1},
-			delay = {["1-4"] = 0.05, ["5-8"] = 0.1},
-			rows_count = 1,
-			columns_count = 8,
-			n_frames = 8,
-		})
-	:give("color", Palette.get("ui_dialogue", 0))
-	:give("transform", 0, 2, 2, 0.5, 0.5)
-	:give("dialogue_arrow")
+	:give("color", Palette.get("ui_dialogue"))
+	:give("choice_item")
 	:give("ui_element")
-	:give("direction")
-	:give("layer", "dialogue", 2)
+	:give("transform", 0, 1, 1, 0, 0.5)
+	:give("layer", "dialogue", 3)
 end
 
 function UI.hold_progress_bg(e, x, y, radius, segments)

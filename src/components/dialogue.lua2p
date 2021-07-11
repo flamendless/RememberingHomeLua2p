@@ -1,9 +1,21 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("dialogue_item", function(c)
-	c.can_proceed = false
+Concord.component("text_can_proceed")
+
+Concord.component("choice_item")
+Concord.component("hovered_choice")
+Concord.component("has_choices", function(c, ...)
+	c.value = {...}
+	!if _DEV then
+	@@assert(#c.value ~= 0)
+	for _, str in ipairs(c.value) do
+		@@assert(type(str) == "string")
+	end
+	!end
+	@@assert(#c.value ~= 0)
 end)
 
+Concord.component("dialogue_item")
 Concord.component("dialogue", function(c, main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")

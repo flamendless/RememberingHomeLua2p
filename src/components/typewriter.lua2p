@@ -16,5 +16,9 @@ Concord.component("reflowprint", function(c, width, alignment, speed)
 	c.alignment = alignment
 	c.dt = 0
 	c.current = 1
+	!if _DEV then
+	c.speed = speed or 4
+	!else
 	c.speed = speed or 1
+	!end
 end)

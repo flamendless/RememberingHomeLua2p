@@ -9,7 +9,7 @@ Concord.component("text", function(c, text)
 end)
 
 Concord.component("text_t", function(c, t)
-	@@assert(type(t) == "table")
+	@@assert(type(t) == "table", "got " .. type(t))
 	c.value = t
 	c.current_index = 1
 	c.max_n = #t

@@ -150,7 +150,6 @@ function Color:init(world)
 					end)
 					e:remove("lerp_on_finish")
 				end
-
 				e:remove("target_color")
 			end)
 
@@ -188,6 +187,19 @@ function Color:stop_colors_lerp()
 			flux:stop()
 		end
 	end
+end
+
+function Color:lerp_color(e, color, dur, ease)
+	@@assert(e.__isEntity and e.color)
+	@@assert(type(color) == "table")
+	@@assert(type(dur) == "number")
+	@@sassert(ease, type(ease) == "string")
+	Flux.to(e.color.value, dur, {
+		[1] = color[1],
+		[2] = color[2],
+		[3] = color[3],
+		[4] = color[4],
+	}):ease(ease or "linear")
 end
 
 return Color

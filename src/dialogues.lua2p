@@ -6,6 +6,19 @@ local dialogues = {
 			"A vintage car",
 			"The model I know not",
 			"Does it run on gas or diesel?",
+			choices = {
+				{"enter",
+					"Maybe tomorrow I'll ride this bad boy again",
+					"For now I need to get some rest and call it a day",
+					choices = {
+						{"test",
+							"more dialogues",
+						},
+						{"nothing",}
+					}
+				},
+				{"nothing",},
+			},
 		},
 	}
 }
