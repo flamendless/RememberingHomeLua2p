@@ -33,6 +33,7 @@ local ParticleSystems = {
 
 local tasks = {
 	"Get out of the car",
+	"Check inventory",
 	"Get inside the house",
 }
 local subtasks = {}
@@ -40,6 +41,7 @@ local subtasks = {}
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
 	pool_interactive = {"interactive"},
+	pool_item = {"item"},
 })
 
 local function tle_log(msg)
@@ -97,21 +99,10 @@ function Outside:state_setup()
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
-	for _, str in ipairs(tasks) do
-		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-				str, "task", ww * 0.5, hh * 0.9)
-			:give("animation_data", AnimationData.get("brush"))
-			:give("task", Palette.get("ui_feedback"))
-	end
 	local rev_map = Inputs.rev_map
-	insert(subtasks, format("Press and hold '%s' to interact", rev_map.interact))
+	insert(subtasks, format("Press '%s' to interact", rev_map.interact))
+	insert(subtasks, format("Press '%s' to open inventory", rev_map.inventory))
 	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
-	for _, str in ipairs(subtasks) do
-		Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-				str, "task", ww * 0.5, hh * 0.1)
-			:give("animation_data", AnimationData.get("cloud"))
-			:give("subtask", Palette.get("ui_feedback"))
-	end
 
 	for i = 1, 3 do
 		local x = (i == 1) and 0 or random(-16, 0)
@@ -141,6 +132,7 @@ function Outside:state_init()
 	!end
 
 	self.timeline = TLE.Do(function()
+		-- self.world:emit("set_sys_inventory", false)
 		!if _DEV then
 		-- self:start_tasks()
 		self.world:emit("player_can_move", true)
@@ -204,8 +196,6 @@ function Outside:state_update(dt)
 	!if _DEV then
 	if Inputs.pressed("play") then
 		self.timeline:Unpause()
-	elseif Inputs.pressed("inventory") then
-		self.world:emit("action_interacted_bag", self.entities.interactive_car, self.entities.player)
 	end
 	!end
 	self.world:emit("update", dt)
@@ -289,23 +279,36 @@ function Outside:start_rain()
 		end)
 end
 
+function Outside:create_task(task, subtask)
+	local ww, hh = love.graphics.getDimensions()
+	local dur_fade_task = 1.25
+	local str_task = tasks[task]
+	local str_subtask = subtasks[subtask]
+	tle_log("task: " .. str_task)
+	tle_log("subtask: " .. str_subtask)
+	Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
+			str_task, "task", ww * 0.5, hh * 0.9)
+		:give("animation_data", AnimationData.get("brush"))
+		:give("task", Palette.get("ui_feedback"))
+	Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
+			str_subtask, "task", ww * 0.5, hh * 0.1)
+		:give("animation_data", AnimationData.get("cloud"))
+		:give("subtask", Palette.get("ui_feedback"))
+	self.world:emit("show_next_task", dur_fade_task)
+	self.world:emit("show_next_subtask", dur_fade_task)
+end
+
 function Outside:start_tasks()
 	local timer_hold_key = 1
 	local dur_fade_task = 1.25
 	local interact_key = "interact"
 	local key_id = Inputs.rev_map[interact_key]
-
-	tle_log("task: " .. tasks[1])
-	tle_log("subtask: " .. subtasks[1])
-	self.world:emit("show_next_task", dur_fade_task)
-	self.world:emit("show_next_subtask", dur_fade_task)
-
-	tle_log("wait for interact hold key")
 	local ww, hh = love.graphics.getDimensions()
 	local x = ww * 0.5
 	local y = hh * 0.5
 	local radius = 64
 
+	self:create_task(1, 1)
 	Concord.entity(self.world):assemble(Assemblages.UI.hold_progress_bg, x, y, radius)
 		:give("target_color", Palette.get("ui_hold_progress", 0.3), dur_fade_task)
 		:give("task_await")
@@ -327,21 +330,40 @@ function Outside:start_tasks()
 		:give("color_fade_in", dur_fade_task)
 		:give("current_frame")
 		:give("layer", "hold_key", 2)
-		:give("animation_on_update", "on_holding_key")
+		:give("animation_on_update", "sync_key")
 		:give("task_await")
 	self.timeline:Pause()
 
 	self:spawn_player()
-	Flux.to(self.camera, 1, {scale = 3})
 	self.world:emit("player_can_move", true)
-	self.world:emit("player_can_interact", true)
-	tle_log("player created")
+	Flux.to(self.camera, 1, {scale = 3})
 
 	TLE.Event.Wait(0.25)
-	tle_log("task: " .. tasks[2])
-	tle_log("subtask: " .. subtasks[2])
+	self:create_task(2, 2)
 
-	local dur_fade_task2 = 2.25
+	local key_id_inv = Inputs.rev_map["inventory"]
+	local e_key_inv = Concord.entity(self.world):assemble(Assemblages.UI.key,
+			key_id_inv, x, y - 4, "ui")
+		:give("color_fade_in", dur_fade_task)
+		:give("layer", "hold_key", 3)
+		:give("task_await")
+	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
+			true, "sheet_keypress")
+		:give("attach_to", e_key_inv)
+		:give("target_key", e_key_inv)
+		:give("color_fade_in", dur_fade_task)
+		:give("current_frame")
+		:give("layer", "hold_key", 2)
+		:give("animation_on_update", "sync_key")
+		:give("task_await")
+		:give("on_keypressed", "on_inv_keypressed")
+		:give("key_value", "inventory")
+	self.timeline:Pause()
+
+	TLE.Event.Wait(0.25)
+	self:create_task(3, 3)
+	self.world:emit("player_can_interact", true)
+
 	local dur = 1.75
 	local scale = 1.75
 	local scale_sdf = scale - 0.75
@@ -387,9 +409,6 @@ function Outside:start_tasks()
 		:give("task_on_update", "on_keypress_update", 0, "left", e_left)
 	e_key_right:give("subtask_reliance", {e_key_left})
 		:give("task_on_update", "on_keypress_update", 0, "right", e_right)
-
-	self.world:emit("show_next_task", dur_fade_task2)
-	self.world:emit("show_next_subtask", dur_fade_task)
 end
 
 function Outside:on_hold_finished(e_key)
@@ -410,12 +429,25 @@ function Outside:on_keypress_update(dt, e, key_id, e_key)
 	local tc = e.subtask_completed
 	if not tc and Inputs.pressed(key_id) then
 		e:give("subtask_completed")
-		:give("target_color", Palette.get("ui_feedback", 0), dur)
-		:give("lerp_on_finish", "destroy_entity", 0, e)
-
+			:give("target_color", Palette.get("ui_feedback", 0), dur)
+			:give("lerp_on_finish", "destroy_entity", 0, e)
 		e_key:give("target_color", Palette.get("ui_feedback", 0), dur)
-		:give("lerp_on_finish", "destroy_entity", 0, e_key)
+			:give("lerp_on_finish", "destroy_entity", 0, e_key)
 	end
+end
+
+function Outside:on_inv_keypressed(e)
+	@@assert(e.__isEntity)
+	local dur = 1.125
+	local e_key = e.target_key.target_key
+	e:give("target_color", Palette.get("ui_feedback", 0), dur)
+		:give("lerp_on_finish", "destroy_entity", 0, e)
+		:remove("on_keypressed")
+	e_key:give("target_color", Palette.get("ui_feedback", 0), dur)
+		:give("lerp_on_finish", "destroy_entity", 0, e_key)
+	self.world:emit("fade_out_task_await", 0.75)
+	self.world:emit("on_complete_task", self.timeline, 1.25)
+	self.world:emit("on_complete_subtask", nil, 1.25)
 end
 
 function Outside:on_subtasks_finish()
@@ -423,9 +455,8 @@ function Outside:on_subtasks_finish()
 	self.world:emit("on_complete_subtask", self.timeline, 1.25)
 end
 
-function Outside:on_holding_key(dt, e)
+function Outside:sync_key(dt, e)
 	@@assert(e.__isEntity)
-	local hold = e.attach_to.target_e.hold
 	local key = e.target_key.target_key
 	local pos = key.pos
 	local current_frame = e.current_frame.value
@@ -437,10 +468,13 @@ function Outside:on_holding_key(dt, e)
 		pos.y = pos.orig_y + 8
 	end
 
-	if hold.is_held then
-		e.animation.anim8:gotoFrame(e.animation_data.n_frames)
-	elseif hold.was_held then
-		e.animation.anim8:gotoFrame(1)
+	local hold = e.attach_to.target_e.hold
+	if hold then
+		if hold.is_held then
+			e.animation.anim8:gotoFrame(e.animation_data.n_frames)
+		elseif hold.was_held then
+			e.animation.anim8:gotoFrame(1)
+		end
 	end
 end
 
@@ -449,10 +483,28 @@ function Outside:spawn_player()
 	local e_player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.outside_house, false, false)
 		:give("color_fade_in", 0.25)
-
 	self.world:emit("face_left", e_player)
 	self.world:emit("camera_follow", e_player, dur_camera_follow)
 	return e_player
+end
+
+function Outside:check_backdoor(e, dialogues_t)
+	@@assert(e.__isEntity and e.dialogue)
+	@@assert(type(dialogues_t) == "table")
+	self.world:emit("remove_choices")
+	local id
+	for _, e2 in ipairs(self.pool_item) do
+		local item = e2.item
+		if item.got and item.id == "backdoor_key" then
+			id = "door_unlocked"
+			break
+		end
+	end
+	if not id then
+		id = "door_locked"
+	end
+	local t = tablex.copy(dialogues_t[id])
+	self.world:emit("show_dialogue", id, t, e)
 end
 
 return Outside

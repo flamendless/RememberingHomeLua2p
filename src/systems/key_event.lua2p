@@ -5,15 +5,16 @@ local Inputs = require("inputs")
 
 local pi = math.pi
 
-local HoldKey = Concord.system({
+local KeyEvent = Concord.system({
 	pool_progress = {"hold", "hold_key", "arc"},
+	pool = {"on_keypressed", "key_value"},
 })
 
-function HoldKey:init(world)
+function KeyEvent:init(world)
 	self.world = world
 end
 
-function HoldKey:update(dt)
+function KeyEvent:update(dt)
 	for _, e in ipairs(self.pool_progress) do
 		local hold = e.hold
 		local key = e.hold_key.value
@@ -38,6 +39,14 @@ function HoldKey:update(dt)
 			end
 		end
 	end
+
+	for _, e in ipairs(self.pool) do
+		local key = e.key_value.value
+		local on_keypressed = e.on_keypressed
+		if Inputs.pressed(key) then
+			self.world:emit(on_keypressed.signal, e)
+		end
+	end
 end
 
-return HoldKey
+return KeyEvent

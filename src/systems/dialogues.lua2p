@@ -33,44 +33,6 @@ function Dialogues:init(world)
 	end
 end
 
-function Dialogues:player_interact(player, interactive)
-	@@assert(player.__isEntity and player.player)
-	@@assert(interactive.__isEntity and interactive.interactive and interactive.dialogue)
-	local d = interactive.dialogue
-	local t = DialoguesList.get(d.main, d.sub)
-	local id = d.main .. "_" .. d.sub
-	self:show_dialogue(id, t, interactive)
-end
-
-function Dialogues:populate_choices(e, t)
-	@@assert(e.__isEntity)
-	@@assert(type(t) == "table")
-	local choices = {}
-	if t.choices then
-		for _, v in ipairs(t.choices) do
-			insert(choices, v[1])
-		end
-	end
-	if #choices ~= 0 then
-		e:give("has_choices", unpack(choices))
-	end
-end
-
-function Dialogues:show_dialogue(id, dialogues_t, e)
-	@@assert(type(id) == "string")
-	@@assert(type(dialogues_t) == "table")
-	@@assert(e.__isEntity)
-	local d = e.dialogue
-	local l, _, w, h = self.main_camera:getWindow()
-	local x = l + PAD
-	local y = h - h * 0.15 * 0.5
-	local e_dialogue = Concord.entity(self.world):assemble(UI.dialogue_text,
-			id, dialogues_t, x, y)
-		:give("reflowprint", w - PAD * 2, "left")
-		:give("dialogue", d.main, d.sub)
-	self:populate_choices(e_dialogue, dialogues_t)
-end
-
 function Dialogues:update(dt)
 	if Inputs.released("interact") then
 		if #self.pool_choice ~= 0 then
@@ -100,34 +62,29 @@ function Dialogues:update(dt)
 	end
 end
 
-function Dialogues:proceed_choices(dx)
-	local f = 0.25
-	for i, e in ipairs(self.pool_choice) do
-		if e.hovered_choice then
-			local cur = mathx.wrap(i + dx, 1, #self.pool_choice + 1)
-			e:remove("hovered_choice")
-			self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
-			local next_e = self.pool_choice[cur]:give("hovered_choice")
-			self.world:emit("lerp_color", next_e, c_hc, f, "circin")
-			break
-		end
-	end
+function Dialogues:player_interact(player, interactive)
+	@@assert(player.__isEntity and player.player)
+	@@assert(interactive.__isEntity and interactive.interactive and interactive.dialogue)
+	local d = interactive.dialogue
+	local t = DialoguesList.get(d.main, d.sub)
+	local id = d.main .. "_" .. d.sub
+	self:show_dialogue(id, t, interactive)
 end
 
-function Dialogues:select_choice()
-	for _, e in ipairs(self.pool_choice) do
-		if e.hovered_choice then
-			local text_t = e.text_t.value
-			if #text_t == 0 then
-				self:dialogue_reached_end(e)
-			else
-				local id = e.id.value
-				self:show_dialogue(id, text_t, e)
-				self:remove_choices()
-			end
-			break
-		end
-	end
+function Dialogues:show_dialogue(id, dialogues_t, e)
+	@@assert(type(id) == "string")
+	@@assert(type(dialogues_t) == "table")
+	@@assert(e.__isEntity)
+	local d = e.dialogue
+	local l, _, w, h = self.main_camera:getWindow()
+	local x = l + PAD
+	local y = h - h * 0.15 * 0.5
+	local e_dialogue = Concord.entity(self.world):assemble(UI.dialogue_text,
+			id, dialogues_t, x, y)
+		:give("reflowprint", w - PAD * 2, "left")
+		:give("dialogue", d.main, d.sub)
+	self:populate_choices(e_dialogue, dialogues_t)
+	self.world:emit("set_sys_inventory", false)
 end
 
 function Dialogues:dialogue_reached_end(e)
@@ -139,7 +96,8 @@ function Dialogues:dialogue_reached_end(e)
 		e:give("hidden")
 		self:show_choices(e)
 	else
-		self.world:emit("dialogue_finished")
+		self.world:emit("on_leave_interact_or_inventory")
+		self.world:emit("set_sys_inventory", true)
 	end
 	e:destroy()
 end
@@ -173,6 +131,56 @@ function Dialogues:show_choices(e)
 		if i == 1 then
 			self.world:emit("lerp_color", e_choice, c_hc, 0.25, "circin")
 			e_choice:give("hovered_choice")
+		end
+	end
+end
+
+function Dialogues:populate_choices(e, t)
+	@@assert(e.__isEntity)
+	@@assert(type(t) == "table")
+	local choices = {}
+	if t.choices then
+		for _, v in ipairs(t.choices) do
+			insert(choices, v[1])
+		end
+	end
+	if #choices ~= 0 then
+		e:give("has_choices", unpack(choices))
+	end
+end
+
+function Dialogues:proceed_choices(dx)
+	local f = 0.25
+	for i, e in ipairs(self.pool_choice) do
+		if e.hovered_choice then
+			local cur = mathx.wrap(i + dx, 1, #self.pool_choice + 1)
+			e:remove("hovered_choice")
+			self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
+			local next_e = self.pool_choice[cur]:give("hovered_choice")
+			self.world:emit("lerp_color", next_e, c_hc, f, "circin")
+			break
+		end
+	end
+end
+
+function Dialogues:select_choice()
+	for _, e in ipairs(self.pool_choice) do
+		if e.hovered_choice then
+			local text_t = e.text_t.value
+			if #text_t == 0 then
+				self:dialogue_reached_end(e)
+			else
+				local str = text_t[1]
+				if stringx.starts_with(str, "_") then
+					local signal = str:sub(2, #str)
+					self.world:emit(signal, e, text_t)
+				else
+					local id = e.id.value
+					self:show_dialogue(id, text_t, e)
+					self:remove_choices()
+				end
+			end
+			break
 		end
 	end
 end

@@ -1,26 +1,36 @@
 local Dialogues = {}
 
-local dialogues = {
-	outside = {
-		car = {
-			"A vintage car",
-			"The model I know not",
-			"Does it run on gas or diesel?",
-			choices = {
-				{"enter",
-					"Maybe tomorrow I'll ride this bad boy again",
-					"For now I need to get some rest and call it a day",
-					choices = {
-						{"test",
-							"more dialogues",
-						},
-						{"nothing",}
-					}
-				},
-				{"nothing",},
+local dialogues = {}
+dialogues.outside = {
+	car = {
+		"An old but reliable car",
+		"Looks really out of date",
+		"But does its purpose well",
+		"so no need for a new one",
+		choices = {
+			{"enter",
+				"Maybe tomorrow",
+				"For now I need to get in shelter and rest",
 			},
+			{"nothing",},
 		},
-	}
+	},
+
+	backdoor_locked = {
+		"The door to the storage room is locked",
+		choices = {
+			{"open",
+				"_check_backdoor",
+				door_locked = {
+					"the door is locked",
+					"I do not have the key",
+				},
+				door_unlocked = {
+					"the door is unlocked",
+				}
+			}
+		},
+	},
 }
 
 function Dialogues.get(main, sub)

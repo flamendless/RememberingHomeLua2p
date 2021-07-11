@@ -22,14 +22,6 @@ function HoverEffect:init(world)
 	end
 end
 
-!if _ASSERT then
-function HoverEffect:validate_dependencies()
-	if not self.world:hasSystem(MouseHover) then
-		error("HoverEffect system needs MouseHover system")
-	end
-end
-!end
-
 function HoverEffect:hover_effects()
 	self:hover_change_color()
 	self:hover_change_scale()

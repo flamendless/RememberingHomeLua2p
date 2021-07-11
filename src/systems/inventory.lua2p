@@ -1,0 +1,33 @@
+local Concord = require("modules.concord.concord")
+
+local Inputs = require("inputs")
+
+local Inventory = Concord.system({
+})
+
+function Inventory:init(world)
+	self.world = world
+	self.is_open = false
+end
+
+function Inventory:open_inventory()
+	self.world:emit("on_interact_or_inventory")
+	self.world:emit("set_sys_dialogues", false)
+	self.is_open = true
+end
+
+function Inventory:close_inventory()
+	self.world:emit("on_leave_interact_or_inventory")
+	self.world:emit("set_sys_dialogues", true)
+	self.is_open = false
+end
+
+function Inventory:update(dt)
+	if not self.is_open and Inputs.pressed("inventory") then
+		self:open_inventory()
+	elseif self.is_open and Inputs.pressed("cancel") then
+		self:close_inventory()
+	end
+end
+
+return Inventory

@@ -118,6 +118,7 @@ function Outside.colliders.backdoor(e, w, h)
 	:give("collider", 8, backdoor_h, "cross")
 	:give("bump")
 	:give("interactive")
+	:give("dialogue", "outside", "backdoor_locked")
 end
 
 function Outside.colliders.frontdoor(e, w, h)
@@ -127,6 +128,7 @@ function Outside.colliders.frontdoor(e, w, h)
 	:give("collider", 32, frontdoor_h, "cross")
 	:give("bump")
 	:give("interactive")
+	:give("dialogue", "outside", "frontdoor")
 end
 
 return Outside

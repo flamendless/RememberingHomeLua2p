@@ -63,6 +63,7 @@ local names = {
 	"task_on_update",
 	"color_fade_out_finish",
 	"color_fade_in_finish",
+	"on_keypressed",
 }
 
 for _, v in ipairs(names) do

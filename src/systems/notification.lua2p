@@ -15,7 +15,7 @@ end
 function Notification:speech_bubble_update(_, e)
 	@@assert(e.__isEntity)
 	@@assert(e.notification)
-	@@assert(e.id.value == "speech_bubble")
+	@@assert(e.id.value == "speech_bubble", "got " .. e.id.value)
 	local anim8 = e.animation.anim8
 	local data = e.animation_data
 	if e.current_frame.value == data.n_frames then

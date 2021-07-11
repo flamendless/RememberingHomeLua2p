@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
 local format = string.format
+local lower = string.lower
 
 !if _DEV then
 local DevTools
@@ -41,8 +42,8 @@ systems.Outside = {
 	"follow", "hover_effect", "interactive", "light",
 	"move", "movement", "mouse_hover", "notification",
 	"player_controller", "render_circle", "render_sprite", "render_text",
-	"render_ui", "text_paint", "transform", "typewriter", "path", "hold_key",
-	"task", "gamestates",
+	"render_ui", "text_paint", "transform", "typewriter", "path", "key_event",
+	"task", "gamestates", "inventory", "systems",
 }
 
 !if _DEV then
@@ -58,7 +59,7 @@ function ECS.load_systems(id, world)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
-	local lid = string.lower(id)
+	local lid = lower(id)
 	@@assert(Systems[lid], id .. " state system does not exist")
 
 	!if _DEV then
@@ -95,17 +96,13 @@ function ECS.load_systems(id, world)
 	Systems.log.debug_title = "Log"
 	world:addSystem(Systems.id)
 	world:addSystem(Systems.log)
-	for _, system in ipairs(world:getSystems()) do
-		if system.validate_dependencies then
-			system:validate_dependencies()
-		end
-	end
 	!end
 end
 
 function ECS.getSystemClass(id)
 	@@assert(type(id) == "string")
-	return Systems[string.lower(id)]
+	@@assert(Systems[lower(id)])
+	return Systems[lower(id)]
 end
 
 return ECS

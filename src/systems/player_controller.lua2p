@@ -14,7 +14,7 @@ function PlayerController:player_can_move(bool)
 	@@assert(type(bool) == "boolean")
 	@@assert(#self.pool ~= 0)
 	for _, e in ipairs(self.pool) do
-		e.body.can_move = true
+		e.body.can_move = bool
 	end
 end
 
@@ -22,7 +22,7 @@ function PlayerController:player_can_run(bool)
 	@@assert(type(bool) == "boolean")
 	@@assert(#self.pool ~= 0)
 	for _, e in ipairs(self.pool) do
-		e.body.can_run = true
+		e.body.can_run = bool
 	end
 end
 
@@ -30,7 +30,11 @@ function PlayerController:player_can_interact(bool)
 	@@assert(type(bool) == "boolean")
 	@@assert(#self.pool ~= 0)
 	for _, e in ipairs(self.pool) do
-		e:give("can_interact")
+		if bool then
+			e:give("can_interact")
+		else
+			e:remove("can_interact")
+		end
 	end
 end
 
@@ -38,7 +42,6 @@ function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e.override_animation then return end
 		if not e.body.can_move then return end
-		local player = e.player
 		local within_interactive = e.within_interactive
 		local can_interact = e.can_interact
 		local body = e.body
@@ -59,18 +62,6 @@ function PlayerController:update(dt)
 		if Inputs.pressed("interact") then
 			if can_interact and within_interactive then
 				self.world:emit("player_interact", e, within_interactive.entity)
-			end
-		elseif Inputs.pressed("cancel") then
-			local interact = player.can_interact
-			local in_dialogue = e.in_dialogue
-			local in_inventory = e.inventory_open
-
-			if not interact and not in_dialogue and not in_inventory then
-				self.world:emit("interact_cancelled", e, interactive.interactive)
-			end
-
-			if not interact and not in_dialogue and in_inventory then
-				e:remove("inventory_open")
 			end
 		end
 
@@ -193,9 +184,16 @@ function PlayerController:player_interact(player, interactive)
 	player.body.can_move = false
 	player:remove("can_interact")
 		:give("is_interacting")
+	self.world:emit("on_interact_or_inventory")
 end
 
-function PlayerController:dialogue_finished(_)
+function PlayerController:on_interact_or_inventory()
+	self:player_can_run(false)
+	self:player_can_move(false)
+	self:player_can_interact(false)
+end
+
+function PlayerController:on_leave_interact_or_inventory(_)
 	for _, e in ipairs(self.pool) do
 		local body = e.body
 		body.can_move = true

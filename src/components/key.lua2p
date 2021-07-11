@@ -5,6 +5,11 @@ local Inputs = require("inputs")
 !end
 
 Concord.component("key_input")
+Concord.component("key_value", function(c, key)
+	@@assert(type(key) == "string")
+	@@assert(Inputs.rev_map[key])
+	c.value = key
+end)
 
 Concord.component("hold", function(c, max_time)
 	@@assert(type(max_time) == "number")
