@@ -1,5 +1,10 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("item_bg")
+Concord.component("item_rect")
+Concord.component("item_rect_fill")
+Concord.component("hovered_cell")
+
 Concord.component("item", function(c, id, desc)
 	@@assert(type(id) == "string")
 	@@assert(type(desc) == "string")

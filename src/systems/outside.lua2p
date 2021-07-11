@@ -5,6 +5,7 @@ local Log = require("modules.log.log")
 local TLE = require("modules.tle.timeline")
 
 local AnimationData = require("animation_data")
+local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
@@ -62,6 +63,7 @@ function Outside:state_setup()
 	local ww, hh = love.graphics.getDimensions()
 	local ambient_color = {0.3, 0.3, 0.3}
 
+	Blur.new()
 	self.main_canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 
@@ -243,7 +245,10 @@ function Outside:state_draw()
 	Fade.draw()
 
 	love.graphics.setCanvas()
+	Blur.draw()
 	self.main_canvas:render()
+	love.graphics.setShader()
+	self.world:emit("draw_inventory")
 end
 
 function Outside:start_rain()

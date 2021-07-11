@@ -1,12 +1,11 @@
 local Concord = require("modules.concord.concord")
 
-local ECS
 local sc_dialogues, sc_inventory
 
 local Systems = Concord.system()
 
 function Systems:init(world)
-	ECS = require("ecs")
+	local ECS = require("ecs")
 	sc_dialogues = ECS.getSystemClass("dialogues")
 	sc_inventory = ECS.getSystemClass("inventory")
 	self.world = world

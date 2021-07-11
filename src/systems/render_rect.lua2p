@@ -1,0 +1,59 @@
+local Concord = require("modules.concord.concord")
+
+local RenderRect = Concord.system({
+	pool = {
+		"rect", "pos", "color", "draw_mode",
+		"!nf_render_rect"
+	},
+})
+
+function RenderRect:init(world)
+	self.world = world
+end
+
+function RenderRect:draw_rect_ex(e)
+	local color = e.color.value
+	local pos = e.pos
+	local rect = e.rect
+	local draw_mode = e.draw_mode.value
+	local x, y = pos.x, pos.y
+	local w, h = rect.w, rect.h
+	local t = e.transform
+	local lw = e.line_width
+
+	if t then
+		w = w * t.sx
+		h = h * t.sy
+		if t.ox == 0.5 then
+			x = x - w * 0.5
+		elseif t.ox == 1 then
+			x = x - w
+		end
+		if t.oy == 0.5 then
+			y = y - h * 0.5
+		elseif t.oy == 1 then
+			y = y - h
+		end
+	end
+
+	local tlw = love.graphics.getLineWidth()
+	if lw then
+		love.graphics.setLineWidth(lw.value)
+	end
+
+	love.graphics.setColor(color)
+	love.graphics.setLineStyle("rough")
+	love.graphics.rectangle(draw_mode, x, y, w, h)
+
+	if lw then
+		love.graphics.setLineWidth(tlw)
+	end
+end
+
+function RenderRect:draw_rect()
+	for _, e in ipairs(self.pool) do
+		self:draw_rect_ex(e)
+	end
+end
+
+return RenderRect

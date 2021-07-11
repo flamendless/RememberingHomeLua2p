@@ -12,16 +12,6 @@ local RenderUI = Concord.system({
 		layer = "hold_key",
 		"ui_element",
 	},
-	pool_inventory = {
-		constructor = SortedTable,
-		layer = "inventory",
-		"ui_element",
-	},
-	pool_inventory_buttons = {
-		constructor = SortedTable,
-		layer = "inventory_buttons",
-		"ui_element",
-	},
 	pool_dialogue = {
 		constructor = SortedTable,
 		layer = "dialogue",
@@ -38,8 +28,7 @@ local RenderUI = Concord.system({
 function RenderUI:init(world)
 	self.world = world
 	self.layers = {
-		self.pool_text, self.pool_hold_key, self.pool_inventory,
-		self.pool_inventory_buttons, self.pool_dialogue,
+		self.pool_text, self.pool_hold_key, self.pool_dialogue,
 		self.pool_hud,
 	}
 end

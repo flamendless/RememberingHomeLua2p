@@ -1,25 +1,47 @@
 local Concord = require("modules.concord.concord")
 
+local Blur = require("blur")
 local Inputs = require("inputs")
+local Resources = require("resources")
+local Palette = require("palette")
+
+local floor = math.floor
 
 local Inventory = Concord.system({
+	pool_camera = {"camera"},
+	pool_bg = {"item_bg", "nf_render_sprite"},
+	pool_item = {"item", "nf_render_sprite"},
+	pool_rect = {"item_rect"},
+	pool_rect_fill = {"item_rect_fill"},
 })
+
+local ROWS, COLS = 2, 3
 
 function Inventory:init(world)
 	self.world = world
 	self.is_open = false
+	self.pool_camera.onAdded = function(pool, e)
+		local camera = e.camera
+		if camera.is_main then
+			self.main_camera = camera.camera
+		end
+	end
 end
 
 function Inventory:open_inventory()
 	self.world:emit("on_interact_or_inventory")
 	self.world:emit("set_sys_dialogues", false)
 	self.is_open = true
+	Blur.flag_process = true
+	self:show_inventory()
 end
 
 function Inventory:close_inventory()
 	self.world:emit("on_leave_interact_or_inventory")
 	self.world:emit("set_sys_dialogues", true)
 	self.is_open = false
+	Blur.flag_process = false
+	self:hide_inventory()
 end
 
 function Inventory:update(dt)
@@ -28,6 +50,139 @@ function Inventory:update(dt)
 	elseif self.is_open and Inputs.pressed("cancel") then
 		self:close_inventory()
 	end
+
+	if self.is_open then
+		local dx, dy = 0, 0
+		if Inputs.pressed("left") then
+			dx = -1
+		elseif Inputs.pressed("right") then
+			dx = 1
+		end
+		if Inputs.pressed("up") then
+			dy = 1
+		elseif Inputs.pressed("down") then
+			dy = -1
+		end
+		self:update_inventory_cells(dx, dy)
+	end
+end
+
+function Inventory:draw_inventory()
+	if not self.is_open then return end
+	for _, e in ipairs(self.pool_bg) do
+		self.world:emit("draw_sprite_ex", e)
+	end
+	for _, e in ipairs(self.pool_rect) do
+		self.world:emit("draw_rect_ex", e)
+	end
+	for _, e in ipairs(self.pool_rect_fill) do
+		self.world:emit("draw_rect_ex", e)
+	end
+end
+
+function Inventory:show_inventory()
+	local _, _, w, h = self.main_camera:getWindow()
+	local img = Resources.data.images.bg_item
+	local iw, ih = img:getDimensions()
+	local bar_h = self.pool_camera[1].bar_height.value
+	local alpha = 0.75
+	local pad = 64
+	local nw = w - pad * 2
+	local nh = h - pad * 2 - bar_h * 2
+	local scale = math.min(nw/iw, nh/ih)
+	local x = w - pad * 0.5
+	local y = h * 0.5
+
+	Concord.entity(self.world)
+		:give("id", "inventory_bg")
+		:give("nf_render_sprite")
+		:give("pos", x, y)
+		:give("sprite", "bg_item")
+		:give("item_bg")
+		:give("transform", 0, scale, scale, 1, 0.5)
+		:give("color", {1, 1, 1, 0})
+		:give("fade_in_target_alpha", alpha)
+		:give("color_fade_in", 0.5)
+
+	local rx = x - iw * scale * 0.5
+	local ry = y
+	local rs = scale * 0.7
+	Concord.entity(self.world)
+		:give("id", "inventory_rect")
+		:give("nf_render_sprite")
+		:give("pos", rx, ry)
+		:give("rect", iw, ih)
+		:give("line_width", 2)
+		:give("draw_mode", "line")
+		:give("item_rect")
+		:give("color", {1, 1, 1, 0})
+		:give("fade_in_target_alpha", alpha - 0.5)
+		:give("color_fade_in", 0.5)
+		:give("transform", 0, rs, rs, 0.5, 0.5)
+
+	local bx = rx - iw * rs * 0.5
+	local by = y - ih * rs * 0.5
+	local sw = floor(iw * rs)/COLS
+	local sh = floor(ih * rs)/ROWS
+	for y = 0, ROWS - 1 do
+		for x = 0, COLS - 1 do
+			local srx = bx + x * sw
+			local sry = by + y * sh
+			local color_fill, color_line
+			if y == 0 and x == 0 then
+				color_fill = Palette.get("inventory_box_hovered", 0)
+				color_line = Palette.get("inventory_line_hovered", 0)
+			else
+				color_fill = Palette.get("inventory_box_fill", 0)
+				color_line = Palette.get("inventory_line_fill", 0)
+			end
+
+			local i = y * COLS + x
+			Concord.entity(self.world)
+				:give("id", "inventory_rect_fill_" .. i)
+				:give("nf_render_sprite")
+				:give("pos", srx, sry)
+				:give("rect", sw, sh)
+				:give("draw_mode", "fill")
+				:give("item_rect_fill")
+				:give("color", color_fill)
+				:give("fade_in_target_alpha", alpha - 0.5)
+				:give("color_fade_in", 0.5)
+				:give("hovered_cell")
+
+			Concord.entity(self.world)
+				:give("id", "inventory_rect_" .. i)
+				:give("nf_render_sprite")
+				:give("pos", srx, sry)
+				:give("rect", sw, sh)
+				:give("line_width", 2)
+				:give("draw_mode", "line")
+				:give("item_rect")
+				:give("color", color_line)
+				:give("fade_in_target_alpha", alpha - 0.5)
+				:give("color_fade_in", 0.5)
+				:give("hovered_cell")
+		end
+	end
+end
+
+function Inventory:hide_inventory()
+	for _, e in ipairs(self.pool_bg) do
+		e:give("color_fade_out", 0.5)
+		:give("color_fade_out_finish", "destroy_entity", 0, e)
+	end
+end
+
+function Inventory:update_inventory_cells(dx, dy)
+	local curx, cury
+	for i, e in ipairs(self.pool_rect) do
+		if e.hovered_cell then
+			-- curx, cury =
+			break
+		end
+	end
+	local ndx = mathx.wrap(curx + dx, COLS + 1)
+	local ndy = mathx.wrap(cury + dy, ROWS + 1)
 end
 
 return Inventory

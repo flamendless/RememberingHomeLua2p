@@ -134,12 +134,20 @@ function Camera:display_bars()
 	self.bar_bot = { x = l, y = h, w = w, h = 0, }
 	Flux.to(self.bar_top, 0.25, { h = h * p }):ease("circout")
 	Flux.to(self.bar_bot, 0.25, { h = -h * p }):ease("circout")
+	for _, e in ipairs(self.pool) do
+		e:give("bar_height", h * p)
+	end
 end
 
 function Camera:hide_bars()
 	Flux.to(self.bar_top, 0.25, { h = 0 }):ease("circout")
 	Flux.to(self.bar_bot, 0.25, { h = 0 }):ease("circout")
-		:oncomplete(function() self.bars = false end)
+		:oncomplete(function()
+			self.bars = false
+			for _, e in ipairs(self.pool) do
+				e:remove("bar_height")
+			end
+		end)
 end
 
 function Camera:on_leave_interact_or_inventory(_)

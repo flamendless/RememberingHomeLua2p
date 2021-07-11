@@ -2,6 +2,11 @@ local Concord = require("modules.concord.concord")
 
 local Gamera = require("modules.gamera.gamera")
 
+Concord.component("bar_height", function(c, h)
+	@@assert(type(h) == "number")
+	c.value = h
+end)
+
 Concord.component("prev_camera_scale", function(c, prev_scale)
 	@@assert(type(prev_scale) == "number")
 	c.value = prev_scale

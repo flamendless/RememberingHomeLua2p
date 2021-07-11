@@ -7,9 +7,7 @@ Concord.component("circle", function(c, radius, segments)
 	c.segments = segments or radius
 end)
 
-Concord.component("rectangle_use_bbox")
-
-Concord.component("rectangle", function(c, w, h)
+Concord.component("rect", function(c, w, h)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")
 	c.w = w
