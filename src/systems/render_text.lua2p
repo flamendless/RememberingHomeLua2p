@@ -4,8 +4,8 @@ local ReflowPrint = require("modules.reflowprint.reflowprint")
 local ceil = math.ceil
 
 local RenderText = Concord.system({
-	pool = {"pos", "text"},
-	pool_static = {"pos", "static_text", "font"},
+	pool = {"pos", "text", "!nf_render_text"},
+	pool_static = {"pos", "static_text", "font", "!nf_render_text"},
 })
 
 function RenderText:init(world)

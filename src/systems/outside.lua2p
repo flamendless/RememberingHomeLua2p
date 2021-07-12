@@ -493,20 +493,20 @@ end
 function Outside:check_backdoor(e, dialogues_t)
 	@@assert(e.__isEntity and e.dialogue)
 	@@assert(type(dialogues_t) == "table")
-	self.world:emit("remove_choices")
-	local id
-	for _, e2 in ipairs(self.pool_item) do
-		local item = e2.item
-		if item.got and item.id == "backdoor_key" then
-			id = "door_unlocked"
-			break
-		end
-	end
-	if not id then
-		id = "door_locked"
-	end
-	local t = tablex.copy(dialogues_t[id])
-	self.world:emit("update_dialogue", e, t)
+	-- self.world:emit("remove_choices")
+	-- local id
+	-- for _, e2 in ipairs(self.pool_item) do
+	-- 	local item = e2.item
+	-- 	if item.got and item.id == "backdoor_key" then
+	-- 		id = "door_unlocked"
+	-- 		break
+	-- 	end
+	-- end
+	-- if not id then
+	-- 	id = "door_locked"
+	-- end
+	-- local t = tablex.copy(dialogues_t[id])
+	-- self.world:emit("update_dialogue", e, t)
 end
 
 function Outside:get_flashlight(e, dialogues_t)

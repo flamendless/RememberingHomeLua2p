@@ -33,4 +33,17 @@ function Inventory.cell(e, x, y, w, h, alpha)
 	:give("color", {1, 1, 1, alpha})
 end
 
+function Inventory.text(e, id, x, y, alpha, res_font, limit)
+	e:give("id", id)
+	:give("nf_render_text")
+	:give("pos", x, y)
+	:give("color", {1, 1, 1, 0})
+	:give("fade_in_target_alpha", alpha)
+	:give("color_fade_in", 0.5)
+	:give("text", "")
+	:give("font", res_font)
+	:give("transform", 0, 1, 1, 0.5)
+	:give("textf", limit, "center")
+end
+
 return Inventory

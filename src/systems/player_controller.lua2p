@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
 
@@ -203,8 +204,10 @@ function PlayerController:on_leave_interact_or_inventory(_)
 		body.can_move = prev_body.can_move
 		body.can_run = prev_body.can_run
 		if prev_body.can_interact then
-			e:give("can_interact")
-			:remove("is_interacting")
+			Timer.after(0.5, function()
+				e:give("can_interact")
+				:remove("is_interacting")
+			end)
 		end
 		e:remove("prev_body")
 	end

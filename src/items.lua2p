@@ -7,7 +7,7 @@ local Items = {}
 local list = {
 	flashlight = {
 		id = "flashlight",
-		desc = "handy tool for navigating in the dark",
+		desc = "handy tool for navigating in the dark jdsha dsajkhdask dsajkdhas",
 	}
 }
 local acquired = {}

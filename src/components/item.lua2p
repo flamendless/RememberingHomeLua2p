@@ -5,14 +5,11 @@ Concord.component("cell_line")
 Concord.component("cell_fill")
 Concord.component("hovered_cell")
 
-Concord.component("hovered_item")
-
 Concord.component("item", function(c, id, desc)
 	@@assert(type(id) == "string")
 	@@assert(type(desc) == "string")
 	c.id = id
 	c.desc = desc
-	c.got = false
 end)
 
 local c_cell_item = Concord.component("cell_item", function(c, e)
