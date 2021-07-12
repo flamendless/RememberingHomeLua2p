@@ -1,0 +1,43 @@
+local Concord = require("modules.concord.concord")
+
+local insert = table.insert
+
+local Items = {}
+
+local list = {
+	flashlight = {
+		id = "flashlight",
+		desc = "handy tool for navigating in the dark",
+	}
+}
+local acquired = {}
+
+function Items.add(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	@@assert(acquired[id] == nil, id .. " was already added")
+	insert(acquired, id)
+end
+
+function Items.get_info(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	return list[id]
+end
+
+function Items.get_acquired()
+	return acquired
+end
+
+function Items.has(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	for _, id2 in ipairs(acquired) do
+		if id == id2 then
+			return true
+		end
+	end
+	return false
+end
+
+return Items

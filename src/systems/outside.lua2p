@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
+local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local AnimationData = require("animation_data")
@@ -9,6 +10,7 @@ local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
+local Items = require("items")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Palette = require("palette")
@@ -18,11 +20,11 @@ local Settings = require("settings")
 local format = string.format
 local min = math.min
 local floor = math.floor
-local random = math.random
 local insert = table.insert
 
 local Assemblages = {
 	Common = require("assemblages.common"),
+	Inventory = require("assemblages.inventory"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
@@ -107,7 +109,6 @@ function Outside:state_setup()
 	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
 
 	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
-
 	self.world:emit("generate_fireflies")
 
 	local lut_size, lut_dusk
@@ -505,7 +506,23 @@ function Outside:check_backdoor(e, dialogues_t)
 		id = "door_locked"
 	end
 	local t = tablex.copy(dialogues_t[id])
-	self.world:emit("show_dialogue", id, t, e)
+	self.world:emit("update_dialogue", e, t)
+end
+
+function Outside:get_flashlight(e, dialogues_t)
+	@@assert(e.__isEntity and e.dialogue)
+	@@assert(type(dialogues_t) == "table")
+	local has_flashlight = Items.has("flashlight")
+	if not has_flashlight then
+		Items.add("flashlight")
+		Timer.after(2, function()
+			local t = tablex.copy(dialogues_t.get_flashlight)
+			self.world:emit("update_dialogue", e, t)
+		end)
+	else
+		local t = tablex.copy(dialogues_t.has_flashlight_already)
+		self.world:emit("update_dialogue", e, t)
+	end
 end
 
 return Outside

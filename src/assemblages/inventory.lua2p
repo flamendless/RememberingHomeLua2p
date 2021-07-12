@@ -1,0 +1,36 @@
+local Inventory = {}
+
+function Inventory.bg(e, x, y, scale, alpha)
+	e:give("id", "inventory_bg")
+	:give("nf_render_sprite")
+	:give("pos", x, y)
+	:give("sprite", "bg_item")
+	:give("cell_bg")
+	:give("transform", 0, scale, scale, 1, 0.5)
+	:give("color", {1, 1, 1, 0})
+	:give("fade_in_target_alpha", alpha)
+	:give("color_fade_in", 0.5)
+end
+
+function Inventory.rect(e, x, y, w, h, scale, alpha)
+	e:give("id", "inventory_rect")
+	:give("nf_render_sprite")
+	:give("pos", x, y)
+	:give("rect", w, h)
+	:give("line_width", 2)
+	:give("draw_mode", "line")
+	:give("cell_bg")
+	:give("color", {1, 1, 1, 0})
+	:give("fade_in_target_alpha", alpha)
+	:give("color_fade_in", 0.5)
+	:give("transform", 0, scale, scale, 0.5, 0.5)
+end
+
+function Inventory.cell(e, x, y, w, h, alpha)
+	e:give("nf_render_rect")
+	:give("pos", x, y)
+	:give("rect", w, h)
+	:give("color", {1, 1, 1, alpha})
+end
+
+return Inventory

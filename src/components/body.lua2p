@@ -11,3 +11,12 @@ Concord.component("body", function(c, can_move, can_run)
 	c.vel_x = 0
 	c.vel_y = 0
 end)
+
+Concord.component("prev_body", function(c, can_move, can_run, can_interact)
+	@@sassert(can_move, type(can_move) == "boolean")
+	@@sassert(can_move, type(can_run) == "boolean")
+	@@sassert(can_interact, type(can_interact) == "boolean")
+	c.can_move = can_move ~= false
+	c.can_run = can_run ~= false
+	c.can_interact = can_interact
+end)

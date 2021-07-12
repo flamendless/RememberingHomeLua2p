@@ -130,6 +130,7 @@ Resources.meta.Outside = {
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
 		{"backdoor_key", path_items .. "backdoor_key.png"},
+		{"item_flashlight", path_items .. "item_flashlight.png"},
 
 		{"light_round", path_lights .. "round.png"},
 		{"light_rectangle", path_lights .. "rectangle.png"},

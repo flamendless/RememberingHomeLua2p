@@ -3,6 +3,7 @@ local Timer = require("modules.hump.timer")
 
 local Blur = require("blur")
 local Inputs = require("inputs")
+local Items = require("items")
 local Resources = require("resources")
 local Palette = require("palette")
 
@@ -16,6 +17,11 @@ local Inventory = Concord.system({
 	pool_cell_fill = {"cell_fill"},
 	pool_hovered = {"hovered_cell"},
 })
+
+local Assemblages = {
+	Inventory = require("assemblages.inventory"),
+	Items = require("assemblages.items"),
+}
 
 local ROWS, COLS = 2, 3
 local alpha = 0.75
@@ -35,6 +41,10 @@ function Inventory:init(world)
 			self.main_camera = camera.camera
 		end
 	end
+
+	self.pool_item.onAdded = function(pool, e)
+		self:add_item(e)
+	end
 end
 
 function Inventory:open_inventory()
@@ -44,6 +54,7 @@ function Inventory:open_inventory()
 	self.is_open = true
 	Blur.flag_process = true
 	self:show_inventory()
+	self:create_items()
 end
 
 function Inventory:close_inventory()
@@ -53,6 +64,7 @@ function Inventory:close_inventory()
 	self.can_open = false
 	Blur.flag_process = false
 	self:hide_inventory()
+	self:hide_items()
 	for _, e in ipairs(self.pool_cell_line) do
 		e:destroy()
 	end
@@ -102,6 +114,9 @@ function Inventory:draw_inventory()
 	for _, e in ipairs(self.pool_cell_fill) do
 		self.world:emit("draw_rect_ex", e)
 	end
+	for _, e in ipairs(self.pool_item) do
+		self.world:emit("draw_sprite_ex", e)
+	end
 end
 
 function Inventory:show_inventory()
@@ -116,32 +131,14 @@ function Inventory:show_inventory()
 	local x = w - pad * 0.5
 	local y = h * 0.5
 
-	Concord.entity(self.world)
-		:give("id", "inventory_bg")
-		:give("nf_render_sprite")
-		:give("pos", x, y)
-		:give("sprite", "bg_item")
-		:give("cell_bg")
-		:give("transform", 0, scale, scale, 1, 0.5)
-		:give("color", {1, 1, 1, 0})
-		:give("fade_in_target_alpha", alpha)
-		:give("color_fade_in", 0.5)
+	Concord.entity(self.world):assemble(Assemblages.Inventory.bg,
+		x, y, scale, alpha)
 
 	local rx = x - iw * scale * 0.5
 	local ry = y
 	local rs = scale * 0.7
-	Concord.entity(self.world)
-		:give("id", "inventory_rect")
-		:give("nf_render_sprite")
-		:give("pos", rx, ry)
-		:give("rect", iw, ih)
-		:give("line_width", 2)
-		:give("draw_mode", "line")
-		:give("cell_bg")
-		:give("color", {1, 1, 1, 0})
-		:give("fade_in_target_alpha", alpha2)
-		:give("color_fade_in", 0.5)
-		:give("transform", 0, rs, rs, 0.5, 0.5)
+	Concord.entity(self.world):assemble(Assemblages.Inventory.rect,
+		rx, ry, iw, ih, rs, alpha2)
 
 	local bx = rx - iw * rs * 0.5
 	local by = y - ih * rs * 0.5
@@ -153,24 +150,16 @@ function Inventory:show_inventory()
 			local sry = by + y * sh
 
 			local i = y * COLS + x
-			local a = Concord.entity(self.world)
-				:give("id", "inventory_rect_fill_" .. i)
-				:give("nf_render_sprite")
-				:give("pos", srx, sry)
-				:give("rect", sw, sh)
-				:give("draw_mode", "fill")
+			local a = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
+					srx, sry, sw, sh, alpha2)
+				:give("id", "inventory_cell_fill_" .. i)
 				:give("cell_fill")
-				:give("color", {1, 1, 1, alpha2})
-
-			local b = Concord.entity(self.world)
-				:give("id", "inventory_rect_" .. i)
-				:give("nf_render_sprite")
-				:give("pos", srx, sry)
-				:give("rect", sw, sh)
-				:give("line_width", 2)
-				:give("draw_mode", "line")
+				:give("draw_mode", "fill")
+			local b = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
+					srx, sry, sw, sh, alpha2)
+				:give("id", "inventory_cell_line_" .. i)
 				:give("cell_line")
-				:give("color", {1, 1, 1, alpha2})
+				:give("draw_mode", "line")
 
 			if y == 0 and x == 0 then
 				a:give("hovered_cell")
@@ -240,6 +229,38 @@ function Inventory:update_cell_color()
 	end
 end
 
+function Inventory:add_item(item_e)
+	@@assert(item_e.__isEntity and item_e.item)
+	for _, e in ipairs(self.pool_cell_fill) do
+		if not e.cell_item then
+			local pos = e.pos
+			local rect = e.rect
+			e:give("cell_item", item_e)
+
+			local img = item_e.sprite.image
+			local iw, ih = img:getDimensions()
+			local sx = rect.w/iw
+			local sy = rect.h/ih
+			item_e:give("pos", pos.x, pos.y)
+				:give("transform", 0, sx, sy)
+			break
+		end
+	end
+end
+
+function Inventory:create_items()
+	local t = Items.get_acquired()
+	for _, id in ipairs(t) do
+		Concord.entity(self.world):assemble(Assemblages.Items[id])
+	end
+end
+
+function Inventory:hide_items()
+	for _, e in ipairs(self.pool_item) do
+		e:destroy()
+	end
+end
+
 function Inventory:cleanup()
 	for _, e in ipairs(self.pool_bg) do
 		e:destroy()
@@ -248,6 +269,9 @@ function Inventory:cleanup()
 		e:destroy()
 	end
 	for _, e in ipairs(self.pool_cell_fill) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_item) do
 		e:destroy()
 	end
 end

@@ -12,3 +12,20 @@ Concord.component("item", function(c, id, desc)
 	c.desc = desc
 	c.got = false
 end)
+
+local c_cell_item = Concord.component("cell_item", function(c, e)
+	@@assert(e.__isEntity and e.item)
+	e:ensure("key")
+	c.item_e = e
+end)
+
+function c_cell_item:serialize()
+	return {
+		item_e_key = self.item_e.key.value
+	}
+end
+
+function c_cell_item:deserialize(data)
+	local e = self.__entity:getWorld()getEntityByKey(data.item_e_key)
+	self:__populate(e)
+end

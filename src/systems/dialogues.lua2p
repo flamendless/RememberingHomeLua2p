@@ -33,6 +33,19 @@ function Dialogues:init(world)
 	end
 end
 
+function Dialogues:update_dialogue(e, new_dialogues_t)
+	@@assert(e.__isEntity)
+	@@assert(type(new_dialogues_t) == "table")
+	if not e.choice_item then
+		e:remove("text_can_proceed")
+		:remove("text_t")
+		:give("text_t", new_dialogues_t)
+		e.text.value = new_dialogues_t[1]
+	else
+		self:show_dialogue("next_dialogue", new_dialogues_t, e)
+	end
+end
+
 function Dialogues:update(dt)
 	if Inputs.released("interact") then
 		if #self.pool_choice ~= 0 then
@@ -46,11 +59,17 @@ function Dialogues:update(dt)
 					rfp.dt = 0
 					rfp.current = 1
 					text_t.current_index = text_t.current_index + 1
-					if text_t.current_index > text_t.max_n then
+					local str = text_t.value[text_t.current_index]
+					if not str then
 						self.world:emit("dialogue_reached_end", e)
 					else
-						text.value = text_t.value[text_t.current_index]
-						e:remove("text_can_proceed")
+						local bool, signal = self:check_signal(str)
+						if bool then
+							self.world:emit(signal, e, text_t.value)
+						else
+							text.value = str
+							e:remove("text_can_proceed")
+						end
 					end
 				end
 			end
@@ -163,6 +182,13 @@ function Dialogues:proceed_choices(dx)
 	end
 end
 
+function Dialogues:check_signal(str)
+	@@assert(type(str) == "string")
+	local bool = stringx.starts_with(str, "_")
+	local signal = str:sub(2, #str)
+	return bool, signal
+end
+
 function Dialogues:select_choice()
 	for _, e in ipairs(self.pool_choice) do
 		if e.hovered_choice then
@@ -171,8 +197,8 @@ function Dialogues:select_choice()
 				self:dialogue_reached_end(e)
 			else
 				local str = text_t[1]
-				if stringx.starts_with(str, "_") then
-					local signal = str:sub(2, #str)
+				local bool, signal = self:check_signal(str)
+				if bool then
 					self.world:emit(signal, e, text_t)
 				else
 					local id = e.id.value

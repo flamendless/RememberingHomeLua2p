@@ -8,16 +8,27 @@ dialogues.outside = {
 		"But does its purpose well",
 		"so no need for a new one",
 		choices = {
-			{"enter",
+			{"drive",
 				"Maybe tomorrow",
 				"For now I need to get in shelter and rest",
+			},
+			{"search",
+				"There might be something in the glove box",
+				"_get_flashlight",
+				get_flashlight = {
+					"Let's hope the power is not out",
+					"Or else it will be a fumbling in the dark again",
+				},
+				has_flashlight_already = {
+					"There is nothing useful here anymore",
+				},
 			},
 			{"nothing",},
 		},
 	},
 
 	backdoor_locked = {
-		"The door to the storage room is locked",
+		"This door leads to the storage room",
 		choices = {
 			{"open",
 				"_check_backdoor",
@@ -27,6 +38,7 @@ dialogues.outside = {
 				},
 				door_unlocked = {
 					"the door is unlocked",
+					--TODO remove dialogue component
 				}
 			}
 		},

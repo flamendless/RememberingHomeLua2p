@@ -27,7 +27,7 @@ function Outside.bg_house(e, x, y, quad)
 	:give("z_index", z_index.bg_house, false)
 end
 
-function Outside.splashes(e, x, y)
+function Outside.splashes(e)
 	local splashes = Resources.data.images.splashes
 	local resource_id = "splashes"
 	local is_compatible = Info.is_texturesize_compatible(splashes:getWidth())
@@ -37,7 +37,7 @@ function Outside.splashes(e, x, y)
 	end
 	e:give("id", "splashes")
 	:give("splashes")
-	:give("pos", 0, 0)
+	:give("pos", 0, 4)
 	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
