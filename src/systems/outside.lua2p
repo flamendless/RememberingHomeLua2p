@@ -106,11 +106,7 @@ function Outside:state_setup()
 	insert(subtasks, format("Press '%s' to open inventory", rev_map.inventory))
 	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
 
-	for i = 1, 3 do
-		local x = (i == 1) and 0 or random(-16, 0)
-		local y = (i == 1) and 0 or random(-8, 8)
-		Concord.entity(self.world):assemble(Assemblages.Outside.splashes, x, y)
-	end
+	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
 
 	self.world:emit("generate_fireflies")
 

@@ -1,10 +1,9 @@
 local Log = require("modules.log.log")
 
+local AnimationData = require("animation_data")
 local Info = require("info")
 local Palette = require("palette")
 local Resources = require("resources")
-
-local random = love.math.random
 
 local Outside = {
 	colliders = {}
@@ -38,22 +37,14 @@ function Outside.splashes(e, x, y)
 	end
 	e:give("id", "splashes")
 	:give("splashes")
-	:give("pos", x, y)
+	:give("pos", 0, 0)
 	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
-	:give("animation_data", {
-			resource_id = resource_id,
-			frames = {"1-2", 1, "1-2", 2, "1-2", 3, "1-2", 4},
-			delay = 0.2,
-			rows_count = 4,
-			columns_count = 2,
-			n_frames = 8,
-			start_frame = random(1, 8),
-		})
+	:give("animation_data", AnimationData.get("outside_" .. resource_id))
 
 	if not is_compatible then
-		e:give("transform", 0, 2, 2)
+		e:give("transform", 0, 4, 4)
 	end
 end
 
