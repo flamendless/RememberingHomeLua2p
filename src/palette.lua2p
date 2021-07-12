@@ -29,10 +29,10 @@ Palette.colors = {
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 	hovered_choice = {1, 0, 0},
 
-	inventory_box_fill = {0.098, 0.109, 0.17},
-	inventory_box_hovered = {0.098/2, 0.109/2, 0.17/2},
-	inventory_line_fill = {1, 1, 1},
-	inventory_line_hovered = {0.3, 0.3, 0.3},
+	inventory_fill_unhovered = {0.098, 0.109, 0.17},
+	inventory_fill_hovered = {0.098/2, 0.109/2, 0.17/2},
+	inventory_line_unhovered = {1, 1, 1},
+	inventory_line_hovered = {1, 1, 1},
 
 	firefly_start = {0.988235294, 0.823529412, 0.443137255, 0.8},
 	firefly_end = {0.968627451, 0.552941176, 0.247058824, 0.8},

@@ -43,7 +43,7 @@ systems.Outside = {
 	"move", "movement", "mouse_hover", "notification",
 	"player_controller", "render_circle", "render_sprite", "render_text",
 	"render_ui", "text_paint", "transform", "typewriter", "path", "key_event",
-	"task", "gamestates", "inventory", "systems", "render_rect"
+	"task", "gamestates", "inventory", "systems", "render_rect", "entity"
 }
 
 !if _DEV then

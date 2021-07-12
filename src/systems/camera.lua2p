@@ -112,16 +112,18 @@ end
 
 function Camera:on_interact_or_inventory()
 	for _, e in ipairs(self.pool) do
-		local camera = e.camera.camera
-		local prev_scale = camera:getScale()
-		local t = { scale = prev_scale, }
-		e:give("prev_camera_scale", prev_scale)
-		Flux.to(t, 0.25, {
-			scale = prev_scale + 0.25
-		}):ease("circout")
-		:onupdate(function()
-			camera:setScale(t.scale)
-		end)
+		if not e.prev_camera_scale then
+			local camera = e.camera.camera
+			local prev_scale = camera:getScale()
+			local t = { scale = prev_scale, }
+			e:give("prev_camera_scale", prev_scale)
+			Flux.to(t, 0.25, {
+				scale = prev_scale + 0.25
+			}):ease("circout")
+			:onupdate(function()
+				camera:setScale(t.scale)
+			end)
+		end
 	end
 	self:display_bars()
 end
@@ -152,16 +154,18 @@ end
 
 function Camera:on_leave_interact_or_inventory(_)
 	for _, e in ipairs(self.pool) do
-		local camera = e.camera.camera
-		local prev_scale = e.prev_camera_scale.value
-		local t = { scale = camera:getScale() }
-		Flux.to(t, 0.25, {
-			scale = prev_scale
-		}):ease("circout")
-		:onupdate(function()
-			camera:setScale(t.scale)
-		end)
-		e:remove("prev_camera_scale")
+		if e.prev_camera_scale then
+			local camera = e.camera.camera
+			local prev_scale = e.prev_camera_scale.value
+			local t = { scale = camera:getScale() }
+			Flux.to(t, 0.25, {
+				scale = prev_scale
+			}):ease("circout")
+			:onupdate(function()
+				camera:setScale(t.scale)
+			end)
+			e:remove("prev_camera_scale")
+		end
 	end
 	self:hide_bars()
 end
