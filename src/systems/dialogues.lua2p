@@ -20,6 +20,8 @@ local c_hc = Palette.get("hovered_choice")
 function Dialogues:init(world)
 	self.world = world
 	self.main_camera = nil
+	self.is_waiting = false
+
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
 		if camera.is_main then
@@ -31,6 +33,11 @@ function Dialogues:init(world)
 		local t = e.text_t
 		e:give("text", t.value[t.current_index])
 	end
+end
+
+function Dialogues:wait_dialogue(bool)
+	@@assert(type(bool) == "boolean")
+	self.is_waiting = bool
 end
 
 function Dialogues:update_dialogue(e, new_dialogues_t)
@@ -47,6 +54,7 @@ function Dialogues:update_dialogue(e, new_dialogues_t)
 end
 
 function Dialogues:update(dt)
+	if self.is_waiting then return end
 	if Inputs.released("interact") then
 		if #self.pool_choice ~= 0 then
 			self:select_choice()

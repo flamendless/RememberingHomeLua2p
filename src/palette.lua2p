@@ -30,7 +30,7 @@ Palette.colors = {
 	hovered_choice = {1, 0, 0},
 
 	inventory_fill_unhovered = {0.098, 0.109, 0.17},
-	inventory_fill_hovered = {0.098/2, 0.109/2, 0.17/2},
+	inventory_fill_hovered = {0.098/10, 0.109/10, 0.17/10},
 	inventory_line_unhovered = {1, 1, 1},
 	inventory_line_hovered = {1, 1, 1},
 
@@ -51,13 +51,14 @@ Palette.color_glitches = {
 }
 
 function Palette.get(color, alpha)
+	@@assert(type(color) == "string")
 	@@assert(Palette.colors[color])
 	@@sassert(alpha, type(alpha) == "number")
 
-	local color = Palette.colors[color]
-	local a = alpha or color[4] or 1
+	local c = Palette.colors[color]
+	local a = alpha or c[4] or 1
 
-	return {color[1], color[2], color[3], a}
+	return {c[1], c[2], c[3], a}
 end
 
 return Palette
