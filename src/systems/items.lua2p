@@ -1,0 +1,58 @@
+local Concord = require("modules.concord.concord")
+
+local format = string.format
+
+local Items = Concord.system({
+})
+
+local list = {
+	flashlight = {
+		car = {
+			--TODO
+			-- "_play_sound_item_unusable",
+			"I got this flashlight from the car",
+		}
+	}
+}
+
+function Items:init(world)
+	self.world = world
+end
+
+function Items:item_response(main, sub)
+	@@assert(type(main) == "string")
+	@@assert(type(sub) == "string")
+	self.world:emit("close_inventory", true)
+	self.world:emit("on_interact_or_inventory")
+	self.world:emit("spawn_dialogue", main, sub)
+end
+
+function Items:item_response_ex(t)
+	@@assert(type(t) == "table")
+	@@assert(#t ~= 0)
+	self.world:emit("close_inventory", true)
+	self.world:emit("on_interact_or_inventory")
+	self.world:emit("spawn_dialogue_ex", t)
+end
+
+function Items:on_item_use_with(item, other)
+	@@assert(item.__isEntity and item.item)
+	@@sassert(other, other.__isEntity and other.interactive)
+	local item_id = item.item.id
+	local other_id = other.id.value
+	if not other then
+		self:item_response("common", "item_without")
+	else
+		local t = list[item_id] and list[item_id][other_id]
+		@@assert(not(other.usable_with_item == nil and t ~= nil), "add usable_with_item component?")
+		@@assert(not(other.usable_with_item ~= nil and t == nil), "add to list?")
+		if other.usable_with_item and t ~= nil then
+			self:item_response_ex(t)
+		else
+			local t2 = {format("%s can not be used here", item_id)}
+			self:item_response_ex(t2)
+		end
+	end
+end
+
+return Items

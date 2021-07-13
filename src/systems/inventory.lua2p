@@ -54,12 +54,15 @@ function Inventory:open_inventory()
 	self.world:emit("set_sys_dialogues", false)
 	self.is_open = true
 	Blur.flag_process = true
-	self:show_inventory()
+	self:create_inventory()
 	self:create_items()
 end
 
-function Inventory:close_inventory()
-	self.world:emit("on_leave_interact_or_inventory")
+function Inventory:close_inventory(not_close)
+	@@sassert(not_close, type(not_close) == "boolean")
+	if not not_close then
+		self.world:emit("on_leave_interact_or_inventory")
+	end
 	self.world:emit("set_sys_dialogues", true)
 	self.is_open = false
 	self.can_open = false
@@ -77,8 +80,12 @@ end
 function Inventory:update(dt)
 	if self.can_open and not self.is_open and Inputs.pressed("inventory") then
 		self:open_inventory()
-	elseif self.is_open and Inputs.pressed("cancel") then
-		self:close_inventory()
+	elseif self.is_open then
+		if Inputs.pressed("cancel") then
+			self:close_inventory()
+		elseif Inputs.pressed("interact") then
+			self:item_interact()
+		end
 	end
 
 	if self.is_open then
@@ -124,7 +131,7 @@ function Inventory:draw_inventory()
 	end
 end
 
-function Inventory:show_inventory()
+function Inventory:create_inventory()
 	local _, _, w, h = self.main_camera:getWindow()
 	local img = Resources.data.images.bg_item
 	local iw, ih = img:getDimensions()
@@ -252,11 +259,16 @@ function Inventory:update_inventory_text()
 	txt_id.text.value = ""
 	txt_desc.text.value = ""
 
+	for _, e in ipairs(self.pool_item) do
+		e:remove("hovered_item")
+	end
+
 	for _, e in ipairs(self.pool_cell_fill) do
 		if e.hovered_cell and e.cell_item then
 			local item_e = e.cell_item.item_e
 			txt_id.text.value = item_e.item.id
 			txt_desc.text.value = item_e.item.desc
+			item_e:give("hovered_item")
 			break
 		end
 	end
@@ -285,6 +297,15 @@ function Inventory:create_items()
 	local t = Items.get_acquired()
 	for _, id in ipairs(t) do
 		Concord.entity(self.world):assemble(Assemblages.Items[id])
+	end
+end
+
+function Inventory:item_interact()
+	for _, e in ipairs(self.pool_item) do
+		if e.hovered_item then
+			self.world:emit("on_item_use", e)
+			break
+		end
 	end
 end
 

@@ -1,6 +1,12 @@
 local Dialogues = {}
 
 local dialogues = {}
+dialogues.common = {
+	item_without = {
+		"there is nothing to use this item with",
+	},
+}
+
 dialogues.outside = {
 	car = {
 		"An old but reliable car",

@@ -188,9 +188,12 @@ end
 
 function PlayerController:on_interact_or_inventory()
 	for _, e in ipairs(self.pool) do
-		local body = e.body
-		local can_interact = e.can_interact
-		e:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
+		if not e.prev_body then
+			local body = e.body
+			local can_interact = e.can_interact
+			e:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
+			self:idle(e, true)
+		end
 	end
 	self:player_can_run(false)
 	self:player_can_move(false)

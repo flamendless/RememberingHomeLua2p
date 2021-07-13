@@ -4,6 +4,8 @@ Concord.component("cell_bg")
 Concord.component("cell_line")
 Concord.component("cell_fill")
 Concord.component("hovered_cell")
+Concord.component("hovered_item")
+Concord.component("usable_with_item")
 
 Concord.component("item", function(c, id, desc)
 	@@assert(type(id) == "string")

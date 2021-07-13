@@ -94,12 +94,13 @@ end
 
 function Outside.colliders.car(e, w, h)
 	local car_h = 48
-	e:give("id", "col_car")
+	e:give("id", "car")
 	:give("pos", 730, h - ground_h - car_h)
 	:give("collider", 126, car_h, "cross")
 	:give("bump")
 	:give("interactive")
 	:give("dialogue", "outside", "car")
+	:give("usable_with_item")
 end
 
 function Outside.colliders.backdoor(e, w, h)

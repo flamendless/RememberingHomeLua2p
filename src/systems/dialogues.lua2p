@@ -31,13 +31,53 @@ function Dialogues:init(world)
 
 	self.pool.onAdded = function(pool, e)
 		local t = e.text_t
-		e:give("text", t.value[t.current_index])
+		local str = t.value[t.current_index]
+		local bool, signal = self:check_signal(str)
+		if bool then
+			self.world:emit(signal, e, t.value)
+			t.current_index = t.current_index + 1
+			e:give("text", t.value[t.current_index])
+		else
+			e:give("text", str)
+		end
 	end
 end
 
 function Dialogues:wait_dialogue(bool)
 	@@assert(type(bool) == "boolean")
 	self.is_waiting = bool
+end
+
+function Dialogues:spawn_dialogue(main, sub)
+	@@assert(type(main) == "string")
+	@@assert(type(sub) == "string")
+	local e = Concord.entity(self.world):give("dialogue", main, sub)
+	self:show_dialogue(sub, DialoguesList.get(main, sub), e)
+	e:destroy()
+end
+
+function Dialogues:spawn_dialogue_ex(t)
+	@@assert(type(t) == "table")
+	@@assert(#t ~= 0)
+	local e = Concord.entity(self.world):give("dialogue", "", "")
+	self:show_dialogue("_ex", t, e)
+	e:destroy()
+end
+
+function Dialogues:show_dialogue(id, dialogues_t, e)
+	@@assert(type(id) == "string")
+	@@assert(type(dialogues_t) == "table")
+	@@assert(e.__isEntity)
+	local d = e.dialogue
+	local l, _, w, h = self.main_camera:getWindow()
+	local x = l + PAD
+	local y = h - h * 0.15 * 0.5
+	local e_dialogue = Concord.entity(self.world):assemble(UI.dialogue_text,
+			id, dialogues_t, x, y)
+		:give("reflowprint", w - PAD * 2, "left")
+		:give("dialogue", d.main, d.sub)
+	self:populate_choices(e_dialogue, dialogues_t)
+	self.world:emit("set_sys_inventory", false)
 end
 
 function Dialogues:update_dialogue(e, new_dialogues_t)
@@ -96,22 +136,6 @@ function Dialogues:player_interact(player, interactive)
 	local t = DialoguesList.get(d.main, d.sub)
 	local id = d.main .. "_" .. d.sub
 	self:show_dialogue(id, t, interactive)
-end
-
-function Dialogues:show_dialogue(id, dialogues_t, e)
-	@@assert(type(id) == "string")
-	@@assert(type(dialogues_t) == "table")
-	@@assert(e.__isEntity)
-	local d = e.dialogue
-	local l, _, w, h = self.main_camera:getWindow()
-	local x = l + PAD
-	local y = h - h * 0.15 * 0.5
-	local e_dialogue = Concord.entity(self.world):assemble(UI.dialogue_text,
-			id, dialogues_t, x, y)
-		:give("reflowprint", w - PAD * 2, "left")
-		:give("dialogue", d.main, d.sub)
-	self:populate_choices(e_dialogue, dialogues_t)
-	self.world:emit("set_sys_inventory", false)
 end
 
 function Dialogues:dialogue_reached_end(e)

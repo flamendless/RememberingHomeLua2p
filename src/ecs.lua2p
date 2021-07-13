@@ -37,13 +37,12 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"action_controls", "animation", "bounding_box", "bump_collision", "camera",
-	"click", "collision", "color", "dialogues", "fireflies",
-	"follow", "hover_effect", "interactive", "light",
-	"move", "movement", "mouse_hover", "notification",
-	"player_controller", "render_circle", "render_sprite", "render_text",
-	"render_ui", "text_paint", "transform", "typewriter", "path", "key_event",
-	"task", "gamestates", "inventory", "systems", "render_rect", "entity"
+	"animation", "bounding_box", "bump_collision", "camera", "collision",
+	"color", "dialogues", "fireflies", "interactive", "light", "move",
+	"movement", "notification", "player_controller", "render_circle",
+	"render_sprite", "render_text", "render_ui", "text_paint", "transform",
+	"typewriter", "path", "key_event", "task", "gamestates", "inventory",
+	"systems", "render_rect", "entity", "items",
 }
 
 !if _DEV then
