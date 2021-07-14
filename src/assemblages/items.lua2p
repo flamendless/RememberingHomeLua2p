@@ -7,7 +7,7 @@ function Items.flashlight(e)
 	e:give("id", "item_flashlight")
 	:give("nf_render_sprite")
 	:give("sprite", "item_flashlight")
-	:give("item", info.id, info.desc)
+	:give("item", info.id, info.name, info.desc)
 	:give("color", {1, 1, 1, 1})
 	:give("pos", 0, 0)
 end

@@ -14,13 +14,13 @@ local Items = require("items")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Palette = require("palette")
+local Save = require("save")
 local ScreenInfo = require("screen_info")
 local Settings = require("settings")
 
 local format = string.format
 local min = math.min
 local floor = math.floor
-local insert = table.insert
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -33,13 +33,6 @@ local Assemblages = {
 local ParticleSystems = {
 	RainOutside = require("particle_systems/rain_outside"),
 }
-
-local tasks = {
-	"Get out of the car",
-	"Check inventory",
-	"Get inside the house",
-}
-local subtasks = {}
 
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
@@ -103,11 +96,6 @@ function Outside:state_setup()
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
-	local rev_map = Inputs.rev_map
-	insert(subtasks, format("Press '%s' to interact", rev_map.interact))
-	insert(subtasks, format("Press '%s' to open inventory", rev_map.inventory))
-	insert(subtasks, format("Press '%s' or '%s' to move", rev_map.left, rev_map.right))
-
 	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
 	self.world:emit("generate_fireflies")
 
@@ -125,18 +113,19 @@ end
 function Outside:state_init()
 	--TEST
 	!if _DEV then
-	local e_player = self:spawn_player()
-	self.camera:setScale(3)
-	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+	-- local e_player = self:spawn_player()
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	!end
 
+	if Save.data.outside_intro_done then return end
 	self.timeline = TLE.Do(function()
 		-- self.world:emit("set_sys_inventory", false)
 		!if _DEV then
-		-- self:start_tasks()
-		self.world:emit("player_can_move", true)
-		self.world:emit("player_can_interact", true)
-		self.world:emit("player_can_run", true)
+		self:start_tasks()
+		-- self.world:emit("player_can_move", true)
+		-- self.world:emit("player_can_interact", true)
+		-- self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 		!end
 
@@ -185,7 +174,12 @@ function Outside:state_init()
 		TLE.Event.Wait(3)
 		self:start_rain()
 		self.timeline:Pause()
-		self:start_tasks()
+		local e_player = self:spawn_player()
+		self.camera:setScale(3)
+		self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+		self.world:emit("player_can_move", true)
+		self.world:emit("player_can_interact", true)
+		self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 	end)
 end
@@ -197,20 +191,13 @@ function Outside:state_update(dt)
 		self.timeline:Unpause()
 	elseif Inputs.pressed("inventory") then
 		if not Items.has("flashlight") then
-			Items.add("flashlight")
+			-- Items.add("flashlight")
 		end
 	end
 	!end
 	self.world:emit("update", dt)
 	self.world:emit("update_light", dt)
 	self.world:emit("on_camera_move", self.camera)
-
-	local mx, my = love.mouse.getPosition()
-	local wmx, wmy = self.camera:toWorld(mx, my)
-
-	self.world:emit("check_mouse_hover", wmx, wmy)
-	self.world:emit("check_mouse_hover_ui", mx, my)
-	self.world:emit("hover_effects")
 
 	if self.is_raining then
 		self.ps1:update(dt)
@@ -285,136 +272,33 @@ function Outside:start_rain()
 		end)
 end
 
-function Outside:create_task(task, subtask)
-	local ww, hh = love.graphics.getDimensions()
-	local dur_fade_task = 1.25
-	local str_task = tasks[task]
-	local str_subtask = subtasks[subtask]
-	tle_log("task: " .. str_task)
-	tle_log("subtask: " .. str_subtask)
-	Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-			str_task, "task", ww * 0.5, hh * 0.9)
-		:give("animation_data", AnimationData.get("brush"))
-		:give("task", Palette.get("ui_feedback"))
-	Concord.entity(self.world):assemble(Assemblages.UI.ui_text_paint,
-			str_subtask, "task", ww * 0.5, hh * 0.1)
-		:give("animation_data", AnimationData.get("cloud"))
-		:give("subtask", Palette.get("ui_feedback"))
-	self.world:emit("show_next_task", dur_fade_task)
-	self.world:emit("show_next_subtask", dur_fade_task)
+function Outside:start_tasks()
 end
 
-function Outside:start_tasks()
-	local timer_hold_key = 1
-	local dur_fade_task = 1.25
-	local interact_key = "interact"
-	local key_id = Inputs.rev_map[interact_key]
+function Outside:start_flashlight_tutorial()
+	self:create_task(4, 4)
 	local ww, hh = love.graphics.getDimensions()
+	local dur_fade_task = 1.25
 	local x = ww * 0.5
 	local y = hh * 0.5
-	local radius = 64
-
-	self:create_task(1, 1)
-	Concord.entity(self.world):assemble(Assemblages.UI.hold_progress_bg, x, y, radius)
-		:give("target_color", Palette.get("ui_hold_progress", 0.3), dur_fade_task)
-		:give("task_await")
-	local e_progress = Concord.entity(self.world):assemble(Assemblages.UI.hold_progress,
-			interact_key, x, y, timer_hold_key, radius)
-		:give("color_fade_in", dur_fade_task)
-		:give("task_await")
-		:give("key")
-		e_progress:give("hold_on_finish", "on_hold_finished", 0, e_progress.key.value)
-	local e_key = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_id, x, y - 4, "ui")
+	local key_id_flashlight = Inputs.rev_map.flashlight
+	local e_key_flashlight = Concord.entity(self.world):assemble(Assemblages.UI.key,
+			key_id_flashlight, x, y - 4, "ui")
 		:give("color_fade_in", dur_fade_task)
 		:give("layer", "hold_key", 3)
 		:give("task_await")
 	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
 			true, "sheet_keypress")
-		:give("attach_to", e_progress)
-		:give("target_key", e_key)
+		:give("attach_to", e_key_flashlight)
+		:give("target_key", e_key_flashlight)
 		:give("color_fade_in", dur_fade_task)
 		:give("current_frame")
 		:give("layer", "hold_key", 2)
 		:give("animation_on_update", "sync_key")
 		:give("task_await")
+		:give("on_keypressed", "on_flashlight_keypressed")
+		:give("key_value", "flashlight")
 	self.timeline:Pause()
-
-	self:spawn_player()
-	self.world:emit("player_can_move", true)
-	Flux.to(self.camera, 1, {scale = 3})
-
-	TLE.Event.Wait(0.25)
-	self:create_task(2, 2)
-
-	local key_id_inv = Inputs.rev_map["inventory"]
-	local e_key_inv = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_id_inv, x, y - 4, "ui")
-		:give("color_fade_in", dur_fade_task)
-		:give("layer", "hold_key", 3)
-		:give("task_await")
-	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
-			true, "sheet_keypress")
-		:give("attach_to", e_key_inv)
-		:give("target_key", e_key_inv)
-		:give("color_fade_in", dur_fade_task)
-		:give("current_frame")
-		:give("layer", "hold_key", 2)
-		:give("animation_on_update", "sync_key")
-		:give("task_await")
-		:give("on_keypressed", "on_inv_keypressed")
-		:give("key_value", "inventory")
-	self.timeline:Pause()
-
-	TLE.Event.Wait(0.25)
-	self:create_task(3, 3)
-	self.world:emit("player_can_interact", true)
-
-	local dur = 1.75
-	local scale = 1.75
-	local scale_sdf = scale - 0.75
-	local ax = ww * 0.35
-	local ay = hh * 0.5
-
-	local sheet = Resources.data.images.sheet_arrows
-	local offset = 16
-	local size = sheet:getWidth()/4 + offset
-	local e_left = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
-			"left", ax, ay)
-		:give("quad_transform", 0, scale, scale, size, size * 0.5)
-		:give("quad_size", size)
-		:give("color_fade_in", dur)
-		:give("task_await")
-	local e_right = Concord.entity(self.world):assemble(Assemblages.UI.arrow,
-			"right", ax, ay)
-		:give("quad_transform", 0, scale, scale, 0, size * 0.5)
-		:give("quad_size", size)
-		:give("color_fade_in", dur)
-		:give("task_await")
-
-	local key_left = Inputs.rev_map.left
-	local key_right = Inputs.rev_map.right
-	local lt = e_left.quad_transform
-	local rt = e_right.quad_transform
-	local lx = ax - (lt.ox * lt.sx) * 0.65
-	local ly = ay - (lt.oy * lt.sy) * 0.35
-	local rx = ax + size * 0.8
-	local ry = ay - (rt.oy * rt.sy) * 0.35
-	local jamboree_fnt = "res/fonts/Jamboree.fnt"
-	local jamboree_png = "res/fonts/Jamboree.png"
-	local e_key_left = Concord.entity(self.world):assemble(Assemblages.UI.key_sdf,
-			key_left, lx, ly, jamboree_fnt, jamboree_png)
-		:give("sdf", scale_sdf, scale_sdf)
-		:give("color_fade_in", dur)
-	local e_key_right = Concord.entity(self.world):assemble(Assemblages.UI.key_sdf,
-			key_right, rx, ry, jamboree_fnt, jamboree_png)
-		:give("sdf", scale_sdf, scale_sdf)
-		:give("color_fade_in", dur)
-
-	e_key_left:give("subtask_reliance", {e_key_right})
-		:give("task_on_update", "on_keypress_update", 0, "left", e_left)
-	e_key_right:give("subtask_reliance", {e_key_left})
-		:give("task_on_update", "on_keypress_update", 0, "right", e_right)
 end
 
 function Outside:on_hold_finished(e_key)
@@ -428,62 +312,6 @@ function Outside:on_hold_finished(e_key)
 	e:remove("hold_on_finish")
 end
 
-function Outside:on_keypress_update(dt, e, key_id, e_key)
-	@@assert(e.__isEntity)
-	@@assert(e_key.__isEntity)
-	local dur = 1.125
-	local tc = e.subtask_completed
-	if not tc and Inputs.pressed(key_id) then
-		e:give("subtask_completed")
-			:give("target_color", Palette.get("ui_feedback", 0), dur)
-			:give("lerp_on_finish", "destroy_entity", 0, e)
-		e_key:give("target_color", Palette.get("ui_feedback", 0), dur)
-			:give("lerp_on_finish", "destroy_entity", 0, e_key)
-	end
-end
-
-function Outside:on_inv_keypressed(e)
-	@@assert(e.__isEntity)
-	local dur = 1.125
-	local e_key = e.target_key.target_key
-	e:give("target_color", Palette.get("ui_feedback", 0), dur)
-		:give("lerp_on_finish", "destroy_entity", 0, e)
-		:remove("on_keypressed")
-	e_key:give("target_color", Palette.get("ui_feedback", 0), dur)
-		:give("lerp_on_finish", "destroy_entity", 0, e_key)
-	self.world:emit("fade_out_task_await", 0.75)
-	self.world:emit("on_complete_task", self.timeline, 1.25)
-	self.world:emit("on_complete_subtask", nil, 1.25)
-end
-
-function Outside:on_subtasks_finish()
-	self.world:emit("clear_subtasks")
-	self.world:emit("on_complete_subtask", self.timeline, 1.25)
-end
-
-function Outside:sync_key(dt, e)
-	@@assert(e.__isEntity)
-	local key = e.target_key.target_key
-	local pos = key.pos
-	local current_frame = e.current_frame.value
-	if current_frame == 1 then
-		pos.y = pos.orig_y
-	elseif current_frame == 2 then
-		pos.y = pos.orig_y + 4
-	elseif current_frame == 3 then
-		pos.y = pos.orig_y + 8
-	end
-
-	local hold = e.attach_to.target_e.hold
-	if hold then
-		if hold.is_held then
-			e.animation.anim8:gotoFrame(e.animation_data.n_frames)
-		elseif hold.was_held then
-			e.animation.anim8:gotoFrame(1)
-		end
-	end
-end
-
 function Outside:spawn_player()
 	local dur_camera_follow = 1.5
 	local e_player = Concord.entity(self.world)
@@ -494,31 +322,13 @@ function Outside:spawn_player()
 	return e_player
 end
 
-function Outside:check_backdoor(e, dialogues_t)
-	@@assert(e.__isEntity and e.dialogue)
-	@@assert(type(dialogues_t) == "table")
-	-- self.world:emit("remove_choices")
-	-- local id
-	-- for _, e2 in ipairs(self.pool_item) do
-	-- 	local item = e2.item
-	-- 	if item.got and item.id == "backdoor_key" then
-	-- 		id = "door_unlocked"
-	-- 		break
-	-- 	end
-	-- end
-	-- if not id then
-	-- 	id = "door_locked"
-	-- end
-	-- local t = tablex.copy(dialogues_t[id])
-	-- self.world:emit("update_dialogue", e, t)
-end
-
 function Outside:get_flashlight(e, dialogues_t)
 	@@assert(e.__isEntity and e.dialogue)
 	@@assert(type(dialogues_t) == "table")
 	local has_flashlight = Items.has("flashlight")
 	if not has_flashlight then
 		Items.add("flashlight")
+		-- self:start_flashlight_tutorial()
 		self.world:emit("wait_dialogue", true)
 		Timer.after(2, function()
 			self.world:emit("wait_dialogue", false)
@@ -528,6 +338,32 @@ function Outside:get_flashlight(e, dialogues_t)
 	else
 		local t = tablex.copy(dialogues_t.has_flashlight_already)
 		self.world:emit("update_dialogue", e, t)
+	end
+end
+
+function Outside:check_frontdoor(e, dialogues_t)
+	@@assert(e.__isEntity and e.dialogue)
+	@@assert(type(dialogues_t) == "table")
+	self.world:emit("remove_choices")
+	local has_frontdoor_key = Items.has("frontdoor_key")
+	if not has_frontdoor_key then
+		local t = tablex.copy(dialogues_t.door_locked)
+		self.world:emit("update_dialogue", e, t)
+	end
+end
+
+function Outside:check_has_flashlight(e, dialogues_t)
+	@@assert(e.__isEntity and e.dialogue)
+	@@assert(type(dialogues_t) == "table")
+	local has_flashlight = Items.has("flashlight")
+	if not has_flashlight then
+		local t = tablex.copy(dialogues_t.no_flashlight_yet)
+		self.world:emit("update_dialogue", e, t)
+	else
+		self.world:emit("dialogue_reached_end", e)
+		self.world:emit("player_can_move", false)
+		self.world:emit("player_can_interact", false)
+		self.world:emit("switch_state", "StorageRoom", 3, 1)
 	end
 end
 

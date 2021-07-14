@@ -41,8 +41,8 @@ systems.Outside = {
 	"color", "dialogues", "fireflies", "interactive", "light", "move",
 	"movement", "notification", "player_controller", "render_circle",
 	"render_sprite", "render_text", "render_ui", "text_paint", "transform",
-	"typewriter", "path", "key_event", "task", "gamestates", "inventory",
-	"systems", "render_rect", "entity", "items",
+	"typewriter", "path", "gamestates", "inventory", "systems", "render_rect",
+	"entity", "items",
 }
 
 !if _DEV then

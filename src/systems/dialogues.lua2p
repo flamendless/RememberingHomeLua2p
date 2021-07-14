@@ -36,7 +36,10 @@ function Dialogues:init(world)
 		if bool then
 			self.world:emit(signal, e, t.value)
 			t.current_index = t.current_index + 1
-			e:give("text", t.value[t.current_index])
+			local next_str = t.value[t.current_index]
+			if next_str then
+				e:give("text", next_str)
+			end
 		else
 			e:give("text", str)
 		end
@@ -87,7 +90,12 @@ function Dialogues:update_dialogue(e, new_dialogues_t)
 		e:remove("text_can_proceed")
 		:remove("text_t")
 		:give("text_t", new_dialogues_t)
-		e.text.value = new_dialogues_t[1]
+		local text = e.text
+		if text then
+			text.value = new_dialogues_t[1]
+		else
+			e:give("text", new_dialogues_t[1])
+		end
 	else
 		self:show_dialogue("next_dialogue", new_dialogues_t, e)
 	end
@@ -211,11 +219,13 @@ function Dialogues:proceed_choices(dx)
 	for i, e in ipairs(self.pool_choice) do
 		if e.hovered_choice then
 			local cur = mathx.wrap(i + dx, 1, #self.pool_choice + 1)
-			e:remove("hovered_choice")
-			self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
-			local next_e = self.pool_choice[cur]:give("hovered_choice")
-			self.world:emit("lerp_color", next_e, c_hc, f, "circin")
-			break
+			if cur ~= i then
+				e:remove("hovered_choice")
+				self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
+				local next_e = self.pool_choice[cur]:give("hovered_choice")
+				self.world:emit("lerp_color", next_e, c_hc, f, "circin")
+				break
+			end
 		end
 	end
 end

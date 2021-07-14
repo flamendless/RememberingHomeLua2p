@@ -1,9 +1,15 @@
 local Concord = require("modules.concord.concord")
 
+local ItemsList = require("items")
+
 local format = string.format
 
 local Items = Concord.system({
 })
+
+local Assemblages = {
+	Items = require("assemblages.items"),
+}
 
 local list = {
 	flashlight = {
@@ -17,6 +23,13 @@ local list = {
 
 function Items:init(world)
 	self.world = world
+end
+
+function Items:create_items()
+	local t = ItemsList.get_acquired()
+	for _, id in ipairs(t) do
+		Concord.entity(self.world):assemble(Assemblages.Items[id])
+	end
 end
 
 function Items:item_response(main, sub)

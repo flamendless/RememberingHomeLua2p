@@ -148,7 +148,7 @@ Resources.meta.Outside = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
 		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
-		{"item_id", path_fonts .. "DigitalDisco.ttf", 20, "default"},
+		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
 		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
 	},
 }

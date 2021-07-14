@@ -12,22 +12,47 @@ function Task:init(world)
 	self.world = world
 	self.active_task = nil
 	self.active_subtask = nil
+	self.waiting_task = false
+	self.waiting_subtask = false
+
+	self.pool_task.onAdded = function(pool, e)
+		if self.waiting_task then
+			self.world:emit("show_text_paint", e, 1.25)
+			self.active_task = e
+			self.waiting_task = false
+		end
+	end
+	self.pool_subtask.onAdded = function(pool, e)
+		if self.waiting_subtask then
+			self.world:emit("show_text_paint", e, 1.25)
+			self.active_subtask = e
+			self.waiting_subtask = false
+		end
+	end
 end
 
 function Task:show_next_task(dur)
 	@@assert(type(dur) == "number")
 	self.active_task = self.pool_task[1]
-	self.world:emit("show_text_paint", self.active_task, dur)
+	if self.active_task then
+		self.world:emit("show_text_paint", self.active_task, dur)
+	else
+		self.waiting_task = true
+	end
 end
 
 function Task:show_next_subtask(dur)
 	@@assert(type(dur) == "number")
 	self.active_subtask = self.pool_subtask[1]
-	self.world:emit("show_text_paint", self.active_subtask, dur)
+	if self.active_subtask then
+		self.world:emit("show_text_paint", self.active_subtask, dur)
+	else
+		self.waiting_subtask = true
+	end
 end
 
 function Task:on_complete_task(timeline, dur)
-	@@assert(self.active_task, "Can not complete non-existing task")
+	@@assert(self.active_task, "Can not complete a non-existing task")
 	@@sassert(timeline, timeline._type == "TLE")
 	@@assert(type(dur) == "number")
 	self.world:emit("fade_text_paint", self.active_task, dur,

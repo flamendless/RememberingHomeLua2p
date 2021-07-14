@@ -105,22 +105,23 @@ end
 
 function Outside.colliders.backdoor(e, w, h)
 	local backdoor_h = 66
-	e:give("id", "col_backdoor")
+	e:give("id", "backdoor")
 	:give("pos", 440, h - ground_h - backdoor_h)
 	:give("collider", 8, backdoor_h, "cross")
 	:give("bump")
 	:give("interactive")
-	:give("dialogue", "outside", "backdoor_locked")
+	:give("dialogue", "outside", "backdoor")
 end
 
-function Outside.colliders.frontdoor(e, w, h)
+function Outside.colliders.frontdoor_locked(e, w, h)
 	local frontdoor_h = 32
-	e:give("id", "col_frontdoor")
+	e:give("id", "frontdoor_locked")
 	:give("pos", 300, h - ground_h - frontdoor_h)
 	:give("collider", 32, frontdoor_h, "cross")
 	:give("bump")
 	:give("interactive")
-	:give("dialogue", "outside", "frontdoor")
+	:give("dialogue", "outside", "frontdoor_locked")
+	:give("usable_with_item")
 end
 
 return Outside

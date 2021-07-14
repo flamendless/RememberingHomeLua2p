@@ -7,8 +7,14 @@ local Items = {}
 local list = {
 	flashlight = {
 		id = "flashlight",
+		name = "flashlight",
 		desc = "handy tool for navigating in the dark",
-	}
+	},
+	frontdoor_key = {
+		id = "frontdoor_key",
+		name = "frontdoor key",
+		desc = "key to the frontdoor",
+	},
 }
 local acquired = {}
 

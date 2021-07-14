@@ -3,7 +3,6 @@ local Timer = require("modules.hump.timer")
 
 local Blur = require("blur")
 local Inputs = require("inputs")
-local Items = require("items")
 local Resources = require("resources")
 local Palette = require("palette")
 
@@ -21,7 +20,6 @@ local Inventory = Concord.system({
 
 local Assemblages = {
 	Inventory = require("assemblages.inventory"),
-	Items = require("assemblages.items"),
 }
 
 local ROWS, COLS = 3, 3
@@ -55,7 +53,7 @@ function Inventory:open_inventory()
 	self.is_open = true
 	Blur.flag_process = true
 	self:create_inventory()
-	self:create_items()
+	self.world:emit("create_items")
 end
 
 function Inventory:close_inventory(not_close)
@@ -68,13 +66,7 @@ function Inventory:close_inventory(not_close)
 	self.can_open = false
 	Blur.flag_process = false
 	self:hide_inventory()
-	self:hide_items()
-	for _, e in ipairs(self.pool_cell_line) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_cell_fill) do
-		e:destroy()
-	end
+	self:cleanup()
 end
 
 function Inventory:update(dt)
@@ -179,14 +171,14 @@ function Inventory:create_inventory()
 		end
 	end
 
-	local font = Resources.data.fonts.item_id
+	local font = Resources.data.fonts.item_name
 	local pad4 = pad2 * 0.5
 	local iix = x - iw * scale * 0.5
 	local base_y = by + sh * ROWS
 	local iiy = base_y + pad4
 	local iiy2 = iiy + font:getHeight("") + pad4
 	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
-		"inventory_id_text", iix, iiy, alpha, "item_id", (iw - 16) * scale)
+		"inventory_name_text", iix, iiy, alpha, "item_name", (iw - 16) * scale)
 	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
 		"inventory_desc_text", iix, iiy2, alpha, "item_desc", (iw - 16) * scale)
 end
@@ -254,9 +246,9 @@ end
 
 function Inventory:update_inventory_text()
 	if #self.pool_text == 0 then return end
-	local txt_id = self.pool_text[1]
+	local txt_name = self.pool_text[1]
 	local txt_desc = self.pool_text[2]
-	txt_id.text.value = ""
+	txt_name.text.value = ""
 	txt_desc.text.value = ""
 
 	for _, e in ipairs(self.pool_item) do
@@ -266,7 +258,7 @@ function Inventory:update_inventory_text()
 	for _, e in ipairs(self.pool_cell_fill) do
 		if e.hovered_cell and e.cell_item then
 			local item_e = e.cell_item.item_e
-			txt_id.text.value = item_e.item.id
+			txt_name.text.value = item_e.item.name
 			txt_desc.text.value = item_e.item.desc
 			item_e:give("hovered_item")
 			break
@@ -293,25 +285,12 @@ function Inventory:add_item(item_e)
 	end
 end
 
-function Inventory:create_items()
-	local t = Items.get_acquired()
-	for _, id in ipairs(t) do
-		Concord.entity(self.world):assemble(Assemblages.Items[id])
-	end
-end
-
 function Inventory:item_interact()
 	for _, e in ipairs(self.pool_item) do
 		if e.hovered_item then
 			self.world:emit("on_item_use", e)
 			break
 		end
-	end
-end
-
-function Inventory:hide_items()
-	for _, e in ipairs(self.pool_item) do
-		e:destroy()
 	end
 end
 
@@ -326,6 +305,9 @@ function Inventory:cleanup()
 		e:destroy()
 	end
 	for _, e in ipairs(self.pool_item) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_text) do
 		e:destroy()
 	end
 end

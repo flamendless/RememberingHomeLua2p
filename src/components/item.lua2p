@@ -7,10 +7,12 @@ Concord.component("hovered_cell")
 Concord.component("hovered_item")
 Concord.component("usable_with_item")
 
-Concord.component("item", function(c, id, desc)
+Concord.component("item", function(c, id, name, desc)
 	@@assert(type(id) == "string")
+	@@assert(type(name) == "string")
 	@@assert(type(desc) == "string")
 	c.id = id
+	c.name = name
 	c.desc = desc
 end)
 

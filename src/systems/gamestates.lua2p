@@ -18,7 +18,10 @@ function GameStates:init(world)
 	self.is_switching = false
 end
 
-function GameStates:switch_state(next_state)
+function GameStates:switch_state(next_state, dur, delay)
+	@@assert(type(next_state) == "string")
+	@@sassert(dur, type(dur) == "number")
+	@@sassert(delay, type(delay) == "number")
 	if self.is_switching then return end
 	Log.info("switching state to " .. next_state)
 	self.is_switching = true
@@ -29,7 +32,7 @@ function GameStates:switch_state(next_state)
 		GS.switch(next_state)
 		Log.info("switched state to " .. next_state)
 		self.is_switching = false
-	end)
+	end, dur, delay)
 end
 
 function GameStates:save_game()

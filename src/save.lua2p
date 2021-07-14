@@ -6,6 +6,7 @@ local Save = {
 	data = {
 		splash_done = false,
 		intro_done = false,
+		outside_intro_done = false,
 	},
 	checkpoints = {},
 	valid_checkpoints = false,

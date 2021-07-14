@@ -1,8 +1,12 @@
+local Enum = require("modules.enum.enum")
+
 local AnimationData = require("animation_data")
 local Palette = require("palette")
+local Resources = require("resources")
 
 local UI = {}
 
+local dirs = Enum("up", "down", "left", "right")
 local line_width = 7
 
 function UI.ui_text(e, text, resource_id, x, y)
@@ -127,6 +131,29 @@ function UI.speech_bubble(e, player, x, y)
 	:give("notification", "speech_bubble")
 	:give("attach_to", player)
 	:give("attach_to_offset", 12, 16)
+end
+
+function UI.arrow(e, dir, x, y)
+	@@assert(type(dir) == "string")
+	local d = dirs[dir]
+	local q
+	local sheet = Resources.data.images.sheet_arrows
+	if d == "up" then
+		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
+	elseif d == "down" then
+		q = love.graphics.newQuad(192, 0, 64, 64, sheet:getDimensions())
+	elseif d == "left" then
+		q = love.graphics.newQuad(64, 0, 64, 64, sheet:getDimensions())
+	elseif d == "right" then
+		q = love.graphics.newQuad(0, 0, 64, 64, sheet:getDimensions())
+	end
+
+	e:give("id", "arrow_" .. dir)
+	:give("sprite", "sheet_arrows")
+	:give("pos", x, y)
+	:give("quad", q)
+	:give("color", {1, 1, 1, 0})
+	:give("ui_element")
 end
 
 return UI
