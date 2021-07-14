@@ -5,7 +5,6 @@ local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
-local AnimationData = require("animation_data")
 local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
@@ -13,7 +12,6 @@ local Inputs = require("inputs")
 local Items = require("items")
 local NGrading = require("ngrading")
 local Resources = require("resources")
-local Palette = require("palette")
 local Save = require("save")
 local ScreenInfo = require("screen_info")
 local Settings = require("settings")
@@ -122,7 +120,7 @@ function Outside:state_init()
 	self.timeline = TLE.Do(function()
 		-- self.world:emit("set_sys_inventory", false)
 		!if _DEV then
-		self:start_tasks()
+		self:create_tutorial()
 		-- self.world:emit("player_can_move", true)
 		-- self.world:emit("player_can_interact", true)
 		-- self.world:emit("player_can_run", true)
@@ -180,6 +178,7 @@ function Outside:state_init()
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
 		self.world:emit("player_can_run", true)
+		self:create_tutorial()
 		self.timeline:Pause()
 	end)
 end
@@ -272,7 +271,8 @@ function Outside:start_rain()
 		end)
 end
 
-function Outside:start_tasks()
+function Outside:create_tutorial()
+	--TODO
 end
 
 function Outside:start_flashlight_tutorial()
