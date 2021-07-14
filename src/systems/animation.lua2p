@@ -21,21 +21,11 @@ function Animation:setup_on_loop(e, animation)
 	if on_loop then
 		on_loop_fn = function()
 			self.world:emit(on_loop.signal, unpack(on_loop.args))
-			-- if on_loop.event then
-			-- 	animation.is_playing = false
-			-- 	animation.anim8[cb.event](animation.anim8)
-            --
-			-- 	if on_finish then
-			-- 		Timer.after(on_finish.delay, function()
-			-- 			self.world:emit(on_finish.signal, unpack(on_finish.args))
-			-- 		end)
-			-- 	end
-            --
-			-- 	if cb.remove_at_end then
-			-- 		e:remove("animation_on_loop")
-			-- 		cache_multi_animation[e.animation.current_tag] = nil
-			-- 	end
-			-- end
+			if on_finish then
+				Timer.after(on_finish.delay, function()
+					self.world:emit(on_finish.signal, unpack(on_finish.args))
+				end)
+			end
 		end
 	else
 		on_loop_fn = function()
@@ -237,6 +227,11 @@ function Animation:update(dt)
 			quad.quad = current_quad
 		end
 	end
+end
+
+function Animation:anim_pause_at_end(e)
+	@@assert(e.__isEntity and e.animation)
+	e:give("animation_stop", "pauseAtEnd")
 end
 
 return Animation

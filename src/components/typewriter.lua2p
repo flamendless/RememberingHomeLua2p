@@ -1,11 +1,14 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("typewriter_timer", function(c)
+	c.timer = nil
+end)
+
 Concord.component("typewriter", function(c, target_text, every)
 	@@assert(type(target_text) == "string")
 	@@assert(type(every) == "number")
 	c.target_text = target_text
 	c.every = every
-	c.timer = nil
 end)
 
 Concord.component("reflowprint", function(c, width, alignment, speed)
@@ -17,7 +20,7 @@ Concord.component("reflowprint", function(c, width, alignment, speed)
 	c.dt = 0
 	c.current = 1
 	!if _DEV then
-	c.speed = speed or 4
+	c.speed = speed or 2.5
 	!else
 	c.speed = speed or 1
 	!end

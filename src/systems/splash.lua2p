@@ -49,8 +49,8 @@ function Splash:create_splash_wits()
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)
 		:give("animation_on_finish", "splash_wits_done")
-		:give("animation_on_loop", "pauseAtEnd")
 		:give("splash")
+	self.splash_wits:give("animation_on_loop", "anim_pause_at_end", 0, self.splash_wits)
 end
 
 function Splash:create_splash_flamendless()
@@ -90,6 +90,7 @@ function Splash:create_effects()
 		:give("text", "")
 		:give("font", "uncle_type_32")
 		:give("typewriter", "a game by", 0.2)
+		:give("typewriter_timer")
 		:give("typewriter_on_finish", "switch_state", 1.25, "Menu")
 		:give("splash")
 end

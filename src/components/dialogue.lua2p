@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("text_can_proceed")
+Concord.component("text_skipped")
 
 Concord.component("choice_item")
 Concord.component("hovered_choice")

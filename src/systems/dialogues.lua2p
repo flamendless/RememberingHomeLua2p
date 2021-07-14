@@ -93,34 +93,40 @@ function Dialogues:update_dialogue(e, new_dialogues_t)
 	end
 end
 
+function Dialogues:proceed_dialogue()
+	for _, e in ipairs(self.pool) do
+		local rfp = e.reflowprint
+		local text = e.text
+		if e.text_skipped then
+			e:remove("text_skipped")
+		elseif e.text_can_proceed then
+			local text_t = e.text_t
+			rfp.dt = 0
+			rfp.current = 1
+			text_t.current_index = text_t.current_index + 1
+			local str = text_t.value[text_t.current_index]
+			if not str then
+				self.world:emit("dialogue_reached_end", e)
+			else
+				local bool, signal = self:check_signal(str)
+				if bool then
+					self.world:emit(signal, e, text_t.value)
+				else
+					text.value = str
+					e:remove("text_can_proceed")
+				end
+			end
+		end
+	end
+end
+
 function Dialogues:update(dt)
 	if self.is_waiting then return end
 	if Inputs.released("interact") then
 		if #self.pool_choice ~= 0 then
 			self:select_choice()
 		else
-			for _, e in ipairs(self.pool) do
-				if e.text_can_proceed then
-					local rfp = e.reflowprint
-					local text_t = e.text_t
-					local text = e.text
-					rfp.dt = 0
-					rfp.current = 1
-					text_t.current_index = text_t.current_index + 1
-					local str = text_t.value[text_t.current_index]
-					if not str then
-						self.world:emit("dialogue_reached_end", e)
-					else
-						local bool, signal = self:check_signal(str)
-						if bool then
-							self.world:emit(signal, e, text_t.value)
-						else
-							text.value = str
-							e:remove("text_can_proceed")
-						end
-					end
-				end
-			end
+			self:proceed_dialogue()
 		end
 	elseif Inputs.pressed("left") then
 		self:proceed_choices(-1)
