@@ -70,8 +70,8 @@ function Outside:state_setup()
 	self.world:emit("set_ambient_light", ambient_color)
 
 	local _, _, cw, _ = self.camera:getVisible()
-	self.ps1 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop, 128, cw)
-	self.ps2 = ParticleSystems.RainOutside:new(Resources.data.images.rain_drop2, 128, cw)
+	self.ps1 = ParticleSystems.RainOutside(Resources.data.images.rain_drop, 128, cw)
+	self.ps2 = ParticleSystems.RainOutside(Resources.data.images.rain_drop2, 128, cw)
 
 	local bg_house = Resources.data.images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()

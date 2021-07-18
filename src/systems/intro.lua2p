@@ -91,8 +91,8 @@ function Intro:state_setup()
 
 	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", self.canvases.main.x, self.canvases.main.y, w, h)
-	self.ps1 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted, 128, w)
-	self.ps2 = ParticleSystems.RainIntro:new(Resources.data.images.rain_drop_tilted2, 128, w)
+	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
+	self.ps2 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
 
 	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
 		"parallax_clouds", ssx2, "clouds", 2, 2)

@@ -33,7 +33,7 @@ systems.Menu = {
 systems.Intro = {
 	"animation", "camera", "color", "light", "parallax", "depth",
 	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
-	"transform", "follow", "skip", "tween", "gamestates", "fog", "entity",
+	"transform", "skip", "tween", "gamestates", "fog", "entity",
 }
 
 systems.Outside = {
@@ -75,7 +75,7 @@ function ECS.load_systems(id, world)
 	!end
 
 	for _, v in ipairs(systems[id]) do
-		@@assert(Systems[v], format("id = %s, i = %d", id, _))
+		@@assert(Systems[v], format("id = %s, i = %d", v, _))
 		world:addSystem(Systems[v])
 		!if _DEV then
 		local sys = Systems[v]

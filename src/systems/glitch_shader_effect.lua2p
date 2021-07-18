@@ -27,18 +27,6 @@ function GlitchShaderEffect:init(world)
 	end
 end
 
-function GlitchShaderEffect:update_value(id, val)
-	for _, e in ipairs(self.pool) do
-		local shader = e.glitch_shader
-		@@assert(shader.values[id])
-		shader.values[id] = val
-		shader.shader:send(id, val)
-		!if _DEV then
-		debug_values[id] = val
-		!end
-	end
-end
-
 function GlitchShaderEffect:update_values_e(e, new_values)
 	local gs = e.glitch_shader
 	local shader = gs.shader
@@ -113,8 +101,11 @@ function GlitchShaderEffect:debug_slider(id, min, max)
 		NumbersOnly = true,
 		Precision = 2,
 	}) then
-		local new_val = Slab.GetInputNumber()
-		self:update_value(id, new_val)
+		local t = {}
+		t[id] = Slab.GetInputNumber()
+		for _, e in ipairs(self.pool) do
+			self:update_values_e(e, t)
+		end
 	end
 end
 

@@ -30,10 +30,8 @@ function RainIntroParticles:new(image, buffer, w)
 	ps:setTangentialAcceleration(0, 0)
 	ps:setQuads(lg.newQuad(0, 0, 32, 32, 96, 32), lg.newQuad(32, 0, 32, 32, 96, 32), lg.newQuad(64, 0, 32, 32, 96, 32))
 
-	return self:init({
-		system = ps,
-		blend_mode = "alpha"
-	})
+	self.system = ps
+	self.blend_mode = "alpha"
 end
 
 function RainIntroParticles:update(dt)

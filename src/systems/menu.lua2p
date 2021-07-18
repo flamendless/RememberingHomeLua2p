@@ -191,8 +191,8 @@ function Menu:state_setup()
 	self.camera:setWindow(0, 0, ww, wh)
 	self.canvases = {}
 	Canvas.init_canvases(self.canvases)
-	self.mb = MotionBlur:new(self.canvases.main)
-	self.dissolve = Dissolve:new(img_ff, 2)
+	self.mb = MotionBlur(self.canvases.main)
+	self.dissolve = Dissolve(img_ff, 2)
 	self:setup_menu()
 end
 
@@ -701,7 +701,7 @@ end
 function Menu:MB_return()
 	-- TODO add motion blur sound
 	local cx, cy = self.camera:getPosition()
-	local cpos = vec2:new(cx, cy)
+	local cpos = vec2(cx, cy)
 	local duration = 1
 	local distance = {1.0}
 	local temp_mb = self.mb.previous

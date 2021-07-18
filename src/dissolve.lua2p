@@ -12,18 +12,13 @@ end
 function Dissolve:new(texture, duration)
 	@@assert(texture:type() == "Image")
 	@@assert(type(duration) == "number")
-	local shader_code = love.graphics.newShader("shaders/dissolve.glsl")
-
-	shader_code:send("tex", texture)
-
-	return self:init({
-		flag_process = false,
-		shader_code = shader_code,
-		duration = duration,
-		time = 0,
-		dir = 1,
-		kind = -1,
-	})
+	self.shader_code = love.graphics.newShader("shaders/dissolve.glsl")
+	self.shader_code:send("tex", texture)
+	self.flag_process = false
+	self.duration = duration
+	self.time = 0
+	self.dir = 1
+	self.kind = -1
 end
 
 function Dissolve:set_kind(kind)

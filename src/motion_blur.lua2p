@@ -4,18 +4,15 @@ MotionBlur.type = "MotionBlur"
 function MotionBlur:new(canvas, config)
 	@@assert(canvas:type() == "CustomCanvas")
 	@@sassert(config, type(config) == "table")
-	local shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
-	shader_code:send("strength", 0.1)
-	return self:init({
-		flag_process = false,
-		shader_code = shader_code,
-		canvas = canvas,
-		previous = {}
-	})
+	self.shader_code = love.graphics.newShader("shaders/motion_blur.glsl")
+	self.shader_code:send("strength", 0.1)
+	self.flag_process = false
+	self.canvas = canvas
+	self.previous = {}
 end
 
 function MotionBlur:store_previous(x, y, angle)
-	self.previous.target = vec2:new(x, y)
+	self.previous.target = vec2(x, y)
 	self.previous.angle = angle
 end
 
