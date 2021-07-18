@@ -111,19 +111,19 @@ end
 function Outside:state_init()
 	--TEST
 	!if _DEV then
-	-- local e_player = self:spawn_player()
-	-- self.camera:setScale(3)
-	-- self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+	local e_player = self:spawn_player()
+	self.camera:setScale(3)
+	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	!end
 
 	if Save.data.outside_intro_done then return end
 	self.timeline = TLE.Do(function()
 		-- self.world:emit("set_sys_inventory", false)
 		!if _DEV then
-		self:create_tutorial()
-		-- self.world:emit("player_can_move", true)
-		-- self.world:emit("player_can_interact", true)
-		-- self.world:emit("player_can_run", true)
+		-- self:create_tutorial()
+		self.world:emit("player_can_move", true)
+		self.world:emit("player_can_interact", true)
+		self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 		!end
 
@@ -190,7 +190,7 @@ function Outside:state_update(dt)
 		self.timeline:Unpause()
 	elseif Inputs.pressed("inventory") then
 		if not Items.has("flashlight") then
-			-- Items.add("flashlight")
+			Items.add("flashlight")
 		end
 	end
 	!end

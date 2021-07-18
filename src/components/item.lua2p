@@ -7,6 +7,19 @@ Concord.component("hovered_cell")
 Concord.component("hovered_item")
 Concord.component("usable_with_item")
 
+--TODO add serialize/deserialize
+local c_item_choice = Concord.component("item_choice", function(c, e)
+	@@assert(e.__isEntity and e.item)
+	e:ensure("key")
+	c.entity = e
+end)
+
+Concord.component("item_choices", function(c, ...)
+	local t = {...}
+	@@assert(type(t) == "table" and #t ~= 0)
+	c.value = t
+end)
+
 Concord.component("item", function(c, id, name, desc)
 	@@assert(type(id) == "string")
 	@@assert(type(name) == "string")

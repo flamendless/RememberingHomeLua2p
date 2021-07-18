@@ -11,11 +11,12 @@ local floor = math.floor
 local Inventory = Concord.system({
 	pool_camera = {"camera"},
 	pool_bg = {"cell_bg", "nf_render_sprite"},
-	pool_item = {"item", "nf_render_sprite"},
+	pool_item = {"item", "sprite", "nf_render_sprite"},
 	pool_cell_line = {"cell_line"},
 	pool_cell_fill = {"cell_fill"},
 	pool_hovered = {"hovered_cell"},
-	pool_text = {"text", "nf_render_text"},
+	pool_text = {"text", "nf_render_text", "!item_choice"},
+	pool_choices = {"text", "nf_render_text", "item_choice"},
 })
 
 local Assemblages = {
@@ -29,6 +30,8 @@ local c_l_h = Palette.get("inventory_line_hovered", alpha2)
 local c_l_u = Palette.get("inventory_line_unhovered", alpha2)
 local c_f_h = Palette.get("inventory_fill_hovered", alpha2)
 local c_f_u = Palette.get("inventory_fill_unhovered", alpha2)
+local c_h_c = Palette.get("hovered_choice", alpha)
+local c_u_c = {1, 1, 1, alpha}
 
 function Inventory:init(world)
 	self.world = world
@@ -92,11 +95,18 @@ function Inventory:update(dt)
 		elseif Inputs.pressed("down") then
 			dy = 1
 		end
+
 		if dx ~= 0 or dy ~= 0 then
-			self:update_inventory_cells(dx, dy)
+			if #self.pool_choices == 0 then
+				self:update_inventory_cells(dx, dy)
+			else
+				self:update_inventory_choices(dy)
+			end
 		end
+
 		self:update_cell_color()
 		self:update_inventory_text()
+		self:update_inventory_choices_color()
 	end
 end
 
@@ -119,6 +129,9 @@ function Inventory:draw_inventory()
 		self.world:emit("draw_sprite_ex", e)
 	end
 	for _, e in ipairs(self.pool_text) do
+		self.world:emit("draw_text_ex", e)
+	end
+	for _, e in ipairs(self.pool_choices) do
 		self.world:emit("draw_text_ex", e)
 	end
 end
@@ -215,6 +228,19 @@ function Inventory:update_inventory_cells(dx, dy)
 	b:give("hovered_cell")
 end
 
+function Inventory:update_inventory_choices(dy)
+	local index
+	for i, e in ipairs(self.pool_choices) do
+		if e.hovered_item then
+			index = i
+			e:remove("hovered_item")
+			break
+		end
+	end
+	index = mathx.wrap(index + dy, 1, #self.pool_choices + 1)
+	self.pool_choices[index]:give("hovered_item")
+end
+
 function Inventory:update_cell_color()
 	for _, e in ipairs(self.pool_cell_line) do
 		local color
@@ -266,6 +292,23 @@ function Inventory:update_inventory_text()
 	end
 end
 
+function Inventory:update_inventory_choices_color()
+	if #self.pool_choices == 0 then return end
+	for _, e in ipairs(self.pool_choices) do
+		local color
+		if e.hovered_item then
+			color = c_h_c
+		else
+			color = c_u_c
+		end
+		local c = e.color.value
+		c[1] = color[1]
+		c[2] = color[2]
+		c[3] = color[3]
+		c[4] = color[4]
+	end
+end
+
 function Inventory:add_item(item_e)
 	@@assert(item_e.__isEntity and item_e.item)
 	for _, e in ipairs(self.pool_cell_fill) do
@@ -286,11 +329,50 @@ function Inventory:add_item(item_e)
 end
 
 function Inventory:item_interact()
+	if #self.pool_choices ~= 0 then
+		for _, e in ipairs(self.pool_choices) do
+			if e.hovered_item then
+				local str = e.text.value
+				local signal = "on_item_" .. str
+				self.world:emit(signal, e.item_choice.entity)
+				break
+			end
+		end
+		return
+	end
 	for _, e in ipairs(self.pool_item) do
 		if e.hovered_item then
-			self.world:emit("on_item_use", e)
+			local txt_name = self.pool_text[1]
+			local txt_desc = self.pool_text[2]
+			txt_name:give("hidden")
+			txt_desc:give("hidden")
+
+			local pos = txt_name.pos
+			local limit = txt_name.textf.limit
+			local font = txt_name.font.value
+			local fh = font:getHeight("")
+			for i, str in ipairs(e.item_choices.value) do
+				local x = pos.x
+				local y = pos.y + fh * (i - 1)
+				local e_c = Concord.entity(self.world):assemble(Assemblages.Inventory.text,
+					"choice_" .. str, x, y, alpha, "item_name", limit)
+				:give("item_choice", e)
+				:give("text", str)
+				if i == 1 then
+					e_c:give("hovered_item")
+				end
+			end
 			break
 		end
+	end
+end
+
+function Inventory:on_item_cancel()
+	for _, e in ipairs(self.pool_choices) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_text) do
+		e:remove("hidden")
 	end
 end
 
@@ -308,6 +390,9 @@ function Inventory:cleanup()
 		e:destroy()
 	end
 	for _, e in ipairs(self.pool_text) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_choices) do
 		e:destroy()
 	end
 end

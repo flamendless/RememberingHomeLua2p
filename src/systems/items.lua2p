@@ -52,10 +52,10 @@ function Items:on_item_use_with(item, other)
 	@@assert(item.__isEntity and item.item)
 	@@sassert(other, other.__isEntity and other.interactive)
 	local item_id = item.item.id
-	local other_id = other.id.value
 	if not other then
 		self:item_response("common", "item_without")
 	else
+		local other_id = other.id.value
 		local t = list[item_id] and list[item_id][other_id]
 		@@assert(not(other.usable_with_item == nil and t ~= nil), "add usable_with_item component?")
 		@@assert(not(other.usable_with_item ~= nil and t == nil), "add to list?")
