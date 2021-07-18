@@ -1,7 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("glitch_colors", function(c, colors)
-	@@assert(type(color) == "table")
-	c.current = 1
-	c.colors = colors
-end)

@@ -24,6 +24,7 @@ Resources.meta.Splash = {
 	image = {
 		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
 		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
+		{"tex_displacement", path_textures .. "displacement.png"},
 	},
 
 	font = {

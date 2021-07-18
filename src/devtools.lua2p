@@ -17,6 +17,7 @@ local DevTools = {
 		transform = false,
 		log = true,
 		bounding_box = true,
+		glitch_shader_effect = false,
 	},
 }
 

@@ -19,9 +19,9 @@ Concord.utils.loadNamespace("systems", Systems)
 local systems = {}
 
 systems.Splash = {
-	"animation", "color", "ghost_effect", "render_sprite", "render_text",
+	"animation", "color", "render_sprite", "render_text",
 	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
-	"skip",
+	"skip", "glitch_shader_effect",
 }
 
 systems.Menu = {

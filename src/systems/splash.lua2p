@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 local LoveSplash = require("modules.splashes.o-ten-one")
+local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 local Timer = require("modules.hump.timer")
 
@@ -44,6 +45,7 @@ function Splash:create_splash_wits()
 	local ww, wh = love.graphics.getDimensions()
 	self.splash_wits = Concord.entity(self.world):assemble(Common.animated_sprite,
 			AnimationData.get("wits"), ww * 0.5, wh * 0.5)
+		:give("id", "splash_wits")
 		:give("color", Palette.get("white"))
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
@@ -56,33 +58,52 @@ end
 function Splash:create_splash_flamendless()
 	local ww, wh = love.graphics.getDimensions()
 	self.splash_flamendless = Concord.entity(self.world)
+		:give("id", "splash_flamendless")
 		:give("sprite", "flamendless_logo")
 		:give("pos", ww * 0.5, wh * 0.5)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
-		:give("color", {1, 1, 1, 0})
-		:give("color_fade_in", 2)
+		:give("color", {1, 1, 1, 1})
 		:give("splash")
+		:give("displacement_texture", "tex_displacement")
+		:give("nf_render_sprite")
+		:give("use_canvas", ww, wh)
+		:give("glitch_shader")
+
+	self.txt_flamendless = Concord.entity(self.world)
+		:give("id", "txt_flamendless")
+		:give("text", "flamendless")
+		:give("font", "ui")
+		:give("pos", ww * 0.5, wh * 0.75)
+		:give("transform", 0, 1, 1, 0.5, 0.5)
+		:give("color", {1, 1, 1, 1})
+		:give("splash")
+		:give("displacement_texture", "tex_displacement")
+		:give("nf_render_text")
+		:give("use_canvas", ww, wh)
+		:give("glitch_shader")
+
+	self.world:emit("reset_glitch", self.splash_flamendless)
+	self.world:emit("reset_glitch", self.txt_flamendless)
+
+	local c = {logo = 0.075, txt = 0.075, reset = 0.15, none = 0.7}
+	Timer.during(5, function()
+		local res = Lume.weightedchoice(c)
+		if res == "logo" then
+			self.world:emit("do_random_glitch", self.splash_flamendless)
+		elseif res == "txt" then
+			self.world:emit("do_random_glitch", self.txt_flamendless)
+		elseif res == "reset" then
+			self.world:emit("reset_glitch", self.splash_flamendless)
+			self.world:emit("reset_glitch", self.txt_flamendless)
+		end
+	end, function()
+		self.world:emit("reset_glitch", self.splash_flamendless)
+		self.world:emit("reset_glitch", self.txt_flamendless)
+	end)
 end
 
 function Splash:create_effects()
 	local ww, wh = love.graphics.getDimensions()
-	self.ghost_effect = Concord.entity(self.world)
-		:give("random_text", "flamendless")
-		:give("font", "firefly")
-		:give("ghost_effect")
-		:give("splash")
-
-	self.glitch_effect = Concord.entity(self.world)
-		:give("random_text", {"flamendless", "brandon"})
-		:give("font", "firefly")
-		:give("glitch_effect")
-		:give("glitch_colors", Palette.color_glitches)
-		:give("color", self.color_a)
-		:give("lerp_colors", {self.color_a, self.color_b})
-		:give("pos", ww * 0.5, wh * 0.85)
-		:give("transform", 0, 1, 1, 0.5, 0.5)
-		:give("splash")
-
 	self.typewriter = Concord.entity(self.world)
 		:give("color", Palette.colors.white)
 		:give("pos", ww * 0.5, wh * 0.2)
@@ -164,11 +185,9 @@ function Splash:state_draw()
 		self.splash_love:draw()
 	else
 		self.world:emit("draw")
-		if self.current_state == states.splash_flam then
-			self.world:emit("effect_draw")
-		end
 	end
 	self.world:emit("draw_ui")
+	self.world:emit("draw_glitch_effect")
 	Fade.draw()
 end
 

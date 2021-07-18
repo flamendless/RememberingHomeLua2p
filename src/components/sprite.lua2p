@@ -42,3 +42,10 @@ end
 function c_noise_tex:deserialize(data)
 	self:__populate(data.w, data.h)
 end
+
+--TODO add serialize/deserialize
+local c_displacement_tex = Concord.component("displacement_texture", function(c, resource_id)
+	@@assert(type(resource_id) == "string")
+	c.resource_id = resource_id
+	c.texture = Resources.data.images[resource_id]
+end)
