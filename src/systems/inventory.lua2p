@@ -61,6 +61,10 @@ end
 
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
+	if #self.pool_choices ~= 0 then
+		self:on_item_cancel()
+		return
+	end
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
 	end

@@ -134,8 +134,8 @@ function Player.outside_house(e, can_move, can_run)
 			run = {x = 180, y = 144},
 		},
 		{
-			upstairs = true,
-			downstairs = true,
+			upstairs = false,
+			downstairs = false,
 		},
 		320,
 		{

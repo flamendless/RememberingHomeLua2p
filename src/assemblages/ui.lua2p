@@ -36,6 +36,7 @@ function UI.dialogue_text(e, id, dialogues, x, y)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0, 0.5)
 	:give("layer", "dialogue", 3)
+	:give("nf_render_text")
 end
 
 function UI.choice(e, id, text, text_t, x, y)
@@ -49,6 +50,7 @@ function UI.choice(e, id, text, text_t, x, y)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0, 0.5)
 	:give("layer", "dialogue", 3)
+	:give("nf_render_text")
 end
 
 function UI.hold_progress_bg(e, x, y, radius, segments)

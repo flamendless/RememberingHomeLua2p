@@ -9,8 +9,8 @@ local insert = table.insert
 
 local Dialogues = Concord.system({
 	pool_camera = {"camera"},
-	pool = {"dialogue_item", "text_t"},
-	pool_choice = {"choice_item", "text_t"},
+	pool = {"dialogue_item", "text_t", "nf_render_text"},
+	pool_choice = {"choice_item", "text_t", "nf_render_text"},
 })
 
 local UI = require("assemblages.ui")
@@ -59,12 +59,20 @@ function Dialogues:spawn_dialogue(main, sub)
 	e:destroy()
 end
 
-function Dialogues:spawn_dialogue_ex(t)
+function Dialogues:spawn_dialogue_ex(t, is_full, signal_after, ...)
 	@@assert(type(t) == "table")
 	@@assert(#t ~= 0)
+	@@sassert(is_full, type(is_full) == "boolean")
+	@@sassert(signal_after, type(signal_after) == "string")
 	local e = Concord.entity(self.world):give("dialogue", "", "")
-	self:show_dialogue("_ex", t, e)
+	local e_d = self:show_dialogue("_ex", t, e)
 	e:destroy()
+	if is_full then
+		self.world:emit("on_interact_or_inventory")
+	end
+	if signal_after then
+		e_d:give("on_dialogue_end", signal_after, 0, ...)
+	end
 end
 
 function Dialogues:show_dialogue(id, dialogues_t, e)
@@ -81,6 +89,8 @@ function Dialogues:show_dialogue(id, dialogues_t, e)
 		:give("dialogue", d.main, d.sub)
 	self:populate_choices(e_dialogue, dialogues_t)
 	self.world:emit("set_sys_inventory", false)
+
+	return e_dialogue
 end
 
 function Dialogues:update_dialogue(e, new_dialogues_t)
@@ -161,8 +171,13 @@ function Dialogues:dialogue_reached_end(e)
 		e:give("hidden")
 		self:show_choices(e)
 	else
-		self.world:emit("on_leave_interact_or_inventory")
-		self.world:emit("set_sys_inventory", true)
+		local on_d_end = e.on_dialogue_end
+		if on_d_end then
+			self.world:emit(on_d_end.signal, unpack(on_d_end.args))
+		else
+			self.world:emit("on_leave_interact_or_inventory")
+			self.world:emit("set_sys_inventory", true)
+		end
 	end
 	e:destroy()
 end
@@ -265,10 +280,20 @@ function Dialogues:remove_choices()
 	end
 end
 
+function Dialogues:draw_dialogues()
+	for _, e in ipairs(self.pool) do
+		self.world:emit("draw_text_ex", e)
+	end
+	for _, e in ipairs(self.pool_choice) do
+		self.world:emit("draw_text_ex", e)
+	end
+end
+
 function Dialogues:cleanup()
 	for _, e in ipairs(self.pool) do
 		e:destroy()
 	end
+	self.main_camera = nil
 end
 
 return Dialogues

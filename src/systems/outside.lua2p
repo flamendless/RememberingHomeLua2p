@@ -115,12 +115,10 @@ function Outside:state_init()
 	self.camera:setScale(3)
 	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	!end
-
 	if Save.data.outside_intro_done then return end
+
 	self.timeline = TLE.Do(function()
-		-- self.world:emit("set_sys_inventory", false)
 		!if _DEV then
-		-- self:create_tutorial()
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
 		self.world:emit("player_can_run", true)
@@ -178,7 +176,6 @@ function Outside:state_init()
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
 		self.world:emit("player_can_run", true)
-		self:create_tutorial()
 		self.timeline:Pause()
 	end)
 end
@@ -210,6 +207,7 @@ function Outside:state_draw()
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas(self.main_canvas.canvas)
+	love.graphics.clear()
 	self.camera:attach()
 		self.effect:apply()
 		love.graphics.draw(Resources.data.images.bg_sky)
@@ -235,7 +233,9 @@ function Outside:state_draw()
 	Blur.draw()
 	self.main_canvas:render()
 	love.graphics.setShader()
+
 	self.world:emit("draw_inventory")
+	self.world:emit("draw_dialogues")
 end
 
 function Outside:start_rain()
@@ -271,47 +271,6 @@ function Outside:start_rain()
 		end)
 end
 
-function Outside:create_tutorial()
-	--TODO
-end
-
-function Outside:start_flashlight_tutorial()
-	self:create_task(4, 4)
-	local ww, hh = love.graphics.getDimensions()
-	local dur_fade_task = 1.25
-	local x = ww * 0.5
-	local y = hh * 0.5
-	local key_id_flashlight = Inputs.rev_map.flashlight
-	local e_key_flashlight = Concord.entity(self.world):assemble(Assemblages.UI.key,
-			key_id_flashlight, x, y - 4, "ui")
-		:give("color_fade_in", dur_fade_task)
-		:give("layer", "hold_key", 3)
-		:give("task_await")
-	Concord.entity(self.world):assemble(Assemblages.UI.keypress,
-			true, "sheet_keypress")
-		:give("attach_to", e_key_flashlight)
-		:give("target_key", e_key_flashlight)
-		:give("color_fade_in", dur_fade_task)
-		:give("current_frame")
-		:give("layer", "hold_key", 2)
-		:give("animation_on_update", "sync_key")
-		:give("task_await")
-		:give("on_keypressed", "on_flashlight_keypressed")
-		:give("key_value", "flashlight")
-	self.timeline:Pause()
-end
-
-function Outside:on_hold_finished(e_key)
-	@@assert(type(e_key) == "string")
-	local e = self.world:getEntityByKey(e_key)
-	@@assert(e.__isEntity)
-	tle_log("interact hold key completed")
-	self.world:emit("fade_out_task_await", 0.75)
-	self.world:emit("on_complete_task", self.timeline, 1.25)
-	self.world:emit("on_complete_subtask", nil, 1.25)
-	e:remove("hold_on_finish")
-end
-
 function Outside:spawn_player()
 	local dur_camera_follow = 1.5
 	local e_player = Concord.entity(self.world)
@@ -328,7 +287,6 @@ function Outside:get_flashlight(e, dialogues_t)
 	local has_flashlight = Items.has("flashlight")
 	if not has_flashlight then
 		Items.add("flashlight")
-		-- self:start_flashlight_tutorial()
 		self.world:emit("wait_dialogue", true)
 		Timer.after(2, function()
 			self.world:emit("wait_dialogue", false)
@@ -363,7 +321,21 @@ function Outside:check_has_flashlight(e, dialogues_t)
 		self.world:emit("dialogue_reached_end", e)
 		self.world:emit("player_can_move", false)
 		self.world:emit("player_can_interact", false)
+		self.world:emit("player_open_door")
 		self.world:emit("switch_state", "StorageRoom", 3, 1)
+	end
+end
+
+function Outside:on_item_equip(item_e)
+	@@assert(item_e.__isEntity and item_e.item)
+	local item = item_e.item
+	if item.id == "flashlight" then
+		self.world:emit("set_sys_dialogues", true)
+		self.world:emit("set_sys_inventory", false)
+		self.world:emit("spawn_dialogue_ex", {
+			"The moon provides enough light",
+			"No need to use it and waste power",
+		}, nil, "dialogue_to_inventory")
 	end
 end
 

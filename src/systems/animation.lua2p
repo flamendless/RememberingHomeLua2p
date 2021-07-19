@@ -104,7 +104,6 @@ function Animation:init(world)
 		local data = e.animation_data
 		local animation = e.animation
 		local on_loop = self:setup_on_loop(e, animation)
-
 		setup_animation(e, data, on_loop)
 	end
 
@@ -113,7 +112,6 @@ function Animation:init(world)
 		local animation = e.animation
 		self:setup_on_loop(e, animation)
 		local data = multi.data[multi.first]
-
 		animation.current_tag = multi.first
 		e:give("animation_data", data)
 	end
@@ -138,7 +136,6 @@ function Animation:init(world)
 
 	self.pool_pause.onRemoved = function(pool, e)
 		local animation = e.animation
-
 		animation.anim8:resume()
 	end
 
@@ -172,22 +169,9 @@ function Animation:switch_animation_tag(e, new_tag, override)
 	e:remove("change_animation_tag")
 end
 
-function Animation:update_animation_data(e, data)
-	@@assert(e.__isEntity)
-	@@assert(type(data) == "table")
-
-	local animation = e.animation
-	animation.stop_on_last = data.stop_on_last
-	animation.is_playing = true
-	local on_loop = self:setup_on_loop(e, animation)
-
-	setup_animation(e, data, on_loop)
-end
-
 function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
 		local animation = e.animation
-
 		if animation.anim8 then
 			local on_update = e.animation_on_update
 			local stop = e.animation_stop
@@ -231,7 +215,9 @@ end
 
 function Animation:anim_pause_at_end(e)
 	@@assert(e.__isEntity and e.animation)
-	e:give("animation_stop", "pauseAtEnd")
+	local anim = e.animation
+	anim.is_playing = false
+	anim.anim8:pauseAtEnd()
 end
 
 return Animation

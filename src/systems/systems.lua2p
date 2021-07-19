@@ -23,4 +23,9 @@ function Systems:set_sys_inventory(bool)
 	sys_inventory:setEnabled(bool)
 end
 
+function Systems:dialogue_to_inventory()
+	self:set_sys_dialogues(false)
+	self:set_sys_inventory(true)
+end
+
 return Systems

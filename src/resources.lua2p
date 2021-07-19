@@ -106,8 +106,6 @@ Resources.meta.Outside = {
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},
 		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
-		{"sheet_player_upstairs", path_images .. "player/sheet_player_upstairs.png"},
-		{"sheet_player_downstairs", path_images .. "player/sheet_player_downstairs.png"},
 		{"firefly", path_images .. "house_outside/firefly.png"},
 		{"splashes", path_images .. "house_outside/splashes.png"},
 		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
@@ -116,21 +114,9 @@ Resources.meta.Outside = {
 		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
 		{"sheet_brush", path_ui .. "sheet_brush.png"},
-		{"sheet_dialogue_arrow", path_ui .. "sheet_dialogue_arrow.png"},
-		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
-		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
-		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},
-		{"sheet_ui_hand", path_ui .. "ui_action_hand.png"},
-		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
-		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
-		{"sheet_ui_use", path_ui .. "ui_action_use.png"},
-		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
-		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
 		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
-		{"question_mark", path_ui .. "question_mark.png"},
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
-		{"backdoor_key", path_items .. "backdoor_key.png"},
 		{"item_flashlight", path_items .. "item_flashlight.png"},
 
 		{"light_round", path_lights .. "round.png"},
@@ -147,7 +133,38 @@ Resources.meta.Outside = {
 
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
+		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+	},
+}
+
+Resources.meta.StorageRoom = {
+	image = {
+		{"sheet_player_idle", path_images .. "player/player_idle.png"},
+		{"sheet_player_walk", path_images .. "player/player_walk.png"},
+		{"sheet_player_run", path_images .. "player/player_run.png"},
+		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
+		{"sheet_splat", path_ui .. "sheet_splat.png"},
+		{"sheet_brush", path_ui .. "sheet_brush.png"},
+		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
+		{"bg_item", path_items .. "bg_item.png"},
+		{"bg_desc", path_items .. "bg_desc.png"},
+		{"item_flashlight", path_items .. "item_flashlight.png"},
+
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
+	},
+
+	image_data = {
+		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
+		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+	},
+
+	font = {
+		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
 		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},

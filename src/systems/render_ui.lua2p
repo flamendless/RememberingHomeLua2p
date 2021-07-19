@@ -41,11 +41,11 @@ function RenderUI:draw_ui()
 		local stext = e.static_text
 		local sprite = e.sprite
 
-		if text or stext then
+		if (text or stext) and not e.nf_render_text then
 			self.world:emit("draw_text_ex", e)
 		end
 
-		if sprite then
+		if sprite and not e.nf_render_sprite then
 			self.world:emit("draw_sprite_ex", e)
 		end
 	end
@@ -58,11 +58,11 @@ function RenderUI:draw_ui()
 			local stext = e.static_text
 			local sprite = e.sprite
 
-			if text or stext then
+			if (text or stext) and not e.nf_render_text then
 				self.world:emit("draw_text_ex", e)
 			end
 
-			if sprite then
+			if sprite and not e.nf_render_sprite then
 				self.world:emit("draw_sprite_ex", e)
 			end
 		end

@@ -76,6 +76,7 @@ function love.load()
 	-- GameStates.switch("Menu")
 	-- GameStates.switch("Intro")
 	GameStates.switch("Outside")
+	-- GameStates.switch("StorageRoom")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")
