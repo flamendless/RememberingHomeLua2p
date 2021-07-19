@@ -65,7 +65,7 @@ function ECS.load_systems(id, world)
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
 	local lid = lower(id)
-	@@assert(Systems[lid], id .. " state system does not exist")
+	@@assert(Systems[lid], lid .. " state system does not exist")
 
 	!if _DEV then
 	for _, ev in ipairs(fn) do

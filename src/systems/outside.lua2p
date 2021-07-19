@@ -13,7 +13,6 @@ local Items = require("items")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Save = require("save")
-local ScreenInfo = require("screen_info")
 local Settings = require("settings")
 
 local format = string.format
@@ -65,7 +64,6 @@ function Outside:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
 
-	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_ambient_light", ambient_color)
 

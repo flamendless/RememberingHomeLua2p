@@ -12,7 +12,6 @@ local NGrading = require("ngrading")
 local Resources = require("resources")
 local Save = require("save")
 local Settings = require("settings")
-local ScreenInfo = require("screen_info")
 
 local min = math.min
 
@@ -89,7 +88,6 @@ function Intro:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
 
-	ScreenInfo.set(w, h, w, h)
 	self.world:emit("create_light_map", self.canvases.main.x, self.canvases.main.y, w, h)
 	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)

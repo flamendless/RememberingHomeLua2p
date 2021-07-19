@@ -1,0 +1,41 @@
+local Concord = require("modules.concord.concord")
+local Gamera = require("modules.gamera.gamera")
+
+local Canvas = require("canvas")
+
+local Assemblages = {
+	Common = require("assemblages.common"),
+	Inventory = require("assemblages.inventory"),
+	Player = require("assemblages.player"),
+	UI = require("assemblages.ui"),
+}
+
+local StorageRoom = Concord.system({
+})
+
+function StorageRoom:init(world)
+	self.world = world
+end
+
+function StorageRoom:state_setup()
+	local w, h = Resources.data.images.bg_house:getDimensions()
+	local ww, hh = love.graphics.getDimensions()
+
+	self.main_canvas = Canvas.create_main({})
+	self.scale = min(ww/w, hh/h)
+	self.camera = Gamera.new(0, 0, w, h)
+	self.camera:setWindow(0, 0, ww, hh)
+	Concord.entity(self.world):assemble(Assemblages.Common.camera,
+		self.camera, self.scale, w, h)
+end
+
+function StorageRoom:state_init()
+end
+
+function StorageRoom:state_update(dt)
+end
+
+function StorageRoom:state_draw()
+end
+
+return StorageRoom
