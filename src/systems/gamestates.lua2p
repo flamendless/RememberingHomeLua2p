@@ -1,0 +1,48 @@
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+
+local Fade = require("fade")
+local Utils = require("utils")
+
+local insert = table.insert
+
+local GS
+local Save = require("save")
+
+local GameStates = Concord.system({
+})
+
+function GameStates:init(world)
+	GS = require("gamestates")
+	self.world = world
+	self.is_switching = false
+end
+
+function GameStates:switch_state(next_state, dur, delay)
+	@@assert(type(next_state) == "string")
+	@@sassert(dur, type(dur) == "number")
+	@@sassert(delay, type(delay) == "number")
+	if self.is_switching then return end
+	Log.info("switching state to " .. next_state)
+	self.is_switching = true
+	Fade.fade_out(function()
+		if GS.current_id == "Splash" then
+			Save.set_flag("splash_done", true, true)
+		end
+		GS.switch(next_state)
+		Log.info("switched state to " .. next_state)
+		self.is_switching = false
+	end, dur, delay)
+end
+
+function GameStates:save_game()
+	local data = self.world:serialize()
+	-- Utils.serial.write(!(_SAVESTATE_FILENAME), data)
+end
+
+function GameStates:load_game()
+	local data = Utils.serial.read(!(_SAVESTATE_FILENAME))
+	-- self.world:deserialize(data, true)
+end
+
+return GameStates

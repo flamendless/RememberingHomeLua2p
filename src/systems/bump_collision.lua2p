@@ -1,95 +1,308 @@
 local Concord = require("modules.concord.concord")
-local Bump = require("modules.bump.bump-niji")
+local BumpStorage = require("ctor.bump_storage")
 
 local BumpCollision = Concord.system({
-	pool = {"collider", "position", "bump"},
+	pool = {
+		constructor = BumpStorage,
+		"collider", "pos", "bump"
+	},
+	pool_camera = {
+		"camera",
+	}
 })
+
+local function get_query_rect(self)
+	if self.camera then
+		return self.camera:getVisible()
+	else
+		return 0, 0, love.graphics.getDimensions()
+	end
+end
+
+local function get_query_point(self)
+	local mx, my = love.mouse.getPosition()
+	local camera = self.camera
+	if camera then
+		mx, my = camera:toWorld(mx, my)
+	end
+	return mx, my
+end
 
 local function filter(item, other)
 	local other_col = other.collider
-
 	return other_col.filter or "slide"
 end
 
 function BumpCollision:init(world)
 	self.world = world
-	self.bump_world = Bump.newWorld()
-
-	self.pool.onEntityAdded = function(pool, e)
-		local x = e.position.pos.x + e.collider.offset.x
-		local y = e.position.pos.y + e.collider.offset.y
-
-		self.bump_world:add(e, x, y, e.collider.size.x, e.collider.size.y)
+	self.pool_camera.onAdded = function(pool, e)
+		self.camera = e.camera.camera
 	end
 end
 
 function BumpCollision:preupdate(dt)
-	for _, e in ipairs(self.pool) do
+	for _, e in ipairs(self.pool:getItems()) do
 		e.collider.is_hit = false
+		!if _DEV then
+		e.bump.debug_hovered = false
+		!end
 	end
 end
 
 function BumpCollision:update(dt)
-	for _, e in ipairs(self.pool) do
-		local body = e.body
+	local x, y, w, h = get_query_rect(self)
+	local items, len = self.pool:queryRect(x, y, w, h)
+	for i = 1, len do
+		local e = items[i]
+		if e.body then
+			!if _DEV then
+			if e.bump.debug_clicked then
+				return
+			end
+			!end
+			self:update_body(e)
+		end
+		self:check_col(e)
+	end
+end
 
-		if body then
-			if body.vel_x ~= 0 or body.vel_y ~= 0 then
-				local collider = e.collider
-				local pos = e.position.pos
-				local cols, len
+function BumpCollision:update_body(e)
+	local body = e.body
+	local pos = e.pos
+	local cols, len
 
-				pos.x, pos.y, cols, len = self.bump_world:move(e,
-					pos.x + body.vel_x, pos.y + body.vel_y, filter)
+	pos.x, pos.y, cols, len = self.pool:move(e,
+		pos.x + body.vel_x,
+		pos.y + body.vel_y,
+		filter)
 
-				for i = 1, len do
-					local c = cols[i]
+	for i = 1, len do
+		local c = cols[i]
+		local other = c.other
+		local other_col = other.collider
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
+	end
+	self.pool.freeCollisions(cols)
+end
 
-					local other = c.other
-					local other_col = other.collider
-					local other_id = other.bump.id
+function BumpCollision:check_col(e)
+	local pos = e.pos
+	local cols, len
+	local col = e.collider
+	pos.x, pos.y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
 
-					other_col.is_hit = true
-					other_col.normal.x = c.normalX
-					other_col.normal.y = c.normalY
+	for i = 1, len do
+		local c = cols[i]
+		local other = c.other
+		local other_col = other.collider
+		other_col.is_hit = true
+		other_col.normal.x = c.normalX
+		other_col.normal.y = c.normalY
+		if e.can_interact then
+			if not e.within_interactive and other.interactive then
+				self.world:emit("on_collide_interactive", e, other)
+			end
+		end
+	end
 
-					local interactive = c.interactive
-					local interactive_col = interactive.collider
+	if not col.is_hit and e.within_interactive and len == 0 then
+		self.world:emit("on_leave_interactive", e)
+	end
+	self.pool.freeCollisions(cols)
+end
 
-					interactive_col.is_hit = true
-					interactive_col.normal.x = c.normalX
-					interactive_col.normal.y = c.normalY
+function BumpCollision:on_item_use(item)
+	@@assert(item.__isEntity and item.item)
+	local x, y, w, h = get_query_rect(self)
+	local items, len = self.pool:queryRect(x, y, w, h)
+	local other_e
+	for i = 1, len do
+		local e = items[i]
+		local pos = e.pos
+		local cols, c_len
+		pos.x, pos.y, cols, c_len = self.pool:check(e, pos.x, pos.y, filter)
+		for c = 1, c_len do
+			local col = cols[c]
+			local other = col.other
+			if e.within_interactive and other.interactive then
+				other_e = other
+				break;
+			end
+		end
+	end
+	self.world:emit("on_item_use_with", item, other_e)
+end
 
-					if other_id then
-						--TODO wall collision animation
-						if other_id == "wall" then
-							self.world:emit("collision_wall", e, other)
+!if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	ids = false,
+	bodies = true,
+	drag = false,
+	visible_only = true,
+	fill = false,
+}
 
-							return
-						end
-					end
-				end
+local function edit(id, value, t)
+	Slab.Text(id .. ":")
+	Slab.SameLine()
+	if Slab.Input(id, {
+		Text = tostring(value),
+		ReturnOnText = false,
+		NumbersOnly = true,
+	}) then
+		value = Slab.GetInputNumber()
+		t[id] = value
+	end
+	return value
+end
 
-				self.bump_world.freeCollisions(cols)
+function BumpCollision:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("BumpCollision", {
+		Title = self.debug_title,
+		IsOpen = self.debug_show
+	})
+	if Slab.CheckBox(flags.bodies, "Bodies") then
+		flags.bodies = not flags.bodies
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.ids, "IDs") then
+		flags.ids = not flags.ids
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.drag, "Drag") then
+		flags.drag = not flags.drag
+		self.world:emit("debug_on_drag", flags.drag)
+	end
+	if Slab.CheckBox(flags.visible_only, "Visible Only") then
+		flags.visible_only = not flags.visible_only
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(flags.fill, "Fil") then
+		flags.fill = not flags.fill
+	end
+
+	if Slab.BeginTree("List", {Title = "List"}) then
+		Slab.Indent()
+		local items, len
+		if flags.visible_only then
+			local x, y, w, h = get_query_rect(self)
+			items, len = self.pool:queryRect(x, y, w, h)
+		else
+			items, len = self.pool:getItems()
+		end
+
+		for i = 1, len do
+			local e = items[i]
+			local id = e.id.value
+			if Slab.BeginTree(id, {Title = id, IsOpen = e.bump.debug_selected}) then
+				Slab.Indent()
+				local x, y, w, h = self.pool:getRect(e)
+				x = edit("x", x, e.pos)
+				y = edit("y", y, e.pos)
+				w = edit("w", w, e.collider)
+				h = edit("h", h, e.collider)
+				self.pool:update(e, x, y, w, h)
+				Slab.EndTree()
+			end
+		end
+		Slab.EndTree()
+	end
+
+	local mx, my = get_query_point(self)
+	local items, len = self.pool:queryPoint(mx, my)
+	for i = 1, len do
+		local e = items[i]
+		e.bump.debug_hovered = true
+		e.bump.debug_selected = love.mouse.isDown(2)
+		if love.keyboard.isDown("lshift") and e.bump.debug_selected then
+			self.world:emit("debug_e_right_clicked", e)
+		end
+	end
+	Slab.EndWindow()
+end
+
+function BumpCollision:debug_draw()
+	if flags.bodies then
+		local x, y, w, h = get_query_rect(self)
+		local items, len = self.pool:queryRect(x, y, w, h)
+		for i = 1, len do
+			local e = items[i]
+			local id = e.id.value
+			local x, y, w, h = self.pool:getRect(e)
+			local scale = 1
+			local camera = self.camera
+			if camera then scale = camera:getScale() end
+
+			if flags.fill then
+				love.graphics.setColor(1, 0, 0, 0.3)
+				love.graphics.rectangle("fill", x, y, w, h)
+			end
+
+			love.graphics.setLineWidth(1/scale)
+			if e.bump.debug_hovered or
+				(e.interactive and e.collider.is_hit) then
+				love.graphics.setColor(1, 1, 0, 0.7)
+			else
+				love.graphics.setColor(1, 0, 0, 0.7)
+			end
+			love.graphics.rectangle("line", x, y, w, h)
+
+			if flags.ids then
+				love.graphics.print(id, x, y)
 			end
 		end
 	end
 end
 
-!if not _RELEASE then
-function BumpCollision:draw_debug()
-	local items, len = self.bump_world:getItems()
+function BumpCollision:debug_mousemoved(mx, my, dx, dy)
+	if flags.drag then
+		mx, my = get_query_point(self)
+		local x, y, w, h = get_query_rect(self)
+		local items, len = self.pool:queryRect(x, y, w, h)
+		for i = 1, len do
+			local e = items[i]
+			if e.bump.debug_clicked then
+				local x, y, w, h = self.pool:getRect(e)
+				e.pos.x = mx
+				e.pos.y = my
+				self.pool:update(e, e.pos.x, e.pos.y, w, h)
+			end
+		end
+	end
+end
+
+function BumpCollision:debug_mousepressed(mx, my, mb)
+	if not flags.drag then return end
+	if mb ~= 1 then return end
+	mx, my = get_query_point(self)
+	local items, len = self.pool:queryPoint(mx, my)
 	for i = 1, len do
 		local e = items[i]
-		local x, y, w, h = self.bump_world:getRect(e)
-
-		if e.collider.is_hit then
-			love.graphics.setColor(1, 0, 0, 0.5)
-		else
-			love.graphics.setColor(0, 1, 0, 0.5)
+		if e.bump.debug_hovered then
+			e.bump.debug_clicked = true
 		end
+	end
+end
 
-		love.graphics.rectangle("line", x, y, w, h)
+function BumpCollision:debug_mousereleased(mx, my, mb)
+	if flags.drag and mb == 1 then
+		mx, my = get_query_point(self)
+		local x, y, w, h = get_query_rect(self)
+		local items, len = self.pool:queryRect(x, y, w, h)
+		for i = 1, len do
+			local e = items[i]
+			if e.bump.debug_clicked then
+				local x, y, w, h = self.pool:getRect(e)
+				e.pos.x = mx
+				e.pos.y = my
+				e.bump.debug_clicked = false
+				self.pool:update(e, e.pos.x, e.pos.y, w, h)
+			end
+		end
 	end
 end
 !end

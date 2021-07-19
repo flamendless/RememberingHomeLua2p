@@ -1,44 +1,33 @@
 local Concord = require("modules.concord.concord")
 
 local Interactive = Concord.system({
-	pool = {"id", "interactive", "collider3d"},
+	pool = {"id", "interactive", "collider", "bump"},
 })
 
 function Interactive:init(world)
 	self.world = world
 end
 
-function Interactive:interactive_collided(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
-	e:give("within_interactive", interactive)
-end
-
-function Interactive:interactive_left_collision(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
-	local w_interactive = e.within_interactive
-
-	if w_interactive and w_interactive.interactive.id.id == interactive.id then
-		e:remove("within_interactive")
-	end
-end
-
-function Interactive:check_on_leave_interactives(player)
-	for _, e in ipairs(self.pool) do
-		local col = e.collider3d
-
-		if col.prev_hit and not col.is_hit then
-			col.prev_hit = false
-			self.world:emit("interactive_left_collision", player, e)
+function Interactive:on_collide_interactive(e, other)
+	@@assert(e.__isEntity)
+	@@assert(other.__isEntity)
+	local valid = true
+	local body = e.body
+	local other_col = other.collider
+	local req_n = other.interactive_req_player_dir
+	if body and req_n then
+		if req_n.x ~= body.dir then
+			valid = false
 		end
 	end
+	if valid then
+		e:give("within_interactive", other)
+	end
+end
+
+function Interactive:on_leave_interactive(e)
+	@@assert(e.__isEntity)
+	e:remove("within_interactive")
 end
 
 return Interactive

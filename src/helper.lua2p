@@ -4,11 +4,20 @@ function Helper.check_point_rect(px, py, x, y, w, h)
 	return px > x and px < x + w and py > y and py < y + h
 end
 
-function Helper.get_offset(e)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	!end
+function Helper.get_real_size(e)
+	@@assert(e.__isEntity)
+	local box = e.bounding_box
+	local bw, bh = box.w, box.h
+	local t = e.transform
+	if t then
+		bw = bw * t.sx
+		bh = bh * t.sy
+	end
+	return bw, bh
+end
 
+function Helper.get_offset(e)
+	@@assert(e.__isEntity)
 	local transform = e.transform
 	local anim_data = e.animation_data
 	local sprite = e.sprite
@@ -17,27 +26,27 @@ function Helper.get_offset(e)
 
 	if anim_data then
 		if transform.ox == 0.5 then
-			ox = anim_data.frame_width/2
+			ox = anim_data.frame_width * 0.5
 		elseif transform.ox == 1 then
 			ox = anim_data.frame_width
 		end
 
 		if transform.oy == 0.5 then
-			oy = anim_data.frame_height/2
+			oy = anim_data.frame_height * 0.5
 		elseif transform.oy == 1 then
 			oy = anim_data.frame_height
 		end
 	elseif sprite then
-		local spr = sprite.sprite
+		local spr = sprite.image
 
 		if transform.ox == 0.5 then
-			ox = spr:getWidth()/2
+			ox = spr:getWidth() * 0.5
 		elseif transform.ox == 1 then
 			ox = spr:getWidth()
 		end
 
 		if transform.oy == 0.5 then
-			oy = spr:getHeight()/2
+			oy = spr:getHeight() * 0.5
 		elseif transform.oy == 1 then
 			oy = spr:getHeight()
 		end
@@ -47,28 +56,24 @@ function Helper.get_offset(e)
 end
 
 function Helper.get_real_pos_box(e)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	!end
-
+	@@assert(e.__isEntity)
 	local box = e.bounding_box
-	local pos = e.position.pos
+	local pos = e.pos
 	local transform = e.transform
 	local camera = e.camera
 
 	local x = pos.x
 	local y = pos.y
 
-	if transform then
-		local ox, oy = Helper.get_offset(e)
-
-		x = x - ox * transform.orig_sx
-		y = y - oy * transform.orig_sy
-	end
-
 	if camera then
 		x = box.screen_pos.x
 		y = box.screen_pos.y
+	end
+
+	if transform then
+		local ox, oy = Helper.get_offset(e)
+		x = x - ox * transform.orig_sx
+		y = y - oy * transform.orig_sy
 	end
 
 	return x, y

@@ -1,0 +1,50 @@
+local Log = require("modules.log.log")
+
+local insert = table.insert
+
+local Items = {}
+
+local list = {
+	flashlight = {
+		id = "flashlight",
+		name = "flashlight",
+		desc = "handy tool for navigating in the dark",
+	},
+	frontdoor_key = {
+		id = "frontdoor_key",
+		name = "frontdoor key",
+		desc = "key to the frontdoor",
+	},
+}
+local acquired = {}
+
+function Items.add(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	@@assert(Items.has(id) == false, id .. " was already added")
+	insert(acquired, id)
+	Log.info("item: " .. id .. " was added")
+end
+
+function Items.get_info(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	return list[id]
+end
+
+function Items.get_acquired()
+	return acquired
+end
+
+function Items.has(id)
+	@@assert(type(id) == "string")
+	@@assert(list[id])
+	for _, id2 in ipairs(acquired) do
+		if id == id2 then
+			return true
+		end
+	end
+	return false
+end
+
+return Items

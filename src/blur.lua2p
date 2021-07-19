@@ -1,0 +1,13 @@
+local Blur = {}
+
+function Blur.new()
+	Blur.flag_process = false
+	Blur.shader = love.graphics.newShader("shaders/blur.glsl")
+end
+
+function Blur.draw()
+	if not Blur.flag_process then return end
+	love.graphics.setShader(Blur.shader)
+end
+
+return Blur

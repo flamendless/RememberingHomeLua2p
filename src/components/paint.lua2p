@@ -2,11 +2,21 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("paint")
 
-Concord.component("text_with_paint", function(c, id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	!end
-
-	c.id = id
+local c_twp = Concord.component("text_with_paint", function(c)
+	--paint is an entity
 	c.paint = nil
 end)
+
+function c_twp:serialize()
+	if self.paint then
+		return {
+			paint_key = self.paint.key.value
+		}
+	else
+		return {}
+	end
+end
+
+function c_twp:deserialize(data)
+	self.paint = self.__entity:getWorld():getEntityByKey(data.paint_key)
+end

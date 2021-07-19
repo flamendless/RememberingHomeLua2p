@@ -4,8 +4,8 @@ local max = math.max
 local min = math.min
 
 local Collision = Concord.system({
-	pool = {"position", "collider"},
-	pool_circle = {"position", "collider_circle"},
+	pool = {"pos", "collider"},
+	pool_circle = {"pos", "collider_circle"},
 })
 
 local function circle_rect(cx, cy, cr, rx, ry, rw, rh)
@@ -17,7 +17,7 @@ end
 
 function Collision:check_circle_to_rect(cx, cy, cr)
 	for _, er in ipairs(self.pool) do
-		local pos = er.position.pos
+		local pos = er.pos.pos
 		local col = er.collider
 		local rx = pos.x
 		local ry = pos.y
@@ -43,7 +43,7 @@ end
 
 function Collision:check_rect_to_circle(rx, ry, rw, rh)
 	for _, ec in ipairs(self.pool_circle) do
-		local pos = ec.position.pos
+		local pos = ec.pos.pos
 		local col = ec.collider_circle
 		local cx = pos.x
 		local cy = pos.y
@@ -67,7 +67,7 @@ function Collision:check_rect_to_circle(rx, ry, rw, rh)
 end
 
 function Collision:check_collision(e)
-	local pos = e.position.pos
+	local pos = e.pos.pos
 	local col = e.collider
 	local col_c = e.collider_circle
 
@@ -101,57 +101,5 @@ function Collision:check_collision(e)
 		col_c.is_hit = res2
 	end
 end
-
-!if not _RELEASE then
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-
-function Collision:draw_debug()
-	if not views.colliders then return end
-
-	for _, e in ipairs(self.pool) do
-		if not e.bump then
-			local pos = e.position.pos
-			local col_r = e.collider
-			local size = col_r.size
-			local x = pos.x
-			local y = pos.y
-
-			if col_r.offset then
-				x = x + col_r.offset.x
-				y = y + col_r.offset.y
-			end
-
-			love.graphics.setColor(1, 0, 0, 1)
-
-			if col_r.is_hit then
-				love.graphics.setColor(0, 1, 0, 1)
-			end
-
-			love.graphics.rectangle("line", x, y, size.x, size.y)
-		end
-	end
-
-	for _, e in ipairs(self.pool_circle) do
-		local pos = e.position.pos
-		local col_c = e.collider_circle
-		local x = pos.x
-		local y = pos.y
-
-		if col_c.offset then
-			x = x + col_c.offset.x
-			y = y + col_c.offset.y
-		end
-
-		love.graphics.setColor(1, 0, 0, 1)
-
-		if col_c.is_hit then
-			love.graphics.setColor(0, 1, 0, 1)
-		end
-
-		love.graphics.circle("line", x, y, col_c.size)
-	end
-end
-!end
 
 return Collision

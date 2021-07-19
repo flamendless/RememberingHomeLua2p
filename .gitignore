@@ -23,3 +23,7 @@ res/gallery
 res/icons
 res/media
 res/soundtracks
+backup
+assets/
+new_assets/
+bak_*

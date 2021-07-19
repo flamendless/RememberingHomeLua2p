@@ -1,0 +1,112 @@
+local Concord = require("modules.concord.concord")
+local Flux = require("modules.flux.flux")
+
+local insert = table.insert
+local random = love.math.random
+
+local Path = Concord.system({
+	pool = {"path", "pos"},
+})
+
+function Path:init(world)
+	self.world = world
+end
+
+function Path:move_to_next_point(e)
+	@@assert(e.__isEntity)
+	@@assert(self.pool:has(e))
+	local path = e.path
+	local pos = e.pos
+	local low = path.current_point
+	local dur = random(2, 8)
+	local high = low + dur
+	local points = {}
+
+	if high > path.n_points then
+		high = path.n_points
+	end
+
+	for i = low, high do
+		local p = path.points[i]
+		insert(points, p.x)
+		insert(points, p.y)
+	end
+
+	local b = love.math.newBezierCurve(unpack(points))
+	local state = {time = 0}
+	local f = Flux.to(state, dur, {time = 1})
+
+	f:onupdate(function()
+		local dx, dy = b:evaluate(state.time)
+		pos.x = dx
+		pos.y = dy
+	end)
+
+	f:oncomplete(function()
+		path.current_point = high
+		if path.current_point >= path.n_points then
+			path.current_point = 1
+			tablex.reverse(path.points)
+		end
+
+		if e.path_loop then
+			self:move_to_next_point(e)
+		end
+	end)
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	path = false,
+}
+local component_filter
+
+function Path:debug_toggle_path(bool, filter)
+	@@assert(type(bool) == "boolean")
+	@@sassert(filter, type(filter) == "string")
+	self.debug_show = bool
+	flags.path = bool
+	component_filter = filter
+end
+
+function Path:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("Path", {Title = "Path", IsOpen = self.debug_show})
+
+	if Slab.CheckBox(flags.path, "Path") then
+		flags.path = not flags.path
+	end
+
+	Slab.EndWindow()
+end
+
+function Path:debug_draw()
+	if not self.debug_show then return end
+	if flags.path then
+		local scale = 1
+		if self.world.current_state.camera then
+			scale = 1/self.world.current_state.camera:getScale()
+		end
+		love.graphics.setLineWidth(scale)
+		for _, e in ipairs(self.pool) do
+			if component_filter and e[component_filter] then
+				local path = e.path
+				for i = 1, path.n_points - 1 do
+					local a = path.points[i]
+					local b = path.points[i + 1]
+
+					if i < path.current_point then
+						love.graphics.setColor(1, 0, 0, 0.6)
+					else
+						love.graphics.setColor(1, 1, 0, 0.6)
+					end
+					love.graphics.line(a.x, a.y, b.x, b.y)
+				end
+			end
+		end
+	end
+end
+!end
+
+return Path

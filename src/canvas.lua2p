@@ -2,83 +2,122 @@ local Canvas = class()
 
 local type_id = "CustomCanvas"
 
+local floor = math.floor
+
+function Canvas.init_canvases(canvases)
+	@@assert(type(canvases) == "table")
+	local game_size = !(_GAME_BASE_SIZE)
+	local ww, wh = love.graphics.getDimensions()
+	local scale = math.min(ww/game_size.x, wh/game_size.y)
+	local mid_canvas_prop = {}
+	local top_canvas_prop = {}
+	local bot_canvas_prop = {}
+
+	mid_canvas_prop.width = game_size.x * scale
+	mid_canvas_prop.height = game_size.y * scale
+	mid_canvas_prop.x = 0
+	mid_canvas_prop.y = floor(wh * 0.5 - mid_canvas_prop.height * 0.5)
+	mid_canvas_prop.scale = scale
+
+	local rem_height = wh - mid_canvas_prop.height
+
+	top_canvas_prop.width = ww
+	top_canvas_prop.height = floor(rem_height * 0.5)
+	top_canvas_prop.x = 0
+	top_canvas_prop.y = 0
+	top_canvas_prop.scale = scale
+
+	bot_canvas_prop.width = ww
+	bot_canvas_prop.height = floor(rem_height * 0.5)
+	bot_canvas_prop.x = 0
+	bot_canvas_prop.y = floor(wh * 0.5 + mid_canvas_prop.height * 0.5)
+	bot_canvas_prop.scale = scale
+
+	Canvas.create_main(canvases)
+	if canvases.top == nil then
+		canvases.top = Canvas(top_canvas_prop)
+	else
+		canvases.top:set(top_canvas_prop)
+	end
+
+	if canvases.mid == nil then
+		canvases.mid = Canvas(mid_canvas_prop)
+	else
+		canvases.mid:set(mid_canvas_prop)
+	end
+
+	if canvases.bot == nil then
+		canvases.bot = Canvas(bot_canvas_prop)
+	else
+		canvases.bot:set(bot_canvas_prop)
+	end
+end
+
+function Canvas.create_main(canvases)
+	@@assert(type(canvases) == "table")
+	local ww, wh = love.graphics.getDimensions()
+	local main_canvas_prop = {}
+	main_canvas_prop.width = ww
+	main_canvas_prop.height = wh
+	main_canvas_prop.x = 0
+	main_canvas_prop.y = 0
+	main_canvas_prop.scale = 1
+	if canvases.main == nil then
+		canvases.main = Canvas(main_canvas_prop)
+	else
+		canvases.main:set(main_canvas_prop)
+	end
+	return canvases.main
+end
+
 function Canvas:new_default(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(width, Types.T_NUMBER)
-	Assert.must(height, Types.T_NUMBER)
-	Assert.must(rotation, Types.T_NUMBER)
-	Assert.must(scale, Types.T_NUMBER)
-	!end
-
-	local _canvas = love.graphics.newCanvas(width, height)
-
-	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-
-	return self:init({
-		canvas = _canvas,
-		x = x, y = y,
-		width = width, height = height,
-		rotation = rotation,
-		scale = scale,
-	})
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(width) == "number")
+	@@assert(type(height) == "number")
+	@@assert(type(rotation) == "number")
+	@@assert(type(scale) == "number")
+	self.canvas = love.graphics.newCanvas(width, height)
+	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	self.x, self.y = x, y
+	self.width, self.height = width, height
+	self.rotation = rotation
+	self.scale = scale
+	return self
 end
 
 function Canvas:new_from_table(tbl)
-	!if _ASSERT then
-	Assert.must(tbl, Types.T_TABLE)
-	!end
-
-	local _x = tbl.x
-	local _y = tbl.y
-	local _w = tbl.width
-	local _h = tbl.height
-	local _rotation = tbl.rotation
-	local _scale = tbl.scale or 1
-	local _canvas = love.graphics.newCanvas(_w, _h)
-
-	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-
-	return self:init({
-		canvas = _canvas,
-		x = _x, y = _y,
-		width = _w, height = _h,
-		rotation = _rotation,
-		scale = _scale,
-	})
+	@@assert(type(tbl) == "table")
+	self.x = tbl.x
+	self.y = tbl.y
+	self.width = tbl.width
+	self.height = tbl.height
+	self.rotation = tbl.rotation
+	self.scale = tbl.scale or 1
+	self.canvas = love.graphics.newCanvas(self.width, self.height)
+	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	return self
 end
 
 function Canvas:new_from_canvas(source)
-	!if _ASSERT then
-	Assert.must(scale, Types.T_CUSTOM_CANVAS)
-	!end
-
-	local _canvas = love.graphics.newCanvas(source.width, source.height)
-
-	_canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
-
-	return self:init({
-		canvas = _canvas,
-		x = source.x, y = source.y,
-		width = source.width, height = source.height,
-		rotation = source.rotation,
-		scale = source.scale,
-	})
+	@@assert(source:type() == type_id)
+	self.canvas = love.graphics.newCanvas(source.width, source.height)
+	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	self.x, self.y = source.x, source.y
+	self.width, self.height = source.width, source.height
+	self.rotation = source.rotation
+	self.scale = source.scale
+	return self
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.either_type(x, Types.T_NUMBER, Types.T_TABLE)
-	Assert.safe.must(y, Types.T_NUMBER)
-	Assert.safe.must(width, Types.T_NUMBER)
-	Assert.safe.must(height, Types.T_NUMBER)
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x) == "number" or type(x) == "table")
+	@@sassert(y, type(y) == "number")
+	@@sassert(width, type(width) == "number")
+	@@sassert(height, type(height) == "number")
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(scale, type(scale) == "number")
 	local c
-
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			c = self:new_from_canvas(x)
@@ -86,22 +125,18 @@ function Canvas:new(x, y, width, height, rotation, scale)
 			c = self:new_from_table(x)
 		end
 	elseif type(x) == "number" then
-	 	c = self:new_default(x, y, width, height, rotation, scale)
+		c = self:new_default(x, y, width, height, rotation, scale)
 	end
-
 	return c
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
-	!if _ASSERT then
-	Assert.must(x, Types.T_NUMBER)
-	Assert.must(y, Types.T_NUMBER)
-	Assert.must(width, Types.T_NUMBER)
-	Assert.must(height, Types.T_NUMBER)
-	Assert.safe.must(rotation, Types.T_NUMBER)
-	Assert.safe.must(scale, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(width) == "number")
+	@@assert(type(height) == "number")
+	@@sassert(rotation, type(rotation) == "number")
+	@@sassert(scale, type(scale) == "number")
 	local _x, _y, _w, _h, _rotation, _scale
 
 	if type(x) == "number" then

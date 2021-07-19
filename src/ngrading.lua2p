@@ -26,6 +26,10 @@ local floor = math.floor
 
 local NGrading = class()
 
+!if _DEV then
+local DevTools
+!end
+
 local shaders = {
 	old = "shaders/ngrading_old.glsl",
 	volume = "shaders/ngrading_volume.glsl",
@@ -34,21 +38,14 @@ local shaders = {
 local default_setting = {linear = true, dpiscale = 1}
 
 function NGrading:new_single(img, cs)
-	!if _ASSERT then
-	Assert.must(img, Types.T_IMAGEDATA)
-	!end
-
+	@@assert(img:type() == "ImageData")
 	local data = img
 	local tw = floor(data:getWidth() / cs)
 	local th = floor(data:getHeight() / cs)
 	local used_shader = love.graphics.getTextureTypes().volume
 	local volume_img, image
-	local shader
-
 	if used_shader == 0 then used_shader = false end
-
 	used_shader = used_shader and "volume" or "old"
-
 	if used_shader == "volume" then
 		local imgs = {}
 		local fmt = data:getFormat()
@@ -71,24 +68,19 @@ function NGrading:new_single(img, cs)
 		image:setWrap("clamp", "clamp")
 	end
 
-	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
 
-	return self:init({
-		tile_size = {tw, th},
-		cell_size = cs,
-		volume_img = volume_img,
-		image = image,
-		shader = default_shader_obj,
-	})
+	self.tile_size = {tw, th}
+	self.cell_size = cs
+	self.volume_img = volume_img
+	self.image = image
+	self.shader = love.graphics.newShader(shaders[used_shader])
+	return self
 end
 
 function NGrading:new_multi(img, img2, cs)
-	!if _ASSERT then
-	Assert.must(img, Types.T_IMAGEDATA)
-	Assert.must(img2, Types.T_IMAGEDATA)
-	Assert.must(cs, Types.T_NUMBER)
-	!end
-
+	@@assert(img:type() == "ImageData")
+	@@assert(img2:type() == "ImageData")
+	@@assert(type(cs) == "number")
 	local data = img
 	local data2 = img2
 	local tw = floor(data:getWidth() / cs)
@@ -96,11 +88,8 @@ function NGrading:new_multi(img, img2, cs)
 	local volume_img, image
 	local volume_img2, image2
 	local used_shader = love.graphics.getTextureTypes().volume
-
 	if used_shader == 0 then used_shader = false end
-
 	used_shader = used_shader and "volume_multi" or "old_multi"
-
 	if used_shader == "volume_multi" then
 		local imgs = {}
 		local imgs2 = {}
@@ -136,32 +125,28 @@ function NGrading:new_multi(img, img2, cs)
 		image2:setWrap("clamp", "clamp")
 	end
 
-	local default_shader_obj = love.graphics.newShader(shaders[used_shader])
-
-	return self:init({
-		is_multi = true,
-		tile_size = {tw, th},
-		cell_size = cs,
-		volume_img = volume_img,
-		volume_img2 = volume_img2,
-		image = image,
-		image2 = image2,
-		shader = default_shader_obj,
-	})
+	self.is_multi = true
+	self.tile_size = {tw, th}
+	self.cell_size = cs
+	self.volume_img = volume_img
+	self.volume_img2 = volume_img2
+	self.image = image
+	self.image2 = image2
+	self.shader = love.graphics.newShader(shaders[used_shader])
+	return self
 end
 
 function NGrading:new(arg1, arg2, arg3)
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
 	if type(arg2) == "number" then
 		local effect = self:new_single(arg1, arg2)
-
 		effect:setup_data()
-
 		return effect
 	else
 		local effect = self:new_multi(arg1, arg2, arg3)
-
 		effect:setup_data()
-
 		return effect
 	end
 end
@@ -199,11 +184,23 @@ function NGrading:setup_data()
 end
 
 function NGrading:apply()
+	!if _DEV then
+	if DevTools.flags.ngrading then
+		love.graphics.setShader(self.shader)
+	end
+	!else
 	love.graphics.setShader(self.shader)
+	!end
 end
 
 function NGrading:unapply()
+	!if _DEV then
+	if DevTools.flags.ngrading then
+		love.graphics.setShader()
+	end
+	!else
 	love.graphics.setShader()
+	!end
 end
 
 return NGrading

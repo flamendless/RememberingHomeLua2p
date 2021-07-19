@@ -3,8 +3,14 @@ local Log = require("modules.log.log")
 local format = string.format
 
 local Resources = {
-	data = {}
+	meta = {},
+	data = {},
 }
+
+local mt = {}
+mt.__index = function(t, i)
+	error(i .. " is invalid key for Resources")
+end
 
 local path_images = "res/images/"
 local path_items = path_images .. "items/"
@@ -14,10 +20,11 @@ local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
 
-Resources.data.splash = {
+Resources.meta.Splash = {
 	image = {
 		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
 		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
+		{"tex_displacement", path_textures .. "displacement.png"},
 	},
 
 	font = {
@@ -27,7 +34,7 @@ Resources.data.splash = {
 	}
 }
 
-Resources.data.menu = {
+Resources.meta.Menu = {
 	image = {
 		{"bg_door", path_images .. "menu/bg_door.png"},
 		{"bg_hallway", path_images .. "menu/bg_hallway.png"},
@@ -49,11 +56,12 @@ Resources.data.menu = {
 	}
 }
 
-Resources.data.intro = {
+Resources.meta.Intro = {
 	image = {
 		{"bg", path_images .. "intro/bg.png"},
 		{"bg_post", path_images .. "intro/bg_post.png"},
 		{"bg_tree_cover", path_images .. "intro/bg_tree_cover.png"},
+		{"parallax_clouds", path_images .. "intro/parallax_clouds.png"},
 		{"parallax_buildings", path_images .. "intro/parallax_buildings.png"},
 		{"parallax_trees_bg", path_images .. "intro/parallax_trees_bg.png"},
 		{"parallax_trees_fg", path_images .. "intro/parallax_trees_fg.png"},
@@ -64,7 +72,7 @@ Resources.data.intro = {
 		{"parallax_grass_front", path_images .. "intro/parallax_grass_front.png"},
 		{"sheet_car", path_images .. "intro/sheet_car.png"},
 		{"sheet_car_reflect", path_images .. "intro/sheet_car_reflect.png"},
-		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
+		{"sheet_splat", path_ui .. "sheet_splat.png"},
 		{"title", path_images .. "menu/title.png"},
 		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
 		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
@@ -74,6 +82,7 @@ Resources.data.intro = {
 		{"post_light", path_lights .. "post_light.png"},
 		{"car_headlight", path_lights .. "car_headlight.png"},
 		{"title_light", path_lights .. "title.png"},
+		{"dummy", path_textures .. "dummy.png"},
 	},
 
 	image_data = {
@@ -89,20 +98,14 @@ Resources.data.intro = {
 	},
 }
 
-Resources.data.outside = {
+Resources.meta.Outside = {
 	image = {
 		{"bg_sky", path_images .. "house_outside/bg_sky.png"},
 		{"bg_house", path_images .. "house_outside/bg_house.png"},
-		{"car", path_images .. "house_outside/car.png"},
-		{"fence", path_images .. "house_outside/fence.png"},
-		{"gate", path_images .. "house_outside/gate.png"},
-		{"railings", path_images .. "house_outside/railings.png"},
 		{"sheet_player_idle", path_images .. "player/player_idle.png"},
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},
 		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
-		{"sheet_player_upstairs", path_images .. "player/sheet_player_upstairs.png"},
-		{"sheet_player_downstairs", path_images .. "player/sheet_player_downstairs.png"},
 		{"firefly", path_images .. "house_outside/firefly.png"},
 		{"splashes", path_images .. "house_outside/splashes.png"},
 		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
@@ -111,20 +114,10 @@ Resources.data.outside = {
 		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
 		{"sheet_splat", path_ui .. "sheet_splat.png"},
 		{"sheet_brush", path_ui .. "sheet_brush.png"},
-		{"sheet_dialogue_arrow", path_ui .. "sheet_dialogue_arrow.png"},
-		{"sheet_keypress", path_ui .. "sheet_keypress.png"},
-		{"sheet_arrows", path_ui .. "sheet_arrows.png"},
-		{"sheet_ui_eye", path_ui .. "ui_action_eye.png"},
-		{"sheet_ui_hand", path_ui .. "ui_action_hand.png"},
-		{"sheet_ui_bag", path_ui .. "ui_action_bag.png"},
-		{"sheet_ui_cancel", path_ui .. "ui_action_cancel.png"},
-		{"sheet_ui_use", path_ui .. "ui_action_use.png"},
-		{"sheet_ui_combine", path_ui .. "ui_action_combine.png"},
-		{"sheet_ui_back", path_ui .. "ui_action_back.png"},
-		{"question_mark", path_ui .. "question_mark.png"},
+		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
-		{"backdoor_key", path_items .. "backdoor_key.png"},
+		{"item_flashlight", path_items .. "item_flashlight.png"},
 
 		{"light_round", path_lights .. "round.png"},
 		{"light_rectangle", path_lights .. "rectangle.png"},
@@ -140,40 +133,68 @@ Resources.data.outside = {
 
 	font = {
 		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"task", path_fonts .. "Jamboree.ttf", 24, "default"},
 		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
-		{"item_desc", path_fonts .. "DigitalDisco.ttf", 24, "default"},
+		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
 	},
 }
 
-Resources.data.storage_room = {
+Resources.meta.StorageRoom = {
 	image = {
 		{"sheet_player_idle", path_images .. "player/player_idle.png"},
 		{"sheet_player_walk", path_images .. "player/player_walk.png"},
 		{"sheet_player_run", path_images .. "player/player_run.png"},
+		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
+		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
+		{"sheet_splat", path_ui .. "sheet_splat.png"},
+		{"sheet_brush", path_ui .. "sheet_brush.png"},
+		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
+		{"bg_item", path_items .. "bg_item.png"},
+		{"bg_desc", path_items .. "bg_desc.png"},
+		{"item_flashlight", path_items .. "item_flashlight.png"},
+
+		{"light_round", path_lights .. "round.png"},
+		{"light_rectangle", path_lights .. "rectangle.png"},
+		{"light_cone", path_lights .. "cone.png"},
 	},
-	font = {},
+
+	image_data = {
+		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
+		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+	},
+
+	font = {
+		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
+		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
+		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+	},
 }
 
-function Resources.get(key)
-	!if _ASSERT then
-	Assert.must(key, Types.T_STRING)
-	Assert.exists(Resources.data[key])
-	!end
-
-	return Resources.data[key]
+function Resources.get_meta(key)
+	@@assert(type(key) == "string")
+	@@assert(Resources.meta[key], key .. " is invalid")
+	return Resources.meta[key]
 end
 
-function Resources.clean(res)
-	!if _ASSERT then
-	Assert.must(res, Types.T_TABLE)
-	!end
+function Resources.set_resources(t)
+	@@assert(type(t) == "table")
+	tablex.clear(Resources.data)
+	@@assert(#Resources.data == 0)
+	for k, v in pairs(t) do
+		Resources.data[k] = t[k]
+		setmetatable(Resources.data[k], mt)
+	end
+end
 
-	for k, t in pairs(res) do
-		for name, obj in pairs(t) do
-			res[k][name]:release()
+function Resources.clean()
+	for k, t in pairs(Resources.data) do
+		for name, _ in pairs(t) do
+			Resources.data[k][name]:release()
+			Resources.data[k][name] = nil
 			Log.trace(format("'%s':'%s' cleaned", k, name))
 		end
+		Resources.data[k] = nil
 	end
 end
 

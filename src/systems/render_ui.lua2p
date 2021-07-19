@@ -1,121 +1,80 @@
 local Concord = require("modules.concord.concord")
-
-local insert = table.insert
-local remove = table.remove
+local SortedTable = require("ctor.sorted_table")
 
 local RenderUI = Concord.system({
-	pool_ui = {"ui_element", "position"},
-	pool_layer = {"ui_element", "position", "layer"},
+	pool_text = {
+		constructor = SortedTable,
+		layer = "text",
+		"ui_element",
+	},
+	pool_hold_key = {
+		constructor = SortedTable,
+		layer = "hold_key",
+		"ui_element",
+	},
+	pool_dialogue = {
+		constructor = SortedTable,
+		layer = "dialogue",
+		"ui_element",
+	},
+	pool_hud = {
+		constructor = SortedTable,
+		layer = "hud",
+		"ui_element",
+	},
+	pool_ui = {"ui_element", "pos", "!layer"},
 });
-
-local function sort(a, b) return a.layer.n < b.layer.n end
 
 function RenderUI:init(world)
 	self.world = world
-	self.layers = {}
-	self.layer_id = {}
-	self.map_layers = unique_mapping:new()
-
-	self.pool_layer.onEntityAdded = function(pool, e)
-		local layer_id = e.layer.id
-		local unique_id = self.map_layers:map(layer_id)
-
-		if not self.layers[unique_id] then
-			self.layers[unique_id] = {}
-		end
-
-		local t = self.layers[unique_id]
-
-		insert(t, e)
-		self.layer_id[unique_id] = layer_id
-		tablex.insertion_sort(t, sort)
-	end
-
-	self.pool_layer.onEntityRemoved = function(pool, e)
-		local layer_id = e.layer.id
-		local unique_id = self.map_layers:map(layer_id)
-		local t = self.layers[unique_id]
-
-		for i = #t, 1, -1 do
-			if e == t[i] then remove(t, i) end
-		end
-	end
+	self.layers = {
+		self.pool_text, self.pool_hold_key, self.pool_dialogue,
+		self.pool_hud,
+	}
 end
 
 function RenderUI:draw_ui()
+	@@profb("render_ui_draw")
+	@@profb("render_ui")
 	for _, e in ipairs(self.pool_ui) do
 		local text = e.text
 		local stext = e.static_text
 		local sprite = e.sprite
-		local layer = e.layer
 
-		if not layer then
-			if sprite then
-				self.world:emit("draw_sprite_ex", e)
-			end
+		if (text or stext) and not e.nf_render_text then
+			self.world:emit("draw_text_ex", e)
+		end
 
-			if text or stext then
-				self.world:emit("draw_text_ex", e)
-			end
+		if sprite and not e.nf_render_sprite then
+			self.world:emit("draw_sprite_ex", e)
 		end
 	end
+	@@profe("render_ui")
 
-	for n, t in ipairs(self.layers) do
-		local layer_id = self.layer_id[n]
-
-		for i, e in ipairs(t) do
+	@@profb("render_ui_layers")
+	for _, pool in ipairs(self.layers) do
+		for _, e in ipairs(pool) do
 			local text = e.text
 			local stext = e.static_text
 			local sprite = e.sprite
 
-			self.world:emit("draw_ui_layer_ex", layer_id, i)
-
-			if sprite then
-				self.world:emit("draw_sprite_ex", e)
-			end
-
-			if text or stext then
+			if (text or stext) and not e.nf_render_text then
 				self.world:emit("draw_text_ex", e)
 			end
+
+			if sprite and not e.nf_render_sprite then
+				self.world:emit("draw_sprite_ex", e)
+			end
 		end
 	end
+	@@profe("render_ui_layers")
+	@@profe("render_ui_draw")
 end
 
-!if not _RELEASE then
-local Slab = require("modules.slab")
-local DebugFlags = require("debug_flags")
-local views = DebugFlags.views
-local list, list_i, list_t
-
-function RenderUI:draw_debug()
-	views.layers = Slab.BeginWindow("Layers", {
-		Title = "Layers", IsOpen = views.layers})
-	for id, i in pairs(self.map_layers) do
-		Slab.Text(i .. " " .. id)
-		Slab.SameLine()
-
-		if Slab.Button("list") then
-			list = true
-			list_i = i
-			list_t = id
-		end
+function RenderUI:cleanup()
+	for _, pool in ipairs(self.layers) do
+		pool:clear()
 	end
-
-	if list then
-		list = Slab.BeginWindow("LayersList", {
-			Title = list_t, IsOpen = list})
-		Slab.Indent()
-		for n, e in ipairs(self.layers[list_i]) do
-			local e_id = e.id.id
-			Slab.Text(e_id)
-		end
-		Slab.Unindent()
-		Slab.EndWindow()
-	end
-
-	Slab.EndWindow()
 end
-
-!end
 
 return RenderUI

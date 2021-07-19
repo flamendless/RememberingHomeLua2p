@@ -4,6 +4,5 @@ Concord.component("dt_multiplier", function(c, mul)
 	!if _ASSERT then
 	Assert.must(mul, Types.T_NUMBER)
 	!end
-
 	c.mul = mul
 end)

@@ -3,12 +3,10 @@ local Concord = require("modules.concord.concord")
 Concord.component("clickable")
 Concord.component("clicked")
 
-Concord.component("on_click", function(c, mb, on_click)
-	!if _ASSERT then
-	Assert.within_range(mb, 1, 3)
-	Assert.must(on_click, Types.T_FUNCTION)
-	!end
-
+Concord.component("on_click", function(c, mb, signal, ...)
+	@@assert(mb >= 1 and mb <= 3)
+	@@assert(type(signal) == "string")
 	c.mb = mb
-	c.on_click = on_click
+	c.signal = signal
+	c.args = {...}
 end)

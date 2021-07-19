@@ -1,7 +1,7 @@
 #!/bin/bash
 
 os=$(uname)
-lpp_path=./libs/Luapreprocess/preprocess-cl.lua
+lpp_path=./libs/LPP/preprocess-cl.lua
 gv=$(git log -1 --format='v%cd.%h' --date=short 2>/dev/null)
 data=dev
 handler=handler.lua
@@ -11,7 +11,7 @@ dir_res=res
 dir_output=output_dev
 dir_source=src
 
-dir_sub=(assemblages components shaders systems worlds)
+dir_sub=(assemblages components shaders states systems)
 appdata=~/.local/share/love/goinghomerevisited
 
 meta_exclude_modules=(spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml changelog.txt README.md MakeSingle.mak bench CHANGELOG.md *.rockspec config.ld performance_test.lua USAGE.md img)
@@ -65,6 +65,26 @@ function process_file()
 	fi
 }
 
+function check()
+{
+	# https://luacheck.readthedocs.io/en/stable/cli.html
+	local file="$dir_output"
+	if [ $# -eq 2 ]; then
+		if [[ $2 == src* ]]; then
+			file="${file}/${2:4}"
+		else
+			file="${file}/$2"
+		fi
+	fi
+	luacheck $file -q \
+		--exclude-files "output_dev/modules/**/*.lua" \
+		--std luajit \
+		--globals love stringx mathx tablex pretty \
+		--no-max-line-length \
+		--ignore 611 \
+		--jobs 2
+}
+
 function copy_modules()
 {
 	rsync -av --progress "$dir_modules" "$dir_output" "${exclude_modules[@]}"
@@ -107,13 +127,6 @@ function run()
 	process_src "$dir_source"
 	love "$dir_output"
 	echo "Completed build.sh"
-}
-
-function test()
-{
-	data=test
-	dir_output=output_test
-	run
 }
 
 function profile()

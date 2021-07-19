@@ -1,59 +1,71 @@
 local Dialogues = {}
 
-local dialogues = {
-	inventory = {
-		unable_to_use = "Item can not be used here.",
+local dialogues = {}
+dialogues.common = {
+	item_without = {
+		"there is nothing to use this item with",
 	},
-
-	-- intro_rain = {
-	-- 	"Hey, latest reports came in a few minutes ago.",
-	-- 	"Apparently another case occured.",
-	-- 	"This one's more disturbing.",
-	-- 	"Anyways, I know you are on the road.",
-	-- 	"I'll send the files over as soon as them",
-	-- 	"investigators are done in the crime scene.",
-	-- 	"I know you're on the road so yeah,",
-	-- 	"make sure to check it when you got home okay?",
-	-- 	"Man! Things keep getting worse and wor--"
-	-- },
-
-	outside = {
-		car_eye = "A xxxx car",
-		car_hand = "I don't need to get back in there",
-
-		wood_eye = "It is for chopping woods",
-		wood_hand = "There is nothing to chop",
-
-		locked_door_eye = "The main door",
-		locked_door_hand = {
-			"It is locked",
-			"I may have left the key back in work",
-		},
-
-		backdoor_eye = "This door leads to the storage room",
-		backdoor_hand = "I need to check the main door first",
-		backdoor_hand_locked = "It is locked. I have the key though.",
-		backdoor_unlocked = "It is now unlocked.",
-	}
 }
 
-function Dialogues.get(id)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.exists(dialogues[id])
-	!end
+dialogues.outside = {
+	car = {
+		"An old but reliable car",
+		"Looks really out of date",
+		"But does its purpose well",
+		"so no need for a new one",
+		choices = {
+			{"drive",
+				"Maybe tomorrow",
+				"For now I need to get in shelter and rest",
+			},
+			{"search",
+				"There might be something in the glove box",
+				"_get_flashlight",
+				get_flashlight = {
+					"Let's hope the power is not out",
+					"Or else it will be a fumbling in the dark again",
+					"_start_flashlight_tutorial",
+				},
+				has_flashlight_already = {
+					"There is nothing useful here anymore",
+				},
+			},
+			{"nothing",},
+		},
+	},
 
-	return dialogues[id]
-end
+	frontdoor_locked = {
+		"This door leads to the house",
+		choices = {
+			{"open",
+				"_check_frontdoor",
+				door_locked = {
+					"the door is locked",
+					"I do not have the key",
+					"I must have left it in work",
+				},
+				door_unlocked = {
+					"the door is unlocked",
+					--TODO remove dialogue component
+				}
+			}
+		},
+	},
 
-function Dialogues.get_spec(id, sub)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.must(sub, Types.T_STRING)
-	Assert.exists(dialogues[id][sub])
-	!end
+	backdoor = {
+		"_check_has_flashlight",
+		no_flashlight_yet = {
+			"I need to get my things first from the car",
+		},
+	},
+}
 
-	return dialogues[id][sub]
+function Dialogues.get(main, sub)
+	@@assert(type(main) == "string")
+	@@assert(type(sub) == "string")
+	@@assert(dialogues[main])
+	@@assert(dialogues[main][sub])
+	return dialogues[main][sub]
 end
 
 return Dialogues

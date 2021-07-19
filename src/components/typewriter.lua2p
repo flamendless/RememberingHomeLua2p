@@ -1,34 +1,27 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("typewriter", function(c, target_text, every)
-	!if _ASSERT then
-	Assert.must(target_text, Types.T_STRING)
-	Assert.must(every, Types.T_NUMBER)
-	!end
-
-	c.target_text = target_text
-	c.every = every
+Concord.component("typewriter_timer", function(c)
 	c.timer = nil
 end)
 
-Concord.component("typewriter_on_finish", function(c, callback, delay)
-	!if _ASSERT then
-	Assert.must(callback, Types.T_FUNCTION)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
-	c.callback = callback
-	c.delay = delay or 0
+Concord.component("typewriter", function(c, target_text, every)
+	@@assert(type(target_text) == "string")
+	@@assert(type(every) == "number")
+	c.target_text = target_text
+	c.every = every
 end)
 
-Concord.component("reflowprint", function(c, width, alignment)
-	!if _ASSERT then
-	Assert.must(width, Types.T_NUMBER)
-	Assert.must(alignment, Types.T_STRING)
-	!end
-
+Concord.component("reflowprint", function(c, width, alignment, speed)
+	@@assert(type(width) == "number")
+	@@assert(type(alignment) == "string")
+	@@sassert(speed, type(speed) == "number")
 	c.width = width
 	c.alignment = alignment
 	c.dt = 0
 	c.current = 1
+	!if _DEV then
+	c.speed = speed or 2.5
+	!else
+	c.speed = speed or 1
+	!end
 end)

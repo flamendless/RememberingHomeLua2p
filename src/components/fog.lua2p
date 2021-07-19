@@ -1,0 +1,7 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("fog", function(c, speed)
+	@@assert(type(speed) == "number")
+	c.shader = love.graphics.newShader("shaders/fog.glsl")
+	c.speed = speed
+end)

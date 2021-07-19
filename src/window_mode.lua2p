@@ -8,15 +8,14 @@ WindowMode.modes = {
 }
 WindowMode.list = {}
 
-function WindowMode.initialize()
+function WindowMode.init()
 	for i, t in ipairs(WindowMode.modes) do
 		local str = t.width .. "x" .. t.height
-
 		insert(WindowMode.list, str)
 	end
 end
 
-function WindowMode.getCurrent()
+function WindowMode.get_current()
 	return WindowMode.modes[WindowMode.current]
 end
 

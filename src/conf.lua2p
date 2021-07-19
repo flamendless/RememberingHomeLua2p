@@ -1,9 +1,7 @@
 function love.conf(t)
-	local size = !(_GAME_SIZE)
-
 	t.window.title = !(_GAME_TITLE)
-	t.window.width = size.x
-	t.window.height = size.y
+	t.window.width = !(_GAME_SIZE.x)
+	t.window.height = !(_GAME_SIZE.y)
 	t.window.resizable = false
 
 	t.identity = !(_IDENTITY)

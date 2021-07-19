@@ -8,23 +8,55 @@ local function split(str)
 	return t
 end
 
+function assert(cond, msg)
+	if _RELEASE then return "" end
+	msg = msg or string.format("%q", "Assertion failed: " .. cond)
+	return "if not (" .. cond .. ") then error(" .. msg ..") end"
+end
+
+function sassert(v, cond, msg)
+	if _RELEASE then return "" end
+	local str = assert(cond, msg)
+	return "if " .. v .. " then " .. str .. " end"
+end
+
+function profb(a, b)
+	if not _PROF then return "" end
+	if b then
+		return string.format("JPROF.push(%s, %s)", a, b)
+	else
+		return "JPROF.push(" .. a .. ")"
+	end
+end
+
+function profe(a)
+	if not _PROF then return "" end
+	return "JPROF.pop(" .. a .. ")"
+end
+
 args = split(args)
 
-if args[1] == "test" then
+if args[1] == "dev" then
+	_DEV = true
+	_RELEASE = false
+	_PROF = false
+elseif args[1] == "release" then
+	_DEV = false
 	_RELEASE = true
-	_ASSERT = false
-elseif args[1] == "dev" then
-	_RELEASE = false
-	_ASSERT = true
+	_PROF = false
 elseif args[1] == "prof" then
+	_DEV = true
 	_RELEASE = false
-	_ASSERT = true
 	_PROF = true
 end
 
-_REPORTING = false
-_NETWORK = false
-_LOG_SAVE = false
+_IDENTITY = "goinghomerevisited"
+_LOVE_VERSION = "11.3"
+_GAME_VERSION = { 0, 0, 1 }
+_COMMIT_VERSION = args[2]
+
+_MODE = args[1]
+_LOG_SAVE = true
 
 _OS = "Linux"
 _PLATFORM = "desktop"
@@ -33,11 +65,6 @@ _GAME_TITLE_SECRET  = "COMING SOON"
 _GAME_SIZE = { x = 1024, y = 640 }
 _GAME_BASE_SIZE = { x = 128, y = 32 }
 
-_IDENTITY = "goinghomerevisited"
-_LOVE_VERSION = "11.3"
-_GAME_VERSION = { 0, 0, 1 }
-_COMMIT_VERSION = args[2]
-
 _MIN_GL_VERSION = "2.1"
 
 _DEFAULT_FILTER = "nearest"
@@ -45,17 +72,33 @@ _IMAGE_FILTER = "nearest"
 _FONT_FILTER = "nearest"
 _CANVAS_FILTER = "nearest"
 
+_WINDOW_MODES = {
+	{
+		width = _GAME_SIZE.x,
+		height = _GAME_SIZE.y
+	}
+}
+_WINDOW_MODES_STR = {
+	(_GAME_SIZE.x .. "x" .. _GAME_SIZE.y),
+}
+
+_GFX_QUALITY = nil
+if _DEV then
+	_GFX_QUALITY = "low"
+else
+	_GFX_QUALITY = "high"
+end
+
 _EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
 _GITHUB_URL_RELEASE = ""
 
-_LOG_OUTPUT = "log_output.txt"
+_LOG_OUTPUT = "log"
 _LOG_INFO = "info.txt"
-_SETTINGS_FILENAME = "user_settings.json"
+_SETTINGS_FILENAME = "user_settings"
 _SAVE_FILENAME = "save_data"
+_SAVESTATE_FILENAME = "save_state"
 _SAVE_KEY = "data_store"
-_KEYBINDINGS_FILENAME = "keybindings.json"
-_KEYBINDINGS_DEF_FILENAME = "data/keybindings_default.json"
 
 _URL_TWITTER = "https://twitter.com/@flam8studio"
 _URL_DISCORD = "https://discord.gg/2W4tyyV"
@@ -66,7 +109,7 @@ _ABOUT_LINKS = {
 	_URL_TWITTER,
 	_URL_DISCORD,
 	_URL_WEBSITE,
-	_URL_MAIL
+	_URL_MAIL,
 }
 
 _NAME_DEVELOPER = "Brandon"
@@ -88,11 +131,11 @@ _TOOLS = {
 }
 
 _LIBS = {
-	"Anim8", "Arson", "Batteries", "Bump-niji", "Cartographer",
-	"Concord", "Crush", "Enum", "Flux", "Gamera",
-	"HTTPS", "HUMP", "jprof", "JSON", "Lily", "Log",
+	"Anim8", "Batteries", "Bitser", "Bump-niji",
+	"Concord", "Enum", "Flux", "Gamera",
+	"HUMP", "JProf", "Lily", "Log",
 	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
-	"Semver", "Slab", "Splashes", "strictness", "TimelineEvents",
+	"Semver", "Slab", "Splashes", "strict", "TimelineEvents",
 }
 
 return {}

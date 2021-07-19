@@ -2,30 +2,34 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local TypewriterSplash = Concord.system({
-	pool = {"text", "typewriter", "position"}
+	pool = {"text", "typewriter", "pos", "typewriter_timer"}
 })
+
+function TypewriterSplash:init(world)
+	self.world = world
+end
 
 function TypewriterSplash:start_typewriter()
 	for _, e in ipairs(self.pool) do
 		local text = e.text
 		local typewriter = e.typewriter
-		local cb_on_finish = e.typewriter_on_finish
+		local timer = e.typewriter_timer
+		local cb = e.typewriter_on_finish
 
-		if not typewriter.timer then
-			typewriter.timer = Timer()
-			typewriter.timer:every(typewriter.every, function()
+		if not timer.timer then
+			timer.timer = Timer()
+			timer.timer:every(typewriter.every, function()
 				local target = typewriter.target_text
 
-				if #text.text ~= #target then
-					local ch = target:sub(#text.text + 1, #text.text + 1)
+				if #text.value ~= #target then
+					local ch = target:sub(#text.value + 1, #text.value + 1)
 
-					text.text = text.text .. ch
-				else
-					if cb_on_finish then
-						typewriter.timer:after(cb_on_finish.delay, function()
-							cb_on_finish.callback()
-						end)
-					end
+					text.value = text.value .. ch
+				elseif cb then
+					timer.timer:after(cb.delay, function()
+						self.world:emit(cb.signal, unpack(cb.args))
+						e:remove("typewriter_on_finish")
+					end)
 				end
 			end)
 		end
@@ -34,10 +38,9 @@ end
 
 function TypewriterSplash:update(dt)
 	for _, e in ipairs(self.pool) do
-		local typewriter = e.typewriter
-
-		if typewriter.timer then
-			typewriter.timer:update(dt)
+		local timer = e.typewriter_timer
+		if timer.timer then
+			timer.timer:update(dt)
 		end
 	end
 end

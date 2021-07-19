@@ -3,52 +3,49 @@ local Concord = require("modules.concord.concord")
 local pi = math.pi
 
 local RenderCircle = Concord.system({
-	pool = {"position", "circle", "draw_mode"},
-	pool_arc = {"position", "arc", "draw_mode"},
+	pool = {"pos", "circle", "draw_mode", "!ui_element"},
+	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
+	pool_ui = {"pos", "circle", "draw_mode"},
+	pool_arc_ui = {"pos", "arc", "draw_mode"},
 })
 
 function RenderCircle:internal_draw(e)
-	local pos = e.position.pos
+	local pos = e.pos
 	local circle = e.circle
 	local color = e.color
 	local line_width = e.line_width
-	local mode = e.draw_mode.draw_mode
+	local mode = e.draw_mode.value
 
 	if color then
-		love.graphics.setColor(color.color)
+		love.graphics.setColor(color.value)
 	end
 
 	if line_width then
-		love.graphics.setLineWidth(line_width.line_width)
+		love.graphics.setLineWidth(line_width.value)
 	end
 
 	love.graphics.circle(mode, pos.x, pos.y, circle.radius, circle.segments)
 end
 
 function RenderCircle:internal_draw_arc(e)
-	local pos = e.position.pos
+	local pos = e.pos
 	local arc = e.arc
 	local arc_type = e.arc_type
-	local hold = e.hold
 	local color = e.color
 	local line_width = e.line_width
-	local mode = e.draw_mode.draw_mode
+	local mode = e.draw_mode.value
 	local temp_line_width = love.graphics.getLineWidth()
 
 	if color then
-		love.graphics.setColor(color.color)
+		love.graphics.setColor(color.value)
 	end
 
 	if line_width then
-		love.graphics.setLineWidth(line_width.line_width)
+		love.graphics.setLineWidth(line_width.value)
 	end
 
 	local a = arc.start_angle
 	local b = arc.end_angle
-
-	if hold then
-		b = a + (hold.current_time * 2 * pi/hold.max_time)
-	end
 
 	if arc_type then
 		love.graphics.arc(mode, arc_type.arc_type,
@@ -62,29 +59,21 @@ end
 
 function RenderCircle:draw()
 	for _, e in ipairs(self.pool) do
-		if not e.ui_element then
-			self:internal_draw(e)
-		end
+		self:internal_draw(e)
 	end
 
 	for _, e in ipairs(self.pool_arc) do
-		if not e.ui_element then
-			self:internal_draw_arc(e)
-		end
+		self:internal_draw_arc(e)
 	end
 end
 
 function RenderCircle:draw_ui()
-	for _, e in ipairs(self.pool) do
-		if e.ui_element then
-			self:internal_draw(e)
-		end
+	for _, e in ipairs(self.pool_ui) do
+		self:internal_draw(e)
 	end
 
-	for _, e in ipairs(self.pool_arc) do
-		if e.ui_element then
-			self:internal_draw_arc(e)
-		end
+	for _, e in ipairs(self.pool_arc_ui) do
+		self:internal_draw_arc(e)
 	end
 end
 

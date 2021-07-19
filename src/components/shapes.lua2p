@@ -1,21 +1,15 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("circle", function(c, radius, segments)
-	!if _ASSERT then
-	Assert.must(radius, Types.T_NUMBER)
-	Assert.safe.must(segments, Types.T_NUMBER)
-	!end
-
+	@@assert(type(radius) == "number")
+	@@sassert(segments, type(segments) == "number")
 	c.radius = radius
 	c.segments = segments or radius
 end)
 
-Concord.component("rectangle_use_bbox")
-
-Concord.component("rectangle", function(c, size)
-	!if _ASSERT then
-	Assert.is(size, Types.T_VEC2)
-	!end
-
-	c.size = size
+Concord.component("rect", function(c, w, h)
+	@@assert(type(w) == "number")
+	@@assert(type(h) == "number")
+	c.w = w
+	c.h = h
 end)

@@ -3,7 +3,6 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
 local TextPaint = Concord.system({
-	pool_data = {"text_paint_data"},
 	pool_text = {"text_with_paint"},
 	pool_paint = {"paint"},
 })
@@ -30,63 +29,35 @@ end
 
 function TextPaint:init(world)
 	self.world = world
-	self.paint_data = {}
-
-	self.pool_data.onEntityAdded = function(pool, e)
-		local tpd = e.text_paint_data
-		local id = tpd.id
-		local data = tpd.data
-
-		!if _ASSERT then
-		Assert.must(data, Types.T_TABLE)
-		Assert.must(data.spritesheet, Types.T_IMAGE)
-		Assert.must(data.frames, Types.T_TABLE)
-		Assert.must(data.rows_count, Types.T_NUMBER)
-		Assert.must(data.columns_count, Types.T_NUMBER)
-		Assert.safe.must(data.n_frames, Types.T_NUMBER)
-		Assert.safe.within_range(data.start_frame, 1, data.n_frames)
-		Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
-		!end
-
-		self.paint_data[id] = data
-	end
 end
 
 function TextPaint:show_text_paint(e, dur, widest)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.safe.must(widest, Types.T_STRING)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.text_with_paint)
+	@@assert(type(dur) == "number")
+	@@sassert(widest, type(widest) == "string")
 	self:show_paint(e, dur, widest)
 	e:remove("hidden")
-
-	Flux.to(e.color.color, dur, {[4] = 1})
+	Flux.to(e.color.value, dur, {[4] = 1})
 end
 
 function TextPaint:fade_text_paint(e, dur, on_complete)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint)
-	Assert.is(e.text_with_paint.paint, Types.T_ENTITY)
-	Assert.exists(e.text_with_paint.paint.paint)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.safe.must(on_complete, Types.T_FUNCTION)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(e.text_with_paint)
+	@@assert(e.text_with_paint.paint.paint)
+	@@assert(type(dur) == "number")
+	@@sassert(on_complete, type(on_complete) == "function")
 	local delay = 0
 
 	if e.task then
-		local target = e.task.color
-		local original = {unpack(e.color.color)}
+		local target = e.task.value
+		local original = {unpack(e.color.value)}
 
-		flash_to_color(e.color.color, target, original, dur_flash, 2)
+		flash_to_color(e.color.value, target, original, dur_flash, 2)
 		delay = def_delay_task
 	end
 
-	Flux.to(e.color.color, dur, {[4] = 0})
+	Flux.to(e.color.value, dur, {[4] = 0})
 		:delay(delay)
 		:oncomplete(function()
 			if on_complete then
@@ -94,35 +65,34 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 			end
 
 			e:give("hidden")
-			e:destroy()
+			-- e:destroy()
 		end)
 	self:fade_paint(e.text_with_paint.paint, dur, delay)
 end
 
 function TextPaint:show_paint(e, dur_in, widest)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.must(dur_in, Types.T_NUMBER)
-	Assert.safe.must(widest, Types.T_STRING)
-	Assert.safe.exists(e.static_text)
-	Assert.safe.exists(e.text)
-	!end
-
+	@@assert(e.__isEntity)
+	@@assert(type(dur_in) == "number")
+	@@sassert(widest, type(widest) == "string")
+	@@sassert(e.static_text, e.static_text ~= nil)
+	@@sassert(e.text, e.text ~= nil)
 	local str
 	local text = e.text
 	local static_text = e.static_text
 
-	if static_text then str = static_text.text
-	else str = text.text
+	if static_text then
+		str = static_text.value
+	else
+		str = text.value
 	end
 
-	local font = e.font.font
+	local font = e.font.value
 	local transform = e.transform
 	local str_w = font:getWidth(widest or str)
 	local str_h = font:getHeight(str)
 	local offset = 96
 	local x, y
-	local text_pos = e.position.pos
+	local text_pos = e.pos
 	local chance = Lume.randomchoice({true, false})
 	local sx = chance == true and -1 or 1
 	local sy = 0.75
@@ -131,36 +101,33 @@ function TextPaint:show_paint(e, dur_in, widest)
 		x = text_pos.x
 		y = text_pos.y
 	else
-		x = text_pos.x + str_w/2
-		y = text_pos.y + str_h/2
+		x = text_pos.x + str_w * 0.5
+		y = text_pos.y + str_h * 0.5
 	end
 
-	local pos = vec2:new(x, y)
 	local paint_id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
 		:give("id", "text_paint")
-		:give("animation_data", self.paint_data[paint_id])
-		:give("position", pos)
+		:give("pos", x, y)
+		:give("animation_data", e.animation_data.data)
 		:give("animation", true)
 		:give("auto_scale", str_w + offset, str_h + offset, false)
 		:give("transform", 0, sx, sy, 0.5, 0.5)
 		:give("color", {1, 1, 1, 0})
 		:give("paint")
 		:give("ui_element")
+		:ensure("key")
 
 	e.text_with_paint.paint = paint
-	Flux.to(paint.color.color, dur_in, {[4] = 1})
+	Flux.to(paint.color.value, dur_in, {[4] = 1})
 end
 
 function TextPaint:fade_paint(paint, dur, delay)
-	!if _ASSERT then
-	Assert.is(paint, Types.T_ENTITY)
-	Assert.must(dur, Types.T_NUMBER)
-	Assert.exists(paint.paint)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
-	Flux.to(paint.color.color, dur, {[4] = 0})
+	@@assert(paint.__isEntity)
+	@@assert(type(dur) == "number")
+	@@assert(paint.paint)
+	@@sassert(delay, type(delay) == "number")
+	Flux.to(paint.color.value, dur, {[4] = 0})
 		:delay(delay or def_delay_paint)
 		:oncomplete(function()
 			paint:destroy()

@@ -4,17 +4,14 @@ local Enum = require("modules.enum.enum")
 local types = Enum("pie", "open", "closed")
 
 local pi = math.pi
-local half_pi = pi/2
+local half_pi = pi * 0.5
 local two_pi = pi * 2
 
 Concord.component("arc", function(c, radius, segments, start_angle, end_angle)
-	!if _ASSERT then
-	Assert.must(radius, Types.T_NUMBER)
-	Assert.safe.must(segments, Types.T_NUMBER)
-	Assert.safe.must(start_angle, Types.T_NUMBER)
-	Assert.safe.must(end_angle, Types.T_NUMBER)
-	!end
-
+	@@assert(type(radius) == "number")
+	@@sassert(segments, type(segments) == "number")
+	@@sassert(start_angle, type(start_angle) == "number")
+	@@sassert(end_angle, type(end_angle) == "number")
 	c.radius = radius
 	c.segments = segments or radius
 	c.start_angle = start_angle or -half_pi

@@ -1,11 +1,10 @@
 local Log = require("modules.log.log")
 
-local WindowMode = require("window_mode")
 local Utils = require("utils")
 
+local format = string.format
 local concat = table.concat
 local insert = table.insert
-local format = string.format
 
 local Info = {
 	data = {},
@@ -15,19 +14,15 @@ local Info = {
 local filename = !(_LOG_INFO)
 
 local function insert_str(src, dest)
-	!if _ASSERT then
-	Assert.must(src, Types.T_TABLE)
-	Assert.must(dest, Types.T_TABLE)
-	!end
-
+	@@assert(type(src) == "table")
+	@@assert(type(dest) == "table")
 	for k, v in pairs(src) do
 		local str = format("\t%s: %s\n", k, v)
-
 		insert(dest, str)
 	end
 end
 
-function Info.initialize()
+function Info.init()
 	Log.info("System information checking...")
 	local data = Info.data
 	local system_limits = {}
@@ -35,10 +30,15 @@ function Info.initialize()
 	local image_formats = {}
 	local texture_types = {}
 	local supported = {}
-
+	local name, version, vendor, device = love.graphics.getRendererInfo()
+	data.renderer = {
+		name = name,
+		version = version,
+		vendor = vendor,
+		device = device
+	}
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
-	data.name, data.version, data.vendor, data.device = love.graphics.getRendererInfo()
 	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
 	data.git_version = !(_COMMIT_VERSION)
 	data.limits = love.graphics.getSystemLimits()
@@ -61,10 +61,10 @@ function Info.initialize()
 		format("Processor Count: %s", data.processor_count),
 
 		"Renderer Info:",
-		format("\tName: %s", data.name),
-		format("\tVersion: %s", data.version),
-		format("\tVendor: %s", data.vendor),
-		format("\tDevice: %s", data.device),
+		format("\tName: %s", data.renderer.name),
+		format("\tVersion: %s", data.renderer.version),
+		format("\tVendor: %s", data.renderer.vendor),
+		format("\tDevice: %s", data.renderer.device),
 
 		"System Limits:",
 		concat(system_limits),
@@ -83,32 +83,32 @@ function Info.initialize()
 
 		"Other Info:",
 		format("Release Mode: %s", !(_RELEASE)),
-		format("Assert Mode: %s", !(_ASSERT)),
 	}
 
 	local to_write = concat(str, "\n")
-	local content, exists = Utils.read_file(filename)
+	local content, exists = Utils.file.read(filename)
 
 	if exists then
 		Info.validate_file(content, to_write)
 	else
-		Utils.write_to_file(filename, to_write)
-		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES", "Editing any files in this directory will invalidate all your progress")
+		Utils.file.write(filename, to_write)
+		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES",
+			"Editing any files in this directory will invalidate all your progress")
 	end
 end
 
 function Info.validate_file(content, to_write)
-	if content ~= to_write then
+	local same = Utils.hash.compare(content, to_write)
+	if same then
+		Log.info(format("'%s' untouched", filename))
+	else
 		love.filesystem.write(filename, to_write)
 		Log.info(format("'%s' overwritten", filename))
-	else
-		Log.info(format("'%s' untouched", filename))
 	end
 end
 
 function Info.is_texturesize_compatible(size)
 	local max_size = Info.data.limits.texturesize
-
 	return size <= max_size
 end
 

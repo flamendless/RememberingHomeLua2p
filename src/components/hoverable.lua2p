@@ -8,21 +8,15 @@ Concord.component("hoverable", function(c)
 end)
 
 Concord.component("hover_change_color", function(c, target, step)
-	!if _ASSERT then
-	Assert.color(target)
-	Assert.must(step, Types.T_NUMBER)
-	!end
-
+	@@assert(type(target) == "table")
+	@@assert(type(step) == "number")
 	c.target = target
 	c.step = step
 end)
 
 Concord.component("hover_change_scale", function(c, target, step)
-	!if _ASSERT then
-	Assert.must(target, Types.T_NUMBER)
-	Assert.must(step, Types.T_NUMBER)
-	!end
-
+	@@assert(type(target) == "number")
+	@@assert(type(step) == "number")
 	c.target = target
 	c.step = step
 end)

@@ -1,77 +1,71 @@
 local Concord = require("modules.concord.concord")
 
-local ItemCombinations = require("data.item_combinations")
-local ItemsData = require("data.items_data")
+local ItemsList = require("items")
+
+local format = string.format
 
 local Items = Concord.system({
-	pool = {"id", "item"},
 })
+
+local Assemblages = {
+	Items = require("assemblages.items"),
+}
+
+local list = {
+	flashlight = {
+		car = {
+			--TODO
+			-- "_play_sound_item_unusable",
+			"I got this flashlight from the car",
+		}
+	}
+}
 
 function Items:init(world)
 	self.world = world
-	self.combine_a = nil
-	self.interactive = nil
-	self.sprites = nil
 end
 
-function Items:set_items_resources(t)
-	!if _ASSERT then
-	Assert.must(t, Types.T_TABLE)
-	Assert.k_every(t, Types.T_IMAGE)
-	!end
-
-	self.sprites = t
+function Items:create_items()
+	local t = ItemsList.get_acquired()
+	for _, id in ipairs(t) do
+		Concord.entity(self.world):assemble(Assemblages.Items[id])
+	end
 end
 
-function Items:action_interacted_bag(target_interactive, player)
-	self.interactive = target_interactive
+function Items:item_response(main, sub)
+	@@assert(type(main) == "string")
+	@@assert(type(sub) == "string")
+	self.world:emit("close_inventory", true)
+	self.world:emit("on_interact_or_inventory")
+	self.world:emit("spawn_dialogue", main, sub)
 end
 
-function Items:interact_cancelled()
-	self.interactive = nil
+function Items:item_response_ex(t)
+	@@assert(type(t) == "table")
+	@@assert(#t ~= 0)
+	self.world:emit("close_inventory", true)
+	self.world:emit("on_interact_or_inventory")
+	self.world:emit("spawn_dialogue_ex", t)
 end
 
-function Items:item_clicked_combine(combine_b)
-	local id_a = self.combine_a.id.id
-	local id_b = combine_b.id.id
-
-	if id_a == id_b then
-		self.world:emit("cancelled_combine")
+function Items:on_item_use_with(item, other)
+	@@assert(item.__isEntity and item.item)
+	@@sassert(other, other.__isEntity and other.interactive)
+	local item_id = item.item.id
+	if not other then
+		self:item_response("common", "item_without")
 	else
-		local res
-		local res_id = ItemCombinations.get(id_a, id_b)
-
-		if res_id then
-			!if _ASSERT then
-			Assert.exists(self.sprites[res_id])
-			!end
-
-			res = {
-				id = res_id,
-				spr = self.sprites[res_id],
-				desc = ItemsData.get_desc(res_id),
-			}
-			self.world:emit("combined_item_success", res, self.combine_a, combine_b)
+		local other_id = other.id.value
+		local t = list[item_id] and list[item_id][other_id]
+		@@assert(not(other.usable_with_item == nil and t ~= nil), "add usable_with_item component?")
+		@@assert(not(other.usable_with_item ~= nil and t == nil), "add to list?")
+		if other.usable_with_item and t ~= nil then
+			self:item_response_ex(t)
 		else
-			self.world:emit("combined_item_fail")
+			local t2 = {format("%s can not be used here", item_id)}
+			self:item_response_ex(t2)
 		end
 	end
-
-	self.combine_a:remove("combining"):remove("clicked")
-	self.combine_a = nil
-end
-
-function Items:combined_item_success(res, a, b)
-	b:destroy()
-end
-
-function Items:clicked_inventory_use(e)
-	self.world:emit("used_item", self.interactive, e)
-end
-
-function Items:clicked_inventory_combine(e)
-	self.combine_a = e
-	e:give("combining")
 end
 
 return Items

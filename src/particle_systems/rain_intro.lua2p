@@ -3,12 +3,9 @@ local lg = love.graphics
 local RainIntroParticles = class()
 
 function RainIntroParticles:new(image, buffer, w)
-	!if _ASSERT then
-	Assert.must(image, Types.T_IMAGE)
-	Assert.must(buffer, Types.T_NUMBER)
-	Assert.must(w, Types.T_NUMBER)
-	!end
-
+	@@assert(image:type() == "Image")
+	@@assert(type(buffer) == "number")
+	@@assert(type(w) == "number")
 	local ps = lg.newParticleSystem(image, buffer)
 
 	ps:setColors(1, 1, 1, 0.6)
@@ -33,10 +30,8 @@ function RainIntroParticles:new(image, buffer, w)
 	ps:setTangentialAcceleration(0, 0)
 	ps:setQuads(lg.newQuad(0, 0, 32, 32, 96, 32), lg.newQuad(32, 0, 32, 32, 96, 32), lg.newQuad(64, 0, 32, 32, 96, 32))
 
-	return self:init({
-		system = ps,
-		blend_mode = "alpha"
-	})
+	self.system = ps
+	self.blend_mode = "alpha"
 end
 
 function RainIntroParticles:update(dt)

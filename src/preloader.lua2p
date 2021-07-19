@@ -15,103 +15,78 @@ local keys = {
 }
 
 function Preloader.start(resources, container, on_complete)
-	!if _ASSERT then
-	Assert.must(resources, Types.T_TABLE)
-	Assert.must(container, Types.T_TABLE)
-	Assert.must(on_complete, Types.T_FUNCTION)
-	!end
-
+	@@assert(type(resources) == "table")
+	@@assert(type(container) == "table")
+	@@assert(type(on_complete) == "function")
+	Preloader.percent = 0
 	local i = 1
 	local data = {}
 	local userdata = {}
 	local cache = {}
-
-	Preloader.percent = 0
-
 	for kind, t in pairs(resources) do
 		for j = 1, #t do
 			local id = t[j][1]
 			local path = t[j][2]
 
-			if kind == "image" then
-				data[i] = {keys[kind], path}
-			elseif kind == "image_data" then
+			if kind == "image" or kind == "image_data" then
 				data[i] = {keys[kind], path}
 			elseif kind == "source" then
 				local source_type = t[j][3]
-
 				data[i] = {keys[kind], path, source_type}
 			elseif kind == "font" then
 				local font_size = t[j][3]
 				local font_sub = t[j][4]
-
 				if not font_sub then
 					id = id .. "_" .. (font_sub or font_size)
 				end
-
 				data[i] = {keys[kind], path, font_size}
 			end
-
 			userdata[i] = id
-
-			!if _ASSERT then
-			Assert.empty(cache[id])
-			!end
-
+			@@assert(cache[id] == nil)
 			cache[id] = true
 			i = i + 1
 		end
 	end
 
-	local preloader = Lily.loadMulti(data)
+	Preloader.load(data, userdata, container, on_complete)
+end
 
+function Preloader.load(data, userdata, container, on_complete)
+	@@assert(type(data) == "table")
+	local preloader = Lily.loadMulti(data)
 	preloader:setUserData(userdata)
 	preloader:onLoaded(function(id, i, data)
-			local to_load = preloader:getCount()
-			local completed = preloader:getLoadedCount()
-
-			Preloader.percent = (completed/to_load) * 100
-		end)
+		local to_load = preloader:getCount()
+		local completed = preloader:getLoadedCount()
+		Preloader.percent = (completed/to_load) * 100
+	end)
 
 	preloader:onComplete(function(id, tbl_data)
 		for i, tbl in ipairs(tbl_data) do
 			local id = id[i]
 			local data = tbl[1]
-			local data_type = data:type()
-
-			if data_type == "Image" then
-				!if _ASSERT then
-				Assert.exists(container.images)
-				Assert.must(container.images, Types.T_TABLE)
-				!end
-
+			local dt = data:type()
+			if dt == "Image" then
+				@@assert(container.images)
+				@@assert(type(container.images) == "table")
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
 				container.images[id] = data
-			elseif data_type == "ImageData" then
-				!if _ASSERT then
-				Assert.exists(container.image_data)
-				Assert.must(container.image_data, Types.T_TABLE)
-				!end
-
+			elseif dt == "ImageData" then
+				@@assert(container.image_data)
+				@@assert(type(container.image_data) == "table")
 				container.image_data[id] = data
-			elseif data_type == "Source" then
-				!if _ASSERT then
-				Assert.exists(container.sources)
-				Assert.must(container.sources, Types.T_TABLE)
-				!end
-
+			elseif dt == "Source" then
+				@@assert(container.sources)
+				@@assert(type(container.sources) == "table")
 				container.sources[id] = data
-			elseif data_type == "Font" then
-				!if _ASSERT then
-				Assert.exists(container.fonts)
-				Assert.must(container.fonts, Types.T_TABLE)
-				!end
-
+			elseif dt == "Font" then
+				@@assert(container.fonts)
+				@@assert(type(container.fonts) == "table")
 				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 				container.fonts[id] = data
 			end
 
-			local str = format("Loaded: #%i - %s : %s", i, data_type, id)
+			local str = format("Loaded: #%i - %s : %s", i, dt, id)
 			Log.trace(str)
 		end
 

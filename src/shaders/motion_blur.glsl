@@ -13,9 +13,9 @@ vec4 blur(Image texture, vec2 uv, vec2 dir)
 	return vec4(l * delta * 0.5);
 }
 
-vec4 effect(vec4 color, Image texture, vec2 tex_coords, vec2 screen_coords)
+vec4 effect(vec4 color, Image texture, vec2 uv, vec2 screen_coords)
 {
 	vec2 blur_vec = vec2(cos(radians(angle)), sin(radians(angle))) * strength;
-	vec4 mb = blur(texture, tex_coords, blur_vec);
+	vec4 mb = blur(texture, uv, blur_vec);
 	return mb;
 }

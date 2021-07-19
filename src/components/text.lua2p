@@ -4,28 +4,36 @@ local Enum = require("modules.enum.enum")
 local align_modes = Enum("center", "left", "right", "justify")
 
 Concord.component("text", function(c, text)
-	!if _ASSERT then
-	Assert.must(text, Types.T_STRING)
-	!end
+	@@assert(type(text) == "string")
+	c.value = text
+end)
 
-	c.text = text
+Concord.component("text_t", function(c, t)
+	@@assert(type(t) == "table", "got " .. type(t))
+	c.value = t
+	c.current_index = 1
+	c.max_n = #t
 end)
 
 Concord.component("textf", function(c, limit, align)
-	!if _ASSERT then
-	Assert.must(limit, Types.T_NUMBER)
-	Assert.must(align, Types.T_STRING)
-	!end
-
+	@@assert(type(limit) == "number")
+	@@assert(type(align) == "string")
 	c.limit = limit
 	c.align = align_modes[align]
 end)
 
-Concord.component("static_text", function(c, text)
-	!if _ASSERT then
-	Assert.must(text, Types.T_STRING)
-	!end
-
-	c.text = text
-	c.text_obj = nil
+local c_static_text = Concord.component("static_text", function(c, text)
+	@@assert(type(text) == "string")
+	c.value = text
+	c.obj = nil
 end)
+
+function c_static_text:serialize()
+	return {
+		value = self.value
+	}
+end
+
+function c_static_text:deserialize(data)
+	self:__populate(data.value)
+end

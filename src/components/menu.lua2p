@@ -1,0 +1,6 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("menu_desk")
+Concord.component("menu_text")
+Concord.component("menu_opt")
+Concord.component("menu_sub_opt")

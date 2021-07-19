@@ -2,13 +2,11 @@ local Log = require("modules.log.log")
 
 local Utils = require("utils")
 
-local format = string.format
-
 local Save = {
 	data = {
 		splash_done = false,
 		intro_done = false,
-		backdoor_locked = true,
+		outside_intro_done = false,
 	},
 	checkpoints = {},
 	valid_checkpoints = false,
@@ -18,23 +16,25 @@ local Save = {
 local save_filename = !(_SAVE_FILENAME)
 local key_filename = !(_SAVE_KEY)
 
-function Save.initialize()
-	local content, exists = Utils.read_file(save_filename)
-	local key, exists_key = Utils.read_file(key_filename)
+local function validate_checkpoints(data)
+	@@assert(type(data) == "table")
+end
+
+function Save.init()
+	local content, exists = Utils.file.read(save_filename)
+	local key, exists_key = Utils.file.read(key_filename)
 
 	if exists and exists_key then
 		local hashed = love.data.hash("sha256", content)
-
 		if key == hashed then
-			local data = Utils.deserialize(content)
+			local data = Utils.serial.de(content)
 			Save.data = data
-			Save.validate_checkpoints(data)
+			validate_checkpoints(data)
 		else
 			local error_msg = format("Data integrity is not valid.\n\
 				Please do not modify the files: '%s' and '%s'.\n\
 				Please delete the files in '%s' and restart the game",
 				save_filename, key_filename, love.filesystem.getSaveDirectory())
-
 			error(error_msg)
 		end
 	else
@@ -42,32 +42,32 @@ function Save.initialize()
 	end
 
 	Save.exists = exists
-	Log.info("Save Data: " .. stringx.pretty(Save.data))
-end
-
-function Save.validate_checkpoints(data)
-	!if _ASSERT then
-	Assert.must(data, Types.T_TABLE)
-	!end
+	Log.info("Save Data: " .. pretty.string(Save.data))
 end
 
 function Save.overwrite()
-	local data = Utils.serialize_to_file(save_filename, Save.data)
+	local data = Utils.serial.write(save_filename, Save.data)
 	local hashed = love.data.hash("sha256", data)
-
-	Utils.write_to_file(key_filename, hashed)
+	Utils.file.write(key_filename, hashed)
+	Log.info("Save overwritten")
 end
 
 function Save.toggle_flag(id, should_overwrite)
-	!if _ASSERT then
-	Assert.must(id, Types.T_STRING)
-	Assert.exists(Save.data[id])
-	Assert.safe.must(should_overwrite, Types.T_BOOLEAN)
-	!end
+	@@assert(type(id) == "string")
+	@@assert(Save.data[id] ~= nil)
+	@@sassert(should_overwrite, type(should_overwrite) == "boolean")
+	Save.data[id] = not Save.data[id]
+	if should_overwrite then
+		Save.overwrite()
+	end
+end
 
-	local sd = Save.data
-	sd[id] = not sd[id]
-
+function Save.set_flag(id, value, should_overwrite)
+	@@assert(type(id) == "string")
+	@@assert(Save.data[id] ~= nil)
+	@@assert(type(value) == "boolean")
+	@@sassert(should_overwrite, type(should_overwrite) == "boolean")
+	Save.data[id] = value
 	if should_overwrite then
 		Save.overwrite()
 	end

@@ -1,131 +1,40 @@
 local Concord = require("modules.concord.concord")
 
 local Notification = Concord.system({
-	pool_empty = {"empty_notification"},
-	pool = {"id", "notification", "sprite"},
+	pool = {"notification"},
 })
 
-local UI = require("assemblages.ui")
+local Assemblages = {
+	UI = require("assemblages.ui"),
+}
 
 function Notification:init(world)
 	self.world = world
-	self.dur = 0.25
-	self.sheets = nil
-	self.max_pool = 5
-	self.current = 1
+end
 
-	for i = 1, self.max_pool do
-		local e = Concord.entity(self.world):give("empty_notification")
-	end
-
-	self.pool.onEntityAdded = function(pool, e)
-		self.current = self.current + 1
-	end
-
-	self.pool.onEntityRemoved = function(pool, e)
-		self.current = self.current - 1
-		e:give("empty_notification")
-		:remove("id")
+function Notification:speech_bubble_update(_, e)
+	@@assert(e.__isEntity)
+	@@assert(e.notification)
+	@@assert(e.id.value == "speech_bubble", "got " .. e.id.value)
+	local anim8 = e.animation.anim8
+	local data = e.animation_data
+	if e.current_frame.value == data.n_frames then
+		anim8:gotoFrame(4)
 	end
 end
 
-function Notification:set_notification_resources(sheets)
-	!if _ASSERT then
-	Assert.must(sheets, Types.T_TABLE)
-	Assert.exists(sheets.question_mark)
-	!end
-
-	self.sheets = sheets
+function Notification:create_speech_bubble(e)
+	@@assert(e.__isEntity)
+	local pos = e.pos
+	Concord.entity(self.world):assemble(Assemblages.UI.speech_bubble,
+		e, pos.x, pos.y)
 end
 
-function Notification:interactive_collided(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
-	local notif = interactive.notify
-
-	if notif then
-		if notif.id == "question_mark" then
-			local sp = e.spawn_point_question_mark.pos
-			local pos = vec2:new(sp.x, sp.y)
-			local e = self.pool_empty[self.current]
-
-			e:remove("empty_notification")
-			:give("preserve_id")
-			:assemble(UI.question_mark, self.sheets.question_mark, self.dur)
-			:give("color_fade_in", self.dur)
-			:give("position", pos)
-			:give("attach_to_spawn_point", sp)
-		end
-	end
-end
-
-function Notification:interactive_left_collision(e, interactive)
-	!if _ASSERT then
-	Assert.is(e, Types.T_ENTITY)
-	Assert.is(interactive, Types.T_ENTITY)
-	!end
-
-	local notif = interactive.notify
-
-	if notif then
-		self:hide_notification(notif.id)
-	end
-end
-
-function Notification:interactive_interacted(player, interactive)
-	local notif = interactive.notify
-
-	if notif then
-		self:toggle_notification_temp(notif.id)
-	end
-end
-
-function Notification:interact_cancelled(player, interactive)
-	local notif = interactive.notify
-
-	if notif then
-		self:toggle_notification_temp(notif.id)
-	end
-end
-
-function Notification:hide_notification(req_id)
-	!if _ASSERT then
-	Assert.must(req_id, Types.T_STRING)
-	!end
-
+function Notification:remove_speech_bubble()
 	for _, e in ipairs(self.pool) do
-		local id = e.id.id
-		local tween_dur = e.tween_dur
-
-		if (id == req_id) then
-			e:give("color_fade_out", tween_dur.dur, nil, function()
-				e:remove("attach_to")
-				:remove("position")
-				:remove("notification")
-				:remove("position")
-				:remove("attach_to_spawn_point")
-				:remove("sprite")
-			end)
-		end
-	end
-end
-
-function Notification:toggle_notification_temp(req_id)
-	!if _ASSERT then
-	Assert.must(req_id, Types.T_STRING)
-	!end
-
-	for _, e in ipairs(self.pool) do
-		local id = e.id.id
-		local notif = e.notification
-
-		if (id == req_id) then
-			if e.hidden then e:remove("hidden")
-			else e:give("hidden")
-			end
+		local n_id = e.notification.value
+		if n_id == "speech_bubble" then
+			e:destroy()
 		end
 	end
 end

@@ -1,41 +1,18 @@
 local Concord = require("modules.concord.concord")
 
 local Movement = Concord.system({
-	pool_topdown = {"speed", "body", "movement_topdown"},
-	pool_platformer = {"speed", "gravity", "body", "movement_platformer"},
+	pool = {"speed", "gravity", "body", "movement"},
 })
 
-function Movement:update_topdown(dt)
-	for _, e in ipairs(self.pool_topdown) do
+function Movement:update(dt)
+	for _, e in ipairs(self.pool) do
 		if e.body.can_move then
-			local body = e.body
-			local speed = e.speed.speed
+			local speed = e.speed
 			local vel_x = 0
-			local vel_y = 0
-
-			if body.dx ~= 0 then
-				vel_x = speed.x * body.dx * dt
-			end
-
-			if body.dy ~= 0 then
-				vel_y = speed.y * body.dy * dt
-			end
-
-			body.vel_x = vel_x
-			body.vel_y = vel_y
-		end
-	end
-end
-
-function Movement:update_platformer(dt)
-	for _, e in ipairs(self.pool_platformer) do
-		if e.body.can_move then
-			local speed = e.speed.speed
-			local vel_x = 0
-			local vel_y = e.gravity.gravity * dt
+			local vel_y = e.gravity.value * dt
 
 			if e.body.dx ~= 0 then
-				vel_x = speed.x * e.body.dx * dt
+				vel_x = speed.vx * e.body.dx * dt
 			end
 
 			e.body.vel_x = vel_x
@@ -43,5 +20,47 @@ function Movement:update_platformer(dt)
 		end
 	end
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local flags = {
+	gravity = true,
+}
+
+function Movement:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("Movement", {
+		Title = self.debug_title,
+		IsOpen = self.debug_show
+	})
+	if Slab.CheckBox(flags.gravity, "gravity") then
+		flags.gravity = not flags.gravity
+		for _, e in ipairs(self.pool) do
+			local gravity = e.gravity
+			if not flags.gravity then
+				gravity.temp = gravity.value
+				gravity.value = 0
+			else
+				gravity.value = gravity.temp
+			end
+		end
+	end
+	Slab.EndWindow()
+end
+
+function Movement:debug_on_drag(bool)
+	@@assert(type(bool) == "boolean")
+	for _, e in ipairs(self.pool) do
+		local gravity = e.gravity
+		if bool then
+			gravity.temp = gravity.value
+			gravity.value = 0
+		else
+			gravity.value = gravity.temp
+		end
+		flags.gravity = not bool
+	end
+end
+!end
 
 return Movement

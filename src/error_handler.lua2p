@@ -1,17 +1,12 @@
 local Lily = require("modules.lily.lily")
 
-!if _REPORTING then
-local Reporter = require("reporter")
-!end
-
-local Utf8 = require("utf8")
+local UTF8 = require("utf8")
 
 local insert = table.insert
 local concat = table.concat
 local traceback = debug.traceback
 
 local ErrorHandler = {}
-
 local font, p
 
 local function error_printer(msg, layer)
@@ -22,11 +17,7 @@ end
 
 local function draw()
 	local pos_x = 0
-	!if not _RELEASE then
 	local pos_y = 24
-	!else
-	local pos_y = love.graphics.getHeight()/2
-	!end
 
 	love.graphics.clear()
 	love.graphics.setColor(1, 1, 1, 1)
@@ -46,9 +37,6 @@ end
 
 function ErrorHandler.callback(msg)
 	msg = tostring(msg)
-	!if _REPORTING then
-	Reporter.send(msg)
-	!end
 	error_printer(msg, 2)
 
 	if not love.window or not love.graphics or not love.event then
@@ -84,12 +72,7 @@ function ErrorHandler.callback(msg)
 	end
 
 	love.graphics.reset()
-	-- font = love.graphics.setNewFont(12)
-	!if not _RELEASE then
 	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 16)
-	!else
-	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 24)
-	!end
 	font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 	love.graphics.setFont(font)
 	love.graphics.setColor(1, 1, 1, 1)
@@ -100,7 +83,7 @@ function ErrorHandler.callback(msg)
 
 	local sanitized_msg = {}
 
-	for char in msg:gmatch(Utf8.charpattern) do
+	for char in msg:gmatch(UTF8.charpattern) do
 		insert(sanitized_msg, char)
 	end
 
@@ -109,7 +92,9 @@ function ErrorHandler.callback(msg)
 	local err = {}
 
 	insert(err, "SORRY! SOMETHING UNEXPECTED OCCURED!")
-	insert(err, "The developer will work on to fix this, please have patience\n")
+	insert(err, "The developer will work hard to fix this, please have patience")
+	insert(err, "You can help by submitting the error throught GitHub or Itch.io")
+	insert(err, "Thank you!\n")
 
 	!if not _RELEASE then
 	insert(err, sanitized_msg)

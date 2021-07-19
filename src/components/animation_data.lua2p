@@ -1,20 +1,21 @@
 local Concord = require("modules.concord.concord")
 
+local Resources = require("resources")
+
 local floor = math.floor
 
-Concord.component("animation_data", function(c, data)
-	!if _ASSERT then
-	Assert.must(data, Types.T_TABLE)
-	Assert.must(data.spritesheet, Types.T_IMAGE)
-	Assert.must(data.frames, Types.T_TABLE)
-	Assert.must(data.rows_count, Types.T_NUMBER)
-	Assert.must(data.columns_count, Types.T_NUMBER)
-	Assert.safe.must(data.n_frames, Types.T_NUMBER)
-	Assert.safe.within_range(data.start_frame, 1, data.n_frames)
-	Assert.either_type(data.delay, Types.T_NUMBER, Types.T_TABLE)
-	!end
+local c_anim_data = Concord.component("animation_data", function(c, data)
+	@@assert(type(data) == "table")
+	@@assert(type(data.resource_id) == "string")
+	@@assert(type(data.frames) == "table")
+	@@assert(type(data.rows_count) == "number")
+	@@assert(type(data.columns_count) == "number")
+	@@sassert(data.n_frames, type(data.n_frames) == "number")
+	@@sassert(data.start_frame, data.start_frame >= 1 and data.start_frame <= data.n_frames)
+	@@sassert(data.delay, type(data.delay) == "table" or type(data.delay) == "number")
 
-	c.spritesheet = data.spritesheet
+	c.resource_id = data.resource_id
+	c.spritesheet = Resources.data.images[c.resource_id]
 	c.frames = data.frames
 	c.delay = data.delay
 	c.rows_count = data.rows_count
@@ -26,4 +27,16 @@ Concord.component("animation_data", function(c, data)
 	c.sheet_height = c.spritesheet:getHeight()
 	c.frame_width = floor(c.sheet_width/c.columns_count)
 	c.frame_height = floor(c.sheet_height/c.rows_count)
+
+	c.data = data
 end)
+
+function c_anim_data:serialize()
+	return {
+		data = self.data,
+	}
+end
+
+function c_anim_data:deserialize(data)
+	self:__populate(data.data)
+end

@@ -1,0 +1,16 @@
+local Concord = require("modules.concord.concord")
+
+local StorageRoom = Concord.system({
+})
+
+function StorageRoom:init(world)
+	self.world = world
+end
+
+function StorageRoom:state_setup()
+end
+
+function StorageRoom:state_init()
+end
+
+return StorageRoom

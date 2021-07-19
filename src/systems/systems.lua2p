@@ -1,0 +1,31 @@
+local Concord = require("modules.concord.concord")
+
+local sc_dialogues, sc_inventory
+
+local Systems = Concord.system()
+
+function Systems:init(world)
+	local ECS = require("ecs")
+	sc_dialogues = ECS.getSystemClass("dialogues")
+	sc_inventory = ECS.getSystemClass("inventory")
+	self.world = world
+end
+
+function Systems:set_sys_dialogues(bool)
+	@@assert(type(bool) == "boolean")
+	local sys_dialogues = self.world:getSystem(sc_dialogues)
+	sys_dialogues:setEnabled(bool)
+end
+
+function Systems:set_sys_inventory(bool)
+	@@assert(type(bool) == "boolean")
+	local sys_inventory = self.world:getSystem(sc_inventory)
+	sys_inventory:setEnabled(bool)
+end
+
+function Systems:dialogue_to_inventory()
+	self:set_sys_dialogues(false)
+	self:set_sys_inventory(true)
+end
+
+return Systems

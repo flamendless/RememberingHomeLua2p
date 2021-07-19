@@ -1,11 +1,51 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("sprite", function(c, sprite, name)
-	!if _ASSERT then
-	Assert.must(sprite, Types.T_IMAGE)
-	Assert.safe.must(name, Types.T_STRING)
-	!end
+local Image = require("image")
+local Resources = require("resources")
 
-	c.sprite = sprite
+local c_sprite = Concord.component("sprite", function(c, resource_id, name)
+	@@assert(type(resource_id) == "string")
+	@@sassert(name, type(name) == "string")
+	c.resource_id = resource_id
+	c.image = Resources.data.images[resource_id]
 	c.name = name
+end)
+
+function c_sprite:serialize()
+	return {
+		resource_id = self.resource_id,
+		name = self.name,
+	}
+end
+
+function c_sprite:deserialize(data)
+	self:__populate(data.resource_id, data.name)
+end
+
+local c_noise_tex = Concord.component("noise_texture", function(c, w, h)
+	@@assert(type(w) == "number")
+	@@assert(type(h) == "number")
+	c.w = w
+	c.h = h
+	c.texture = love.graphics.newImage(Image.generate_noise(w, h))
+	c.texture:setWrap("repeat", "repeat")
+	c.texture:setFilter("linear", "linear")
+end)
+
+function c_noise_tex:serialize()
+	return {
+		w = self.w,
+		h = self.h,
+	}
+end
+
+function c_noise_tex:deserialize(data)
+	self:__populate(data.w, data.h)
+end
+
+--TODO add serialize/deserialize
+local c_displacement_tex = Concord.component("displacement_texture", function(c, resource_id)
+	@@assert(type(resource_id) == "string")
+	c.resource_id = resource_id
+	c.texture = Resources.data.images[resource_id]
 end)

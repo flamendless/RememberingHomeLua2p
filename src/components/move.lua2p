@@ -1,13 +1,12 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("move_by", function(c, pos, duration, delay)
-	!if _ASSERT then
-	Assert.is(pos, Types.T_VEC2)
-	Assert.must(duration, Types.T_NUMBER)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
-	c.pos = pos
+Concord.component("move_by", function(c, x, y, duration, delay)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(duration) == "number")
+	@@sassert(delay, type(delay) == "number")
+	c.x = x
+	c.y = y
 	c.duration = duration
 	c.delay = delay or 0
 end)
@@ -16,31 +15,22 @@ Concord.component("move_repeat", function(c)
 end)
 
 Concord.component("move_to_x", function(c, x_pos, duration, delay)
-	!if _ASSERT then
-	Assert.must(x_pos, Types.T_NUMBER)
-	Assert.must(duration, Types.T_NUMBER)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
+	@@assert(type(x_pos) == "number")
+	@@assert(type(duration) == "number")
+	@@sassert(delay, type(delay) == "number")
 	c.target_x = x_pos
 	c.duration = duration
 	c.delay = delay or 0
 end)
 
 Concord.component("move_to_original", function(c, duration, delay)
-	!if _ASSERT then
-	Assert.must(duration, Types.T_NUMBER)
-	Assert.safe.must(delay, Types.T_NUMBER)
-	!end
-
+	@@assert(type(duration) == "number")
+	@@sassert(delay, type(delay) == "number")
 	c.duration = duration
 	c.delay = delay or 0
 end)
 
 Concord.component("move_on_complete", function(c, callback)
-	!if _ASSERT then
-	Assert.must(callback, Types.T_FUNCTION)
-	!end
-
-	c.callback = callback
+	@@assert(type(callback) == "function")
+	-- c.callback = callback
 end)

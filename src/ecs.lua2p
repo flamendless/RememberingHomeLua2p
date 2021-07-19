@@ -1,0 +1,113 @@
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+
+local format = string.format
+local lower = string.lower
+
+!if _DEV then
+local DevTools
+!end
+
+local ECS = {}
+
+local Components = {}
+Concord.utils.loadNamespace("components", Components)
+
+local Systems = {}
+Concord.utils.loadNamespace("systems", Systems)
+
+local systems = {}
+
+systems.Splash = {
+	"animation", "color", "render_sprite", "render_text",
+	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
+	"skip", "glitch_shader_effect",
+}
+
+systems.Menu = {
+	"animation", "bounding_box", "click", "color", "hover_effect",
+	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
+	"transform", "entity", "gamestates",
+}
+
+systems.Intro = {
+	"animation", "camera", "color", "light", "parallax", "depth",
+	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
+	"transform", "skip", "tween", "gamestates", "fog", "entity",
+}
+
+systems.Outside = {
+	"animation", "bounding_box", "bump_collision", "camera", "collision",
+	"color", "dialogues", "fireflies", "interactive", "light", "movement",
+	"notification", "player_controller", "render_sprite", "render_text",
+	"render_ui", "text_paint", "transform", "typewriter", "path", "gamestates",
+	"inventory", "systems", "render_rect", "entity", "items",
+}
+
+systems.StorageRoom = {
+	"animation", "bump_collision", "camera", "color", "dialogues",
+	"interactive", "light", "movement", "notification", "player_controller",
+	"render_sprite", "render_text", "render_ui", "transform", "typewriter",
+	"gamestates", "inventory", "systems", "entity", "items",
+}
+
+!if _DEV then
+local fn = {
+	"state_setup", "state_init", "state_update",
+	"state_draw", "state_cleanup", "state_keypressed",
+	"state_keyreleased", "state_mousepressed", "state_mousereleased",
+	"state_mousemoved",
+}
+!end
+
+function ECS.load_systems(id, world)
+	@@assert(type(id) == "string")
+	@@assert(systems[id])
+	@@assert(world.__isWorld)
+	local lid = lower(id)
+	@@assert(Systems[lid], id .. " state system does not exist")
+
+	!if _DEV then
+	for _, ev in ipairs(fn) do
+		if not Systems[lid][ev] then
+			local str = format("state system '%s' does not have '%s' event", lid, ev)
+			Log.warn(str)
+		end
+	end
+	!end
+
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
+
+	for _, v in ipairs(systems[id]) do
+		@@assert(Systems[v], format("id = %s, i = %d", v, _))
+		world:addSystem(Systems[v])
+		!if _DEV then
+		local sys = Systems[v]
+		sys.debug_show = DevTools.flags[v]
+		sys.debug_enabled = true
+		sys.debug_title = v
+		!end
+	end
+	world:addSystem(Systems[lid])
+
+	!if _DEV then
+	Systems.id.debug_show = true
+	Systems.id.debug_enabled = true
+	Systems.id.debug_title = "ID"
+	Systems.log.debug_show = true
+	Systems.log.debug_enabled = true
+	Systems.log.debug_title = "Log"
+	world:addSystem(Systems.id)
+	world:addSystem(Systems.log)
+	!end
+end
+
+function ECS.getSystemClass(id)
+	@@assert(type(id) == "string")
+	@@assert(Systems[lower(id)])
+	return Systems[lower(id)]
+end
+
+return ECS

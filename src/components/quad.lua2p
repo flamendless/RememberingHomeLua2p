@@ -1,19 +1,27 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("quad", function(c, quad, info)
-	!if _ASSERT then
-	Assert.must(quad, Types.T_QUAD)
-	Assert.safe.must(info, Types.T_TABLE)
-	!end
-
+local c_quad = Concord.component("quad", function(c, quad, info)
+	@@assert(quad:type() == "Quad")
+	@@sassert(info, type(info) == "table")
 	c.quad = quad
 	c.info = info
 end)
 
-Concord.component("quad_size", function(c, size)
-	!if _ASSERT then
-	Assert.must(size, Types.T_NUMBER)
-	!end
+function c_quad:serialize()
+	local x, y, w, h = self.quad:getViewport()
+	local sw, sh = self.quad:getTextureDimensions( )
+	return {
+		data = {x, y, w, h, sw, sh},
+		info = self.info
+	}
+end
 
-	c.size = size
+function c_quad:deserialize(data)
+	local quad = love.graphics.newQuad(unpack(data.data))
+	self:__populate(quad, data.info)
+end
+
+Concord.component("quad_size", function(c, size)
+	@@assert(type(size) == "number")
+	c.value = size
 end)
