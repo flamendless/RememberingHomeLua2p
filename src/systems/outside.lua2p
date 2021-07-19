@@ -333,7 +333,7 @@ function Outside:on_item_equip(item_e)
 		self.world:emit("set_sys_dialogues", true)
 		self.world:emit("set_sys_inventory", false)
 		self.world:emit("spawn_dialogue_ex", {
-			"The moon provides enough light",
+			"It's not that dark yet",
 			"No need to use it and waste power",
 		}, nil, "dialogue_to_inventory")
 	end
