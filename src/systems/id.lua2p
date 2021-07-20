@@ -4,13 +4,21 @@ local Log = require("modules.log.log")
 local ID = Concord.system({
 	pool = {"id"},
 	!if _DEV then
-	pool_bump = {"id", "bump"},
+	pool_dev = {"id", "sprite", "pos"},
+	pool_camera = {"camera"},
 	!end
 })
 
 function ID:init(world)
 	self.world = world
 	self.ref_id = {}
+
+	!if _DEV then
+	self.pool_camera.onAdded = function(pool, e)
+		self.camera = e.camera.camera
+	end
+	!end
+
 	self.pool.onAdded = function(pool, e)
 		local id = e.id
 		if not e.preserve_id then
@@ -48,11 +56,14 @@ end
 
 !if _DEV then
 local Slab = require("modules.slab")
+local Helper = require("helper")
 
 local flags = {
 	right_clicked = false
 }
 local e_right_clicked
+local fnt = love.graphics.newFont(8)
+fnt:setFilter("nearest", "nearest")
 
 function ID:debug_e_right_clicked(e)
 	e_right_clicked = e
@@ -77,6 +88,31 @@ function ID:debug_update(dt)
 			e_right_clicked = nil
 		end
 	end
+end
+
+function ID:debug_draw()
+	if not self.debug_show then return end
+	local mx, my = love.mouse.getPosition()
+	mx, my = self.camera:toWorld(mx, my)
+	local v = vec2(mx, my)
+	local r, g, b, a = love.graphics.getColor()
+	love.graphics.push()
+	love.graphics.setColor(1, 0, 0, 0.75)
+	love.graphics.setFont(fnt)
+
+	for _, e in ipairs(self.pool_dev) do
+		local id = e.id.value
+		local px, py, iw, ih = Helper.get_ltwh(e)
+		local iw2, ih2 = iw * 0.5, ih * 0.5
+		local a = vec2(px + iw2, py + ih2)
+		local hs = vec2(iw2, ih2)
+		local hovered = intersect.aabb_point_overlap(a, hs, v)
+		if hovered then
+			love.graphics.print(id, px, py)
+		end
+	end
+	love.graphics.setColor(r, g, b, a)
+	love.graphics.pop()
 end
 !end
 

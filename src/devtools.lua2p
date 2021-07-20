@@ -8,6 +8,7 @@ local format = string.format
 local DevTools = {
 	show = false,
 	flags = {
+		id = true,
 		ngrading = true,
 		fog = false,
 		movement = false,
@@ -18,6 +19,7 @@ local DevTools = {
 		log = true,
 		bounding_box = true,
 		glitch_shader_effect = false,
+		culling = true,
 	},
 }
 

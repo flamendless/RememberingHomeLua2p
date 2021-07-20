@@ -41,14 +41,14 @@ systems.Outside = {
 	"color", "dialogues", "fireflies", "interactive", "light", "movement",
 	"notification", "player_controller", "render_sprite", "render_text",
 	"render_ui", "text_paint", "transform", "typewriter", "path", "gamestates",
-	"inventory", "systems", "render_rect", "entity", "items",
+	"inventory", "systems", "render_rect", "entity", "items", "culling",
 }
 
 systems.StorageRoom = {
 	"animation", "bump_collision", "camera", "color", "dialogues",
 	"interactive", "light", "movement", "notification", "player_controller",
 	"render_sprite", "render_text", "render_ui", "transform", "typewriter",
-	"gamestates", "inventory", "systems", "entity", "items",
+	"gamestates", "inventory", "systems", "entity", "items", "culling",
 }
 
 !if _DEV then

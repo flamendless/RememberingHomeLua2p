@@ -37,18 +37,18 @@ function Helper.get_offset(e)
 			oy = anim_data.frame_height
 		end
 	elseif sprite then
-		local spr = sprite.image
+		local iw, ih = sprite.iw, sprite.ih
 
 		if transform.ox == 0.5 then
-			ox = spr:getWidth() * 0.5
+			ox = iw * 0.5
 		elseif transform.ox == 1 then
-			ox = spr:getWidth()
+			ox = iw
 		end
 
 		if transform.oy == 0.5 then
-			oy = spr:getHeight() * 0.5
+			oy = ih * 0.5
 		elseif transform.oy == 1 then
-			oy = spr:getHeight()
+			oy = ih
 		end
 	end
 
@@ -77,6 +77,59 @@ function Helper.get_real_pos_box(e)
 	end
 
 	return x, y
+end
+
+function Helper.get_ltwh(e)
+	@@assert(e.__isEntity)
+	--get the size
+	local sprite = e.sprite
+	local w, h = sprite.iw, sprite.ih
+	local collider = e.collider
+	local anim_data = e.animation_data
+	if collider then
+		w = collider.w
+		h = collider.h
+	elseif anim_data then
+		w = anim_data.frame_width
+		h = anim_data.frame_height
+	end
+
+	--get the scale
+	local sx, sy = 1, 1
+	local t = e.transform
+	if t then
+		sx = t.orig_sx
+		sy = t.orig_sy
+	end
+
+	--get the offset
+	local ox, oy = 0, 0
+	if t and not collider then
+		ox = t.ox
+		oy = t.oy
+		if ox == 0.5 then
+			ox = w * 0.5
+		elseif ox == 1 then
+			ox = w
+		end
+		if oy == 0.5 then
+			ox = h * 0.5
+		elseif oy == 1 then
+			oy = h
+		end
+	end
+
+	--get the pos
+	local pos = e.pos
+	local x, y = pos.x, pos.y
+
+	--calculate
+	x = x - ox * sx
+	y = y - oy * sy
+	w = w * sx
+	h = h * sy
+
+	return x, y, w, h
 end
 
 return Helper

@@ -9,6 +9,7 @@ local c_sprite = Concord.component("sprite", function(c, resource_id, name)
 	c.resource_id = resource_id
 	c.image = Resources.data.images[resource_id]
 	c.name = name
+	c.iw, c.ih = c.image:getDimensions()
 end)
 
 function c_sprite:serialize()

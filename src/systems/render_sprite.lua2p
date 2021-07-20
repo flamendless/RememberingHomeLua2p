@@ -46,51 +46,52 @@ end
 
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
-	if not hidden then
-		local pos = e.pos
-		local quad = e.quad
-		local color = e.color
-		local sprite = e.sprite
-		local transform = e.transform
-		local quad_transform = e.quad_transform
+	local culled = e.cullabl and e.cullable.value
+	if hidden or culled then return end
 
-		love.graphics.setColor(1, 1, 1, 1)
-		if color then love.graphics.setColor(color.value) end
+	local pos = e.pos
+	local quad = e.quad
+	local color = e.color
+	local sprite = e.sprite
+	local transform = e.transform
+	local quad_transform = e.quad_transform
 
-		local rot, sx, sy, ox, oy, kx, ky
-		if transform then
-			rot = transform.rotation
-			ox, oy = Helper.get_offset(e)
-			sx = transform.sx
-			sy = transform.sy
-			kx = transform.kx
-			ky = transform.ky
+	love.graphics.setColor(1, 1, 1, 1)
+	if color then love.graphics.setColor(color.value) end
+
+	local rot, sx, sy, ox, oy, kx, ky
+	if transform then
+		rot = transform.rotation
+		ox, oy = Helper.get_offset(e)
+		sx = transform.sx
+		sy = transform.sy
+		kx = transform.kx
+		ky = transform.ky
+	end
+
+	local temp_shader
+	if e.no_shader then
+		temp_shader = love.graphics.getShader()
+		love.graphics.setShader()
+	end
+
+	if quad then
+		if quad_transform then
+			rot = quad_transform.rotation
+			sx = quad_transform.sx
+			sy = quad_transform.sy
+			ox = quad_transform.ox
+			oy = quad_transform.oy
+			kx = quad_transform.kx
+			ky = quad_transform.ky
 		end
+		draw(sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+	else
+		draw(sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+	end
 
-		local temp_shader
-		if e.no_shader then
-			temp_shader = love.graphics.getShader()
-			love.graphics.setShader()
-		end
-
-		if quad then
-			if quad_transform then
-				rot = quad_transform.rotation
-				sx = quad_transform.sx
-				sy = quad_transform.sy
-				ox = quad_transform.ox
-				oy = quad_transform.oy
-				kx = quad_transform.kx
-				ky = quad_transform.ky
-			end
-			draw(sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
-		else
-			draw(sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
-		end
-
-		if e.no_shader then
-			love.graphics.setShader(temp_shader)
-		end
+	if e.no_shader then
+		love.graphics.setShader(temp_shader)
 	end
 end
 
