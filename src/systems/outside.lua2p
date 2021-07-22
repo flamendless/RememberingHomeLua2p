@@ -117,6 +117,7 @@ function Outside:state_init()
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
+		self.world:emit("camera_follow", e_player, 0.25)
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
 		self.world:emit("player_can_run", true)
@@ -165,10 +166,13 @@ function Outside:state_init()
 			end)
 
 		tle_log("begin rain fade")
+		local dur_camera_follow = 1.5
+		local e_player = self:spawn_player()
 		TLE.Event.Wait(3)
 		self:start_rain()
 		self.timeline:Pause()
-		local e_player = self:spawn_player()
+		TLE.Event.Wait(0.5)
+		self.world:emit("camera_follow", e_player, dur_camera_follow)
 		self.camera:setScale(3)
 		self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 		self.world:emit("player_can_move", true)
@@ -270,12 +274,10 @@ function Outside:start_rain()
 end
 
 function Outside:spawn_player()
-	local dur_camera_follow = 1.5
 	local e_player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.outside_house, false, false)
 		:give("color_fade_in", 0.25)
 	self.world:emit("face_left", e_player)
-	self.world:emit("camera_follow", e_player, dur_camera_follow)
 	return e_player
 end
 
@@ -314,6 +316,7 @@ function Outside:check_has_flashlight(e, dialogues_t)
 	local has_flashlight = Items.has("flashlight")
 	if not has_flashlight then
 		local t = tablex.copy(dialogues_t.no_flashlight_yet)
+		self.world:emit("player_open_locked_door")
 		self.world:emit("update_dialogue", e, t)
 	else
 		self.world:emit("dialogue_reached_end", e)

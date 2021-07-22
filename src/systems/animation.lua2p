@@ -213,11 +213,15 @@ function Animation:update(dt)
 	end
 end
 
-function Animation:anim_pause_at_end(e)
+function Animation:anim_pause_at_end(e, signal)
 	@@assert(e.__isEntity and e.animation)
+	@@sassert(signal, type(signal) == "string")
 	local anim = e.animation
 	anim.is_playing = false
 	anim.anim8:pauseAtEnd()
+	if signal then
+		self.world:emit(signal, e)
+	end
 end
 
 return Animation

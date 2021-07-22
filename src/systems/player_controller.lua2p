@@ -158,14 +158,13 @@ function PlayerController:player_open_door()
 	end
 end
 
-function PlayerController:player_open_locked_door(e, fn)
-	@@assert(e.__isEntity)
-	@@assert(e.player)
-	@@sassert(fn, type(fn) == "function")
-	local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	:give("animation_on_loop", fn, "pauseAtEnd", true)
+function PlayerController:player_open_locked_door()
+	for _, e in ipairs(self.pool) do
+		local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
+		e:give("change_animation_tag", tag)
+		:give("override_animation")
+		e:give("animation_on_loop", "anim_pause_at_end", 0, e, "player_reset_anim")
+	end
 end
 
 function PlayerController:interacted_stairs(e, tag, fn)
@@ -224,6 +223,14 @@ end
 function PlayerController:on_leave_interactive(e)
 	@@assert(e.__isEntity)
 	self.world:emit("remove_speech_bubble")
+end
+
+function PlayerController:player_reset_anim(e)
+	@@assert(e.__isEntity and e.player)
+	e:remove("override_animation")
+	local anim = e.animation
+	anim.is_playing = true
+	anim.anim8:resume()
 end
 
 return PlayerController

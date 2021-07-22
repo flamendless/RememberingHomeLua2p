@@ -119,12 +119,7 @@ function Player.base(e, x, y, speed_data, have, gravity, defaults)
 end
 
 function Player.outside_house(e, can_move, can_run)
-	!if _DEV then
-	local x, y = 800, 270
-	!else
-	-- local x, y = 439, 270
-	local x, y = 910, 270
-	!end
+	local x, y = 800, 258
 
 	e:assemble(Player.base,
 		x, y,
