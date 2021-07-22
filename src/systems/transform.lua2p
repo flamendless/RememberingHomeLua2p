@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local min = math.min
+local floor = math.floor
 
 local Transform = Concord.system({
 	pool = {"transform"},
@@ -32,20 +33,27 @@ function Transform:init()
 		local auto_scale = e.auto_scale
 		local transform = e.transform
 		local anim_data = e.animation_data
+		local sprite = e.sprite
+		local dsx, dsy = 1, 1
 
 		if anim_data then
-			local dsx = auto_scale.target_width/anim_data.frame_width
-			local dsy = auto_scale.target_height/anim_data.frame_height
-
-			if auto_scale.is_proportion then
-				local scale = min(dsx, dsy)
-
-				transform.sx = transform.sx * scale
-				transform.sy = transform.sy * scale
-			else
-				transform.sx = transform.sx * dsx
-				transform.sy = transform.sy * dsy
-			end
+			dsx = auto_scale.tw/anim_data.frame_width
+			dsy = auto_scale.th/anim_data.frame_height
+		elseif sprite then
+			dsx = auto_scale.tw/sprite.iw
+			dsy = auto_scale.th/sprite.ih
+		end
+		if auto_scale.is_proportion then
+			local scale = min(dsx, dsy)
+			transform.sx = transform.sx * scale
+			transform.sy = transform.sy * scale
+		else
+			transform.sx = transform.sx * dsx
+			transform.sy = transform.sy * dsy
+		end
+		if auto_scale.is_floored then
+			transform.sx = floor(transform.sx)
+			transform.sy = floor(transform.sy)
 		end
 	end
 end

@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local ItemsList = require("items")
+local Resources = require("resources")
 
 local format = string.format
 
@@ -30,6 +31,41 @@ function Items:create_items()
 	for _, id in ipairs(t) do
 		Concord.entity(self.world):assemble(Assemblages.Items[id])
 	end
+end
+
+function Items:create_item_preview(bg_e, item_e)
+	@@assert(bg_e.__isEntity and bg_e.cell_bg)
+	@@assert(item_e.__isEntity and item_e.item)
+	local scale = 4
+	local pad = 32
+	local pad_p = pad * 2
+	local bg_pos = bg_e.pos
+	local bg_sprite = bg_e.sprite
+	local bg_t = bg_e.transform
+
+	local res_id = item_e.sprite.resource_id
+	local img = Resources.data.images[res_id]
+	local tw = (img:getWidth() + 16) * scale
+	local th = (img:getHeight() + 16) * scale
+
+	Concord.entity(self.world)
+		:give("id", "item_preview_bg")
+		:give("sprite", "bg_item")
+		:give("pos", bg_pos.x - bg_sprite.iw * bg_t.sx - pad, bg_pos.y)
+		:give("transform", 0, 1, 1, 1, 0.5)
+		:give("auto_scale", tw, th)
+		:give("nf_render_sprite")
+		:give("color", {1, 1, 1, 1})
+		:give("item_preview")
+
+	Concord.entity(self.world)
+		:give("id", "item_preview")
+		:give("sprite", res_id)
+		:give("pos", bg_pos.x - bg_sprite.iw * bg_t.sx - pad_p, bg_pos.y)
+		:give("transform", 0, scale, scale, 1, 0.5)
+		:give("nf_render_sprite")
+		:give("color", {1, 1, 1, 1})
+		:give("item_preview")
 end
 
 function Items:item_response(main, sub)

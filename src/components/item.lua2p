@@ -6,6 +6,7 @@ Concord.component("cell_fill")
 Concord.component("hovered_cell")
 Concord.component("hovered_item")
 Concord.component("usable_with_item")
+Concord.component("item_preview")
 
 --TODO add serialize/deserialize
 local c_item_choice = Concord.component("item_choice", function(c, e)

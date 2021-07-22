@@ -117,7 +117,7 @@ Resources.meta.Outside = {
 		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
 		{"bg_item", path_items .. "bg_item.png"},
 		{"bg_desc", path_items .. "bg_desc.png"},
-		{"item_flashlight", path_items .. "item_flashlight.png"},
+		{"flashlight", path_items .. "flashlight.png"},
 
 		{"light_round", path_lights .. "round.png"},
 		{"light_rectangle", path_lights .. "rectangle.png"},

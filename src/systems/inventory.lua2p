@@ -7,6 +7,7 @@ local Resources = require("resources")
 local Palette = require("palette")
 
 local floor = math.floor
+local min = math.min
 
 local Inventory = Concord.system({
 	pool_camera = {"camera"},
@@ -17,6 +18,7 @@ local Inventory = Concord.system({
 	pool_hovered = {"hovered_cell"},
 	pool_text = {"text", "nf_render_text", "!item_choice"},
 	pool_choices = {"text", "nf_render_text", "item_choice"},
+	pool_preview = {"sprite", "item_preview", "nf_render_sprite"},
 })
 
 local Assemblages = {
@@ -24,6 +26,7 @@ local Assemblages = {
 }
 
 local ROWS, COLS = 3, 3
+local PAD_ITEM_CELL = 8
 local alpha = 0.75
 local alpha2 = alpha - 0.5
 local c_l_h = Palette.get("inventory_line_hovered", alpha2)
@@ -138,6 +141,9 @@ function Inventory:draw_inventory()
 	for _, e in ipairs(self.pool_choices) do
 		self.world:emit("draw_text_ex", e)
 	end
+	for _, e in ipairs(self.pool_preview) do
+		self.world:emit("draw_sprite_ex", e)
+	end
 end
 
 function Inventory:create_inventory()
@@ -145,11 +151,11 @@ function Inventory:create_inventory()
 	local img = Resources.data.images.bg_item
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
-	local pad = 64
+	local pad = 48
 	local pad2 = pad * 0.5
 	local nw = w - pad * 2
 	local nh = h - pad * 2 - bar_h * 2
-	local scale = math.min(nw/iw, nh/ih)
+	local scale = min(nw/iw, nh/ih)
 	local x = w - pad2
 	local y = h * 0.5
 
@@ -157,15 +163,15 @@ function Inventory:create_inventory()
 		x, y, scale, alpha)
 
 	local rx = x - iw * scale * 0.5
-	local ry = y - pad2
+	local ry = y - pad
 	local rs = scale * 0.5
 	Concord.entity(self.world):assemble(Assemblages.Inventory.rect,
 		rx, ry, iw, ih, rs, alpha2)
 
 	local bx = rx - iw * rs * 0.5
 	local by = ry - ih * rs * 0.5
-	local sw = floor(iw * rs)/COLS
-	local sh = floor(ih * rs)/ROWS
+	local sw = iw * rs / COLS
+	local sh = ih * rs / ROWS
 	for y = 0, ROWS - 1 do
 		for x = 0, COLS - 1 do
 			local srx = bx + x * sw
@@ -192,7 +198,7 @@ function Inventory:create_inventory()
 	local pad4 = pad2 * 0.5
 	local iix = x - iw * scale * 0.5
 	local base_y = by + sh * ROWS
-	local iiy = base_y + pad4
+	local iiy = base_y + pad2
 	local iiy2 = iiy + font:getHeight("") + pad4
 	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
 		"inventory_name_text", iix, iiy, alpha, "item_name", (iw - 16) * scale)
@@ -320,13 +326,9 @@ function Inventory:add_item(item_e)
 			local pos = e.pos
 			local rect = e.rect
 			e:give("cell_item", item_e)
-
-			local img = item_e.sprite.image
-			local iw, ih = img:getDimensions()
-			local sx = rect.w/iw
-			local sy = rect.h/ih
-			item_e:give("pos", pos.x, pos.y)
-				:give("transform", 0, sx, sy)
+			item_e:give("pos", pos.x + rect.w * 0.5, pos.y + rect.h * 0.5)
+				:give("transform", 0, 1, 1, 0.5, 0.5)
+				:give("auto_scale", rect.w - PAD_ITEM_CELL, rect.h - PAD_ITEM_CELL, true)
 			break
 		end
 	end
@@ -344,6 +346,7 @@ function Inventory:item_interact()
 		end
 		return
 	end
+
 	for _, e in ipairs(self.pool_item) do
 		if e.hovered_item then
 			local txt_name = self.pool_text[1]
@@ -366,6 +369,7 @@ function Inventory:item_interact()
 					e_c:give("hovered_item")
 				end
 			end
+			self.world:emit("create_item_preview", self.pool_bg[1], e)
 			break
 		end
 	end
@@ -377,6 +381,9 @@ function Inventory:on_item_cancel()
 	end
 	for _, e in ipairs(self.pool_text) do
 		e:remove("hidden")
+	end
+	for _, e in ipairs(self.pool_preview) do
+		e:destroy()
 	end
 end
 
@@ -397,6 +404,9 @@ function Inventory:cleanup()
 		e:destroy()
 	end
 	for _, e in ipairs(self.pool_choices) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_preview) do
 		e:destroy()
 	end
 end
