@@ -275,7 +275,7 @@ end
 
 function Outside:spawn_player()
 	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.outside_house, false, false)
+		:assemble(Assemblages.Player.outside_house)
 		:give("color_fade_in", 0.25)
 	self.world:emit("face_left", e_player)
 	return e_player

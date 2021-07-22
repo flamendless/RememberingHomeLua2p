@@ -1,5 +1,3 @@
-local Log = require("modules.log.log")
-
 local Settings = require("settings")
 
 local maps = {
@@ -15,6 +13,7 @@ local maps = {
 		f = "flashlight",
 		space = "skip",
 		lshift = "run_mod",
+		p = "pause",
 	},
 	--map_arrows
 	 {
@@ -28,6 +27,7 @@ local maps = {
 		f = "flashlight",
 		space = "skip",
 		lshift = "run_mod",
+		p = "pause",
 	},
 }
 local map_names = { "WASD", "Arrows" }
@@ -39,17 +39,29 @@ local Inputs = {
 	current = {},
 }
 
+!if _DEV then
+Inputs.dev_map = {}
+!end
+
+Inputs.key_title = {
+	run_mod = "run (hold)",
+	flashlight = "toggle flashlight",
+	inventory = "toggle inventory",
+	pause = "pause/unpause",
+}
+
 function Inputs.init(key_map)
 	@@sassert(key_map, type(key_map) == "number")
 	local n = key_map or Settings.current.key_map
 	@@assert(maps[n])
 	Inputs.map = maps[n]
 	!if _DEV then
-	Inputs.map.p = "play"
-	Inputs.map.k = "camera_down"
-	Inputs.map.i = "camera_up"
-	Inputs.map.j = "camera_left"
-	Inputs.map.l = "camera_right"
+	Inputs.dev_map.m = "play"
+	Inputs.dev_map.k = "camera_down"
+	Inputs.dev_map.i = "camera_up"
+	Inputs.dev_map.j = "camera_left"
+	Inputs.dev_map.l = "camera_right"
+	tablex.overlay(Inputs.map, Inputs.dev_map)
 	!end
 	tablex.clear(Inputs.previous)
 	tablex.clear(Inputs.current)

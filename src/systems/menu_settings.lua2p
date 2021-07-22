@@ -4,7 +4,6 @@ local Style = Slab.GetStyle()
 
 local Audio = require("audio")
 local Inputs = require("inputs")
-local Palette = require("palette")
 local Settings = require("settings")
 local WindowMode = require("window_mode")
 
@@ -29,6 +28,21 @@ function MenuSettings:init_settings()
 	self.key_map = Inputs.map
 	self.muted = sc.muted
 	self.volume = sc.volume
+
+	for k, v in pairs(Inputs.key_title) do
+		for k2, v2 in pairs(self.key_map) do
+			if k == v2 then
+				self.key_map[k2] = v
+				break
+			end
+		end
+	end
+
+	!if _DEV then
+	for k, _ in pairs(Inputs.dev_map) do
+		self.key_map[k] = nil
+	end
+	!end
 end
 
 function MenuSettings:update_settings(dt)
@@ -88,7 +102,7 @@ function MenuSettings:update_desktop(dt)
 		end
 
 		if Slab.BeginComboBox("GraphicsQuality", {Selected = self.current_gq}) then
-			for i, str in ipairs(self.list_gq) do
+			for _, str in ipairs(self.list_gq) do
 				if Slab.TextSelectable(str) then
 					self.current_gq = str
 				end

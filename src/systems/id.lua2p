@@ -92,6 +92,7 @@ end
 
 function ID:debug_draw()
 	if not self.debug_show then return end
+	if not self.camera then return end
 	local mx, my = love.mouse.getPosition()
 	mx, my = self.camera:toWorld(mx, my)
 	local v = vec2(mx, my)

@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local random = love.math.random
 
 local GlitchShaderEffect = Concord.system({
-	pool = {"glitch_shader", "displacement_texture", "use_canvas"},
+	pool = {"glitch_shader", "displacement_texture"},
 })
 
 !if _DEV then
@@ -19,12 +19,16 @@ local debug_values = {
 function GlitchShaderEffect:init(world)
 	self.world = world
 	self.pool.onAdded = function(pool, e)
-		local gs = e.glitch_shader
-		local shader = gs.shader
-		local displacement_tex = e.displacement_texture.texture
-		shader:send("tex_displace", displacement_tex)
-		self:update_values_e(e, gs.values)
+		self:setup_shader(e)
 	end
+end
+
+function GlitchShaderEffect:setup_shader(e)
+	local gs = e.glitch_shader
+	local shader = gs.shader
+	local displacement_tex = e.displacement_texture.texture
+	shader:send("tex_displace", displacement_tex)
+	self:update_values_e(e, gs.values)
 end
 
 function GlitchShaderEffect:update_values_e(e, new_values)
@@ -66,22 +70,24 @@ end
 
 function GlitchShaderEffect:draw()
 	for _, e in ipairs(self.pool) do
-		local canvas = e.use_canvas.canvas
-		love.graphics.setCanvas(canvas)
-		love.graphics.clear()
-		if e.sprite then
-			self.world:emit("draw_sprite_ex", e)
-		elseif e.text then
-			self.world:emit("draw_text_ex", e)
+		local canvas = e.use_canvas
+		if canvas then
+			love.graphics.setCanvas(canvas.canvas)
+			love.graphics.clear()
+			if e.sprite then
+				self.world:emit("draw_sprite_ex", e)
+			elseif e.text or e.static_text then
+				self.world:emit("draw_text_ex", e)
+			end
+			love.graphics.setCanvas()
 		end
-		love.graphics.setCanvas()
 	end
 end
 
-function GlitchShaderEffect:draw_glitch_effect()
+function GlitchShaderEffect:draw_glitch_effect(c)
 	love.graphics.setColor(1, 1, 1, 1)
 	for _, e in ipairs(self.pool) do
-		local canvas = e.use_canvas.canvas
+		local canvas = (e.use_canvas and e.use_canvas.canvas) or c
 		local shader = e.glitch_shader.shader
 		love.graphics.setShader(shader)
 		love.graphics.draw(canvas)
@@ -121,7 +127,9 @@ function GlitchShaderEffect:debug_update(dt)
 	self:debug_slider("abb_amount_y", 0, 0.1)
 	self:debug_slider("max_a", 0.1, 1.0)
 	if Slab.Button("do_random_glitch") then
-		self:do_random_glitch()
+		for _, e in ipairs(self.pool) do
+			self:do_random_glitch(e)
+		end
 	end
 	Slab.EndWindow()
 end

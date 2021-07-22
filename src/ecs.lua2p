@@ -17,7 +17,6 @@ local Systems = {}
 Concord.utils.loadNamespace("systems", Systems)
 
 local systems = {}
-
 systems.Splash = {
 	"animation", "color", "render_sprite", "render_text",
 	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
@@ -37,26 +36,29 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"animation", "bounding_box", "bump_collision", "camera", "collision",
-	"color", "dialogues", "fireflies", "interactive", "light", "movement",
-	"notification", "player_controller", "render_sprite", "render_text",
-	"render_ui", "text_paint", "transform", "typewriter", "path", "gamestates",
-	"inventory", "systems", "render_rect", "entity", "items", "culling",
+	"systems", "animation", "bounding_box", "bump_collision", "camera",
+	"collision", "color", "dialogues", "fireflies", "interactive", "light",
+	"movement", "notification", "player_controller", "render_sprite",
+	"render_text", "render_ui", "text_paint", "transform", "typewriter",
+	"path", "gamestates", "inventory", "render_rect", "entity", "items",
+	"culling", "glitch_shader_effect",
 }
 
 systems.StorageRoom = {
-	"animation", "bump_collision", "camera", "color", "dialogues",
+	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
 	"interactive", "light", "movement", "notification", "player_controller",
 	"render_sprite", "render_text", "render_ui", "transform", "typewriter",
-	"gamestates", "inventory", "systems", "entity", "items", "culling",
+	"gamestates", "inventory", "entity", "items", "culling",
+}
+
+local unpausable_list = {
+	"systems", "render_sprite", "render_text", "render_ui", "light", "culling",
+	"color", "glitch_shader_effect",
 }
 
 !if _DEV then
 local fn = {
-	"state_setup", "state_init", "state_update",
-	"state_draw", "state_cleanup", "state_keypressed",
-	"state_keyreleased", "state_mousepressed", "state_mousereleased",
-	"state_mousemoved",
+	"state_setup", "state_init", "state_update", "state_draw", "state_cleanup",
 }
 !end
 
@@ -83,13 +85,19 @@ function ECS.load_systems(id, world)
 	for _, v in ipairs(systems[id]) do
 		@@assert(Systems[v], format("id = %s, i = %d", v, _))
 		world:addSystem(Systems[v])
-		!if _DEV then
 		local sys = Systems[v]
+		for _, u in ipairs(unpausable_list) do
+			if u == v then
+				sys.__unpausable = true
+			end
+		end
+		!if _DEV then
 		sys.debug_show = DevTools.flags[v]
 		sys.debug_enabled = true
 		sys.debug_title = v
 		!end
 	end
+	Systems[lid].__unpausable = true
 	world:addSystem(Systems[lid])
 
 	!if _DEV then
@@ -104,7 +112,7 @@ function ECS.load_systems(id, world)
 	!end
 end
 
-function ECS.getSystemClass(id)
+function ECS.get_system_class(id)
 	@@assert(type(id) == "string")
 	@@assert(Systems[lower(id)])
 	return Systems[lower(id)]

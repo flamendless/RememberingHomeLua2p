@@ -16,6 +16,7 @@ local DevTools = {
 		camera = true,
 		fireflies = false,
 		transform = false,
+		light = false,
 		log = true,
 		bounding_box = true,
 		glitch_shader_effect = false,
@@ -214,8 +215,8 @@ function DevTools.draw_debug_list()
 		IsOpen = debug_list.show,
 	})
 	Slab.BeginLayout("layout_debug", {Columns = 2})
-	local i = 1
 	local states = GameStates.world:getSystems()
+	local i = 1
 	for _, v in ipairs(states) do
 		if v.debug_update or v.debug_draw then
 			Slab.SetLayoutColumn(i)

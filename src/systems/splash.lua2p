@@ -66,8 +66,8 @@ function Splash:create_splash_flamendless()
 		:give("splash")
 		:give("displacement_texture", "tex_displacement")
 		:give("nf_render_sprite")
-		:give("use_canvas", ww, wh)
 		:give("glitch_shader")
+		:give("use_canvas", ww, wh)
 
 	self.txt_flamendless = Concord.entity(self.world)
 		:give("id", "txt_flamendless")
@@ -79,8 +79,8 @@ function Splash:create_splash_flamendless()
 		:give("splash")
 		:give("displacement_texture", "tex_displacement")
 		:give("nf_render_text")
-		:give("use_canvas", ww, wh)
 		:give("glitch_shader")
+		:give("use_canvas", ww, wh)
 
 	self.world:emit("reset_glitch", self.splash_flamendless)
 	self.world:emit("reset_glitch", self.txt_flamendless)
@@ -132,12 +132,12 @@ function Splash:state_init()
 	end
 
 	self.timeline = TLE.Do(function()
-		-- !if _DEV then
-		-- self.current_state = states.splash_flam
-		-- self:set_skippable_timer()
-		-- self:create_splash_flamendless()
-		-- self.timeline:Pause()
-		-- !end
+		!if _DEV then
+		self.current_state = states.splash_flam
+		self:set_skippable_timer()
+		self:create_splash_flamendless()
+		self.timeline:Pause()
+		!end
 
 		self.current_state = states.splash_love
 		self:set_skippable_timer()

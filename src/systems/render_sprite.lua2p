@@ -4,9 +4,9 @@ local Helper = require("helper")
 
 local RenderSprite = Concord.system({
 	pool = {"pos", "sprite",
-		"!z_index", "!ui_element", "!light", "!nf_render_sprite"},
+		"!z_index", "!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
 	pool_z = {"pos", "sprite", "z_index",
-		"!ui_element", "!light", "!nf_render_sprite"},
+		"!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
 })
 
 local function sort_z_ex(a, b)

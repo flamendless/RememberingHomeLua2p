@@ -32,8 +32,7 @@ function TextPaint:init(world)
 end
 
 function TextPaint:show_text_paint(e, dur, widest)
-	@@assert(e.__isEntity)
-	@@assert(e.text_with_paint)
+	@@assert(e.__isEntity and e.text_with_paint)
 	@@assert(type(dur) == "number")
 	@@sassert(widest, type(widest) == "string")
 	self:show_paint(e, dur, widest)
