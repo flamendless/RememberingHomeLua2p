@@ -79,7 +79,7 @@ function check()
 	luacheck $file -q \
 		--exclude-files "output_dev/modules/**/*.lua" \
 		--std luajit \
-		--globals love stringx mathx tablex pretty intersect \
+		--globals love stringx mathx tablex pretty intersect timer \
 		--no-max-line-length \
 		--ignore 611 \
 		--jobs 2
