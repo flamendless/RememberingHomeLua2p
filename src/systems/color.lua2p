@@ -9,6 +9,7 @@ local Color = Concord.system({
 	pool_fade_out = {"color", "color_fade_out"},
 	pool_colors = {"color", "lerp_colors"},
 	pool_color = {"color", "target_color"},
+	pool_blink = {"color", "blink"},
 	pool = {"color", "id"},
 })
 
@@ -155,6 +156,34 @@ function Color:init(world)
 
 		if ease then f:ease(ease.ease) end
 	end
+
+	self.pool_blink.onAdded = function(pool, e)
+		self:setup_blink(e)
+	end
+end
+
+function Color:setup_blink(e)
+	local blink = e.blink
+	local color = e.color.value
+	Flux.to(color, blink.dur, {
+		[4] = 1 - color[4]
+	})
+	:oncomplete(function()
+		blink.completed = blink.completed + 1
+		if blink.completed < blink.count then
+			self:setup_blink(e)
+		else
+			local obe = e.on_blink_end
+			if obe then
+				self.world:emit(obe.signal, e)
+			end
+			if e.remove_blink_on_end then
+				e:remove("blink")
+				:remove("remove_blink_on_end")
+				:remove("on_blink_end")
+			end
+		end
+	end)
 end
 
 function Color:start_fade()

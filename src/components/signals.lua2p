@@ -65,6 +65,7 @@ local names = {
 	"color_fade_in_finish",
 	"on_keypressed",
 	"on_dialogue_end",
+	"on_blink_end",
 }
 
 for _, v in ipairs(names) do

@@ -53,7 +53,7 @@ systems.StorageRoom = {
 
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
-	"color", "glitch_shader_effect",
+	"color", "glitch_shader_effect", "gamestates",
 }
 
 !if _DEV then
