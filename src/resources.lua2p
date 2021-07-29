@@ -7,11 +7,14 @@ local Resources = {
 	data = {},
 }
 
+!if _DEV then
 local mt = {}
 mt.__index = function(t, i)
 	error(i .. " is invalid key for Resources")
 end
+!end
 
+!(
 local path_images = "res/images/"
 local path_items = path_images .. "items/"
 local path_lut = "res/lut/"
@@ -20,157 +23,175 @@ local path_textures = "res/textures/"
 local path_ui = "res/ui/"
 local path_fonts = "res/fonts/"
 
+local t = {}
+t.player = {
+	{"sheet_player_idle_normal", path_images .. "player/sheet_player_idle_normal.png"},
+	{"sheet_player_walk_normal", path_images .. "player/sheet_player_walk_normal.png"},
+	{"sheet_player_run_normal", path_images .. "player/sheet_player_run_normal.png"},
+	{"sheet_player_open_door_normal", path_images .. "player/sheet_player_open_door_normal.png"},
+}
+t.ui = {
+	{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
+}
+t.items = {
+	{"bg_item", path_items .. "bg_item.png"},
+	{"bg_desc", path_items .. "bg_desc.png"},
+	{"flashlight", path_items .. "flashlight.png"},
+}
+t.fnt_inventory = {
+	{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
+	{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+}
+
+function get_res(id)
+	local str = ""
+	for i, t in ipairs(t[id]) do
+		local l = toLua(t) .. ",\n"
+		if i ~= 1 then
+			l = "\t\t" .. l
+		end
+		str = str .. l
+	end
+	return str
+end
+)
+
 Resources.meta.Splash = {
 	image = {
-		{"flamendless_logo", path_images .. "splash/flamendless_logo.png"},
-		{"sheet_wits", path_images .. "splash/sheet_wits.png"},
-		{"tex_displacement", path_textures .. "displacement.png"},
+		{"flamendless_logo", !(path_images .. "splash/flamendless_logo.png")},
+		{"sheet_wits", !(path_images .. "splash/sheet_wits.png")},
+		{"tex_displacement", !(path_textures .. "displacement.png")},
 	},
 
 	font = {
-		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"firefly", path_fonts .. "Firefly.ttf", 172, "default"},
-		{"uncle_type", path_fonts .. "uncle_type.ttf", 32},
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		{"firefly", !(path_fonts .. "Firefly.ttf"), 172, "default"},
+		{"uncle_type", !(path_fonts .. "uncle_type.ttf"), 32},
 	}
 }
 
 Resources.meta.Menu = {
 	image = {
-		{"bg_door", path_images .. "menu/bg_door.png"},
-		{"bg_hallway", path_images .. "menu/bg_hallway.png"},
-		{"sheet_desk", path_images .. "menu/sheet_desk.png"},
-		{"title", path_images .. "menu/title.png"},
-		{"subtitle", path_images .. "menu/subtitle.png"},
-		{"discord", path_images .. "menu/icon_discord.png"},
-		{"twitter", path_images .. "menu/icon_twitter.png"},
-		{"website", path_images .. "menu/icon_website.png"},
-		{"mail", path_images .. "menu/icon_mail.png"},
-		{"btn_back", path_images .. "menu/btn_back.png"},
-		{"flowfield", path_textures .. "perlin.png"},
+		{"bg_door", !(path_images .. "menu/bg_door.png")},
+		{"bg_hallway", !(path_images .. "menu/bg_hallway.png")},
+		{"sheet_desk", !(path_images .. "menu/sheet_desk.png")},
+		{"title", !(path_images .. "menu/title.png")},
+		{"subtitle", !(path_images .. "menu/subtitle.png")},
+		{"discord", !(path_images .. "menu/icon_discord.png")},
+		{"twitter", !(path_images .. "menu/icon_twitter.png")},
+		{"website", !(path_images .. "menu/icon_website.png")},
+		{"mail", !(path_images .. "menu/icon_mail.png")},
+		{"btn_back", !(path_images .. "menu/btn_back.png")},
+		{"flowfield", !(path_textures .. "perlin.png")},
 	},
 
 	font = {
-		{"menu", path_fonts .. "Jamboree.ttf", 24, "default"},
-		{"about", path_fonts .. "DigitalDisco.ttf", 20},
-		{"about", path_fonts .. "DigitalDisco.ttf", 64},
+		{"menu", !(path_fonts .. "Jamboree.ttf"), 24, "default"},
+		{"about", !(path_fonts .. "DigitalDisco.ttf"), 20},
+		{"about", !(path_fonts .. "DigitalDisco.ttf"), 64},
 	}
 }
 
 Resources.meta.Intro = {
 	image = {
-		{"bg", path_images .. "intro/bg.png"},
-		{"bg_post", path_images .. "intro/bg_post.png"},
-		{"bg_tree_cover", path_images .. "intro/bg_tree_cover.png"},
-		{"parallax_clouds", path_images .. "intro/parallax_clouds.png"},
-		{"parallax_buildings", path_images .. "intro/parallax_buildings.png"},
-		{"parallax_trees_bg", path_images .. "intro/parallax_trees_bg.png"},
-		{"parallax_trees_fg", path_images .. "intro/parallax_trees_fg.png"},
-		{"parallax_road", path_images .. "intro/parallax_road.png"},
-		{"parallax_grass", path_images .. "intro/parallax_grass.png"},
-		{"parallax_grass2", path_images .. "intro/parallax_grass2.png"},
-		{"parallax_grass_back", path_images .. "intro/parallax_grass_back.png"},
-		{"parallax_grass_front", path_images .. "intro/parallax_grass_front.png"},
-		{"sheet_car", path_images .. "intro/sheet_car.png"},
-		{"sheet_car_reflect", path_images .. "intro/sheet_car_reflect.png"},
-		{"sheet_splat", path_ui .. "sheet_splat.png"},
-		{"title", path_images .. "menu/title.png"},
-		{"rain_drop_tilted", path_images .. "rain/rain_drop_tilted.png"},
-		{"rain_drop_tilted2", path_images .. "rain/rain_drop_tilted2.png"},
-		{"light_round", path_lights .. "round.png"},
-		{"light_rectangle", path_lights .. "rectangle.png"},
-		{"light_cone", path_lights .. "cone.png"},
-		{"post_light", path_lights .. "post_light.png"},
-		{"car_headlight", path_lights .. "car_headlight.png"},
-		{"title_light", path_lights .. "title.png"},
-		{"dummy", path_textures .. "dummy.png"},
+		{"bg", !(path_images .. "intro/bg.png")},
+		{"bg_post", !(path_images .. "intro/bg_post.png")},
+		{"bg_tree_cover", !(path_images .. "intro/bg_tree_cover.png")},
+		{"parallax_clouds", !(path_images .. "intro/parallax_clouds.png")},
+		{"parallax_buildings", !(path_images .. "intro/parallax_buildings.png")},
+		{"parallax_trees_bg", !(path_images .. "intro/parallax_trees_bg.png")},
+		{"parallax_trees_fg", !(path_images .. "intro/parallax_trees_fg.png")},
+		{"parallax_road", !(path_images .. "intro/parallax_road.png")},
+		{"parallax_grass", !(path_images .. "intro/parallax_grass.png")},
+		{"parallax_grass2", !(path_images .. "intro/parallax_grass2.png")},
+		{"parallax_grass_back", !(path_images .. "intro/parallax_grass_back.png")},
+		{"parallax_grass_front", !(path_images .. "intro/parallax_grass_front.png")},
+		{"sheet_car", !(path_images .. "intro/sheet_car.png")},
+		{"sheet_car_reflect", !(path_images .. "intro/sheet_car_reflect.png")},
+		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
+		{"title", !(path_images .. "menu/title.png")},
+		{"rain_drop_tilted", !(path_images .. "rain/rain_drop_tilted.png")},
+		{"rain_drop_tilted2", !(path_images .. "rain/rain_drop_tilted2.png")},
+		{"light_round", !(path_lights .. "round.png")},
+		{"light_rectangle", !(path_lights .. "rectangle.png")},
+		{"light_cone", !(path_lights .. "cone.png")},
+		{"post_light", !(path_lights .. "post_light.png")},
+		{"car_headlight", !(path_lights .. "car_headlight.png")},
+		{"title_light", !(path_lights .. "title.png")},
+		{"dummy", !(path_textures .. "dummy.png")},
 	},
 
 	image_data = {
-		{"lut_afternoon_16", path_lut .. "lut_afternoon_16.png"},
-		{"lut_afternoon_64", path_lut .. "lut_afternoon_64.png"},
-		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
-		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+		{"lut_afternoon_16", !(path_lut .. "lut_afternoon_16.png")},
+		{"lut_afternoon_64", !(path_lut .. "lut_afternoon_64.png")},
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
 	font = {
-		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		{"dialogue", !(path_fonts .. "DigitalDisco.ttf"), 32, "default"},
 	},
 }
 
 Resources.meta.Outside = {
 	image = {
-		{"bg_sky", path_images .. "house_outside/bg_sky.png"},
-		{"bg_house", path_images .. "house_outside/bg_house.png"},
-		{"sheet_player_idle_normal", path_images .. "player/sheet_player_idle_normal.png"},
-		{"sheet_player_walk_normal", path_images .. "player/sheet_player_walk_normal.png"},
-		{"sheet_player_run_normal", path_images .. "player/sheet_player_run_normal.png"},
-		{"sheet_player_open_door_normal", path_images .. "player/sheet_player_open_door_normal.png"},
-		{"firefly", path_images .. "house_outside/firefly.png"},
-		{"splashes", path_images .. "house_outside/splashes.png"},
-		{"splashes_low", path_images .. "house_outside/splashes_low.png"},
-		{"rain_drop", path_images .. "rain/rain_drop.png"},
-		{"rain_drop2", path_images .. "rain/rain_drop2.png"},
-		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
-		{"sheet_splat", path_ui .. "sheet_splat.png"},
-		{"sheet_brush", path_ui .. "sheet_brush.png"},
-		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
-		{"bg_item", path_items .. "bg_item.png"},
-		{"bg_desc", path_items .. "bg_desc.png"},
-		{"flashlight", path_items .. "flashlight.png"},
+		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
+		!!(get_res("player"))
+		{"firefly", !(path_images .. "house_outside/firefly.png")},
+		{"splashes", !(path_images .. "house_outside/splashes.png")},
+		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		{"rain_drop", !(path_images .. "rain/rain_drop.png")},
+		{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
+		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
+		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
+		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
+		!!(get_res("ui"))
+		!!(get_res("items"))
 
-		{"tex_displacement", path_textures .. "displacement.png"},
-		{"pause_bg", path_textures .. "pause_bg.png"},
+		{"tex_displacement", !(path_textures .. "displacement.png")},
+		{"pause_bg", !(path_textures .. "pause_bg.png")},
 
-		{"light_round", path_lights .. "round.png"},
-		{"light_rectangle", path_lights .. "rectangle.png"},
-		{"light_cone", path_lights .. "cone.png"},
-		{"house_light", path_lights .. "house_light.png"},
-		{"firefly_light", path_lights .. "firefly_light.png"},
+		{"light_round", !(path_lights .. "round.png")},
+		{"light_rectangle", !(path_lights .. "rectangle.png")},
+		{"light_cone", !(path_lights .. "cone.png")},
+		{"house_light", !(path_lights .. "house_light.png")},
+		{"firefly_light", !(path_lights .. "firefly_light.png")},
 	},
 
 	image_data = {
-		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
-		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
 	font = {
-		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
-		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
-		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		!!(get_res("fnt_inventory"))
 	},
 }
 
 Resources.meta.StorageRoom = {
 	image = {
-		{"sheet_player_idle", path_images .. "player/player_idle.png"},
-		{"sheet_player_walk", path_images .. "player/player_walk.png"},
-		{"sheet_player_run", path_images .. "player/player_run.png"},
-		{"sheet_player_open_door", path_images .. "player/sheet_player_open_door.png"},
-		{"sheet_cloud", path_ui .. "sheet_cloud.png"},
-		{"sheet_splat", path_ui .. "sheet_splat.png"},
-		{"sheet_brush", path_ui .. "sheet_brush.png"},
-		{"sheet_speech_bubble", path_ui .. "sheet_speech_bubble.png"},
-		{"bg_item", path_items .. "bg_item.png"},
-		{"bg_desc", path_items .. "bg_desc.png"},
-		{"item_flashlight", path_items .. "item_flashlight.png"},
+		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
+		!!(get_res("player"))
+		!!(get_res("ui"))
+		!!(get_res("items"))
 
-		{"light_round", path_lights .. "round.png"},
-		{"light_rectangle", path_lights .. "rectangle.png"},
-		{"light_cone", path_lights .. "cone.png"},
+		{"light_round", !(path_lights .. "round.png")},
+		{"light_rectangle", !(path_lights .. "rectangle.png")},
+		{"light_cone", !(path_lights .. "cone.png")},
 	},
 
 	image_data = {
-		{"lut_dusk_16", path_lut .. "lut_dusk_16.png"},
-		{"lut_dusk_64", path_lut .. "lut_dusk_64.png"},
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
 	font = {
-		{"ui", path_fonts .. "Jamboree.ttf", 32, "default"},
-		{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
-		{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
-		{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		!!(get_res("fnt_inventory"))
 	},
 }
 
@@ -186,7 +207,9 @@ function Resources.set_resources(t)
 	@@assert(#Resources.data == 0)
 	for k, _ in pairs(t) do
 		Resources.data[k] = t[k]
+		!if _DEV then
 		setmetatable(Resources.data[k], mt)
+		!end
 	end
 end
 

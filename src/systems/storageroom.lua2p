@@ -1,7 +1,14 @@
 local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 
+local Blur = require("blur")
 local Canvas = require("canvas")
+local Fade = require("fade")
+local NGrading = require("ngrading")
+local Resources = require("resources")
+local Settings = require("settings")
+
+local min = math.min
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -18,7 +25,7 @@ function StorageRoom:init(world)
 end
 
 function StorageRoom:state_setup()
-	local w, h = Resources.data.images.bg_house:getDimensions()
+	local w, h = Resources.data.images.storage_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.main_canvas = Canvas.create_main({})
@@ -27,6 +34,17 @@ function StorageRoom:state_setup()
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
+	self.bg = Resources.data.images.storage_room
+
+	local lut_size, lut_dusk
+	if Settings.current.graphics_quality == "low" then
+		lut_size = 16
+		lut_dusk = Resources.data.image_data.lut_dusk_16
+	else
+		lut_size = 64
+		lut_dusk = Resources.data.image_data.lut_dusk_64
+	end
+	self.effect = NGrading:new(lut_dusk, lut_size)
 end
 
 function StorageRoom:state_init()
@@ -36,6 +54,31 @@ function StorageRoom:state_update(dt)
 end
 
 function StorageRoom:state_draw()
+	-- self.world:emit("draw_light_start")
+	-- self.world:emit("draw_light")
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setCanvas(self.main_canvas.canvas)
+	love.graphics.clear()
+	self.camera:attach()
+		self.effect:apply()
+		love.graphics.draw(self.bg)
+		self.world:emit("draw")
+		self.world:emit("draw_z")
+		love.graphics.setShader()
+		-- self.world:emit("draw_light_end")
+	self.camera:detach()
+	self.world:emit("draw_clip")
+	self.world:emit("draw_ui")
+	Fade.draw()
+
+	love.graphics.setCanvas()
+	Blur.draw()
+	self.main_canvas:render()
+	love.graphics.setShader()
+
+	self.world:emit("draw_inventory")
+	self.world:emit("draw_dialogues")
 end
 
 return StorageRoom

@@ -51,7 +51,8 @@ function Outside:init(world)
 end
 
 function Outside:state_setup()
-	local w, h = Resources.data.images.bg_house:getDimensions()
+	local bg_house = Resources.data.images.bg_house
+	local w, h = bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 	local ambient_color = {0.3, 0.3, 0.3}
 
@@ -63,6 +64,7 @@ function Outside:state_setup()
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
+	self.bg = Resources.data.images.bg_sky
 
 	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
 	self.world:emit("set_ambient_light", ambient_color)
@@ -71,7 +73,6 @@ function Outside:state_setup()
 	self.ps1 = ParticleSystems.RainOutside(Resources.data.images.rain_drop, 128, cw)
 	self.ps2 = ParticleSystems.RainOutside(Resources.data.images.rain_drop2, 128, cw)
 
-	local bg_house = Resources.data.images.bg_house
 	local bg_house_w, bg_house_h = bg_house:getDimensions()
 	local div = 4
 	local qw = bg_house_w/div
@@ -212,7 +213,7 @@ function Outside:state_draw()
 	love.graphics.clear()
 	self.camera:attach()
 		self.effect:apply()
-		love.graphics.draw(Resources.data.images.bg_sky)
+		love.graphics.draw(self.bg)
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 		if self.is_raining then
