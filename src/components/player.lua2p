@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("player")
-Concord.component("climb_up")
-Concord.component("climb_down")
+Concord.component("hit_wall")

@@ -4,6 +4,7 @@ local Enum = require("modules.enum.enum")
 local filters = Enum("slide", "cross", "bounce")
 
 Concord.component("bump")
+Concord.component("wall")
 
 Concord.component("collider", function(c, w, h, filter)
 	@@assert(type(w) == "number")

@@ -38,6 +38,10 @@ t.items = {
 	{"bg_desc", path_items .. "bg_desc.png"},
 	{"flashlight", path_items .. "flashlight.png"},
 }
+t.pause = {
+	{"tex_displacement", path_textures .. "displacement.png"},
+	{"pause_bg", path_textures .. "pause_bg.png"},
+}
 t.fnt_inventory = {
 	{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
@@ -150,9 +154,7 @@ Resources.meta.Outside = {
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
 		!!(get_res("ui"))
 		!!(get_res("items"))
-
-		{"tex_displacement", !(path_textures .. "displacement.png")},
-		{"pause_bg", !(path_textures .. "pause_bg.png")},
+		!!(get_res("pause"))
 
 		{"light_round", !(path_lights .. "round.png")},
 		{"light_rectangle", !(path_lights .. "rectangle.png")},
@@ -178,6 +180,7 @@ Resources.meta.StorageRoom = {
 		!!(get_res("player"))
 		!!(get_res("ui"))
 		!!(get_res("items"))
+		!!(get_res("pause"))
 
 		{"light_round", !(path_lights .. "round.png")},
 		{"light_rectangle", !(path_lights .. "rectangle.png")},

@@ -43,6 +43,7 @@ end
 function BumpCollision:preupdate(dt)
 	for _, e in ipairs(self.pool:getItems()) do
 		e.collider.is_hit = false
+		e:remove("hit_wall")
 		!if _DEV then
 		e.bump.debug_hovered = false
 		!end
@@ -83,6 +84,10 @@ function BumpCollision:update_body(e)
 		other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
+
+		if other.wall then
+			e:give("hit_wall")
+		end
 	end
 	self.pool.freeCollisions(cols)
 end

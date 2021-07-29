@@ -77,7 +77,7 @@ function PlayerController:player_update_animation(e, override_name, override_var
 	local body = e.body
 
 	if not anim_name then
-		if body.dx ~= 0 then
+		if body.dx ~= 0 and not e.hit_wall then
 			if body.is_run then
 				anim_name = "run"
 			else

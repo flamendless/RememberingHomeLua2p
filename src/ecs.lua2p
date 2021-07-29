@@ -36,19 +36,19 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"systems", "animation", "bounding_box", "bump_collision", "camera",
-	"collision", "color", "dialogues", "fireflies", "interactive", "light",
-	"movement", "notification", "player_controller", "render_sprite",
-	"render_text", "render_ui", "text_paint", "transform", "typewriter",
-	"path", "gamestates", "inventory", "render_rect", "entity", "items",
-	"culling", "glitch_shader_effect", "pause",
+	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
+	"fireflies", "interactive", "light", "movement", "notification",
+	"player_controller", "render_sprite", "render_text", "render_ui",
+	"text_paint", "transform", "typewriter", "path", "gamestates", "inventory",
+	"render_rect", "entity", "items", "culling", "glitch_shader_effect",
+	"pause",
 }
 
 systems.StorageRoom = {
 	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
 	"interactive", "light", "movement", "notification", "player_controller",
 	"render_sprite", "render_text", "render_ui", "transform", "typewriter",
-	"gamestates", "inventory", "entity", "items", "culling",
+	"gamestates", "inventory", "entity", "items", "culling", "pause",
 }
 
 local unpausable_list = {

@@ -97,7 +97,6 @@ end
 
 function Player.outside_house(e)
 	local x, y = 800, 258
-
 	e:assemble(Player.base,
 		x, y,
 		{
@@ -113,6 +112,25 @@ function Player.outside_house(e)
 		})
 	:give("z_index", 2)
 	:give("color", {1, 1, 1, 0})
+end
+
+function Player.storage_room(e)
+	local x, y = 400, 48
+	e:assemble(Player.base,
+		x, y,
+		{
+			idle = {x = 0, y = 0},
+			walk = {x = 128, y = 92},
+			run = {x = 180, y = 144},
+		},
+		320,
+		{
+			can_move = false,
+			can_run = false,
+			can_open_door = false,
+		})
+	:give("z_index", 2)
+	:give("color", {1, 1, 1, 1})
 end
 
 return Player
