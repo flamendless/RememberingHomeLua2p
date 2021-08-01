@@ -103,8 +103,15 @@ function StorageRoom:state_draw()
 end
 
 function StorageRoom:spawn_player()
+	local x, y
+	!if _DEV then
+	x, y = 486, 48
+	!end
+	if self.prev_id == "Outside" then
+		x, y = 400, 48
+	end
 	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.storage_room)
+		:assemble(Assemblages.Player.storage_room, x, y)
 	self.world:emit("face_left", e_player)
 	return e_player
 end

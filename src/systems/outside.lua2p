@@ -274,8 +274,15 @@ function Outside:start_rain()
 end
 
 function Outside:spawn_player()
+	local x, y
+	!if _DEV then
+	x, y = 800, 258
+	!end
+	if self.prev_id == "Menu" then
+		x, y = 800, 258
+	end
 	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.outside_house)
+		:assemble(Assemblages.Player.outside_house, x, y)
 		:give("color_fade_in", 0.25)
 	self.world:emit("face_left", e_player)
 	return e_player

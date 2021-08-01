@@ -136,6 +136,7 @@ function love.keyreleased(key)
 	GameStates.keyreleased(key)
 end
 
+!if _DEV then
 function love.mousemoved(mx, my, dx, dy)
 	!if _DEV then
 	DevTools.mousemoved(mx, my, dx, dy)
@@ -157,7 +158,6 @@ function love.mousereleased(mx, my, mb)
 	GameStates.mousereleased(mx, my, mb)
 end
 
-!if _DEV then
 function love.wheelmoved(wx, wy)
 	!if _DEV then
 	DevTools.wheelmoved(wx, wy)

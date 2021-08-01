@@ -62,10 +62,11 @@ local fn = {
 }
 !end
 
-function ECS.load_systems(id, world)
+function ECS.load_systems(id, world, prev_id)
 	@@assert(type(id) == "string")
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
+	@@sassert(prev_id, type(prev_id) == "string" and systems[prev_id])
 	local lid = lower(id)
 	@@assert(Systems[lid], lid .. " state system does not exist")
 
@@ -76,9 +77,6 @@ function ECS.load_systems(id, world)
 			Log.warn(str)
 		end
 	end
-	!end
-
-	!if _DEV then
 	DevTools = require("devtools")
 	!end
 
@@ -91,14 +89,18 @@ function ECS.load_systems(id, world)
 				sys.__unpausable = true
 			end
 		end
+
 		!if _DEV then
 		sys.debug_show = DevTools.flags[v]
 		sys.debug_enabled = true
 		sys.debug_title = v
 		!end
 	end
-	Systems[lid].__unpausable = true
-	world:addSystem(Systems[lid])
+
+	local main_sys = Systems[lid]
+	main_sys.__unpausable = true
+	main_sys.prev_id = prev_id
+	world:addSystem(main_sys)
 
 	!if _DEV then
 	Systems.id.debug_show = true

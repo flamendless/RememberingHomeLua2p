@@ -95,8 +95,9 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	:give("movement")
 end
 
-function Player.outside_house(e)
-	local x, y = 800, 258
+function Player.outside_house(e, x, y)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
 	e:assemble(Player.base,
 		x, y,
 		{
@@ -114,8 +115,9 @@ function Player.outside_house(e)
 	:give("color", {1, 1, 1, 0})
 end
 
-function Player.storage_room(e)
-	local x, y = 400, 48
+function Player.storage_room(e, x, y)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
 	e:assemble(Player.base,
 		x, y,
 		{

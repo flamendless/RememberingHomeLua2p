@@ -174,7 +174,9 @@ end
 
 function Light:cleanup()
 	self.world:clear()
-	self.light_map:release()
+	if self.light_map then
+		self.light_map:release()
+	end
 end
 
 !if _DEV then

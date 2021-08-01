@@ -2,9 +2,7 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
 local Fade = require("fade")
-local Utils = require("utils")
-
-local insert = table.insert
+-- local Utils = require("utils")
 
 local GS
 local Save = require("save")
@@ -36,13 +34,23 @@ function GameStates:switch_state(next_state, dur, delay)
 end
 
 function GameStates:save_game()
-	local data = self.world:serialize()
+	-- local data = self.world:serialize()
 	-- Utils.serial.write(!(_SAVESTATE_FILENAME), data)
 end
 
 function GameStates:load_game()
-	local data = Utils.serial.read(!(_SAVESTATE_FILENAME))
+	-- local data = Utils.serial.read(!(_SAVESTATE_FILENAME))
 	-- self.world:deserialize(data, true)
 end
+
+!if _DEV then
+function GameStates:state_keypressed(key)
+	if key == "1" then
+		self:switch_state("Outside", 0)
+	elseif key == "2" then
+		self:switch_state("StorageRoom", 0)
+	end
+end
+!end
 
 return GameStates
