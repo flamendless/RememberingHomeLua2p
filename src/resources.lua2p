@@ -1,16 +1,27 @@
 local Log = require("modules.log.log")
 
 local format = string.format
+local remove = table.remove
 
 local Resources = {
 	meta = {},
 	data = {},
+	!if _CACHED_PRELOAD then
+	cache = {},
+	!end
 }
 
 !if _DEV then
 local mt = {}
 mt.__index = function(t, i)
-	error(i .. " is invalid key for Resources")
+	local id
+	for k, v in pairs(Resources.data) do
+		if t == v then
+			id = k
+			break
+		end
+	end
+	error(i .. " is invalid key for Resources:" .. id)
 end
 !end
 
@@ -62,13 +73,13 @@ end
 )
 
 Resources.meta.Splash = {
-	image = {
+	images = {
 		{"flamendless_logo", !(path_images .. "splash/flamendless_logo.png")},
 		{"sheet_wits", !(path_images .. "splash/sheet_wits.png")},
 		{"tex_displacement", !(path_textures .. "displacement.png")},
 	},
 
-	font = {
+	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		{"firefly", !(path_fonts .. "Firefly.ttf"), 172, "default"},
 		{"uncle_type", !(path_fonts .. "uncle_type.ttf"), 32},
@@ -76,7 +87,7 @@ Resources.meta.Splash = {
 }
 
 Resources.meta.Menu = {
-	image = {
+	images = {
 		{"bg_door", !(path_images .. "menu/bg_door.png")},
 		{"bg_hallway", !(path_images .. "menu/bg_hallway.png")},
 		{"sheet_desk", !(path_images .. "menu/sheet_desk.png")},
@@ -90,7 +101,7 @@ Resources.meta.Menu = {
 		{"flowfield", !(path_textures .. "perlin.png")},
 	},
 
-	font = {
+	fonts = {
 		{"menu", !(path_fonts .. "Jamboree.ttf"), 24, "default"},
 		{"about", !(path_fonts .. "DigitalDisco.ttf"), 20},
 		{"about", !(path_fonts .. "DigitalDisco.ttf"), 64},
@@ -98,7 +109,7 @@ Resources.meta.Menu = {
 }
 
 Resources.meta.Intro = {
-	image = {
+	images = {
 		{"bg", !(path_images .. "intro/bg.png")},
 		{"bg_post", !(path_images .. "intro/bg_post.png")},
 		{"bg_tree_cover", !(path_images .. "intro/bg_tree_cover.png")},
@@ -133,14 +144,14 @@ Resources.meta.Intro = {
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
-	font = {
+	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		{"dialogue", !(path_fonts .. "DigitalDisco.ttf"), 32, "default"},
 	},
 }
 
 Resources.meta.Outside = {
-	image = {
+	images = {
 		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
 		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
 		!!(get_res("player"))
@@ -168,14 +179,14 @@ Resources.meta.Outside = {
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
-	font = {
+	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		!!(get_res("fnt_inventory"))
 	},
 }
 
 Resources.meta.StorageRoom = {
-	image = {
+	images = {
 		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
 		!!(get_res("player"))
 		!!(get_res("ui"))
@@ -192,7 +203,7 @@ Resources.meta.StorageRoom = {
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
-	font = {
+	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		!!(get_res("fnt_inventory"))
 	},
@@ -216,15 +227,53 @@ function Resources.set_resources(t)
 	end
 end
 
+!if _CACHED_PRELOAD then
+function Resources.manage_cache(resources, list)
+	@@assert(type(resources) == "table")
+	@@assert(type(list) == "table")
+	local prev_res = Resources.data
+	for kind, t in pairs(list) do
+		local res = prev_res[kind]
+		if res then
+			!if _DEV then
+			setmetatable(res, nil)
+			!end
+			for i = #t, 1, -1 do
+				local id = t[i][1]
+				if res[id] then
+					Resources.cache[id] = res[id]
+					resources[kind][id] = res[id]
+					remove(list[kind], i)
+				end
+			end
+		end
+	end
+end
+!end
+
 function Resources.clean()
 	for k, t in pairs(Resources.data) do
 		for name, _ in pairs(t) do
-			Resources.data[k][name]:release()
-			Resources.data[k][name] = nil
-			Log.trace(format("'%s':'%s' cleaned", k, name))
+			!if _CACHED_PRELOAD then
+			if not Resources.cache[name] then
+				Resources.data[k][name]:release()
+				Resources.data[k][name] = nil
+				Log.trace(format("Cleaned '%s':'%s'", k, name))
+			else
+				Log.trace(format("Cached, skipping '%s':'%s'", k, name))
+			end
+			!else
+				Resources.data[k][name]:release()
+				Resources.data[k][name] = nil
+				Log.trace(format("Cleaned '%s':'%s'", k, name))
+			!end
 		end
 		Resources.data[k] = nil
 	end
+	!if _CACHED_PRELOAD then
+	tablex.clear(Resources.cache)
+	@@assert(#Resources.cache == 0)
+	!end
 end
 
 return Resources

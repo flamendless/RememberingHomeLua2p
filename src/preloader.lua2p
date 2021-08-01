@@ -8,10 +8,10 @@ local Preloader = {
 }
 
 local keys = {
-	image = "newImage",
+	images = "newImage",
 	image_data = "newImageData",
-	source = "newSource",
-	font = "newFont",
+	sources = "newSource",
+	fonts = "newFont",
 }
 
 function Preloader.start(resources, container, on_complete)
@@ -28,12 +28,12 @@ function Preloader.start(resources, container, on_complete)
 			local id = t[j][1]
 			local path = t[j][2]
 
-			if kind == "image" or kind == "image_data" then
+			if kind == "images" or kind == "image_data" then
 				data[i] = {keys[kind], path}
-			elseif kind == "source" then
+			elseif kind == "sources" then
 				local source_type = t[j][3]
 				data[i] = {keys[kind], path, source_type}
-			elseif kind == "font" then
+			elseif kind == "fonts" then
 				local font_size = t[j][3]
 				local font_sub = t[j][4]
 				if not font_sub then

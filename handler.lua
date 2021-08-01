@@ -57,6 +57,7 @@ _COMMIT_VERSION = args[2]
 
 _MODE = args[1]
 _LOG_SAVE = true
+_CACHED_PRELOAD = true
 
 _OS = "Linux"
 _PLATFORM = "desktop"
