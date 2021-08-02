@@ -20,9 +20,6 @@ function GameStates.preload()
 	!if _CACHED_PRELOAD then
 	Resources.manage_cache(resources, list)
 	!end
-	if list.atlas then
-		Resources.get_atlas(resources, list)
-	end
 	Resources.clean()
 	Log.info("Preloading: " .. GameStates.current_id)
 	Preloader.start(list, resources, function()

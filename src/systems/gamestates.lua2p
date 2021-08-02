@@ -45,6 +45,7 @@ end
 
 !if _DEV then
 function GameStates:state_keypressed(key)
+	if not love.keyboard.isDown("lshift") then return end
 	if key == "1" then
 		self:switch_state("Outside", 0)
 	elseif key == "2" then

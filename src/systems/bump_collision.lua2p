@@ -6,9 +6,7 @@ local BumpCollision = Concord.system({
 		constructor = BumpStorage,
 		"collider", "pos", "bump"
 	},
-	pool_camera = {
-		"camera",
-	}
+	pool_camera = {"camera",}
 })
 
 local function get_query_rect(self)
@@ -57,9 +55,7 @@ function BumpCollision:update(dt)
 		local e = items[i]
 		if e.body then
 			!if _DEV then
-			if e.bump.debug_clicked then
-				return
-			end
+			if e.bump.debug_clicked then return end
 			!end
 			self:update_body(e)
 		end
@@ -94,9 +90,8 @@ end
 
 function BumpCollision:check_col(e)
 	local pos = e.pos
-	local cols, len
 	local col = e.collider
-	pos.x, pos.y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
+	local x, y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
 
 	for i = 1, len do
 		local c = cols[i]

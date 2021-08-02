@@ -1,15 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-!if _DEV then
-local Resources = require("resources")
-!end
-
-Concord.component("atlas", function(c, id, frame_id)
-	@@assert(type(id) == "string")
-	@@assert(type(frame_id) == "string")
-	@@assert(Resources.data.atlas[id].frames[frame_id])
-	c.id = id
-	c.frame_id = frame_id
+Concord.component("atlas", function(c, frame)
+	@@assert(type(frame) == "table")
+	c.value = frame
 end)
 
 local c_quad = Concord.component("quad", function(c, quad, info)

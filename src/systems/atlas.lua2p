@@ -1,6 +1,10 @@
 local Concord = require("modules.concord.concord")
 
-local Resources = require("resources")
+local min = math.min
+local max = math.max
+local insert = table.insert
+local huge = math.huge
+local floor = math.floor
 
 local Atlas = Concord.system({
 	pool = {"atlas", "sprite"},
@@ -16,11 +20,63 @@ end
 function Atlas:setup_atlas(e)
 	@@assert(self.pool:has(e))
 	local sprite = e.sprite
-	local atlas = e.atlas
-	local frame = Resources.data.atlas[atlas.id].frames[atlas.frame_id].frame
-	local quad = love.graphics.newQuad(frame.x, frame.y, frame.w, frame.h,
+	local atlas = e.atlas.value.frame
+	local quad = love.graphics.newQuad(atlas.x, atlas.y, atlas.w, atlas.h,
 		sprite.iw, sprite.ih)
 	e:give("quad", quad)
+end
+
+function Atlas:atlas_create_items(atlas_res)
+	@@assert(type(atlas_res) == "string")
+	local data = require("data." .. atlas_res)
+	local frames = data.data.frames
+	local group = {}
+	for id, t in pairs(data.list) do
+		local item = frames[t.id]
+		local frame = item.frame
+		local scale = t.scale or 1
+		local w = floor(frame.w * scale)
+		local h = floor(frame.h * scale)
+
+		local e = Concord.entity(self.world)
+			:give("id", id)
+			:give("sprite", "atlas_storage_room_items")
+			:give("pos", t.x, t.y)
+			:give("atlas", item)
+			:give("quad_transform", 0, scale, scale)
+
+		if t.grouped then
+			if not group[t.id] then
+				group[t.id] = {}
+			end
+			insert(group[t.id], e)
+		elseif not t.no_col then
+			e:give("collider", w, h, "cross")
+			:give("bump")
+			:give("interactive")
+		end
+	end
+
+	for id, t in pairs(group) do
+		local x, y = huge, huge
+		local w, h = 0, 0
+		local frame = frames[id].frame
+		for _, e in ipairs(t) do
+			local pos = e.pos
+			local scale = e.quad_transform.sx
+			x = min(x, pos.x)
+			y = min(y, pos.y)
+			w = max(w, pos.x + frame.w * scale)
+			h = max(h, pos.y + frame.h * scale)
+		end
+
+		Concord.entity(self.world)
+			:give("id", "col_" .. id)
+			:give("pos", x, y)
+			:give("bump")
+			:give("collider", w - x, h - y, "cross")
+			:give("interactive")
+	end
 end
 
 return Atlas

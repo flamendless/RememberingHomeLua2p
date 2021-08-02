@@ -96,7 +96,7 @@ local data = {
 				y = 0.5
 			}
 		},
-		mirror = {
+		electrical_box = {
 			frame = {
 				x = 70,
 				y = 30,
@@ -205,4 +205,47 @@ local data = {
 		scale = 1
 	}
 }
-return data
+
+local list = {
+	bulb_left = {
+		id = "bulb",
+		x = 182, y = 16,
+		no_col = true,
+	},
+	bulb_right = {
+		id = "bulb",
+		x = 364, y = 16,
+		no_col = true,
+	},
+	shelf = {
+		id = "shelf",
+		x = 136, y = 57,
+	},
+	electrical_box = {
+		id = "electrical_box",
+		x = 412, y = 48,
+	},
+	washing_machine_left = {
+		id = "washing_machine",
+		x = 256, y = 76,
+		grouped = true,
+	},
+	washing_machine_right = {
+		id = "washing_machine",
+		x = 294, y = 76,
+		grouped = true,
+	},
+	basket = {
+		id = "basket",
+		x = 343, y = 85,
+		grouped = true,
+	},
+	basket2 = {
+		id = "basket",
+		x = 338, y = 92,
+		scale = 0.75,
+		grouped = true,
+	},
+}
+
+return {data = data, list = list}

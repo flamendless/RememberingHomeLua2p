@@ -1,7 +1,9 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
-local filters = Enum("slide", "cross", "bounce")
+!if _DEV then
+local Enum = require("modules.enum.enum")
+local filters = Enum("touch", "slide", "cross", "bounce")
+!end
 
 Concord.component("bump")
 Concord.component("wall")
@@ -17,7 +19,11 @@ Concord.component("collider", function(c, w, h, filter)
 	c.normal = {x = 0, y = 0}
 
 	if filter then
+		!if _DEV then
 		c.filter = filters[filter]
+		!else
+		c.filter = filter
+		!end
 	end
 end)
 

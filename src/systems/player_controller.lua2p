@@ -1,5 +1,9 @@
 local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
+!if _DEV then
+local Log = require("modules.log.log")
+local format = string.format
+!end
 
 local Inputs = require("inputs")
 
@@ -43,7 +47,7 @@ function PlayerController:update(dt)
 	for _, e in ipairs(self.pool) do
 		if e.override_animation then return end
 		if not e.body.can_move then return end
-		local within_interactive = e.within_interactive
+		local within_int = e.within_interactive
 		local can_interact = e.can_interact
 		local body = e.body
 
@@ -61,8 +65,14 @@ function PlayerController:update(dt)
 		end
 
 		if Inputs.pressed("interact") then
-			if can_interact and within_interactive then
-				self.world:emit("player_interact", e, within_interactive.entity)
+			if can_interact and within_int and within_int.entity.dialogue then
+				self.world:emit("player_interact", e, within_int.entity)
+			!if _DEV then
+			elseif within_int then
+			local msg = format("item '%s' has 'interactive' but no 'dialogue' component",
+				within_int.entity.id.value)
+			Log.warn(msg)
+			!end
 			end
 		end
 

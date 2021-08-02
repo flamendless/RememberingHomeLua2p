@@ -42,18 +42,7 @@ function StorageRoom:state_setup()
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
-	!if _DEV then
-	local d = Resources.data.atlas.items
-	local x = 128
-	for k, v in pairs(d.frames) do
-		Concord.entity(self.world)
-			:give("id", k)
-			:give("sprite", "atlas_storage_room_items")
-			:give("atlas", "items", k)
-			:give("pos", x, 64)
-		x = x + 32
-	end
-	!end
+	self.world:emit("atlas_create_items", "storage_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -73,6 +62,7 @@ function StorageRoom:state_init()
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
+		self.world:emit("camera_follow", e_player, 0.25)
 		self.world:emit("player_can_move", true)
 		self.world:emit("player_can_interact", true)
 		self.world:emit("player_can_run", true)
