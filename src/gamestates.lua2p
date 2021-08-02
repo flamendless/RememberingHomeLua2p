@@ -15,11 +15,14 @@ local GameStates = {
 }
 
 function GameStates.preload()
-	local resources = {images = {}, fonts = {}, image_data = {}}
+	local resources = {images = {}, fonts = {}, image_data = {}, atlas = {}}
 	local list = Resources.get_meta(GameStates.current_id)
 	!if _CACHED_PRELOAD then
 	Resources.manage_cache(resources, list)
 	!end
+	if list.atlas then
+		Resources.get_atlas(resources, list)
+	end
 	Resources.clean()
 	Log.info("Preloading: " .. GameStates.current_id)
 	Preloader.start(list, resources, function()

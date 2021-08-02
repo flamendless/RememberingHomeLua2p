@@ -42,6 +42,19 @@ function StorageRoom:state_setup()
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
+	!if _DEV then
+	local d = Resources.data.atlas.items
+	local x = 128
+	for k, v in pairs(d.frames) do
+		Concord.entity(self.world)
+			:give("id", k)
+			:give("sprite", "atlas_storage_room_items")
+			:give("atlas", "items", k)
+			:give("pos", x, 64)
+		x = x + 32
+	end
+	!end
+
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
 		lut_size = 16

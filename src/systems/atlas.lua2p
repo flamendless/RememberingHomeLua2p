@@ -1,0 +1,26 @@
+local Concord = require("modules.concord.concord")
+
+local Resources = require("resources")
+
+local Atlas = Concord.system({
+	pool = {"atlas", "sprite"},
+})
+
+function Atlas:init(world)
+	self.world = world
+	self.pool.onAdded = function(pool, e)
+		self:setup_atlas(e)
+	end
+end
+
+function Atlas:setup_atlas(e)
+	@@assert(self.pool:has(e))
+	local sprite = e.sprite
+	local atlas = e.atlas
+	local frame = Resources.data.atlas[atlas.id].frames[atlas.frame_id].frame
+	local quad = love.graphics.newQuad(frame.x, frame.y, frame.w, frame.h,
+		sprite.iw, sprite.ih)
+	e:give("quad", quad)
+end
+
+return Atlas

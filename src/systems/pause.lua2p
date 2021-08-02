@@ -21,6 +21,9 @@ function Pause:init(world)
 	self.world = world
 	self.is_paused = false
 	self.prev = {}
+	local ECS = require("ecs")
+	local sc_glitch = ECS.get_system_class("glitch_shader_effect")
+	self.has_glitch = self.world:hasSystem(sc_glitch)
 	self:create_pause_e()
 end
 
@@ -47,17 +50,21 @@ function Pause:create_pause_e()
 		:give("color", {1, 1, 1, 1})
 		:give("ui_element")
 		:give("hidden")
-		:give("nf_render_text")
-		:give("displacement_texture", "tex_displacement")
-		:give("glitch_shader")
 		:give("pause")
+		:give("nf_render_text")
 
-	self.world:emit("reset_glitch", e_text)
+	if self.has_glitch then
+		e_text:give("displacement_texture", "tex_displacement")
+		:give("glitch_shader")
+
+		self.world:emit("reset_glitch", e_text)
+		self.timer = timer(6, nil, function()
+			self:do_pause_glitch(glitch_chance_h)
+			self.timer:reset()
+		end)
+	end
+
 	self.canvas = love.graphics.newCanvas(ww, wh)
-	self.timer = timer(6, nil, function()
-		self:do_pause_glitch(glitch_chance_h)
-		self.timer:reset()
-	end)
 end
 
 function Pause:create_pause_choices()
@@ -86,6 +93,7 @@ function Pause:create_pause_choices()
 end
 
 function Pause:do_pause_glitch(chance)
+	if not self.has_glitch then return end
 	@@assert(type(chance) == "table")
 	local res = Lume.weightedchoice(chance)
 	if res == "glitch" then
@@ -99,7 +107,7 @@ function Pause:do_pause_glitch(chance)
 end
 
 function Pause:update(dt)
-	if self.is_paused then
+	if self.has_glitch and self.is_paused then
 		self.timer:update(dt)
 		if self.timer2 then
 			self.timer2:update(dt)
@@ -205,7 +213,11 @@ function Pause:draw_paused()
 		self.world:emit("draw_text_ex", e)
 	end
 	love.graphics.setCanvas()
-	self.world:emit("draw_glitch_effect", self.canvas)
+	if self.has_glitch then
+		self.world:emit("draw_glitch_effect", self.canvas)
+	else
+		love.graphics.draw(self.canvas)
+	end
 	Fade.draw()
 end
 

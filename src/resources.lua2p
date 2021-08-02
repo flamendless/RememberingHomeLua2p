@@ -32,6 +32,7 @@ local path_lut = "res/lut/"
 local path_lights = "res/lights/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
+local path_atlas = "res/atlas/"
 local path_fonts = "res/fonts/"
 
 local t = {}
@@ -188,6 +189,7 @@ Resources.meta.Outside = {
 Resources.meta.StorageRoom = {
 	images = {
 		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
+		{"atlas_storage_room_items", !(path_atlas .. "storage_room_items.png")},
 		!!(get_res("player"))
 		!!(get_res("ui"))
 		!!(get_res("items"))
@@ -196,6 +198,10 @@ Resources.meta.StorageRoom = {
 		{"light_round", !(path_lights .. "round.png")},
 		{"light_rectangle", !(path_lights .. "rectangle.png")},
 		{"light_cone", !(path_lights .. "cone.png")},
+	},
+
+	atlas = {
+		{"items", require("data.storage_room_items")},
 	},
 
 	image_data = {
@@ -225,6 +231,17 @@ function Resources.set_resources(t)
 		setmetatable(Resources.data[k], mt)
 		!end
 	end
+end
+
+function Resources.get_atlas(container, list)
+	@@assert(type(list.atlas) == "table" and #list.atlas ~= 0)
+	for _, v in ipairs(list.atlas) do
+		local id = v[1]
+		local data = v[2]
+		container.atlas[id] = data
+	end
+	tablex.clear(list.atlas)
+	list.atlas = nil
 end
 
 !if _CACHED_PRELOAD then

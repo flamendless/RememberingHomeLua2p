@@ -45,10 +45,11 @@ systems.Outside = {
 }
 
 systems.StorageRoom = {
-	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
-	"interactive", "light", "movement", "notification", "player_controller",
-	"render_sprite", "render_text", "render_ui", "transform", "typewriter",
-	"gamestates", "inventory", "entity", "items", "culling", "pause",
+	"systems", "animation", "atlas", "bump_collision", "camera", "color",
+	"dialogues", "interactive", "light", "movement", "notification",
+	"player_controller", "render_sprite", "render_text", "render_ui",
+	"transform", "typewriter", "gamestates", "inventory", "entity", "items",
+	"culling", "glitch_shader_effect", "pause",
 }
 
 local unpausable_list = {
@@ -106,7 +107,7 @@ function ECS.load_systems(id, world, prev_id)
 	Systems.id.debug_show = true
 	Systems.id.debug_enabled = true
 	Systems.id.debug_title = "ID"
-	Systems.log.debug_show = true
+	Systems.log.debug_show = false
 	Systems.log.debug_enabled = true
 	Systems.log.debug_title = "Log"
 	world:addSystem(Systems.id)
