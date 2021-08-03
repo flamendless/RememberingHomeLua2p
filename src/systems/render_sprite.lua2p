@@ -4,9 +4,11 @@ local Helper = require("helper")
 
 local RenderSprite = Concord.system({
 	pool = {"pos", "sprite",
-		"!z_index", "!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
+		"!z_index", "!ui_element", "!light", "!nf_render_sprite", "!use_canvas",
+		"!outline"},
 	pool_z = {"pos", "sprite", "z_index",
-		"!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
+		"!ui_element", "!light", "!nf_render_sprite", "!use_canvas", "!outline"},
+	pool_outline = {"pos", "sprite", "outline"},
 })
 
 local function sort_z_ex(a, b)
@@ -23,9 +25,13 @@ local function sort_z_ex(a, b)
 	return a_z.value < b_z.value
 end
 
-local function draw(sprite, ...)
-	-- TODO implement camera_bounds drawing
-	love.graphics.draw(sprite, ...)
+local function draw(e, ...)
+	local outline = e.outline
+	if outline and outline.outliner then
+		outline.outliner:draw(outline.value, ...)
+	else
+		love.graphics.draw(...)
+	end
 end
 
 function RenderSprite:init(world)
@@ -85,9 +91,9 @@ function RenderSprite:draw_sprite_ex(e)
 			kx = quad_transform.kx
 			ky = quad_transform.ky
 		end
-		draw(sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+		draw(e, sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 	else
-		draw(sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
+		draw(e, sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 	end
 
 	if e.no_shader then
@@ -122,6 +128,14 @@ function RenderSprite:draw_z()
 		end
 	end
 	@@profe("render_sprite_z")
+end
+
+function RenderSprite:draw_outline()
+	local cur_shader = love.graphics.getShader()
+	for _, e in ipairs(self.pool_outline) do
+		self:draw_sprite_ex(e)
+	end
+	love.graphics.setShader(cur_shader)
 end
 
 return RenderSprite

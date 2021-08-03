@@ -47,9 +47,9 @@ systems.Outside = {
 systems.StorageRoom = {
 	"systems", "animation", "atlas", "bump_collision", "camera", "color", "room",
 	"dialogues", "interactive", "light", "movement", "notification",
-	"player_controller", "render_sprite", "render_text", "render_ui",
+	"player_controller", "render_sprite", "render_text", "render_ui", "render_rect",
 	"transform", "typewriter", "gamestates", "inventory", "entity", "items",
-	"culling", "glitch_shader_effect", "pause",
+	"culling", "glitch_shader_effect", "pause", "outline",
 }
 
 local unpausable_list = {

@@ -192,6 +192,7 @@ function PlayerController:player_interact(player, interactive)
 	@@assert(interactive.__isEntity and interactive.interactive)
 	player:give("is_interacting")
 	self.world:emit("on_interact_or_inventory")
+	self.world:emit("create_speech_bubble", player)
 end
 
 function PlayerController:on_interact_or_inventory()
@@ -222,16 +223,6 @@ function PlayerController:on_leave_interact_or_inventory(_)
 		end
 		e:remove("prev_body")
 	end
-end
-
-function PlayerController:on_collide_interactive(e, interactive)
-	@@assert(e.__isEntity)
-	@@assert(interactive.__isEntity)
-	self.world:emit("create_speech_bubble", e)
-end
-
-function PlayerController:on_leave_interactive(e)
-	@@assert(e.__isEntity)
 	self.world:emit("remove_speech_bubble")
 end
 

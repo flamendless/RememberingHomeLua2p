@@ -29,6 +29,8 @@ Palette.colors = {
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 	hovered_choice = {1, 0, 0},
 
+	outline = {1, 1, 1},
+
 	inventory_fill_unhovered = {0.098, 0.109, 0.17},
 	inventory_fill_hovered = {0.098/10, 0.109/10, 0.17/10},
 	inventory_line_unhovered = {1, 1, 1},

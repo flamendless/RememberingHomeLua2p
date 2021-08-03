@@ -2,6 +2,8 @@ local Palette = require("palette")
 
 local Common = {}
 
+local def_col_clip = Palette.get("camera_clip")
+
 function Common.text(e, pos, str, font, color)
 	e:give("id", "text")
 	:give("text", str)
@@ -25,11 +27,11 @@ function Common.animated_sprite(e, animation_data, x, y, stop_on_last)
 	:give("animation", stop_on_last)
 end
 
-function Common.camera(e, cam, scale, w, h)
+function Common.camera(e, cam, scale, w, h, clip_col)
 	e:give("id", "camera")
 	:give("camera", cam, true)
 	:give("camera_transform", 0, scale)
-	:give("camera_clip", w, h, Palette.get("camera_clip"))
+	:give("camera_clip", w, h, clip_col or def_col_clip)
 end
 
 return Common

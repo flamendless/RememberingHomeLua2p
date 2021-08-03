@@ -14,10 +14,10 @@ end
 
 function Room:create_room_items(atlas_res)
 	@@assert(type(atlas_res) == "string")
-	local data = require("data." .. atlas_res)
-	local frames = data.data.frames
+	local data, list = unpack(require("data." .. atlas_res))
+	local frames = data.frames
 	local group = {}
-	for id, t in pairs(data.list) do
+	for id, t in pairs(list) do
 		local item = frames[t.id]
 		local frame = item.frame
 		local scale = t.scale or 1
@@ -54,6 +54,7 @@ function Room:create_room_items(atlas_res)
 			y = min(y, pos.y)
 			w = max(w, pos.x + frame.w * scale)
 			h = max(h, pos.y + frame.h * scale)
+			e:give("grouped", id)
 		end
 
 		Concord.entity(self.world)
@@ -62,6 +63,7 @@ function Room:create_room_items(atlas_res)
 			:give("bump")
 			:give("collider", w - x, h - y, "cross")
 			:give("interactive")
+			:give("grouped", id)
 	end
 end
 

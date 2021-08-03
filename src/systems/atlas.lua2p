@@ -15,7 +15,9 @@ function Atlas:setup_atlas(e)
 	@@assert(self.pool:has(e))
 	local sprite = e.sprite
 	local atlas = e.atlas.value.frame
-	local quad = love.graphics.newQuad(atlas.x, atlas.y, atlas.w, atlas.h,
+	local quad = love.graphics.newQuad(
+		atlas.x, atlas.y,
+		atlas.w, atlas.h,
 		sprite.iw, sprite.ih)
 	e:give("quad", quad)
 end

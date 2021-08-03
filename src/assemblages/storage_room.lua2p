@@ -1,5 +1,3 @@
-local Concord = require("modules.concord.concord")
-
 local StorageRoom = {
 	colliders = {},
 }
@@ -13,6 +11,9 @@ function StorageRoom.colliders.ground(e, w, h)
 	:give("pos", left_wall_w, h - ground_h)
 	:give("collider", w - left_wall_w - right_wall_w, ground_h)
 	:give("bump")
+	-- :give("rect", w - left_wall_w - right_wall_w, ground_h)
+	-- :give("draw_mode", "fill")
+	-- :give("color", {0, 0, 0, 1})
 end
 
 function StorageRoom.colliders.left_bound(e, w, h)
@@ -21,6 +22,9 @@ function StorageRoom.colliders.left_bound(e, w, h)
 	:give("collider", left_wall_w, h)
 	:give("bump")
 	:give("wall")
+	-- :give("rect", left_wall_w, h)
+	-- :give("draw_mode", "fill")
+	-- :give("color", {0, 0, 0, 1})
 end
 
 function StorageRoom.colliders.right_bound(e, w, h)
@@ -29,6 +33,9 @@ function StorageRoom.colliders.right_bound(e, w, h)
 	:give("collider", right_wall_w, h)
 	:give("bump")
 	:give("wall")
+	-- :give("rect", right_wall_w, h)
+	-- :give("draw_mode", "fill")
+	-- :give("color", {0, 0, 0, 1})
 end
 
 return StorageRoom

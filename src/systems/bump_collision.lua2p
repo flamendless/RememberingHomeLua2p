@@ -105,13 +105,13 @@ function BumpCollision:check_col(e)
 			if not within_int and other.interactive then
 				self.world:emit("on_collide_interactive", e, other)
 			elseif within_int and within_int.entity ~= other then
-				e:give("within_interactive", other)
+				self.world:emit("on_change_interactive", e, other)
 			end
 		end
 	end
 
 	if not col.is_hit and within_int and len == 0 then
-		self.world:emit("on_leave_interactive", e)
+		self.world:emit("on_leave_interactive", e, within_int.entity)
 	end
 	self.pool.freeCollisions(cols)
 end

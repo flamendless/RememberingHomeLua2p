@@ -25,6 +25,12 @@ function Interactive:on_collide_interactive(e, other)
 	end
 end
 
+function Interactive:on_change_interactive(e, other)
+	@@assert(e.__isEntity)
+	@@assert(other.__isEntity)
+	e:give("within_interactive", other)
+end
+
 function Interactive:on_leave_interactive(e)
 	@@assert(e.__isEntity)
 	e:remove("within_interactive")

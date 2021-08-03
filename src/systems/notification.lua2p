@@ -24,7 +24,7 @@ function Notification:speech_bubble_update(_, e)
 end
 
 function Notification:create_speech_bubble(e)
-	@@assert(e.__isEntity)
+	@@assert(e.__isEntity and e.player)
 	local pos = e.pos
 	Concord.entity(self.world):assemble(Assemblages.UI.speech_bubble,
 		e, pos.x, pos.y)

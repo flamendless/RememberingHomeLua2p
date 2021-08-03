@@ -1,0 +1,98 @@
+local Concord = require("modules.concord.concord")
+local Outliner = require("modules.outliner")
+
+local Palette = require("palette")
+
+local Outline = Concord.system({
+	pool = {"id", "outline", "sprite", "pos"},
+	pool_grouped = {"grouped"},
+})
+
+local PADDING = 4
+local PADDING2 = PADDING * 2
+local PADDING_H = PADDING * 0.5
+local col_outline = Palette.get("outline")
+
+function Outline:init(world)
+	self.world = world
+
+	self.pool.onAdded = function(pool, e)
+		local outline = e.outline
+		local outliner = Outliner(true)
+		outliner:outline(unpack(col_outline))
+		outline.outliner = outliner
+	end
+end
+
+function Outline:create_outline(e)
+	@@assert(e.__isEntity and e.id and e.pos)
+	local sprite = e.sprite
+	if not sprite then return end
+	local pos = e.pos
+	local quad = e.quad
+	local grouped = e.grouped
+	local x, y = pos.x, pos.y
+	x = x - PADDING
+	y = y - PADDING
+	local id = grouped and grouped.value or e.id.value
+
+	local outline_e = Concord.entity(self.world)
+		:give("id", "outline_" .. id)
+		:give("pos", x, y)
+		:give("sprite", sprite.resource_id)
+		:give("outline", PADDING_H)
+
+	if quad then
+		local qx, qy, qw, qh = quad.quad:getViewport()
+		local qsw, qsh = quad.quad:getTextureDimensions()
+		qx = qx - PADDING
+		qy = qy - PADDING
+		qw = qw + PADDING2
+		qh = qh + PADDING2
+		local nq = love.graphics.newQuad(qx, qy, qw, qh, qsw, qsh)
+		outline_e:give("quad", nq)
+
+		local qt = e.quad_transform
+		if qt then
+			outline_e:give("quad_transform", 0, qt.sx, qt.sy)
+		end
+	end
+end
+
+function Outline:on_change_interactive(e, other)
+	self:remove_grouped_outline(other)
+	self:on_collide_interactive(e, other)
+end
+
+function Outline:on_collide_interactive(_, other)
+	if other.grouped then
+		for _, e in ipairs(self.pool_grouped) do
+			if e.grouped.value == other.grouped.value then
+				self:create_outline(e)
+			end
+		end
+	else
+		self:create_outline(other)
+	end
+end
+
+function Outline:on_leave_interactive(_, other)
+	self:remove_grouped_outline(other)
+	for _, e in ipairs(self.pool) do
+		local id = e.id.value
+		if stringx.ends_with(id, other.id.value) then
+			e:destroy()
+		end
+	end
+end
+
+function Outline:remove_grouped_outline(other)
+	if not other.grouped then return end
+	for _, e in ipairs(self.pool) do
+		if other.grouped.value ~= e.id.value then
+			e:destroy()
+		end
+	end
+end
+
+return Outline

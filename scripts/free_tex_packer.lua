@@ -1,5 +1,5 @@
 -- https://github.com/odrick/free-tex-packer
--- padding: 1
+-- padding: 4
 -- no extrude
 -- power of two
 -- remove file ext

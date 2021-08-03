@@ -1,5 +1,10 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("grouped", function(c, id)
+	@@assert(type(id) == "string")
+	c.value = id
+end)
+
 Concord.component("atlas", function(c, frame)
 	@@assert(type(frame) == "table")
 	c.value = frame

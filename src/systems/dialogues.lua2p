@@ -24,9 +24,7 @@ function Dialogues:init(world)
 
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
-		if camera.is_main then
-			self.main_camera = camera.camera
-		end
+		self.main_camera = camera.camera
 	end
 
 	self.pool.onAdded = function(pool, e)
@@ -282,7 +280,9 @@ end
 
 function Dialogues:draw_dialogues()
 	for _, e in ipairs(self.pool) do
-		self.world:emit("draw_text_ex", e)
+		if e.text then
+			self.world:emit("draw_text_ex", e)
+		end
 	end
 	for _, e in ipairs(self.pool_choice) do
 		self.world:emit("draw_text_ex", e)

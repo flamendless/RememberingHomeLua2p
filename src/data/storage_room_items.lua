@@ -2,8 +2,8 @@ local data = {
 	frames = {
 		shelf = {
 			frame = {
-				x = 1,
-				y = 1,
+				x = 4,
+				y = 4,
 				w = 67,
 				h = 55
 			},
@@ -26,8 +26,8 @@ local data = {
 		},
 		iron_horse = {
 			frame = {
-				x = 1,
-				y = 58,
+				x = 4,
+				y = 67,
 				w = 30,
 				h = 57
 			},
@@ -50,8 +50,8 @@ local data = {
 		},
 		washing_machine = {
 			frame = {
-				x = 33,
-				y = 58,
+				x = 79,
+				y = 4,
 				w = 33,
 				h = 36
 			},
@@ -74,8 +74,8 @@ local data = {
 		},
 		basket = {
 			frame = {
-				x = 70,
-				y = 1,
+				x = 79,
+				y = 48,
 				w = 27,
 				h = 27
 			},
@@ -98,8 +98,8 @@ local data = {
 		},
 		electrical_box = {
 			frame = {
-				x = 70,
-				y = 30,
+				x = 42,
+				y = 67,
 				w = 14,
 				h = 21
 			},
@@ -122,8 +122,8 @@ local data = {
 		},
 		bulb = {
 			frame = {
-				x = 33,
-				y = 96,
+				x = 64,
+				y = 67,
 				w = 5,
 				h = 18
 			},
@@ -146,7 +146,7 @@ local data = {
 		},
 		wood = {
 			frame = {
-				x = 40,
+				x = 42,
 				y = 96,
 				w = 17,
 				h = 16
@@ -170,8 +170,8 @@ local data = {
 		},
 		wood2 = {
 			frame = {
-				x = 59,
-				y = 96,
+				x = 67,
+				y = 93,
 				w = 16,
 				h = 17
 			},
@@ -196,7 +196,7 @@ local data = {
 	meta = {
 		app = "http://free-tex-packer.com",
 		version = "0.6.7",
-		image = "storage_room_items.png",
+		image = "atlas_storage_room_items.png",
 		format = "RGBA8888",
 		size = {
 			w = 128,
@@ -248,4 +248,4 @@ local list = {
 	},
 }
 
-return {data = data, list = list}
+return {data, list}

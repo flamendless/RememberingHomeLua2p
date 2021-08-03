@@ -34,6 +34,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [log](https://github.com/flamendless/log.lua) - for logging
 * [lume](https://github.com/rxi/lume) - for linear interpolation and tweening
 * [love-sdf-text](https://github.com/Tjakka5/love-sdf-text) - for SDF rendering
+* [Outliner](https://love2d.org/forums/viewtopic.php?p=221215#p221215) - for Outline shader
 * [ReflowPrint](https://github.com/josefnpat/reflowprint) - for alignment of text that is shown one character at a time.
 * [semver](https://github.com/kikito/semver) - for semantic versioning
 * [Slab](https://github.com/flamendless/Slab) - for GUI and in-game editor tools
