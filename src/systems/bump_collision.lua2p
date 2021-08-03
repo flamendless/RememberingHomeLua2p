@@ -91,23 +91,26 @@ end
 function BumpCollision:check_col(e)
 	local pos = e.pos
 	local col = e.collider
+	local within_int = e.within_interactive
 	local x, y, cols, len = self.pool:check(e, pos.x, pos.y, filter)
 
 	for i = 1, len do
 		local c = cols[i]
 		local other = c.other
 		local other_col = other.collider
-		other_col.is_hit = true
+		-- other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
-		if e.can_interact then
-			if not e.within_interactive and other.interactive then
+		if i == 1 and e.can_interact then
+			if not within_int and other.interactive then
 				self.world:emit("on_collide_interactive", e, other)
+			elseif within_int and within_int.entity ~= other then
+				e:give("within_interactive", other)
 			end
 		end
 	end
 
-	if not col.is_hit and e.within_interactive and len == 0 then
+	if not col.is_hit and within_int and len == 0 then
 		self.world:emit("on_leave_interactive", e)
 	end
 	self.pool.freeCollisions(cols)

@@ -1,0 +1,68 @@
+local Concord = require("modules.concord.concord")
+
+local min = math.min
+local max = math.max
+local insert = table.insert
+local huge = math.huge
+local floor = math.floor
+
+local Room = Concord.system({})
+
+function Room:init(world)
+	self.world = world
+end
+
+function Room:create_room_items(atlas_res)
+	@@assert(type(atlas_res) == "string")
+	local data = require("data." .. atlas_res)
+	local frames = data.data.frames
+	local group = {}
+	for id, t in pairs(data.list) do
+		local item = frames[t.id]
+		local frame = item.frame
+		local scale = t.scale or 1
+		local w = floor(frame.w * scale)
+		local h = floor(frame.h * scale)
+
+		local e = Concord.entity(self.world)
+			:give("id", id)
+			:give("sprite", "atlas_storage_room_items")
+			:give("pos", t.x, t.y)
+			:give("atlas", item)
+			:give("quad_transform", 0, scale, scale)
+
+		if t.grouped then
+			if not group[t.id] then
+				group[t.id] = {}
+			end
+			insert(group[t.id], e)
+		elseif not t.no_col then
+			e:give("collider", w, h, "cross")
+			:give("bump")
+			:give("interactive")
+		end
+	end
+
+	for id, t in pairs(group) do
+		local x, y = huge, huge
+		local w, h = -huge, -huge
+		local frame = frames[id].frame
+		for _, e in ipairs(t) do
+			local pos = e.pos
+			local scale = e.quad_transform.sx
+			x = min(x, pos.x)
+			y = min(y, pos.y)
+			w = max(w, pos.x + frame.w * scale)
+			h = max(h, pos.y + frame.h * scale)
+		end
+
+		Concord.entity(self.world)
+			:give("id", "col_" .. id)
+			:give("pos", x, y)
+			:give("bump")
+			:give("collider", w - x, h - y, "cross")
+			:give("interactive")
+	end
+end
+
+return Room

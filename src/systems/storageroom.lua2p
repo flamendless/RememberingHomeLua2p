@@ -42,7 +42,7 @@ function StorageRoom:state_setup()
 		Concord.entity(self.world):assemble(v, w, h)
 	end
 
-	self.world:emit("atlas_create_items", "storage_room_items")
+	self.world:emit("create_room_items", "storage_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
