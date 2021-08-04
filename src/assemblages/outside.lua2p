@@ -78,6 +78,7 @@ function Outside.colliders.ground(e, w, h)
 	:give("pos", 0, h - ground_h)
 	:give("collider", w, ground_h)
 	:give("bump")
+	:give("ground")
 end
 
 function Outside.colliders.left_bound(e, w, h)
@@ -94,38 +95,6 @@ function Outside.colliders.right_bound(e, w, h)
 	:give("collider", bounds_w, bounds_h)
 	:give("bump")
 	:give("wall")
-end
-
-function Outside.colliders.car(e, w, h)
-	local car_h = 48
-	e:give("id", "car")
-	:give("pos", 730, h - ground_h - car_h)
-	:give("collider", 126, car_h, "cross")
-	:give("bump")
-	:give("interactive")
-	:give("dialogue", "outside", "car")
-	:give("usable_with_item")
-end
-
-function Outside.colliders.backdoor(e, w, h)
-	local backdoor_h = 66
-	e:give("id", "backdoor")
-	:give("pos", 440, h - ground_h - backdoor_h)
-	:give("collider", 8, backdoor_h, "cross")
-	:give("bump")
-	:give("interactive")
-	:give("dialogue", "outside", "backdoor")
-end
-
-function Outside.colliders.frontdoor_locked(e, w, h)
-	local frontdoor_h = 32
-	e:give("id", "frontdoor_locked")
-	:give("pos", 300, h - ground_h - frontdoor_h)
-	:give("collider", 32, frontdoor_h, "cross")
-	:give("bump")
-	:give("interactive")
-	:give("dialogue", "outside", "frontdoor_locked")
-	:give("usable_with_item")
 end
 
 return Outside

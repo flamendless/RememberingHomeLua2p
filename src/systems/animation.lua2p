@@ -163,6 +163,7 @@ function Animation:switch_animation_tag(e, new_tag, override)
 		e:remove("animation_data")
 		e:give("animation_data", data)
 		setup_animation(e, data, on_loop)
+		animation.anim8:gotoFrame(1)
 	end
 
 	if override then e:give("override_animation") end

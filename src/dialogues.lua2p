@@ -10,9 +10,6 @@ dialogues.common = {
 dialogues.outside = {
 	car = {
 		"An old but reliable car",
-		"Looks really out of date",
-		"But does its purpose well",
-		"so no need for a new one",
 		choices = {
 			{"drive",
 				"Maybe tomorrow",
@@ -22,15 +19,15 @@ dialogues.outside = {
 				"There might be something in the glove box",
 				"_get_flashlight",
 				get_flashlight = {
+					"A very handy flashlight",
 					"Let's hope the power is not out",
 					"Or else it will be a fumbling in the dark again",
-					"_start_flashlight_tutorial",
 				},
 				has_flashlight_already = {
 					"There is nothing useful here anymore",
 				},
 			},
-			{"nothing",},
+			{"do nothing",},
 		},
 	},
 
@@ -48,7 +45,8 @@ dialogues.outside = {
 					"the door is unlocked",
 					--TODO remove dialogue component
 				}
-			}
+			},
+			{"do nothing"},
 		},
 	},
 
@@ -56,6 +54,7 @@ dialogues.outside = {
 		"_check_has_flashlight",
 		no_flashlight_yet = {
 			"I need to get my things first from the car",
+			"_make_car_interactive",
 		},
 	},
 }

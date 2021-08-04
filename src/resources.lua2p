@@ -163,6 +163,7 @@ Resources.meta.Outside = {
 		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
 		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
+		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
 		!!(get_res("ui"))
 		!!(get_res("items"))
 		!!(get_res("pause"))

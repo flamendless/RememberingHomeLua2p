@@ -21,6 +21,7 @@ local DevTools = {
 		bounding_box = true,
 		glitch_shader_effect = false,
 		culling = true,
+		render_sprite = false,
 	},
 }
 

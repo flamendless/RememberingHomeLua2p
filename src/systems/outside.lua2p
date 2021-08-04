@@ -34,6 +34,7 @@ local ParticleSystems = {
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
 	pool_interactive = {"interactive"},
+	pool_bump = {"bump"},
 	pool_item = {"item"},
 })
 
@@ -92,6 +93,7 @@ function Outside:state_setup()
 	for _, v in pairs(Assemblages.Outside.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
+	self.world:emit("parse_room_items", "outside_items")
 
 	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
 	self.world:emit("generate_fireflies")
@@ -291,6 +293,7 @@ end
 function Outside:get_flashlight(e, dialogues_t)
 	@@assert(e.__isEntity and e.dialogue)
 	@@assert(type(dialogues_t) == "table")
+	self.world:emit("player_open_locked_door")
 	local has_flashlight = Items.has("flashlight")
 	if not has_flashlight then
 		Items.add("flashlight")
@@ -315,6 +318,16 @@ function Outside:check_frontdoor(e, dialogues_t)
 		local t = tablex.copy(dialogues_t.door_locked)
 		self.world:emit("update_dialogue", e, t)
 	end
+end
+
+function Outside:make_car_interactive(e)
+	for _, e in ipairs(self.pool_bump) do
+		if e.id.value == "car" then
+			e:give("interactive")
+			break
+		end
+	end
+	self.world:emit("dialogue_reached_end", e)
 end
 
 function Outside:check_has_flashlight(e, dialogues_t)

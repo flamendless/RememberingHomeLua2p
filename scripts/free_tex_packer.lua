@@ -1,5 +1,5 @@
 -- https://github.com/odrick/free-tex-packer
--- padding: 4
+-- padding: 4 (check handler.lua)
 -- no extrude
 -- power of two
 -- remove file ext

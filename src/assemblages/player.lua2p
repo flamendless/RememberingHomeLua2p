@@ -111,7 +111,7 @@ function Player.outside_house(e, x, y)
 			can_run = false,
 			can_open_door = true,
 		})
-	:give("z_index", 2)
+	:give("z_index", 5)
 	:give("color", {1, 1, 1, 0})
 end
 
@@ -131,7 +131,7 @@ function Player.storage_room(e, x, y)
 			can_run = false,
 			can_open_door = false,
 		})
-	:give("z_index", 2)
+	:give("z_index", 5)
 	:give("color", {1, 1, 1, 1})
 end
 

@@ -207,44 +207,53 @@ local data = {
 }
 
 local list = {
-	bulb_left = {
+	{
 		id = "bulb",
+		name = "bulb_left",
 		x = 182, y = 16,
 		no_col = true,
 	},
-	bulb_right = {
+	{
 		id = "bulb",
+		name = "bulb_right",
 		x = 364, y = 16,
 		no_col = true,
 	},
-	shelf = {
+
+	{
 		id = "shelf",
-		x = 136, y = 57,
+		x = 136, y = 57, z = 4,
 	},
-	electrical_box = {
+	{
 		id = "electrical_box",
 		x = 412, y = 48,
 	},
-	washing_machine_left = {
+
+	{
 		id = "washing_machine",
-		x = 256, y = 76,
 		grouped = true,
+		{
+			name = "washing_machine_left",
+			x = 256, y = 76, z = 4,
+		},
+		{
+			name = "washing_machine_right",
+			x = 294, y = 76, z = 5,
+		},
 	},
-	washing_machine_right = {
-		id = "washing_machine",
-		x = 294, y = 76,
-		grouped = true,
-	},
-	basket = {
+
+	{
 		id = "basket",
-		x = 343, y = 85,
 		grouped = true,
-	},
-	basket2 = {
-		id = "basket",
-		x = 338, y = 92,
-		scale = 0.75,
-		grouped = true,
+		{
+			name = "basket_left",
+			x = 343, y = 85, z = 4,
+		},
+		{
+			name = "basket_right",
+			x = 338, y = 92, z = 5,
+			scale = 0.75,
+		},
 	},
 }
 

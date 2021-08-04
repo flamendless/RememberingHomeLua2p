@@ -5,6 +5,7 @@ local max = math.max
 local insert = table.insert
 local huge = math.huge
 local floor = math.floor
+local sub = string.sub
 
 local Room = Concord.system({})
 
@@ -12,37 +13,74 @@ function Room:init(world)
 	self.world = world
 end
 
-function Room:create_room_items(atlas_res)
+function Room:create_room_item(frames, spr_res, t, g_id)
+	@@assert(type(frames) == "table")
+	@@assert(type(spr_res) == "string")
+	@@assert(type(t) == "table")
+	@@sassert(g_id, type(g_id) == "string")
+	local id = g_id or t.id
+	local item = frames[id]
+	local frame = item.frame
+	local scale = t.scale or 1
+	local w = floor(frame.w * scale)
+	local h = floor(frame.h * scale)
+
+	local e = Concord.entity(self.world)
+		:give("id", t.name or id)
+		:give("sprite", spr_res)
+		:give("pos", t.x, t.y)
+		:give("atlas", item)
+		:give("quad_transform", 0, scale, scale)
+		:give("z_index", t.z or 4, false)
+		:give("outline_val", t.outline_val or 1)
+
+	if not g_id and not t.no_col then
+		e:give("collider", w, h, "cross")
+		:give("bump")
+
+		if not t.not_interactive then
+			e:give("interactive")
+		end
+		if t.dialogue then
+			e:give("dialogue", unpack(t.dialogue))
+		end
+		if t.usable_with_item then
+			e:give("usable_with_item")
+		end
+	end
+	return e
+end
+
+function Room:parse_room_items(atlas_res)
 	@@assert(type(atlas_res) == "string")
 	local data, list = unpack(require("data." .. atlas_res))
 	local frames = data.frames
+	local spr_res = data.meta.image
+	spr_res = sub(spr_res, 0, -5)
 	local group = {}
-	for id, t in pairs(list) do
-		local item = frames[t.id]
-		local frame = item.frame
-		local scale = t.scale or 1
-		local w = floor(frame.w * scale)
-		local h = floor(frame.h * scale)
 
-		local e = Concord.entity(self.world)
-			:give("id", id)
-			:give("sprite", "atlas_storage_room_items")
-			:give("pos", t.x, t.y)
-			:give("atlas", item)
-			:give("quad_transform", 0, scale, scale)
-
+	for _, t in ipairs(list) do
 		if t.grouped then
-			if not group[t.id] then
-				group[t.id] = {}
+			local g_id = t.id
+			if not group[g_id] then
+				group[g_id] = {}
 			end
-			insert(group[t.id], e)
-		elseif not t.no_col then
-			e:give("collider", w, h, "cross")
-			:give("bump")
-			:give("interactive")
+			for _, t2 in ipairs(t) do
+				local e = self:create_room_item(frames, spr_res, t2, g_id)
+				insert(group[g_id], e)
+			end
+		else
+			self:create_room_item(frames, spr_res, t)
 		end
 	end
 
+	self:create_grouped_items(group, frames, list)
+end
+
+function Room:create_grouped_items(group, frames, list)
+	@@assert(type(group) == "table")
+	@@assert(type(frames) == "table")
+	@@assert(type(list) == "table")
 	for id, t in pairs(group) do
 		local x, y = huge, huge
 		local w, h = -huge, -huge
@@ -57,13 +95,21 @@ function Room:create_room_items(atlas_res)
 			e:give("grouped", id)
 		end
 
-		Concord.entity(self.world)
+		local e_g = Concord.entity(self.world)
 			:give("id", "col_" .. id)
 			:give("pos", x, y)
 			:give("bump")
 			:give("collider", w - x, h - y, "cross")
 			:give("interactive")
 			:give("grouped", id)
+
+		-- local other = list[id]
+		-- if other.dialogue then
+		-- 	e_g:give("dialogue", unpack(other.dialogue))
+		-- end
+		-- if other.usable_with_item then
+		-- 	e_g:give("usable_with_item")
+		-- end
 	end
 end
 

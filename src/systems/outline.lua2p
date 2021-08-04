@@ -4,13 +4,10 @@ local Outliner = require("modules.outliner")
 local Palette = require("palette")
 
 local Outline = Concord.system({
-	pool = {"id", "outline", "sprite", "pos"},
+	pool = {"id", "outline", "outline_val", "sprite", "pos"},
 	pool_grouped = {"grouped"},
 })
 
-local PADDING = 4
-local PADDING2 = PADDING * 2
-local PADDING_H = PADDING * 0.5
 local col_outline = Palette.get("outline")
 
 function Outline:init(world)
@@ -32,23 +29,25 @@ function Outline:create_outline(e)
 	local quad = e.quad
 	local grouped = e.grouped
 	local x, y = pos.x, pos.y
-	x = x - PADDING
-	y = y - PADDING
+	x = x - !(_PADDING)
+	y = y - !(_PADDING)
 	local id = grouped and grouped.value or e.id.value
 
 	local outline_e = Concord.entity(self.world)
 		:give("id", "outline_" .. id)
 		:give("pos", x, y)
 		:give("sprite", sprite.resource_id)
-		:give("outline", PADDING_H)
+		:give("outline")
+		:give("outline_val", e.outline_val.value)
+		:give("z_index", e.z_index.value - 1, false)
 
 	if quad then
 		local qx, qy, qw, qh = quad.quad:getViewport()
 		local qsw, qsh = quad.quad:getTextureDimensions()
-		qx = qx - PADDING
-		qy = qy - PADDING
-		qw = qw + PADDING2
-		qh = qh + PADDING2
+		qx = qx - !(_PADDING)
+		qy = qy - !(_PADDING)
+		qw = qw + !(_PADDING * 2)
+		qh = qh + !(_PADDING * 2)
 		local nq = love.graphics.newQuad(qx, qy, qw, qh, qsw, qsh)
 		outline_e:give("quad", nq)
 

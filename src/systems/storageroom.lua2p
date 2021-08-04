@@ -41,8 +41,7 @@ function StorageRoom:state_setup()
 	for _, v in pairs(Assemblages.StorageRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-
-	self.world:emit("create_room_items", "storage_room_items")
+	self.world:emit("parse_room_items", "storage_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -87,12 +86,10 @@ function StorageRoom:state_draw()
 	self.camera:attach()
 		self.effect:apply()
 		love.graphics.draw(self.bg)
-		self.world:emit("draw_outline")
 		self.world:emit("draw")
 		self.world:emit("draw_z")
 		love.graphics.setShader()
 		-- self.world:emit("draw_light_end")
-		-- self.world:emit("draw_rect")
 	self.camera:detach()
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")

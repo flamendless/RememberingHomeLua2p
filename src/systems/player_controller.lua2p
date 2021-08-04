@@ -229,6 +229,8 @@ end
 function PlayerController:player_reset_anim(e)
 	@@assert(e.__isEntity and e.player)
 	e:remove("override_animation")
+	:remove("change_animation_tag")
+	:remove("animation_on_loop")
 	local anim = e.animation
 	anim.is_playing = true
 	anim.anim8:resume()
