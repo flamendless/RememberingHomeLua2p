@@ -1,4 +1,4 @@
-local StorageRoom = {
+local UtilityRoom = {
 	colliders = {},
 }
 
@@ -6,7 +6,7 @@ local left_wall_w = 64
 local right_wall_w = 32
 local ground_h = 32
 
-function StorageRoom.colliders.ground(e, w, h)
+function UtilityRoom.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
 	:give("pos", left_wall_w, h - ground_h)
 	:give("collider", w - left_wall_w - right_wall_w, ground_h)
@@ -14,7 +14,7 @@ function StorageRoom.colliders.ground(e, w, h)
 	:give("ground")
 end
 
-function StorageRoom.colliders.left_bound(e, w, h)
+function UtilityRoom.colliders.left_bound(e, w, h)
 	e:give("id", "col_left_bound")
 	:give("pos", 0, 0)
 	:give("collider", left_wall_w, h)
@@ -22,7 +22,7 @@ function StorageRoom.colliders.left_bound(e, w, h)
 	:give("wall")
 end
 
-function StorageRoom.colliders.right_bound(e, w, h)
+function UtilityRoom.colliders.right_bound(e, w, h)
 	e:give("id", "col_right_bound")
 	:give("pos", w - right_wall_w, 0)
 	:give("collider", right_wall_w, h)
@@ -30,4 +30,4 @@ function StorageRoom.colliders.right_bound(e, w, h)
 	:give("wall")
 end
 
-return StorageRoom
+return UtilityRoom

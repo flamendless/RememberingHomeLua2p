@@ -1,3 +1,5 @@
+--https://github.com/rxi/lite/blob/master/data/core/strict.lua)
+
 local strict = {}
 strict.defined = {}
 

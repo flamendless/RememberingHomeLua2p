@@ -59,8 +59,8 @@ function Outline:create_outline(e)
 end
 
 function Outline:on_change_interactive(e, other)
-	self:remove_grouped_outline(other)
 	self:on_collide_interactive(e, other)
+	self:remove_outlines()
 end
 
 function Outline:on_collide_interactive(_, other)
@@ -76,21 +76,12 @@ function Outline:on_collide_interactive(_, other)
 end
 
 function Outline:on_leave_interactive(_, other)
-	self:remove_grouped_outline(other)
-	for _, e in ipairs(self.pool) do
-		local id = e.id.value
-		if stringx.ends_with(id, other.id.value) then
-			e:destroy()
-		end
-	end
+	self:remove_outlines()
 end
 
-function Outline:remove_grouped_outline(other)
-	if not other.grouped then return end
+function Outline:remove_outlines()
 	for _, e in ipairs(self.pool) do
-		if other.grouped.value ~= e.id.value then
-			e:destroy()
-		end
+		e:destroy()
 	end
 end
 

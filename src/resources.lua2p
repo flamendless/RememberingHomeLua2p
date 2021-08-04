@@ -186,10 +186,10 @@ Resources.meta.Outside = {
 	},
 }
 
-Resources.meta.StorageRoom = {
+Resources.meta.UtilityRoom = {
 	images = {
-		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
-		{"atlas_storage_room_items", !(path_images .. "storage_room/atlas_storage_room_items.png")},
+		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
+		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
 		!!(get_res("player"))
 		!!(get_res("ui"))
 		!!(get_res("items"))

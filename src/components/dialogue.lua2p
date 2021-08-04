@@ -1,5 +1,9 @@
 local Concord = require("modules.concord.concord")
 
+!if _DEV then
+local Dialogues = require("dialogues")
+!end
+
 Concord.component("text_can_proceed")
 Concord.component("text_skipped")
 
@@ -20,6 +24,7 @@ Concord.component("dialogue_item")
 Concord.component("dialogue", function(c, main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
+	@@assert(Dialogues.get(main, sub))
 	c.main = main
 	c.sub = sub
 end)

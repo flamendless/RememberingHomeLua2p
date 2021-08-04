@@ -24,7 +24,7 @@ local data = {
 				y = 0.5
 			}
 		},
-		iron_horse = {
+		ironing_board = {
 			frame = {
 				x = 4,
 				y = 67,
@@ -196,7 +196,7 @@ local data = {
 	meta = {
 		app = "http://free-tex-packer.com",
 		version = "0.6.7",
-		image = "atlas_storage_room_items.png",
+		image = "atlas_utility_room_items.png",
 		format = "RGBA8888",
 		size = {
 			w = 128,
@@ -223,15 +223,23 @@ local list = {
 	{
 		id = "shelf",
 		x = 136, y = 57, z = 4,
+		dialogue = {"utility_room", "shelf"},
 	},
 	{
 		id = "electrical_box",
-		x = 412, y = 48,
+		x = 412, y = 48, z = 4,
+		dialogue = {"utility_room", "electrical_box"},
+	},
+	{
+		id = "ironing_board",
+		x = 120, y = 55, z = 4,
+		dialogue = {"utility_room", "ironing_board"},
 	},
 
 	{
 		id = "washing_machine",
 		grouped = true,
+		dialogue = {"utility_room", "washing_machine"},
 		{
 			name = "washing_machine_left",
 			x = 256, y = 76, z = 4,
@@ -245,6 +253,7 @@ local list = {
 	{
 		id = "basket",
 		grouped = true,
+		dialogue = {"utility_room", "basket"},
 		{
 			name = "basket_left",
 			x = 343, y = 85, z = 4,

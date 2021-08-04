@@ -32,7 +32,7 @@ local Settings = require("settings")
 local WindowMode = require("window_mode")
 
 !if _DEV then
-require("strict")
+require("modules.strict")
 local DevTools = require("devtools")
 !end
 
@@ -76,7 +76,7 @@ function love.load()
 	-- GameStates.switch("Menu")
 	-- GameStates.switch("Intro")
 	-- GameStates.switch("Outside")
-	GameStates.switch("StorageRoom")
+	GameStates.switch("UtilityRoom")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")

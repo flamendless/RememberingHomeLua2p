@@ -59,11 +59,32 @@ dialogues.outside = {
 	},
 }
 
+dialogues.utility_room = {
+	washing_machine = {
+		"a washing machine",
+		"it's too late to do the laundry",
+	},
+	basket = {
+		"a basket for used clothes",
+		"but there's also trash",
+	},
+	electrical_box = {
+		"a basket for used clothes",
+	},
+	shelf = {
+		"shelf for various items",
+		"I seriously need to get this organized",
+	},
+	ironing_board = {
+		"an ironing board I rarely use",
+	},
+}
+
 function Dialogues.get(main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
-	@@assert(dialogues[main])
-	@@assert(dialogues[main][sub])
+	@@assert(dialogues[main], "there is no " .. main .. " in dialogue table")
+	@@assert(dialogues[main][sub], "there is no " .. sub .. " in dialogue table")
 	return dialogues[main][sub]
 end
 

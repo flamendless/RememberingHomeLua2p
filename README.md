@@ -44,6 +44,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## Tools:
 
+* [Free Texture Packer](https://free-tex-packer.com/) - for atlas creation (using my own custom lua exporter)
 * [HotParticles](https://github.com/ReFreezed/HotParticles) - for testing/playing with particle systems.
 * [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system

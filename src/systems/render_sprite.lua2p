@@ -7,7 +7,6 @@ local RenderSprite = Concord.system({
 		"!z_index", "!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
 	pool_z = {"pos", "sprite", "z_index",
 		"!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
-	-- pool_outline = {"pos", "sprite", "outline"},
 })
 
 local function sort_z_ex(a, b)
@@ -116,35 +115,23 @@ end
 
 function RenderSprite:draw_z()
 	@@profb("render_sprite_z")
-	local temp
+	local temp = love.graphics.getShader()
 	for _, e in ipairs(self.pool_z) do
 		if e.fog and not e.hidden then
-			temp = love.graphics.getShader()
 			@@profb("draw_fog")
 			self.world:emit("draw_fog", e)
 			self:draw_sprite_ex(e)
 			self.world:emit("end_draw_fog")
 			@@profe("draw_fog")
 		elseif e.outline and not e.hidden then
-			temp = love.graphics.getShader()
 			self:draw_sprite_ex(e)
 		else
-			if temp then
-				love.graphics.setShader(temp)
-			end
+			love.graphics.setShader(temp)
 			self:draw_sprite_ex(e)
 		end
 	end
 	@@profe("render_sprite_z")
 end
-
--- function RenderSprite:draw_outline()
--- 	local cur_shader = love.graphics.getShader()
--- 	for _, e in ipairs(self.pool_outline) do
--- 		self:draw_sprite_ex(e)
--- 	end
--- 	love.graphics.setShader(cur_shader)
--- end
 
 !if _DEV then
 local Slab = require("modules.slab")

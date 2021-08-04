@@ -15,19 +15,19 @@ local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
 	Player = require("assemblages.player"),
-	StorageRoom = require("assemblages.storage_room"),
+	UtilityRoom = require("assemblages.utility_room"),
 	UI = require("assemblages.ui"),
 }
 
-local StorageRoom = Concord.system({
+local UtilityRoom = Concord.system({
 })
 
-function StorageRoom:init(world)
+function UtilityRoom:init(world)
 	self.world = world
 end
 
-function StorageRoom:state_setup()
-	local w, h = Resources.data.images.storage_room:getDimensions()
+function UtilityRoom:state_setup()
+	local w, h = Resources.data.images.utility_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.main_canvas = Canvas.create_main({})
@@ -36,12 +36,12 @@ function StorageRoom:state_setup()
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	self.bg = Resources.data.images.storage_room
+	self.bg = Resources.data.images.utility_room
 
-	for _, v in pairs(Assemblages.StorageRoom.colliders) do
+	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-	self.world:emit("parse_room_items", "storage_room_items")
+	self.world:emit("parse_room_items", "utility_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -54,7 +54,7 @@ function StorageRoom:state_setup()
 	self.effect = NGrading:new(lut_dusk, lut_size)
 end
 
-function StorageRoom:state_init()
+function UtilityRoom:state_init()
 	!if _DEV then
 	local e_player = self:spawn_player()
 	!end
@@ -70,13 +70,13 @@ function StorageRoom:state_init()
 	end)
 end
 
-function StorageRoom:state_update(dt)
+function UtilityRoom:state_update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 	-- self.world:emit("update_light", dt)
 end
 
-function StorageRoom:state_draw()
+function UtilityRoom:state_draw()
 	-- self.world:emit("draw_light_start")
 	-- self.world:emit("draw_light")
 	love.graphics.setBlendMode("alpha")
@@ -104,7 +104,7 @@ function StorageRoom:state_draw()
 	self.world:emit("draw_dialogues")
 end
 
-function StorageRoom:spawn_player()
+function UtilityRoom:spawn_player()
 	local x, y
 	!if _DEV then
 	x, y = 486, 48
@@ -113,9 +113,9 @@ function StorageRoom:spawn_player()
 		x, y = 400, 48
 	end
 	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.storage_room, x, y)
+		:assemble(Assemblages.Player.utility_room, x, y)
 	self.world:emit("face_left", e_player)
 	return e_player
 end
 
-return StorageRoom
+return UtilityRoom

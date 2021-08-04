@@ -44,7 +44,7 @@ systems.Outside = {
 	"pause", "room", "outline", "atlas",
 }
 
-systems.StorageRoom = {
+systems.UtilityRoom = {
 	"systems", "animation", "atlas", "bump_collision", "camera", "color", "room",
 	"dialogues", "interactive", "light", "movement", "notification",
 	"player_controller", "render_sprite", "render_text", "render_ui",
