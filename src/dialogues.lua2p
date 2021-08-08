@@ -69,14 +69,11 @@ dialogues.utility_room = {
 		"but there's also trash",
 	},
 	electrical_box = {
-		"a basket for used clothes",
+		"an electrical junction box",
 	},
 	shelf = {
 		"shelf for various items",
 		"I seriously need to get this organized",
-	},
-	ironing_board = {
-		"an ironing board I rarely use",
 	},
 }
 

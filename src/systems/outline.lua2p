@@ -44,17 +44,17 @@ function Outline:create_outline(e)
 	if quad then
 		local qx, qy, qw, qh = quad.quad:getViewport()
 		local qsw, qsh = quad.quad:getTextureDimensions()
+		local qt = e.quad_transform
+		if qt then
+			outline_e:give("quad_transform", 0, qt.sx, qt.sy)
+		end
+
 		qx = qx - !(_PADDING)
 		qy = qy - !(_PADDING)
 		qw = qw + !(_PADDING * 2)
 		qh = qh + !(_PADDING * 2)
 		local nq = love.graphics.newQuad(qx, qy, qw, qh, qsw, qsh)
 		outline_e:give("quad", nq)
-
-		local qt = e.quad_transform
-		if qt then
-			outline_e:give("quad_transform", 0, qt.sx, qt.sy)
-		end
 	end
 end
 

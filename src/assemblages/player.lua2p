@@ -102,8 +102,8 @@ function Player.outside_house(e, x, y)
 		x, y,
 		{
 			idle = {x = 0, y = 0},
-			walk = {x = 128, y = 92},
-			run = {x = 180, y = 144},
+			walk = {x = 96, y = 0},
+			run = {x = 148, y = 0},
 		},
 		320,
 		{
@@ -122,8 +122,8 @@ function Player.utility_room(e, x, y)
 		x, y,
 		{
 			idle = {x = 0, y = 0},
-			walk = {x = 128, y = 92},
-			run = {x = 180, y = 144},
+			walk = {x = 96, y = 0},
+			run = {x = 148, y = 0},
 		},
 		320,
 		{
@@ -131,7 +131,7 @@ function Player.utility_room(e, x, y)
 			can_run = false,
 			can_open_door = false,
 		})
-	:give("z_index", 5)
+	:give("z_index", 8)
 	:give("color", {1, 1, 1, 1})
 end
 

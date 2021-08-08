@@ -41,7 +41,7 @@ function UtilityRoom:state_setup()
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-	self.world:emit("parse_room_items", "utility_room_items")
+	self.world:emit("parse_room_items", "atlas_utility_room_items", "utility_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -60,6 +60,7 @@ function UtilityRoom:state_init()
 	!end
 
 	self.timeline = TLE.Do(function()
+		self.camera:setScale(4)
 		!if _DEV then
 		self.world:emit("camera_follow", e_player, 0.25)
 		self.world:emit("player_can_move", true)
@@ -107,10 +108,10 @@ end
 function UtilityRoom:spawn_player()
 	local x, y
 	!if _DEV then
-	x, y = 486, 48
+	x, y = 318, 48
 	!end
 	if self.prev_id == "Outside" then
-		x, y = 400, 48
+		x, y = 318, 48
 	end
 	local e_player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.utility_room, x, y)

@@ -2,9 +2,9 @@ local UtilityRoom = {
 	colliders = {},
 }
 
-local left_wall_w = 64
-local right_wall_w = 32
-local ground_h = 32
+local left_wall_w = 16
+local right_wall_w = 16
+local ground_h = 16
 
 function UtilityRoom.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
