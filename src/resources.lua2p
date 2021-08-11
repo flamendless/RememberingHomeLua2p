@@ -205,6 +205,10 @@ Resources.meta.UtilityRoom = {
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
+	array_images = {
+		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
+	},
+
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		!!(get_res("fnt_inventory"))

@@ -1,0 +1,27 @@
+local Light = {}
+
+local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
+local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
+local lvfd = {{"diffuse", "float", 3}} -- color
+
+function Light.uniform_light(e, w, h, diffuse)
+	local light = love.graphics.newMesh({
+		{-w/2, -h/2, 0,0, 0,0,0,1},
+		{ w/2, -h/2, 0,0, 0,0,0,1},
+		{ w/2,  h/2, 0,0, 0,0,0,1},
+		{-w/2,  h/2, 0,0, 0,0,0,1},
+	}, "fan", "static")
+
+	local m_pos = love.graphics.newMesh(lvfp, {{0, 0, 0, 0}})
+	local m_diffuse = love.graphics.newMesh(lvfd, {{0.2, 0.2, 0.22}})
+	light:attachAttribute("lpos", m_pos, "perinstance")
+	light:attachAttribute("diffuse", m_diffuse, "perinstance")
+
+	e:give("id", "uniform_light")
+	:give("uniform_light")
+	:give("light_mesh", light)
+	:give("light_pos", m_pos)
+	:give("diffuse", m_diffuse)
+end
+
+return Light

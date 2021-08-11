@@ -3,6 +3,15 @@ local Concord = require("modules.concord.concord")
 local Image = require("image")
 local Resources = require("resources")
 
+Concord.component("bg")
+
+Concord.component("array_image", function(c, resource_id)
+	@@assert(type(resource_id) == "string")
+	c.resource_id = resource_id
+	c.image = Resources.data.array_images[resource_id]
+	c.iw, c.ih = c.image:getDimensions()
+end)
+
 local c_sprite = Concord.component("sprite", function(c, resource_id, name)
 	@@assert(type(resource_id) == "string")
 	@@sassert(name, type(name) == "string")
