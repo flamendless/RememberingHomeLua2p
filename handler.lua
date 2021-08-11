@@ -119,25 +119,29 @@ _NAME_ARTIST = "Conrad"
 _NAME_DESIGNER = "Piolo Maurice"
 _NAME_MUSICIAN = "???"
 
+_FULL_NAME_STUDIO = "flamendless studio"
 _FULL_NAME_DEVELOPER = "Brandon Blanker Lim-it"
 _FULL_NAME_ARTIST = "Conrad Reyes"
 _FULL_NAME_DESIGNER = "Piolo Maurice Laudencia"
+_FULL_NAME_MUSICIAN = "???"
 
+_TWITTER_STUDIO = "@flam8studio"
 _TWITTER_DEVELOPER = "@flamendless"
-_TWITTER_ARTIST = "@wits"
+_TWITTER_ARTIST = "@Shizzy619"
 _TWITTER_DESIGNER = "@piotato"
+_TWITTER_MUSICIAN = "@???"
 
 _TOOLS = {
 	"Manjaro", "i3-Gaps", "Discord", "Löve Framework",
-	"Vim", "Trello", "Aseprite", "Audacity",
+	"Luapreprocess", "Vim", "Aseprite", "Audacity", "Free Texture Packer",
+	"makelove", "msdf-bmfont",
 }
 
 _LIBS = {
-	"Anim8", "Batteries", "Bitser", "Bump-niji",
-	"Concord", "Enum", "Flux", "Gamera",
-	"HUMP", "JProf", "Lily", "Log",
-	"Luapreprocessor", "Lume", "NGrading", "ReflowPrint", "SDF",
-	"Semver", "Slab", "Splashes", "strict", "TimelineEvents",
+	"Anim8", "Batteries", "Bitser", "Bump-niji", "Concord", "Enum", "Flux",
+	"Gamera", "HUMP", "JProf", "Lily", "Log", "Lume", "ngrading", "Outliner",
+	"ReflowPrint", "SDF", "Semver", "Slab", "Splashes", "strict",
+	"TimelineEvents",
 }
 
 return {}

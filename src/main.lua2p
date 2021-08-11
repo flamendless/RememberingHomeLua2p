@@ -1,6 +1,11 @@
 --[[
 Project: Going Home: Revisited
+By: flamendless studio @flam8studio
+
 Author: Brandon Blanker Lim-it @flamendless
+Artist: Conrad Reyes @Shizzy619
+Level Designer: Piolo Maurice Laudencia @piotato
+
 Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
 
@@ -73,10 +78,10 @@ function love.load()
 
 	!if _DEV then
 	-- GameStates.switch("Splash")
-	-- GameStates.switch("Menu")
+	GameStates.switch("Menu")
 	-- GameStates.switch("Intro")
 	-- GameStates.switch("Outside")
-	GameStates.switch("UtilityRoom")
+	-- GameStates.switch("UtilityRoom")
 	DevTools.init()
 	!else
 	GameStates.switch("Splash")

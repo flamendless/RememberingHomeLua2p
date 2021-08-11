@@ -15,5 +15,6 @@ vec4 effect(vec4 color, Image texture, vec2 uv, vec2 screen_coords)
 	color.g = Texel(texture, new_uv).g;
 	color.b = Texel(texture, new_uv + vec2(abb_amount_x, abb_amount_y)).b;
 	color.a = Texel(texture, new_uv).a * max_a;
+
 	return color;
 }
