@@ -49,6 +49,8 @@ function UtilityRoom:state_setup()
 		:give("bg")
 	Concord.entity(self.world):assemble(Assemblages.Light.uniform_light,
 		w, h, {0.2, 0.2, 0.22})
+	Concord.entity(self.world):assemble(Assemblages.Light.point_light,
+		w * 0.75, h * 0.5, 99, {1, 0, 0})
 
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)

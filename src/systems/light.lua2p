@@ -3,6 +3,7 @@ local Concord = require("modules.concord.concord")
 local Light = Concord.system({
 	pool_camera = {"camera"},
 	pool_u = {"id", "uniform_light", "light_mesh", "light_pos", "diffuse"},
+	pool_p = {"id", "point_light", "light_mesh", "light_pos", "diffuse", "pos"},
 	pool_light = {"id", "light_mesh", "light_pos", "diffuse"},
 })
 
@@ -13,6 +14,17 @@ function Light:init(world)
 
 	self.pool_camera.onAdded = function(pool, e)
 		self.camera = e.camera.camera
+	end
+
+	self.pool_p.onAdded = function(pool, e)
+	end
+end
+
+function Light:update(dt)
+	local mx, my = love.mouse.getPosition()
+	for _, e in ipairs(self.pool_p) do
+		local wx, wy = self.camera:toWorld(mx, my)
+		e.light_pos.value:setVertex(1, {wx, wy, -1, 99})
 	end
 end
 
