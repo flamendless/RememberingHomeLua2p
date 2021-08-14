@@ -11,15 +11,44 @@ function RenderRect:init(world)
 	self.world = world
 end
 
+-- local function draw_rotated_rect(mode, x, y, w, h, r)
+-- --usage
+-- local pos = e.pos
+-- local rect = e.rect
+-- local w, h = rect.w * 0.15, rect.h * 0.15
+-- local w2, h2 = rect.w * 0.35, rect.h * 0.35
+-- local w3, h3 = rect.w * 0.55, rect.h * 0.55
+-- local x = pos.x + rect.w * 0.5
+-- local y = pos.y + rect.h * 0.5
+-- local c = e.hovered_cell and c_l_h or c_l_u
+-- love.graphics.setColor(c)
+-- draw_rotated_rect("line", x, y, w, h, 0.7853981634)
+-- draw_rotated_rect("line", x, y, w2, h2, 0.7853981634)
+-- draw_rotated_rect("line", x, y, w3, h3, 0.7853981634)
+--
+-- 	love.graphics.push()
+-- 	love.graphics.translate(x, y)
+-- 	love.graphics.rotate(r)
+-- 	love.graphics.rectangle(mode, -w * 0.5, -h * 0.5, w, h)
+-- 	love.graphics.pop()
+-- end
+
 function RenderRect:draw_rect_ex(e)
 	local color = e.color.value
 	local pos = e.pos
 	local rect = e.rect
 	local draw_mode = e.draw_mode.value
+	local border = e.rect_border
 	local x, y = pos.x, pos.y
 	local w, h = rect.w, rect.h
 	local t = e.transform
 	local lw = e.line_width
+	local rx, ry = 0, 0
+
+	if border then
+		rx = border.rx
+		ry = border.ry
+	end
 
 	if t then
 		w = w * t.sx
@@ -43,7 +72,7 @@ function RenderRect:draw_rect_ex(e)
 
 	love.graphics.setColor(color)
 	love.graphics.setLineStyle("rough")
-	love.graphics.rectangle(draw_mode, x, y, w, h)
+	love.graphics.rectangle(draw_mode, x, y, w, h, rx, ry)
 
 	if lw then
 		love.graphics.setLineWidth(tlw)

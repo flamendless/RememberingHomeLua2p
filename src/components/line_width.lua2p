@@ -1,6 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("line_width", function(c, line_width)
-	@@assert(type(line_width) == "number")
-	c.value = line_width
-end)

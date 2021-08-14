@@ -13,3 +13,15 @@ Concord.component("rect", function(c, w, h)
 	c.w = w
 	c.h = h
 end)
+
+Concord.component("rect_border", function(c, rx, ry)
+	@@assert(type(rx) == "number")
+	@@assert(type(ry) == "number")
+	c.rx = rx
+	c.ry = ry
+end)
+
+Concord.component("line_width", function(c, line_width)
+	@@assert(type(line_width) == "number")
+	c.value = line_width
+end)

@@ -129,9 +129,27 @@ function Inventory:draw_inventory()
 	for _, e in ipairs(self.pool_cell_line) do
 		self.world:emit("draw_rect_ex", e)
 	end
-	for _, e in ipairs(self.pool_cell_fill) do
+
+	for i, e in ipairs(self.pool_cell_fill) do
 		self.world:emit("draw_rect_ex", e)
+
+		if not self.pool_item[i] then
+			local pos = e.pos
+			local rect = e.rect
+			local border = e.rect_border
+			local rx, ry = border.rx * 0.5, border.ry * 0.5
+			local c = e.hovered_cell and c_l_h or c_l_u
+			local prev_lw = love.graphics.getLineWidth()
+			love.graphics.setColor(c)
+			love.graphics.setLineWidth(2)
+			love.graphics.line(pos.x + rx, pos.y + ry,
+				pos.x + rect.w - rx, pos.y + rect.h - ry)
+			love.graphics.line(pos.x + rx, pos.y + rect.h - ry,
+				pos.x + rect.w - rx, pos.y + ry)
+			love.graphics.setLineWidth(prev_lw)
+		end
 	end
+
 	for _, e in ipairs(self.pool_item) do
 		self.world:emit("draw_sprite_ex", e)
 	end
@@ -177,16 +195,21 @@ function Inventory:create_inventory()
 			local srx = bx + x * sw
 			local sry = by + y * sh
 			local i = y * COLS + x
+			local border = 12
 			local a = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
 					srx, sry, sw, sh, alpha2)
 				:give("id", "inventory_cell_fill_" .. i)
 				:give("cell_fill")
 				:give("draw_mode", "fill")
+				:give("rect_border", border, border)
+				:give("line_width", 2)
 			local b = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
 					srx, sry, sw, sh, alpha2)
 				:give("id", "inventory_cell_line_" .. i)
 				:give("cell_line")
 				:give("draw_mode", "line")
+				:give("rect_border", border, border)
+				:give("line_width", 2)
 			if y == 0 and x == 0 then
 				a:give("hovered_cell")
 				b:give("hovered_cell")
