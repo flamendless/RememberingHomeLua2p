@@ -7,14 +7,24 @@ local Light = Concord.system({
 	pool_light = {"id", "light_mesh", "light_pos", "diffuse"},
 })
 
+local shader_geometry = "shaders/geometry_pass.glsl"
+local shader_lighting = "shaders/lighting_pass.glsl"
+
 function Light:init(world)
 	self.world = world
-	self.geom_pass = love.graphics.newShader("shaders/geometry_pass.glsl")
-	self.lighting_pass = love.graphics.newShader("shaders/lighting_pass.glsl")
+	self.lighting_pass = love.graphics.newShader(shader_lighting)
 
 	self.pool_camera.onAdded = function(pool, e)
 		self.camera = e.camera.camera
 	end
+end
+
+function Light:create_light_shaders_ngrading(ngrading)
+	@@assert(ngrading:type() == "NGrading")
+	local str_ngrading = ngrading:get_shader()
+	local geometry = love.filesystem.read(shader_geometry)
+	self.geometry_pass = love.graphics.newShader(str_ngrading .. geometry)
+	ngrading:setup_data(self.geometry_pass)
 end
 
 function Light:update_lights(dt)
@@ -29,8 +39,8 @@ function Light:update_lights(dt)
 	end
 end
 
-function Light:begin_geom_pass()
-	love.graphics.setShader(self.geom_pass)
+function Light:begin_geometry_pass()
+	love.graphics.setShader(self.geometry_pass)
 end
 
 function Light:begin_light_pass(buffers)

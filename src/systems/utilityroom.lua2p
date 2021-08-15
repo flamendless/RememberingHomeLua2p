@@ -65,6 +65,7 @@ function UtilityRoom:state_setup()
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
 	self.effect = NGrading:new(lut_dusk, lut_size)
+	self.world:emit("create_light_shaders_ngrading", self.effect)
 end
 
 function UtilityRoom:state_init()
@@ -94,7 +95,7 @@ function UtilityRoom:state_draw()
 	love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 	love.graphics.clear()
 	self.camera:attach()
-		self.world:emit("begin_geom_pass")
+		self.world:emit("begin_geometry_pass")
 			love.graphics.setColor(1, 1, 1)
 			-- self.effect:apply()
 			self.world:emit("draw_bg")

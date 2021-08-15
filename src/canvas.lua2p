@@ -1,6 +1,6 @@
-local Canvas = class()
-
-local type_id = "CustomCanvas"
+local Canvas = class({
+	name = "CustomCanvas"
+})
 
 local floor = math.floor
 
@@ -100,7 +100,7 @@ function Canvas:new_from_table(tbl)
 end
 
 function Canvas:new_from_canvas(source)
-	@@assert(source:type() == type_id)
+	@@assert(source:type() == "CustomCanvas")
 	self.canvas = love.graphics.newCanvas(source.width, source.height)
 	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
 	self.x, self.y = source.x, source.y
@@ -201,7 +201,5 @@ function Canvas:render()
 	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, scale, scale)
 	love.graphics.setBlendMode("alpha")
 end
-
-function Canvas:type() return type_id end
 
 return Canvas

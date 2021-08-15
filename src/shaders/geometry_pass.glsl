@@ -17,7 +17,7 @@ void effect(){
 		//c = vec4(1.0, 0.0, 1.0, 1.0);
 		n = vec4(0.5, 0.5, 1.0, n.a);
 	}
-	love_Canvases[0] = c;
+	love_Canvases[0] = ngrading(c);
 	love_Canvases[1] = n;
 }
 #endif
