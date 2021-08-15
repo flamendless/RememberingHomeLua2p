@@ -69,7 +69,6 @@ function NGrading:new_single(img, cs)
 		image:setWrap("clamp", "clamp")
 	end
 
-
 	self.tile_size = {tw, th}
 	self.cell_size = cs
 	self.volume_img = volume_img

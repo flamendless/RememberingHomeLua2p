@@ -15,16 +15,17 @@ function Light:init(world)
 	self.pool_camera.onAdded = function(pool, e)
 		self.camera = e.camera.camera
 	end
-
-	self.pool_p.onAdded = function(pool, e)
-	end
 end
 
-function Light:update(dt)
+function Light:update_lights(dt)
 	local mx, my = love.mouse.getPosition()
 	for _, e in ipairs(self.pool_p) do
+		local pl = e.point_light
+		local pos = e.pos
 		local wx, wy = self.camera:toWorld(mx, my)
-		e.light_pos.value:setVertex(1, {wx, wy, -1, 99})
+		e.light_pos.value:setVertex(1, {wx, wy, pl.z, pl.size})
+		pos.x = wx
+		pos.y = wy
 	end
 end
 
@@ -37,14 +38,6 @@ function Light:begin_light_pass(buffers)
 	love.graphics.setShader(self.lighting_pass)
 	self.lighting_pass:send("cb", buffers[1].canvas)
 	self.lighting_pass:send("nb", buffers[2].canvas)
-end
-
-function Light:update_lights(dt)
-	local x, y = self.camera:getPosition()
-	for _, e in ipairs(self.pool_light) do
-		local l_pos = e.light_pos
-		l_pos.value:setVertex(1, {x, y, -1, 1})
-	end
 end
 
 function Light:draw_lights()

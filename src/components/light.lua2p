@@ -1,8 +1,13 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("uniform_light")
-Concord.component("point_light")
-Concord.component("spot_light")
+
+Concord.component("point_light", function(c, z, size)
+	@@assert(type(z) == "number")
+	@@assert(type(size) == "number")
+	c.z = z
+	c.size = size
+end)
 
 Concord.component("light_mesh", function(c, mesh)
 	@@assert(mesh:type() == "Mesh")

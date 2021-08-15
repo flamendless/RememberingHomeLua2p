@@ -45,12 +45,11 @@ function UtilityRoom:state_setup()
 		:give("id", "bg")
 		:give("pos", 0, 0)
 		:give("sprite", "utility_room")
-		:give("array_image", "utility_room")
 		:give("bg")
-	Concord.entity(self.world):assemble(Assemblages.Light.uniform_light,
-		w, h, {0.2, 0.2, 0.22})
+	-- Concord.entity(self.world):assemble(Assemblages.Light.uniform_light,
+	-- 	w, h, {0.2, 0.2, 0.22})
 	Concord.entity(self.world):assemble(Assemblages.Light.point_light,
-		w * 0.75, h * 0.5, 99, {1, 0, 0})
+		w * 0.75, h * 0.5, -4, 32, {1, 1, 1})
 
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
@@ -99,8 +98,8 @@ function UtilityRoom:state_draw()
 			love.graphics.setColor(1, 1, 1)
 			-- self.effect:apply()
 			self.world:emit("draw_bg")
-			-- self.world:emit("draw")
-			-- self.world:emit("draw_z")
+			self.world:emit("draw")
+			self.world:emit("draw_z")
 		self.world:emit("begin_light_pass", self.buffers)
 			love.graphics.setCanvas()
 			love.graphics.clear()

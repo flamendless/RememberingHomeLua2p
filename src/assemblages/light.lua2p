@@ -29,7 +29,7 @@ function Light.uniform_light(e, w, h, diffuse)
 	:give("diffuse", m_diffuse)
 end
 
-function Light.point_light(e, x, y, size, diffuse)
+function Light.point_light(e, x, y, z, size, diffuse)
 	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
 	for _ = 1, 64 do
 		local t = v[#v]
@@ -38,39 +38,17 @@ function Light.point_light(e, x, y, size, diffuse)
 	local light = love.graphics.newMesh(v, nil, "static")
 	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
 	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
-	m_position:setVertex(1, {x, y, -1, size})
+	m_position:setVertex(1, {x, y, z, size})
 	m_diffuse:setVertex(1, diffuse)
 	light:attachAttribute("lpos", m_position, "perinstance")
 	light:attachAttribute("diffuse", m_diffuse, "perinstance")
 
 	e:give("id", "point_light")
-	:give("point_light")
+	:give("point_light", z, size)
 	:give("light_mesh", light)
 	:give("light_pos", m_position)
 	:give("diffuse", m_diffuse)
 	:give("pos", x, y)
-end
-
---TODO
-function Light.spot_light(e, diffuse)
-	local v = {{0,0, 0,0, 0,0,0,1}, {0,-1, 0,0, 1,1,1,1}}
-	for _ = 1, 32 do
-		local t = v[#v]
-		v[#v+1] = {t[1]*r[1] - t[2]*r[2], t[1]*r[2] + t[2]*r[1], 0,0, 1,1,1,1}
-	end
-	local light = love.graphics.newMesh(v, nil, "static")
-	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
-	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
-	m_position:setVertex(1, {100,100,-1, 100})
-	m_diffuse:setVertex(1, {.3, .7, .3})
-	light:attachAttribute("lpos", m_position, "perinstance")
-	light:attachAttribute("diffuse", m_diffuse, "perinstance")
-
-	e:give("id", "spot_light")
-	:give("spot_light")
-	:give("light_mesh", light)
-	:give("light_pos", m_position)
-	:give("diffuse", m_diffuse)
 end
 
 return Light
