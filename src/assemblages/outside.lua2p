@@ -52,7 +52,7 @@ end
 function Outside.firefly(e, x, y, points)
 	e:give("id", "firefly")
 	:give("firefly")
-	:give("sprite", "firefly_light", "round")
+	:give("sprite", "firefly_light")
 	:give("pos", x, y)
 	:give("path", points)
 	:give("transform", 0, 1, 1)

@@ -168,6 +168,11 @@ function Outside:state_init()
 				self.camera:setScale(dt_cam.scale)
 			end)
 
+		tle_log("car light off")
+		--show car light,
+		--remove car light,
+		--show player
+
 		tle_log("begin rain fade")
 		local dur_camera_follow = 1.5
 		local e_player = self:spawn_player()

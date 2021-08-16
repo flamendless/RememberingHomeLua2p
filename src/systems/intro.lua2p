@@ -279,6 +279,7 @@ function Intro:state_init()
 		self.world:emit("destroy_skip")
 
 		TLE.Event.Wait(1)
+		self.e_title_light:remove("hidden")
 		self.e_title_light:remove("light_disabled")
 		self.e_title:remove("hidden")
 			:give("color_fade_in", 4)

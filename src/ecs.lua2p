@@ -46,7 +46,7 @@ systems.Outside = {
 
 systems.UtilityRoom = {
 	"systems", "animation", "atlas", "bump_collision", "camera", "color", "room",
-	"dialogues", "interactive", "light", "movement", "notification",
+	"dialogues", "interactive", "deferred_lighting", "movement", "notification",
 	"player_controller", "render_sprite", "render_text", "render_ui",
 	"transform", "typewriter", "gamestates", "inventory", "entity", "items",
 	"culling", "glitch_shader_effect", "pause", "outline",
