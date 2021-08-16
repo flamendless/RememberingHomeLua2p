@@ -1,25 +1,20 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("uniform_light")
+!if _DEV then
+Concord.component("debug_follow_mouse")
+!end
 
-Concord.component("point_light", function(c, z, size)
-	@@assert(type(z) == "number")
+Concord.component("point_light", function(c, size)
 	@@assert(type(size) == "number")
-	c.z = z
 	c.size = size
 end)
 
-Concord.component("light_mesh", function(c, mesh)
-	@@assert(mesh:type() == "Mesh")
-	c.value = mesh
+Concord.component("light_dir", function(c, t)
+	@@assert(type(t) == "table")
+	c.value = t
 end)
 
-Concord.component("light_pos", function(c, mesh)
-	@@assert(mesh:type() == "Mesh")
-	c.value = mesh
-end)
-
-Concord.component("diffuse", function(c, mesh)
-	@@assert(mesh:type() == "Mesh")
-	c.value = mesh
+Concord.component("diffuse", function(c, t)
+	@@assert(type(t) == "table")
+	c.value = t
 end)

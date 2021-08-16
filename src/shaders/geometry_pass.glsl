@@ -1,3 +1,5 @@
+//credits to @a13X_B over at Discord
+
 varying vec4 world_pos;
 
 #ifdef VERTEX

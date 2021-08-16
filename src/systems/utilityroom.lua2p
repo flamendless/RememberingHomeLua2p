@@ -8,6 +8,9 @@ local Fade = require("fade")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Settings = require("settings")
+!if _DEV then
+local DevTools
+!end
 
 local min = math.min
 
@@ -25,6 +28,9 @@ local UtilityRoom = Concord.system({
 
 function UtilityRoom:init(world)
 	self.world = world
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
 end
 
 function UtilityRoom:state_setup()
@@ -46,10 +52,10 @@ function UtilityRoom:state_setup()
 		:give("pos", 0, 0)
 		:give("sprite", "utility_room")
 		:give("bg")
-	-- Concord.entity(self.world):assemble(Assemblages.Light.uniform_light,
-	-- 	w, h, {0.2, 0.2, 0.22})
-	Concord.entity(self.world):assemble(Assemblages.Light.point_light,
-		w * 0.75, h * 0.5, -4, 32, {1, 1, 1})
+	Concord.entity(self.world):assemble(Assemblages.Light.point,
+		147, 31, 8, 64, {1, 1, 1})
+	Concord.entity(self.world):assemble(Assemblages.Light.spot,
+		147, 31, 8, {0, 1, -0.6, 0.8}, 128, {1, 1, 1})
 
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
@@ -109,6 +115,18 @@ function UtilityRoom:state_draw()
 			love.graphics.setBlendMode("alpha")
 		love.graphics.setShader()
 	self.camera:detach()
+
+	!if _DEV then
+	if DevTools.show then
+		love.graphics.setBlendMode("add")
+		love.graphics.setColor(1, 1, 1, 1) --ambient light color
+		self.effect:apply()
+		love.graphics.draw(self.buffers[1].canvas)
+		love.graphics.setShader()
+		love.graphics.setBlendMode("alpha")
+	end
+	!end
+
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()

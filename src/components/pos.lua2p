@@ -1,12 +1,15 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("pos", function(c, x, y)
+Concord.component("pos", function(c, x, y, z)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
+	@@sassert(z, type(z) == "number")
 	c.x = x
 	c.y = y
+	c.z = z
 	c.orig_x = x
 	c.orig_y = y
+	c.orig_z = z
 end)
 
 Concord.component("spawn_point_action_controls", function(c)

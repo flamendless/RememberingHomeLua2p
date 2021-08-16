@@ -2,53 +2,23 @@ local random = love.math.random
 
 local Light = {}
 
-local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
-local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
-local lvfd = {{"diffuse", "float", 3}} -- color
+function Light.point(e, x, y, z, size, diffuse, dir)
+	e:give("id", "point_light")
+	:give("pos", x, y, z)
+	:give("point_light", size)
+	:give("diffuse", diffuse)
 
-local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
-local MAX_LIGHTS = 32
-
-function Light.uniform_light(e, w, h, diffuse)
-	local light = love.graphics.newMesh({
-		{-w/2, -h/2, 0,0, 0,0,0,1},
-		{ w/2, -h/2, 0,0, 0,0,0,1},
-		{ w/2,  h/2, 0,0, 0,0,0,1},
-		{-w/2,  h/2, 0,0, 0,0,0,1},
-	}, "fan", "static")
-
-	local m_pos = love.graphics.newMesh(lvfp, {{0, 0, 0, 0}})
-	local m_diffuse = love.graphics.newMesh(lvfd, {{0.2, 0.2, 0.22}})
-	light:attachAttribute("lpos", m_pos, "perinstance")
-	light:attachAttribute("diffuse", m_diffuse, "perinstance")
-
-	e:give("id", "uniform_light")
-	:give("uniform_light")
-	:give("light_mesh", light)
-	:give("light_pos", m_pos)
-	:give("diffuse", m_diffuse)
+	if dir then
+		e:give("light_dir", dir)
+	end
 end
 
-function Light.point_light(e, x, y, z, size, diffuse)
-	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
-	for _ = 1, 64 do
-		local t = v[#v]
-		v[#v+1] = {t[1]*r[1] - t[2]*r[2], t[1]*r[2] + t[2]*r[1], 0,0, 1,1,1,1}
-	end
-	local light = love.graphics.newMesh(v, nil, "static")
-	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
-	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
-	m_position:setVertex(1, {x, y, z, size})
-	m_diffuse:setVertex(1, diffuse)
-	light:attachAttribute("lpos", m_position, "perinstance")
-	light:attachAttribute("diffuse", m_diffuse, "perinstance")
-
-	e:give("id", "point_light")
-	:give("point_light", z, size)
-	:give("light_mesh", light)
-	:give("light_pos", m_position)
-	:give("diffuse", m_diffuse)
-	:give("pos", x, y)
+function Light.spot(e, x, y, z, dir, size, diffuse)
+	e:give("id", "spot_light")
+	:give("pos", x, y, z)
+	:give("point_light", size)
+	:give("diffuse", diffuse)
+	:give("light_dir", dir)
 end
 
 return Light

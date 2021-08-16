@@ -2,20 +2,37 @@ local Concord = require("modules.concord.concord")
 
 local Light = Concord.system({
 	pool_camera = {"camera"},
-	pool_u = {"id", "uniform_light", "light_mesh", "light_pos", "diffuse"},
-	pool_p = {"id", "point_light", "light_mesh", "light_pos", "diffuse", "pos"},
-	pool_light = {"id", "light_mesh", "light_pos", "diffuse"},
+	pool_p = {"id", "point_light", "pos", "diffuse"},
 })
 
 local shader_geometry = "shaders/geometry_pass.glsl"
 local shader_lighting = "shaders/lighting_pass.glsl"
+local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
+local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
+local lvfd = {{"diffuse", "float", 3}} -- color
+local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
+local MAX_LIGHTS = 32
 
 function Light:init(world)
 	self.world = world
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
 
+	self.m_point = self:create_mesh_p()
+
 	self.pool_camera.onAdded = function(pool, e)
 		self.camera = e.camera.camera
+	end
+
+	self.pool_p.onAdded = function(pool, e)
+		local pos = e.pos
+		local pl = e.point_light
+		local diffuse = e.diffuse
+		local ld = e.light_dir
+		local dir = ld and ld.value or {1, 0, 0, -2}
+
+		self.m_point.pos:setVertex(#pool, {pos.x, pos.y, pos.z, pl.size})
+		self.m_point.diffuse:setVertex(#pool, diffuse.value)
+		self.m_point.dir:setVertex(#pool, dir)
 	end
 end
 
@@ -29,13 +46,15 @@ end
 
 function Light:update_lights(dt)
 	local mx, my = love.mouse.getPosition()
-	for _, e in ipairs(self.pool_p) do
-		local pl = e.point_light
-		local pos = e.pos
-		local wx, wy = self.camera:toWorld(mx, my)
-		e.light_pos.value:setVertex(1, {wx, wy, pl.z, pl.size})
-		pos.x = wx
-		pos.y = wy
+	for i, e in ipairs(self.pool_p) do
+		if e.debug_follow_mouse then
+			local pl = e.point_light
+			local pos = e.pos
+			local wx, wy = self.camera:toWorld(mx, my)
+			self.m_point.pos:setVertex(i, {wx, wy, pos.z, pl.size})
+			pos.x = wx
+			pos.y = wy
+		end
 	end
 end
 
@@ -51,10 +70,28 @@ function Light:begin_light_pass(buffers)
 end
 
 function Light:draw_lights()
-	for _, e in ipairs(self.pool_light) do
-		local l_mesh = e.light_mesh
-		love.graphics.drawInstanced(l_mesh.value, 1)
+	love.graphics.drawInstanced(self.m_point.light, #self.pool_p)
+end
+
+function Light:create_mesh_p()
+	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
+	for _ = 1, 64 do
+		local t = v[#v]
+		v[#v+1] = {t[1]*r[1] - t[2]*r[2], t[1]*r[2] + t[2]*r[1], 0,0, 1,1,1,1}
 	end
+	local light = love.graphics.newMesh(v, nil, "static")
+	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
+	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
+	local m_direction = love.graphics.newMesh(lvft, MAX_LIGHTS)
+	light:attachAttribute("lpos", m_position, "perinstance")
+	light:attachAttribute("diffuse", m_diffuse, "perinstance")
+	light:attachAttribute("ldir", m_direction, "perinstance")
+	return {
+		light = light,
+		pos = m_position,
+		diffuse = m_diffuse,
+		dir = m_direction,
+	}
 end
 
 return Light
