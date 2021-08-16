@@ -1,0 +1,36 @@
+local Slab = require("modules.slab")
+
+local floor = math.floor
+
+local UIWrapper = {}
+
+function UIWrapper.edit_number(id, value, is_int)
+	Slab.Text(id .. ":")
+	Slab.SameLine()
+	local modified = Slab.Input(id, {
+		Text = tostring(value),
+		ReturnOnText = false,
+		NumbersOnly = true,
+	})
+	if modified then
+		value = Slab.GetInputNumber()
+		if is_int then
+			value = floor(value)
+		end
+	end
+	return value, modified
+end
+
+function UIWrapper.edit_range(id, value, min, max)
+	Slab.Text(id .. ":")
+	Slab.SameLine()
+	local modified = Slab.InputNumberSlider(id, value, min, max, {
+		Precision = 2
+	})
+	if modified then
+		value = Slab.GetInputNumber()
+	end
+	return value, modified
+end
+
+return UIWrapper

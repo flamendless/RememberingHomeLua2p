@@ -13,7 +13,14 @@ local lvfd = {{"diffuse", "float", 3}} -- color
 local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
 local MAX_LIGHTS = 32
 
+!if _DEV then
+local DevTools
+!end
+
 function Light:init(world)
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
 	self.world = world
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
 
@@ -29,10 +36,11 @@ function Light:init(world)
 		local diffuse = e.diffuse
 		local ld = e.light_dir
 		local dir = ld and ld.value or {1, 0, 0, -2}
-
-		self.m_point.pos:setVertex(#pool, {pos.x, pos.y, pos.z, pl.size})
-		self.m_point.diffuse:setVertex(#pool, diffuse.value)
-		self.m_point.dir:setVertex(#pool, dir)
+		local id = #pool
+		self.m_point.pos:setVertex(id, {pos.x, pos.y, pos.z, pl.value})
+		self.m_point.diffuse:setVertex(id, diffuse.value)
+		self.m_point.dir:setVertex(id, dir)
+		e:give("light_id", id)
 	end
 end
 
@@ -44,18 +52,21 @@ function Light:create_light_shaders_ngrading(ngrading)
 	ngrading:setup_data(self.geometry_pass)
 end
 
-function Light:update_lights(dt)
-	local mx, my = love.mouse.getPosition()
-	for i, e in ipairs(self.pool_p) do
-		if e.debug_follow_mouse then
-			local pl = e.point_light
-			local pos = e.pos
-			local wx, wy = self.camera:toWorld(mx, my)
-			self.m_point.pos:setVertex(i, {wx, wy, pos.z, pl.size})
-			pos.x = wx
-			pos.y = wy
-		end
-	end
+function Light:update_light_pos(e)
+	local pl = e.point_light
+	local pos = e.pos
+	self.m_point.pos:setVertex(e.light_id.value, {pos.x, pos.y, pos.z, pl.value})
+end
+
+function Light:update_light_diffuse(e)
+	local diffuse = e.diffuse
+	self.m_point.diffuse:setVertex(e.light_id.value, diffuse.value)
+end
+
+function Light:update_light_dir(e)
+	local dir = e.light_dir
+	if not dir then return end
+	self.m_point.dir:setVertex(e.light_id.value, dir.value)
 end
 
 function Light:begin_geometry_pass()
@@ -93,5 +104,52 @@ function Light:create_mesh_p()
 		dir = m_direction,
 	}
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local UIWrapper = require("ui_wrapper")
+
+function Light:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("light", {
+		Title = "Light",
+		IsOpen = self.debug_show,
+	})
+	if Slab.CheckBox(DevTools.flags.ambience, "Ambience") then
+		DevTools.flags.ambience = not DevTools.flags.ambience
+	end
+	for i, e in ipairs(self.pool_p) do
+		local id = e.id.value
+		if Slab.BeginTree(id, {Title = id}) then
+			Slab.Indent()
+			local pos = e.pos
+			local pl = e.point_light
+			local diffuse = e.diffuse.value
+			local dir = e.light_dir and e.light_dir.value
+			pos.x = UIWrapper.edit_number("x", pos.x, true)
+			pos.y = UIWrapper.edit_number("y", pos.y, true)
+			pos.z = UIWrapper.edit_number("z", pos.z, true)
+			pl.value = UIWrapper.edit_number("s", pl.value, true)
+			if dir then
+				Slab.Separator()
+				dir[1] = UIWrapper.edit_range("dx", dir[1], -32, 32)
+				dir[2] = UIWrapper.edit_range("dy", dir[2], -32, 32)
+				dir[3] = UIWrapper.edit_range("dz", dir[3], -1, 1)
+				dir[4] = UIWrapper.edit_range("angle", dir[4], -1, 1)
+			end
+			Slab.Separator()
+			diffuse[1] = UIWrapper.edit_range("r", diffuse[1], 0, 2)
+			diffuse[2] = UIWrapper.edit_range("g", diffuse[2], 0, 2)
+			diffuse[3] = UIWrapper.edit_range("b", diffuse[3], 0, 2)
+			self:update_light_pos(e)
+			self:update_light_dir(e)
+			self:update_light_diffuse(e)
+			Slab.EndTree()
+			Slab.Unindent()
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return Light

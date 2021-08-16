@@ -52,10 +52,17 @@ function UtilityRoom:state_setup()
 		:give("pos", 0, 0)
 		:give("sprite", "utility_room")
 		:give("bg")
+	--left bulb
 	Concord.entity(self.world):assemble(Assemblages.Light.point,
-		147, 31, 8, 64, {1, 1, 1})
+		122, 33, 4, 32, {2, 2, 0.71})
 	Concord.entity(self.world):assemble(Assemblages.Light.spot,
-		147, 31, 8, {0, 1, -0.6, 0.8}, 128, {1, 1, 1})
+		122, 0, 32, {0, 0.85, -0.43, 0.67}, 128, {2, 1.68, 1.64})
+
+	--right bulb
+	Concord.entity(self.world):assemble(Assemblages.Light.point,
+		242, 33, 4, 32, {2, 2, 0.71})
+	Concord.entity(self.world):assemble(Assemblages.Light.spot,
+		242, 0, 32, {0, 0.85, -0.43, 0.67}, 128, {2, 1.68, 1.64})
 
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
@@ -94,7 +101,6 @@ end
 function UtilityRoom:state_update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
-	self.world:emit("update_lights", dt)
 end
 
 function UtilityRoom:state_draw()
@@ -117,7 +123,7 @@ function UtilityRoom:state_draw()
 	self.camera:detach()
 
 	!if _DEV then
-	if DevTools.show then
+	if DevTools.flags.ambience then
 		love.graphics.setBlendMode("add")
 		love.graphics.setColor(1, 1, 1, 1) --ambient light color
 		self.effect:apply()
