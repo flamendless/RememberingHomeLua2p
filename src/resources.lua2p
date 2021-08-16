@@ -149,24 +149,29 @@ Resources.meta.Intro = {
 
 Resources.meta.Outside = {
 	images = {
-		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
-		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
-		!!(get_res("player"))
-		{"firefly", !(path_images .. "house_outside/firefly.png")},
-		{"splashes", !(path_images .. "house_outside/splashes.png")},
-		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		-- {"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+		-- {"bg_house", !(path_images .. "house_outside/bg_house.png")},
+		-- {"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
+		-- !!(get_res("player"))
 		{"rain_drop", !(path_images .. "rain/rain_drop.png")},
 		{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
 		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
 		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
-		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
 		!!(get_res("ui"))
 		!!(get_res("items"))
 		!!(get_res("pause"))
+	},
 
-		{"house_light", !(path_lights .. "house_light.png")},
+	array_images = {
+		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
+		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
+		{"firefly", !(path_images .. "house_outside/firefly.png")},
 		{"firefly_light", !(path_lights .. "firefly_light.png")},
+		{"splashes", !(path_images .. "house_outside/splashes.png")},
+		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		!!(get_res("player"))
 	},
 
 	image_data = {
@@ -182,23 +187,20 @@ Resources.meta.Outside = {
 
 Resources.meta.UtilityRoom = {
 	images = {
-		-- {"utility_room", !(path_images .. "utility_room/utility_room.png")},
-		-- {"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
-		-- !!(get_res("player"))
 		!!(get_res("ui"))
 		!!(get_res("items"))
 		!!(get_res("pause"))
-	},
-
-	image_data = {
-		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
-		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
 	array_images = {
 		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
 		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
 		!!(get_res("player"))
+	},
+
+	image_data = {
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
 
 	fonts = {

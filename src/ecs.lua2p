@@ -37,7 +37,7 @@ systems.Intro = {
 
 systems.Outside = {
 	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
-	"fireflies", "interactive", "light", "movement", "notification",
+	"fireflies", "interactive", "deferred_lighting", "movement", "notification",
 	"player_controller", "render_sprite", "render_text", "render_ui",
 	"text_paint", "transform", "typewriter", "path", "gamestates", "inventory",
 	"render_rect", "entity", "items", "culling", "glitch_shader_effect",

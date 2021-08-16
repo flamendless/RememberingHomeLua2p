@@ -55,20 +55,20 @@ function Outside:state_setup()
 	local bg_house = Resources.data.images.bg_house
 	local w, h = bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
-	local ambient_color = {0.3, 0.3, 0.3}
 
 	Blur.new()
-	self.main_canvas = Canvas.create_main({})
+	self.buffers = {
+		Canvas.create_main({}),
+		Canvas.create_main({}),
+	}
+	self.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	self.bg = Resources.data.images.bg_sky
-
-	self.world:emit("create_light_map", self.main_canvas.x, self.main_canvas.y, w, h)
-	self.world:emit("set_ambient_light", ambient_color)
+	Concord.entity(self.world):assemble(Assemblages.Outside.bg)
 
 	local _, _, cw, _ = self.camera:getVisible()
 	self.ps1 = ParticleSystems.RainOutside(Resources.data.images.rain_drop, 128, cw)
@@ -87,8 +87,6 @@ function Outside:state_setup()
 			x, y, quad)
 	end
 
-	Concord.entity(self.world):assemble(Assemblages.Outside.house_light)
-
 	--setup colliders
 	for _, v in pairs(Assemblages.Outside.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
@@ -106,7 +104,8 @@ function Outside:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading:new(lut_dusk, lut_size)
+	self.effect = NGrading:new(lut_dusk, lut_size, nil, false)
+	self.world:emit("create_light_shaders_ngrading", self.effect)
 end
 
 function Outside:state_init()
@@ -202,7 +201,6 @@ function Outside:state_update(dt)
 	end
 	!end
 	self.world:emit("update", dt)
-	self.world:emit("update_light", dt)
 
 	if self.is_raining then
 		self.ps1:update(dt)
@@ -211,36 +209,49 @@ function Outside:state_update(dt)
 end
 
 function Outside:state_draw()
-	self.world:emit("draw_light_start")
-	self.world:emit("draw_light")
-	love.graphics.setBlendMode("alpha")
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(self.main_canvas.canvas)
+	love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 	love.graphics.clear()
 	self.camera:attach()
-		self.effect:apply()
-		love.graphics.draw(self.bg)
-		self.world:emit("draw")
-		self.world:emit("draw_z")
-		if self.is_raining then
-			self.ps1:draw(0, -16)
-			self.ps2:draw(0, -16)
-		end
+		self.world:emit("begin_geometry_pass")
+			love.graphics.setColor(1, 1, 1)
+			self.world:emit("draw_bg")
+			self.world:emit("draw")
+			self.world:emit("draw_z")
+		self.world:emit("begin_light_pass", self.buffers)
+			love.graphics.setCanvas()
+			love.graphics.clear()
+			love.graphics.setBlendMode("add")
+			self.world:emit("draw_lights")
+			love.graphics.setBlendMode("alpha")
 		love.graphics.setShader()
-		self.world:emit("draw_light_end")
 		if self.overlay_flag then
 			local l, t, w, h = self.camera:getVisible()
 			love.graphics.setColor(self.overlay)
 			love.graphics.rectangle("fill", l, t, w, h)
 		end
 	self.camera:detach()
+
+	--ambient light color
+	love.graphics.setBlendMode("add")
+	love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
+	love.graphics.draw(self.buffers[1].canvas)
+	if self.is_raining then
+		self.ps1:draw(0, -16)
+		self.ps2:draw(0, -16)
+	end
+	love.graphics.setBlendMode("alpha")
+
 	self.world:emit("draw_clip")
 	self.world:emit("draw_ui")
 	Fade.draw()
-
 	love.graphics.setCanvas()
+
+	love.graphics.setCanvas(self.canvas.canvas)
+	love.graphics.draw(self.buffers[1].canvas)
+	love.graphics.setCanvas()
+
 	Blur.draw()
-	self.main_canvas:render()
+	love.graphics.draw(self.canvas.canvas)
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")

@@ -103,8 +103,9 @@ function UtilityRoom:state_draw()
 		love.graphics.setShader()
 	self.camera:detach()
 
+	--ambient light color
 	love.graphics.setBlendMode("add")
-	love.graphics.setColor(0.3, 0.3, 0.33, 0.5) --ambient light color
+	love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
 	love.graphics.draw(self.buffers[1].canvas)
 	love.graphics.setBlendMode("alpha")
 
@@ -113,7 +114,7 @@ function UtilityRoom:state_draw()
 	Fade.draw()
 	love.graphics.setCanvas()
 
-	love.graphics.setCanvas(self.canvas)
+	love.graphics.setCanvas(self.canvas.canvas)
 	love.graphics.draw(self.buffers[1].canvas)
 	love.graphics.setCanvas()
 

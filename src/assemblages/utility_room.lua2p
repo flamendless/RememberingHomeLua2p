@@ -9,7 +9,7 @@ local ground_h = 16
 
 local AssemLight = require("assemblages.light")
 
-function UtilityRoom.bg(e, w, h)
+function UtilityRoom.bg(e)
 	e:give("id", "bg")
 	:give("pos", 0, 0)
 	:give("sprite", "utility_room")
@@ -42,17 +42,17 @@ end
 
 function UtilityRoom.lights.left_bulb(e)
 	e:assemble(AssemLight.point,
-		92, 33, 32,
+		92, 33, 16,
 		96,
-		{6, 6, 2.72})
+		{4.98, 3.96, 1.59})
 	:give("id", "pl_left_bulb")
 end
 
 function UtilityRoom.lights.right_bulb(e)
 	e:assemble(AssemLight.point,
-		242, 33, 32,
+		242, 33, 16,
 		96,
-		{6, 6, 2.72})
+		{4.98, 3.96, 1.59})
 	:give("id", "pl_right_bulb")
 end
 
