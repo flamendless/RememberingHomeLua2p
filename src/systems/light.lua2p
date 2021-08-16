@@ -115,10 +115,7 @@ function Light:debug_update(dt)
 		Title = "Light",
 		IsOpen = self.debug_show,
 	})
-	if Slab.CheckBox(DevTools.flags.ambience, "Ambience") then
-		DevTools.flags.ambience = not DevTools.flags.ambience
-	end
-	for i, e in ipairs(self.pool_p) do
+	for _, e in ipairs(self.pool_p) do
 		local id = e.id.value
 		if Slab.BeginTree(id, {Title = id}) then
 			Slab.Indent()
@@ -138,9 +135,9 @@ function Light:debug_update(dt)
 				dir[4] = UIWrapper.edit_range("angle", dir[4], -1, 1)
 			end
 			Slab.Separator()
-			diffuse[1] = UIWrapper.edit_range("r", diffuse[1], 0, 2)
-			diffuse[2] = UIWrapper.edit_range("g", diffuse[2], 0, 2)
-			diffuse[3] = UIWrapper.edit_range("b", diffuse[3], 0, 2)
+			diffuse[1] = UIWrapper.edit_range("r", diffuse[1], 0, 6)
+			diffuse[2] = UIWrapper.edit_range("g", diffuse[2], 0, 6)
+			diffuse[3] = UIWrapper.edit_range("b", diffuse[3], 0, 6)
 			self:update_light_pos(e)
 			self:update_light_dir(e)
 			self:update_light_diffuse(e)

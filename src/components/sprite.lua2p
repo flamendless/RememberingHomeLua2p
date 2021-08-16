@@ -4,6 +4,7 @@ local Image = require("image")
 local Resources = require("resources")
 
 Concord.component("bg")
+Concord.component("array_image")
 
 local c_sprite = Concord.component("sprite", function(c, resource_id, container)
 	@@assert(type(resource_id) == "string")

@@ -26,14 +26,14 @@ local function sort_z_ex(a, b)
 end
 
 local function draw(e, ...)
-	local array_image = e.array_image
-	if array_image then
-		love.graphics.drawLayer(array_image.image, 1)
+	local outline = e.outline
+	local outline_val = e.outline_val
+	if outline and outline.outliner then
+		outline.outliner:draw(outline_val.value, ...)
 	else
-		local outline = e.outline
-		local outline_val = e.outline_val
-		if outline and outline.outliner then
-			outline.outliner:draw(outline_val.value, ...)
+		local array_image = e.array_image
+		if array_image then
+			love.graphics.drawLayer(array_image.image, 1)
 		else
 			love.graphics.draw(...)
 		end
@@ -43,12 +43,24 @@ end
 function RenderSprite:init(world)
 	self.world = world
 
+	self.pool.onAdded = function(pool, e)
+		self:setup_sprite(e)
+	end
+
 	self.pool_z.onAdded = function(pool, e)
+		self:setup_sprite(e)
 		self:sort_z()
 	end
 
 	self.pool_z.onRemoved = function(pool, e)
 		self:sort_z()
+	end
+end
+
+function RenderSprite:setup_sprite(e)
+	local sprite = e.sprite
+	if sprite.container == "array_images" then
+		e:give("array_image")
 	end
 end
 

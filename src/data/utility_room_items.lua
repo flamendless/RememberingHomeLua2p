@@ -1,7 +1,7 @@
 local data = {
 	{
 		id = "bulb",
-		x = 120, y = 16,
+		x = 90, y = 16,
 		no_col = true,
 	},
 	{

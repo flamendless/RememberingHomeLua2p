@@ -22,7 +22,6 @@ local DevTools = {
 		glitch_shader_effect = false,
 		culling = true,
 		render_sprite = false,
-		ambience = false,
 	},
 }
 

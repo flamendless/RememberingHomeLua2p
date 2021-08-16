@@ -4,6 +4,8 @@ Outliner shader
 
 Based on code by Micha (Germanunkol)
 
+Modified by Brandon Blanker Lim-it @flamendless for GH:R
+
 (C) Copyright 2018 Pedro Gimeno Fortea
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -46,7 +48,7 @@ outliner:draw(size, img, ...)
 --]==========================================================================]--
 
 local aux = {0, 0, 0, 0}
-local lgdraw = love.graphics.draw
+local lgdraw = love.graphics.drawLayer
 local lgsetShader = love.graphics.setShader
 
 local function outline(self, r, g, b)
@@ -80,7 +82,7 @@ local function draw(self, size, img, ...)
   aux[3], aux[4] = nil, nil
   self.shader:send("stepSize", aux)
   lgsetShader(self.shader)
-  lgdraw(img, ...)
+  lgdraw(img, 1, ...)
   lgsetShader()
 end
 
@@ -101,30 +103,31 @@ const vec4 zero = vec4(0.,0.,0.,0.);
 vec2 q1 = quad.xy;
 vec2 q2 = quad.xy + quad.zw;
 
-vec4 effect( vec4 col, Image texture, vec2 texturePos, vec2 screenPos )
+uniform ArrayImage MainTex;
+void effect()
 {
-
   // get color of pixels:
-  float alpha = -20.0 * texture2D(texture, clamp(texturePos, q1, q2)).a;
+  vec2 tc = VaryingTexCoord.xy;
+  float alpha = -20.0 * Texel(MainTex, vec3(clamp(tc, q1, q2), VaryingTexCoord.z)).a;
   vec2 aux = vec2(stepSize.x, 0.);
-  alpha += texture2D(texture, clamp(texturePos + aux, q1, q2) ).a;
-  alpha += texture2D(texture, clamp(texturePos - aux, q1, q2) ).a;
+  alpha += Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
+  alpha += Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
   aux = vec2(0., stepSize.y);
-  alpha += texture2D(texture, clamp(texturePos + aux, q1, q2) ).a;
-  alpha += texture2D(texture, clamp(texturePos - aux, q1, q2) ).a;
+  alpha += Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
+  alpha += Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
 
   if (t != 0.0)
   {
     aux = stepSize;
-    alpha += t * texture2D(texture, clamp(texturePos + aux, q1, q2)).a;
-    alpha += t * texture2D(texture, clamp(texturePos - aux, q1, q2)).a;
+    alpha += t * Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
+    alpha += t * Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
     aux = vec2(-stepSize.x, stepSize.y);
-    alpha += t * texture2D(texture, clamp(texturePos + aux, q1, q2)).a;
-    alpha += t * texture2D(texture, clamp(texturePos - aux, q1, q2)).a;
+    alpha += t * Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
+    alpha += t * Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
   }
 
 @calc_result@
-  return result;
+  love_PixelColor = result;
 }
   ]]
 
@@ -137,7 +140,7 @@ vec4 effect( vec4 col, Image texture, vec2 texturePos, vec2 screenPos )
     shader = shader:gsub("@calc_result@", [[
   vec4 result =
       max(max(sign(alpha), 0.) * vec4( outline, alpha ), zero)
-    - min(min(sign(alpha), 0.) * texture2D(texture, texturePos), zero);
+    - min(min(sign(alpha), 0.) * Texel(MainTex, tc), zero);
 ]])
   end
   shader = love.graphics.newShader(shader)
