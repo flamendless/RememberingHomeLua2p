@@ -20,7 +20,7 @@ local DevTools = {
 		log = false,
 		bounding_box = true,
 		glitch_shader_effect = false,
-		culling = true,
+		culling = false,
 		render_sprite = false,
 	},
 }

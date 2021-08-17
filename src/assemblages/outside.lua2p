@@ -4,9 +4,11 @@ local AnimationData = require("animation_data")
 local Info = require("info")
 local Palette = require("palette")
 local Resources = require("resources")
+local Light = require("assemblages.light")
 
 local Outside = {
-	colliders = {}
+	colliders = {},
+	lights = {},
 }
 
 local z_index = {
@@ -102,6 +104,48 @@ function Outside.colliders.right_bound(e, w, h)
 	:give("collider", bounds_w, bounds_h)
 	:give("bump")
 	:give("wall")
+end
+
+function Outside.lights.pl_car_headlight(e, id)
+	e:assemble(Light.point, 733, 296, 4, 24, {6, 6, 3})
+	:give("id", id)
+end
+
+function Outside.lights.sl_car_headlight(e, id)
+	e:assemble(Light.spot,
+		751, 290, 6,
+		{-1, 0.25, 0, 0.95},
+		256,
+		{4.98, 3.96, 1.59})
+	:give("id", id)
+end
+
+function Outside.lights.pl_backdoor(e, id)
+	e:assemble(Light.point, 446, 292, 62, 72, {4.98, 3.96, 1.59})
+	:give("id", id)
+end
+
+function Outside.lights.sl_backdoor(e, id)
+	e:assemble(Light.spot,
+		446, 241, 4,
+		{0, 1, -0.8, 0.77},
+		64,
+		{6, 6, 3})
+	:give("id", id)
+end
+
+function Outside.lights.pl_frontdoor(e, id)
+	e:assemble(Light.point, 316, 262, 62, 72, {4.98, 3.96, 1.59})
+	:give("id", id)
+end
+
+function Outside.lights.sl_frontdoor(e, id)
+	e:assemble(Light.spot,
+		316, 221, 4,
+		{0, 1, -1, 0.73},
+		64,
+		{6, 6, 3})
+	:give("id", id)
 end
 
 return Outside

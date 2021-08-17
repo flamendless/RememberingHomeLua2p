@@ -22,6 +22,7 @@ local floor = math.floor
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
+	Light = require("assemblages.light"),
 	Outside = require("assemblages.outside"),
 	Player = require("assemblages.player"),
 	UI = require("assemblages.ui"),
@@ -106,6 +107,22 @@ function Outside:state_setup()
 	end
 	self.effect = NGrading:new(lut_dusk, lut_size, nil, false)
 	self.world:emit("create_light_shaders_ngrading", self.effect)
+
+	--setup lights
+	for k, v in pairs(Assemblages.Outside.lights) do
+		Concord.entity(self.world):assemble(v, k)
+	end
+	--setup end of headlights
+	local bx, by = 585, 323
+	local r, s = 4, 64
+	local color = {6, 6, 3}
+	local ix, iy = 10, 1
+	for i = 1, 4 do
+		local d = i - 1
+		Concord.entity(self.world):assemble(Assemblages.Light.point,
+			bx + ix * d, by - iy * d, r, s, color)
+		:give("id", "pl_headlight_end" .. i)
+	end
 end
 
 function Outside:state_init()
@@ -167,6 +184,7 @@ function Outside:state_init()
 				self.camera:setScale(dt_cam.scale)
 			end)
 
+		self.timeline:Pause()
 		tle_log("car light off")
 		--show car light,
 		--remove car light,
@@ -233,11 +251,17 @@ function Outside:state_draw()
 
 	--ambient light color
 	love.graphics.setBlendMode("add")
-	love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
+	love.graphics.setColor(0.3, 0.3, 0.3, 0.6)
 	love.graphics.draw(self.buffers[1].canvas)
 	if self.is_raining then
+		local l, t, w, h = self.camera:getVisible()
+		local s = self.camera:getScale()
+		love.graphics.push()
+		love.graphics.translate(l, t)
+		love.graphics.scale(s)
 		self.ps1:draw(0, -16)
 		self.ps2:draw(0, -16)
+		love.graphics.pop()
 	end
 	love.graphics.setBlendMode("alpha")
 
@@ -246,12 +270,12 @@ function Outside:state_draw()
 	Fade.draw()
 	love.graphics.setCanvas()
 
-	love.graphics.setCanvas(self.canvas.canvas)
-	love.graphics.draw(self.buffers[1].canvas)
-	love.graphics.setCanvas()
+	-- love.graphics.setCanvas(self.canvas.canvas)
+	-- love.graphics.draw(self.buffers[1].canvas)
+	-- love.graphics.setCanvas()
 
 	Blur.draw()
-	love.graphics.draw(self.canvas.canvas)
+	-- love.graphics.draw(self.canvas.canvas)
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")

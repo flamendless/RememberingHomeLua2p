@@ -13,14 +13,7 @@ local lvfd = {{"diffuse", "float", 3}} -- color
 local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
 local MAX_LIGHTS = 32
 
-!if _DEV then
-local DevTools
-!end
-
 function DeferredLighting:init(world)
-	!if _DEV then
-	DevTools = require("devtools")
-	!end
 	self.world = world
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
 

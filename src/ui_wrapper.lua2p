@@ -7,30 +7,28 @@ local UIWrapper = {}
 function UIWrapper.edit_number(id, value, is_int)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
-	local modified = Slab.Input(id, {
+	if Slab.Input(id, {
 		Text = tostring(value),
 		ReturnOnText = false,
 		NumbersOnly = true,
-	})
-	if modified then
+	}) then
 		value = Slab.GetInputNumber()
 		if is_int then
 			value = floor(value)
 		end
 	end
-	return value, modified
+	return value
 end
 
 function UIWrapper.edit_range(id, value, min, max)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
-	local modified = Slab.InputNumberSlider(id, value, min, max, {
+	if Slab.InputNumberSlider(id, value, min, max, {
 		Precision = 2
-	})
-	if modified then
+	}) then
 		value = Slab.GetInputNumber()
 	end
-	return value, modified
+	return value
 end
 
 return UIWrapper

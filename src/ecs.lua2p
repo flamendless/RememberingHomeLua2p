@@ -54,7 +54,7 @@ systems.UtilityRoom = {
 
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
-	"color", "glitch_shader_effect", "gamestates",
+	"color", "glitch_shader_effect", "gamestates", "deferred_lighting",
 }
 
 !if _DEV then

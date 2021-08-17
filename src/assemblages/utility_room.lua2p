@@ -3,11 +3,11 @@ local UtilityRoom = {
 	lights = {},
 }
 
+local Light = require("assemblages.light")
+
 local left_wall_w = 16
 local right_wall_w = 16
 local ground_h = 16
-
-local AssemLight = require("assemblages.light")
 
 function UtilityRoom.bg(e)
 	e:give("id", "bg")
@@ -41,7 +41,7 @@ function UtilityRoom.colliders.right_bound(e, w, h)
 end
 
 function UtilityRoom.lights.left_bulb(e)
-	e:assemble(AssemLight.point,
+	e:assemble(Light.point,
 		92, 33, 16,
 		96,
 		{4.98, 3.96, 1.59})
@@ -49,7 +49,7 @@ function UtilityRoom.lights.left_bulb(e)
 end
 
 function UtilityRoom.lights.right_bulb(e)
-	e:assemble(AssemLight.point,
+	e:assemble(Light.point,
 		242, 33, 16,
 		96,
 		{4.98, 3.96, 1.59})
