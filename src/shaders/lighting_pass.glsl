@@ -13,7 +13,7 @@ attribute vec4 ldir;
 attribute vec3 diffuse;
 
 vec4 position( mat4 transform_projection, vec4 vertex_position ){
-	ndc_p = (transform_projection * vec4(lpos.xy, 0.0, 1.0)).xy * vec2(1.0, -1.0);
+	ndc_p = (transform_projection * vec4(lpos.xy, 0.0, 1.0)).xy;
 	scale = lpos.w;
 	diff = diffuse;
 	dir = normalize(ldir.xyz);

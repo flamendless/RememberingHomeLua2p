@@ -36,20 +36,21 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
-	"fireflies", "interactive", "deferred_lighting", "movement", "notification",
-	"player_controller", "render_sprite", "render_text", "render_ui",
-	"text_paint", "transform", "typewriter", "path", "gamestates", "inventory",
-	"render_rect", "entity", "items", "culling", "glitch_shader_effect",
-	"pause", "room", "outline", "atlas",
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "fireflies", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"notification", "outline", "path", "pause", "player_controller",
+	"render_rect", "render_sprite", "render_text", "render_ui", "room",
+	"systems", "text_paint", "transform", "typewriter",
 }
 
 systems.UtilityRoom = {
-	"systems", "animation", "atlas", "bump_collision", "camera", "color", "room",
-	"dialogues", "interactive", "deferred_lighting", "movement", "notification",
-	"player_controller", "render_sprite", "render_text", "render_ui",
-	"transform", "typewriter", "gamestates", "inventory", "entity", "items",
-	"culling", "glitch_shader_effect", "pause", "outline",
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"notification", "outline", "pause", "player_controller", "render_rect",
+	"render_sprite", "render_text", "render_ui", "room", "systems",
+	"transform", "typewriter",
 }
 
 local unpausable_list = {

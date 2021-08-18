@@ -86,44 +86,40 @@ function UtilityRoom:state_update(dt)
 end
 
 function UtilityRoom:state_draw()
-	love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
-	love.graphics.clear()
 	self.camera:attach()
-		self.world:emit("begin_geometry_pass")
-			love.graphics.setColor(1, 1, 1)
-			self.world:emit("draw_bg")
-			self.world:emit("draw")
-			self.world:emit("draw_z")
-		self.world:emit("begin_light_pass", self.buffers)
-			love.graphics.setCanvas()
+		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
-			love.graphics.setBlendMode("add")
-			self.world:emit("draw_lights")
-			love.graphics.setBlendMode("alpha")
-		love.graphics.setShader()
+			self.world:emit("begin_geometry_pass")
+				love.graphics.setColor(1, 1, 1)
+				self.world:emit("draw_bg")
+				self.world:emit("draw")
+				self.world:emit("draw_z")
+			love.graphics.setShader() --unset geometry_pass
+
+		love.graphics.setCanvas(self.canvas.canvas)
+			self.world:emit("begin_light_pass", self.buffers)
+				love.graphics.clear()
+				love.graphics.setBlendMode("add")
+				self.world:emit("draw_lights")
+				love.graphics.setBlendMode("alpha")
+			love.graphics.setShader() --unset lighting_pass
 	self.camera:detach()
-
-	--ambient light color
-	love.graphics.setBlendMode("add")
-	love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
-	love.graphics.draw(self.buffers[1].canvas)
-	love.graphics.setBlendMode("alpha")
-
-	self.world:emit("draw_clip")
-	self.world:emit("draw_ui")
-	Fade.draw()
-	love.graphics.setCanvas()
-
-	love.graphics.setCanvas(self.canvas.canvas)
-	love.graphics.draw(self.buffers[1].canvas)
-	love.graphics.setCanvas()
+			--ambient light color
+			love.graphics.setBlendMode("add")
+			love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
+			love.graphics.draw(self.buffers[1].canvas)
+			love.graphics.setBlendMode("alpha")
+			self.world:emit("draw_clip")
+			self.world:emit("draw_ui")
+		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.draw()
-	love.graphics.draw(self.canvas.canvas)
+		self.canvas:render_n()
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+	Fade.draw()
 end
 
 function UtilityRoom:spawn_player()
