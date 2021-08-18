@@ -239,13 +239,13 @@ function Outside:state_draw()
 			love.graphics.setShader() --unset geometry_pass
 			-- love.graphics.setCanvas()
 
-			love.graphics.setCanvas(self.canvas.canvas)
-				self.world:emit("begin_light_pass", self.buffers)
-					love.graphics.clear()
-					love.graphics.setBlendMode("add")
-					self.world:emit("draw_lights")
-					love.graphics.setBlendMode("alpha")
-				love.graphics.setShader() --unset lighting_pass
+		love.graphics.setCanvas(self.canvas.canvas)
+			self.world:emit("begin_light_pass", self.buffers)
+				love.graphics.clear()
+				love.graphics.setBlendMode("add")
+				self.world:emit("draw_lights")
+				love.graphics.setBlendMode("alpha")
+			love.graphics.setShader() --unset lighting_pass
 	self.camera:detach()
 			--ambient light color
 			love.graphics.setBlendMode("add")

@@ -39,8 +39,9 @@ function Fireflies:generate_fireflies()
 	local y = 236
 	for _ = 1, n do
 		local x = random(min_x, max_x)
+		local size = random(12, 20)
 		local points = generate_points(x, y, 64)
-		Concord.entity(self.world):assemble(Outside.firefly, x, y, points)
+		Concord.entity(self.world):assemble(Outside.firefly, x, y, size, points)
 			:give("light_disabled")
 	end
 end
@@ -50,13 +51,17 @@ function Fireflies:show_fireflies(dur)
 	for _, e in ipairs(self.pool) do
 		e:remove("light_disabled")
 		Flux.to(e.diffuse.value, dur, {
-			[1] = 4.96,
-			[2] = 4.44,
-			[3] = 0.8,
+			[1] = 6,
+			[2] = 3,
+			[3] = 0,
 		})
 		:onupdate(function()
 			self.world:emit("update_light_diffuse", e)
-			e:give("light_fading", 8, -1)
+		end)
+		:oncomplete(function()
+			local lp = e.point_light.value
+			local amount = random(lp * 0.25, lp * 0.4)
+			e:give("light_fading", amount, -1)
 		end)
 	end
 

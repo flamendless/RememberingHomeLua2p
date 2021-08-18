@@ -58,12 +58,12 @@ function Outside.splashes(e)
 	end
 end
 
-function Outside.firefly(e, x, y, points)
+function Outside.firefly(e, x, y, size, points)
 	e:give("id", "firefly")
 	:give("firefly")
 	:give("path", points)
 	:give("pos", x, y, 2)
-	:give("point_light", 16)
+	:give("point_light", size)
 	:give("diffuse", {0, 0, 0})
 end
 
