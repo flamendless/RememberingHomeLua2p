@@ -148,19 +148,24 @@ function NGrading:new_multi(img, img2, cs)
 	return self
 end
 
-function NGrading:new(arg1, arg2, arg3)
+function NGrading:new(arg1, arg2, arg3, no_setup)
 	!if _DEV then
 	DevTools = require("devtools")
 	!end
+	local effect
 	if type(arg2) == "number" then
-		local effect = self:new_single(arg1, arg2)
-		effect:setup_data()
-		return effect
+		effect = self:new_single(arg1, arg2)
 	else
-		local effect = self:new_multi(arg1, arg2, arg3)
-		effect:setup_data()
-		return effect
+		effect = self:new_multi(arg1, arg2, arg3)
 	end
+	if not no_setup then
+		effect:setup_data()
+	end
+	return effect
+end
+
+function NGrading:get_shader()
+	return love.filesystem.read(shaders[self.used_shader])
 end
 
 function NGrading:get_shader()

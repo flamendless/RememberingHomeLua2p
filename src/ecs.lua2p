@@ -1,10 +1,10 @@
 local Concord = require("modules.concord.concord")
-local Log = require("modules.log.log")
 
 local format = string.format
 local lower = string.lower
 
 !if _DEV then
+local Log = require("modules.log.log")
 local DevTools
 !end
 
@@ -36,25 +36,26 @@ systems.Intro = {
 }
 
 systems.Outside = {
-	"systems", "animation", "bump_collision", "camera", "color", "dialogues",
-	"fireflies", "interactive", "light", "movement", "notification",
-	"player_controller", "render_sprite", "render_text", "render_ui",
-	"text_paint", "transform", "typewriter", "path", "gamestates", "inventory",
-	"render_rect", "entity", "items", "culling", "glitch_shader_effect",
-	"pause", "room", "outline", "atlas",
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "fireflies", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"notification", "outline", "path", "pause", "player_controller",
+	"render_rect", "render_sprite", "render_text", "render_ui", "room",
+	"systems", "text_paint", "transform", "typewriter",
 }
 
 systems.UtilityRoom = {
-	"systems", "animation", "atlas", "bump_collision", "camera", "color", "room",
-	"dialogues", "interactive", "light", "movement", "notification",
-	"player_controller", "render_sprite", "render_text", "render_ui",
-	"render_rect", "transform", "typewriter", "gamestates", "inventory",
-	"entity", "items", "culling", "glitch_shader_effect", "pause", "outline",
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"notification", "outline", "pause", "player_controller", "render_rect",
+	"render_sprite", "render_text", "render_ui", "room", "systems",
+	"transform", "typewriter",
 }
 
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
-	"color", "glitch_shader_effect", "gamestates",
+	"color", "glitch_shader_effect", "gamestates", "deferred_lighting",
 }
 
 !if _DEV then

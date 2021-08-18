@@ -159,19 +159,7 @@ end
 
 !if _DEV then
 local Slab = require("modules.slab")
-
-local function edit(id, value)
-	Slab.Text(id .. ":")
-	Slab.SameLine()
-	if Slab.Input(id, {
-		Text = tostring(value),
-		ReturnOnText = false,
-		NumbersOnly = true,
-	}) then
-		value = Slab.GetInputNumber()
-	end
-	return value
-end
+local UIWrapper = require("ui_wrapper")
 
 function Transform:debug_update(dt)
 	if not self.debug_show then return end
@@ -185,12 +173,12 @@ function Transform:debug_update(dt)
 			Slab.Indent()
 			local pos = e.pos
 			local t = e.transform or e.quad_transform
-			pos.x = edit("x", pos.x)
-			pos.y = edit("y", pos.y)
+			pos.x = UIWrapper.edit_number("x", pos.x, true)
+			pos.y = UIWrapper.edit_number("y", pos.y, true)
 			if t then
-				t.r = edit("r", t.r)
-				t.sx = edit("sx", t.sx)
-				t.sy = edit("sy", t.sy)
+				t.r = UIWrapper.edit_number("r", t.r)
+				t.sx = UIWrapper.edit_number("sx", t.sx)
+				t.sy = UIWrapper.edit_number("sy", t.sy)
 			end
 			Slab.EndTree()
 			Slab.Unindent()

@@ -1,10 +1,20 @@
 local UtilityRoom = {
 	colliders = {},
+	lights = {},
 }
+
+local Light = require("assemblages.light")
 
 local left_wall_w = 16
 local right_wall_w = 16
 local ground_h = 16
+
+function UtilityRoom.bg(e)
+	e:give("id", "bg")
+	:give("pos", 0, 0)
+	:give("sprite", "utility_room")
+	:give("bg")
+end
 
 function UtilityRoom.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
@@ -28,6 +38,22 @@ function UtilityRoom.colliders.right_bound(e, w, h)
 	:give("collider", right_wall_w, h)
 	:give("bump")
 	:give("wall")
+end
+
+function UtilityRoom.lights.left_bulb(e)
+	e:assemble(Light.point,
+		92, 33, 16,
+		96,
+		{4.98, 3.96, 1.59})
+	:give("id", "pl_left_bulb")
+end
+
+function UtilityRoom.lights.right_bulb(e)
+	e:assemble(Light.point,
+		242, 33, 16,
+		96,
+		{4.98, 3.96, 1.59})
+	:give("id", "pl_right_bulb")
 end
 
 return UtilityRoom

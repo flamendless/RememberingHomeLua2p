@@ -128,9 +128,6 @@ Resources.meta.Intro = {
 		{"title", !(path_images .. "menu/title.png")},
 		{"rain_drop_tilted", !(path_images .. "rain/rain_drop_tilted.png")},
 		{"rain_drop_tilted2", !(path_images .. "rain/rain_drop_tilted2.png")},
-		{"light_round", !(path_lights .. "round.png")},
-		{"light_rectangle", !(path_lights .. "rectangle.png")},
-		{"light_cone", !(path_lights .. "cone.png")},
 		{"post_light", !(path_lights .. "post_light.png")},
 		{"car_headlight", !(path_lights .. "car_headlight.png")},
 		{"title_light", !(path_lights .. "title.png")},
@@ -152,27 +149,29 @@ Resources.meta.Intro = {
 
 Resources.meta.Outside = {
 	images = {
-		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
-		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
-		!!(get_res("player"))
-		{"firefly", !(path_images .. "house_outside/firefly.png")},
-		{"splashes", !(path_images .. "house_outside/splashes.png")},
-		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		-- {"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+		-- {"bg_house", !(path_images .. "house_outside/bg_house.png")},
+		-- {"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
+		-- !!(get_res("player"))
 		{"rain_drop", !(path_images .. "rain/rain_drop.png")},
 		{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
 		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
 		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
-		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
 		!!(get_res("ui"))
 		!!(get_res("items"))
 		!!(get_res("pause"))
+	},
 
-		{"light_round", !(path_lights .. "round.png")},
-		{"light_rectangle", !(path_lights .. "rectangle.png")},
-		{"light_cone", !(path_lights .. "cone.png")},
-		{"house_light", !(path_lights .. "house_light.png")},
+	array_images = {
+		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
+		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
+		{"firefly", !(path_images .. "house_outside/firefly.png")},
 		{"firefly_light", !(path_lights .. "firefly_light.png")},
+		{"splashes", !(path_images .. "house_outside/splashes.png")},
+		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		!!(get_res("player"))
 	},
 
 	image_data = {
@@ -188,16 +187,15 @@ Resources.meta.Outside = {
 
 Resources.meta.UtilityRoom = {
 	images = {
-		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
-		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
-		!!(get_res("player"))
 		!!(get_res("ui"))
 		!!(get_res("items"))
 		!!(get_res("pause"))
+	},
 
-		{"light_round", !(path_lights .. "round.png")},
-		{"light_rectangle", !(path_lights .. "rectangle.png")},
-		{"light_cone", !(path_lights .. "cone.png")},
+	array_images = {
+		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
+		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
+		!!(get_res("player"))
 	},
 
 	image_data = {

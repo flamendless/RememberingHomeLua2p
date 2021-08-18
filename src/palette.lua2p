@@ -35,14 +35,6 @@ Palette.colors = {
 	inventory_fill_hovered = {0.098/10, 0.109/10, 0.17/10},
 	inventory_line_unhovered = {1, 1, 1},
 	inventory_line_hovered = {1, 1, 1},
-
-	firefly_start = {0.988235294, 0.823529412, 0.443137255, 0.8},
-	firefly_end = {0.968627451, 0.552941176, 0.247058824, 0.8},
-
-	car_light = {1, 1, 1},
-	post_light = {1, 1, 1},
-	firefly_light = {0.988235294, 0.823529412, 0.443137255},
-	house_light = {1, 1, 1},
 }
 
 Palette.color_glitches = {

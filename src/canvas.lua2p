@@ -195,10 +195,16 @@ end
 
 function Canvas:render()
 	local scale = self.scale
-
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, scale, scale)
+	love.graphics.setBlendMode("alpha")
+end
+
+function Canvas:render_n()
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.draw(self.canvas)
 	love.graphics.setBlendMode("alpha")
 end
 

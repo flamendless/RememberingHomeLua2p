@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 
+local Blur = require("blur")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Resources = require("resources")
@@ -145,6 +146,7 @@ function Pause:on_pause()
 		end
 	end
 	self.is_paused = not self.is_paused
+	Blur.flag_process = self.is_paused
 	Log.info("Paused: " .. tostring(self.is_paused))
 end
 

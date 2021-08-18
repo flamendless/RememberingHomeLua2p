@@ -10,6 +10,7 @@ local Preloader = {
 local keys = {
 	images = "newImage",
 	image_data = "newImageData",
+	array_images = "newArrayImage",
 	sources = "newSource",
 	fonts = "newFont",
 }
@@ -22,7 +23,6 @@ function Preloader.start(resources, container, on_complete)
 	local i = 1
 	local data = {}
 	local userdata = {}
-	local cache = {}
 	for kind, t in pairs(resources) do
 		for j = 1, #t do
 			local id = t[j][1]
@@ -30,6 +30,8 @@ function Preloader.start(resources, container, on_complete)
 
 			if kind == "images" or kind == "image_data" then
 				data[i] = {keys[kind], path}
+			elseif kind == "array_images" then
+				data[i] = {keys[kind], {path}}
 			elseif kind == "sources" then
 				local source_type = t[j][3]
 				data[i] = {keys[kind], path, source_type}
@@ -42,8 +44,6 @@ function Preloader.start(resources, container, on_complete)
 				data[i] = {keys[kind], path, font_size}
 			end
 			userdata[i] = id
-			@@assert(cache[id] == nil)
-			cache[id] = true
 			i = i + 1
 		end
 	end
@@ -67,20 +67,21 @@ function Preloader.load(data, userdata, container, on_complete)
 			local data = tbl[1]
 			local dt = data:type()
 			if dt == "Image" then
-				@@assert(container.images)
-				@@assert(type(container.images) == "table")
+				local tt = data:getTextureType()
 				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
+				if tt == "array" then
+					@@assert(type(container.array_images) == "table")
+					container.array_images[id] = data
+				end
+				@@assert(type(container.images) == "table")
 				container.images[id] = data
 			elseif dt == "ImageData" then
-				@@assert(container.image_data)
 				@@assert(type(container.image_data) == "table")
 				container.image_data[id] = data
 			elseif dt == "Source" then
-				@@assert(container.sources)
 				@@assert(type(container.sources) == "table")
 				container.sources[id] = data
 			elseif dt == "Font" then
-				@@assert(container.fonts)
 				@@assert(type(container.fonts) == "table")
 				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 				container.fonts[id] = data

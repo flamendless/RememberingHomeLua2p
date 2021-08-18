@@ -3,10 +3,11 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local RenderSprite = Concord.system({
+	pool_bg = {"pos", "sprite", "bg"},
 	pool = {"pos", "sprite",
-		"!z_index", "!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
+		"!bg", "!z_index", "!ui_element", "!nf_render_sprite", "!use_canvas"},
 	pool_z = {"pos", "sprite", "z_index",
-		"!ui_element", "!light", "!nf_render_sprite", "!use_canvas"},
+		"!ui_element", "!nf_render_sprite", "!use_canvas"},
 })
 
 local function sort_z_ex(a, b)
@@ -30,19 +31,36 @@ local function draw(e, ...)
 	if outline and outline.outliner then
 		outline.outliner:draw(outline_val.value, ...)
 	else
-		love.graphics.draw(...)
+		local array_image = e.array_image
+		if array_image then
+			love.graphics.drawLayer(array_image.image, 1)
+		else
+			love.graphics.draw(...)
+		end
 	end
 end
 
 function RenderSprite:init(world)
 	self.world = world
 
+	self.pool.onAdded = function(pool, e)
+		self:setup_sprite(e)
+	end
+
 	self.pool_z.onAdded = function(pool, e)
+		self:setup_sprite(e)
 		self:sort_z()
 	end
 
 	self.pool_z.onRemoved = function(pool, e)
 		self:sort_z()
+	end
+end
+
+function RenderSprite:setup_sprite(e)
+	local sprite = e.sprite
+	if sprite.container == "array_images" then
+		e:give("array_image")
 	end
 end
 
@@ -102,6 +120,12 @@ function RenderSprite:draw_sprite_ex(e)
 
 	if e.no_shader then
 		love.graphics.setShader(temp_shader)
+	end
+end
+
+function RenderSprite:draw_bg()
+	for _, e in ipairs(self.pool_bg) do
+		self:draw_sprite_ex(e)
 	end
 end
 

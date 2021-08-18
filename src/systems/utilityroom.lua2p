@@ -30,13 +30,17 @@ function UtilityRoom:state_setup()
 	local w, h = Resources.data.images.utility_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	self.main_canvas = Canvas.create_main({})
+	self.buffers = {
+		Canvas.create_main({}),
+		Canvas.create_main({}),
+	}
+	self.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	self.bg = Resources.data.images.utility_room
+	Concord.entity(self.world):assemble(Assemblages.UtilityRoom.bg)
 
 	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
@@ -51,7 +55,12 @@ function UtilityRoom:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading:new(lut_dusk, lut_size)
+	self.effect = NGrading:new(lut_dusk, lut_size, nil, false)
+	self.world:emit("create_light_shaders_ngrading", self.effect)
+
+	for _, v in pairs(Assemblages.UtilityRoom.lights) do
+		Concord.entity(self.world):assemble(v)
+	end
 end
 
 function UtilityRoom:state_init()
@@ -74,35 +83,43 @@ end
 function UtilityRoom:state_update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
-	-- self.world:emit("update_light", dt)
 end
 
 function UtilityRoom:state_draw()
-	-- self.world:emit("draw_light_start")
-	-- self.world:emit("draw_light")
-	love.graphics.setBlendMode("alpha")
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(self.main_canvas.canvas)
-	love.graphics.clear()
 	self.camera:attach()
-		self.effect:apply()
-		love.graphics.draw(self.bg)
-		self.world:emit("draw")
-		self.world:emit("draw_z")
-		love.graphics.setShader()
-		-- self.world:emit("draw_light_end")
-	self.camera:detach()
-	self.world:emit("draw_clip")
-	self.world:emit("draw_ui")
-	Fade.draw()
+		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
+			love.graphics.clear()
+			self.world:emit("begin_geometry_pass")
+				love.graphics.setColor(1, 1, 1)
+				self.world:emit("draw_bg")
+				self.world:emit("draw")
+				self.world:emit("draw_z")
+			love.graphics.setShader() --unset geometry_pass
 
-	love.graphics.setCanvas()
+		love.graphics.setCanvas(self.canvas.canvas)
+			self.world:emit("begin_light_pass", self.buffers)
+				love.graphics.clear()
+				love.graphics.setBlendMode("add")
+				self.world:emit("draw_lights")
+				love.graphics.setBlendMode("alpha")
+			love.graphics.setShader() --unset lighting_pass
+	self.camera:detach()
+			--ambient light color
+			love.graphics.setBlendMode("add")
+			love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
+			love.graphics.draw(self.buffers[1].canvas)
+			love.graphics.setBlendMode("alpha")
+			self.world:emit("draw_clip")
+			self.world:emit("draw_ui")
+		love.graphics.setCanvas() --unset canvas.canvas
+
 	Blur.draw()
-	self.main_canvas:render()
+		self.canvas:render_n()
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+	Fade.draw()
 end
 
 function UtilityRoom:spawn_player()

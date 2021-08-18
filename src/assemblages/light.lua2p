@@ -1,0 +1,24 @@
+local random = love.math.random
+
+local Light = {}
+
+function Light.point(e, x, y, z, size, diffuse, dir)
+	e:give("id", "point_light")
+	:give("pos", x, y, z)
+	:give("point_light", size)
+	:give("diffuse", diffuse)
+
+	if dir then
+		e:give("light_dir", dir)
+	end
+end
+
+function Light.spot(e, x, y, z, dir, size, diffuse)
+	e:give("id", "spot_light")
+	:give("pos", x, y, z)
+	:give("point_light", size)
+	:give("diffuse", diffuse)
+	:give("light_dir", dir)
+end
+
+return Light

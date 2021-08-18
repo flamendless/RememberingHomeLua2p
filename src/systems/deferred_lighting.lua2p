@@ -1,0 +1,177 @@
+local Concord = require("modules.concord.concord")
+
+local DeferredLighting = Concord.system({
+	pool_p = {"id", "point_light", "pos", "diffuse"},
+	pool_disabled = {"id", "light_id", "light_disabled", "point_light", "pos", "diffuse"},
+	pool_fading = {"id", "light_id", "point_light", "pos", "diffuse", "light_fading"},
+})
+
+local shader_geometry = "shaders/geometry_pass.glsl"
+local shader_lighting = "shaders/lighting_pass.glsl"
+local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
+local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
+local lvfd = {{"diffuse", "float", 3}} -- color
+local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
+local MAX_LIGHTS = 32
+
+function DeferredLighting:init(world)
+	self.world = world
+	self.lighting_pass = love.graphics.newShader(shader_lighting)
+	self.mesh = self:create_mesh_p()
+
+	self.pool_p.onAdded = function(pool, e)
+		local pos = e.pos
+		local pl = e.point_light
+		local diffuse = e.diffuse
+		local ld = e.light_dir
+		local dir = ld and ld.value or {1, 0, 0, -2}
+		local id = #pool
+		self.mesh.pos:setVertex(id, {pos.x, pos.y, pos.z, pl.value})
+		self.mesh.diffuse:setVertex(id, diffuse.value)
+		self.mesh.dir:setVertex(id, dir)
+		e:give("light_id", id)
+	end
+
+	self.pool_disabled.onAdded = function(pool, e)
+		self.mesh.diffuse:setVertex(e.light_id.value, {0, 0, 0})
+	end
+
+	self.pool_disabled.onRemoved = function(pool, e)
+		local diffuse = e.diffuse
+		self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
+	end
+end
+
+function DeferredLighting:create_light_shaders_ngrading(ngrading)
+	@@assert(ngrading:type() == "NGrading")
+	local str_ngrading = ngrading:get_shader()
+	local geometry = love.filesystem.read(shader_geometry)
+	self.geometry_pass = love.graphics.newShader(str_ngrading .. geometry)
+	ngrading:setup_data(self.geometry_pass)
+end
+
+function DeferredLighting:update_light_pos(e)
+	if e.light_disabled then return end
+	local pl = e.point_light
+	local pos = e.pos
+	self.mesh.pos:setVertex(e.light_id.value, {pos.x, pos.y, pos.z, pl.value})
+end
+
+function DeferredLighting:update_light_diffuse(e)
+	if e.light_disabled then return end
+	local diffuse = e.diffuse
+	self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
+end
+
+function DeferredLighting:update_light_dir(e)
+	if e.light_disabled then return end
+	local dir = e.light_dir
+	if not dir then return end
+	self.mesh.dir:setVertex(e.light_id.value, dir.value)
+end
+
+function DeferredLighting:update_light_fading(dt)
+	for _, e in ipairs(self.pool_fading) do
+		if not e.light_disabled then
+			local lp = e.point_light
+			local f = e.light_fading
+			if lp.value >= lp.orig then
+				f.dir = -1
+			elseif lp.value <= lp.orig - f.amount then
+				f.dir = 1
+			end
+			lp.value = lp.value + f.amount * f.dir * dt
+			self:update_light_pos(e)
+		end
+	end
+end
+
+function DeferredLighting:begin_geometry_pass()
+	love.graphics.setShader(self.geometry_pass)
+end
+
+function DeferredLighting:begin_light_pass(buffers)
+	@@assert(type(buffers) == "table" and #buffers == 2)
+	love.graphics.setShader(self.lighting_pass)
+	self.lighting_pass:send("cb", buffers[1].canvas)
+	self.lighting_pass:send("nb", buffers[2].canvas)
+end
+
+function DeferredLighting:draw_lights()
+	love.graphics.drawInstanced(self.mesh.light, #self.pool_p)
+end
+
+function DeferredLighting:create_mesh_p()
+	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
+	for _ = 1, 64 do
+		local t = v[#v]
+		v[#v+1] = {t[1]*r[1] - t[2]*r[2], t[1]*r[2] + t[2]*r[1], 0,0, 1,1,1,1}
+	end
+	local light = love.graphics.newMesh(v, nil, "static")
+	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
+	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
+	local m_direction = love.graphics.newMesh(lvft, MAX_LIGHTS)
+	light:attachAttribute("lpos", m_position, "perinstance")
+	light:attachAttribute("diffuse", m_diffuse, "perinstance")
+	light:attachAttribute("ldir", m_direction, "perinstance")
+	return {
+		light = light,
+		pos = m_position,
+		diffuse = m_diffuse,
+		dir = m_direction,
+	}
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local UIWrapper = require("ui_wrapper")
+
+function DeferredLighting:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("light", {
+		Title = "DeferredLighting",
+		IsOpen = self.debug_show,
+	})
+	for _, e in ipairs(self.pool_p) do
+		local id = e.id.value
+		if Slab.BeginTree(id, {Title = id}) then
+			Slab.Indent()
+			local ld = e.light_disabled
+			if Slab.CheckBox(ld, "Disabled") then
+				if ld then
+					e:remove("light_disabled")
+				else
+					e:give("light_disabled")
+				end
+			end
+			local pos = e.pos
+			local pl = e.point_light
+			local diffuse = e.diffuse.value
+			local dir = e.light_dir and e.light_dir.value
+			pos.x = UIWrapper.edit_number("x", pos.x, true)
+			pos.y = UIWrapper.edit_number("y", pos.y, true)
+			pos.z = UIWrapper.edit_number("z", pos.z, true)
+			pl.value = UIWrapper.edit_number("s", pl.value, true)
+			if dir then
+				Slab.Separator()
+				dir[1] = UIWrapper.edit_range("dx", dir[1], -32, 32)
+				dir[2] = UIWrapper.edit_range("dy", dir[2], -32, 32)
+				dir[3] = UIWrapper.edit_range("dz", dir[3], -1, 1)
+				dir[4] = UIWrapper.edit_range("angle", dir[4], -1, 1)
+			end
+			Slab.Separator()
+			diffuse[1] = UIWrapper.edit_range("r", diffuse[1], 0, 6)
+			diffuse[2] = UIWrapper.edit_range("g", diffuse[2], 0, 6)
+			diffuse[3] = UIWrapper.edit_range("b", diffuse[3], 0, 6)
+			self:update_light_pos(e)
+			self:update_light_dir(e)
+			self:update_light_diffuse(e)
+			Slab.EndTree()
+			Slab.Unindent()
+		end
+	end
+	Slab.EndWindow()
+end
+!end
+
+return DeferredLighting
