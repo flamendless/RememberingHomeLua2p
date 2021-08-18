@@ -1,8 +1,9 @@
 local Concord = require("modules.concord.concord")
 
 local DeferredLighting = Concord.system({
-	pool_camera = {"camera"},
 	pool_p = {"id", "point_light", "pos", "diffuse"},
+	pool_disabled = {"id", "light_id", "light_disabled", "point_light", "pos", "diffuse"},
+	pool_fading = {"id", "light_id", "point_light", "pos", "diffuse", "light_fading"},
 })
 
 local shader_geometry = "shaders/geometry_pass.glsl"
@@ -16,12 +17,7 @@ local MAX_LIGHTS = 32
 function DeferredLighting:init(world)
 	self.world = world
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
-
-	self.m_point = self:create_mesh_p()
-
-	self.pool_camera.onAdded = function(pool, e)
-		self.camera = e.camera.camera
-	end
+	self.mesh = self:create_mesh_p()
 
 	self.pool_p.onAdded = function(pool, e)
 		local pos = e.pos
@@ -30,10 +26,19 @@ function DeferredLighting:init(world)
 		local ld = e.light_dir
 		local dir = ld and ld.value or {1, 0, 0, -2}
 		local id = #pool
-		self.m_point.pos:setVertex(id, {pos.x, pos.y, pos.z, pl.value})
-		self.m_point.diffuse:setVertex(id, diffuse.value)
-		self.m_point.dir:setVertex(id, dir)
+		self.mesh.pos:setVertex(id, {pos.x, pos.y, pos.z, pl.value})
+		self.mesh.diffuse:setVertex(id, diffuse.value)
+		self.mesh.dir:setVertex(id, dir)
 		e:give("light_id", id)
+	end
+
+	self.pool_disabled.onAdded = function(pool, e)
+		self.mesh.diffuse:setVertex(e.light_id.value, {0, 0, 0})
+	end
+
+	self.pool_disabled.onRemoved = function(pool, e)
+		local diffuse = e.diffuse
+		self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
 	end
 end
 
@@ -46,20 +51,39 @@ function DeferredLighting:create_light_shaders_ngrading(ngrading)
 end
 
 function DeferredLighting:update_light_pos(e)
+	if e.light_disabled then return end
 	local pl = e.point_light
 	local pos = e.pos
-	self.m_point.pos:setVertex(e.light_id.value, {pos.x, pos.y, pos.z, pl.value})
+	self.mesh.pos:setVertex(e.light_id.value, {pos.x, pos.y, pos.z, pl.value})
 end
 
 function DeferredLighting:update_light_diffuse(e)
+	if e.light_disabled then return end
 	local diffuse = e.diffuse
-	self.m_point.diffuse:setVertex(e.light_id.value, diffuse.value)
+	self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
 end
 
 function DeferredLighting:update_light_dir(e)
+	if e.light_disabled then return end
 	local dir = e.light_dir
 	if not dir then return end
-	self.m_point.dir:setVertex(e.light_id.value, dir.value)
+	self.mesh.dir:setVertex(e.light_id.value, dir.value)
+end
+
+function DeferredLighting:update_light_fading(dt)
+	for _, e in ipairs(self.pool_fading) do
+		if not e.light_disabled then
+			local lp = e.point_light
+			local f = e.light_fading
+			if lp.value >= lp.orig then
+				f.dir = -1
+			elseif lp.value <= lp.orig - f.amount then
+				f.dir = 1
+			end
+			lp.value = lp.value + f.amount * f.dir * dt
+			self:update_light_pos(e)
+		end
+	end
 end
 
 function DeferredLighting:begin_geometry_pass()
@@ -74,7 +98,7 @@ function DeferredLighting:begin_light_pass(buffers)
 end
 
 function DeferredLighting:draw_lights()
-	love.graphics.drawInstanced(self.m_point.light, #self.pool_p)
+	love.graphics.drawInstanced(self.mesh.light, #self.pool_p)
 end
 
 function DeferredLighting:create_mesh_p()
@@ -112,6 +136,14 @@ function DeferredLighting:debug_update(dt)
 		local id = e.id.value
 		if Slab.BeginTree(id, {Title = id}) then
 			Slab.Indent()
+			local ld = e.light_disabled
+			if Slab.CheckBox(ld, "Disabled") then
+				if ld then
+					e:remove("light_disabled")
+				else
+					e:give("light_disabled")
+				end
+			end
 			local pos = e.pos
 			local pl = e.point_light
 			local diffuse = e.diffuse.value

@@ -61,15 +61,10 @@ end
 function Outside.firefly(e, x, y, points)
 	e:give("id", "firefly")
 	:give("firefly")
-	:give("sprite", "firefly_light")
-	:give("pos", x, y)
 	:give("path", points)
-	:give("transform", 0, 1, 1)
-	:give("z_index", z_index.firefly)
-	:give("color", Palette.get("firefly_start", 0))
-	:give("light", "round", 1)
-	:give("hidden")
-	:give("cullable")
+	:give("pos", x, y, 2)
+	:give("point_light", 16)
+	:give("diffuse", {0, 0, 0})
 end
 
 function Outside.house_light(e)

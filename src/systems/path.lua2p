@@ -6,13 +6,18 @@ local random = love.math.random
 
 local Path = Concord.system({
 	pool = {"path", "pos"},
+	pool_camera = {"camera"},
 })
 
 function Path:init(world)
 	self.world = world
+
+	self.pool_camera.onAdded = function(pool, e)
+		self.camera = e.camera.camera
+	end
 end
 
-function Path:move_to_next_point(e)
+function Path:move_to_next_point(e, event)
 	@@assert(e.__isEntity)
 	@@assert(self.pool:has(e))
 	local path = e.path
@@ -40,6 +45,10 @@ function Path:move_to_next_point(e)
 		local dx, dy = b:evaluate(state.time)
 		pos.x = dx
 		pos.y = dy
+
+		if event then
+			self.world:emit(event, e)
+		end
 	end)
 
 	f:oncomplete(function()
@@ -50,7 +59,7 @@ function Path:move_to_next_point(e)
 		end
 
 		if e.path_loop then
-			self:move_to_next_point(e)
+			self:move_to_next_point(e, event)
 		end
 	end)
 end
@@ -85,8 +94,8 @@ function Path:debug_draw()
 	if not self.debug_show then return end
 	if flags.path then
 		local scale = 1
-		if self.world.current_state.camera then
-			scale = 1/self.world.current_state.camera:getScale()
+		if self.camera then
+			scale = 1/self.camera:getScale()
 		end
 		love.graphics.setLineWidth(scale)
 		for _, e in ipairs(self.pool) do

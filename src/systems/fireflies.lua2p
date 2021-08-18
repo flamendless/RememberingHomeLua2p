@@ -1,6 +1,5 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
-local Timer = require("modules.hump.timer")
 
 local insert = table.insert
 local random = love.math.random
@@ -16,30 +15,22 @@ local function generate_points(x, y, n)
 	local points = {x = x, y = y}
 	local prev_x = x
 	local prev_y = y
-
 	for _ = 1, n - 1 do
 		local px = random(prev_x - offset, prev_x + offset)
 		local py = random(prev_y - offset, prev_y + offset)
 		local p = {x = px, y = py}
-
 		prev_x = px
 		prev_y = py
 		insert(points, p)
 	end
-
 	return points
 end
 
 function Fireflies:init(world)
 	self.world = world
-	self.timer = Timer()
 	!if _DEV then
 	self.debug_fireflies = false
 	!end
-end
-
-function Fireflies:update(dt)
-	self.timer:update(dt)
 end
 
 function Fireflies:generate_fireflies()
@@ -50,19 +41,23 @@ function Fireflies:generate_fireflies()
 		local x = random(min_x, max_x)
 		local points = generate_points(x, y, 64)
 		Concord.entity(self.world):assemble(Outside.firefly, x, y, points)
+			:give("light_disabled")
 	end
 end
 
 function Fireflies:show_fireflies(dur)
 	@@assert(type(dur) == "number")
-
 	for _, e in ipairs(self.pool) do
-		e:remove("hidden")
-		Flux.to(e.color.value, dur, { [4] = 1 })
-			:oncomplete(function()
-				e:give("light_flicker", 0.05)
-				:give("light_timer")
-			end)
+		e:remove("light_disabled")
+		Flux.to(e.diffuse.value, dur, {
+			[1] = 4.96,
+			[2] = 4.44,
+			[3] = 0.8,
+		})
+		:onupdate(function()
+			self.world:emit("update_light_diffuse", e)
+			e:give("light_fading", 8, -1)
+		end)
 	end
 
 	!if _DEV then
@@ -72,14 +67,19 @@ end
 
 function Fireflies:hide_fireflies(dur)
 	@@assert(type(dur) == "number")
-
 	for _, e in ipairs(self.pool) do
-		e:remove("light_flicker")
-		:remove("light_timer")
-		Flux.to(e.color.value, dur, { [4] = 0 })
-			:oncomplete(function()
-				e:give("hidden")
-			end)
+		e:remove("light_fading")
+		Flux.to(e.diffuse.value, dur, {
+			[1] = 0,
+			[2] = 0,
+			[3] = 0,
+		})
+		:onupdate(function()
+			self.world:emit("update_light_diffuse", e)
+		end)
+		:oncomplete(function()
+			e:give("light_disabled")
+		end)
 	end
 
 	!if _DEV then
@@ -91,7 +91,7 @@ function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
 		e:give("firefly_move")
 		e:give("path_loop")
-		self.world:emit("move_to_next_point", e, true)
+		self.world:emit("move_to_next_point", e, "update_light_pos")
 	end
 	!if _DEV then
 	self.debug_move = true
@@ -106,10 +106,6 @@ function Fireflies:stop_fireflies()
 	!if _DEV then
 	self.debug_move = false
 	!end
-end
-
-function Fireflies:cleanup()
-	self.timer:clear()
 end
 
 !if _DEV then

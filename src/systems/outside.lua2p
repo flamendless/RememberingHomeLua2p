@@ -219,6 +219,7 @@ function Outside:state_update(dt)
 	end
 	!end
 	self.world:emit("update", dt)
+	self.world:emit("update_light_fading", dt)
 
 	if self.is_raining then
 		self.ps1:update(dt)
@@ -227,59 +228,58 @@ function Outside:state_update(dt)
 end
 
 function Outside:state_draw()
-	love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
-	love.graphics.clear()
 	self.camera:attach()
-		self.world:emit("begin_geometry_pass")
-			love.graphics.setColor(1, 1, 1)
-			self.world:emit("draw_bg")
-			self.world:emit("draw")
-			self.world:emit("draw_z")
-		self.world:emit("begin_light_pass", self.buffers)
-			love.graphics.setCanvas()
+		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
-			love.graphics.setBlendMode("add")
-			self.world:emit("draw_lights")
-			love.graphics.setBlendMode("alpha")
-		love.graphics.setShader()
-		if self.overlay_flag then
-			local l, t, w, h = self.camera:getVisible()
-			love.graphics.setColor(self.overlay)
-			love.graphics.rectangle("fill", l, t, w, h)
-		end
+			self.world:emit("begin_geometry_pass")
+				love.graphics.setColor(1, 1, 1)
+				self.world:emit("draw_bg")
+				self.world:emit("draw")
+				self.world:emit("draw_z")
+			love.graphics.setShader() --unset geometry_pass
+			-- love.graphics.setCanvas()
+
+			love.graphics.setCanvas(self.canvas.canvas)
+				self.world:emit("begin_light_pass", self.buffers)
+					love.graphics.clear()
+					love.graphics.setBlendMode("add")
+					self.world:emit("draw_lights")
+					love.graphics.setBlendMode("alpha")
+				love.graphics.setShader() --unset lighting_pass
 	self.camera:detach()
+			--ambient light color
+			love.graphics.setBlendMode("add")
+			love.graphics.setColor(0.3, 0.3, 0.3, 0.6)
+			love.graphics.draw(self.buffers[1].canvas)
+			if self.is_raining then
+				local l, t, w, h = self.camera:getVisible()
+				local s = self.camera:getScale()
+				love.graphics.push()
+				love.graphics.translate(l, t)
+				love.graphics.scale(s)
+				self.ps1:draw(0, -16)
+				self.ps2:draw(0, -16)
+				love.graphics.pop()
+			end
+			love.graphics.setBlendMode("alpha")
 
-	--ambient light color
-	love.graphics.setBlendMode("add")
-	love.graphics.setColor(0.3, 0.3, 0.3, 0.6)
-	love.graphics.draw(self.buffers[1].canvas)
-	if self.is_raining then
-		local l, t, w, h = self.camera:getVisible()
-		local s = self.camera:getScale()
-		love.graphics.push()
-		love.graphics.translate(l, t)
-		love.graphics.scale(s)
-		self.ps1:draw(0, -16)
-		self.ps2:draw(0, -16)
-		love.graphics.pop()
-	end
-	love.graphics.setBlendMode("alpha")
-
-	self.world:emit("draw_clip")
-	self.world:emit("draw_ui")
-	Fade.draw()
-	love.graphics.setCanvas()
-
-	-- love.graphics.setCanvas(self.canvas.canvas)
-	-- love.graphics.draw(self.buffers[1].canvas)
-	-- love.graphics.setCanvas()
+			self.world:emit("draw_clip")
+			self.world:emit("draw_ui")
+		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.draw()
-	-- love.graphics.draw(self.canvas.canvas)
+		self.canvas:render_n()
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+
+	if self.overlay_flag then
+		local l, t, w, h = self.camera:getVisible()
+		love.graphics.setColor(self.overlay)
+		love.graphics.rectangle("fill", l, t, w, h)
+	end
+	Fade.draw()
 end
 
 function Outside:start_rain()
