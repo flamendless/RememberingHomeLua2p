@@ -6,6 +6,7 @@ local Resources = require("resources")
 local Palette = require("palette")
 
 local insert = table.insert
+local remove = table.remove
 
 local Dialogues = Concord.system({
 	pool_camera = {"camera"},
@@ -188,15 +189,17 @@ function Dialogues:show_choices(e)
 	local font = Resources.data.fonts.ui
 	local y = h - h * 0.15 * 0.5
 	local p2 = PAD * 2
+	local prev_x = l + p2
 	for i, str in ipairs(c.value) do
 		local id = "choice_" .. str
 		local fw = font:getWidth(str)
-		local x = l + p2 + ((fw + p2) * (i - 1))
+		local x = prev_x
+		prev_x = x + fw + p2
 		local text_t = e.text_t.value.choices
 		for _, v in ipairs(text_t) do
 			if v[1] == str then
 				text_t = tablex.copy(v)
-				table.remove(text_t, 1)
+				remove(text_t, 1)
 				break
 			end
 		end
@@ -246,21 +249,36 @@ end
 function Dialogues:check_signal(str)
 	@@assert(type(str) == "string")
 	local bool = stringx.starts_with(str, "_")
-	local signal = str:sub(2, #str)
-	return bool, signal
+	local handle_self = not stringx.starts_with(str, "__")
+	local signal
+	if handle_self then
+		signal = str:sub(2, #str)
+	else
+		signal = str:sub(3, #str)
+	end
+	return bool, signal, handle_self
 end
 
 function Dialogues:select_choice()
 	for _, e in ipairs(self.pool_choice) do
 		if e.hovered_choice then
-			local text_t = e.text_t.value
+			local t = e.text_t
+			local text_t = t.value
 			if #text_t == 0 then
 				self:dialogue_reached_end(e)
 			else
 				local str = text_t[1]
-				local bool, signal = self:check_signal(str)
+				local bool, signal, handle_self = self:check_signal(str)
+
 				if bool then
 					self.world:emit(signal, e, text_t)
+					if handle_self then
+						t.current_index = t.current_index + 1
+						local next_str = text_t[t.current_index]
+						if not next_str then
+							self:dialogue_reached_end(e)
+						end
+					end
 				else
 					local id = e.id.value
 					self:show_dialogue(id, text_t, e)

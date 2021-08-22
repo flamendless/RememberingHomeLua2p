@@ -4,7 +4,7 @@ local data = {
 		x = 729, y = 273, z = 4,
 		dialogue = {"outside", "car"},
 		usable_with_item = true,
-		not_interactive = true,
+		-- not_interactive = true,
 	},
 	{
 		id = "backdoor",

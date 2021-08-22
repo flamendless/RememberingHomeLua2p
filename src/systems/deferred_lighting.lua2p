@@ -53,6 +53,7 @@ function DeferredLighting:init(world)
 		local orig_diff = diff.orig_value
 		local signal_during = e.on_d_light_flicker_during
 		local signal_after = e.on_d_light_flicker_after
+		local rem = e.d_light_flicker_remove_after
 
 		self.timer:during(dlf.during, function()
 			local c = Lume.weightedchoice({on = dlf.on_chance, off = dlf.off_chance})
@@ -67,12 +68,18 @@ function DeferredLighting:init(world)
 			end
 			self:update_light_diffuse(e)
 			if signal_during then
-				self.world:emit(signal_during.signal)
+				self.world:emit(signal_during.signal, unpack(signal_during.args))
 			end
 		end,
 		function()
 			if signal_after then
-				self.world:emit(signal_after.signal)
+				self.world:emit(signal_after.signal, unpack(signal_after.args))
+			end
+			if rem then
+				e:remove("d_light_flicker")
+				:remove("d_light_flicker_remove_after")
+				:remove("on_d_light_flicker_during")
+				:remove("on_d_light_flicker_after")
 			end
 		end)
 	end

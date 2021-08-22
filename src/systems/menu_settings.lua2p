@@ -11,6 +11,7 @@ local MenuSettings = Concord.system({})
 
 function MenuSettings:init(world)
 	self.world = world
+	Slab.Initialize()
 	Style.API.LoadStyle("slab.style", true)
 end
 
@@ -69,7 +70,6 @@ function MenuSettings:update_desktop(dt)
 	local y = 64
 	local width = self.ww - (x * 2)
 	local height = self.wh - (y * 2)
-	Style.API.SetStyle("slab")
 
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
