@@ -104,6 +104,7 @@ end
 function Outside.lights.pl_car_headlight(e, id)
 	e:assemble(Light.point, 733, 296, 4, 24, {6, 6, 3})
 	:give("id", id)
+	:give("car_lights")
 end
 
 function Outside.lights.sl_car_headlight(e, id)
@@ -113,6 +114,7 @@ function Outside.lights.sl_car_headlight(e, id)
 		256,
 		{4.98, 3.96, 1.59})
 	:give("id", id)
+	:give("car_lights")
 end
 
 function Outside.lights.pl_backdoor(e, id)

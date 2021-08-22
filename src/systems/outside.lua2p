@@ -34,9 +34,8 @@ local ParticleSystems = {
 
 local Outside = Concord.system({
 	pool_splashes = {"splashes"},
-	pool_interactive = {"interactive"},
 	pool_bump = {"bump"},
-	pool_item = {"item"},
+	pool_car_lights = {"car_lights"},
 })
 
 local function tle_log(msg)
@@ -48,8 +47,8 @@ function Outside:init(world)
 	self.world = world
 	self.is_raining = false
 	self.rain_state = {current = 128}
-	self.fireflies_flag = false
 	self.overlay = {0, 0, 0, 1}
+	self.main_car_light = nil
 end
 
 function Outside:state_setup()
@@ -105,13 +104,17 @@ function Outside:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading:new(lut_dusk, lut_size, nil, false)
+	self.effect = NGrading(lut_dusk, lut_size, nil, false)
 	self.world:emit("create_light_shaders_ngrading", self.effect)
 
 	--setup lights
 	for k, v in pairs(Assemblages.Outside.lights) do
-		Concord.entity(self.world):assemble(v, k)
+		local e = Concord.entity(self.world):assemble(v, k)
+		if e.id.value == "pl_car_headlight" then
+			self.main_car_light = e
+		end
 	end
+
 	--setup end of headlights
 	local bx, by = 585, 323
 	local r, s = 4, 64
@@ -122,30 +125,30 @@ function Outside:state_setup()
 		Concord.entity(self.world):assemble(Assemblages.Light.point,
 			bx + ix * d, by - iy * d, r, s, color)
 		:give("id", "pl_headlight_end" .. i)
+		:give("car_lights")
 	end
 end
 
 function Outside:state_init()
 	--TEST
 	!if _DEV then
-	local e_player = self:spawn_player()
-	self.camera:setScale(3)
-	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+	-- local e_player = self:spawn_player()
+	-- self.camera:setScale(3)
+	-- self.camera:setPosition(e_player.pos.x, e_player.pos.y)
 	!end
 	if Save.data.outside_intro_done then return end
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		self.world:emit("camera_follow", e_player, 0.25)
-		self.world:emit("player_can_move", true)
-		self.world:emit("player_can_interact", true)
-		self.world:emit("player_can_run", true)
+		-- self.world:emit("camera_follow", e_player, 0.25)
+		-- self.world:emit("player_can_move", true)
+		-- self.world:emit("player_can_interact", true)
+		-- self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 		!end
 
 		Fade.set_alpha(0)
 		self.is_raining = true
-		self.fireflies_flag = true
 		self.overlay_flag = true
 		self.ps1.system:setEmissionRate(self.rain_state.current)
 		self.ps2.system:setEmissionRate(self.rain_state.current)
@@ -183,26 +186,40 @@ function Outside:state_init()
 				self.camera:setPosition(dt_cam.x, dt_cam.y)
 				self.camera:setScale(dt_cam.scale)
 			end)
-
+			:oncomplete(function()
+				self.timeline:Unpause()
+			end)
 		self.timeline:Pause()
-		tle_log("car light off")
-		--show car light,
-		--remove car light,
-		--show player
 
 		tle_log("begin rain fade")
+		self:start_rain_fade()
+		self.timeline:Pause()
+
+		tle_log("car light off")
+		self.main_car_light:give("d_light_flicker", 2.5, 0.75, 0.25)
+			:give("on_d_light_flicker_during", "on_car_light_flicker")
+			:give("on_d_light_flicker_after", "on_car_light_flicker_after")
+		self.timeline:Pause()
+
+		tle_log("show player")
 		local dur_camera_follow = 1.5
 		local e_player = self:spawn_player()
-		TLE.Event.Wait(3)
-		self:start_rain()
-		self.timeline:Pause()
-		TLE.Event.Wait(0.5)
-		self.world:emit("camera_follow", e_player, dur_camera_follow)
-		self.camera:setScale(3)
-		self.camera:setPosition(e_player.pos.x, e_player.pos.y)
-		self.world:emit("player_can_move", true)
-		self.world:emit("player_can_interact", true)
-		self.world:emit("player_can_run", true)
+		dt_cam.x, dt_cam.y = self.camera:getPosition()
+		dt_cam.scale = self.camera:getScale()
+		Flux.to(dt_cam, 3, {x = e_player.pos.x, y = e_player.pos.y, scale = 3})
+			:onupdate(function()
+				self.world:emit("set_camera_transform", self.camera, {
+					x = dt_cam.x,
+					y = dt_cam.y,
+					scale = dt_cam.scale,
+				})
+			end)
+			:oncomplete(function()
+				self.world:emit("camera_follow", e_player, dur_camera_follow)
+				self.world:emit("player_can_move", true)
+				self.world:emit("player_can_interact", true)
+				self.world:emit("player_can_run", true)
+			end)
 		self.timeline:Pause()
 	end)
 end
@@ -273,14 +290,16 @@ function Outside:state_draw()
 	self.world:emit("draw_dialogues")
 
 	if self.overlay_flag then
+		self.camera:attach()
 		local l, t, w, h = self.camera:getVisible()
 		love.graphics.setColor(self.overlay)
 		love.graphics.rectangle("fill", l, t, w, h)
+		self.camera:detach()
 	end
 	Fade.draw()
 end
 
-function Outside:start_rain()
+function Outside:start_rain_fade()
 	local dur_fade_rain = 8
 	for _, e in ipairs(self.pool_splashes) do
 		e:give("color_fade_out", dur_fade_rain)
@@ -290,27 +309,51 @@ function Outside:start_rain()
 		:onupdate(function()
 			self.ps1.system:setEmissionRate(self.rain_state.current)
 			self.ps2.system:setEmissionRate(self.rain_state.current)
-			if self.rain_state.current <= 16 then
-				if self.fireflies_flag then
-					self.world:emit("move_fireflies")
-					self.world:emit("show_fireflies", 5)
-					self.fireflies_flag = false
-					tle_log("fireflies start")
-				end
-			end
 		end)
 		:oncomplete(function()
 			for _, e in ipairs(self.pool_splashes) do
 				e:destroy()
 			end
-			tle_log("splashes stopped")
 			self.is_raining = false
 			self.ps1.system:stop()
 			self.ps2.system:stop()
+			tle_log("splashes stopped")
+
+			tle_log("fireflies start")
+			self.world:emit("move_fireflies")
+			self.world:emit("show_fireflies", 5)
 			self.timeline:Unpause()
+
 			self.world:emit("cleanup_rain")
 			tle_log("end rain fade")
 		end)
+end
+
+function Outside:on_car_light_flicker()
+	local main_diff = self.main_car_light.diffuse.value
+	for _, e in ipairs(self.pool_car_lights) do
+		if e ~= self.main_car_light then
+			local diff = e.diffuse.value
+			diff[1] = main_diff[1]
+			diff[2] = main_diff[2]
+			diff[3] = main_diff[3]
+			self.world:emit("update_light_diffuse", e)
+		end
+	end
+end
+
+function Outside:on_car_light_flicker_after()
+	self.main_car_light:remove("d_light_flicker")
+		:remove("on_d_light_flicker_during")
+		:remove("on_d_light_flicker_after")
+	for _, e in ipairs(self.pool_car_lights) do
+		local diff = e.diffuse
+		diff.value[1] = diff.orig_value[1]
+		diff.value[2] = diff.orig_value[2]
+		diff.value[3] = diff.orig_value[3]
+		self.world:emit("update_light_diffuse", e)
+	end
+	self.timeline:Unpause()
 end
 
 function Outside:spawn_player()
@@ -358,14 +401,14 @@ function Outside:check_frontdoor(e, dialogues_t)
 	end
 end
 
-function Outside:make_car_interactive(e)
+function Outside:make_car_interactive(ent)
 	for _, e in ipairs(self.pool_bump) do
 		if e.id.value == "car" then
 			e:give("interactive")
 			break
 		end
 	end
-	self.world:emit("dialogue_reached_end", e)
+	self.world:emit("dialogue_reached_end", ent)
 end
 
 function Outside:check_has_flashlight(e, dialogues_t)

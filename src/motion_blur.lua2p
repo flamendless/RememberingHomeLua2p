@@ -1,5 +1,6 @@
-local MotionBlur = class()
-MotionBlur.type = "MotionBlur"
+local MotionBlur = class({
+	name = "MotionBlur",
+})
 
 function MotionBlur:new(canvas, config)
 	@@assert(canvas:type() == "CustomCanvas")

@@ -34,9 +34,6 @@
 [submodule "modules/gamera"]
 	path = modules/gamera
 	url = https://github.com/flamendless/gamera
-[submodule "modules/slab"]
-	path = modules/slab
-	url = https://github.com/flamendless/Slab
 [submodule "modules/sdf"]
 	path = modules/sdf
 	url = https://github.com/flamendless/love-sdf-text.git
@@ -58,3 +55,6 @@
 [submodule "hump"]
 	path = hump
 	url = https://github.com/vrld/hump
+[submodule "modules/slab"]
+	path = modules/slab
+	url = https://github.com/flamendless/Slab

@@ -21,6 +21,7 @@ end)
 Concord.component("diffuse", function(c, t)
 	@@assert(type(t) == "table")
 	c.value = t
+	c.orig_value = tablex.copy(t, {})
 end)
 
 Concord.component("light_fading", function(c, amount, dir)
@@ -28,4 +29,13 @@ Concord.component("light_fading", function(c, amount, dir)
 	@@assert(type(dir) == "number" and (dir == -1 or dir == 1))
 	c.amount = amount
 	c.dir = dir
+end)
+
+Concord.component("d_light_flicker", function(c, during, on_chance, off_chance)
+	@@assert(type(during) == "number")
+	@@assert(type(on_chance) == "number" and on_chance >= 0 and on_chance <= 1)
+	@@assert(type(off_chance) == "number" and off_chance >= 0 and off_chance <= 1)
+	c.during = during
+	c.on_chance = on_chance
+	c.off_chance = off_chance
 end)

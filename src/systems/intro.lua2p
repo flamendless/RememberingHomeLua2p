@@ -164,8 +164,8 @@ function Intro:state_setup()
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
 
-	effect.single = NGrading:new(lut_afternoon, lut_size)
-	effect.multi = NGrading:new(lut_afternoon, lut_dusk, lut_size)
+	effect.single = NGrading(lut_afternoon, lut_size)
+	effect.multi = NGrading(lut_afternoon, lut_dusk, lut_size)
 	current_effect = effect.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,

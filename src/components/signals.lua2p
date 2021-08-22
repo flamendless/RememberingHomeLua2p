@@ -3,11 +3,6 @@ local Concord = require("modules.concord.concord")
 local function ctor(c, signal, delay, ...)
 	@@assert(type(signal) == "string")
 	@@sassert(delay, type(delay) == "number")
-	-- for _, v in ipairs({...}) do
-	-- 	if v.__isEntity then
-	-- 		v:ensure("key")
-	-- 	end
-	-- end
 	c.signal = signal
 	c.delay = delay or 0
 	c.args = {...}
@@ -16,41 +11,6 @@ end
 local function callback(name)
 	return Concord.component(name, ctor)
 end
-
--- local function cb_ser(name)
--- 	name["serialize"] = function(self)
--- 		local t = {}
--- 		for _, v in ipairs(self.args) do
--- 			if v.__isEntity then
--- 				v = {
--- 					is_entity = true,
--- 					key = v.key.value,
--- 				}
--- 			end
--- 			table.insert(t, v)
--- 		end
--- 		return {
--- 			signal = self.signal,
--- 			delay = self.delay,
--- 			args = t
--- 		}
--- 	end
--- end
---
--- local function cb_deser(name)
--- 	name["deserialize"] = function(self, data)
--- 		local t = {}
--- 		for _, v in ipairs(data.args) do
--- 			if type(v) == "table" and v.is_entity then
--- 				v = self.__entity:getWorld():getEntityByKey(v.key)
--- 			end
--- 			table.insert(t, v)
--- 		end
--- 		self.signal = data.signal
--- 		self.delay = data.delay
--- 		self.args = t
--- 	end
--- end
 
 local names = {
 	"animation_on_loop",
@@ -66,10 +26,10 @@ local names = {
 	"on_keypressed",
 	"on_dialogue_end",
 	"on_blink_end",
+	"on_d_light_flicker_during",
+	"on_d_light_flicker_after",
 }
 
 for _, v in ipairs(names) do
 	local c = callback(v)
-	-- cb_ser(c)
-	-- cb_deser(c)
 end

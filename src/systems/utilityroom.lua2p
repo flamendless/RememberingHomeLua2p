@@ -55,7 +55,7 @@ function UtilityRoom:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading:new(lut_dusk, lut_size, nil, false)
+	self.effect = NGrading(lut_dusk, lut_size, nil, false)
 	self.world:emit("create_light_shaders_ngrading", self.effect)
 
 	for _, v in pairs(Assemblages.UtilityRoom.lights) do

@@ -6,8 +6,8 @@ local Inputs = require("inputs")
 local pi = math.pi
 
 local KeyEvent = Concord.system({
-	pool_progress = {"hold", "hold_key", "arc"},
-	pool = {"on_keypressed", "key_value"},
+	-- pool_progress = {"hold", "hold_key", "arc"},
+	-- pool = {"on_keypressed", "key_value"},
 })
 
 function KeyEvent:init(world)

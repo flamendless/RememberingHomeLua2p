@@ -1,5 +1,6 @@
-local Dissolve = class()
-Dissolve.type = "Dissolve"
+local Dissolve = class({
+	name = "Dissolve",
+})
 
 local abs = math.abs
 local min = math.min

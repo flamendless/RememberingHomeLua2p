@@ -1,9 +1,12 @@
 local Concord = require("modules.concord.concord")
+local Lume = require("modules.lume.lume")
+local Timer = require("modules.hump.timer")
 
 local DeferredLighting = Concord.system({
-	pool_p = {"id", "point_light", "pos", "diffuse"},
+	pool = {"id", "point_light", "pos", "diffuse"},
 	pool_disabled = {"id", "light_id", "light_disabled", "point_light", "pos", "diffuse"},
 	pool_fading = {"id", "light_id", "point_light", "pos", "diffuse", "light_fading"},
+	pool_flicker = {"id", "light_id", "point_light", "pos", "diffuse", "d_light_flicker"},
 })
 
 local shader_geometry = "shaders/geometry_pass.glsl"
@@ -16,19 +19,22 @@ local MAX_LIGHTS = 32
 
 function DeferredLighting:init(world)
 	self.world = world
+	self.timer = Timer.new()
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
 	self.mesh = self:create_mesh_p()
 
-	self.pool_p.onAdded = function(pool, e)
+	self.pool.onAdded = function(pool, e)
 		local pos = e.pos
 		local pl = e.point_light
 		local diffuse = e.diffuse
 		local ld = e.light_dir
-		local dir = ld and ld.value or {1, 0, 0, -2}
+		local dir = ld and ld.value
 		local id = #pool
 		self.mesh.pos:setVertex(id, {pos.x, pos.y, pos.z, pl.value})
 		self.mesh.diffuse:setVertex(id, diffuse.value)
-		self.mesh.dir:setVertex(id, dir)
+		if dir then
+			self.mesh.dir:setVertex(id, dir)
+		end
 		e:give("light_id", id)
 	end
 
@@ -40,6 +46,36 @@ function DeferredLighting:init(world)
 		local diffuse = e.diffuse
 		self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
 	end
+
+	self.pool_flicker.onAdded = function(pool, e)
+		local dlf = e.d_light_flicker
+		local diff = e.diffuse
+		local orig_diff = diff.orig_value
+		local signal_during = e.on_d_light_flicker_during
+		local signal_after = e.on_d_light_flicker_after
+
+		self.timer:during(dlf.during, function()
+			local c = Lume.weightedchoice({on = dlf.on_chance, off = dlf.off_chance})
+			if c == "on" then
+				diff.value[1] = orig_diff[1]
+				diff.value[2] = orig_diff[2]
+				diff.value[3] = orig_diff[3]
+			elseif c == "off" then
+				diff.value[1] = 0
+				diff.value[2] = 0
+				diff.value[3] = 0
+			end
+			self:update_light_diffuse(e)
+			if signal_during then
+				self.world:emit(signal_during.signal)
+			end
+		end,
+		function()
+			if signal_after then
+				self.world:emit(signal_after.signal)
+			end
+		end)
+	end
 end
 
 function DeferredLighting:create_light_shaders_ngrading(ngrading)
@@ -48,6 +84,10 @@ function DeferredLighting:create_light_shaders_ngrading(ngrading)
 	local geometry = love.filesystem.read(shader_geometry)
 	self.geometry_pass = love.graphics.newShader(str_ngrading .. geometry)
 	ngrading:setup_data(self.geometry_pass)
+end
+
+function DeferredLighting:update(dt)
+	self.timer:update(dt)
 end
 
 function DeferredLighting:update_light_pos(e)
@@ -98,7 +138,7 @@ function DeferredLighting:begin_light_pass(buffers)
 end
 
 function DeferredLighting:draw_lights()
-	love.graphics.drawInstanced(self.mesh.light, #self.pool_p)
+	love.graphics.drawInstanced(self.mesh.light, #self.pool)
 end
 
 function DeferredLighting:create_mesh_p()
@@ -122,6 +162,10 @@ function DeferredLighting:create_mesh_p()
 	}
 end
 
+function DeferredLighting:cleanup()
+	self.timer:clear()
+end
+
 !if _DEV then
 local Slab = require("modules.slab")
 local UIWrapper = require("ui_wrapper")
@@ -132,7 +176,7 @@ function DeferredLighting:debug_update(dt)
 		Title = "DeferredLighting",
 		IsOpen = self.debug_show,
 	})
-	for _, e in ipairs(self.pool_p) do
+	for _, e in ipairs(self.pool) do
 		local id = e.id.value
 		if Slab.BeginTree(id, {Title = id}) then
 			Slab.Indent()

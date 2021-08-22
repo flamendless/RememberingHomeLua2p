@@ -127,7 +127,6 @@ function Canvas:new(x, y, width, height, rotation, scale)
 	elseif type(x) == "number" then
 		c = self:new_default(x, y, width, height, rotation, scale)
 	end
-	return c
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)

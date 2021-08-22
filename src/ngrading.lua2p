@@ -161,7 +161,6 @@ function NGrading:new(arg1, arg2, arg3, no_setup)
 	if not no_setup then
 		effect:setup_data()
 	end
-	return effect
 end
 
 function NGrading:get_shader()

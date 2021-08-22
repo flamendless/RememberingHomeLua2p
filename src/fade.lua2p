@@ -37,7 +37,6 @@ end
 
 function Fade.draw()
 	local w, h = love.graphics.getDimensions()
-
 	love.graphics.setColor(Fade.getColor())
 	love.graphics.rectangle("fill", 0, 0, w, h)
 end
