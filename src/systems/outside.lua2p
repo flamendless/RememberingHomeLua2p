@@ -452,33 +452,4 @@ function Outside:check_has_flashlight(e, dialogues_t)
 	end
 end
 
--- function Outside:on_item_use_with(item_e, other)
--- 	@@assert(item_e.__isEntity and item_e.item)
--- 	@@assert(other.__isEntity and other.interactive)
--- 	local item = item_e.item
--- 	local other_id = other.id.value
--- 	if other_id == "backdoor" then
--- 		if item.id == "flashlight" then
--- 			self.world:emit("set_sys_dialogues", true)
--- 			self.world:emit("set_sys_inventory", false)
--- 			self.world:emit("spawn_dialogue_ex", {
--- 				"I can't use it here",
--- 			}, nil, "dialogue_to_inventory")
--- 		end
--- 	end
--- end
-
--- function Outside:on_item_equip(item_e)
--- 	@@assert(item_e.__isEntity and item_e.item)
--- 	local item = item_e.item
--- 	if item.id == "flashlight" then
--- 		self.world:emit("set_sys_dialogues", true)
--- 		self.world:emit("set_sys_inventory", false)
--- 		self.world:emit("spawn_dialogue_ex", {
--- 			"It's not that dark yet",
--- 			"No need to use it and waste power",
--- 		}, nil, "dialogue_to_inventory")
--- 	end
--- end
-
 return Outside
