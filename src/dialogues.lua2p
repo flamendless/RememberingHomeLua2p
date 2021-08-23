@@ -3,8 +3,8 @@ local Dialogues = {}
 local dialogues = require("data.dialogues")
 
 function Dialogues.get(main, sub)
-	@@assert(type(main) == "string")
-	@@assert(type(sub) == "string")
+	@@assert(#main ~= 0 and type(main) == "string")
+	@@assert(#sub ~= 0 and type(sub) == "string")
 	@@assert(dialogues[main], "there is no " .. main .. " in dialogue table")
 	@@assert(dialogues[main][sub], "there is no " .. sub .. " in dialogue table")
 	return dialogues[main][sub]

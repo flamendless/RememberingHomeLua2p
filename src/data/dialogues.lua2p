@@ -1,5 +1,9 @@
 local dialogues = {}
 
+dialogues._none = {
+	_none = {},
+}
+
 dialogues.common = {
 	item_without = {
 		"there is nothing to use this item with",
@@ -26,7 +30,7 @@ dialogues.outside = {
 					"There is nothing useful here anymore",
 				},
 			},
-			{"toggle power",
+			{"toggle lights",
 				"__toggle_car_power",
 			},
 			{"do nothing",},

@@ -63,7 +63,7 @@ function Dialogues:spawn_dialogue_ex(t, is_full, signal_after, ...)
 	@@assert(#t ~= 0)
 	@@sassert(is_full, type(is_full) == "boolean")
 	@@sassert(signal_after, type(signal_after) == "string")
-	local e = Concord.entity(self.world):give("dialogue", "", "")
+	local e = Concord.entity(self.world):give("dialogue", "_none", "_none")
 	local e_d = self:show_dialogue("_ex", t, e)
 	e:destroy()
 	if is_full then

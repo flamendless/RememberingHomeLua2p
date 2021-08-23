@@ -40,6 +40,8 @@ function Inventory:init(world)
 	self.world = world
 	self.can_open = true
 	self.is_open = false
+	self.initialized = false
+
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
 		if camera.is_main then
@@ -58,7 +60,11 @@ function Inventory:open_inventory()
 	self.world:emit("set_sys_dialogues", false)
 	self.is_open = true
 	Blur.flag_process = true
-	self:create_inventory()
+	if not self.initialized then
+		self:create_inventory()
+	else
+		self:show_inventory()
+	end
 	self.world:emit("create_items")
 end
 
@@ -66,7 +72,6 @@ function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
 	if #self.pool_choices ~= 0 then
 		self:on_item_cancel()
-		return
 	end
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
@@ -76,7 +81,6 @@ function Inventory:close_inventory(not_close)
 	self.can_open = false
 	Blur.flag_process = false
 	self:hide_inventory()
-	self:cleanup()
 end
 
 function Inventory:update(dt)
@@ -169,6 +173,7 @@ function Inventory:create_inventory()
 	local img = Resources.data.images.bg_item
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
+
 	local pad = 48
 	local pad2 = pad * 0.5
 	local nw = w - pad * 2
@@ -177,13 +182,13 @@ function Inventory:create_inventory()
 	local x = w - pad2
 	local y = h * 0.5
 
-	Concord.entity(self.world):assemble(Assemblages.Inventory.bg,
+	self.inv_bg = Concord.entity(self.world):assemble(Assemblages.Inventory.bg,
 		x, y, scale, alpha)
 
 	local rx = x - iw * scale * 0.5
 	local ry = y - pad
 	local rs = scale * 0.5
-	Concord.entity(self.world):assemble(Assemblages.Inventory.rect,
+	self.inv_rect = Concord.entity(self.world):assemble(Assemblages.Inventory.rect,
 		rx, ry, iw, ih, rs, alpha2)
 
 	local bx = rx - iw * rs * 0.5
@@ -227,12 +232,43 @@ function Inventory:create_inventory()
 		"inventory_name_text", iix, iiy, alpha, "item_name", (iw - 16) * scale)
 	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
 		"inventory_desc_text", iix, iiy2, alpha, "item_desc", (iw - 16) * scale)
+
+	self.initialized = true
+end
+
+function Inventory:show_inventory()
+	self.inv_bg:remove("hidden")
+	self.inv_rect:remove("hidden")
+	for _, e in ipairs(self.pool_cell_line) do
+		e:remove("hidden")
+	end
+	for _, e in ipairs(self.pool_cell_fill) do
+		e:remove("hidden")
+	end
+	for _, e in ipairs(self.pool_text) do
+		e:remove("hidden")
+	end
 end
 
 function Inventory:hide_inventory()
-	for _, e in ipairs(self.pool_bg) do
-		e:give("color_fade_out", 0.5)
-		:give("color_fade_out_finish", "destroy_entity", 0, e)
+	self.inv_bg:give("hidden")
+	self.inv_rect:give("hidden")
+	for _, e in ipairs(self.pool_cell_line) do
+		e:give("hidden")
+	end
+	for _, e in ipairs(self.pool_cell_fill) do
+		e:give("hidden")
+		:remove("hovered_item")
+		:remove("cell_item")
+	end
+	for _, e in ipairs(self.pool_item) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_text) do
+		e:give("hidden")
+	end
+	for _, e in ipairs(self.pool_choices) do
+		e:destroy()
 	end
 	Timer.after(0.5, function() self.can_open = true end)
 end
@@ -362,6 +398,7 @@ function Inventory:item_interact()
 		for _, e in ipairs(self.pool_choices) do
 			if e.hovered_item then
 				local str = e.text.value
+				--on_item_use, on_item_equip, on_item_cancel
 				local signal = "on_item_" .. str
 				self.world:emit(signal, e.item_choice.entity)
 				break
@@ -411,9 +448,8 @@ function Inventory:on_item_cancel()
 end
 
 function Inventory:cleanup()
-	for _, e in ipairs(self.pool_bg) do
-		e:destroy()
-	end
+	self.inv_bg:destroy()
+	self.inv_rect:destroy()
 	for _, e in ipairs(self.pool_cell_line) do
 		e:destroy()
 	end
