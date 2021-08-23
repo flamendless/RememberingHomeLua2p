@@ -54,7 +54,7 @@ function Dialogues:spawn_dialogue(main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
 	local e = Concord.entity(self.world):give("dialogue", main, sub)
-	self:show_dialogue(sub, DialoguesList.get(main, sub), e)
+	self:show_dialogue(main .. "_" .. sub, DialoguesList.get(main, sub), e)
 	e:destroy()
 end
 
