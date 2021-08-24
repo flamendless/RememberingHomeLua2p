@@ -5,6 +5,7 @@ local Log = require("modules.log.log")
 local format = string.format
 !end
 
+local Dialogues = require("dialogues")
 local Inputs = require("inputs")
 
 local PlayerController = Concord.system({
@@ -65,8 +66,10 @@ function PlayerController:update(dt)
 		end
 
 		if Inputs.pressed("interact") then
-			if can_interact and within_int and within_int.entity.dialogue then
-				self.world:emit("player_interact", e, within_int.entity)
+			if can_interact and within_int and within_int.entity.dialogue_meta then
+				local d = within_int.entity.dialogue_meta
+				local dialogues_t = Dialogues.get(d.main, d.sub)
+				self.world:emit("spawn_dialogue", dialogues_t, d.main, d.sub)
 			!if _DEV then
 			elseif within_int then
 			local msg = format("item '%s' has 'interactive' but no 'dialogue' component",

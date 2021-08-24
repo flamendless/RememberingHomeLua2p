@@ -33,7 +33,7 @@ dialogues.outside = {
 			{"toggle lights",
 				"__toggle_car_power",
 			},
-			{"do nothing",},
+			{"nothing",},
 		},
 	},
 

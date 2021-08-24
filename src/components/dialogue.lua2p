@@ -21,7 +21,7 @@ Concord.component("has_choices", function(c, ...)
 end)
 
 Concord.component("dialogue_item")
-Concord.component("dialogue", function(c, main, sub)
+Concord.component("dialogue_meta", function(c, main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
 	@@assert(Dialogues.get(main, sub))

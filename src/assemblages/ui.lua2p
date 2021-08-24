@@ -26,19 +26,6 @@ function UI.ui_text_paint(e, text, font, x, y)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 end
 
-function UI.dialogue_text(e, id, dialogues, x, y)
-	e:give("id", id)
-	:give("text_t", dialogues)
-	:give("font", "ui")
-	:give("pos", x, y)
-	:give("color", Palette.get("ui_dialogue"))
-	:give("dialogue_item")
-	:give("ui_element")
-	:give("transform", 0, 1, 1, 0, 0.5)
-	:give("layer", "dialogue", 3)
-	:give("nf_render_text")
-end
-
 function UI.choice(e, id, text, text_t, x, y)
 	e:give("id", id)
 	:give("text", text)

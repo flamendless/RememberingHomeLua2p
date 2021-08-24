@@ -370,7 +370,7 @@ function Outside:spawn_player()
 end
 
 function Outside:get_flashlight(e, dialogues_t)
-	@@assert(e.__isEntity and e.dialogue)
+	@@assert(e.__isEntity and e.dialogue_meta)
 	@@assert(type(dialogues_t) == "table")
 	self.world:emit("player_open_locked_door")
 	local has_flashlight = Items.has("flashlight")
@@ -380,11 +380,11 @@ function Outside:get_flashlight(e, dialogues_t)
 		Timer.after(2, function()
 			self.world:emit("wait_dialogue", false)
 			local t = tablex.copy(dialogues_t.get_flashlight)
-			self.world:emit("update_dialogue", e, t)
+			self.world:emit("update_dialogue", t)
 		end)
 	else
 		local t = tablex.copy(dialogues_t.has_flashlight_already)
-		self.world:emit("update_dialogue", e, t)
+		self.world:emit("update_dialogue", t)
 	end
 end
 
@@ -411,11 +411,11 @@ function Outside:toggle_car_power_after(ent, flag)
 		end
 	end
 	self.world:emit("wait_dialogue", false)
-	self.world:emit("dialogue_reached_end", ent)
+	self.world:emit("on_dialogue_reached_end")
 end
 
 function Outside:check_frontdoor(e, dialogues_t)
-	@@assert(e.__isEntity and e.dialogue)
+	@@assert(e.__isEntity and e.dialogue_meta)
 	@@assert(type(dialogues_t) == "table")
 	self.world:emit("remove_choices")
 	local has_frontdoor_key = Items.has("frontdoor_key")
@@ -432,11 +432,11 @@ function Outside:make_car_interactive(ent)
 			break
 		end
 	end
-	self.world:emit("dialogue_reached_end", ent)
+	self.world:emit("on_dialogue_reached_end", ent)
 end
 
 function Outside:check_has_flashlight(e, dialogues_t)
-	@@assert(e.__isEntity and e.dialogue)
+	@@assert(e.__isEntity and e.dialogue_meta)
 	@@assert(type(dialogues_t) == "table")
 	local has_flashlight = Items.has("flashlight")
 	if not has_flashlight then
@@ -444,7 +444,7 @@ function Outside:check_has_flashlight(e, dialogues_t)
 		self.world:emit("player_open_locked_door")
 		self.world:emit("update_dialogue", e, t)
 	else
-		self.world:emit("dialogue_reached_end", e)
+		self.world:emit("on_dialogue_reached_end", e)
 		self.world:emit("player_can_move", false)
 		self.world:emit("player_can_interact", false)
 		self.world:emit("player_open_door")
