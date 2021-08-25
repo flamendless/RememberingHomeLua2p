@@ -18,7 +18,7 @@ local z_index = {
 	splashes = 4,
 }
 
-local ground_h = 49
+local ground_h = 48
 local bounds_w, bounds_h = 52, 72
 local bounds_l_w = 28
 

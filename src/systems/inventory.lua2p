@@ -18,7 +18,7 @@ local Inventory = Concord.system({
 	pool_hovered = {"hovered_cell"},
 	pool_text = {"text", "nf_render_text", "!item_choice"},
 	pool_choices = {"text", "nf_render_text", "item_choice"},
-	pool_preview = {"sprite", "item_preview", "nf_render_sprite"},
+	pool_preview = {"sprite", "item_preview", "pos", "nf_render_sprite"},
 })
 
 local Assemblages = {
@@ -70,13 +70,14 @@ end
 
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
+	self.world:emit("set_sys_dialogues", true)
 	if #self.pool_choices ~= 0 then
 		self:on_item_cancel()
+		return
 	end
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
 	end
-	self.world:emit("set_sys_dialogues", true)
 	self.is_open = false
 	self.can_open = false
 	Blur.flag_process = false
@@ -443,7 +444,7 @@ function Inventory:on_item_cancel()
 		e:remove("hidden")
 	end
 	for _, e in ipairs(self.pool_preview) do
-		e:destroy()
+		e:give("hidden")
 	end
 end
 

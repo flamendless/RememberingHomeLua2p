@@ -123,21 +123,19 @@ function Dialogues:spawn_dialogue(dialogues_t, main, sub)
 	self.timeline:Unpause()
 end
 
--- function Dialogues:spawn_dialogue_ex(t, is_full, signal_after, ...)
--- 	@@assert(type(t) == "table")
--- 	@@assert(#t ~= 0)
--- 	@@sassert(is_full, type(is_full) == "boolean")
--- 	@@sassert(signal_after, type(signal_after) == "string")
--- 	local e = Concord.entity(self.world):give("dialogue_meta", "_none", "_none")
--- 	local e_d = self:show_dialogue("_ex", t, e)
--- 	e:destroy()
--- 	if is_full then
--- 		self.world:emit("on_interact_or_inventory")
--- 	end
--- 	if signal_after then
--- 		e_d:give("on_dialogue_end", signal_after, 0, ...)
--- 	end
--- end
+function Dialogues:spawn_dialogue_ex(dialogue_t, is_full, signal_after, ...)
+	@@assert(type(dialogue_t) == "table")
+	@@assert(#dialogue_t ~= 0)
+	@@sassert(is_full, type(is_full) == "boolean")
+	@@sassert(signal_after, type(signal_after) == "string")
+	self:spawn_dialogue(dialogue_t, "_none", "_none")
+	if is_full then
+		self.world:emit("on_interact_or_inventory")
+	end
+	if signal_after then
+		self.e_dialogue:give("on_dialogue_end", signal_after, 0, ...)
+	end
+end
 
 function Dialogues:on_dialogue_reached_end(e)
 	e = e or self.e_dialogue

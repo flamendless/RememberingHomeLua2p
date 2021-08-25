@@ -4,6 +4,12 @@ dialogues._none = {
 	_none = {},
 }
 
+dialogues.items = {
+	no_batteries = {
+		"Batteries ran out of juice",
+	},
+}
+
 dialogues.common = {
 	item_without = {
 		"there is nothing to use this item with",

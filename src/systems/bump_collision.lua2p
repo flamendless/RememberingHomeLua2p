@@ -120,6 +120,7 @@ function BumpCollision:on_item_use(item)
 	@@assert(item.__isEntity and item.item)
 	local x, y, w, h = get_query_rect(self)
 	local items, len = self.pool:queryRect(x, y, w, h)
+	local e_other
 	for i = 1, len do
 		local e = items[i]
 		local pos = e.pos
@@ -128,11 +129,12 @@ function BumpCollision:on_item_use(item)
 			local col = cols[c]
 			local other = col.other
 			if e.within_interactive and other.interactive then
-				self.world:emit("on_item_use_with", item, other)
+				e_other = other
 				break
 			end
 		end
 	end
+	self.world:emit("on_item_use_with", item, e_other)
 end
 
 !if _DEV then

@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 
+local Dialogues = require("dialogues")
 local ItemsList = require("items")
 local Resources = require("resources")
 
@@ -24,6 +25,7 @@ local list = {
 
 function Items:init(world)
 	self.world = world
+	self:initialize_entities()
 end
 
 function Items:create_items()
@@ -31,6 +33,23 @@ function Items:create_items()
 	for _, id in ipairs(t) do
 		Concord.entity(self.world):assemble(Assemblages.Items[id])
 	end
+end
+
+function Items:initialize_entities()
+	if self.e_bg and self.e_prev then return end
+	self.e_bg = Concord.entity(self.world)
+		:give("id", "item_preview_bg")
+		:give("sprite", "bg_item")
+		:give("transform", 0, 1, 1, 1, 0.5)
+		:give("nf_render_sprite")
+		:give("color", {1, 1, 1, 1})
+		:give("item_preview")
+
+	self.e_prev = Concord.entity(self.world)
+		:give("id", "item_preview")
+		:give("nf_render_sprite")
+		:give("color", {1, 1, 1, 1})
+		:give("item_preview")
 end
 
 function Items:create_item_preview(bg_e, item_e)
@@ -48,57 +67,44 @@ function Items:create_item_preview(bg_e, item_e)
 	local tw = (img:getWidth() + 16) * scale
 	local th = (img:getHeight() + 16) * scale
 
-	Concord.entity(self.world)
-		:give("id", "item_preview_bg")
-		:give("sprite", "bg_item")
-		:give("pos", bg_pos.x - bg_sprite.iw * bg_t.sx - pad, bg_pos.y)
-		:give("transform", 0, 1, 1, 1, 0.5)
+	self.e_bg:give("pos", bg_pos.x - bg_sprite.iw * bg_t.sx - pad, bg_pos.y)
 		:give("auto_scale", tw, th)
-		:give("nf_render_sprite")
-		:give("color", {1, 1, 1, 1})
-		:give("item_preview")
+		:remove("hidden")
 
-	Concord.entity(self.world)
-		:give("id", "item_preview")
-		:give("sprite", res_id)
+	self.e_prev:give("sprite", res_id)
 		:give("pos", bg_pos.x - bg_sprite.iw * bg_t.sx - pad_p, bg_pos.y)
 		:give("transform", 0, scale, scale, 1, 0.5)
-		:give("nf_render_sprite")
-		:give("color", {1, 1, 1, 1})
-		:give("item_preview")
+		:remove("hidden")
 end
 
-function Items:item_response(main, sub)
+function Items:item_response(dialogue_t, main, sub)
+	@@assert(type(dialogue_t) == "table")
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
 	self.world:emit("close_inventory", true)
 	self.world:emit("on_interact_or_inventory")
-	self.world:emit("spawn_dialogue", main, sub)
-end
-
-function Items:item_response_ex(t)
-	@@assert(type(t) == "table" and #t ~= 0)
-	self.world:emit("close_inventory", true)
-	self.world:emit("on_interact_or_inventory")
-	self.world:emit("spawn_dialogue_ex", t)
+	self.world:emit("spawn_dialogue", dialogue_t, main, sub)
 end
 
 function Items:on_item_use_with(item, other)
 	@@assert(item.__isEntity and item.item)
 	@@sassert(other, other.__isEntity and other.interactive)
+	self.world:emit("set_sys_dialogues", true)
+	self.world:emit("set_sys_inventory", false)
 	local item_id = item.item.id
 	if not other then
-		self:item_response("common", "item_without")
+		local dialogue_t = Dialogues.get("common", "item_without")
+		self:item_response(dialogue_t, "common", "item_without")
 	else
 		local other_id = other.id.value
 		local t = list[item_id] and list[item_id][other_id]
 		@@assert(not(other.usable_with_item == nil and t ~= nil), "add usable_with_item component?")
 		@@assert(not(other.usable_with_item ~= nil and t == nil), "add to list?")
 		if other.usable_with_item and t ~= nil then
-			self:item_response_ex(t)
+			self:item_response(t, "_none", "_none")
 		else
 			local t2 = {format("%s can not be used here", item_id)}
-			self:item_response_ex(t2)
+			self:item_response(t2, "_none", "_none")
 		end
 	end
 end
@@ -110,9 +116,8 @@ function Items:on_item_equip(item_e)
 		self.world:emit("set_sys_dialogues", true)
 		self.world:emit("set_sys_inventory", false)
 		if not item.has_batteries then
-			self.world:emit("spawn_dialogue_ex", {
-				"Batteries ran out of juice",
-			}, nil, "dialogue_to_inventory")
+			local dialogue_t = Dialogues.get("items", "no_batteries")
+			self.world:emit("spawn_dialogue_ex", dialogue_t, nil, "dialogue_to_inventory")
 		end
 	end
 end
