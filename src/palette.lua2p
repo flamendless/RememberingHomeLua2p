@@ -29,12 +29,25 @@ Palette.colors = {
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 	hovered_choice = {1, 0, 0},
 
-	outline = {1, 1, 1},
+	outline = {0.5, 0.5, 0.5},
 
 	inventory_fill_unhovered = {0.098, 0.109, 0.17},
 	inventory_fill_hovered = {0.098/10, 0.109/10, 0.17/10},
 	inventory_line_unhovered = {1, 1, 1},
 	inventory_line_hovered = {1, 1, 1},
+}
+
+Palette.diffuse = {
+	firefly = {6, 3, 0},
+	car_headlight_pl = {6, 6, 3},
+	car_headlight_sl = {4.98, 3.96, 1.59},
+	backdoor_pl = {4.98, 3.96, 1.59},
+	backdoor_sl = {6, 6, 3},
+	frontdoor_pl = {4.98, 3.96, 1.59},
+	frontdoor_sl = {6, 6, 3},
+
+	storage_room_bulb_light = {4.98, 3.96, 1.59},
+	utility_room_bulb_light = {4.98, 3.96, 1.59},
 }
 
 Palette.color_glitches = {
@@ -53,6 +66,12 @@ function Palette.get(color, alpha)
 	local a = alpha or c[4] or 1
 
 	return {c[1], c[2], c[3], a}
+end
+
+function Palette.get_diffuse(color)
+	@@assert(type(color) == "string")
+	@@assert(Palette.diffuse[color])
+	return Palette.diffuse[color]
 end
 
 return Palette

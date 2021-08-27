@@ -15,19 +15,19 @@ local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
 	Player = require("assemblages.player"),
-	UtilityRoom = require("assemblages.utility_room"),
+	StorageRoom = require("assemblages.storage_room"),
 	UI = require("assemblages.ui"),
 }
 
-local UtilityRoom = Concord.system({
+local StorageRoom = Concord.system({
 })
 
-function UtilityRoom:init(world)
+function StorageRoom:init(world)
 	self.world = world
 end
 
-function UtilityRoom:state_setup()
-	local w, h = Resources.data.images.utility_room:getDimensions()
+function StorageRoom:state_setup()
+	local w, h = Resources.data.images.storage_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.buffers = {
@@ -40,12 +40,12 @@ function UtilityRoom:state_setup()
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.UtilityRoom.bg)
+	Concord.entity(self.world):assemble(Assemblages.StorageRoom.bg)
 
-	for _, v in pairs(Assemblages.UtilityRoom.colliders) do
+	for _, v in pairs(Assemblages.StorageRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-	self.world:emit("parse_room_items", "atlas_utility_room_items", "utility_room_items")
+	self.world:emit("parse_room_items", "atlas_storage_room_items", "storage_room_items")
 
 	local lut_size, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -58,12 +58,12 @@ function UtilityRoom:state_setup()
 	self.effect = NGrading(lut_dusk, lut_size, nil, false)
 	self.world:emit("create_light_shaders_ngrading", self.effect)
 
-	for _, v in pairs(Assemblages.UtilityRoom.lights) do
+	for _, v in pairs(Assemblages.StorageRoom.lights) do
 		Concord.entity(self.world):assemble(v)
 	end
 end
 
-function UtilityRoom:state_init()
+function StorageRoom:state_init()
 	!if _DEV then
 	local e_player = self:spawn_player()
 	!end
@@ -80,12 +80,12 @@ function UtilityRoom:state_init()
 	end)
 end
 
-function UtilityRoom:state_update(dt)
+function StorageRoom:state_update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 end
 
-function UtilityRoom:state_draw()
+function StorageRoom:state_draw()
 	self.camera:attach()
 		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
@@ -122,13 +122,13 @@ function UtilityRoom:state_draw()
 	Fade.draw()
 end
 
-function UtilityRoom:spawn_player()
+function StorageRoom:spawn_player()
 	local x, y
 	!if _DEV then
-	x, y = 318, 48
+	x, y = 312, 48
 	!end
 	if self.prev_id == "Outside" then
-		x, y = 318, 48
+		x, y = 312, 48
 	end
 	local e_player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.room, x, y)
@@ -136,4 +136,4 @@ function UtilityRoom:spawn_player()
 	return e_player
 end
 
-return UtilityRoom
+return StorageRoom

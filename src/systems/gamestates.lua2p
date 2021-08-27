@@ -46,10 +46,14 @@ end
 !if _DEV then
 function GameStates:state_keypressed(key)
 	if not love.keyboard.isDown("lshift") then return end
-	if key == "1" then
+	if key == "0" then
+		Fade.set_alpha(0)
+	elseif key == "1" then
 		self:switch_state("Outside", 0)
 	elseif key == "2" then
 		self:switch_state("StorageRoom", 0)
+	elseif key == "3" then
+		self:switch_state("UtilityRoom", 0)
 	end
 end
 !end

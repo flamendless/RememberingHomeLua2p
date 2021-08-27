@@ -185,6 +185,30 @@ Resources.meta.Outside = {
 	},
 }
 
+Resources.meta.StorageRoom = {
+	images = {
+		!!(get_res("ui"))
+		!!(get_res("items"))
+		!!(get_res("pause"))
+	},
+
+	array_images = {
+		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
+		{"atlas_storage_room_items", !(path_images .. "storage_room/atlas_storage_room_items.png")},
+		!!(get_res("player"))
+	},
+
+	image_data = {
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
+	},
+
+	fonts = {
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		!!(get_res("fnt_inventory"))
+	},
+}
+
 Resources.meta.UtilityRoom = {
 	images = {
 		!!(get_res("ui"))
@@ -247,6 +271,13 @@ function Resources.manage_cache(resources, list)
 				end
 			end
 		end
+	end
+end
+
+function Resources.copy_array_images(resources)
+	@@assert(type(resources) == "table")
+	for k, v in pairs(resources.array_images) do
+		resources.images[k] = v
 	end
 end
 !end

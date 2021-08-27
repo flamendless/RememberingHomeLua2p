@@ -115,7 +115,7 @@ function Player.outside_house(e, x, y)
 	:give("color", {1, 1, 1, 0})
 end
 
-function Player.utility_room(e, x, y)
+function Player.room(e, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	e:assemble(Player.base,

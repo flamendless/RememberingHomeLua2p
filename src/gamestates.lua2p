@@ -27,6 +27,9 @@ function GameStates.preload()
 	Resources.manage_cache(resources, list)
 	!end
 	Resources.clean()
+	!if _CACHED_PRELOAD then
+	Resources.copy_array_images(resources)
+	!end
 	Log.info("Preloading: " .. GameStates.current_id)
 	Preloader.start(list, resources, function()
 		GameStates.start(resources)

@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
+local Palette = require("palette")
+
 local insert = table.insert
 local random = love.math.random
 
@@ -9,6 +11,7 @@ local Fireflies = Concord.system({
 })
 
 local Outside = require("assemblages.outside")
+local col_target = Palette.get_diffuse("firefly")
 
 local function generate_points(x, y, n)
 	local offset = 8
@@ -51,9 +54,9 @@ function Fireflies:show_fireflies(dur)
 	for _, e in ipairs(self.pool) do
 		e:remove("light_disabled")
 		Flux.to(e.diffuse.value, dur, {
-			[1] = 6,
-			[2] = 3,
-			[3] = 0,
+			[1] = col_target[1],
+			[2] = col_target[2],
+			[3] = col_target[3],
 		})
 		:onupdate(function()
 			self.world:emit("update_light_diffuse", e)

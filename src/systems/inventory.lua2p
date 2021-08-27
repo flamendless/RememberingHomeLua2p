@@ -449,8 +449,10 @@ function Inventory:on_item_cancel()
 end
 
 function Inventory:cleanup()
-	self.inv_bg:destroy()
-	self.inv_rect:destroy()
+	if self.initialized then
+		self.inv_bg:destroy()
+		self.inv_rect:destroy()
+	end
 	for _, e in ipairs(self.pool_cell_line) do
 		e:destroy()
 	end

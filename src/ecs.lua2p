@@ -44,6 +44,15 @@ systems.Outside = {
 	"systems", "text_paint", "transform", "typewriter",
 }
 
+systems.StorageRoom = {
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"notification", "outline", "pause", "player_controller", "render_rect",
+	"render_sprite", "render_text", "render_ui", "room", "systems",
+	"transform", "typewriter",
+}
+
 systems.UtilityRoom = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
 	"deferred_lighting", "dialogues", "entity", "gamestates",

@@ -1,6 +1,6 @@
 local Palette = require("palette")
 
-local UtilityRoom = {
+local StorageRoom = {
 	colliders = {},
 	lights = {},
 }
@@ -11,14 +11,14 @@ local left_wall_w = 16
 local right_wall_w = 16
 local ground_h = 16
 
-function UtilityRoom.bg(e)
+function StorageRoom.bg(e)
 	e:give("id", "bg")
 	:give("pos", 0, 0)
-	:give("sprite", "utility_room")
+	:give("sprite", "storage_room")
 	:give("bg")
 end
 
-function UtilityRoom.colliders.ground(e, w, h)
+function StorageRoom.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
 	:give("pos", left_wall_w, h - ground_h)
 	:give("collider", w - left_wall_w - right_wall_w, ground_h)
@@ -26,7 +26,7 @@ function UtilityRoom.colliders.ground(e, w, h)
 	:give("ground")
 end
 
-function UtilityRoom.colliders.left_bound(e, w, h)
+function StorageRoom.colliders.left_bound(e, w, h)
 	e:give("id", "col_left_bound")
 	:give("pos", 0, 0)
 	:give("collider", left_wall_w, h)
@@ -34,7 +34,7 @@ function UtilityRoom.colliders.left_bound(e, w, h)
 	:give("wall")
 end
 
-function UtilityRoom.colliders.right_bound(e, w, h)
+function StorageRoom.colliders.right_bound(e, w, h)
 	e:give("id", "col_right_bound")
 	:give("pos", w - right_wall_w, 0)
 	:give("collider", right_wall_w, h)
@@ -42,20 +42,20 @@ function UtilityRoom.colliders.right_bound(e, w, h)
 	:give("wall")
 end
 
-function UtilityRoom.lights.left_bulb(e)
+function StorageRoom.lights.left_bulb(e)
 	e:assemble(Light.point,
-		92, 33, 18,
+		92, 33, 16,
 		106,
-		Palette.get_diffuse("utility_room_bulb_light"))
+		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_left_bulb")
 end
 
-function UtilityRoom.lights.right_bulb(e)
+function StorageRoom.lights.right_bulb(e)
 	e:assemble(Light.point,
-		242, 33, 18,
+		242, 33, 16,
 		106,
-		Palette.get_diffuse("utility_room_bulb_light"))
+		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_right_bulb")
 end
 
-return UtilityRoom
+return StorageRoom

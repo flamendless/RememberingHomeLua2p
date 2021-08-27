@@ -30,8 +30,8 @@ local data = {
 
 	{
 		id = "washing_machine",
-		dialogue = {"utility_room", "washing_machine"},
 		x = 260, y = 76, z = 4,
+		dialogue = {"utility_room", "washing_machine"},
 	},
 
 	{
@@ -52,38 +52,38 @@ local data = {
 	{
 		id = "woods",
 		name = "woods1",
-		no_col = true,
 		x = 74, y = 95, z = 2,
+		no_col = true,
 	},
 	{
 		id = "woods",
 		name = "woods2",
-		no_col = true,
 		x = 89, y = 95, z = 3,
+		no_col = true,
 	},
 	{
 		id = "woods",
 		name = "woods3",
-		no_col = true,
 		x = 79, y = 78, z = 4,
+		no_col = true,
 	},
 	{
 		id = "woods",
 		name = "woods4",
-		no_col = true,
 		x = 194, y = 95, z = 2,
+		no_col = true,
 	},
 	{
 		id = "woods",
 		name = "woods5",
-		no_col = true,
 		x = 222, y = 95, z = 2,
+		no_col = true,
 	},
 	{
 		id = "woods",
 		name = "woods6",
-		no_col = true,
 		x = 284, y = 95, z = 2,
+		no_col = true,
 	},
 }
 

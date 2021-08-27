@@ -67,16 +67,6 @@ function Outside.firefly(e, x, y, size, points)
 	:give("diffuse", {0, 0, 0})
 end
 
-function Outside.house_light(e)
-	e:give("id", "house_light")
-	:give("pos", 272, 212)
-	:give("transform", 0, 1.25, 1.25)
-	:give("color", Palette.colors.house_light)
-	:give("light", "custom", 0.8)
-	:give("sprite", "house_light")
-	:give("light_flicker", 0.025)
-end
-
 function Outside.colliders.ground(e, w, h)
 	e:give("id", "col_ground")
 	:give("pos", 0, h - ground_h)
@@ -102,7 +92,7 @@ function Outside.colliders.right_bound(e, w, h)
 end
 
 function Outside.lights.pl_car_headlight(e, id)
-	e:assemble(Light.point, 733, 296, 4, 24, {6, 6, 3})
+	e:assemble(Light.point, 733, 296, 4, 24, Palette.get_diffuse("car_headlight_pl"))
 	:give("id", id)
 	:give("car_lights")
 end
@@ -112,13 +102,13 @@ function Outside.lights.sl_car_headlight(e, id)
 		751, 290, 6,
 		{-1, 0.25, 0, 0.95},
 		256,
-		{4.98, 3.96, 1.59})
+		Palette.get_diffuse("car_headlight_sl"))
 	:give("id", id)
 	:give("car_lights")
 end
 
 function Outside.lights.pl_backdoor(e, id)
-	e:assemble(Light.point, 446, 292, 62, 72, {4.98, 3.96, 1.59})
+	e:assemble(Light.point, 446, 292, 62, 72, Palette.get_diffuse("backdoor_pl"))
 	:give("id", id)
 end
 
@@ -127,12 +117,12 @@ function Outside.lights.sl_backdoor(e, id)
 		446, 241, 4,
 		{0, 1, -0.8, 0.77},
 		64,
-		{6, 6, 3})
+		Palette.get_diffuse("backdoor_sl"))
 	:give("id", id)
 end
 
 function Outside.lights.pl_frontdoor(e, id)
-	e:assemble(Light.point, 316, 262, 62, 72, {4.98, 3.96, 1.59})
+	e:assemble(Light.point, 316, 262, 62, 72, Palette.get_diffuse("frontdoor_pl"))
 	:give("id", id)
 end
 
@@ -141,7 +131,7 @@ function Outside.lights.sl_frontdoor(e, id)
 		316, 221, 4,
 		{0, 1, -1, 0.73},
 		64,
-		{6, 6, 3})
+		Palette.get_diffuse("frontdoor_sl"))
 	:give("id", id)
 end
 
