@@ -11,6 +11,7 @@ local Fade = require("fade")
 local Inputs = require("inputs")
 local Items = require("items")
 local NGrading = require("ngrading")
+local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
 local Settings = require("settings")
@@ -104,8 +105,7 @@ function Outside:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading(lut_dusk, lut_size, nil, false)
-	self.world:emit("create_light_shaders_ngrading", self.effect)
+	self.effect = NGrading(lut_dusk, lut_size)
 
 	--setup lights
 	for k, v in pairs(Assemblages.Outside.lights) do
@@ -118,7 +118,7 @@ function Outside:state_setup()
 	--setup end of headlights
 	local bx, by = 585, 323
 	local r, s = 4, 64
-	local color = {6, 6, 3}
+	local color = Palette.get_diffuse("car_headlight_sl")
 	local ix, iy = 10, 1
 	for i = 1, 4 do
 		local d = i - 1
@@ -127,6 +127,7 @@ function Outside:state_setup()
 		:give("id", "pl_headlight_end" .. i)
 		:give("car_lights")
 	end
+	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_outside"))
 end
 
 function Outside:state_init()
@@ -266,7 +267,7 @@ function Outside:state_draw()
 	self.camera:detach()
 			--ambient light color
 			love.graphics.setBlendMode("add")
-			love.graphics.setColor(0.3, 0.3, 0.3, 0.6)
+			self.world:emit("apply_ambiance")
 			love.graphics.draw(self.buffers[1].canvas)
 			if self.is_raining then
 				local l, t = self.camera:getVisible()
@@ -283,8 +284,12 @@ function Outside:state_draw()
 			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
-	Blur.draw()
+	self.effect:apply()
 		self.canvas:render_n()
+	self.effect:unapply()
+
+	Blur.draw()
+		-- self.canvas:render_n()
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")

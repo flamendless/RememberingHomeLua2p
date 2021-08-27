@@ -6,6 +6,7 @@ local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local NGrading = require("ngrading")
+local Palette = require("palette")
 local Resources = require("resources")
 local Settings = require("settings")
 
@@ -55,12 +56,12 @@ function UtilityRoom:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading(lut_dusk, lut_size, nil, false)
-	self.world:emit("create_light_shaders_ngrading", self.effect)
+	self.effect = NGrading(lut_dusk, lut_size)
 
 	for _, v in pairs(Assemblages.UtilityRoom.lights) do
 		Concord.entity(self.world):assemble(v)
 	end
+	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_utility_room"))
 end
 
 function UtilityRoom:state_init()
@@ -106,15 +107,19 @@ function UtilityRoom:state_draw()
 	self.camera:detach()
 			--ambient light color
 			love.graphics.setBlendMode("add")
-			love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
+			self.world:emit("apply_ambiance")
 			love.graphics.draw(self.buffers[1].canvas)
 			love.graphics.setBlendMode("alpha")
 			self.world:emit("draw_clip")
 			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
-	Blur.draw()
+	self.effect:apply()
 		self.canvas:render_n()
+	self.effect:unapply()
+
+	Blur.draw()
+		-- self.canvas:render_n()
 	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")

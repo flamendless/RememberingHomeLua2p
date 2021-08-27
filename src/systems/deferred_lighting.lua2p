@@ -15,12 +15,14 @@ local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
 local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
 local lvfd = {{"diffuse", "float", 3}} -- color
 local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
-local MAX_LIGHTS = 32
+local MAX_LIGHTS = 96
 
 function DeferredLighting:init(world)
 	self.world = world
 	self.timer = Timer.new()
+	self.geometry_pass = love.graphics.newShader(shader_geometry)
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
+	self.ambiance = {1, 1, 1, 1}
 	self.mesh = self:create_mesh_p()
 
 	self.pool.onAdded = function(pool, e)
@@ -85,16 +87,17 @@ function DeferredLighting:init(world)
 	end
 end
 
-function DeferredLighting:create_light_shaders_ngrading(ngrading)
-	@@assert(ngrading:type() == "NGrading")
-	local str_ngrading = ngrading:get_shader()
-	local geometry = love.filesystem.read(shader_geometry)
-	self.geometry_pass = love.graphics.newShader(str_ngrading .. geometry)
-	ngrading:setup_data(self.geometry_pass)
+function DeferredLighting:set_ambiance(t)
+	@@assert(type(t) == "table")
+	self.ambiance = {unpack(t)}
 end
 
 function DeferredLighting:update(dt)
 	self.timer:update(dt)
+end
+
+function DeferredLighting:apply_ambiance()
+	love.graphics.setColor(self.ambiance)
 end
 
 function DeferredLighting:update_light_pos(e)
@@ -183,6 +186,13 @@ function DeferredLighting:debug_update(dt)
 		Title = "DeferredLighting",
 		IsOpen = self.debug_show,
 	})
+	local ac = self.ambiance
+	Slab.Text("Ambiance")
+	ac[1] = UIWrapper.edit_range("ar", ac[1], 0, 1)
+	ac[2] = UIWrapper.edit_range("ag", ac[2], 0, 1)
+	ac[3] = UIWrapper.edit_range("ab", ac[3], 0, 1)
+	ac[4] = UIWrapper.edit_range("aa", ac[4], 0, 1)
+
 	for _, e in ipairs(self.pool) do
 		local id = e.id.value
 		if Slab.BeginTree(id, {Title = id}) then
@@ -201,8 +211,8 @@ function DeferredLighting:debug_update(dt)
 			local dir = e.light_dir and e.light_dir.value
 			pos.x = UIWrapper.edit_number("x", pos.x, true)
 			pos.y = UIWrapper.edit_number("y", pos.y, true)
-			pos.z = UIWrapper.edit_number("z", pos.z, true)
-			pl.value = UIWrapper.edit_number("s", pl.value, true)
+			pos.z = UIWrapper.edit_range("z", pos.z, 0, 256, true)
+			pl.value = UIWrapper.edit_range("s", pl.value, 0, 256, true)
 			if dir then
 				Slab.Separator()
 				dir[1] = UIWrapper.edit_range("dx", dir[1], -32, 32)

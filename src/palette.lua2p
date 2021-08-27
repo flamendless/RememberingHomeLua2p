@@ -29,7 +29,7 @@ Palette.colors = {
 	ui_dialogue = !(rgb_to_love("#ffffff")),
 	hovered_choice = {1, 0, 0},
 
-	outline = {0.5, 0.5, 0.5},
+	outline = {1, 1, 1},
 
 	inventory_fill_unhovered = {0.098, 0.109, 0.17},
 	inventory_fill_hovered = {0.098/10, 0.109/10, 0.17/10},
@@ -38,16 +38,19 @@ Palette.colors = {
 }
 
 Palette.diffuse = {
-	firefly = {6, 3, 0},
-	car_headlight_pl = {6, 6, 3},
-	car_headlight_sl = {4.98, 3.96, 1.59},
-	backdoor_pl = {4.98, 3.96, 1.59},
-	backdoor_sl = {6, 6, 3},
-	frontdoor_pl = {4.98, 3.96, 1.59},
-	frontdoor_sl = {6, 6, 3},
+	--outside
+	ambiance_outside = {0.7, 0.7, 0.7, 0.3},
+	firefly = {3, 2.5, 0},
+	car_headlight_pl = {5, 4.5, 2.3},
+	car_headlight_sl = {3, 3, 1},
+	door_pl = {1.62, 1.46, 1.06},
+	door_sl = {4, 4, 1},
 
-	storage_room_bulb_light = {4.98, 3.96, 1.59},
-	utility_room_bulb_light = {4.98, 3.96, 1.59},
+	ambiance_storage_room = {0.7, 0.7, 0.7, 0.3},
+	storage_room_bulb_light = {1.44, 1.64, 0.2},
+
+	ambiance_utility_room = {0.7, 0.7, 0.7, 0.3},
+	utility_room_bulb_light = {1.44, 1.64, 0.2},
 }
 
 Palette.color_glitches = {
@@ -71,7 +74,7 @@ end
 function Palette.get_diffuse(color)
 	@@assert(type(color) == "string")
 	@@assert(Palette.diffuse[color])
-	return Palette.diffuse[color]
+	return {unpack(Palette.diffuse[color])}
 end
 
 return Palette

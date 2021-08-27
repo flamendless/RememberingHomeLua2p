@@ -108,7 +108,7 @@ function Outside.lights.sl_car_headlight(e, id)
 end
 
 function Outside.lights.pl_backdoor(e, id)
-	e:assemble(Light.point, 446, 292, 62, 72, Palette.get_diffuse("backdoor_pl"))
+	e:assemble(Light.point, 446, 292, 62, 72, Palette.get_diffuse("door_pl"))
 	:give("id", id)
 end
 
@@ -117,12 +117,12 @@ function Outside.lights.sl_backdoor(e, id)
 		446, 241, 4,
 		{0, 1, -0.8, 0.77},
 		64,
-		Palette.get_diffuse("backdoor_sl"))
+		Palette.get_diffuse("door_sl"))
 	:give("id", id)
 end
 
 function Outside.lights.pl_frontdoor(e, id)
-	e:assemble(Light.point, 316, 262, 62, 72, Palette.get_diffuse("frontdoor_pl"))
+	e:assemble(Light.point, 316, 262, 62, 72, Palette.get_diffuse("door_pl"))
 	:give("id", id)
 end
 
@@ -131,7 +131,7 @@ function Outside.lights.sl_frontdoor(e, id)
 		316, 221, 4,
 		{0, 1, -1, 0.73},
 		64,
-		Palette.get_diffuse("frontdoor_sl"))
+		Palette.get_diffuse("door_sl"))
 	:give("id", id)
 end
 

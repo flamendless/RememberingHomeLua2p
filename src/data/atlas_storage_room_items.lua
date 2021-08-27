@@ -24,12 +24,12 @@ local data = {
 				y = 0.5
 			}
 		},
-		cabinet = {
+		shelf = {
 			frame = {
 				x = 4,
 				y = 82,
 				w = 70,
-				h = 70
+				h = 60
 			},
 			rotated = false,
 			trimmed = false,
@@ -37,10 +37,34 @@ local data = {
 				x = 0,
 				y = 0,
 				w = 70,
-				h = 70
+				h = 60
 			},
 			sourceSize = {
 				w = 70,
+				h = 60
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
+		shelf_side = {
+			frame = {
+				x = 123,
+				y = 4,
+				w = 27,
+				h = 70
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 27,
+				h = 70
+			},
+			sourceSize = {
+				w = 27,
 				h = 70
 			},
 			pivot = {
@@ -50,8 +74,8 @@ local data = {
 		},
 		table = {
 			frame = {
-				x = 123,
-				y = 4,
+				x = 82,
+				y = 82,
 				w = 59,
 				h = 28
 			},
@@ -74,8 +98,8 @@ local data = {
 		},
 		filing_cabinet = {
 			frame = {
-				x = 82,
-				y = 82,
+				x = 4,
+				y = 150,
 				w = 19,
 				h = 44
 			},
@@ -98,8 +122,8 @@ local data = {
 		},
 		barrell = {
 			frame = {
-				x = 123,
-				y = 40,
+				x = 31,
+				y = 150,
 				w = 32,
 				h = 22
 			},
@@ -122,8 +146,8 @@ local data = {
 		},
 		bulb = {
 			frame = {
-				x = 82,
-				y = 134,
+				x = 71,
+				y = 150,
 				w = 5,
 				h = 18
 			},

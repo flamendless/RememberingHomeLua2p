@@ -13,30 +13,47 @@ local data = {
 
 	{
 		id = "ladder",
-		x = 136, y = 57, z = 4,
-		-- dialogue = {"utility_room", "shelf"},
+		x = 97, y = 42, z = 4,
+		no_col = true,
 	},
 	{
-		id = "cabinet",
-		x = 88, y = 48, z = 4,
-		-- dialogue = {"utility_room", "electrical_box"},
+		id = "shelf",
+		x = 208, y = 52, z = 5,
+		dialogue = {"storage_room", "shelf"},
+	},
+	{
+		id = "shelf_side",
+		x = 309, y = 42, z = 5,
+		no_col = true,
 	},
 	{
 		id = "table",
-		x = 128, y = 69, z = 6,
-		-- no_col = true,
+		x = 108, y = 84, z = 5,
+		dialogue = {"storage_room", "table"},
 	},
 
 	{
 		id = "filing_cabinet",
-		x = 260, y = 76, z = 4,
-		-- dialogue = {"utility_room", "washing_machine"},
+		x = 180, y = 68, z = 5,
+		dialogue = {"storage_room", "filing_cabinet"},
 	},
 
 	{
 		id = "barrell",
-		x = 74, y = 95, z = 2,
-		-- no_col = true,
+		x = 76, y = 90, z = 5,
+		no_col = true,
+	},
+	{
+		id = "barrell",
+		name = "barrell2",
+		x = 142, y = 90, z = 4,
+		no_col = true,
+	},
+	{
+		id = "barrell",
+		name = "barrell3",
+		x = 264, y = 90, z = 4,
+		no_col = true,
 	},
 }
 

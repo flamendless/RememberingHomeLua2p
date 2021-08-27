@@ -42,18 +42,20 @@ function UtilityRoom.colliders.right_bound(e, w, h)
 	:give("wall")
 end
 
+local lz = 26
+local ls = 106
 function UtilityRoom.lights.left_bulb(e)
 	e:assemble(Light.point,
-		92, 33, 18,
-		106,
+		92, 33, lz,
+		ls,
 		Palette.get_diffuse("utility_room_bulb_light"))
 	:give("id", "pl_left_bulb")
 end
 
 function UtilityRoom.lights.right_bulb(e)
 	e:assemble(Light.point,
-		242, 33, 18,
-		106,
+		242, 33, lz,
+		ls,
 		Palette.get_diffuse("utility_room_bulb_light"))
 	:give("id", "pl_right_bulb")
 end

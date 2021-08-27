@@ -20,13 +20,16 @@ function UIWrapper.edit_number(id, value, is_int)
 	return value
 end
 
-function UIWrapper.edit_range(id, value, min, max)
+function UIWrapper.edit_range(id, value, min, max, is_int)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
 	if Slab.InputNumberSlider(id, value, min, max, {
 		Precision = 2
 	}) then
 		value = Slab.GetInputNumber()
+		if is_int then
+			value = floor(value)
+		end
 	end
 	return value
 end

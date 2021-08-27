@@ -42,18 +42,20 @@ function StorageRoom.colliders.right_bound(e, w, h)
 	:give("wall")
 end
 
+local lz = 26
+local ls = 106
 function StorageRoom.lights.left_bulb(e)
 	e:assemble(Light.point,
-		92, 33, 16,
-		106,
+		92, 33, lz,
+		ls,
 		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_left_bulb")
 end
 
 function StorageRoom.lights.right_bulb(e)
 	e:assemble(Light.point,
-		242, 33, 16,
-		106,
+		242, 33, lz,
+		ls,
 		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_right_bulb")
 end

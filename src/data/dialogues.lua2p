@@ -89,4 +89,13 @@ dialogues.utility_room = {
 	},
 }
 
+dialogues.storage_room = {
+	shelf = {
+	},
+	filing_cabinet = {
+	},
+	table = {
+	},
+}
+
 return dialogues

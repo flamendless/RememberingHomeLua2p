@@ -37,9 +37,9 @@ function Fireflies:init(world)
 end
 
 function Fireflies:generate_fireflies()
-	local n = random(10, 20)
-	local min_x, max_x = 516, 916
-	local y = 236
+	local n = random(40, 50)
+	local min_x, max_x = 32, 1000
+	local y = 220
 	for _ = 1, n do
 		local x = random(min_x, max_x)
 		local size = random(12, 20)
