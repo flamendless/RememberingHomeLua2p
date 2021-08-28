@@ -18,23 +18,23 @@ local data = {
 	},
 	{
 		id = "shelf",
-		x = 208, y = 52, z = 5,
+		x = 208, y = 52, z = 6,
 		dialogue = {"storage_room", "shelf"},
 	},
 	{
 		id = "shelf_side",
-		x = 309, y = 42, z = 5,
+		x = 309, y = 42, z = 3,
 		no_col = true,
 	},
 	{
 		id = "table",
-		x = 108, y = 84, z = 5,
+		x = 108, y = 84, z = 6,
 		dialogue = {"storage_room", "table"},
 	},
 
 	{
 		id = "filing_cabinet",
-		x = 180, y = 68, z = 5,
+		x = 180, y = 68, z = 6,
 		dialogue = {"storage_room", "filing_cabinet"},
 	},
 

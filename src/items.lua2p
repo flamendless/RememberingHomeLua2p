@@ -9,7 +9,7 @@ local acquired = {}
 
 function Items.add(id)
 	@@assert(type(id) == "string")
-	@@assert(list[id])
+	@@assert(list[id], "no " .. id .. " in data.items")
 	@@assert(Items.has(id) == false, id .. " was already added")
 	insert(acquired, id)
 	Log.info("item: " .. id .. " was added")
@@ -27,7 +27,7 @@ end
 
 function Items.has(id)
 	@@assert(type(id) == "string")
-	@@assert(list[id])
+	@@assert(list[id], "no " .. id .. " in data.items")
 	for _, id2 in ipairs(acquired) do
 		if id == id2 then
 			return true

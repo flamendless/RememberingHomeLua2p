@@ -162,6 +162,7 @@ function Dialogues:on_dialogue_reached_end(e)
 	self.timeline:Pause()
 end
 
+--TODO
 function Dialogues:update_dialogue(new_dialogues_t)
 	@@assert(type(new_dialogues_t) == "table")
 	if not self.e_dialogue.choice_item then
@@ -176,7 +177,6 @@ end
 function Dialogues:proceed_dialogue()
 	for _, e in ipairs(self.pool) do
 		local rfp = e.reflowprint
-		local text = e.text
 		if e.text_skipped then
 			e:remove("text_skipped")
 		elseif e.text_can_proceed then
@@ -255,28 +255,37 @@ function Dialogues:proceed_choice()
 		if e.hovered_choice then
 			local t = e.text_t
 			local text_t = t.value
-			if #text_t == 0 then
+			if #text_t == 0 and not text_t.choices then
 				self:on_dialogue_reached_end(e)
 			else
 				local str = text_t[1]
-				local bool, signal, handle_self = self:check_signal(str)
+				local proceed = true
+				if str then
+					local bool, signal, handle_self = self:check_signal(str)
 
-				if bool then
-					self.world:emit(signal, e, text_t)
-					if handle_self then
-						t.current_index = t.current_index + 1
-						local next_str = text_t[t.current_index]
-						if not next_str then
-							self:on_dialogue_reached_end(e)
+					if bool then
+						proceed = false
+						self.world:emit(signal, e, text_t)
+						if handle_self then
+							t.current_index = t.current_index + 1
+							local next_str = text_t[t.current_index]
+							if not next_str then
+								self:on_dialogue_reached_end(e)
+							end
 						end
 					end
-				else
+				end
+
+				if proceed then
 					local d = e.dialogue_meta
 					self:remove_choices()
 					self:spawn_dialogue(text_t, d.main, d.sub)
 				end
+
+				if not text_t.choices then
+					self.e_dialogue:remove("has_choices")
+				end
 			end
-			self.e_dialogue:remove("has_choices")
 			break
 		end
 	end

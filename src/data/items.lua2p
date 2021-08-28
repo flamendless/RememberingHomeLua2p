@@ -9,6 +9,11 @@ local items = {
 		name = "frontdoor key",
 		desc = "key to the frontdoor",
 	},
+	storage_room_drawer_key = {
+		id = "storage_room_drawer_key",
+		name = "key",
+		desc = "a key",
+	},
 }
 
 return items

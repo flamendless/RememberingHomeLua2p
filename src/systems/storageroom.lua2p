@@ -5,6 +5,7 @@ local TLE = require("modules.tle.timeline")
 local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
+local Items = require("items")
 local NGrading = require("ngrading")
 local Palette = require("palette")
 local Resources = require("resources")
@@ -140,6 +141,17 @@ function StorageRoom:spawn_player()
 		:assemble(Assemblages.Player.room, x, y)
 	self.world:emit("face_left", e_player)
 	return e_player
+end
+
+function StorageRoom:check_drawer_key(e, dialogues_t)
+	self.world:emit("remove_choices")
+	local has_key = Items.has("storage_room_drawer_key")
+	if not has_key then
+		local t = tablex.copy(dialogues_t.no_key_yet)
+		self.world:emit("spawn_dialogue_ex", t)
+	else
+		--TODO open and get item
+	end
 end
 
 return StorageRoom
