@@ -4,6 +4,7 @@ local TLE = require("modules.tle.timeline")
 
 local Blur = require("blur")
 local Canvas = require("canvas")
+local Dialouges = require("dialogues")
 local Fade = require("fade")
 local Items = require("items")
 local NGrading = require("ngrading")
@@ -71,6 +72,7 @@ function StorageRoom:state_init()
 	!end
 
 	self.timeline = TLE.Do(function()
+		Fade.fade_in(nil, 1)
 		self.camera:setScale(4)
 		!if _DEV then
 		self.world:emit("camera_follow", e_player, 0.25)
@@ -143,8 +145,17 @@ function StorageRoom:spawn_player()
 	return e_player
 end
 
+function StorageRoom:search_shelf(e, dialogues_t)
+	local can_search = false
+	if not can_search then
+		local t = tablex.copy(Dialouges.get("common", "cant_search_yet"))
+		self.world:emit("spawn_dialogue_ex", t)
+	else
+		--TODO get item
+	end
+end
+
 function StorageRoom:check_drawer_key(e, dialogues_t)
-	self.world:emit("remove_choices")
 	local has_key = Items.has("storage_room_drawer_key")
 	if not has_key then
 		local t = tablex.copy(dialogues_t.no_key_yet)

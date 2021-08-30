@@ -22,34 +22,38 @@ function Dialogues:init(world)
 	self.world = world
 	self.camera = nil
 	self.is_waiting = false
-	self.e_dialogue = Concord.entity(self.world)
-		:give("id", "dialogue_holder")
-		:give("font", "ui")
-		:give("color", Palette.get("ui_dialogue"))
-		:give("dialogue_item")
-		:give("ui_element")
-		:give("transform", 0, 1, 1, 0, 0.5)
-		:give("layer", "dialogue", 3)
-		:give("nf_render_text")
+	self:create_e_dialogue()
 
 	self.timeline = TLE.Do(function()
 		while true do
 			local text_t = self.e_dialogue.text_t
 			local dialogues = text_t and text_t.value
 			local current_line = dialogues and dialogues[text_t.current_index]
+
 			if current_line then
+				text_t.current_index = text_t.current_index + 1
+				local should_pause = true
 				local bool, signal, handle_self = self:check_signal(current_line)
+
 				if bool then
 					self.world:emit(signal, self.e_dialogue, dialogues)
 					current_line = ""
+					text_t.max_n = text_t.max_n - 1
+
+					if text_t.current_index > text_t.max_n then
+						should_pause = false
+					end
 				end
+
 				if handle_self then
-					text_t.current_index = text_t.current_index + 1
 					self.e_dialogue:remove("text_can_proceed")
 						:remove("hidden")
 						:give("text", current_line)
 				end
-				self.timeline:Pause()
+
+				if should_pause then
+					self.timeline:Pause()
+				end
 			elseif text_t and (text_t.current_index > text_t.max_n) then
 				self:on_dialogue_reached_end()
 			else
@@ -68,6 +72,18 @@ function Dialogues:init(world)
 		self.e_dialogue:give("reflowprint", w - PAD * 2, "left")
 			:give("pos", x, y)
 	end
+end
+
+function Dialogues:create_e_dialogue()
+	self.e_dialogue = Concord.entity(self.world)
+		:give("id", "dialogue_holder")
+		:give("font", "ui")
+		:give("color", Palette.get("ui_dialogue"))
+		:give("dialogue_item")
+		:give("ui_element")
+		:give("transform", 0, 1, 1, 0, 0.5)
+		:give("layer", "dialogue", 3)
+		:give("nf_render_text")
 end
 
 function Dialogues:update(dt)
@@ -97,6 +113,10 @@ end
 function Dialogues:check_signal(str)
 	@@assert(type(str) == "string")
 	local bool = stringx.starts_with(str, "_")
+	if not bool then
+		return false, "", true
+	end
+
 	local handle_self = not stringx.starts_with(str, "__")
 	local signal
 	if handle_self then
@@ -123,21 +143,21 @@ function Dialogues:spawn_dialogue(dialogues_t, main, sub)
 	self.timeline:Unpause()
 end
 
-function Dialogues:spawn_dialogue_ex(dialogue_t, is_full, signal_after, ...)
+function Dialogues:spawn_dialogue_ex(dialogue_t, signal_after, ...)
 	@@assert(type(dialogue_t) == "table")
 	@@assert(#dialogue_t ~= 0)
-	@@sassert(is_full, type(is_full) == "boolean")
 	@@sassert(signal_after, type(signal_after) == "string")
 	self:spawn_dialogue(dialogue_t, "_none", "_none")
-	if is_full then
-		self.world:emit("on_interact_or_inventory")
-	end
 	if signal_after then
 		self.e_dialogue:give("on_dialogue_end", signal_after, 0, ...)
 	end
 end
 
 function Dialogues:on_dialogue_reached_end(e)
+	if self.is_waiting then
+		self.timeline:Pause()
+		return
+	end
 	e = e or self.e_dialogue
 	if e.choice_item then
 		self:remove_choices()
@@ -162,8 +182,7 @@ function Dialogues:on_dialogue_reached_end(e)
 	self.timeline:Pause()
 end
 
---TODO
-function Dialogues:update_dialogue(new_dialogues_t)
+function Dialogues:update_dialogues(new_dialogues_t)
 	@@assert(type(new_dialogues_t) == "table")
 	if not self.e_dialogue.choice_item then
 		self.e_dialogue:give("text_t", new_dialogues_t)
@@ -283,6 +302,7 @@ function Dialogues:proceed_choice()
 				end
 
 				if not text_t.choices then
+					self:remove_choices()
 					self.e_dialogue:remove("has_choices")
 				end
 			end

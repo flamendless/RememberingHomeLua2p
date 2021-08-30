@@ -48,8 +48,15 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	if can_open_door then
 		multi_data.open_door = {
 			resource_id = "sheet_player_open_door_normal",
-			frames = {"1-7", 1},
-			delay = 0.15,
+			frames = {
+				"1-7", 1, -- 1-7
+				"7-1", 1, -- 8-14
+			},
+			-- delay = 0.15,
+			delay = {
+				["1-7"] = 0.15,
+				["8-14"] = 0.25,
+			},
 			rows_count = 1,
 			columns_count = 7,
 			n_frames = 7,

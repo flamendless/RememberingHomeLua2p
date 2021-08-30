@@ -117,7 +117,7 @@ function Items:on_item_equip(item_e)
 		self.world:emit("set_sys_inventory", false)
 		if not item.has_batteries then
 			local dialogue_t = Dialogues.get("items", "no_batteries")
-			self.world:emit("spawn_dialogue_ex", dialogue_t, nil, "dialogue_to_inventory")
+			self.world:emit("spawn_dialogue_ex", dialogue_t, "dialogue_to_inventory")
 		end
 	end
 end

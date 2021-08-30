@@ -14,6 +14,9 @@ dialogues.common = {
 	item_without = {
 		"there is nothing to use this item with",
 	},
+	cant_search_yet = {
+		"I don't need any of these for now",
+	}
 }
 
 dialogues.outside = {
@@ -47,7 +50,7 @@ dialogues.outside = {
 		"This door leads to the house",
 		choices = {
 			{"open",
-				"_check_frontdoor",
+				"__check_frontdoor",
 				door_locked = {
 					"the door is locked",
 					"I do not have the key",
@@ -63,7 +66,7 @@ dialogues.outside = {
 	},
 
 	backdoor = {
-		"_check_has_flashlight",
+		"_check_backdoor",
 		no_flashlight_yet = {
 			"I need to get my things first from the car",
 			"_make_car_interactive",
@@ -91,8 +94,18 @@ dialogues.utility_room = {
 
 dialogues.storage_room = {
 	shelf = {
-		"Boxes and boxes of old paperworks from past cases",
+		"A shelf for storage",
+		choices = {
+			{"search",
+				"boxes and boxes of old paperworks from past cases",
+				"worn out and dirty clothes",
+				"various equipments and tools",
+				"__search_shelf",
+			},
+			{"nothing"},
+		},
 	},
+
 	filing_cabinet = {
 		"A sturdy filing cabinet",
 		choices = {

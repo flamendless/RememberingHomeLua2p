@@ -7,7 +7,7 @@ local f_delay = 0.5
 local f_color = {0, 0, 0, 0}
 
 function Fade.fade_out(on_complete, duration, delay)
-	@@assert(type(on_complete) == "function")
+	@@sassert(on_complete, type(on_complete) == "function")
 	@@sassert(duration, type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
 	local f = Flux.to(f_color, duration or f_duration, {[4] = 1})
@@ -19,7 +19,7 @@ function Fade.fade_out(on_complete, duration, delay)
 end
 
 function Fade.fade_in(on_complete, duration, delay)
-	@@assert(type(on_complete) == "function")
+	@@sassert(on_complete, type(on_complete) == "function")
 	@@sassert(duration, type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
 	local f = Flux.to(f_color, duration or f_duration, {[4] = 0})

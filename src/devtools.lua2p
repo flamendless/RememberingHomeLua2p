@@ -42,9 +42,13 @@ local entity_list = {
 	n_active = 0,
 	title = "Entity List",
 }
-local systems_list = {
+local system_list = {
 	show = false,
-	title = "Systems List",
+	title = "System List",
+}
+local component_list = {
+	show = false,
+	title = "Component List",
 }
 local debug_list = {
 	show = true,
@@ -55,7 +59,8 @@ local list = {
 	stats,
 	mouse,
 	entity_list,
-	systems_list,
+	system_list,
+	component_list,
 	debug_list,
 }
 
@@ -90,7 +95,8 @@ function DevTools.update(dt)
 	DevTools.draw_stats()
 	DevTools.draw_mouse()
 	DevTools.draw_entities_list()
-	DevTools.draw_systems_list()
+	DevTools.draw_system_list()
+	DevTools.draw_component_list()
 	DevTools.draw_debug_list()
 	GameStates.world:emit("debug_update", dt)
 	@@profe("devtools_update")
@@ -188,11 +194,11 @@ function DevTools.draw_entities_list()
 	Slab.EndWindow()
 end
 
-function DevTools.draw_systems_list()
-	if not systems_list.show then return end
-	systems_list.show = Slab.BeginWindow("systems", {
-		Title = systems_list.title,
-		IsOpen = systems_list.show,
+function DevTools.draw_system_list()
+	if not system_list.show then return end
+	system_list.show = Slab.BeginWindow("systems", {
+		Title = system_list.title,
+		IsOpen = system_list.show,
 	})
 	Slab.BeginLayout("layout_systems", {Columns = 3})
 	local i = 1
@@ -206,6 +212,32 @@ function DevTools.draw_systems_list()
 		if i > 3 then i = 1 end
 	end
 	Slab.EndLayout()
+	Slab.EndWindow()
+end
+
+function DevTools.draw_component_list()
+	if not component_list.show then return end
+	component_list.show = Slab.BeginWindow("components", {
+		Title = component_list.title,
+		IsOpen = component_list.show,
+	})
+	local entities = GameStates.world:getEntities()
+	for _, e in ipairs(entities) do
+		local id = e.id.value
+		if id then
+			if Slab.BeginTree(id) then
+				local components = e:getComponents()
+				Slab.Indent()
+				local i = 1
+				for k in pairs(components) do
+					Slab.Text(i .. " " .. k)
+					i = i + 1
+				end
+				Slab.Unindent()
+				Slab.EndTree()
+			end
+		end
+	end
 	Slab.EndWindow()
 end
 

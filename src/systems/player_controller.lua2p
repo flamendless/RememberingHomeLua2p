@@ -167,7 +167,7 @@ function PlayerController:player_open_door()
 		local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
 		e:give("change_animation_tag", tag)
 		:give("override_animation")
-		e:give("animation_on_loop", "anim_pause_at_end", 0, e)
+		e:give("animation_on_loop", "anim_pause_at_start", 0, e)
 	end
 end
 

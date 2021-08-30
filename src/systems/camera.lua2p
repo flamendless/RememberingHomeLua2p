@@ -111,6 +111,7 @@ function Camera:draw_clip()
 end
 
 function Camera:on_interact_or_inventory()
+	if self.bars then return end
 	for _, e in ipairs(self.pool) do
 		if not e.prev_camera_scale then
 			local camera = e.camera.camera
