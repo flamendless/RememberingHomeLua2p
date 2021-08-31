@@ -67,9 +67,7 @@ function PlayerController:update(dt)
 
 		if Inputs.pressed("interact") then
 			if can_interact and within_int and within_int.entity.dialogue_meta then
-				local d = within_int.entity.dialogue_meta
-				local dialogues_t = Dialogues.get(d.main, d.sub)
-				self.world:emit("spawn_dialogue", dialogues_t, d.main, d.sub)
+				self:on_player_interact(e, within_int.entity)
 			!if _DEV then
 			elseif within_int then
 			local msg = format("item '%s' has 'interactive' but no 'dialogue' component",
@@ -181,6 +179,7 @@ function PlayerController:player_open_locked_door()
 end
 
 function PlayerController:interacted_stairs(e, tag, fn)
+
 	@@assert(e.__isEntity)
 	@@assert(e.player)
 	@@assert(tag == "upstairs" or tag == "downstairs")
@@ -190,12 +189,15 @@ function PlayerController:interacted_stairs(e, tag, fn)
 	:give("animation_on_update", fn)
 end
 
-function PlayerController:player_interact(player, interactive)
+function PlayerController:on_player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
 	player:give("is_interacting")
 	self.world:emit("on_interact_or_inventory")
 	self.world:emit("create_speech_bubble", player)
+	local d = interactive.dialogue_meta
+	local dialogues_t = Dialogues.get(d.main, d.sub)
+	self.world:emit("spawn_dialogue", dialogues_t, d.main, d.sub)
 end
 
 function PlayerController:on_interact_or_inventory()

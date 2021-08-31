@@ -117,15 +117,14 @@ function Canvas:new(x, y, width, height, rotation, scale)
 	@@sassert(height, type(height) == "number")
 	@@sassert(rotation, type(rotation) == "number")
 	@@sassert(scale, type(scale) == "number")
-	local c
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
-			c = self:new_from_canvas(x)
+			self:new_from_canvas(x)
 		else
-			c = self:new_from_table(x)
+			self:new_from_table(x)
 		end
 	elseif type(x) == "number" then
-		c = self:new_default(x, y, width, height, rotation, scale)
+		self:new_default(x, y, width, height, rotation, scale)
 	end
 end
 
@@ -193,10 +192,9 @@ function Canvas:override_draw(fn)
 end
 
 function Canvas:render()
-	local scale = self.scale
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, scale, scale)
+	love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale, self.scale)
 	love.graphics.setBlendMode("alpha")
 end
 

@@ -36,6 +36,7 @@ function UtilityRoom:state_setup()
 		Canvas.create_main({}),
 	}
 	self.canvas = Canvas.create_main({})
+	Blur.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
@@ -114,13 +115,11 @@ function UtilityRoom:state_draw()
 			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
+	Blur.apply()
 	self.effect:apply()
 		self.canvas:render_n()
 	self.effect:unapply()
-
 	Blur.draw()
-		-- self.canvas:render_n()
-	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")

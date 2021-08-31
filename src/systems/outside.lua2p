@@ -57,12 +57,12 @@ function Outside:state_setup()
 	local w, h = bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	Blur.new()
 	self.buffers = {
 		Canvas.create_main({}),
 		Canvas.create_main({}),
 	}
 	self.canvas = Canvas.create_main({})
+	Blur.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
@@ -284,13 +284,11 @@ function Outside:state_draw()
 			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
+	Blur.apply()
 	self.effect:apply()
 		self.canvas:render_n()
 	self.effect:unapply()
-
 	Blur.draw()
-		-- self.canvas:render_n()
-	love.graphics.setShader()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
