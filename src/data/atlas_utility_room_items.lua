@@ -1,4 +1,4 @@
-local data = {
+local Data = {
 	frames = {
 		shelf = {
 			frame = {
@@ -206,4 +206,4 @@ local data = {
 	}
 }
 
-return data
+return Data

@@ -1,4 +1,4 @@
-local data = {
+local Data = {
 	{
 		id = "car",
 		x = 729, y = 273, z = 4,
@@ -19,4 +19,4 @@ local data = {
 	},
 }
 
-return data
+return Data

@@ -4,6 +4,7 @@ Concord.component("can_interact")
 Concord.component("is_interacting")
 Concord.component("interactive")
 Concord.component("locked")
+Concord.component("is_door")
 
 Concord.component("target_interactive", function(c, interactive_e)
 	@@assert(interactive_e.__isEntity)

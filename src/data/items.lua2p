@@ -1,4 +1,4 @@
-local items = {
+local Items = {
 	flashlight = {
 		id = "flashlight",
 		name = "flashlight",
@@ -16,4 +16,4 @@ local items = {
 	},
 }
 
-return items
+return Items

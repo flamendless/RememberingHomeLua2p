@@ -1,4 +1,4 @@
-local data = {
+local Data = {
 	frames = {
 		ladder = {
 			frame = {
@@ -72,12 +72,36 @@ local data = {
 				y = 0.5
 			}
 		},
+		left_door = {
+			frame = {
+				x = 4,
+				y = 150,
+				w = 4,
+				h = 65
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 4,
+				h = 65
+			},
+			sourceSize = {
+				w = 4,
+				h = 65
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
 		table = {
 			frame = {
 				x = 82,
 				y = 82,
 				w = 59,
-				h = 28
+				h = 40
 			},
 			rotated = false,
 			trimmed = false,
@@ -85,11 +109,11 @@ local data = {
 				x = 0,
 				y = 0,
 				w = 59,
-				h = 28
+				h = 40
 			},
 			sourceSize = {
 				w = 59,
-				h = 28
+				h = 40
 			},
 			pivot = {
 				x = 0.5,
@@ -98,7 +122,7 @@ local data = {
 		},
 		filing_cabinet = {
 			frame = {
-				x = 4,
+				x = 16,
 				y = 150,
 				w = 19,
 				h = 44
@@ -120,10 +144,34 @@ local data = {
 				y = 0.5
 			}
 		},
+		tires = {
+			frame = {
+				x = 82,
+				y = 130,
+				w = 35,
+				h = 22
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 35,
+				h = 22
+			},
+			sourceSize = {
+				w = 35,
+				h = 22
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
 		barrell = {
 			frame = {
-				x = 31,
-				y = 150,
+				x = 43,
+				y = 160,
 				w = 32,
 				h = 22
 			},
@@ -146,8 +194,8 @@ local data = {
 		},
 		bulb = {
 			frame = {
-				x = 71,
-				y = 150,
+				x = 43,
+				y = 190,
 				w = 5,
 				h = 18
 			},
@@ -182,4 +230,4 @@ local data = {
 	}
 }
 
-return data
+return Data

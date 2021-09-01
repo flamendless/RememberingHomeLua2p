@@ -177,6 +177,11 @@ function Dialogues:on_dialogue_reached_end(e)
 				:remove("text")
 				:remove("choice_item")
 				:remove("has_choices")
+			self.e_dialogue:remove("dialogue_meta")
+				:remove("text_t")
+				:remove("text")
+				:remove("choice_item")
+				:remove("has_choices")
 		end
 	end
 	self.timeline:Pause()

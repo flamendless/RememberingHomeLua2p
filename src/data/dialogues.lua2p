@@ -1,16 +1,16 @@
-local dialogues = {}
+local Dialogues = {}
 
-dialogues._none = {
+Dialogues._none = {
 	_none = {},
 }
 
-dialogues.items = {
+Dialogues.items = {
 	no_batteries = {
 		"Batteries ran out of juice",
 	},
 }
 
-dialogues.common = {
+Dialogues.common = {
 	item_without = {
 		"there is nothing to use this item with",
 	},
@@ -19,7 +19,7 @@ dialogues.common = {
 	}
 }
 
-dialogues.outside = {
+Dialogues.outside = {
 	car = {
 		"An old but reliable car",
 		choices = {
@@ -74,7 +74,7 @@ dialogues.outside = {
 	},
 }
 
-dialogues.utility_room = {
+Dialogues.utility_room = {
 	washing_machine = {
 		"a washing machine",
 		"it's too late to do the laundry",
@@ -92,7 +92,7 @@ dialogues.utility_room = {
 	},
 }
 
-dialogues.storage_room = {
+Dialogues.storage_room = {
 	shelf = {
 		"A shelf for storage",
 		choices = {
@@ -138,4 +138,4 @@ dialogues.storage_room = {
 	},
 }
 
-return dialogues
+return Dialogues

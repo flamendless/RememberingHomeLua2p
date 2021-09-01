@@ -1,5 +1,6 @@
 local Anim8 = require("modules.anim8.anim8")
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 
 local Animation = Concord.system({
@@ -140,7 +141,9 @@ function Animation:init(world)
 	end
 
 	self.pool_change.onAdded = function(pool, e)
-		self:switch_animation_tag(e, e.change_animation_tag.new_tag)
+		local new_tag = e.change_animation_tag.new_tag
+		self:switch_animation_tag(e, new_tag)
+		Log.trace("Switched animation tag to: " .. new_tag)
 	end
 end
 
@@ -167,7 +170,6 @@ function Animation:switch_animation_tag(e, new_tag, override)
 	end
 
 	if override then e:give("override_animation") end
-	e:remove("change_animation_tag")
 end
 
 function Animation:update(dt)

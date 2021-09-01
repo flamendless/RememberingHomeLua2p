@@ -1,4 +1,4 @@
-local data = {
+local Data = {
 	frames = {
 		car = {
 			frame = {
@@ -86,4 +86,4 @@ local data = {
 	}
 }
 
-return data
+return Data

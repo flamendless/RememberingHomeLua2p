@@ -66,8 +66,12 @@ function PlayerController:update(dt)
 		end
 
 		if Inputs.pressed("interact") then
-			if can_interact and within_int and within_int.entity.dialogue_meta then
-				self:on_player_interact(e, within_int.entity)
+			if can_interact and within_int then
+				if within_int.entity.dialogue_meta then
+					self:on_player_interact(e, within_int.entity)
+				elseif within_int.entity.is_door then
+					self.world:emit("on_interact_door", e, within_int.entity)
+				end
 			!if _DEV then
 			elseif within_int then
 			local msg = format("item '%s' has 'interactive' but no 'dialogue' component",
@@ -165,7 +169,7 @@ function PlayerController:player_open_door()
 		local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
 		e:give("change_animation_tag", tag)
 		:give("override_animation")
-		e:give("animation_on_loop", "anim_pause_at_start", 0, e)
+		e:give("animation_on_loop", "anim_pause_at_end", 0, e, "player_reset_anim")
 	end
 end
 
@@ -176,17 +180,6 @@ function PlayerController:player_open_locked_door()
 		:give("override_animation")
 		e:give("animation_on_loop", "anim_pause_at_end", 0, e, "player_reset_anim")
 	end
-end
-
-function PlayerController:interacted_stairs(e, tag, fn)
-
-	@@assert(e.__isEntity)
-	@@assert(e.player)
-	@@assert(tag == "upstairs" or tag == "downstairs")
-	@@sassert(fn, type(fn) == "function")
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	:give("animation_on_update", fn)
 end
 
 function PlayerController:on_player_interact(player, interactive)

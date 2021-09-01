@@ -1,4 +1,4 @@
-local data = {
+local Data = {
 	{
 		id = "bulb",
 		x = 90, y = 16,
@@ -9,6 +9,11 @@ local data = {
 		name = "bulb2",
 		x = 240, y = 16,
 		no_col = true,
+	},
+	{
+		id = "left_door",
+		x = 16, y = 31, z = 4,
+		is_door = true,
 	},
 
 	{
@@ -28,7 +33,7 @@ local data = {
 	},
 	{
 		id = "table",
-		x = 108, y = 84, z = 6,
+		x = 102, y = 72, z = 6,
 		dialogue = {"storage_room", "table"},
 	},
 
@@ -57,4 +62,4 @@ local data = {
 	},
 }
 
-return data
+return Data

@@ -48,15 +48,8 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	if can_open_door then
 		multi_data.open_door = {
 			resource_id = "sheet_player_open_door_normal",
-			frames = {
-				"1-7", 1, -- 1-7
-				"7-1", 1, -- 8-14
-			},
-			-- delay = 0.15,
-			delay = {
-				["1-7"] = 0.15,
-				["8-14"] = 0.25,
-			},
+			frames = {"1-7", 1},
+			delay = 0.1,
 			rows_count = 1,
 			columns_count = 7,
 			n_frames = 7,
@@ -97,8 +90,6 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	:give("player_controller")
 	:give("body", can_move, can_run)
 	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
-	:give("spawn_point_action_controls")
-	:give("spawn_point_question_mark")
 	:give("movement")
 end
 
@@ -136,7 +127,7 @@ function Player.room(e, x, y)
 		{
 			can_move = false,
 			can_run = false,
-			can_open_door = false,
+			can_open_door = true,
 		})
 	:give("z_index", 8)
 	:give("color", {1, 1, 1, 1})

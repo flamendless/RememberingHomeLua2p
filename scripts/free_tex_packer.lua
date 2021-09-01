@@ -3,7 +3,7 @@
 -- no extrude
 -- power of two
 -- remove file ext
-local data = {
+local Data = {
 	frames = {
 		{{#rects}}
 		{{{name}}} = {
@@ -44,4 +44,4 @@ local data = {
 		scale = {{config.scale}}
 	}
 }
-return data
+return Data

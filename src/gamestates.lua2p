@@ -41,6 +41,7 @@ function GameStates.start(resources)
 	Resources.set_resources(resources)
 	GameStates.is_ready = true
 	GameStates.world = Concord.world()
+	GameStates.world.current_id = GameStates.current_id
 	ECS.load_systems(GameStates.current_id, GameStates.world, GameStates.prev_id)
 
 	@@profb("state_setup")

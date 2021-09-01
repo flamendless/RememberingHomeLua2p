@@ -1,0 +1,19 @@
+local Doors = {}
+
+Doors.StorageRoom = {
+	left_door = "Kitchen",
+	right_door = "Outside",
+}
+
+Doors.UtilityRoom = {
+	left_door = "Kitchen",
+}
+
+function Doors.get_next(current_id, door_id)
+	@@assert(type(current_id) == "string")
+	@@assert(type(door_id) == "string")
+	@@assert(Doors[current_id][door_id])
+	return Doors[current_id][door_id]
+end
+
+return Doors
