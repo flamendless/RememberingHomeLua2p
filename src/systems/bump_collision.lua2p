@@ -58,8 +58,8 @@ function BumpCollision:update(dt)
 			if e.bump.debug_clicked then return end
 			!end
 			self:update_body(e)
+			self:check_col(e)
 		end
-		self:check_col(e)
 	end
 end
 
@@ -102,10 +102,19 @@ function BumpCollision:check_col(e)
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
 		if i == 1 and e.can_interact then
-			if not within_int and other.interactive then
-				self.world:emit("on_collide_interactive", e, other)
-			elseif within_int and within_int.entity ~= other then
-				self.world:emit("on_change_interactive", e, other)
+			local proceed = true
+			local req = other.req_col_dir
+
+			if req and (e.body.dir ~= req.value) then
+				proceed = false
+			end
+
+			if proceed then
+				if not within_int and other.interactive then
+					self.world:emit("on_collide_interactive", e, other)
+				elseif within_int and within_int.entity ~= other then
+					self.world:emit("on_change_interactive", e, other)
+				end
 			end
 		end
 	end

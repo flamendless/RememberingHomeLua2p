@@ -158,7 +158,7 @@ function Menu:init(world)
 	self.current_page = 1
 	self.keys = {}
 	self.flags = {allow_cursor = false}
-	self.transition = false
+	self.is_transition = false
 	self.is_sub_menu = false
 	self.current_state = states.menu
 

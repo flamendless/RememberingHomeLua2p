@@ -96,6 +96,30 @@ local Data = {
 				y = 0.5
 			}
 		},
+		right_door = {
+			frame = {
+				x = 16,
+				y = 150,
+				w = 4,
+				h = 65
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 4,
+				h = 65
+			},
+			sourceSize = {
+				w = 4,
+				h = 65
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
 		table = {
 			frame = {
 				x = 82,
@@ -122,7 +146,7 @@ local Data = {
 		},
 		filing_cabinet = {
 			frame = {
-				x = 16,
+				x = 28,
 				y = 150,
 				w = 19,
 				h = 44
@@ -170,7 +194,7 @@ local Data = {
 		},
 		barrell = {
 			frame = {
-				x = 43,
+				x = 55,
 				y = 160,
 				w = 32,
 				h = 22
@@ -194,7 +218,7 @@ local Data = {
 		},
 		bulb = {
 			frame = {
-				x = 43,
+				x = 55,
 				y = 190,
 				w = 5,
 				h = 18

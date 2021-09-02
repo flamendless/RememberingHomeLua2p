@@ -9,6 +9,11 @@ Concord.component("bump")
 Concord.component("wall")
 Concord.component("ground")
 
+Concord.component("req_col_dir", function(c, dir)
+	@@assert(type(dir) == "number" and (dir == -1 or dir == 1))
+	c.value = dir
+end)
+
 Concord.component("collider", function(c, w, h, filter)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")

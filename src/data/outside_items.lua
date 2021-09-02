@@ -9,6 +9,7 @@ local Data = {
 	{
 		id = "backdoor",
 		x = 433, y = 254, z = 4,
+		req_col_dir = -1,
 		dialogue = {"outside", "backdoor"},
 	},
 	{

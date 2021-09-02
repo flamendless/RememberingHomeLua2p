@@ -41,7 +41,7 @@ systems.Outside = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"notification", "outline", "path", "pause", "player_controller",
 	"render_rect", "render_sprite", "render_text", "render_ui", "room",
-	"systems", "text_paint", "transform", "typewriter",
+	"systems", "text_paint", "transform", "typewriter", "door",
 }
 
 systems.StorageRoom = {

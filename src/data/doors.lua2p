@@ -1,5 +1,9 @@
 local Doors = {}
 
+Doors.Outside = {
+	backdoor = "StorageRoom",
+}
+
 Doors.StorageRoom = {
 	left_door = "Kitchen",
 	right_door = "Outside",

@@ -1,9 +1,5 @@
 local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
-!if _DEV then
-local Log = require("modules.log.log")
-local format = string.format
-!end
 
 local Dialogues = require("dialogues")
 local Inputs = require("inputs")
@@ -14,76 +10,85 @@ local PlayerController = Concord.system({
 
 function PlayerController:init(world)
 	self.world = world
-end
 
-function PlayerController:player_can_move(bool)
-	@@assert(type(bool) == "boolean")
-	@@assert(#self.pool ~= 0)
-	for _, e in ipairs(self.pool) do
-		e.body.can_move = bool
+	self.pool.onAdded = function(pool, e)
+		@@assert(self.player == nil, "Player already exists")
+		self.player = e
 	end
 end
 
-function PlayerController:player_can_run(bool)
+function PlayerController:player_can_move(bool, e_player)
 	@@assert(type(bool) == "boolean")
-	@@assert(#self.pool ~= 0)
-	for _, e in ipairs(self.pool) do
-		e.body.can_run = bool
-	end
+	@@assert(e_player ~= nil or self.player ~= nil)
+	@@sassert(e_player, e_player.__isEntity and e_player.player)
+	local e = e_player or self.player
+	e.body.can_move = bool
 end
 
-function PlayerController:player_can_interact(bool)
+function PlayerController:player_can_run(bool, e_player)
 	@@assert(type(bool) == "boolean")
-	@@assert(#self.pool ~= 0)
-	for _, e in ipairs(self.pool) do
-		if bool then
-			e:give("can_interact")
-		else
-			e:remove("can_interact")
-		end
+	@@assert(e_player ~= nil or self.player ~= nil)
+	@@sassert(e_player, e_player.__isEntity and e_player.player)
+	local e = e_player or self.player
+	e.body.can_run = bool
+end
+
+function PlayerController:player_can_interact(bool, e_player)
+	@@assert(type(bool) == "boolean")
+	@@assert(e_player ~= nil or self.player ~= nil)
+	@@sassert(e_player, e_player.__isEntity and e_player.player)
+	local e = e_player or self.player
+	if bool then
+		e:give("can_interact")
+	else
+		e:remove("can_interact")
 	end
 end
 
 function PlayerController:update(dt)
-	for _, e in ipairs(self.pool) do
-		if e.override_animation then return end
-		if not e.body.can_move then return end
-		local within_int = e.within_interactive
-		local can_interact = e.can_interact
-		local body = e.body
+	local e = self.player
+	if not e then return end
+	if e.override_animation then return end
+	if not e.body.can_move then return end
+	local within_int = e.within_interactive
+	local can_interact = e.can_interact
+	local body = e.body
 
-		body.dx = 0
+	body.dx = 0
 
-		if body.can_run then
-			body.is_run = Inputs.down("run_mod")
-		end
-		if Inputs.down("left") then
-			body.dir = -1
-			body.dx = -1
-		elseif Inputs.down("right") then
-			body.dir = 1
-			body.dx = 1
-		end
+	if body.can_run then
+		body.is_run = Inputs.down("run_mod")
+	end
+	if Inputs.down("left") then
+		body.dir = -1
+		body.dx = -1
+	elseif Inputs.down("right") then
+		body.dir = 1
+		body.dx = 1
+	end
 
-		if Inputs.pressed("interact") then
-			if can_interact and within_int then
-				if within_int.entity.dialogue_meta then
-					self:on_player_interact(e, within_int.entity)
-				elseif within_int.entity.is_door then
-					self.world:emit("on_interact_door", e, within_int.entity)
+	if Inputs.pressed("interact") then
+		if can_interact and within_int then
+			local other = within_int.entity
+			local req = other.req_col_dir
+			local proceed = true
+
+			if req and (body.dir ~= req.value) then
+				proceed = false
+			end
+
+			if proceed then
+				if other.dialogue_meta then
+					self:on_player_interact(e, other)
+				elseif other.is_door then
+					self.world:emit("on_interact_door", e, other)
 				end
-			!if _DEV then
-			elseif within_int then
-			local msg = format("item '%s' has 'interactive' but no 'dialogue' component",
-				within_int.entity.id.value)
-			Log.warn(msg)
-			!end
 			end
 		end
-
-		local anim_name = self:player_update_animation(e)
-		self:update_speed(e, anim_name)
 	end
+
+	local anim_name = self:player_update_animation(e)
+	self:update_speed(e, anim_name)
 end
 
 function PlayerController:player_update_animation(e, override_name, override_variant)
@@ -165,21 +170,19 @@ function PlayerController:idle(e, stop)
 end
 
 function PlayerController:player_open_door()
-	for _, e in ipairs(self.pool) do
-		local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
-		e:give("change_animation_tag", tag)
-		:give("override_animation")
-		e:give("animation_on_loop", "anim_pause_at_end", 0, e, "player_reset_anim")
-	end
+	local e = self.player
+	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
+	e:give("change_animation_tag", tag)
+	:give("override_animation")
+	e:give("animation_on_loop", "anim_pause_at_end", 0, e)
 end
 
 function PlayerController:player_open_locked_door()
-	for _, e in ipairs(self.pool) do
-		local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
-		e:give("change_animation_tag", tag)
-		:give("override_animation")
-		e:give("animation_on_loop", "anim_pause_at_end", 0, e, "player_reset_anim")
-	end
+	local e = self.player
+	local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
+	e:give("change_animation_tag", tag)
+	:give("override_animation")
+	e:give("animation_on_loop", "anim_pause_at_end", 0, e)
 end
 
 function PlayerController:on_player_interact(player, interactive)
@@ -194,13 +197,12 @@ function PlayerController:on_player_interact(player, interactive)
 end
 
 function PlayerController:on_interact_or_inventory()
-	for _, e in ipairs(self.pool) do
-		if not e.prev_body then
-			local body = e.body
-			local can_interact = e.can_interact
-			e:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
-			self:idle(e, true)
-		end
+	local e = self.player
+	if not e.prev_body then
+		local body = e.body
+		local can_interact = e.can_interact
+		e:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
+		self:idle(e, true)
 	end
 	self:player_can_run(false)
 	self:player_can_move(false)
@@ -208,19 +210,18 @@ function PlayerController:on_interact_or_inventory()
 end
 
 function PlayerController:on_leave_interact_or_inventory(_)
-	for _, e in ipairs(self.pool) do
-		local body = e.body
-		local prev_body = e.prev_body
-		body.can_move = prev_body.can_move
-		body.can_run = prev_body.can_run
-		if prev_body.can_interact then
-			Timer.after(0.5, function()
-				e:give("can_interact")
-				:remove("is_interacting")
-			end)
-		end
-		e:remove("prev_body")
+	local e = self.player
+	local body = e.body
+	local prev_body = e.prev_body
+	body.can_move = prev_body.can_move
+	body.can_run = prev_body.can_run
+	if prev_body.can_interact then
+		Timer.after(0.5, function()
+			e:give("can_interact")
+			:remove("is_interacting")
+		end)
 	end
+	e:remove("prev_body")
 	self.world:emit("remove_speech_bubble")
 end
 

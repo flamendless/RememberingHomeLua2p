@@ -149,10 +149,6 @@ Resources.meta.Intro = {
 
 Resources.meta.Outside = {
 	images = {
-		-- {"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
-		-- {"bg_house", !(path_images .. "house_outside/bg_house.png")},
-		-- {"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
-		-- !!(get_res("player"))
 		{"rain_drop", !(path_images .. "rain/rain_drop.png")},
 		{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
 		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
@@ -236,7 +232,7 @@ Resources.meta.UtilityRoom = {
 function Resources.get_meta(key)
 	@@assert(type(key) == "string")
 	@@assert(Resources.meta[key], key .. " is invalid")
-	return Resources.meta[key]
+	return tablex.copy(Resources.meta[key], {})
 end
 
 function Resources.set_resources(t)
