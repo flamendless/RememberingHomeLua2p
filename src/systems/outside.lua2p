@@ -452,4 +452,8 @@ function Outside:check_backdoor(e, dialogues_t)
 	end
 end
 
+function Outside:cleanup()
+	self.timeline:Die()
+end
+
 return Outside

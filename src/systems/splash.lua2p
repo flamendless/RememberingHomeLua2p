@@ -132,12 +132,12 @@ function Splash:state_init()
 	end
 
 	self.timeline = TLE.Do(function()
-		!if _DEV then
-		self.current_state = states.splash_flam
-		self:set_skippable_timer()
-		self:create_splash_flamendless()
-		self.timeline:Pause()
-		!end
+		-- !if _DEV then
+		-- self.current_state = states.splash_flam
+		-- self:set_skippable_timer()
+		-- self:create_splash_flamendless()
+		-- self.timeline:Pause()
+		-- !end
 
 		self.current_state = states.splash_love
 		self:set_skippable_timer()

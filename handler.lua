@@ -9,13 +9,13 @@ local function split(str)
 end
 
 function assert(cond, msg)
-	if _RELEASE then return "" end
+	if not _DEV then return "" end
 	msg = msg or string.format("%q", "Assertion failed: " .. cond)
 	return "if not (" .. cond .. ") then error(" .. msg ..") end"
 end
 
 function sassert(v, cond, msg)
-	if _RELEASE then return "" end
+	if not _DEV then return "" end
 	local str = assert(cond, msg)
 	return "if " .. v .. " then " .. str .. " end"
 end
@@ -38,15 +38,12 @@ args = split(args)
 
 if args[1] == "dev" then
 	_DEV = true
-	_RELEASE = false
 	_PROF = false
 elseif args[1] == "release" then
 	_DEV = false
-	_RELEASE = true
 	_PROF = false
 elseif args[1] == "prof" then
 	_DEV = true
-	_RELEASE = false
 	_PROF = true
 end
 

@@ -82,7 +82,7 @@ function Info.init()
 		concat(supported),
 
 		"Other Info:",
-		format("Release Mode: %s", !(_RELEASE)),
+		format("Developer Mode: %s", !(_DEV)),
 	}
 
 	local to_write = concat(str, "\n")

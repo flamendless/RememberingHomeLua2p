@@ -18,8 +18,8 @@ function Path:init(world)
 end
 
 function Path:move_to_next_point(e, event)
+	if not self.pool:has(e) then return end
 	@@assert(e.__isEntity)
-	@@assert(self.pool:has(e))
 	local path = e.path
 	local pos = e.pos
 	local low = path.current_point

@@ -204,6 +204,7 @@ end
 function Intro:state_init()
 	local ssx = love.graphics.getWidth()
 	local w, h = img_bg:getDimensions()
+
 	self.timeline = TLE.Do(function()
 		!if _DEV then
 		self.world:emit("set_ambient_light", {0.5, 0.5, 0.5})
@@ -397,6 +398,7 @@ function Intro:state_keypressed(key)
 end
 
 function Intro:cleanup()
+	self.timeline:Die()
 	self.ps1.system:stop()
 	self.ps2.system:stop()
 	effect = {dt = 0, dt2 = 0, status = 1}

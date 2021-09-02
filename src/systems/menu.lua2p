@@ -602,7 +602,7 @@ function Menu:on_newgame()
 	end
 
 	local e_desk_fast = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.desk_fast, Resources.data.images.sheet_desk, ww, wh)
+		:assemble(Assemblages.Menu.desk_fast, ww, wh)
 
 	Timer.after(timer, function()
 		-- TODO add sudden static sound

@@ -36,6 +36,10 @@ local Data = {
 		x = 102, y = 72, z = 6,
 		dialogue = {"storage_room", "table"},
 	},
+	{
+		id = "tires",
+		x = 107, y = 91, z = 5,
+	},
 
 	{
 		id = "filing_cabinet",

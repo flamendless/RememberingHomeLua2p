@@ -96,7 +96,7 @@ function ErrorHandler.callback(msg)
 	insert(err, "You can help by submitting the error throught GitHub or Itch.io")
 	insert(err, "Thank you!\n")
 
-	!if not _RELEASE then
+	!if _DEV then
 	insert(err, sanitized_msg)
 
 	if #sanitized_msg ~= #msg then

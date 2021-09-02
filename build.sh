@@ -119,6 +119,7 @@ function rebuild()
 	create_output_dir
 	copy_modules
 	copy_res
+	cp slab.style $dir_output
 }
 
 function run()

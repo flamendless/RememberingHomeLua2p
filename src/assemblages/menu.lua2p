@@ -117,7 +117,7 @@ function Menu.btn_back(e, x, y)
 	:give("hover_change_color", Palette.get("ui_hovered"), 0.2)
 end
 
-!if not _RELEASE then
+!if _DEV then
 function Menu.secret_title(e, x, y)
 	e:give("id", "secret_title")
 	:give("text", !(_GAME_TITLE_SECRET))
