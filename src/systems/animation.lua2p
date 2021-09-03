@@ -10,8 +10,6 @@ local Animation = Concord.system({
 	pool_change = {"animation", "animation_data", "change_animation_tag"}
 })
 
-local cache_multi_animation = {}
-
 function Animation:setup_on_loop(e, animation)
 	@@assert(animation.__isComponent)
 
@@ -41,10 +39,10 @@ function Animation:setup_on_loop(e, animation)
 	return on_loop_fn
 end
 
-local setup_animation = function(e, data, on_loop)
+function Animation:setup_animation(e, data, on_loop)
 	local animation = e.animation
-	local multi = e.multi_animation_data
 	local current_tag = animation.current_tag
+	local multi = e.multi_animation_data
 	local obj_grid
 	local obj_animation
 
@@ -54,8 +52,8 @@ local setup_animation = function(e, data, on_loop)
 		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
 			 data.delay, on_loop)
 	else
-		if cache_multi_animation[current_tag] then
-			local cached = cache_multi_animation[current_tag]
+		if self.cache_multi_animation[current_tag] then
+			local cached = self.cache_multi_animation[current_tag]
 
 			obj_grid = cached.grid
 			obj_animation = cached.animation
@@ -65,7 +63,7 @@ local setup_animation = function(e, data, on_loop)
 			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
 				data.delay, on_loop)
 
-			cache_multi_animation[current_tag] = {
+			self.cache_multi_animation[current_tag] = {
 				grid = obj_grid,
 				animation = obj_animation
 			}
@@ -79,7 +77,7 @@ local setup_animation = function(e, data, on_loop)
 	animation.grid = obj_grid
 	animation.anim8 = obj_animation
 
-	local quad, x, y, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
+	local quad, _, _, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
 	e:give("sprite", data.resource_id)
 	e:give("quad", quad)
@@ -102,11 +100,13 @@ end
 
 function Animation:init(world)
 	self.world = world
+	self.cache_multi_animation = {}
+
 	self.pool.onAdded = function(pool, e)
 		local data = e.animation_data
 		local animation = e.animation
 		local on_loop = self:setup_on_loop(e, animation)
-		setup_animation(e, data, on_loop)
+		self:setup_animation(e, data, on_loop)
 	end
 
 	self.pool_multi.onAdded = function(pool, e)
@@ -161,7 +161,7 @@ function Animation:switch_animation_tag(e, new_tag)
 		@@assert(data)
 		animation.current_tag = new_tag
 		e:give("animation_data", data)
-		setup_animation(e, data, on_loop)
+		self:setup_animation(e, data, on_loop)
 		animation.anim8:gotoFrame(1)
 	end
 end

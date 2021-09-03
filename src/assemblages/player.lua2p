@@ -1,3 +1,5 @@
+local AnimationData = require("animation_data")
+
 local Player = {}
 
 local player_h = 64
@@ -12,30 +14,9 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	local can_open_door = defaults.can_open_door
 
 	local multi_data = {
-		idle = {
-			resource_id = "sheet_player_idle_normal",
-			frames = {"1-5", 1, "1-5", 2},
-			delay = 0.25,
-			rows_count = 2,
-			columns_count = 5,
-			n_frames = 10,
-		},
-		walk = {
-			resource_id = "sheet_player_walk_normal",
-			frames = {"1-4", 1, "1-4", 2},
-			delay = 0.1,
-			rows_count = 2,
-			columns_count = 4,
-			n_frames = 8,
-		},
-		run = {
-			resource_id = "sheet_player_run_normal",
-			frames = {"1-6", 1},
-			delay = 0.1,
-			rows_count = 1,
-			columns_count = 6,
-			n_frames = 6,
-		},
+		idle = AnimationData.get("player_idle"),
+		walk = AnimationData.get("player_walk"),
+		run = AnimationData.get("player_run"),
 	}
 
 	local multi_data_modifier = {
@@ -46,34 +27,10 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	}
 
 	if can_open_door then
-		multi_data.open_door = {
-			resource_id = "sheet_player_open_door_normal",
-			frames = {"1-7", 1},
-			delay = 0.1,
-			rows_count = 1,
-			columns_count = 7,
-			n_frames = 7,
-		}
+		multi_data.open_door = AnimationData.get("player_open_door")
 		multi_data_modifier.open_door = {"open_door_left", "flipH"}
 
-		multi_data.open_door_reverse = {
-			resource_id = "sheet_player_open_door_normal",
-			frames = {
-				"1-7", 1, -- 1-7
-				"7-5", 1, -- 8-10
-				"5-7", 1, -- 11-13
-				"7-1", 1, -- 13-20
-			},
-			delay = {
-				["1-6"] = 0.15,
-				["7-8"] = 0.25,
-				["9-13"] = 0.075,
-				["14-20"] = 0.15,
-			},
-			rows_count = 1,
-			columns_count = 7,
-			n_frames = 7,
-		}
+		multi_data.open_door_reverse = AnimationData.get("player_open_locked_door")
 		multi_data_modifier.open_door_reverse = {"open_door_reverse_left", "flipH"}
 	end
 
