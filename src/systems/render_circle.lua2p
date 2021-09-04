@@ -1,7 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local pi = math.pi
-
 local RenderCircle = Concord.system({
 	pool = {"pos", "circle", "draw_mode", "!ui_element"},
 	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
@@ -15,6 +13,7 @@ function RenderCircle:internal_draw(e)
 	local color = e.color
 	local line_width = e.line_width
 	local mode = e.draw_mode.value
+	local no_shader = e.no_shader
 
 	if color then
 		love.graphics.setColor(color.value)
@@ -24,7 +23,16 @@ function RenderCircle:internal_draw(e)
 		love.graphics.setLineWidth(line_width.value)
 	end
 
+	local temp_shader = love.graphics.getShader()
+	if no_shader then
+		love.graphics.setShader()
+	end
+
 	love.graphics.circle(mode, pos.x, pos.y, circle.radius, circle.segments)
+
+	if no_shader then
+		love.graphics.setShader(temp_shader)
+	end
 end
 
 function RenderCircle:internal_draw_arc(e)

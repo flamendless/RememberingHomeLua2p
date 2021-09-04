@@ -1,0 +1,52 @@
+local insert = table.insert
+local random = love.math.random
+
+local Generator = {}
+
+function Generator.path_points_bugs(x, y, ex, ey, n)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(ex) == "number")
+	@@assert(type(ey) == "number")
+	@@assert(type(n) == "number")
+	local points = {}
+	local dx = 1
+	local dy = (y <= ey) and 1 or -1
+
+	for i = 0, n - 1 do
+		local t = i/n
+		local ox = random(4, 12)
+		local oy = random(4, 8)
+		local px = mathx.lerp(x, ex, t)
+		local py = mathx.lerp(y, ey, t)
+
+		px = px + ox * dx
+		py = py + oy * dy
+		dx = dx * -1
+		dy = dy * -1
+		insert(points, {x = px, y = py})
+	end
+	return points
+end
+
+function Generator.path_points_fireflies(x, y, n)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(n) == "number")
+	local offset = 8
+	local points = {x = x, y = y}
+	local prev_x = x
+	local prev_y = y
+
+	for _ = 1, n - 1 do
+		local px = random(prev_x - offset, prev_x + offset)
+		local py = random(prev_y - offset, prev_y + offset)
+		local p = {x = px, y = py}
+		prev_x = px
+		prev_y = py
+		insert(points, p)
+	end
+	return points
+end
+
+return Generator

@@ -1,0 +1,3 @@
+local Concord = require("modules.concord")
+
+Concord.component("bug")

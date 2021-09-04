@@ -1,0 +1,69 @@
+local Concord = require("modules.concord")
+
+local Generator = require("generator")
+
+local random = love.math.random
+
+local Bugs = Concord.system({
+	pool = {"id", "bug"}
+})
+
+function Bugs:init(world)
+	self.world = world
+end
+
+function Bugs:generate_bugs(n, start_p, end_p)
+	@@assert(type(n) == "number" and n > 0)
+	@@assert(start_p:type() == "vec2")
+	@@assert(end_p:type() == "vec2")
+	local sx, sy = start_p:unpack()
+	local ex, ey = end_p:unpack()
+
+	for i = 1, n do
+		local np = random(1, 9) * 3
+		local points = Generator.path_points_bugs(sx, sy, ex, ey, np)
+		local p = points[1]
+		Concord.entity(self.world)
+			:give("id", "bug_" .. i)
+			:give("bug")
+			:give("color", {0, 0, 0, 1})
+			:give("draw_mode", "fill")
+			:give("circle", 1, 8)
+			:give("pos", p.x, p.y)
+			:give("path", points)
+			:give("no_shader")
+	end
+end
+
+function Bugs:update(dt)
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local UIWrapper = require("ui_wrapper")
+local flags = {
+	path = true,
+}
+local data = {
+	n = 1
+}
+
+function Bugs:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("Bugs", {
+		Title = "Bugs",
+		IsOpen = self.debug_show
+	})
+	data.n = UIWrapper.edit_range("n", data.n, 1, 256, true)
+	if Slab.Button("generate") then
+		for _, e in ipairs(self.pool) do
+			e:destroy()
+		end
+		self.world:emit("debug_toggle_path", flags.path, "bug")
+		self:generate_bugs(data.n, vec2(128, 64), vec2(256, 32))
+	end
+	Slab.EndWindow()
+end
+!end
+
+return Bugs

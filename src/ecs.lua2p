@@ -50,7 +50,7 @@ systems.StorageRoom = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"notification", "outline", "pause", "player_controller", "render_rect",
 	"render_sprite", "render_text", "render_ui", "room", "systems",
-	"transform", "typewriter", "door",
+	"transform", "typewriter", "door", "bugs", "path", "render_circle",
 }
 
 systems.UtilityRoom = {

@@ -1,3 +1,4 @@
+!if _DEV then
 local Slab = require("modules.slab")
 
 local floor = math.floor
@@ -24,7 +25,7 @@ function UIWrapper.edit_range(id, value, min, max, is_int)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
 	if Slab.InputNumberSlider(id, value, min, max, {
-		Precision = 2
+		Precision = not is_int and 2 or 0
 	}) then
 		value = Slab.GetInputNumber()
 		if is_int then
@@ -35,3 +36,6 @@ function UIWrapper.edit_range(id, value, min, max, is_int)
 end
 
 return UIWrapper
+!else
+return {}
+!end
