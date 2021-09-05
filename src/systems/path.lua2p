@@ -1,11 +1,10 @@
 local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
 
 local insert = table.insert
-local random = love.math.random
 
 local Path = Concord.system({
 	pool = {"path", "pos"},
+	pool_move = {"path", "pos", "path_move", "path_speed"},
 	pool_camera = {"camera"},
 })
 
@@ -17,15 +16,11 @@ function Path:init(world)
 	end
 end
 
-function Path:move_to_next_point(e, event)
-	@@assert(e.__isEntity)
-	if not self.pool:has(e) then return end
+function Path:get_points(e)
 	local path = e.path
-	local pos = e.pos
 	local bezier_curve = e.apply_bezier_curve
-	local dur = e.path_dur and e.path_dur.value or random(2, 8)
 	local low = path.current_point
-	local high = low + (path.max or dur)
+	local high = low + path.max
 
 	if high > path.n_points then
 		high = path.n_points
@@ -42,63 +37,65 @@ function Path:move_to_next_point(e, event)
 		end
 	end
 
-	local dp
 	if bezier_curve then
-		dp = love.math.newBezierCurve(unpack(points))
+		points = love.math.newBezierCurve(unpack(points))
 	end
 
-	local state = {time = 0}
-	local f
+	return points, high
+end
 
-	if bezier_curve then
-		f = Flux.to(state, dur, {time = 1})
-	else
-		local cp = points[1]
-		local ep = points[#points]
-		state.x, state.y = cp.x, cp.y
-		f = Flux.to(state, dur, {
-			x = ep.x,
-			y = ep.y,
-		})
-	end
+function Path:update(dt)
+	for _, e in ipairs(self.pool_move) do
+		local path = e.path
+		local pos = e.pos
+		local bezier_curve = e.apply_bezier_curve
+		local points, high = self:get_points(e)
+		local speed = e.path_speed.value
+		local epsilon = 1/15 * speed * 1.01
+		local on_end = false
 
-	f:onupdate(function()
-		local dx, dy
 		if bezier_curve then
-			dx, dy = dp:evaluate(state.time)
+			local t = bezier_curve.dt/speed
+			local dx, dy = points:evaluate(t)
+			pos.x, pos.y = dx, dy
+			bezier_curve.dt = bezier_curve.dt + dt
+			if bezier_curve.dt >= speed then
+				bezier_curve.dt = 0
+			end
+			on_end = true
 		else
-			dx, dy = state.x, state.y
+			local target = points[#points]
+			local t = vec2(target.x, target.y)
+			local dir = t:vsub(p):normalise_inplace()
+			local np = p:vadd(dir:smul(dt * speed))
+			local p = vec2(pos.x, pos.y)
+			pos.x, pos.y = np:unpack()
+			p.x, p.y = pos.x, pos.y
+			on_end = p:distance(t) < epsilon
 		end
 
-		pos.x = dx
-		pos.y = dy
-		if event then
-			self.world:emit(event, e)
-		end
-	end)
+		if on_end then
+			path.current_point = high
 
-	f:oncomplete(function()
-		path.current_point = high
+			if path.current_point >= path.n_points then
+				path.current_point = 1
 
-		if path.current_point >= path.n_points then
-			path.current_point = 1
+				if e.path_loop then
+					tablex.reverse(path.points)
+				end
 
-			if e.path_loop then
-				tablex.reverse(path.points)
-			end
+				if e.path_repeat then
+					local sp = path.points[1]
+					pos.x, pos.y = sp.x, sp.y
+				end
 
-			local on_end = e.on_path_reached_end
-			if on_end then
-				self.world:emit(on_end.signal, unpack(on_end.args))
-			end
-
-			if e and (not e.path_loop) and (not e.path_repeat) then
-				return
+				local on_end_signal = e.on_path_reached_end
+				if on_end_signal then
+					self.world:emit(on_end_signal.signal, unpack(on_end_signal.args))
+				end
 			end
 		end
-
-		self:move_to_next_point(e, event)
-	end)
+	end
 end
 
 !if _DEV then

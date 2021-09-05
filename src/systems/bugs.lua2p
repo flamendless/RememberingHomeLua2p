@@ -16,7 +16,7 @@ function Bugs:init(world)
 	self.world = world
 end
 
-function Bugs:generate_bugs(n, start_p, end_p, dur, path_repeat)
+function Bugs:generate_bugs(n, start_p, end_p, path_repeat)
 	@@assert(type(n) == "number" and n > 0)
 	@@assert(start_p:type() == "vec2")
 	@@assert(end_p:type() == "vec2")
@@ -24,10 +24,12 @@ function Bugs:generate_bugs(n, start_p, end_p, dur, path_repeat)
 	local sx, sy = start_p:unpack()
 	local ex, ey = end_p:unpack()
 
+	local np = random(2, 5) * 3
+	local points = Generator.path_points_bugs(sx, sy, ex, ey, np)
+	local p = points[1]
+
 	for i = 1, n do
-		local np = random(1, 9) * 3
-		local points = Generator.path_points_bugs(sx, sy, ex, ey, np)
-		local p = points[1]
+		local speed = 32 - (i - 1)
 		local e = Concord.entity(self.world)
 			:give("id", "bug_" .. i)
 			:give("bug")
@@ -35,8 +37,8 @@ function Bugs:generate_bugs(n, start_p, end_p, dur, path_repeat)
 			:give("point", 4)
 			:give("pos", p.x, p.y)
 			:give("path", points)
+			:give("path_speed", speed)
 			:give("no_shader")
-			:give("path_dur", dur or 0.1)
 			!if not _DEV then
 			:give("hidden")
 			!end
@@ -67,7 +69,7 @@ end
 
 function Bugs:move_bugs()
 	for _, e in ipairs(self.pool) do
-		self.world:emit("move_to_next_point", e)
+		e:give("path_move")
 	end
 end
 
@@ -80,7 +82,6 @@ local flags = {
 }
 local data = {
 	n = 1,
-	dur = 0.1,
 	path_repeat = false,
 }
 
@@ -98,7 +99,7 @@ function Bugs:debug_update(dt)
 		end
 		flags.show = false
 		self.world:emit("debug_toggle_path", flags.path, "bug")
-		self:generate_bugs(data.n, vec2(12, 28), vec2(56, 4), data.dur, data.path_repeat)
+		self:generate_bugs(data.n, vec2(12, 28), vec2(56, 4), data.path_repeat)
 	end
 	if Slab.Button("move") then
 		self:move_bugs()

@@ -15,11 +15,15 @@ Concord.component("path", function(c, points, max)
 	c.max = max or 1
 end)
 
-Concord.component("path_dur", function(c, dur)
-	@@assert(type(dur) == "number")
-	c.value = dur
+Concord.component("path_speed", function(c, speed)
+	@@assert(type(speed) == "number")
+	c.value = speed
 end)
 
-Concord.component("apply_bezier_curve")
+Concord.component("apply_bezier_curve", function(c)
+	c.dt = 0
+end)
+
 Concord.component("path_loop")
 Concord.component("path_repeat")
+Concord.component("path_move")

@@ -28,8 +28,13 @@ function Fireflies:generate_fireflies()
 		local x = random(min_x, max_x)
 		local size = random(12, 20)
 		local points = Generator.path_points_fireflies(x, y, 64)
-		Concord.entity(self.world):assemble(Outside.firefly, x, y, size, points)
+		local e = Concord.entity(self.world):assemble(Outside.firefly, x, y, size, points)
 			:give("light_disabled")
+			:give("path", points, random(2, 8))
+			:give("path_speed", random(2, 8))
+			:give("apply_bezier_curve")
+			:give("path_loop")
+		e:give("on_path_reached_end", "update_light_pos", 0, e)
 	end
 end
 
@@ -82,8 +87,7 @@ end
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
 		e:give("firefly_move")
-		e:give("path_loop")
-		self.world:emit("move_to_next_point", e, "update_light_pos")
+		:give("path_move")
 	end
 	!if _DEV then
 	self.debug_move = true
