@@ -18,34 +18,60 @@ function Path:init(world)
 end
 
 function Path:move_to_next_point(e, event)
-	if not self.pool:has(e) then return end
 	@@assert(e.__isEntity)
+	if not self.pool:has(e) then return end
 	local path = e.path
 	local pos = e.pos
+	local bezier_curve = e.apply_bezier_curve
+	local dur = e.path_dur and e.path_dur.value or random(2, 8)
 	local low = path.current_point
-	local dur = random(2, 8)
-	local high = low + dur
-	local points = {}
+	local high = low + (path.max or dur)
 
 	if high > path.n_points then
 		high = path.n_points
 	end
 
+	local points = {}
 	for i = low, high do
 		local p = path.points[i]
-		insert(points, p.x)
-		insert(points, p.y)
+		if bezier_curve then
+			insert(points, p.x)
+			insert(points, p.y)
+		else
+			insert(points, {x = p.x, y = p.y})
+		end
 	end
 
-	local b = love.math.newBezierCurve(unpack(points))
+	local dp
+	if bezier_curve then
+		dp = love.math.newBezierCurve(unpack(points))
+	end
+
 	local state = {time = 0}
-	local f = Flux.to(state, dur, {time = 1})
+	local f
+
+	if bezier_curve then
+		f = Flux.to(state, dur, {time = 1})
+	else
+		local cp = points[1]
+		local ep = points[#points]
+		state.x, state.y = cp.x, cp.y
+		f = Flux.to(state, dur, {
+			x = ep.x,
+			y = ep.y,
+		})
+	end
 
 	f:onupdate(function()
-		local dx, dy = b:evaluate(state.time)
+		local dx, dy
+		if bezier_curve then
+			dx, dy = dp:evaluate(state.time)
+		else
+			dx, dy = state.x, state.y
+		end
+
 		pos.x = dx
 		pos.y = dy
-
 		if event then
 			self.world:emit(event, e)
 		end
@@ -53,14 +79,25 @@ function Path:move_to_next_point(e, event)
 
 	f:oncomplete(function()
 		path.current_point = high
+
 		if path.current_point >= path.n_points then
 			path.current_point = 1
-			tablex.reverse(path.points)
+
+			if e.path_loop then
+				tablex.reverse(path.points)
+			end
+
+			local on_end = e.on_path_reached_end
+			if on_end then
+				self.world:emit(on_end.signal, unpack(on_end.args))
+			end
+
+			if e and (not e.path_loop) and (not e.path_repeat) then
+				return
+			end
 		end
 
-		if e.path_loop then
-			self:move_to_next_point(e, event)
-		end
+		self:move_to_next_point(e, event)
 	end)
 end
 

@@ -28,6 +28,7 @@ local names = {
 	"on_blink_end",
 	"on_d_light_flicker_during",
 	"on_d_light_flicker_after",
+	"on_path_reached_end",
 }
 
 for _, v in ipairs(names) do

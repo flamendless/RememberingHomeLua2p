@@ -11,12 +11,13 @@ function Generator.path_points_bugs(x, y, ex, ey, n)
 	@@assert(type(n) == "number")
 	local points = {}
 	local dx = 1
-	local dy = (y <= ey) and 1 or -1
+	local dy = (y <= ey) and -1 or 1
+	local offset = 2
 
 	for i = 0, n - 1 do
 		local t = i/n
-		local ox = random(4, 12)
-		local oy = random(4, 8)
+		local ox = random(-offset, offset)
+		local oy = random(-offset, offset)
 		local px = mathx.lerp(x, ex, t)
 		local py = mathx.lerp(y, ey, t)
 

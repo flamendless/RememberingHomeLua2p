@@ -7,6 +7,11 @@ Concord.component("draw_mode", function(c, draw_mode)
 	c.value = modes[draw_mode]
 end)
 
+Concord.component("point", function(c, size)
+	@@assert(type(size) == "number" and size >= 1)
+	c.value = size
+end)
+
 Concord.component("circle", function(c, radius, segments)
 	@@assert(type(radius) == "number")
 	@@sassert(segments, type(segments) == "number")

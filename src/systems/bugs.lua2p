@@ -1,5 +1,9 @@
 local Concord = require("modules.concord")
 
+!if _DEV then
+local Log = require("modules.log.log")
+!end
+
 local Generator = require("generator")
 
 local random = love.math.random
@@ -12,10 +16,11 @@ function Bugs:init(world)
 	self.world = world
 end
 
-function Bugs:generate_bugs(n, start_p, end_p)
+function Bugs:generate_bugs(n, start_p, end_p, dur, path_repeat)
 	@@assert(type(n) == "number" and n > 0)
 	@@assert(start_p:type() == "vec2")
 	@@assert(end_p:type() == "vec2")
+	@@assert(type(path_repeat) == "boolean")
 	local sx, sy = start_p:unpack()
 	local ex, ey = end_p:unpack()
 
@@ -23,19 +28,47 @@ function Bugs:generate_bugs(n, start_p, end_p)
 		local np = random(1, 9) * 3
 		local points = Generator.path_points_bugs(sx, sy, ex, ey, np)
 		local p = points[1]
-		Concord.entity(self.world)
+		local e = Concord.entity(self.world)
 			:give("id", "bug_" .. i)
 			:give("bug")
 			:give("color", {0, 0, 0, 1})
-			:give("draw_mode", "fill")
-			:give("circle", 1, 8)
+			:give("point", 4)
 			:give("pos", p.x, p.y)
 			:give("path", points)
 			:give("no_shader")
+			:give("path_dur", dur or 0.1)
+			!if not _DEV then
+			:give("hidden")
+			!end
+
+		if path_repeat then
+			e:give("path_repeat")
+		else
+			e:give("on_path_reached_end", "destroy_entity", 0, e)
+		end
 	end
 end
 
-function Bugs:update(dt)
+function Bugs:set_bugs_visibility(bool)
+	@@assert(type(bool) == "boolean")
+	!if _DEV then
+	if #self.pool == 0 then
+		Log.warn("bugs pool is 0")
+	end
+	!end
+	for _, e in ipairs(self.pool) do
+		if bool then
+			e:remove("hidden")
+		else
+			e:give("hidden")
+		end
+	end
+end
+
+function Bugs:move_bugs()
+	for _, e in ipairs(self.pool) do
+		self.world:emit("move_to_next_point", e)
+	end
 end
 
 !if _DEV then
@@ -43,9 +76,12 @@ local Slab = require("modules.slab")
 local UIWrapper = require("ui_wrapper")
 local flags = {
 	path = true,
+	show = false,
 }
 local data = {
-	n = 1
+	n = 1,
+	dur = 0.1,
+	path_repeat = false,
 }
 
 function Bugs:debug_update(dt)
@@ -55,12 +91,24 @@ function Bugs:debug_update(dt)
 		IsOpen = self.debug_show
 	})
 	data.n = UIWrapper.edit_range("n", data.n, 1, 256, true)
+	data.dur = UIWrapper.edit_range("dur", data.dur, 0, 5)
 	if Slab.Button("generate") then
 		for _, e in ipairs(self.pool) do
 			e:destroy()
 		end
+		flags.show = false
 		self.world:emit("debug_toggle_path", flags.path, "bug")
-		self:generate_bugs(data.n, vec2(128, 64), vec2(256, 32))
+		self:generate_bugs(data.n, vec2(12, 28), vec2(56, 4), data.dur, data.path_repeat)
+	end
+	if Slab.Button("move") then
+		self:move_bugs()
+	end
+	if Slab.CheckBox(flags.show, "show") then
+		flags.show = not flags.show
+		self:set_bugs_visibility(flags.show)
+	end
+	if Slab.CheckBox(flags.path_repeat, "repeat") then
+		flags.path_repeat = not flags.path_repeat
 	end
 	Slab.EndWindow()
 end

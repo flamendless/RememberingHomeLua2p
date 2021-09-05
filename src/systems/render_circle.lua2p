@@ -5,6 +5,7 @@ local RenderCircle = Concord.system({
 	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
 	pool_ui = {"pos", "circle", "draw_mode"},
 	pool_arc_ui = {"pos", "arc", "draw_mode"},
+	pool_point = {"pos", "point"},
 })
 
 function RenderCircle:internal_draw(e)
@@ -65,23 +66,60 @@ function RenderCircle:internal_draw_arc(e)
 	love.graphics.setLineWidth(temp_line_width)
 end
 
+function RenderCircle:internal_draw_point(e)
+	local pos = e.pos
+	local point = e.point.value
+	local color = e.color
+	local no_shader = e.no_shader
+
+	if color then
+		love.graphics.setColor(color.value)
+	end
+
+	local temp_shader = love.graphics.getShader()
+	if no_shader then
+		love.graphics.setShader()
+	end
+
+	love.graphics.setPointSize(point)
+	love.graphics.points(pos.x, pos.y)
+
+	if no_shader then
+		love.graphics.setShader(temp_shader)
+	end
+end
+
 function RenderCircle:draw()
 	for _, e in ipairs(self.pool) do
-		self:internal_draw(e)
+		if not e.hidden then
+			self:internal_draw(e)
+		end
 	end
 
 	for _, e in ipairs(self.pool_arc) do
-		self:internal_draw_arc(e)
+		if not e.hidden then
+			self:internal_draw_arc(e)
+		end
+	end
+
+	for _, e in ipairs(self.pool_point) do
+		if not e.hidden then
+			self:internal_draw_point(e)
+		end
 	end
 end
 
 function RenderCircle:draw_ui()
 	for _, e in ipairs(self.pool_ui) do
-		self:internal_draw(e)
+		if not e.hidden then
+			self:internal_draw(e)
+		end
 	end
 
 	for _, e in ipairs(self.pool_arc_ui) do
-		self:internal_draw_arc(e)
+		if not e.hidden then
+			self:internal_draw_arc(e)
+		end
 	end
 end
 
