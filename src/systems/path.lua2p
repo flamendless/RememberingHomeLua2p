@@ -61,14 +61,14 @@ function Path:update(dt)
 			bezier_curve.dt = bezier_curve.dt + dt
 			if bezier_curve.dt >= speed then
 				bezier_curve.dt = 0
+				on_end = true
 			end
-			on_end = true
 		else
 			local target = points[#points]
+			local p = vec2(pos.x, pos.y)
 			local t = vec2(target.x, target.y)
 			local dir = t:vsub(p):normalise_inplace()
 			local np = p:vadd(dir:smul(dt * speed))
-			local p = vec2(pos.x, pos.y)
 			pos.x, pos.y = np:unpack()
 			p.x, p.y = pos.x, pos.y
 			on_end = p:distance(t) < epsilon
