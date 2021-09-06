@@ -3,7 +3,27 @@ local random = love.math.random
 
 local Generator = {}
 
-function Generator.path_points_bugs(x, y, ex, ey, n)
+function Generator.path_points_fireflies(x, y, n)
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	@@assert(type(n) == "number")
+	local offset = 8
+	local points = {x = x, y = y}
+	local prev_x = x
+	local prev_y = y
+
+	for _ = 1, n - 1 do
+		local px = random(prev_x - offset, prev_x + offset)
+		local py = random(prev_y - offset, prev_y + offset)
+		local p = {x = px, y = py}
+		prev_x = px
+		prev_y = py
+		insert(points, p)
+	end
+	return points
+end
+
+function Generator.path_points_ants(x, y, ex, ey, n)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	@@assert(type(ex) == "number")
@@ -30,23 +50,54 @@ function Generator.path_points_bugs(x, y, ex, ey, n)
 	return points
 end
 
-function Generator.path_points_fireflies(x, y, n)
+function Generator.path_points_flies(x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
-	@@assert(type(n) == "number")
-	local offset = 8
-	local points = {x = x, y = y}
-	local prev_x = x
-	local prev_y = y
+	local minx, maxx = 6, 12
+	local miny, maxy = 3, 6
+	x = x + random(-maxx, maxx)
+	y = y + random(-maxy, maxy)
 
-	for _ = 1, n - 1 do
-		local px = random(prev_x - offset, prev_x + offset)
-		local py = random(prev_y - offset, prev_y + offset)
-		local p = {x = px, y = py}
-		prev_x = px
-		prev_y = py
-		insert(points, p)
-	end
+	local points = {
+		{ --a
+			x = x - random(minx, maxx),
+			y = y,
+		},
+		{ --b
+			x = x - random(minx, maxx) * 0.5,
+			y = y - random(miny, maxy) * 0.5,
+		},
+		{ --c
+			x = x,
+			y = y - random(miny, maxy),
+		},
+		{ --d
+			x = x + random(minx, maxx) * 0.5,
+			y = y - random(miny, maxy) * 0.5,
+		},
+		{ --e
+			x = x + random(minx, maxx),
+			y = y
+		},
+		{ --f
+			x = x + random(minx, maxx) * 0.5,
+			y = y + random(miny, maxy) * 0.5,
+		},
+		{ --g
+			x = x,
+			y = y + random(miny, maxy),
+		},
+		{ --h
+			x = x - random(minx, maxx) * 0.5,
+			y = y + random(miny, maxy) * 0.5,
+		},
+		{ --i
+			x = x - random(minx, maxx),
+			y = y,
+		},
+	}
+
+	insert(points, points[1])
 	return points
 end
 

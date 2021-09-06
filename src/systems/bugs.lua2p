@@ -9,29 +9,41 @@ local Generator = require("generator")
 local random = love.math.random
 
 local Bugs = Concord.system({
-	pool = {"id", "bug"}
+	pool_ant = {"id", "bug", "ant", "!fly"},
+	pool_fly = {"id", "bug", "fly", "!ant"}
 })
 
 function Bugs:init(world)
 	self.world = world
 end
 
-function Bugs:generate_bugs(n, start_p, end_p, path_repeat)
+function Bugs:get_bugs_pool(id)
+	@@assert(type(id) == "string")
+	if id == "ants" then
+		return self.pool_ant
+	elseif id == "flies" then
+		return self.pool_fly
+	end
+	@@assert(false, "this should not be reached")
+end
+
+function Bugs:generate_ants(n, start_p, end_p, path_repeat, ms)
 	@@assert(type(n) == "number" and n > 0)
 	@@assert(start_p:type() == "vec2")
 	@@assert(end_p:type() == "vec2")
 	@@assert(type(path_repeat) == "boolean")
+	@@assert(type(ms) == "number")
 	local sx, sy = start_p:unpack()
 	local ex, ey = end_p:unpack()
-
 	local np = random(2, 5) * 3
-	local points = Generator.path_points_bugs(sx, sy, ex, ey, np)
+	local points = Generator.path_points_ants(sx, sy, ex, ey, np)
 	local p = points[1]
 
 	for i = 1, n do
-		local speed = 32 - (i - 1)
+		local speed = ms - (i - 1)
 		local e = Concord.entity(self.world)
-			:give("id", "bug_" .. i)
+			:give("id", "ant" .. i)
+			:give("ant")
 			:give("bug")
 			:give("color", {0, 0, 0, 1})
 			:give("point", 4)
@@ -51,14 +63,44 @@ function Bugs:generate_bugs(n, start_p, end_p, path_repeat)
 	end
 end
 
-function Bugs:set_bugs_visibility(bool)
+function Bugs:generate_flies(n, start_p, dur)
+	@@assert(type(n) == "number" and n > 0)
+	@@assert(start_p:type() == "vec2")
+	@@assert(type(dur) == "number" and dur > 0)
+	local sx, sy = start_p:unpack()
+	local durq = dur * 0.25
+
+	for i = 1, n do
+		local points = Generator.path_points_flies(sx, sy)
+		tablex.shuffle(points)
+		local p = points[1]
+		Concord.entity(self.world)
+			:give("id", "fly" .. i)
+			:give("fly")
+			:give("bug")
+			:give("color", {0, 0, 0, 1})
+			:give("point", 4)
+			:give("pos", p.x, p.y)
+			:give("path", points, 3)
+			:give("path_speed", random(dur - durq, dur + durq))
+			:give("no_shader")
+			:give("apply_bezier_curve")
+			!if not _DEV then
+			:give("hidden")
+			!end
+	end
+end
+
+function Bugs:set_bugs_visibility(id, bool)
+	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
+	local pool = self:get_bugs_pool(id)
 	!if _DEV then
-	if #self.pool == 0 then
-		Log.warn("bugs pool is 0")
+	if #pool == 0 then
+		Log.warn(id .. " pool is 0")
 	end
 	!end
-	for _, e in ipairs(self.pool) do
+	for _, e in ipairs(pool) do
 		if bool then
 			e:remove("hidden")
 		else
@@ -67,8 +109,10 @@ function Bugs:set_bugs_visibility(bool)
 	end
 end
 
-function Bugs:move_bugs()
-	for _, e in ipairs(self.pool) do
+function Bugs:move_bugs(id)
+	@@assert(type(id) == "string")
+	local pool = self:get_bugs_pool(id)
+	for _, e in ipairs(pool) do
 		e:give("path_move")
 	end
 end
@@ -80,9 +124,12 @@ local flags = {
 	path = true,
 	show = false,
 }
+local ids = {"ants", "flies"}
 local data = {
+	id = ids[2],
 	n = 1,
 	path_repeat = false,
+	speed = 32,
 }
 
 function Bugs:debug_update(dt)
@@ -93,21 +140,40 @@ function Bugs:debug_update(dt)
 	})
 	data.n = UIWrapper.edit_range("n", data.n, 1, 256, true)
 	data.dur = UIWrapper.edit_range("dur", data.dur, 0, 5)
+
+	if Slab.BeginComboBox("cb_id", {Selected = data.id}) then
+		for _, v in ipairs(ids) do
+			if Slab.TextSelectable(v) then
+				data.id = v
+			end
+		end
+		Slab.EndComboBox()
+	end
+
 	if Slab.Button("generate") then
-		for _, e in ipairs(self.pool) do
+		for _, e in ipairs(self.pool_ant) do
 			e:destroy()
 		end
 		flags.show = false
 		self.world:emit("debug_toggle_path", flags.path, "bug")
-		self:generate_bugs(data.n, vec2(12, 28), vec2(56, 4), data.path_repeat)
+
+		if data.id == "ants" then
+			self:generate_ants(data.n, vec2(12, 28), vec2(56, 4),
+				data.path_repeat, data.speed)
+		elseif data.id == "flies" then
+			self:generate_flies(data.n, vec2(12, 28), data.speed)
+		end
 	end
+
 	if Slab.Button("move") then
-		self:move_bugs()
+		self:move_bugs(data.id)
 	end
+
 	if Slab.CheckBox(flags.show, "show") then
 		flags.show = not flags.show
-		self:set_bugs_visibility(flags.show)
+		self:set_bugs_visibility(data.id, flags.show)
 	end
+
 	if Slab.CheckBox(flags.path_repeat, "repeat") then
 		flags.path_repeat = not flags.path_repeat
 	end

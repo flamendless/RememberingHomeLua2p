@@ -3,9 +3,10 @@ local Concord = require("modules.concord.concord")
 local RenderCircle = Concord.system({
 	pool = {"pos", "circle", "draw_mode", "!ui_element"},
 	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
+	pool_point = {"pos", "point", "!ui_element"},
+
 	pool_ui = {"pos", "circle", "draw_mode"},
 	pool_arc_ui = {"pos", "arc", "draw_mode"},
-	pool_point = {"pos", "point"},
 })
 
 function RenderCircle:internal_draw(e)
