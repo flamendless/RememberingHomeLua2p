@@ -101,7 +101,7 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 local flags = {
-	path = false,
+	path = true,
 	bezier = false,
 }
 local component_filter = "path"

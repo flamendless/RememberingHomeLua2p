@@ -5,6 +5,7 @@ local Log = require("modules.log.log")
 !end
 
 local Generator = require("generator")
+local Utils = require("utils")
 
 local random = love.math.random
 
@@ -67,12 +68,12 @@ function Bugs:generate_flies(n, start_p, dur)
 	@@assert(type(n) == "number" and n > 0)
 	@@assert(start_p:type() == "vec2")
 	@@assert(type(dur) == "number" and dur > 0)
-	local sx, sy = start_p:unpack()
 	local durq = dur * 0.25
 
 	for i = 1, n do
-		local points = Generator.path_points_flies(sx, sy)
-		tablex.shuffle(points)
+		local points = Generator.path_points_flies(start_p:unpack())
+		points = Utils.table.rotate(points, random(-#points, #points))
+		table.insert(points, points[1])
 		local p = points[1]
 		Concord.entity(self.world)
 			:give("id", "fly" .. i)

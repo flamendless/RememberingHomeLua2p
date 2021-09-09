@@ -1,5 +1,6 @@
 local insert = table.insert
 local random = love.math.random
+local pi = math.pi
 
 local Generator = {}
 
@@ -53,51 +54,39 @@ end
 function Generator.path_points_flies(x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
-	local minx, maxx = 6, 12
-	local miny, maxy = 3, 6
-	x = x + random(-maxx, maxx)
-	y = y + random(-maxy, maxy)
+	local minx, maxx = 8, 16
+	local miny, maxy = 6, 12
 
-	local points = {
-		{ --a
-			x = x - random(minx, maxx),
-			y = y,
-		},
-		{ --b
-			x = x - random(minx, maxx) * 0.5,
-			y = y - random(miny, maxy) * 0.5,
-		},
-		{ --c
-			x = x,
-			y = y - random(miny, maxy),
-		},
-		{ --d
-			x = x + random(minx, maxx) * 0.5,
-			y = y - random(miny, maxy) * 0.5,
-		},
-		{ --e
-			x = x + random(minx, maxx),
-			y = y
-		},
-		{ --f
-			x = x + random(minx, maxx) * 0.5,
-			y = y + random(miny, maxy) * 0.5,
-		},
-		{ --g
-			x = x,
-			y = y + random(miny, maxy),
-		},
-		{ --h
-			x = x - random(minx, maxx) * 0.5,
-			y = y + random(miny, maxy) * 0.5,
-		},
-		{ --i
-			x = x - random(minx, maxx),
-			y = y,
-		},
+	--[[
+	  b  c  d
+	a    o    e
+	  h  g  f
+	--]]
+
+	local hx = random(minx, maxx)
+	local hx_h = hx * 0.5
+	local hy = random(miny, maxy)
+	local hy_h = hy * 0.75
+
+	local o = vec2(x, y)
+	local vecs = {
+		o:sadd(-hx, 0), --a
+		o:sadd(-hx_h, -hy_h), --b
+		o:sadd(0, -hy), --c
+		o:sadd(hx_h, -hy_h), --d
+		o:sadd(hx, 0), --e
+
+		o:sadd(hx_h, hy_h), --f
+		o:sadd(0, hy), --g
+		o:sadd(-hx_h, hy_h), --h
 	}
 
-	insert(points, points[1])
+	local points = {}
+	local r = random(pi/6, pi/4)
+	for _, v in ipairs(vecs) do
+		v:rotate_around_inplace(r, o)
+		insert(points, {x = v.x, y = v.y})
+	end
 	return points
 end
 

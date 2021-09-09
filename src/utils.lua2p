@@ -3,12 +3,15 @@ local Log = require("modules.log.log")
 
 local max = math.max
 local format = string.format
+local insert = table.insert
+local remove = table.remove
 
 local Utils = {
 	file = {},
 	serial = {},
 	hash = {},
 	string = {},
+	table = {},
 }
 
 function Utils.file.read(filename)
@@ -70,9 +73,22 @@ function Utils.string.get_widest(t)
 	@@assert(#t ~= 0)
 	local widest = 0
 	for i, str in ipairs(t) do
-		widest = math.max(widest, #str)
+		widest = max(widest, #str)
 	end
 	return widest
+end
+
+function Utils.table.rotate(t, amount)
+	@@assert(type(t) == "table")
+	@@assert(type(amount) == "number")
+	if amount == 0 then return t end
+	if amount > 0 then
+		tablex.push(t, tablex.shift(t))
+		return Utils.table.rotate(t, amount - 1)
+	elseif amount < 0 then
+		tablex.unshift(t, tablex.pop(t))
+		return Utils.table.rotate(t, amount + 1)
+	end
 end
 
 return Utils
