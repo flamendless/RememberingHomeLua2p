@@ -5,6 +5,8 @@ local max = math.max
 local format = string.format
 local insert = table.insert
 local remove = table.remove
+local floor = math.floor
+local log10 = math.log10
 
 local Utils = {
 	file = {},
@@ -12,6 +14,7 @@ local Utils = {
 	hash = {},
 	string = {},
 	table = {},
+	math = {},
 }
 
 function Utils.file.read(filename)
@@ -89,6 +92,10 @@ function Utils.table.rotate(t, amount)
 		tablex.unshift(t, tablex.pop(t))
 		return Utils.table.rotate(t, amount + 1)
 	end
+end
+
+function Utils.math.n_digits(x)
+	return floor(log10(x)) + 1
 end
 
 return Utils

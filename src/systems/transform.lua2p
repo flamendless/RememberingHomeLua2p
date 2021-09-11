@@ -5,7 +5,8 @@ local floor = math.floor
 
 local Transform = Concord.system({
 	pool = {"transform"},
-	pool_pos = {"pos"},
+	pool_pos = {"pos", "!pos_vec2"},
+	pool_pos_vec2 = {"pos", "pos_vec2"},
 	pool_quad = {"quad_transform"},
 	pool_anchor = {"pos", "anchor"},
 	pool_camera = {"pos", "camera"},
@@ -17,6 +18,11 @@ local Transform = Concord.system({
 function Transform:init()
 	self.pool_anchor.onAdded = function(pool, e)
 		self:update_anchor(e)
+	end
+
+	self.pool_pos_vec2.onAdded = function(pool, e)
+		local pos = e.pos
+		e.pos_vec2.value = vec2(pos.x, pos.y)
 	end
 
 	!if _DEV then
@@ -141,6 +147,13 @@ function Transform:update_attachment(e)
 end
 
 function Transform:update(dt)
+	for _, e in ipairs(self.pool_pos_vec2) do
+		local pv = e.pos_vec2.value
+		local pos = e.pos
+		pv.x = pos.x
+		pv.y = pos.y
+	end
+
 	for _, e in ipairs(self.pool_anchor) do
 		self:update_anchor(e)
 	end

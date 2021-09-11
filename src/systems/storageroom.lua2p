@@ -76,7 +76,7 @@ function StorageRoom:state_init()
 
 	-- self.world:emit("generate_ants", 18, vec2(12, 28), vec2(56, 4), true, 32)
 	-- self.world:emit("generate_ants", 18, vec2(88, 102), vec2(108, 4), true, 32)
-	self.world:emit("generate_flies", 18, vec2(92, 32), 0.5)
+	-- self.world:emit("generate_flies", 18, vec2(242, 32), 6)
 
 	self.timeline = TLE.Do(function()
 		Fade.fade_in(nil, 1)
