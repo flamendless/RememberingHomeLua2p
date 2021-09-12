@@ -89,6 +89,9 @@ end
 
 function DeferredLighting:set_ambiance(t)
 	@@assert(type(t) == "table")
+	if not self.orig_ambiance then
+		self.orig_ambiance = {unpack(t)}
+	end
 	self.ambiance = {unpack(t)}
 end
 
@@ -180,6 +183,10 @@ end
 local Slab = require("modules.slab")
 local UIWrapper = require("ui_wrapper")
 
+local flags = {
+	ambiance = true,
+}
+
 function DeferredLighting:debug_update(dt)
 	if not self.debug_show then return end
 	self.debug_show = Slab.BeginWindow("light", {
@@ -188,6 +195,15 @@ function DeferredLighting:debug_update(dt)
 	})
 	local ac = self.ambiance
 	Slab.Text("Ambiance")
+	Slab.SameLine()
+	if Slab.CheckBox(flags.ambiance, "ambiance") then
+		flags.ambiance = not flags.ambiance
+		if not flags.ambiance then
+			self:set_ambiance({0, 0, 0, 0})
+		else
+			self:set_ambiance(self.orig_ambiance)
+		end
+	end
 	ac[1] = UIWrapper.edit_range("ar", ac[1], 0, 1)
 	ac[2] = UIWrapper.edit_range("ag", ac[2], 0, 1)
 	ac[3] = UIWrapper.edit_range("ab", ac[3], 0, 1)

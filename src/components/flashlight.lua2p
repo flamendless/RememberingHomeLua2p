@@ -1,0 +1,20 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("flashlight")
+
+Concord.component("fl_spawn_offset", function(c, x, y)
+	@@sassert(x, type(x) == "number")
+	@@sassert(y, type(y) == "number")
+	c.x = x or 0
+	c.y = y or 0
+	c.orig_x = c.x
+	c.orig_y = c.y
+end)
+
+
+Concord.component("fl_spawn_offset_dir", function(c, left, right)
+	@@assert(type(left) == "number")
+	@@assert(type(right) == "number")
+	c.left = left
+	c.right = right
+end)

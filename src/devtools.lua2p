@@ -23,6 +23,7 @@ local DevTools = {
 		culling = false,
 		render_sprite = false,
 		path = true,
+		gamestates = false,
 	},
 }
 

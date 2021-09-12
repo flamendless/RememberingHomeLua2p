@@ -38,6 +38,9 @@ Palette.colors = {
 }
 
 Palette.diffuse = {
+	--common
+	flashlight = {1, 1, 1},
+
 	--intro
 	car = {1, 1, 1},
 	post = {1, 1, 1},

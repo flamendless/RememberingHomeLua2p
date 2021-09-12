@@ -59,12 +59,21 @@ function PlayerController:update(dt)
 	if body.can_run then
 		body.is_run = Inputs.down("run_mod")
 	end
+
 	if Inputs.down("left") then
 		body.dir = -1
 		body.dx = -1
 	elseif Inputs.down("right") then
 		body.dir = 1
 		body.dx = 1
+	end
+
+	local offset = e.fl_spawn_offset
+	local offset_t = e.fl_spawn_offset_dir
+	if body.dir == -1 then
+		offset.x = offset_t.left
+	else
+		offset.x = offset_t.right
 	end
 
 	if Inputs.pressed("interact") then

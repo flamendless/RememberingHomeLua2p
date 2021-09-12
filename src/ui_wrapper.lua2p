@@ -6,10 +6,14 @@ local floor = math.floor
 local UIWrapper = {}
 
 function UIWrapper.edit_number(id, value, is_int)
+	local v = value
+	if is_int then
+		v = floor(v)
+	end
 	Slab.Text(id .. ":")
 	Slab.SameLine()
 	if Slab.Input(id, {
-		Text = tostring(value),
+		Text = tostring(v),
 		ReturnOnText = false,
 		NumbersOnly = true,
 	}) then

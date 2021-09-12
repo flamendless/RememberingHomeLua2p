@@ -158,7 +158,7 @@ function Menu:init(world)
 	self.current_page = 1
 	self.keys = {}
 	self.flags = {allow_cursor = false}
-	self.is_transition = false
+	self.is_transition = true
 	self.is_sub_menu = false
 	self.current_state = states.menu
 
@@ -213,6 +213,7 @@ function Menu:state_init()
 end
 
 function Menu:state_update(dt)
+	if self.is_transition then return end
 	local dir = 0
 	if Inputs.pressed("down") then
 		dir = 1
@@ -220,7 +221,7 @@ function Menu:state_update(dt)
 		dir = -1
 	end
 
-	if Inputs.pressed("interact") and not self.is_transition then
+	if Inputs.pressed("interact") then
 		self:enter_option()
 	end
 	self:update_cursor(dir)

@@ -44,6 +44,33 @@ function GameStates:load_game()
 end
 
 !if _DEV then
+local Slab = require("modules.slab")
+
+local states = {
+	"Menu",
+	"Intro",
+	"Outside",
+	"StorageRoom",
+	"UtilityRoom",
+}
+
+function GameStates:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("gs", {
+		Title = "GameStates",
+		IsOpen = self.debug_show,
+	})
+	if Slab.BeginComboBox("cb_gs", {Selected = self.world.current_id}) then
+		for _, v in ipairs(states) do
+			if Slab.TextSelectable(v) then
+				self:switch_state(v, 1.5, 0.5)
+			end
+		end
+		Slab.EndComboBox()
+	end
+	Slab.EndWindow()
+end
+
 function GameStates:state_keypressed(key)
 	if not love.keyboard.isDown("lshift") then return end
 	if key == "0" then

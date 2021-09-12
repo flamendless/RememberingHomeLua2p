@@ -51,6 +51,7 @@ systems.StorageRoom = {
 	"notification", "outline", "pause", "player_controller", "render_rect",
 	"render_sprite", "render_text", "render_ui", "room", "systems",
 	"transform", "typewriter", "door", "path", "render_circle", "ants", "flies",
+	"flashlight",
 }
 
 systems.UtilityRoom = {
