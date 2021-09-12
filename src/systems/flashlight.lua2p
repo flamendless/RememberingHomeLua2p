@@ -1,9 +1,6 @@
 local Concord = require("modules.concord")
 
 local Inputs = require("inputs")
-local Palette = require("palette")
-
-local abs = math.abs
 
 local Flashlight = Concord.system({
 	pool = {"id", "light_id", "point_light", "pos", "diffuse", "flashlight"},
@@ -30,23 +27,23 @@ end
 
 function Flashlight:create_flashlight()
 	Concord.entity(self.world):assemble(Light.spot,
-			0, 0, 26,
-			{1, 0, -0.1, 0.85},
+			0, 0, 7,
+			{1, 0, 0, 0.85},
 			164,
-			Palette.get_diffuse("flashlight"))
+			{4, 4, 4})
 		:give("id", "flashlight_fl")
 		:give("flashlight")
 
 	self.start_l = Concord.entity(self.world):assemble(Light.point,
-			0, 0, 12,
+			0, 0, 7,
 			32,
-			Palette.get_diffuse("flashlight"))
+			{2, 2, 2})
 		:give("id", "flashlight_start_pl")
 
 	self.end_l = Concord.entity(self.world):assemble(Light.point,
-			0, 0, 26,
+			0, 0, 7,
 			64,
-			Palette.get_diffuse("flashlight"))
+			{1.5, 1.5, 1.5})
 		:give("id", "flashlight_end_pl")
 end
 
@@ -66,27 +63,27 @@ end
 function Flashlight:update_flashlight()
 	local body = self.player.body
 	local p_pos = self.player.pos
+	local col = self.player.collider
 	local offset = self.player.fl_spawn_offset
 
+	local bx = p_pos.x + col.w * 0.5
+	local by = p_pos.y + col.h * 0.5
+
 	local f_pos = self.flashlight.pos
-	local fd = self.flashlight.light_dir.value
+	local ldir = self.flashlight.light_dir
+	local fd = ldir.value
+
+	fd[1] = ldir.orig_value[1] * body.dir
+	f_pos.x = bx + offset.x * fd[1]
+	f_pos.y = by + offset.y
+
 	local strength = self.flashlight.point_light.value
-
-	if body.dir == 1 then
-		fd[1] = abs(fd[1])
-	else
-		fd[1] = 0 - abs(fd[1])
-	end
-
-	f_pos.x = p_pos.x + offset.x
-	f_pos.y = p_pos.y + offset.y
-
 	local s_pos = self.start_l.pos
-	s_pos.x = p_pos.x + (strength * fd[1] * fd[3] * fd[4])
+	s_pos.x = f_pos.x
 	s_pos.y = f_pos.y
 
 	local e_pos = self.end_l.pos
-	e_pos.x = f_pos.x + (strength * fd[1] * fd[4])
+	e_pos.x = f_pos.x + strength * fd[1] * fd[4]
 	e_pos.y = f_pos.y
 
 	self.world:emit("update_light_dir", self.flashlight)
@@ -95,5 +92,22 @@ function Flashlight:update_flashlight()
 	self.world:emit("update_light_pos", self.end_l)
 end
 
+function Flashlight:draw_fl()
+	local p_pos = self.player.pos
+	local col = self.player.collider
+	local offset = self.player.fl_spawn_offset
+
+	local bx = p_pos.x + col.w * 0.5
+	local by = p_pos.y + col.h * 0.5
+
+	local ldir = self.flashlight.light_dir
+	local fd = ldir.value
+
+	local fx = bx + offset.x * fd[1]
+	local fy = by + offset.y
+
+	love.graphics.setColor(1, 0, 0, 1)
+	love.graphics.circle("fill", fx, fy, 2)
+end
 
 return Flashlight

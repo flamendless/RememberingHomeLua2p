@@ -107,6 +107,11 @@ function UI.key_sdf(e, key, x, y, fnt, png)
 end
 
 function UI.speech_bubble(e, player, x, y)
+	local sx = 0.5
+	if player.body.dir == -1 then
+		sx = -sx
+	end
+
 	e:give("id", "speech_bubble")
 	:give("pos", x, y)
 	:give("color", {1, 1, 1, 1})
@@ -114,7 +119,7 @@ function UI.speech_bubble(e, player, x, y)
 	:give("animation")
 	:give("no_shader")
 	:give("z_index", 99)
-	:give("transform", 0, 0.5, 0.5, 0, 1)
+	:give("transform", 0, sx, 0.5, 0, 1)
 	:give("current_frame")
 	:give("animation_on_update", "speech_bubble_update")
 	:give("notification", "speech_bubble")

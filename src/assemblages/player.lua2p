@@ -48,8 +48,7 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	:give("body", can_move, can_run)
 	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
 	:give("movement")
-	:give("fl_spawn_offset", 0, 17)
-	:give("fl_spawn_offset_dir", 48, -18)
+	:give("fl_spawn_offset", 7, -16)
 end
 
 function Player.outside_house(e, x, y)

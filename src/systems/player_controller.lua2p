@@ -68,14 +68,6 @@ function PlayerController:update(dt)
 		body.dx = 1
 	end
 
-	local offset = e.fl_spawn_offset
-	local offset_t = e.fl_spawn_offset_dir
-	if body.dir == -1 then
-		offset.x = offset_t.left
-	else
-		offset.x = offset_t.right
-	end
-
 	if Inputs.pressed("interact") then
 		if can_interact and within_int then
 			local other = within_int.entity
