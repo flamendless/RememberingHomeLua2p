@@ -27,23 +27,35 @@ end
 
 function Flashlight:create_flashlight()
 	Concord.entity(self.world):assemble(Light.spot,
-			0, 0, 7,
-			{1, 0, 0, 0.85},
-			164,
-			{4, 4, 4})
+			0, 0, 7, {1, 0, 0, 0.85}, 164, {4, 4, 4})
 		:give("id", "flashlight_fl")
 		:give("flashlight")
+		:give("anim_sync_with", self.player)
+		:give("anim_sync_data", "fl_spawn_offset", {"x", "y"}, {
+			idle = {
+				[1] = {x = 7, y = -16}, --38, 17
+				[6] = {x = 7, y = -17}, --38, 16
+			},
+			walk = {
+				[1] = {x = 7, y = -16},
+				[2] = {x = 7, y = -17},
+				[4] = {x = 7, y = -16},
+				[6] = {x = 7, y = -17},
+				[8] = {x = 7, y = -16},
+			},
+			run = {
+				[1] = {x = 9, y = -14}, --40, 19
+				[3] = {x = 9, y = -13}, --40, 20
+				[6] = {x = 9, y = -14},
+			}
+		})
 
 	self.start_l = Concord.entity(self.world):assemble(Light.point,
-			0, 0, 7,
-			32,
-			{2, 2, 2})
+			0, 0, 7, 32, {2, 2, 2})
 		:give("id", "flashlight_start_pl")
 
 	self.end_l = Concord.entity(self.world):assemble(Light.point,
-			0, 0, 7,
-			64,
-			{1.5, 1.5, 1.5})
+			0, 0, 7, 64, {1.5, 1.5, 1.5})
 		:give("id", "flashlight_end_pl")
 end
 
@@ -65,14 +77,12 @@ function Flashlight:update_flashlight()
 	local p_pos = self.player.pos
 	local col = self.player.collider
 	local offset = self.player.fl_spawn_offset
-
-	local bx = p_pos.x + col.w * 0.5
-	local by = p_pos.y + col.h * 0.5
-
 	local f_pos = self.flashlight.pos
 	local ldir = self.flashlight.light_dir
 	local fd = ldir.value
 
+	local bx = p_pos.x + col.w_h
+	local by = p_pos.y + col.h_h
 	fd[1] = ldir.orig_value[1] * body.dir
 	f_pos.x = bx + offset.x * fd[1]
 	f_pos.y = by + offset.y
@@ -92,22 +102,22 @@ function Flashlight:update_flashlight()
 	self.world:emit("update_light_pos", self.end_l)
 end
 
-function Flashlight:draw_fl()
+!if _DEV then
+function Flashlight:debug_draw()
 	local p_pos = self.player.pos
 	local col = self.player.collider
 	local offset = self.player.fl_spawn_offset
-
-	local bx = p_pos.x + col.w * 0.5
-	local by = p_pos.y + col.h * 0.5
-
 	local ldir = self.flashlight.light_dir
 	local fd = ldir.value
 
+	local bx = p_pos.x + col.w_h
+	local by = p_pos.y + col.h_h
 	local fx = bx + offset.x * fd[1]
 	local fy = by + offset.y
 
 	love.graphics.setColor(1, 0, 0, 1)
 	love.graphics.circle("fill", fx, fy, 2)
 end
+!end
 
 return Flashlight

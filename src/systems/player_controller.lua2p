@@ -116,7 +116,7 @@ function PlayerController:player_update_animation(e, override_name, override_var
 	end
 
 	if anim_variant then
-		self.world:emit("switch_animation_tag", e, anim_name .. anim_variant)
+		self.world:emit("switch_animation_tag", e, anim_name .. anim_variant, anim_name)
 	else
 		self.world:emit("switch_animation_tag", e, anim_name)
 	end

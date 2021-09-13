@@ -20,6 +20,8 @@ Concord.component("collider", function(c, w, h, filter)
 	@@sassert(filter, type(filter) == "string")
 	c.w = w
 	c.h = h
+	c.w_h = w * 0.5
+	c.h_h = h * 0.5
 	c.is_hit = false
 	c.filter = nil
 	c.normal = {x = 0, y = 0}

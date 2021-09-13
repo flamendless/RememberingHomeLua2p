@@ -148,9 +148,10 @@ function Animation:init(world)
 	end
 end
 
-function Animation:switch_animation_tag(e, new_tag)
+function Animation:switch_animation_tag(e, new_tag, base_tag)
 	@@assert(e.__isEntity)
 	@@assert(type(new_tag) == "string")
+	@@sassert(base_tag, type(base_tag) == "string")
 	local animation = e.animation
 	local on_loop = self:setup_on_loop(e, animation)
 	animation.is_playing = true
@@ -163,6 +164,7 @@ function Animation:switch_animation_tag(e, new_tag)
 		e:give("animation_data", data)
 		self:setup_animation(e, data, on_loop)
 		animation.anim8:gotoFrame(1)
+		animation.base_tag = base_tag or new_tag
 	end
 end
 

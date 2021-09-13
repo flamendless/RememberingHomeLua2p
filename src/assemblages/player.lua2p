@@ -47,6 +47,7 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	:give("player_controller")
 	:give("body", can_move, can_run)
 	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
+	:give("current_frame")
 	:give("movement")
 	:give("fl_spawn_offset", 7, -16)
 end

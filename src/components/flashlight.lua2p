@@ -10,11 +10,3 @@ Concord.component("fl_spawn_offset", function(c, x, y)
 	c.orig_x = c.x
 	c.orig_y = c.y
 end)
-
-
-Concord.component("fl_spawn_offset_dir", function(c, left, right)
-	@@assert(type(left) == "number")
-	@@assert(type(right) == "number")
-	c.left = left
-	c.right = right
-end)
