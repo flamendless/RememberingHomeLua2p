@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("flashlight")
+Concord.component("flashlight_light")
 
 Concord.component("battery", function(c, pct)
 	@@sassert(pct, type(pct) == "number" and pct > 0 and pct <= 100)

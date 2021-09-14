@@ -14,7 +14,7 @@ local shader_lighting = "shaders/lighting_pass.glsl"
 local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
 local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
 local lvfd = {{"diffuse", "float", 3}} -- color
-local r = !({math.cos(math.pi/32), math.sin(math.pi/32)})
+local RA = !({math.cos(math.pi/32), math.sin(math.pi/32)})
 local MAX_LIGHTS = 96
 
 function DeferredLighting:init(world)
@@ -175,7 +175,7 @@ function DeferredLighting:create_mesh_p()
 	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
 	for _ = 1, 64 do
 		local t = v[#v]
-		v[#v+1] = {t[1]*r[1] - t[2]*r[2], t[1]*r[2] + t[2]*r[1], 0,0, 1,1,1,1}
+		v[#v+1] = {t[1]*RA[1] - t[2]*RA[2], t[1]*RA[2] + t[2]*RA[1], 0,0, 1,1,1,1}
 	end
 	local light = love.graphics.newMesh(v, nil, "static")
 	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
@@ -190,6 +190,25 @@ function DeferredLighting:create_mesh_p()
 		diffuse = m_diffuse,
 		dir = m_direction,
 	}
+end
+
+function DeferredLighting:flicker_sync(main, others)
+	@@assert(main.__isEntity)
+	@@assert(type(others) == "table")
+	local main_diff = main.diffuse.value
+	local is_off = main_diff[1] == 0
+	for _, e in ipairs(others) do
+		local diff = e.diffuse.value
+		local orig = e.diffuse.orig_value
+		local r, g, b
+		if is_off then
+			r, g, b = 0, 0, 0
+		else
+			r, g, b = unpack(orig)
+		end
+		diff[1], diff[2], diff[3] = r, g, b
+		self.world:emit("update_light_diffuse", e)
+	end
 end
 
 function DeferredLighting:cleanup()

@@ -219,7 +219,8 @@ function Outside:state_init()
 
 		tle_log("car light off")
 		self.main_car_light:give("d_light_flicker", 2.5, 0.75, 0.25)
-			:give("on_d_light_flicker_during", "on_car_light_flicker")
+			:give("on_d_light_flicker_during", "flicker_sync",
+				0, self.main_car_light, self.pool_car_lights)
 			:give("on_d_light_flicker_after", "on_car_light_flicker_after")
 			:give("d_light_flicker_remove_after")
 		self.timeline:Pause()
@@ -353,19 +354,6 @@ function Outside:start_rain_fade()
 		end)
 end
 
-function Outside:on_car_light_flicker()
-	local main_diff = self.main_car_light.diffuse.value
-	for _, e in ipairs(self.pool_car_lights) do
-		if e ~= self.main_car_light then
-			local diff = e.diffuse.value
-			diff[1] = main_diff[1]
-			diff[2] = main_diff[2]
-			diff[3] = main_diff[3]
-			self.world:emit("update_light_diffuse", e)
-		end
-	end
-end
-
 function Outside:on_car_light_flicker_after()
 	for _, e in ipairs(self.pool_car_lights) do
 		local diff = e.diffuse
@@ -421,7 +409,8 @@ function Outside:toggle_car_power(ent)
 		e:remove("light_disabled")
 	end
 	self.main_car_light:give("d_light_flicker", 2, 0.75, 0.25)
-		:give("on_d_light_flicker_during", "on_car_light_flicker")
+		:give("on_d_light_flicker_during", "flicker_sync",
+			0, self.main_car_light, self.pool_car_lights)
 		:give("on_d_light_flicker_after", "toggle_car_power_after", 0, ent, mcl)
 		:give("d_light_flicker_remove_after")
 end

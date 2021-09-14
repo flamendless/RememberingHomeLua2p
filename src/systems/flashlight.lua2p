@@ -3,8 +3,11 @@ local Concord = require("modules.concord")
 local AnimationData = require("animation_data")
 local Inputs = require("inputs")
 
+local insert = table.insert
+
 local Flashlight = Concord.system({
 	pool = {"id", "light_id", "point_light", "pos", "diffuse", "flashlight"},
+	pool_flashlight = {"id", "flashlight_light"},
 	pool_player = {"player_controller", "body", "collider"},
 })
 
@@ -19,6 +22,10 @@ function Flashlight:init(world)
 	self.pool.onAdded = function(pool, e)
 		@@assert(self.flashlight == nil, "Flashlight was already added")
 		self.flashlight = e
+		e:give("d_light_flicker", 0.5, 0.75, 0.25)
+		:give("on_d_light_flicker_during", "flicker_sync",
+			0, self.flashlight, self.pool_flashlight)
+		:give("d_light_flicker_repeat", -1, 7)
 	end
 
 	self.pool_player.onAdded = function(pool, e)
@@ -31,14 +38,13 @@ end
 function Flashlight:create_flashlight()
 	Concord.entity(self.world):assemble(Light.fl_spot,
 			self.player, AnimationData.get_sync_data("flashlight"))
-		:give("d_light_flicker", 0.5, 0.75, 0.25)
-		:give("on_d_light_flicker_during", "flicker_flashlight")
-		:give("d_light_flicker_repeat", -1, 7)
 	!if _DEV then
 		:give("battery", 100)
 	!end
 	self.start_l = Concord.entity(self.world):assemble(Light.fl_start)
 	self.end_l = Concord.entity(self.world):assemble(Light.fl_end)
+	insert(self.pool_flashlight, self.start_l)
+	insert(self.pool_flashlight, self.end_l)
 end
 
 function Flashlight:update(dt)
@@ -85,35 +91,14 @@ function Flashlight:update_flashlight()
 	e_pos.y = f_pos.y
 end
 
-function Flashlight:flicker_flashlight()
-	local main_diff = self.flashlight.diffuse.value
-	local d_start = self.start_l.diffuse.value
-	local d_end = self.end_l.diffuse.value
-	d_start[1] = main_diff[1]
-	d_start[2] = main_diff[2]
-	d_start[3] = main_diff[3]
-	d_end[1] = main_diff[1]
-	d_end[2] = main_diff[2]
-	d_end[3] = main_diff[3]
-	self.world:emit("update_light_diffuse", self.start_l)
-	self.world:emit("update_light_diffuse", self.end_l)
-end
-
 function Flashlight:update_battery(dt)
 	local battery = self.flashlight and self.flashlight.battery
 	if not battery then return end
 	battery.pct = battery.pct - dt * consumption_rate
 	local pct = battery.pct/100
 
-	if pct <= 0.75 then
-		if not self.flashlight.d_light_flicker then
-			self.flashlight:give("d_light_flicker", 2, 0.75, 0.25)
-				:give("on_d_light_flicker_during", "flicker_flashlight")
-				:give("d_light_flicker_repeat")
-		end
-	end
-
 	if pct <= 0 then
+		self.flashlight:give("light_disabled")
 		self.start_l:give("light_disabled")
 		self.end_l:give("light_disabled")
 		return
