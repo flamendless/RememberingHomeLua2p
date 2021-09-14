@@ -2,7 +2,9 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 
+!if not _DEV then
 local Blur = require("blur")
+!end
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Resources = require("resources")
@@ -69,6 +71,7 @@ function Pause:create_pause_e()
 end
 
 function Pause:create_pause_choices()
+	if #self.pool_choice ~= 0 then return end
 	local ww, wh = love.graphics.getDimensions()
 	local ww2, wh2 = ww * 0.5, wh * 0.5
 	local by = wh2 + 16
@@ -141,12 +144,11 @@ function Pause:on_pause()
 		for _, e in ipairs(self.pool) do
 			e:give("hidden")
 		end
-		for _, e in ipairs(self.pool_choice) do
-			e:destroy()
-		end
 	end
 	self.is_paused = not self.is_paused
+	!if not _DEV then
 	Blur.flag_process = self.is_paused
+	!end
 	Log.info("Paused: " .. tostring(self.is_paused))
 end
 

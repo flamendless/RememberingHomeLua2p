@@ -10,7 +10,7 @@ end)
 Concord.component("point_light", function(c, size)
 	@@assert(type(size) == "number")
 	c.value = size
-	c.orig = size
+	c.orig_value = size
 end)
 
 Concord.component("light_dir", function(c, t)
@@ -40,4 +40,15 @@ Concord.component("d_light_flicker", function(c, during, on_chance, off_chance)
 	c.during = during
 	c.on_chance = on_chance
 	c.off_chance = off_chance
+end)
+
+Concord.component("d_light_flicker_repeat", function(c, count, delay)
+	@@sassert(count, type(count) == "number")
+	@@sassert(delay, type(delay) == "number")
+	c.count = count or 0
+	c.delay = delay or 0
+
+	if c.count == -1 then
+		c.inf = true
+	end
 end)

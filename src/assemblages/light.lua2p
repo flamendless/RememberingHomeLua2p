@@ -1,5 +1,3 @@
-local random = love.math.random
-
 local Light = {}
 
 function Light.point(e, x, y, z, size, diffuse, dir)
@@ -19,6 +17,24 @@ function Light.spot(e, x, y, z, dir, size, diffuse)
 	:give("point_light", size)
 	:give("diffuse", diffuse)
 	:give("light_dir", dir)
+end
+
+function Light.fl_spot(e, e_player, sync_data)
+	e:assemble(Light.spot, 0, 0, 7, {1, 0, 0, 0.85}, 164, {4, 4, 4})
+	:give("id", "flashlight_fl")
+	:give("flashlight")
+	:give("anim_sync_with", e_player)
+	:give("anim_sync_data", "fl_spawn_offset", {"x", "y"}, sync_data)
+end
+
+function Light.fl_start(e)
+	e:assemble(Light.point, 0, 0, 7, 32, {2, 2, 2})
+	:give("id", "flashlight_start_pl")
+end
+
+function Light.fl_end(e)
+	e:assemble(Light.point, 0, 0, 7, 64, {1.5, 1.5, 1.5})
+	:give("id", "flashlight_end_pl")
 end
 
 return Light

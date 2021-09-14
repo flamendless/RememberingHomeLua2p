@@ -9,22 +9,23 @@ local DevTools = {
 	show = false,
 	show_fps = true,
 	flags = {
-		id = true,
-		ngrading = true,
-		fog = false,
-		movement = false,
+		bounding_box = true,
 		bump_collision = true,
 		camera = true,
+		culling = false,
 		fireflies = false,
-		transform = false,
+		flashlight = true,
+		fog = false,
+		gamestates = false,
+		glitch_shader_effect = false,
+		id = true,
 		light = false,
 		log = false,
-		bounding_box = true,
-		glitch_shader_effect = false,
-		culling = false,
+		movement = false,
+		ngrading = true,
+		path = false,
 		render_sprite = false,
-		path = true,
-		gamestates = false,
+		transform = false,
 	},
 }
 
@@ -258,6 +259,9 @@ function DevTools.draw_debug_list()
 			Slab.SetLayoutColumn(i)
 			if Slab.CheckBox(v.debug_show, v.debug_title) then
 				v.debug_show = not v.debug_show
+				if v.debug_on_toggle then
+					v:debug_on_toggle()
+				end
 			end
 			i = i + 1
 			if i > 2 then i = 1 end
@@ -280,12 +284,10 @@ function DevTools.keypressed(key)
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then
 	-- 	GameStates.world:emit("load_game")
+	elseif key == "s" then
+		DevTools.show_fps = not DevTools.show_fps
 	elseif key == "r" then
-		if love.keyboard.isDown("lalt") then
-			DevTools.show_fps = not DevTools.show_fps
-		else
-			love.event.quit("restart")
-		end
+		love.event.quit("restart")
 	elseif key == "escape" then
 		love.event.quit()
 	end

@@ -1,5 +1,6 @@
 local AnimationData = {}
 local data = {}
+local sync_data = {}
 
 local random = love.math.random
 
@@ -140,10 +141,35 @@ data.player_open_locked_door = {
 	n_frames = 7,
 }
 
+sync_data.flashlight = {
+	idle = {
+		[1] = {x = 7, y = -16}, --38, 17
+		[6] = {x = 7, y = -17}, --38, 16
+	},
+	walk = {
+		[1] = {x = 7, y = -16},
+		[2] = {x = 7, y = -17},
+		[4] = {x = 7, y = -16},
+		[6] = {x = 7, y = -17},
+		[8] = {x = 7, y = -16},
+	},
+	run = {
+		[1] = {x = 9, y = -14}, --40, 19
+		[3] = {x = 9, y = -13}, --40, 20
+		[6] = {x = 9, y = -14},
+	}
+}
+
 function AnimationData.get(id)
 	@@assert(type(id) == "string")
 	@@assert(data[id])
 	return tablex.copy(data[id], {})
+end
+
+function AnimationData.get_sync_data(id)
+	@@assert(type(id) == "string")
+	@@assert(sync_data[id])
+	return tablex.copy(sync_data[id], {})
 end
 
 return AnimationData

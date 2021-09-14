@@ -50,41 +50,58 @@ function DeferredLighting:init(world)
 	end
 
 	self.pool_flicker.onAdded = function(pool, e)
-		local dlf = e.d_light_flicker
-		local diff = e.diffuse
-		local orig_diff = diff.orig_value
-		local signal_during = e.on_d_light_flicker_during
-		local signal_after = e.on_d_light_flicker_after
-		local rem = e.d_light_flicker_remove_after
-
-		self.timer:during(dlf.during, function()
-			local c = Lume.weightedchoice({on = dlf.on_chance, off = dlf.off_chance})
-			if c == "on" then
-				diff.value[1] = orig_diff[1]
-				diff.value[2] = orig_diff[2]
-				diff.value[3] = orig_diff[3]
-			elseif c == "off" then
-				diff.value[1] = 0
-				diff.value[2] = 0
-				diff.value[3] = 0
-			end
-			self:update_light_diffuse(e)
-			if signal_during then
-				self.world:emit(signal_during.signal, unpack(signal_during.args))
-			end
-		end,
-		function()
-			if signal_after then
-				self.world:emit(signal_after.signal, unpack(signal_after.args))
-			end
-			if rem then
-				e:remove("d_light_flicker")
-				:remove("d_light_flicker_remove_after")
-				:remove("on_d_light_flicker_during")
-				:remove("on_d_light_flicker_after")
-			end
-		end)
+		self:start_flicker(e)
 	end
+end
+
+function DeferredLighting:start_flicker(e)
+	local dlf = e.d_light_flicker
+	local diff = e.diffuse
+	local orig_diff = diff.orig_value
+	local signal_during = e.on_d_light_flicker_during
+	local signal_after = e.on_d_light_flicker_after
+
+	self.timer:during(dlf.during, function()
+		local c = Lume.weightedchoice({on = dlf.on_chance, off = dlf.off_chance})
+		if c == "on" then
+			diff.value[1] = orig_diff[1]
+			diff.value[2] = orig_diff[2]
+			diff.value[3] = orig_diff[3]
+		elseif c == "off" then
+			diff.value[1] = 0
+			diff.value[2] = 0
+			diff.value[3] = 0
+		end
+		self:update_light_diffuse(e)
+		if signal_during then
+			self.world:emit(signal_during.signal, unpack(signal_during.args))
+		end
+	end,
+	function()
+		if signal_after then
+			self.world:emit(signal_after.signal, unpack(signal_after.args))
+		end
+		local on_repeat = e.d_light_flicker_repeat
+		if e.d_light_flicker_remove_after then
+			e:remove("d_light_flicker")
+			:remove("d_light_flicker_remove_after")
+			:remove("on_d_light_flicker_during")
+			:remove("on_d_light_flicker_after")
+		elseif on_repeat then
+			on_repeat.count = on_repeat.count - 1
+			if on_repeat.count > 0 or on_repeat.inf then
+				if on_repeat.delay ~= 0 then
+					Timer.after(on_repeat.delay, function()
+						self:start_flicker(e)
+					end)
+				else
+					self:start_flicker(e)
+				end
+			else
+				e:remove("d_light_flicker_repeat")
+			end
+		end
+	end)
 end
 
 function DeferredLighting:set_ambiance(t)
@@ -186,6 +203,15 @@ local UIWrapper = require("ui_wrapper")
 local flags = {
 	ambiance = true,
 }
+
+function DeferredLighting:debug_on_toggle()
+	if self.debug_show then
+		self:set_ambiance({0, 0, 0, 0})
+	else
+		self:set_ambiance(self.orig_ambiance)
+	end
+	flags.ambiance = not self.debug_show
+end
 
 function DeferredLighting:debug_update(dt)
 	if not self.debug_show then return end

@@ -2,6 +2,12 @@ local Concord = require("modules.concord.concord")
 
 Concord.component("flashlight")
 
+Concord.component("battery", function(c, pct)
+	@@sassert(pct, type(pct) == "number" and pct > 0 and pct <= 100)
+	c.pct = pct
+	c.orig_pct = pct
+end)
+
 Concord.component("fl_spawn_offset", function(c, x, y)
 	@@sassert(x, type(x) == "number")
 	@@sassert(y, type(y) == "number")
