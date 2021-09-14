@@ -7,6 +7,7 @@ local format = string.format
 
 local DevTools = {
 	show = false,
+	show_fps = true,
 	flags = {
 		id = true,
 		ngrading = true,
@@ -280,7 +281,11 @@ function DevTools.keypressed(key)
 	-- elseif key == "l" then
 	-- 	GameStates.world:emit("load_game")
 	elseif key == "r" then
-		love.event.quit("restart")
+		if love.keyboard.isDown("lalt") then
+			DevTools.show_fps = not DevTools.show_fps
+		else
+			love.event.quit("restart")
+		end
 	elseif key == "escape" then
 		love.event.quit()
 	end
