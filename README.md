@@ -27,16 +27,16 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System
 * [Enum](https://github.com/Tjakka5/Enum) - for Enums
-* [flux](https://github.com/rxi/flux) - for Tweening
+* [flux](https://github.com/rxi/flux) - for linear interpolation and tweening
 * [gamera](https://github.com/kikito/gamera) - for camera
 * [HUMP](https://github.com/vrld/hump) - for Timer
 * [jprof](https://github.com/pfirsich/jprof) - for profiling
 * [lily](https://github.com/MikuAuahDark/lily) - for asynchronous loading of assets
 * [log](https://github.com/flamendless/log.lua) - for logging
-* [lume](https://github.com/rxi/lume) - for linear interpolation and tweening
+* [lume](https://github.com/rxi/lume) - for some utility functions
 * [love-sdf-text](https://github.com/Tjakka5/love-sdf-text) - for SDF rendering
 * [ngrading](https://github.com/MikuAuahDark/NPad93/tree/master/ngrading) - color grading (heavily modified for this project)
-* [Outliner](https://love2d.org/forums/viewtopic.php?p=221215#p221215) - for Outline shader
+* [Outliner](https://love2d.org/forums/viewtopic.php?p=221215#p221215) - for Outline shader (modified for this project)
 * [ReflowPrint](https://github.com/josefnpat/reflowprint) - for alignment of text that is shown one character at a time.
 * [semver](https://github.com/kikito/semver) - for semantic versioning
 * [Slab](https://github.com/flamendless/Slab) - for GUI and in-game editor tools
@@ -46,15 +46,15 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## Tools:
 
-* [Free Texture Packer](https://free-tex-packer.com/) - for atlas creation (using my own custom lua exporter)
+* [Free Texture Packer](https://free-tex-packer.com/) - for atlas creation (using my own [custom lua exporter](scripts/free_tex_packer.lua))
 * [HotParticles](https://github.com/ReFreezed/HotParticles) - for testing/playing with particle systems.
 * [Luapreprocess](https://github.com/ReFreezed/LuaPreprocess) - for preprocessing `.lua2p` files to `.lua`
-* [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating system
+* [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating systems
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
 
 ## Dependencies:
 
-* [LOVE framework](https://love2d.org) - versions 11.0 to 11.3 are tested to work.
+* [LOVE framework](https://love2d.org) - version 11.3 is used for development
 
 ## Coding Style Guide
 
