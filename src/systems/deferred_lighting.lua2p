@@ -89,6 +89,12 @@ function DeferredLighting:start_flicker(e)
 			:remove("on_d_light_flicker_after")
 		elseif on_repeat then
 			on_repeat.count = on_repeat.count - 1
+			if e.d_light_flicker_sure_on_after then
+				diff.value[1] = orig_diff[1]
+				diff.value[2] = orig_diff[2]
+				diff.value[3] = orig_diff[3]
+				self:update_light_diffuse(e)
+			end
 			if on_repeat.count > 0 or on_repeat.inf then
 				if on_repeat.delay ~= 0 then
 					Timer.after(on_repeat.delay, function()

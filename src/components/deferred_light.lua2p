@@ -33,6 +33,7 @@ Concord.component("light_fading", function(c, amount, dir)
 end)
 
 Concord.component("d_light_flicker_remove_after")
+Concord.component("d_light_flicker_sure_on_after")
 Concord.component("d_light_flicker", function(c, during, on_chance, off_chance)
 	@@assert(type(during) == "number")
 	@@assert(type(on_chance) == "number" and on_chance >= 0 and on_chance <= 1)

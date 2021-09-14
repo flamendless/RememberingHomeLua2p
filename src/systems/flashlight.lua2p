@@ -13,6 +13,7 @@ local Flashlight = Concord.system({
 
 local Light = require("assemblages.light")
 
+local min_light_power = 24
 local consumption_rate = 0.1
 
 function Flashlight:init(world)
@@ -26,6 +27,7 @@ function Flashlight:init(world)
 		:give("on_d_light_flicker_during", "flicker_sync",
 			0, self.flashlight, self.pool_flashlight)
 		:give("d_light_flicker_repeat", -1, 7)
+		:give("d_light_flicker_sure_on_after")
 	end
 
 	self.pool_player.onAdded = function(pool, e)
@@ -94,20 +96,17 @@ end
 function Flashlight:update_battery(dt)
 	local battery = self.flashlight and self.flashlight.battery
 	if not battery then return end
-	battery.pct = battery.pct - dt * consumption_rate
-	local pct = battery.pct/100
-
-	if pct <= 0 then
+	local f_pl = self.flashlight.point_light
+	if f_pl.value <= 0 then
 		self.flashlight:give("light_disabled")
-		self.start_l:give("light_disabled")
+			:remove("battery")
 		self.end_l:give("light_disabled")
+		self.start_l:give("point_light", min_light_power)
 		return
 	end
 
-	local f_pl = self.flashlight.point_light
-	f_pl.value = f_pl.orig_value * pct
-	local s_pl = self.start_l.point_light
-	s_pl.value = s_pl.orig_value * pct
+	battery.pct = battery.pct - dt * consumption_rate
+	f_pl.value = f_pl.orig_value * battery.pct/100
 end
 
 !if _DEV then
