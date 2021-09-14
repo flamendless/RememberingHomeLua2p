@@ -4,6 +4,7 @@ local Style = Slab.GetStyle()
 
 local Audio = require("audio")
 local Inputs = require("inputs")
+local Resources = require("resources")
 local Settings = require("settings")
 local WindowMode = require("window_mode")
 
@@ -74,7 +75,8 @@ function MenuSettings:update_desktop(dt)
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
 			X = x, Y = y, W = width, H = height,
-			AllowMove = false, AllowResize = false, AutoSizeWindow = false, IsOpen = true,
+			AllowMove = false, AllowResize = false, AutoSizeWindow = false,
+			IsOpen = true,
 		})
 
 	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
@@ -118,6 +120,15 @@ function MenuSettings:update_desktop(dt)
 	Slab.Separator()
 
 	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
+	local scale = 2
+	local img_kb = Resources.data.images["keyboard" .. self.key_id]
+	local iw = img_kb:getWidth()
+	Slab.SetCursorPos((width * 0.5) - (iw * scale * 0.5))
+	Slab.Image("img_keyboard", {
+		Image = img_kb,
+		Scale = scale,
+	})
+
 	Slab.BeginLayout("KeybindingsLayout", {AlignX = "center", AlignY = "top", Columns = 2})
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Key Map")

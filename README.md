@@ -52,6 +52,10 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating systems
 * [msdf-bmfont](https://www.npmjs.com/package/msdf-bmfont) - for converting `.ttf` font files to SDF
 
+## Credits:
+
+* [pixel-keyboard-layout](https://xphere.itch.io/pixel-keyboard-layout) - for the keyboard art (modified)
+
 ## Dependencies:
 
 * [LOVE framework](https://love2d.org) - version 11.3 is used for development

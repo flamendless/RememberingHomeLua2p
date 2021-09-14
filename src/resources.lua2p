@@ -98,6 +98,8 @@ Resources.meta.Menu = {
 		{"mail", !(path_images .. "menu/icon_mail.png")},
 		{"btn_back", !(path_images .. "menu/btn_back.png")},
 		{"flowfield", !(path_textures .. "perlin.png")},
+		{"keyboard1", !(path_ui .. "keyboard1.png")},
+		{"keyboard2", !(path_ui .. "keyboard2.png")},
 	},
 
 	fonts = {
