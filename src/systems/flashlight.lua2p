@@ -42,6 +42,7 @@ function Flashlight:create_flashlight()
 			self.player, AnimationData.get_sync_data("flashlight"))
 	!if _DEV then
 		:give("battery", 100)
+		:give("battery_state", "FULL")
 	!end
 	self.start_l = Concord.entity(self.world):assemble(Light.fl_start)
 	self.end_l = Concord.entity(self.world):assemble(Light.fl_end)
@@ -51,21 +52,29 @@ end
 
 function Flashlight:update(dt)
 	if self.flashlight == nil or self.player == nil then return end
-	self:update_flashlight()
-	self:update_battery(dt)
+
+	if not self.flashlight.light_disabled then
+		self:update_flashlight()
+		self:update_battery(dt)
+	end
+
+	if Inputs.released("flashlight") then
+		local pl = self.start_l.point_light
+		if self.flashlight.light_disabled then
+			self.flashlight:remove("light_disabled")
+			self.end_l:remove("light_disabled")
+			pl.value = pl.orig_value
+		else
+			self.flashlight:give("light_disabled")
+			self.end_l:give("light_disabled")
+			pl.value = min_light_power
+		end
+	end
 
 	self.world:emit("update_light_dir", self.flashlight)
 	self.world:emit("update_light_pos", self.flashlight)
 	self.world:emit("update_light_pos", self.start_l)
 	self.world:emit("update_light_pos", self.end_l)
-
-	if Inputs.released("flashlight") then
-		if self.flashlight.light_disabled then
-			self.flashlight:remove("light_disabled")
-		else
-			self.flashlight:give("light_disabled")
-		end
-	end
 end
 
 function Flashlight:update_flashlight()
@@ -79,6 +88,7 @@ function Flashlight:update_flashlight()
 
 	local bx = p_pos.x + col.w_h
 	local by = p_pos.y + col.h_h
+	ldir.value[2] = offset.dy
 	fd[1] = ldir.orig_value[1] * body.dir
 	f_pos.x = bx + offset.x * fd[1]
 	f_pos.y = by + offset.y
@@ -94,12 +104,17 @@ function Flashlight:update_flashlight()
 end
 
 function Flashlight:update_battery(dt)
-	local battery = self.flashlight and self.flashlight.battery
-	if not battery then return end
+	if not self.flashlight then return end
+	local battery = self.flashlight.battery
+	local bs = self.flashlight.battery_state
+	if not battery or bs.value == "EMPTY" then return end
+
 	local f_pl = self.flashlight.point_light
 	if f_pl.value <= 0 then
+		bs:set("EMPTY")
 		self.flashlight:give("light_disabled")
 			:remove("battery")
+			:remove("d_light_flicker")
 		self.end_l:give("light_disabled")
 		self.start_l:give("point_light", min_light_power)
 		return
@@ -107,6 +122,22 @@ function Flashlight:update_battery(dt)
 
 	battery.pct = battery.pct - dt * consumption_rate
 	f_pl.value = f_pl.orig_value * battery.pct/100
+
+	local flicker = self.flashlight.d_light_flicker
+	local f_repeat = self.flashlight.d_light_flicker_repeat
+	if bs.value == "FULL" and battery.pct <= 50 then
+		bs:set("LOW")
+		flicker.during = 0.5
+		flicker.on_chance = 0.65
+		flicker.off_chance = 0.35
+		f_repeat.delay = 2
+	elseif bs.value == "LOW" and battery.pct <= 25 then
+		bs:set("CRITICAL")
+		flicker.during = 0.3
+		flicker.on_chance = 0.5
+		flicker.off_chance = 0.5
+		f_repeat.delay = 1.25
+	end
 end
 
 !if _DEV then
@@ -128,6 +159,7 @@ function Flashlight:debug_update(dt)
 
 	local battery = self.flashlight and self.flashlight.battery
 	if battery then
+		Slab.Text("state: " .. self.flashlight.battery_state.value)
 		Slab.Text("battery")
 		Slab.SameLine()
 		UIWrapper.edit_range("battery", battery.pct, 0, 100)

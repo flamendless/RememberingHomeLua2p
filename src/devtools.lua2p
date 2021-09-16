@@ -9,6 +9,7 @@ local DevTools = {
 	show = false,
 	show_fps = true,
 	flags = {
+		deferred_lighting = true,
 		bounding_box = true,
 		bump_collision = true,
 		camera = true,
@@ -280,6 +281,7 @@ end
 function DevTools.keypressed(key)
 	if key == "`" then
 		DevTools.show = not DevTools.show
+		GameStates.world:emit("debug_on_toggle")
 	-- elseif key == "m" then
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then

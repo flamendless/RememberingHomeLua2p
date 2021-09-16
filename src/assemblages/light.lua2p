@@ -24,7 +24,7 @@ function Light.fl_spot(e, e_player, sync_data)
 	:give("id", "flashlight_fl")
 	:give("flashlight")
 	:give("anim_sync_with", e_player)
-	:give("anim_sync_data", "fl_spawn_offset", {"x", "y"}, sync_data)
+	:give("anim_sync_data", "fl_spawn_offset", {"x", "y", "dy"}, sync_data)
 end
 
 function Light.fl_start(e)

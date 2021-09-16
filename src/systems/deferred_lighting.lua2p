@@ -56,6 +56,7 @@ end
 
 function DeferredLighting:start_flicker(e)
 	local dlf = e.d_light_flicker
+	if not dlf then return end
 	local diff = e.diffuse
 	local orig_diff = diff.orig_value
 	local signal_during = e.on_d_light_flicker_during
@@ -94,6 +95,9 @@ function DeferredLighting:start_flicker(e)
 				diff.value[2] = orig_diff[2]
 				diff.value[3] = orig_diff[3]
 				self:update_light_diffuse(e)
+				if signal_during then
+					self.world:emit(signal_during.signal, unpack(signal_during.args))
+				end
 			end
 			if on_repeat.count > 0 or on_repeat.inf then
 				if on_repeat.delay ~= 0 then
@@ -228,6 +232,7 @@ local UIWrapper = require("ui_wrapper")
 local flags = {
 	ambiance = true,
 }
+local cache = {}
 
 function DeferredLighting:debug_on_toggle()
 	if self.debug_show then
@@ -272,6 +277,22 @@ function DeferredLighting:debug_update(dt)
 					e:give("light_disabled")
 				end
 			end
+
+			local flicker = e.d_light_flicker
+			if flicker then
+				if not cache[id] then
+					cache[id] = {flicker.during, flicker.on_chance, flicker.off_chance}
+				end
+				Slab.SameLine()
+				if Slab.CheckBox(flicker, "Flicker") then
+					if flicker then
+						e:remove("d_light_flicker")
+					else
+						e:give("d_light_flicker", unpack(cache[id]))
+					end
+				end
+			end
+
 			local pos = e.pos
 			local pl = e.point_light
 			local diffuse = e.diffuse.value
