@@ -127,15 +127,18 @@ end
 
 function Kitchen:spawn_player()
 	local x, y
+	local face = "face_left"
 	!if _DEV then
 	x, y = 443, 64
 	!end
 	if self.prev_id == "StorageRoom" then
 		x, y = 443, 64
+	elseif self.prev_id == "UtilityRoom" then
+		x, y = 398, 64
 	end
 	local e_player = Concord.entity(self.world)
 		:assemble(Assemblages.Player.room, x, y)
-	self.world:emit("face_left", e_player)
+	self.world:emit(face, e_player)
 	return e_player
 end
 

@@ -42,8 +42,8 @@ function Kitchen.colliders.right_bound(e, w, h)
 	:give("wall")
 end
 
-local lz = 26
-local ls = 106
+local lz = 48
+local ls = 136
 function Kitchen.lights.left_bulb(e)
 	e:assemble(Light.point,
 		92, 33, lz,
@@ -52,9 +52,17 @@ function Kitchen.lights.left_bulb(e)
 	:give("id", "pl_left_bulb")
 end
 
-function Kitchen.lights.right_bulb(e)
+function Kitchen.lights.mid_bulb(e)
 	e:assemble(Light.point,
 		242, 33, lz,
+		ls,
+		Palette.get_diffuse("kitchen_bulb_light"))
+	:give("id", "pl_mid_bulb")
+end
+
+function Kitchen.lights.right_bulb(e)
+	e:assemble(Light.point,
+		400, 33, lz,
 		ls,
 		Palette.get_diffuse("kitchen_bulb_light"))
 	:give("id", "pl_right_bulb")

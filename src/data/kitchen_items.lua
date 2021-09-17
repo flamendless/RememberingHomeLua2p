@@ -1,7 +1,7 @@
 local Data = {
 	{
 		id = "ref",
-		x = 343, y = 67, z = 5,
+		x = 348, y = 67, z = 5,
 	},
 	{
 		id = "left_door",
@@ -23,7 +23,25 @@ local Data = {
 
 	{
 		id = "table",
-		x = 164, y = 95, z = 10,
+		x = 148, y = 95, z = 10,
+		no_col = true,
+	},
+	{
+		id = "stool",
+		name = "stool1",
+		x = 156, y = 102, z = 11,
+		no_col = true,
+	},
+	{
+		id = "stool",
+		name = "stool2",
+		x = 186, y = 102, z = 11,
+		no_col = true,
+	},
+	{
+		id = "stool",
+		name = "stool3",
+		x = 216, y = 102, z = 11,
 		no_col = true,
 	},
 
@@ -35,6 +53,17 @@ local Data = {
 	{
 		id = "outlet",
 		x = 187, y = 72, z = 5,
+		no_col = true,
+	},
+	{
+		id = "stove",
+		x = 232, y = 92, z = 3,
+		no_col = true,
+	},
+	{
+		id = "sink",
+		x = 132, y = 87, z = 3,
+		no_col = true,
 	},
 
 	{
