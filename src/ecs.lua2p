@@ -39,28 +39,36 @@ systems.Outside = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
 	"deferred_lighting", "dialogues", "entity", "fireflies", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"notification", "outline", "path", "pause", "player_controller",
-	"render_rect", "render_sprite", "render_text", "render_ui", "room",
-	"systems", "text_paint", "transform", "typewriter", "door",
+	"outline", "path", "pause", "player_controller", "render_rect",
+	"render_sprite", "render_text", "render_ui", "room", "systems",
+	"text_paint", "transform", "typewriter", "door",
 }
 
 systems.StorageRoom = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
 	"deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"notification", "outline", "pause", "player_controller", "render_rect",
-	"render_sprite", "render_text", "render_ui", "room", "systems",
-	"transform", "typewriter", "door", "path", "render_circle", "ants", "flies",
-	"flashlight", "animation_sync",
+	"outline", "pause", "player_controller", "render_rect", "render_sprite",
+	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
+	"door", "flashlight", "animation_sync",
 }
 
 systems.UtilityRoom = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
 	"deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"notification", "outline", "pause", "player_controller", "render_rect",
-	"render_sprite", "render_text", "render_ui", "room", "systems",
-	"transform", "typewriter", "door",
+	"outline", "pause", "player_controller", "render_rect", "render_sprite",
+	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
+	"door",
+}
+
+systems.Kitchen = {
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"outline", "pause", "player_controller", "render_rect", "render_sprite",
+	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
+	"door",
 }
 
 local unpausable_list = {

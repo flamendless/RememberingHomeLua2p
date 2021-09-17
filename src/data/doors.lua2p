@@ -13,6 +13,11 @@ Doors.UtilityRoom = {
 	left_door = "Kitchen",
 }
 
+Doors.Kitchen = {
+	utility_door = "UtilityRoom",
+	right_door = "StorageRoom",
+}
+
 function Doors.get_next(current_id, door_id)
 	@@assert(type(current_id) == "string")
 	@@assert(type(door_id) == "string")

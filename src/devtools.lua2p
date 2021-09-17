@@ -8,8 +8,9 @@ local format = string.format
 local DevTools = {
 	show = false,
 	show_fps = true,
+	designer = true,
 	flags = {
-		deferred_lighting = true,
+		deferred_lighting = false,
 		bounding_box = true,
 		bump_collision = true,
 		camera = true,
@@ -26,7 +27,7 @@ local DevTools = {
 		ngrading = true,
 		path = false,
 		render_sprite = false,
-		transform = false,
+		transform = true,
 	},
 }
 
@@ -90,12 +91,19 @@ function DevTools.update(dt)
 	if Slab.CheckBox(DevTools.flags.fog, "Fog") then
 		DevTools.flags.fog = not DevTools.flags.fog
 	end
+	if Slab.CheckBox(DevTools.designer, "Designer") then
+		DevTools.designer = not DevTools.designer
+	end
 	for _, v in ipairs(list) do
 		if Slab.CheckBox(v.show, v.title) then
 			v.show = not v.show
 		end
 	end
 	Slab.EndWindow()
+
+	if DevTools.designer then
+		GameStates.world:emit("set_ambiance", {1, 1, 1, 1})
+	end
 
 	DevTools.draw_stats()
 	DevTools.draw_mouse()

@@ -55,6 +55,9 @@ Palette.diffuse = {
 
 	ambiance_utility_room = {0.7, 0.7, 0.7, 0.3},
 	utility_room_bulb_light = {1.44, 1.64, 0.2},
+
+	ambiance_kitchen = {0.7, 0.7, 0.7, 0.3},
+	kitchen_bulb_light = {1.44, 1.64, 0.2},
 }
 
 Palette.color_glitches = {

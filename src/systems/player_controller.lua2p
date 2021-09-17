@@ -191,7 +191,7 @@ function PlayerController:on_player_interact(player, interactive)
 	@@assert(interactive.__isEntity and interactive.interactive)
 	player:give("is_interacting")
 	self.world:emit("on_interact_or_inventory")
-	self.world:emit("create_speech_bubble", player)
+	-- self.world:emit("create_speech_bubble", player)
 	local d = interactive.dialogue_meta
 	local dialogues_t = Dialogues.get(d.main, d.sub)
 	self.world:emit("spawn_dialogue", dialogues_t, d.main, d.sub)
@@ -223,7 +223,7 @@ function PlayerController:on_leave_interact_or_inventory(_)
 		end)
 	end
 	e:remove("prev_body")
-	self.world:emit("remove_speech_bubble")
+	-- self.world:emit("remove_speech_bubble")
 end
 
 function PlayerController:player_reset_anim(e)
