@@ -8,11 +8,11 @@ local format = string.format
 local DevTools = {
 	show = false,
 	show_fps = true,
-	designer = true,
+	designer = false,
 	flags = {
-		deferred_lighting = false,
-		bounding_box = true,
-		bump_collision = true,
+		deferred_lighting = true,
+		bounding_box = false,
+		bump_collision = false,
 		camera = true,
 		culling = false,
 		fireflies = false,
@@ -20,14 +20,14 @@ local DevTools = {
 		fog = false,
 		gamestates = false,
 		glitch_shader_effect = false,
-		id = true,
+		id = false,
 		light = false,
 		log = false,
 		movement = false,
 		ngrading = true,
 		path = false,
 		render_sprite = false,
-		transform = true,
+		transform = false,
 	},
 }
 

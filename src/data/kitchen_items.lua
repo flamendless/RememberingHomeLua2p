@@ -22,26 +22,45 @@ local Data = {
 	},
 
 	{
+		id = "light1",
+		name = "light_left",
+		x = 64, y = 21,
+		no_col = true,
+	},
+	{
+		id = "light1",
+		name = "light_right",
+		x = 360, y = 21,
+		no_col = true,
+	},
+	{
+		id = "light2",
+		name = "light_mid",
+		x = 180, y = 21, z = 6,
+		no_col = true,
+	},
+
+	{
 		id = "table",
-		x = 148, y = 95, z = 10,
+		x = 164, y = 95, z = 10,
 		no_col = true,
 	},
 	{
 		id = "stool",
 		name = "stool1",
-		x = 156, y = 102, z = 11,
+		x = 172, y = 102, z = 11,
 		no_col = true,
 	},
 	{
 		id = "stool",
 		name = "stool2",
-		x = 186, y = 102, z = 11,
+		x = 202, y = 102, z = 11,
 		no_col = true,
 	},
 	{
 		id = "stool",
 		name = "stool3",
-		x = 216, y = 102, z = 11,
+		x = 232, y = 102, z = 11,
 		no_col = true,
 	},
 
@@ -91,13 +110,13 @@ local Data = {
 	},
 
 	{
-		id = "t_cabinet_long",
-		x = 64, y = 32, z = 5,
+		id = "t_cabinet_open",
+		x = 66, y = 33, z = 5,
 		no_col = true,
 	},
 	{
-		id = "t_cabinet_open",
-		x = 160, y = 33, z = 5,
+		id = "t_cabinet_long",
+		x = 122, y = 32, z = 5,
 		no_col = true,
 	},
 	{

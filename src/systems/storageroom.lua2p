@@ -61,9 +61,9 @@ function StorageRoom:state_setup()
 	end
 	self.effect = NGrading(lut_dusk, lut_size)
 
-	-- for _, v in pairs(Assemblages.StorageRoom.lights) do
-	-- 	Concord.entity(self.world):assemble(v)
-	-- end
+	for _, v in pairs(Assemblages.StorageRoom.lights) do
+		Concord.entity(self.world):assemble(v)
+	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_storage_room"))
 end
 

@@ -12,31 +12,33 @@ function UIWrapper.edit_number(id, value, is_int)
 	end
 	Slab.Text(id .. ":")
 	Slab.SameLine()
-	if Slab.Input(id, {
+	local bool = Slab.Input(id, {
 		Text = tostring(v),
 		ReturnOnText = false,
 		NumbersOnly = true,
-	}) then
+	})
+	if bool then
 		value = Slab.GetInputNumber()
 		if is_int then
 			value = floor(value)
 		end
 	end
-	return value
+	return value, bool
 end
 
 function UIWrapper.edit_range(id, value, min, max, is_int)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
-	if Slab.InputNumberSlider(id, value, min, max, {
+	local bool = Slab.InputNumberSlider(id, value, min, max, {
 		Precision = not is_int and 2 or 0
-	}) then
+	})
+	if bool then
 		value = Slab.GetInputNumber()
 		if is_int then
 			value = floor(value)
 		end
 	end
-	return value
+	return value, bool
 end
 
 return UIWrapper

@@ -52,6 +52,7 @@ local states = {
 	"Outside",
 	"StorageRoom",
 	"UtilityRoom",
+	"Kitchen",
 }
 
 function GameStates:debug_update(dt)
@@ -81,6 +82,8 @@ function GameStates:state_keypressed(key)
 		self:switch_state("StorageRoom", 0)
 	elseif key == "3" then
 		self:switch_state("UtilityRoom", 0)
+	elseif key == "4" then
+		self:switch_state("Kitchen", 0)
 	end
 end
 !end

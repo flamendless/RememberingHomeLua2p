@@ -50,6 +50,7 @@ function UtilityRoom.lights.left_bulb(e)
 		ls,
 		Palette.get_diffuse("utility_room_bulb_light"))
 	:give("id", "pl_left_bulb")
+	:give("light_group", "side_pl")
 end
 
 function UtilityRoom.lights.right_bulb(e)
@@ -58,6 +59,7 @@ function UtilityRoom.lights.right_bulb(e)
 		ls,
 		Palette.get_diffuse("utility_room_bulb_light"))
 	:give("id", "pl_right_bulb")
+	:give("light_group", "side_pl")
 end
 
 return UtilityRoom

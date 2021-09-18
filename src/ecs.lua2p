@@ -50,7 +50,7 @@ systems.StorageRoom = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "flashlight", "animation_sync",
+	"door", --"flashlight", "animation_sync",
 }
 
 systems.UtilityRoom = {
@@ -123,8 +123,8 @@ function ECS.load_systems(id, world, prev_id)
 	world:addSystem(main_sys)
 
 	!if _DEV then
-	Systems.id.debug_show = true
-	Systems.id.debug_enabled = true
+	Systems.id.debug_show = DevTools.flags.id
+	Systems.id.debug_enabled = DevTools.flags.id
 	Systems.id.debug_title = "ID"
 	Systems.log.debug_show = false
 	Systems.log.debug_enabled = true
