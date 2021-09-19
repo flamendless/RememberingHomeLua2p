@@ -2,6 +2,11 @@ local Concord = require("modules.concord.concord")
 
 local Helper = require("helper")
 
+!if _DEV then
+local max = math.max
+local format = string.format
+!end
+
 local RenderSprite = Concord.system({
 	pool_bg = {"pos", "sprite", "bg"},
 	pool = {"pos", "sprite",
@@ -13,7 +18,6 @@ local RenderSprite = Concord.system({
 local function sort_z_ex(a, b)
 	local a_z = a.z_index
 	local b_z = b.z_index
-
 	if a_z.sortable and b_z.sortable then
 		local a_pos = a.pos
 		local b_pos = b.pos
@@ -43,6 +47,10 @@ end
 function RenderSprite:init(world)
 	self.world = world
 
+	!if _DEV then
+	self.debug_batched = {}
+	!end
+
 	self.pool.onAdded = function(pool, e)
 		self:setup_sprite(e)
 	end
@@ -62,6 +70,12 @@ function RenderSprite:setup_sprite(e)
 	if sprite.container == "array_images" then
 		e:give("array_image")
 	end
+	!if _DEV then
+	local s_id = sprite.resource_id
+	if not self.debug_batched[s_id] then
+		self.debug_batched[s_id] = {current = 0, highest = 0}
+	end
+	!end
 end
 
 function RenderSprite:sort_z()
@@ -121,6 +135,19 @@ function RenderSprite:draw_sprite_ex(e)
 	if e.no_shader then
 		love.graphics.setShader(temp_shader)
 	end
+
+	!if _DEV then
+	local s_id = sprite.resource_id
+	local db = self.debug_batched[s_id]
+	if self.debug_prev_id and self.debug_prev_id == s_id then
+		db.current = db.current + 1
+	end
+	if db and self.debug_prev_id ~= s_id then
+		db.highest = max(db.highest, db.current)
+		db.current = 0
+	end
+	self.debug_prev_id = s_id
+	!end
 end
 
 function RenderSprite:draw_bg()
@@ -131,6 +158,12 @@ end
 
 function RenderSprite:draw()
 	@@profb("render_sprite")
+	!if _DEV then
+	for _, v in pairs(self.debug_batched) do
+		v.current = 0
+		v.highest = 0
+	end
+	!end
 	for _, e in ipairs(self.pool) do
 		self:draw_sprite_ex(e)
 	end
@@ -159,21 +192,40 @@ end
 
 !if _DEV then
 local Slab = require("modules.slab")
+local prev_id
 
 function RenderSprite:debug_update(dt)
 	if not self.debug_show then return end
-	self.debug_show = Slab.BeginWindow("z", {
-		Title = "Z-Index",
+	self.debug_show = Slab.BeginWindow("render_sprite", {
+		Title = "RenderSprite",
 		IsOpen = self.debug_show
 	})
-	for _, e in ipairs(self.pool_z) do
-		local id = e.id.value
-		local z = e.z_index
-		Slab.Text(z.value)
-		Slab.SameLine()
-		Slab.Text(id)
-		Slab.SameLine()
-		Slab.Text(tostring(z.sortable))
+	Slab.Text("Batching")
+	Slab.Indent()
+	for k, v in pairs(self.debug_batched) do
+		if v.current ~= 0 or v.highest ~= 0 then
+			local str = format("%s: %d/%d", k, v.current + 1, v.highest + 1)
+			Slab.Text(str)
+		end
+	end
+	Slab.Unindent()
+
+	if Slab.BeginTree("z_index") then
+		for _, e in ipairs(self.pool_z) do
+			local s_id = e.sprite.resource_id
+			if prev_id and prev_id ~= s_id then
+				Slab.Separator()
+			end
+			local id = e.id.value
+			local z = e.z_index
+			Slab.Text(z.value)
+			Slab.SameLine()
+			Slab.Text(id)
+			Slab.SameLine()
+			Slab.Text(tostring(z.sortable))
+			prev_id = s_id
+		end
+		Slab.EndTree()
 	end
 	Slab.EndWindow()
 end
