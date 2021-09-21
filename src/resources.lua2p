@@ -71,12 +71,13 @@ end
 )
 
 Resources.meta.Splash = {
-	images = {
-		{"flamendless_logo", !(path_images .. "splash/flamendless_logo.png")},
-		{"sheet_wits", !(path_images .. "splash/sheet_wits.png")},
-		{"tex_displacement", !(path_textures .. "displacement.png")},
+	__images = {
+		images = {
+			{"flamendless_logo", !(path_images .. "splash/flamendless_logo.png")},
+			{"sheet_wits", !(path_images .. "splash/sheet_wits.png")},
+			{"tex_displacement", !(path_textures .. "displacement.png")},
+		},
 	},
-
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		{"firefly", !(path_fonts .. "Firefly.ttf"), 172, "default"},
@@ -85,22 +86,23 @@ Resources.meta.Splash = {
 }
 
 Resources.meta.Menu = {
-	images = {
-		{"bg_door", !(path_images .. "menu/bg_door.png")},
-		{"bg_hallway", !(path_images .. "menu/bg_hallway.png")},
-		{"sheet_desk", !(path_images .. "menu/sheet_desk.png")},
-		{"title", !(path_images .. "menu/title.png")},
-		{"subtitle", !(path_images .. "menu/subtitle.png")},
-		{"discord", !(path_images .. "menu/icon_discord.png")},
-		{"twitter", !(path_images .. "menu/icon_twitter.png")},
-		{"website", !(path_images .. "menu/icon_website.png")},
-		{"mail", !(path_images .. "menu/icon_mail.png")},
-		{"btn_back", !(path_images .. "menu/btn_back.png")},
-		{"flowfield", !(path_textures .. "perlin.png")},
-		{"keyboard1", !(path_ui .. "keyboard1.png")},
-		{"keyboard2", !(path_ui .. "keyboard2.png")},
+	__images = {
+		images = {
+			{"bg_door", !(path_images .. "menu/bg_door.png")},
+			{"bg_hallway", !(path_images .. "menu/bg_hallway.png")},
+			{"sheet_desk", !(path_images .. "menu/sheet_desk.png")},
+			{"title", !(path_images .. "menu/title.png")},
+			{"subtitle", !(path_images .. "menu/subtitle.png")},
+			{"discord", !(path_images .. "menu/icon_discord.png")},
+			{"twitter", !(path_images .. "menu/icon_twitter.png")},
+			{"website", !(path_images .. "menu/icon_website.png")},
+			{"mail", !(path_images .. "menu/icon_mail.png")},
+			{"btn_back", !(path_images .. "menu/btn_back.png")},
+			{"flowfield", !(path_textures .. "perlin.png")},
+			{"keyboard1", !(path_ui .. "keyboard1.png")},
+			{"keyboard2", !(path_ui .. "keyboard2.png")},
+		},
 	},
-
 	fonts = {
 		{"menu", !(path_fonts .. "Jamboree.ttf"), 24, "default"},
 		{"about", !(path_fonts .. "DigitalDisco.ttf"), 20},
@@ -109,38 +111,38 @@ Resources.meta.Menu = {
 }
 
 Resources.meta.Intro = {
-	images = {
-		{"bg", !(path_images .. "intro/bg.png")},
-		{"bg_post", !(path_images .. "intro/bg_post.png")},
-		{"bg_tree_cover", !(path_images .. "intro/bg_tree_cover.png")},
-		{"parallax_clouds", !(path_images .. "intro/parallax_clouds.png")},
-		{"parallax_buildings", !(path_images .. "intro/parallax_buildings.png")},
-		{"parallax_trees_bg", !(path_images .. "intro/parallax_trees_bg.png")},
-		{"parallax_trees_fg", !(path_images .. "intro/parallax_trees_fg.png")},
-		{"parallax_road", !(path_images .. "intro/parallax_road.png")},
-		{"parallax_grass", !(path_images .. "intro/parallax_grass.png")},
-		{"parallax_grass2", !(path_images .. "intro/parallax_grass2.png")},
-		{"parallax_grass_back", !(path_images .. "intro/parallax_grass_back.png")},
-		{"parallax_grass_front", !(path_images .. "intro/parallax_grass_front.png")},
-		{"sheet_car", !(path_images .. "intro/sheet_car.png")},
-		{"sheet_car_reflect", !(path_images .. "intro/sheet_car_reflect.png")},
-		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
-		{"title", !(path_images .. "menu/title.png")},
-		{"rain_drop_tilted", !(path_images .. "rain/rain_drop_tilted.png")},
-		{"rain_drop_tilted2", !(path_images .. "rain/rain_drop_tilted2.png")},
-		{"post_light", !(path_images .. "intro/post_light.png")},
-		{"car_headlight", !(path_images .. "intro/car_headlight.png")},
-		{"title_light", !(path_images .. "intro/title.png")},
-		{"dummy", !(path_textures .. "dummy.png")},
+	__images = {
+		images = {
+			{"bg", !(path_images .. "intro/bg.png")},
+			{"bg_post", !(path_images .. "intro/bg_post.png")},
+			{"bg_tree_cover", !(path_images .. "intro/bg_tree_cover.png")},
+			{"parallax_clouds", !(path_images .. "intro/parallax_clouds.png")},
+			{"parallax_buildings", !(path_images .. "intro/parallax_buildings.png")},
+			{"parallax_trees_bg", !(path_images .. "intro/parallax_trees_bg.png")},
+			{"parallax_trees_fg", !(path_images .. "intro/parallax_trees_fg.png")},
+			{"parallax_road", !(path_images .. "intro/parallax_road.png")},
+			{"parallax_grass", !(path_images .. "intro/parallax_grass.png")},
+			{"parallax_grass2", !(path_images .. "intro/parallax_grass2.png")},
+			{"parallax_grass_back", !(path_images .. "intro/parallax_grass_back.png")},
+			{"parallax_grass_front", !(path_images .. "intro/parallax_grass_front.png")},
+			{"sheet_car", !(path_images .. "intro/sheet_car.png")},
+			{"sheet_car_reflect", !(path_images .. "intro/sheet_car_reflect.png")},
+			{"sheet_splat", !(path_ui .. "sheet_splat.png")},
+			{"title", !(path_images .. "menu/title.png")},
+			{"rain_drop_tilted", !(path_images .. "rain/rain_drop_tilted.png")},
+			{"rain_drop_tilted2", !(path_images .. "rain/rain_drop_tilted2.png")},
+			{"post_light", !(path_images .. "intro/post_light.png")},
+			{"car_headlight", !(path_images .. "intro/car_headlight.png")},
+			{"title_light", !(path_images .. "intro/title.png")},
+			{"dummy", !(path_textures .. "dummy.png")},
+		},
 	},
-
 	image_data = {
 		{"lut_afternoon_16", !(path_lut .. "lut_afternoon_16.png")},
 		{"lut_afternoon_64", !(path_lut .. "lut_afternoon_64.png")},
 		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
-
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		{"dialogue", !(path_fonts .. "DigitalDisco.ttf"), 32, "default"},
@@ -148,31 +150,30 @@ Resources.meta.Intro = {
 }
 
 Resources.meta.Outside = {
-	images = {
-		{"rain_drop", !(path_images .. "rain/rain_drop.png")},
-		{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
-		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
-		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
-		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
-		!!(get_res("items"))
-		!!(get_res("pause"))
+	__images = {
+		images = {
+			{"rain_drop", !(path_images .. "rain/rain_drop.png")},
+			{"rain_drop2", !(path_images .. "rain/rain_drop2.png")},
+			{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
+			{"sheet_splat", !(path_ui .. "sheet_splat.png")},
+			{"sheet_brush", !(path_ui .. "sheet_brush.png")},
+			!!(get_res("items"))
+			!!(get_res("pause"))
+		},
+		array_images = {
+			{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
+			{"bg_house", !(path_images .. "house_outside/bg_house.png")},
+			{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
+			{"firefly", !(path_images .. "house_outside/firefly.png")},
+			{"splashes", !(path_images .. "house_outside/splashes.png")},
+			{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+			!!(get_res("player"))
+		},
 	},
-
-	array_images = {
-		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
-		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
-		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
-		{"firefly", !(path_images .. "house_outside/firefly.png")},
-		{"splashes", !(path_images .. "house_outside/splashes.png")},
-		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
-		!!(get_res("player"))
-	},
-
 	image_data = {
 		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
-
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		!!(get_res("fnt_inventory"))
@@ -180,22 +181,21 @@ Resources.meta.Outside = {
 }
 
 Resources.meta.StorageRoom = {
-	images = {
-		!!(get_res("items"))
-		!!(get_res("pause"))
+	__images = {
+		images = {
+			!!(get_res("items"))
+			!!(get_res("pause"))
+		},
+		array_images = {
+			{"storage_room", !(path_images .. "storage_room/storage_room.png")},
+			{"atlas_storage_room_items", !(path_images .. "storage_room/atlas_storage_room_items.png")},
+			!!(get_res("player"))
+		},
 	},
-
-	array_images = {
-		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
-		{"atlas_storage_room_items", !(path_images .. "storage_room/atlas_storage_room_items.png")},
-		!!(get_res("player"))
-	},
-
 	image_data = {
 		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
 	},
-
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
 		!!(get_res("fnt_inventory"))
@@ -203,17 +203,17 @@ Resources.meta.StorageRoom = {
 }
 
 Resources.meta.UtilityRoom = {
-	images = {
-		!!(get_res("items"))
-		!!(get_res("pause"))
+	__images = {
+		images = {
+			!!(get_res("items"))
+			!!(get_res("pause"))
+		},
+		array_images = {
+			{"utility_room", !(path_images .. "utility_room/utility_room.png")},
+			{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
+			!!(get_res("player"))
+		},
 	},
-
-	array_images = {
-		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
-		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
-		!!(get_res("player"))
-	},
-
 	image_data = {
 		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
 		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
@@ -226,15 +226,16 @@ Resources.meta.UtilityRoom = {
 }
 
 Resources.meta.Kitchen = {
-	images = {
-		!!(get_res("items"))
-		!!(get_res("pause"))
-	},
-
-	array_images = {
-		{"kitchen", !(path_images .. "kitchen/kitchen.png")},
-		{"atlas_kitchen_items", !(path_images .. "kitchen/atlas_kitchen_items.png")},
-		!!(get_res("player"))
+	__images = {
+		images = {
+			!!(get_res("items"))
+			!!(get_res("pause"))
+		},
+		array_images = {
+			{"kitchen", !(path_images .. "kitchen/kitchen.png")},
+			{"atlas_kitchen_items", !(path_images .. "kitchen/atlas_kitchen_items.png")},
+			!!(get_res("player"))
+		},
 	},
 
 	image_data = {
@@ -251,7 +252,17 @@ Resources.meta.Kitchen = {
 function Resources.get_meta(key)
 	@@assert(type(key) == "string")
 	@@assert(Resources.meta[key], key .. " is invalid")
-	return tablex.copy(Resources.meta[key], {})
+	local t = tablex.copy(Resources.meta[key], {})
+	local i = t.__images
+	!if _GLSL_NORMALS then
+	t.images = i.images
+	t.array_images = i.array_images
+	!else
+	t.images = tablex.append({}, i.images, i.array_images)
+	!end
+	tablex.clear(t.__images)
+	t.__images = nil
+	return t
 end
 
 function Resources.set_resources(t)

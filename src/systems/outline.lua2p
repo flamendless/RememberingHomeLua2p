@@ -1,5 +1,5 @@
 local Concord = require("modules.concord.concord")
-local Outliner = require("modules.outliner")
+local Outliner = require("outliner")
 
 local Palette = require("palette")
 

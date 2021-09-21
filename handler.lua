@@ -67,6 +67,7 @@ _MODE = args[1]
 _LOG_SAVE = true
 _CACHED_PRELOAD = true
 _PADDING = 4
+_GLSL_NORMALS = false
 
 _OS = "Linux"
 _PLATFORM = "desktop"

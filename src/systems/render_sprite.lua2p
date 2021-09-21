@@ -35,12 +35,16 @@ local function draw(e, ...)
 	if outline and outline.outliner then
 		outline.outliner:draw(outline_val.value, ...)
 	else
+		!if _GLSL_NORMALS then
 		local array_image = e.array_image
 		if array_image then
 			love.graphics.drawLayer(array_image.image, 1)
 		else
 			love.graphics.draw(...)
 		end
+		!else
+		love.graphics.draw(...)
+		!end
 	end
 end
 

@@ -11,8 +11,12 @@ local DeferredLighting = Concord.system({
 	pool_flicker = {"id", "light_id", "point_light", "pos", "diffuse", "d_light_flicker"},
 })
 
+!if _GLSL_NORMALS then
 local shader_geometry = "shaders/geometry_pass.glsl"
 local shader_lighting = "shaders/lighting_pass.glsl"
+!else
+local shader_lighting = "shaders/lighting_pass_basic.glsl"
+!end
 local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
 local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
 local lvfd = {{"diffuse", "float", 3}} -- color
@@ -22,7 +26,10 @@ local MAX_LIGHTS = 96
 function DeferredLighting:init(world)
 	self.world = world
 	self.timer = Timer.new()
+
+	!if _GLSL_NORMALS then
 	self.geometry_pass = love.graphics.newShader(shader_geometry)
+	!end
 	self.lighting_pass = love.graphics.newShader(shader_lighting)
 	self.ambiance = {1, 1, 1, 1}
 	self.groups = {}
@@ -228,15 +235,20 @@ function DeferredLighting:update_light_fading(dt)
 	end
 end
 
+!if _GLSL_NORMALS then
 function DeferredLighting:begin_geometry_pass()
 	love.graphics.setShader(self.geometry_pass)
 end
+!end
 
 function DeferredLighting:begin_light_pass(buffers)
 	@@assert(type(buffers) == "table" and #buffers == 2)
 	love.graphics.setShader(self.lighting_pass)
 	self.lighting_pass:send("cb", buffers[1].canvas)
+
+	!if _GLSL_NORMALS then
 	self.lighting_pass:send("nb", buffers[2].canvas)
+	!end
 end
 
 function DeferredLighting:draw_lights()
