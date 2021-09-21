@@ -1,5 +1,6 @@
 #!/bin/bash
 
+lua=luajit
 os=$(uname)
 lpp_path=./libs/LPP/preprocess-cl.lua
 gv=$(git log -1 --format='v%cd.%h' --date=short 2>/dev/null)
@@ -56,7 +57,7 @@ function process_file()
 	local out=$dir_output/$2/$file
 
 	if [ "$ext" == "lua2p" ]; then
-		lua "$lpp_path" --handler="$handler" --data="$data $gv" --outputpaths "$1" "$out".lua --silent;
+		$lua "$lpp_path" --handler="$handler" --data="$data $gv" --outputpaths "$1" "$out".lua --silent;
 		if [ $? -ne 0 ]; then
 			exit;
 		fi

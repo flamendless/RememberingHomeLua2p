@@ -1,32 +1,29 @@
-local Lume = require("modules.lume.lume")
-
-local randomf = Lume.random
+local random = love.math.random
 
 local Palette = {}
 
-!(@insert "scripts/color.lua")
 -- TODO finalize colors
 
 Palette.colors = {
 	white = {1, 1, 1},
 	red = {1, 0, 0},
 	camera_clip = {0, 0, 0},
-	red_desaturated = !(rgb_to_love("#73160f")),
+	red_desaturated = @@hex_to_rgb(0x73160f),
 
-	menu_text = !(rgb_to_love("#ffffff")),
-	menu_select = !(rgb_to_love("#73160f")),
-	menu_disabled = !(rgb_to_love("#4C4C4C")),
+	menu_text = @@hex_to_rgb(0xffffff),
+	menu_select = @@hex_to_rgb(0x73160f),
+	menu_disabled = @@hex_to_rgb(0x4C4C4C),
 
-	about_normal = !(rgb_to_love("#ffffff")),
-	about_hint = !(rgb_to_love("#ff1744")),
+	about_normal = @@hex_to_rgb(0xffffff),
+	about_hint = @@hex_to_rgb(0xff1744),
 
-	ui_skip = !(rgb_to_love("#ff1744")),
+	ui_skip = @@hex_to_rgb(0xff1744),
 	ui_key = {0.121568627, 0.078431373, 0.207843137},
 	ui_hold_progress = {0.988235294, 0.988235294, 0.925490196},
 	ui_feedback = {0.380392, 0.878431, 0.635294},
-	ui_not_hovered = !(rgb_to_love("#ccc9da")),
-	ui_hovered = !(rgb_to_love("#ffffff")),
-	ui_dialogue = !(rgb_to_love("#ffffff")),
+	ui_not_hovered = @@hex_to_rgb(0xccc9da),
+	ui_hovered = @@hex_to_rgb(0xffffff),
+	ui_dialogue = @@hex_to_rgb(0xffffff),
 	hovered_choice = {1, 0, 0},
 
 	outline = {1, 1, 1},
@@ -62,10 +59,10 @@ Palette.diffuse = {
 }
 
 Palette.color_glitches = {
-	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
-	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
-	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
-	{randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.1, 0.9), randomf(0.3, 0.7)},
+	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
+	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
+	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
+	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
 }
 
 function Palette.get(color, alpha)
