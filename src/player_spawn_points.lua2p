@@ -1,0 +1,43 @@
+local PlayerSpawnPoints = {}
+
+PlayerSpawnPoints.Outside = {
+	!if _DEV then
+	default = {800, 258},
+	!end
+	Menu = {800, 258},
+	StorageRoom = {446, 258},
+}
+
+PlayerSpawnPoints.StorageRoom = {
+	!if _DEV then
+	default = {312, 48},
+	!end
+	Outside = {312, 48},
+	Kitchen = {16, 48, "face_right"},
+}
+
+PlayerSpawnPoints.UtilityRoom = {
+	!if _DEV then
+	default = {318, 48},
+	!end
+	Kitchen = {16, 48, "face_right"},
+}
+
+PlayerSpawnPoints.Kitchen = {
+	!if _DEV then
+	default = {443, 64},
+	!end
+	StorageRoom = {443, 64},
+	UtilityRoom = {398, 64},
+}
+
+function PlayerSpawnPoints.get(current_id, prev_id)
+	local d = PlayerSpawnPoints[current_id][prev_id or "default"]
+	@@assert(d)
+	if not d[3] then
+		d[3] = "face_left"
+	end
+	return unpack(d)
+end
+
+return PlayerSpawnPoints

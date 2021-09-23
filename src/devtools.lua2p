@@ -294,7 +294,7 @@ function DevTools.keypressed(key)
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then
 	-- 	GameStates.world:emit("load_game")
-	elseif key == "s" then
+	elseif key == "h" then
 		DevTools.show_fps = not DevTools.show_fps
 	elseif key == "r" then
 		love.event.quit("restart")
