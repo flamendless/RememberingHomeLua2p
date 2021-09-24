@@ -3,12 +3,22 @@ local Timer = require("modules.hump.timer")
 
 local Dialogues = require("dialogues")
 local Inputs = require("inputs")
-local PlayerSpawnPoints = require("player_spawn_points")
+local PlayerSpawnPoints = require("data.player_spawn_points")
 local AssemPlayer = require("assemblages.player")
 
 local PlayerController = Concord.system({
 	pool = {"player_controller", "body", "collider"},
 })
+
+local function get_spawn_points(current_id, prev_id)
+	local d = PlayerSpawnPoints[current_id][prev_id or "default"]
+	@@assert(d)
+	if not d[3] then
+		d[3] = "face_left"
+	end
+	@@assert(type(d[3]) == "string" and (d[3] == "face_left" or d[3] == "face_right"))
+	return unpack(d)
+end
 
 function PlayerController:init(world)
 	self.world = world
@@ -17,10 +27,9 @@ end
 function PlayerController:spawn_player(fn)
 	@@sassert(fn, type(fn) == "function")
 	@@assert(self.player == nil, "Player already exists")
-	local x, y, face = PlayerSpawnPoints.get(self.world.current_id, self.world.prev_id)
+	local x, y, face = get_spawn_points(self.world.current_id, self.world.prev_id)
 	self.player = Concord.entity(self.world):assemble(AssemPlayer.room, x, y)
 	self.world:__flush()
-	@@assert(type(face) == "string" and (face == "face_left" or face == "face_right"))
 	if face == "face_left" then
 		self:face_left()
 	elseif face == "face_right" then

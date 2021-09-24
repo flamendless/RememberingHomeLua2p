@@ -31,13 +31,4 @@ PlayerSpawnPoints.Kitchen = {
 	UtilityRoom = {398, 64},
 }
 
-function PlayerSpawnPoints.get(current_id, prev_id)
-	local d = PlayerSpawnPoints[current_id][prev_id or "default"]
-	@@assert(d)
-	if not d[3] then
-		d[3] = "face_left"
-	end
-	return unpack(d)
-end
-
 return PlayerSpawnPoints
