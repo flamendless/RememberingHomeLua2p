@@ -7,7 +7,6 @@ local Canvas = require("canvas")
 local Fade = require("fade")
 local NGrading = require("ngrading")
 local Palette = require("palette")
-local PlayerSpawnPoints = require("player_spawn_points")
 local Resources = require("resources")
 local Settings = require("settings")
 
@@ -67,11 +66,12 @@ function Kitchen:state_setup()
 end
 
 function Kitchen:state_init()
-	local e_player = self:spawn_player()
-	self.world:emit("camera_follow", e_player, 0.25)
-	self.world:emit("player_can_move", true, e_player)
-	self.world:emit("player_can_interact", true, e_player)
-	self.world:emit("player_can_run", true, e_player)
+	self.world:emit("spawn_player", function(e_player)
+		self.world:emit("camera_follow", e_player, 0.25)
+		self.world:emit("player_can_move", true, e_player)
+		self.world:emit("player_can_interact", true, e_player)
+		self.world:emit("player_can_run", true, e_player)
+	end)
 
 	self.timeline = TLE.Do(function()
 		Fade.fade_in(nil, 1)
@@ -126,12 +126,12 @@ function Kitchen:state_draw()
 	Fade.draw()
 end
 
-function Kitchen:spawn_player()
-	local x, y, face = PlayerSpawnPoints.get("Kitchen", self.prev_id)
-	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.room, x, y)
-	self.world:emit(face, e_player)
-	return e_player
-end
+-- function Kitchen:spawn_player()
+-- 	local x, y, face = PlayerSpawnPoints.get("Kitchen", self.prev_id)
+-- 	local e_player = Concord.entity(self.world)
+-- 		:assemble(Assemblages.Player.room, x, y)
+-- 	self.world:emit(face, e_player)
+-- 	return e_player
+-- end
 
 return Kitchen

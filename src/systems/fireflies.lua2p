@@ -34,7 +34,7 @@ function Fireflies:generate_fireflies()
 			:give("path_speed", random(4, 8))
 			:give("apply_bezier_curve")
 			:give("path_loop")
-		e:give("on_path_reached_end", "update_light_pos", 0, e)
+		e:give("on_path_update", "update_light_pos", 0, e)
 	end
 end
 
@@ -86,8 +86,7 @@ end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
-		e:give("firefly_move")
-		:give("path_move")
+		e:give("path_move")
 	end
 	!if _DEV then
 	self.debug_move = true
@@ -96,7 +95,7 @@ end
 
 function Fireflies:stop_fireflies()
 	for _, e in ipairs(self.pool) do
-		e:remove("firefly_move")
+		e:remove("path_move")
 		:remove("path_loop")
 	end
 	!if _DEV then

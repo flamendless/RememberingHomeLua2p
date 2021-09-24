@@ -9,7 +9,6 @@ local Fade = require("fade")
 local Items = require("items")
 local NGrading = require("ngrading")
 local Palette = require("palette")
-local PlayerSpawnPoints = require("player_spawn_points")
 local Resources = require("resources")
 local Settings = require("settings")
 
@@ -69,11 +68,12 @@ function StorageRoom:state_setup()
 end
 
 function StorageRoom:state_init()
-	local e_player = self:spawn_player()
-	self.world:emit("camera_follow", e_player, 0.25)
-	self.world:emit("player_can_move", true, e_player)
-	self.world:emit("player_can_interact", true, e_player)
-	self.world:emit("player_can_run", true, e_player)
+	self.world:emit("spawn_player", function(e_player)
+		self.world:emit("camera_follow", e_player, 0.25)
+		self.world:emit("player_can_move", true, e_player)
+		self.world:emit("player_can_interact", true, e_player)
+		self.world:emit("player_can_run", true, e_player)
+	end)
 
 	-- self.world:emit("generate_ants", 18, vec2(12, 28), vec2(56, 4), true, 32)
 	-- self.world:emit("generate_ants", 18, vec2(88, 102), vec2(108, 4), true, 32)
@@ -130,14 +130,6 @@ function StorageRoom:state_draw()
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
 	Fade.draw()
-end
-
-function StorageRoom:spawn_player()
-	local x, y, face = PlayerSpawnPoints.get("StorageRoom", self.prev_id)
-	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.room, x, y)
-	self.world:emit(face, e_player)
-	return e_player
 end
 
 function StorageRoom:search_shelf(e, dialogues_t)

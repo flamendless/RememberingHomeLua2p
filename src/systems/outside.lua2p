@@ -12,7 +12,6 @@ local Inputs = require("inputs")
 local Items = require("items")
 local NGrading = require("ngrading")
 local Palette = require("palette")
-local PlayerSpawnPoints = require("player_spawn_points")
 local Resources = require("resources")
 local Save = require("save")
 local Settings = require("settings")
@@ -133,15 +132,15 @@ end
 
 function Outside:state_init()
 	if self.prev_id == "StorageRoom" then
-		local e_player = self:spawn_player()
-		self.world:emit("face_right", e_player)
-		self.camera:setScale(3)
-		self.camera:setPosition(e_player.pos.x, e_player.pos.y)
-		self.camera:setScale(3)
+		self.world:emit("spawn_player", function(e_player)
+			self.world:emit("player_can_move", true, e_player)
+			self.world:emit("player_can_interact", true, e_player)
+			self.world:emit("camera_follow", e_player, 0.25)
+			self.camera:setScale(3)
+			self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+			self.camera:setScale(3)
+		end)
 		Fade.set_alpha(0)
-		self.world:emit("player_can_move", true, e_player)
-		self.world:emit("player_can_interact", true, e_player)
-		self.world:emit("camera_follow", e_player, 0.25)
 
 		for _, e in ipairs(self.pool_bump) do
 			local id = e.id.value
@@ -157,12 +156,14 @@ function Outside:state_init()
 
 	--TEST
 	!if _DEV then
-	local e_player = self:spawn_player()
-	self.camera:setScale(3)
-	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
-	self.world:emit("camera_follow", e_player, 0.25)
-	self.world:emit("player_can_move", true, e_player)
-	self.world:emit("player_can_interact", true, e_player)
+	-- self.world:emit("spawn_player", function(e_player)
+	-- 	e_player:give("color_fade_in", 0.25)
+	-- 	self.world:emit("player_can_move", true, e_player)
+	-- 	self.world:emit("player_can_interact", true, e_player)
+	-- 	self.world:emit("camera_follow", e_player, 0.25)
+	-- 	self.camera:setScale(3)
+	-- 	self.camera:setPosition(e_player.pos.x, e_player.pos.y)
+	-- end)
 	!end
 
 	self.timeline = TLE.Do(function()
@@ -228,7 +229,11 @@ function Outside:state_init()
 
 		tle_log("show player")
 		local dur_camera_follow = 1.5
-		local e_player = self:spawn_player()
+		local e_player
+		self.world:emit("spawn_player", function(e)
+			e_player = e
+			e_player:give("color_fade_in", 0.25)
+		end)
 		dt_cam.x, dt_cam.y = self.camera:getPosition()
 		dt_cam.scale = self.camera:getScale()
 		Flux.to(dt_cam, 3, {x = e_player.pos.x, y = e_player.pos.y, scale = 3})
@@ -346,8 +351,8 @@ function Outside:start_rain_fade()
 			tle_log("splashes stopped")
 
 			tle_log("fireflies start")
-			self.world:emit("move_fireflies")
 			self.world:emit("show_fireflies", 5)
+			self.world:emit("move_fireflies")
 			self.timeline:Unpause()
 
 			self.world:emit("cleanup_rain")
@@ -364,15 +369,6 @@ function Outside:on_car_light_flicker_after()
 		self.world:emit("update_light_diffuse", e)
 	end
 	self.timeline:Unpause()
-end
-
-function Outside:spawn_player()
-	local x, y, face = PlayerSpawnPoints.get("Outside", self.prev_id)
-	local e_player = Concord.entity(self.world)
-		:assemble(Assemblages.Player.outside_house, x, y)
-		:give("color_fade_in", 0.25)
-	self.world:emit("face_left", e_player)
-	return e_player
 end
 
 function Outside:get_flashlight(e, dialogues_t)

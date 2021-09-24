@@ -287,9 +287,9 @@ function DevTools.end_draw()
 end
 
 function DevTools.keypressed(key)
+	if not GameStates.world then return end
 	if key == "`" then
 		DevTools.show = not DevTools.show
-		GameStates.world:emit("debug_on_toggle")
 	-- elseif key == "m" then
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then

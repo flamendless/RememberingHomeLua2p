@@ -52,6 +52,7 @@ function Path:update(dt)
 		local points, high = self:get_points(e)
 		local speed = e.path_speed.value
 		local epsilon = 1/15 * speed * 1.01
+		local on_update = e.on_path_update
 		local on_end = false
 
 		if bezier_curve then
@@ -72,6 +73,10 @@ function Path:update(dt)
 			pos.x, pos.y = np:unpack()
 			p.x, p.y = pos.x, pos.y
 			on_end = p:distance(t) < epsilon
+		end
+
+		if on_update then
+			self.world:emit(on_update.signal, unpack(on_update.args))
 		end
 
 		if on_end then

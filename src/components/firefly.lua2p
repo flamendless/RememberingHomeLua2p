@@ -1,4 +1,3 @@
 local Concord = require("modules.concord.concord")
 
 Concord.component("firefly")
-Concord.component("firefly_move")

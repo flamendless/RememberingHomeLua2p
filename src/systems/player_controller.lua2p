@@ -3,6 +3,8 @@ local Timer = require("modules.hump.timer")
 
 local Dialogues = require("dialogues")
 local Inputs = require("inputs")
+local PlayerSpawnPoints = require("player_spawn_points")
+local AssemPlayer = require("assemblages.player")
 
 local PlayerController = Concord.system({
 	pool = {"player_controller", "body", "collider"},
@@ -10,50 +12,32 @@ local PlayerController = Concord.system({
 
 function PlayerController:init(world)
 	self.world = world
+end
 
-	self.pool.onAdded = function(pool, e)
-		@@assert(self.player == nil, "Player already exists")
-		self.player = e
+function PlayerController:spawn_player(fn)
+	@@sassert(fn, type(fn) == "function")
+	@@assert(self.player == nil, "Player already exists")
+	local x, y, face = PlayerSpawnPoints.get(self.world.current_id, self.world.prev_id)
+	self.player = Concord.entity(self.world):assemble(AssemPlayer.room, x, y)
+	self.world:__flush()
+	@@assert(type(face) == "string" and (face == "face_left" or face == "face_right"))
+	if face == "face_left" then
+		self:face_left()
+	elseif face == "face_right" then
+		self:face_right()
 	end
-end
-
-function PlayerController:player_can_move(bool, e_player)
-	@@assert(type(bool) == "boolean")
-	@@assert(e_player ~= nil or self.player ~= nil)
-	@@sassert(e_player, e_player.__isEntity and e_player.player)
-	local e = e_player or self.player
-	e.body.can_move = bool
-end
-
-function PlayerController:player_can_run(bool, e_player)
-	@@assert(type(bool) == "boolean")
-	@@assert(e_player ~= nil or self.player ~= nil)
-	@@sassert(e_player, e_player.__isEntity and e_player.player)
-	local e = e_player or self.player
-	e.body.can_run = bool
-end
-
-function PlayerController:player_can_interact(bool, e_player)
-	@@assert(type(bool) == "boolean")
-	@@assert(e_player ~= nil or self.player ~= nil)
-	@@sassert(e_player, e_player.__isEntity and e_player.player)
-	local e = e_player or self.player
-	if bool then
-		e:give("can_interact")
-	else
-		e:remove("can_interact")
+	if fn then
+		fn(self.player)
 	end
 end
 
 function PlayerController:update(dt)
-	local e = self.player
-	if not e then return end
-	if e.override_animation then return end
-	if not e.body.can_move then return end
-	local within_int = e.within_interactive
-	local can_interact = e.can_interact
-	local body = e.body
-
+	if not self.player then return end
+	if self.player.override_animation then return end
+	if not self.player.body.can_move then return end
+	local within_int = self.player.within_interactive
+	local can_interact = self.player.can_interact
+	local body = self.player.body
 	body.dx = 0
 
 	if body.can_run then
@@ -80,25 +64,25 @@ function PlayerController:update(dt)
 
 			if proceed then
 				if other.dialogue_meta then
-					self:on_player_interact(e, other)
+					self:on_player_interact(self.player, other)
 				elseif other.is_door then
-					self.world:emit("on_interact_door", e, other)
+					self.world:emit("on_interact_door", self.player, other)
 				end
 			end
 		end
 	end
 
-	local anim_name = self:player_update_animation(e)
-	self:update_speed(e, anim_name)
+	local anim_name = self:player_update_animation()
+	self:update_speed(anim_name)
 end
 
-function PlayerController:player_update_animation(e, override_name, override_variant)
+function PlayerController:player_update_animation(override_name, override_variant)
 	local anim_name = override_name
 	local anim_variant = override_variant
-	local body = e.body
+	local body = self.player.body
 
 	if not anim_name then
-		if body.dx ~= 0 and not e.hit_wall then
+		if body.dx ~= 0 and not self.player.hit_wall then
 			if body.is_run then
 				anim_name = "run"
 			else
@@ -116,20 +100,21 @@ function PlayerController:player_update_animation(e, override_name, override_var
 	end
 
 	if anim_variant then
-		self.world:emit("switch_animation_tag", e, anim_name .. anim_variant, anim_name)
+		self.world:emit("switch_animation_tag",
+			self.player, anim_name .. anim_variant, anim_name)
 	else
-		self.world:emit("switch_animation_tag", e, anim_name)
+		self.world:emit("switch_animation_tag", self.player, anim_name)
 	end
 
 	return anim_name
 end
 
-function PlayerController:update_speed(e, anim_name)
-	local speed = e.speed
-	local speed_data = e.speed_data
+function PlayerController:update_speed(anim_name)
+	local speed = self.player.speed
+	local speed_data = self.player.speed_data
 
 	if speed and speed_data then
-		local body = e.body
+		local body = self.player.body
 		local new_speed = speed_data.speed_data[anim_name]
 
 		if body.dx ~= 0 then
@@ -139,28 +124,27 @@ function PlayerController:update_speed(e, anim_name)
 	end
 end
 
-function PlayerController:face_left(e)
-	@@assert(e.__isEntity and e.player_controller)
-	if e.override_animation then return end
-	e.body.dir = -1
-	self:player_update_animation(e, "idle", "_left")
+function PlayerController:face_left()
+	if not self.player then return end
+	if self.player.override_animation then return end
+	self.player.body.dir = -1
+	self:player_update_animation("idle", "_left")
 end
 
-function PlayerController:face_right(e)
-	@@assert(e.__isEntity and e.player_controller)
-	if e.override_animation then return end
-	e.body.dir = 1
-	self:player_update_animation(e, "idle")
+function PlayerController:face_right()
+	if not self.player then return end
+	if self.player.override_animation then return end
+	self.player.body.dir = 1
+	self:player_update_animation("idle")
 end
 
-function PlayerController:idle(e, stop)
-	@@assert(e.__isEntity and e.player_controller)
-	if e.override_animation then return end
-	local body = e.body
+function PlayerController:idle(stop)
+	if self.player.override_animation then return end
+	local body = self.player.body
 	if body.dir == -1 then
-		self:player_update_animation(e, "idle", "_left")
+		self:player_update_animation("idle", "_left")
 	else
-		self:player_update_animation(e, "idle")
+		self:player_update_animation("idle")
 	end
 
 	if stop then
@@ -171,19 +155,17 @@ function PlayerController:idle(e, stop)
 end
 
 function PlayerController:player_open_door()
-	local e = self.player
-	local tag = (e.body.dir == -1) and "open_door_left" or "open_door"
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	e:give("animation_on_loop", "anim_pause_at_end", 0, e)
+	local tag = (self.player.body.dir == -1) and "open_door_left" or "open_door"
+	self.player:give("change_animation_tag", tag)
+		:give("override_animation")
+	self.player:give("animation_on_loop", "anim_pause_at_end", 0, self.player)
 end
 
 function PlayerController:player_open_locked_door()
-	local e = self.player
-	local tag = (e.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	e:give("animation_on_loop", "anim_pause_at_end", 0, e)
+	local tag = (self.player.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
+	self.player:give("change_animation_tag", tag)
+		:give("override_animation")
+	self.player:give("animation_on_loop", "anim_pause_at_end", 0, self.player)
 end
 
 function PlayerController:on_player_interact(player, interactive)
@@ -198,12 +180,11 @@ function PlayerController:on_player_interact(player, interactive)
 end
 
 function PlayerController:on_interact_or_inventory()
-	local e = self.player
-	if not e.prev_body then
-		local body = e.body
-		local can_interact = e.can_interact
-		e:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
-		self:idle(e, true)
+	if not self.player.prev_body then
+		local body = self.player.body
+		local can_interact = self.player.can_interact
+		self.player:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
+		self:idle(true)
 	end
 	self:player_can_run(false)
 	self:player_can_move(false)
@@ -211,29 +192,46 @@ function PlayerController:on_interact_or_inventory()
 end
 
 function PlayerController:on_leave_interact_or_inventory(_)
-	local e = self.player
-	local body = e.body
-	local prev_body = e.prev_body
+	local body = self.player.body
+	local prev_body = self.player.prev_body
 	body.can_move = prev_body.can_move
 	body.can_run = prev_body.can_run
 	if prev_body.can_interact then
 		Timer.after(0.5, function()
-			e:give("can_interact")
-			:remove("is_interacting")
+			self.player:give("can_interact")
+				:remove("is_interacting")
 		end)
 	end
-	e:remove("prev_body")
+	self.player:remove("prev_body")
 	-- self.world:emit("remove_speech_bubble")
 end
 
-function PlayerController:player_reset_anim(e)
-	@@assert(e.__isEntity and e.player)
-	e:remove("override_animation")
+function PlayerController:player_reset_anim()
+	self.player:remove("override_animation")
 	:remove("change_animation_tag")
 	:remove("animation_on_loop")
-	local anim = e.animation
+	local anim = self.player.animation
 	anim.is_playing = true
 	anim.anim8:resume()
+end
+
+function PlayerController:player_can_move(bool)
+	@@assert(type(bool) == "boolean")
+	self.player.body.can_move = bool
+end
+
+function PlayerController:player_can_run(bool)
+	@@assert(type(bool) == "boolean")
+	self.player.body.can_run = bool
+end
+
+function PlayerController:player_can_interact(bool)
+	@@assert(type(bool) == "boolean")
+	if bool then
+		self.player:give("can_interact")
+	else
+		self.player:remove("can_interact")
+	end
 end
 
 return PlayerController

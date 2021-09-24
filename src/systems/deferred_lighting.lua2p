@@ -224,9 +224,9 @@ function DeferredLighting:update_light_fading(dt)
 		if not e.light_disabled then
 			local lp = e.point_light
 			local f = e.light_fading
-			if lp.value >= lp.orig then
+			if lp.value >= lp.orig_value then
 				f.dir = -1
-			elseif lp.value <= lp.orig - f.amount then
+			elseif lp.value <= lp.orig_value - f.amount then
 				f.dir = 1
 			end
 			lp.value = lp.value + f.amount * f.dir * dt

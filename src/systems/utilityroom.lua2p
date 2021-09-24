@@ -67,18 +67,17 @@ function UtilityRoom:state_setup()
 end
 
 function UtilityRoom:state_init()
-	!if _DEV then
-	local e_player = self:spawn_player()
-	!end
+	self.world:emit("spawn_player", function(e_player)
+		self.world:emit("camera_follow", e_player, 0.25)
+		self.world:emit("player_can_move", true, e_player)
+		self.world:emit("player_can_interact", true, e_player)
+		self.world:emit("player_can_run", true, e_player)
+	end)
 
 	self.timeline = TLE.Do(function()
 		Fade.fade_in(nil, 1)
 		self.camera:setScale(4)
 		!if _DEV then
-		self.world:emit("camera_follow", e_player, 0.25)
-		self.world:emit("player_can_move", true)
-		self.world:emit("player_can_interact", true)
-		self.world:emit("player_can_run", true)
 		self.timeline:Pause()
 		!end
 	end)
