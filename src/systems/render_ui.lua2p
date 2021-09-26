@@ -37,16 +37,20 @@ function RenderUI:draw_ui()
 	@@profb("render_ui_draw")
 	@@profb("render_ui")
 	for _, e in ipairs(self.pool_ui) do
-		local text = e.text
-		local stext = e.static_text
-		local sprite = e.sprite
+		local hidden = e.hidden
+		local culled = e.cullable and e.cullable.value
+		if (not hidden) and (not culled) then
+			local text = e.text
+			local stext = e.static_text
+			local sprite = e.sprite
 
-		if (text or stext) and not e.nf_render_text then
-			self.world:emit("draw_text_ex", e)
-		end
+			if (text or stext) and (not e.nf_render_text) then
+				self.world:emit("draw_text_ex", e)
+			end
 
-		if sprite and not e.nf_render_sprite then
-			self.world:emit("draw_sprite_ex", e)
+			if sprite and (not e.nf_render_sprite) then
+				self.world:emit("draw_sprite_ex", e)
+			end
 		end
 	end
 	@@profe("render_ui")
@@ -54,16 +58,20 @@ function RenderUI:draw_ui()
 	@@profb("render_ui_layers")
 	for _, pool in ipairs(self.layers) do
 		for _, e in ipairs(pool) do
-			local text = e.text
-			local stext = e.static_text
-			local sprite = e.sprite
+			local hidden = e.hidden
+			local culled = e.cullable and e.cullable.value
+			if (not hidden) and (not culled) then
+				local text = e.text
+				local stext = e.static_text
+				local sprite = e.sprite
 
-			if (text or stext) and not e.nf_render_text then
-				self.world:emit("draw_text_ex", e)
-			end
+				if (text or stext) and (not e.nf_render_text) then
+					self.world:emit("draw_text_ex", e)
+				end
 
-			if sprite and not e.nf_render_sprite then
-				self.world:emit("draw_sprite_ex", e)
+				if sprite and (not e.nf_render_sprite) then
+					self.world:emit("draw_sprite_ex", e)
+				end
 			end
 		end
 	end

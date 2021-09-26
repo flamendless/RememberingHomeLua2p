@@ -112,7 +112,6 @@ function Kitchen:state_draw()
 			love.graphics.draw(self.buffers[1].canvas)
 			love.graphics.setBlendMode("alpha")
 			self.world:emit("draw_clip")
-			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.apply()
@@ -123,15 +122,8 @@ function Kitchen:state_draw()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+	self.world:emit("draw_ui")
 	Fade.draw()
 end
-
--- function Kitchen:spawn_player()
--- 	local x, y, face = PlayerSpawnPoints.get("Kitchen", self.prev_id)
--- 	local e_player = Concord.entity(self.world)
--- 		:assemble(Assemblages.Player.room, x, y)
--- 	self.world:emit(face, e_player)
--- 	return e_player
--- end
 
 return Kitchen

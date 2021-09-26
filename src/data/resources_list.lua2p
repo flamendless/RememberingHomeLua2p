@@ -15,17 +15,22 @@ t.player = {
 	{"sheet_player_run_normal", path_images .. "player/sheet_player_run_normal.png"},
 	{"sheet_player_open_door_normal", path_images .. "player/sheet_player_open_door_normal.png"},
 }
+
 t.ui = {
 }
+
 t.items = {
 	{"bg_item", path_items .. "bg_item.png"},
 	{"bg_desc", path_items .. "bg_desc.png"},
 	{"flashlight", path_items .. "flashlight.png"},
+	{"atlas_keys", path_ui .. "atlas_keys.png"},
 }
+
 t.pause = {
 	{"tex_displacement", path_textures .. "displacement.png"},
 	{"pause_bg", path_textures .. "pause_bg.png"},
 }
+
 t.fnt_inventory = {
 	{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},

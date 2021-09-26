@@ -239,6 +239,30 @@ local Data = {
 				x = 0.5,
 				y = 0.5
 			}
+		},
+		light_switch = {
+			frame = {
+				x = 68,
+				y = 190,
+				w = 13,
+				h = 17
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 13,
+				h = 17
+			},
+			sourceSize = {
+				w = 13,
+				h = 17
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
 		}
 	},
 	meta = {

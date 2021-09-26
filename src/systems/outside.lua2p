@@ -308,7 +308,6 @@ function Outside:state_draw()
 			end
 			love.graphics.setBlendMode("alpha")
 			self.world:emit("draw_clip")
-			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.apply()
@@ -319,6 +318,7 @@ function Outside:state_draw()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+	self.world:emit("draw_ui")
 
 	if self.overlay_flag then
 		self.camera:attach()

@@ -551,6 +551,30 @@ local Data = {
 				x = 0.5,
 				y = 0.5
 			}
+		},
+		light_switch = {
+			frame = {
+				x = 208,
+				y = 89,
+				w = 5,
+				h = 8
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 5,
+				h = 8
+			},
+			sourceSize = {
+				w = 5,
+				h = 8
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
 		}
 	},
 	meta = {

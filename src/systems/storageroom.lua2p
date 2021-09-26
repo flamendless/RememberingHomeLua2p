@@ -118,7 +118,6 @@ function StorageRoom:state_draw()
 			love.graphics.draw(self.buffers[1].canvas)
 			love.graphics.setBlendMode("alpha")
 			self.world:emit("draw_clip")
-			self.world:emit("draw_ui")
 		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.apply()
@@ -129,6 +128,7 @@ function StorageRoom:state_draw()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
+	self.world:emit("draw_ui")
 	Fade.draw()
 end
 

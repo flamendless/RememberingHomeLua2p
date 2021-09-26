@@ -22,6 +22,10 @@ local Data = {
 		req_col_dir = 1,
 		is_door = true,
 	},
+	{
+		id = "light_switch",
+		x = 64, y = 48,
+	},
 
 	{
 		id = "ladder",

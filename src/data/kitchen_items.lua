@@ -2,6 +2,7 @@ local Data = {
 	{
 		id = "ref",
 		x = 348, y = 67, z = 5,
+		dialogue = {"kitchen", "ref"},
 	},
 	{
 		id = "left_door",
@@ -19,6 +20,10 @@ local Data = {
 		x = 463, y = 63,
 		is_door = true,
 		req_col_dir = 1,
+	},
+	{
+		id = "light_switch",
+		x = 48, y = 72,
 	},
 
 	{

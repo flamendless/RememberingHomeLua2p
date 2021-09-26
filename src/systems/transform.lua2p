@@ -7,7 +7,7 @@ local Transform = Concord.system({
 	pool = {"transform"},
 	pool_pos = {"pos", "!pos_vec2"},
 	pool_pos_vec2 = {"pos", "pos_vec2"},
-	pool_quad = {"quad_transform"},
+	pool_atlas = {"quad_transform", "atlas"},
 	pool_anchor = {"pos", "anchor"},
 	pool_camera = {"pos", "camera"},
 	pool_attach = {"pos", "attach_to"},
@@ -16,6 +16,22 @@ local Transform = Concord.system({
 })
 
 function Transform:init()
+	self.pool_atlas.onAdded = function(pool, e)
+		local frame = e.atlas.value.frame
+		local qt = e.quad_transform
+		if qt.ox == 0.5 then
+			qt.ox = frame.w * 0.5
+		elseif qt.ox == 1 then
+			qt.ox = frame.w
+		end
+
+		if qt.oy == 0.5 then
+			qt.oy = frame.h * 0.5
+		elseif qt.oy == 1 then
+			qt.oy = frame.h
+		end
+	end
+
 	self.pool_anchor.onAdded = function(pool, e)
 		self:update_anchor(e)
 	end

@@ -13,6 +13,9 @@ local RenderSprite = Concord.system({
 		"!bg", "!z_index", "!ui_element", "!nf_render_sprite", "!use_canvas"},
 	pool_z = {"pos", "sprite", "z_index",
 		"!ui_element", "!nf_render_sprite", "!use_canvas"},
+	!if _DEV then
+	pool_layer = {"pos", "sprite", "layer", "!nf_render_sprite", "!use_canvas"},
+	!end
 })
 
 local function sort_z_ex(a, b)
@@ -53,6 +56,9 @@ function RenderSprite:init(world)
 
 	!if _DEV then
 	self.debug_batched = {}
+	self.pool_layer.onAdded = function(pool, e)
+		self:setup_sprite(e)
+	end
 	!end
 
 	self.pool.onAdded = function(pool, e)
@@ -92,7 +98,7 @@ end
 
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
-	local culled = e.cullabl and e.cullable.value
+	local culled = e.cullable and e.cullable.value
 	if hidden or culled then return end
 
 	local pos = e.pos

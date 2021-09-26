@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 local TLE = require("modules.tle.timeline")
 
+local AtlasKeys = require("data.atlas_keys")
 local Inputs = require("inputs")
 local Resources = require("resources")
 local Palette = require("palette")
@@ -46,6 +47,7 @@ function Dialogues:init(world)
 				end
 
 				if handle_self then
+					self.e_key:remove("hidden")
 					self.e_dialogue:remove("text_can_proceed")
 						:remove("hidden")
 						:give("text", current_line)
@@ -75,6 +77,18 @@ function Dialogues:init(world)
 end
 
 function Dialogues:create_e_dialogue()
+	local w, h = love.graphics.getDimensions()
+	self.e_key = Concord.entity(self.world)
+		:give("id", "dialogue_proceed_key")
+		:give("atlas", AtlasKeys.frames[Inputs.rev_map.interact])
+		:give("sprite", "atlas_keys")
+		:give("ui_element")
+		:give("layer", "hud")
+		:give("pos", w - 8, h - 8)
+		:give("quad_transform", 0, 3, 3, 1, 1)
+		:give("color", {1, 1, 1, 1})
+		:give("hidden")
+
 	self.e_dialogue = Concord.entity(self.world)
 		:give("id", "dialogue_holder")
 		:give("font", "ui")
@@ -183,6 +197,7 @@ function Dialogues:on_dialogue_reached_end(e)
 				:remove("choice_item")
 				:remove("has_choices")
 		end
+		self.e_key:give("hidden")
 	end
 	self.timeline:Pause()
 end
@@ -323,6 +338,8 @@ function Dialogues:remove_choices()
 end
 
 function Dialogues:cleanup()
+	self.e_key:destroy()
+	self.e_dialogue:destroy()
 	for _, e in ipairs(self.pool) do
 		e:destroy()
 	end

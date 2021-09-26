@@ -138,4 +138,10 @@ Dialogues.storage_room = {
 	},
 }
 
+Dialogues.kitchen = {
+	ref = {
+		"A refrigerator",
+	},
+}
+
 return Dialogues
