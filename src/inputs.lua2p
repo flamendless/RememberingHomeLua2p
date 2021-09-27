@@ -33,6 +33,7 @@ local map_names = { "WASD", "Arrows" }
 local Inputs = {
 	map = maps[1],
 	rev_map = {},
+	rev_maps = {},
 	previous = {},
 	current = {},
 }
@@ -40,13 +41,6 @@ local Inputs = {
 !if _DEV then
 Inputs.dev_map = {}
 !end
-
-Inputs.key_title = {
-	run_mod = "run (hold)",
-	flashlight = "toggle flashlight",
-	inventory = "toggle inventory",
-	pause = "pause/unpause",
-}
 
 function Inputs.init(key_map)
 	@@sassert(key_map, type(key_map) == "number")
@@ -68,6 +62,13 @@ function Inputs.init(key_map)
 		Inputs.previous[v] = false
 		Inputs.current[v] = false
 		Inputs.rev_map[v] = k
+	end
+
+	for i, map in ipairs(maps) do
+		Inputs.rev_maps[i] = {}
+		for k, v in pairs(map) do
+			Inputs.rev_maps[i][v] = k
+		end
 	end
 end
 
@@ -108,15 +109,15 @@ function Inputs.update()
 end
 
 function Inputs.get_map_keys()
-	return maps
+	return tablex.copy(maps, {})
 end
 
 function Inputs.get_map_names()
-	return map_names
+	return tablex.copy(map_names, {})
 end
 
 function Inputs.get_current_map_name()
-	return map_names[Settings.current.key_map]
+	return tablex.copy(map_names[Settings.current.key_map], {})
 end
 
 return Inputs

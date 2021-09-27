@@ -33,6 +33,7 @@ local DevTools = {
 
 local stats = {
 	show = false,
+	exclude_slab = true,
 	stats = {},
 	title = "Stats",
 }
@@ -138,6 +139,9 @@ function DevTools.draw_stats()
 		Title = stats.title,
 		IsOpen = stats.show,
 	})
+	if Slab.CheckBox(stats.exclude_slab, "Exclude Slab") then
+		stats.exclude_slab = not stats.exclude_slab
+	end
 	Slab.Text("FPS: " .. getFPS())
 	for k, v in pairs(stats.stats) do
 		Slab.Text(k .. ": " .. v)
@@ -283,6 +287,9 @@ end
 function DevTools.end_draw()
 	if stats.show then
 		stats.stats = love.graphics.getStats(stats.stats)
+		if stats.exclude_slab then
+			stats.stats = Slab.CalculateStats(stats.stats)
+		end
 	end
 end
 
@@ -290,6 +297,7 @@ function DevTools.keypressed(key)
 	if not GameStates.world then return end
 	if key == "`" then
 		DevTools.show = not DevTools.show
+		Slab.EnableStats(DevTools.show)
 	-- elseif key == "m" then
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then

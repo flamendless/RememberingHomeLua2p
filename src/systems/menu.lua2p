@@ -563,6 +563,7 @@ end
 
 function Menu:enter_option()
 	if self.cursor == 0 then return end
+	if self.current_state == states.settings then return end
 	if not self.flags.allow_cursor then return end
 	for _, e in ipairs(self.pool) do
 		local option_key = e.option_key

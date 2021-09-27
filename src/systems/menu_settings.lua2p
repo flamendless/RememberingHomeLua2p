@@ -10,6 +10,26 @@ local WindowMode = require("window_mode")
 
 local MenuSettings = Concord.system({})
 
+local ordered_key_map = {
+	"left", "right", "down", "up",
+	"interact", "cancel",
+	"flashlight", "inventory",
+	"pause", "run_mod",
+}
+
+local key_title = {
+	left = "move left",
+	right = "move right",
+	up = "move up",
+	down = "move down",
+	-- interact = "interact",
+	cancel = "cancel/return",
+	flashlight = "toggle flashlight",
+	inventory = "toggle inventory",
+	pause = "pause/unpause",
+	run_mod = "run (hold)",
+}
+
 function MenuSettings:init(world)
 	self.world = world
 	Slab.Initialize()
@@ -27,11 +47,12 @@ function MenuSettings:init_settings()
 	self.ww = love.graphics.getWidth()
 	self.wh = love.graphics.getHeight()
 	self.key_id = sc.key_map
-	self.key_map = Inputs.map
+	self.key_map = tablex.copy(Inputs.map, {})
+	self.rev_key_map = tablex.copy(Inputs.rev_maps[self.key_id], {})
 	self.muted = sc.muted
 	self.volume = sc.volume
 
-	for k, v in pairs(Inputs.key_title) do
+	for k, v in pairs(key_title) do
 		for k2, v2 in pairs(self.key_map) do
 			if k == v2 then
 				self.key_map[k2] = v
@@ -47,26 +68,20 @@ function MenuSettings:init_settings()
 	!end
 end
 
-function MenuSettings:update_settings(dt)
-	!if _PLATFORM == "desktop" then
-	self:update_desktop(dt)
-	!elseif _PLATFORM == "mobile" then
-	!end
-end
-
-function MenuSettings:slab_title(title, text)
+local function slab_title(title, text)
 	Slab.BeginLayout(title, {AlignX = "center", AlignY = "top", Columns = 1})
 	Slab.SetLayoutColumn(1)
-
 	if text then Slab.Text(text) end
-
 	Slab.EndLayout()
 	Slab.Separator()
 end
 
+function MenuSettings:draw_settings()
+	Slab.Draw()
+end
 
 !if _PLATFORM == "desktop" then
-function MenuSettings:update_desktop(dt)
+function MenuSettings:update_settings(dt)
 	local x = 64
 	local y = 64
 	local width = self.ww - (x * 2)
@@ -79,7 +94,7 @@ function MenuSettings:update_desktop(dt)
 			IsOpen = true,
 		})
 
-	self:slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
+	slab_title("GeneralSettingsTitle", "GENERAL SETTINGS")
 	Slab.BeginLayout("GeneralSettingsLayout", {
 			AlignX = "center", AlignY = "top", Columns = 2
 		})
@@ -119,7 +134,7 @@ function MenuSettings:update_desktop(dt)
 	Slab.EndLayout()
 	Slab.Separator()
 
-	self:slab_title("KeybindingsTitle", "KEYBINDINGS")
+	slab_title("KeybindingsTitle", "KEYBINDINGS")
 	local scale = 2
 	local img_kb = Resources.data.images["keyboard" .. self.key_id]
 	local iw = img_kb:getWidth()
@@ -137,17 +152,27 @@ function MenuSettings:update_desktop(dt)
 			for i, id in ipairs(Inputs.get_map_names()) do
 				if Slab.TextSelectable(id) then
 					self.key_id = i
-					self.key_map = Inputs.get_map_keys()[i]
+					self.key_map = tablex.copy(Inputs.get_map_keys()[i], {})
+					self.rev_key_map = tablex.copy(Inputs.rev_maps[i], {})
+					for k, v in pairs(key_title) do
+						for k2, v2 in pairs(self.key_map) do
+							if k == v2 then
+								self.key_map[k2] = v
+								break
+							end
+						end
+					end
 				end
 			end
 			Slab.EndComboBox()
 		end
 
-		for key, name in pairs(self.key_map) do
+		for _, key in ipairs(ordered_key_map) do
+			local k = self.rev_key_map[key]
 			Slab.SetLayoutColumn(1)
-			Slab.Text(key)
+			Slab.Text(k)
 			Slab.SetLayoutColumn(2)
-			Slab.Text(name)
+			Slab.Text(self.key_map[k])
 		end
 	Slab.EndLayout()
 	Slab.Separator()
@@ -193,9 +218,7 @@ function MenuSettings:update_desktop(dt)
 	Slab.EndWindow()
 end
 
-function MenuSettings:draw_settings()
-	Slab.Draw()
-end
+!elseif _PLATFORM == "mobile" then
 !end
 
 return MenuSettings
