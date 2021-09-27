@@ -197,7 +197,7 @@ function Intro:state_setup()
 		:give("intro_text")
 
 	if Save.data.intro_done or !(_DEV) then
-		self.world:emit("create_skip")
+		self.world:emit("show_skip")
 	end
 end
 
@@ -316,7 +316,7 @@ function Intro:state_update(dt)
 
 	if Save.data.intro_done or !(_DEV) then
 		if not is_switching then
-			if Inputs.pressed("skip") then
+			if Inputs.pressed("interact") then
 				self.world:emit("destroy_skip")
 				should_fade = true
 				Fade.fade_out(function()

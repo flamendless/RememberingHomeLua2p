@@ -46,7 +46,7 @@ function Splash:create_splash_wits()
 	self.splash_wits = Concord.entity(self.world):assemble(Common.animated_sprite,
 			AnimationData.get("wits"), ww * 0.5, wh * 0.5)
 		:give("id", "splash_wits")
-		:give("color", Palette.get("white"))
+		:give("color", {1, 1, 1, 1})
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)
@@ -105,12 +105,14 @@ end
 function Splash:create_effects()
 	local ww, wh = love.graphics.getDimensions()
 	self.typewriter = Concord.entity(self.world)
+		:give("id", "typewriter")
 		:give("color", Palette.colors.white)
 		:give("pos", ww * 0.5, wh * 0.2)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("text", "")
+		:give("target_text", "a game by")
 		:give("font", "uncle_type_32")
-		:give("typewriter", "a game by", 0.2)
+		:give("typewriter", 0.2)
 		:give("typewriter_timer")
 		:give("typewriter_on_finish", "switch_state", 1.25, "Menu")
 		:give("splash")
@@ -128,17 +130,10 @@ end
 
 function Splash:state_init()
 	if Save.data.splash_done then
-		self.world:emit("create_skip")
+		self.world:emit("show_skip")
 	end
 
 	self.timeline = TLE.Do(function()
-		-- !if _DEV then
-		-- self.current_state = states.splash_flam
-		-- self:set_skippable_timer()
-		-- self:create_splash_flamendless()
-		-- self.timeline:Pause()
-		-- !end
-
 		self.current_state = states.splash_love
 		self:set_skippable_timer()
 		self:create_splash_love()
@@ -168,7 +163,7 @@ function Splash:state_update(dt)
 	end
 
 	if Save.data.splash_done then
-		if Inputs.released("skip") then
+		if Inputs.released("interact") then
 			if self.current_state == states.splash_love and self.skippable then
 				self.splash_love:skip()
 				self.skippable = false

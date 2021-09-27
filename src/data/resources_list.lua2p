@@ -17,13 +17,13 @@ t.player = {
 }
 
 t.ui = {
+	{"atlas_keys", path_ui .. "atlas_keys.png"},
 }
 
 t.items = {
 	{"bg_item", path_items .. "bg_item.png"},
 	{"bg_desc", path_items .. "bg_desc.png"},
 	{"flashlight", path_items .. "flashlight.png"},
-	{"atlas_keys", path_ui .. "atlas_keys.png"},
 }
 
 t.pause = {
@@ -55,6 +55,7 @@ ResourcesList.Splash = {
 		{"flamendless_logo", !(path_images .. "splash/flamendless_logo.png")},
 		{"sheet_wits", !(path_images .. "splash/sheet_wits.png")},
 		{"tex_displacement", !(path_textures .. "displacement.png")},
+		!!(get_res("ui"))
 	},
 	fonts = {
 		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
@@ -110,6 +111,7 @@ ResourcesList.Intro = {
 		{"car_headlight", !(path_images .. "intro/car_headlight.png")},
 		{"title_light", !(path_images .. "intro/title.png")},
 		{"dummy", !(path_textures .. "dummy.png")},
+		!!(get_res("ui"))
 	},
 	image_data = {
 		{"lut_afternoon_16", !(path_lut .. "lut_afternoon_16.png")},
@@ -132,6 +134,7 @@ ResourcesList.Outside = {
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
 		!!(get_res("items"))
 		!!(get_res("pause"))
+		!!(get_res("ui"))
 	},
 	array_images = {
 		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
@@ -156,6 +159,7 @@ ResourcesList.StorageRoom = {
 	images = {
 		!!(get_res("items"))
 		!!(get_res("pause"))
+		!!(get_res("ui"))
 	},
 	array_images = {
 		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
@@ -176,6 +180,7 @@ ResourcesList.UtilityRoom = {
 	images = {
 		!!(get_res("items"))
 		!!(get_res("pause"))
+		!!(get_res("ui"))
 	},
 	array_images = {
 		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
@@ -197,6 +202,7 @@ ResourcesList.Kitchen = {
 	images = {
 		!!(get_res("items"))
 		!!(get_res("pause"))
+		!!(get_res("ui"))
 	},
 	array_images = {
 		{"kitchen", !(path_images .. "kitchen/kitchen.png")},

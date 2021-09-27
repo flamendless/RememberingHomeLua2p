@@ -33,8 +33,10 @@ function Resources.get_meta(key)
 	local t = tablex.copy(Resources.meta[key], {})
 	!if not _GLSL_NORMALS then
 	t.images = tablex.append({}, t.images, t.array_images)
-	tablex.clear(t.array_images)
-	t.array_images = nil
+	if t.array_images then
+		tablex.clear(t.array_images)
+		t.array_images = nil
+	end
 	!end
 	return t
 end

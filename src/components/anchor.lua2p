@@ -1,14 +1,14 @@
 local Concord = require("modules.concord.concord")
 
-local c_anchor = Concord.component("anchor", function(c, entity, a_x, a_y, padding_x, padding_y)
+local c_anchor = Concord.component("anchor", function(c, entity, ax, ay, padding_x, padding_y)
 	@@assert(entity.__isEntity)
-	@@assert(type(a_x) == "string")
-	@@assert(type(a_y) == "string")
+	@@assert(type(ax) == "string" and (ax == "left" or ax == "center" or ax == "right"))
+	@@assert(type(ay) == "string" and (ay == "top" or ay == "center" or ay == "bottom"))
 	@@sassert(padding_x, type(padding_x) == "number")
 	@@sassert(padding_y, type(padding_y) == "number")
 	c.entity = entity
-	c.anchor_x = a_x
-	c.anchor_y = a_y
+	c.anchor_x = ax
+	c.anchor_y = ay
 	c.padding_x = padding_x
 	c.padding_y = padding_y
 end)
@@ -17,7 +17,7 @@ function c_anchor:serialize()
 	return {
 		e_key = self.entity.key.value,
 		anchor_x = self.anchor_x,
-		anchor_y = self.a_y,
+		anchor_y = self.anchor_y,
 		padding_x = self.padding_x,
 		padding_y = self.padding_y,
 	}

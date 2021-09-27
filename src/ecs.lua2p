@@ -18,44 +18,45 @@ Concord.utils.loadNamespace("systems", Systems)
 
 local systems = {}
 systems.Splash = {
-	"animation", "color", "render_sprite", "render_text",
+	"animation", "color", "render_sprite", "render_text", "show_keys",
 	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
-	"skip", "glitch_shader_effect",
+	"glitch_shader_effect", "atlas",
 }
 
 systems.Menu = {
-	"animation", "bounding_box", "click", "color", "hover_effect",
+	"animation", "bounding_box", "click", "color", "hover_effect", "show_keys",
 	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
 	"transform", "entity", "gamestates",
 }
 
 systems.Intro = {
-	"animation", "camera", "color", "light", "parallax", "depth",
+	"animation", "camera", "color", "light", "parallax", "depth", "show_keys",
 	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
-	"transform", "skip", "tween", "gamestates", "fog", "entity",
+	"transform", "show_keys", "tween", "gamestates", "fog", "entity", "atlas",
 }
 
 systems.Outside = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"deferred_lighting", "dialogues", "entity", "fireflies", "gamestates",
-	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "path", "pause", "player_controller", "render_rect",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "fireflies",
+	"gamestates", "glitch_shader_effect", "interactive", "inventory", "items",
+	"movement", "outline", "path", "pause", "player_controller", "render_rect",
 	"render_sprite", "render_text", "render_ui", "room", "systems",
 	"text_paint", "transform", "typewriter", "door",
 }
 
 systems.StorageRoom = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", --"flashlight", "animation_sync",
+	"door",
+	--"flashlight", "animation_sync",
 }
 
 systems.UtilityRoom = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
@@ -64,7 +65,7 @@ systems.UtilityRoom = {
 
 systems.Kitchen = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"deferred_lighting", "dialogues", "entity", "gamestates",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",

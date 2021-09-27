@@ -1,0 +1,73 @@
+local Concord = require("modules.concord.concord")
+
+local AtlasKeys = require("data.atlas_keys")
+local Inputs = require("inputs")
+local Palette = require("palette")
+
+local ShowKeys = Concord.system({
+	pool_skip = {"skip"},
+})
+
+local function Assemble(e, key)
+	e:give("atlas", AtlasKeys.frames[key])
+	:give("sprite", "atlas_keys")
+	:give("ui_element")
+	:give("layer", "hud")
+	:give("ui_element")
+end
+
+function ShowKeys:init(world)
+	self.world = world
+end
+
+function ShowKeys:show_skip()
+	local ww, wh = love.graphics.getDimensions()
+	local e = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
+		:give("id", "skip_key")
+		:give("pos", ww - 8, wh - 8)
+		:give("transform", 0, 1, 1, 0.5, 1)
+		:give("quad_transform", 0, 3, 3, 1, 1)
+		:give("color", {1, 1, 1, 1})
+		:give("color_fade_in_out", 1)
+		:give("skip")
+
+	Concord.entity(self.world)
+		:give("id", "skip_text")
+		:give("static_text", "Skip")
+		:give("font", "ui")
+		:give("pos", 0, 0)
+		:give("color", Palette.get("ui_skip"))
+		:give("ui_element")
+		:give("transform", 0, 1, 1, 1, 1)
+		:give("color_fade_in_out", 1)
+		:give("skip")
+		:give("anchor", e, "right", "bottom", -8, 0)
+end
+
+function ShowKeys:destroy_skip()
+	for _, e in ipairs(self.pool_skip) do
+		e:destroy()
+	end
+end
+
+function ShowKeys:create_dialogue_key()
+	local w, h = love.graphics.getDimensions()
+	self.e_key = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
+		:give("id", "dialogue_proceed_key")
+		:give("pos", w - 8, h - 8)
+		:give("quad_transform", 0, 3, 3, 1, 1)
+		:give("color", {1, 1, 1, 1})
+		:give("hidden")
+end
+
+function ShowKeys:show_dialogue_key(bool)
+	@@assert(self.e_key ~= nil)
+	@@assert(type(bool) == "boolean")
+	if not bool then
+		self.e_key:give("hidden")
+	else
+		self.e_key:remove("hidden")
+	end
+end
+
+return ShowKeys

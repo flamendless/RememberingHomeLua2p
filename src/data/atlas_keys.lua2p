@@ -1,0 +1,24 @@
+!(
+local list = {
+	"w", "a", "s", "d", "e", "f", "t", "p", "q",
+	"z", "x", "c", "left", "down", "up", "right"
+}
+
+function create_data()
+	local frames = {}
+
+	for i, key in ipairs(list) do
+		frames[key] = {}
+		frames[key].frame = {}
+		frames[key].frame.w = 16
+		frames[key].frame.h = 16
+		frames[key].frame.x = (i - 1) * 16
+		frames[key].frame.y = 0
+	end
+
+	return {frames = frames}
+end
+)
+
+local Data = !(create_data())
+return Data

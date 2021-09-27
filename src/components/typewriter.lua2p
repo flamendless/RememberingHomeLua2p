@@ -4,10 +4,8 @@ Concord.component("typewriter_timer", function(c)
 	c.timer = nil
 end)
 
-Concord.component("typewriter", function(c, target_text, every)
-	@@assert(type(target_text) == "string")
+Concord.component("typewriter", function(c, every)
 	@@assert(type(every) == "number")
-	c.target_text = target_text
 	c.every = every
 end)
 

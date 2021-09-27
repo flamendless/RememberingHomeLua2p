@@ -4,7 +4,7 @@ local min = math.min
 local floor = math.floor
 
 local Transform = Concord.system({
-	pool = {"transform"},
+	pool = {"transform", "!auto_scale"},
 	pool_pos = {"pos", "!pos_vec2"},
 	pool_pos_vec2 = {"pos", "pos_vec2"},
 	pool_atlas = {"quad_transform", "atlas"},
@@ -16,6 +16,42 @@ local Transform = Concord.system({
 })
 
 function Transform:init()
+	self.pool.onAdded = function(pool, e)
+		local t = e.transform
+		local w, h
+		local sprite = e.sprite
+		local text = e.text
+		local s_text = e.static_text
+
+		if sprite then
+			w, h = sprite.iw, sprite.ih
+		elseif text then
+			local font = e.font.value
+			local target_text = e.target_text
+			if target_text then
+				w = font:getWidth(target_text.value)
+				h = font:getHeight(" ")
+			else
+				w = font:getWidth(text.value)
+				h = font:getHeight(" ")
+			end
+		elseif s_text then
+			w, h = s_text.obj:getDimensions()
+		end
+
+		if t.ox == 0.5 then
+			t.ox = w * 0.5
+		elseif t.ox == 1 then
+			t.ox = w
+		end
+
+		if t.oy == 0.5 then
+			t.oy = h * 0.5
+		elseif t.oy == 1 then
+			t.oy = h
+		end
+	end
+
 	self.pool_atlas.onAdded = function(pool, e)
 		local frame = e.atlas.value.frame
 		local qt = e.quad_transform
@@ -85,17 +121,27 @@ function Transform:update_anchor(e)
 	local pos = e.pos
 	local target_pos = anchor.entity.pos
 	local target_sprite = anchor.entity.sprite
+	local sx, sy, ox, oy = 1, 1, 0, 0
 
 	@@assert(target_sprite.image:type() == "Image")
 
 	local target_transform = anchor.entity.transform
-	local sx = target_transform.sx or 1
-	local sy = target_transform.sy or 1
-	local ox = target_transform.ox or 0
-	local oy = target_transform.oy or 0
+	if target_transform then
+		sx = target_transform.sx or sx
+		sy = target_transform.sy or sy
+		ox = target_transform.ox or ox
+		oy = target_transform.oy or oy
+	end
 
-	local w = target_sprite.image:getWidth() * sx
-	local h = target_sprite.image:getHeight() * sy
+	local target_qt = anchor.entity.quad_transform
+	if target_qt then
+		sx = target_qt.sx or sx
+		sy = target_qt.sy or sy
+		ox = target_qt.ox or ox
+		oy = target_qt.oy or oy
+	end
+
+	local w, h = target_sprite.iw * sx, target_sprite.ih * sy
 	local x = target_pos.x - ox * sx
 	local y = target_pos.y - oy * sy
 
