@@ -293,7 +293,8 @@ function Dialogues:proceed_choice()
 
 					if bool then
 						proceed = false
-						self.world:emit(signal, e, text_t)
+						--entity, table of next dialogues, chosen text
+						self.world:emit(signal, e, text_t, e.text.value)
 						if handle_self then
 							t.current_index = t.current_index + 1
 							local next_str = text_t[t.current_index]

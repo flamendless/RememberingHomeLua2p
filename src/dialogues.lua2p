@@ -1,13 +1,13 @@
 local Dialogues = {}
 
-local dialogues = require("data.dialogues")
+local DialoguesList = require("data.dialogues")
 
 function Dialogues.get(main, sub)
 	@@assert(#main ~= 0 and type(main) == "string")
 	@@assert(#sub ~= 0 and type(sub) == "string")
-	@@assert(dialogues[main], "there is no " .. main .. " in dialogue table")
-	@@assert(dialogues[main][sub], "there is no " .. sub .. " in dialogue table")
-	return dialogues[main][sub]
+	@@assert(DialoguesList[main], "there is no " .. main .. " in dialogue table")
+	@@assert(DialoguesList[main][sub], "there is no " .. sub .. " in dialogue table")
+	return tablex.copy(DialoguesList[main][sub], {})
 end
 
 return Dialogues
