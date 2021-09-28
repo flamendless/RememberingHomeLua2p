@@ -326,6 +326,11 @@ function Dialogues:remove_choices()
 	end
 end
 
+--TODO emit this when in-game's settings are changed
+function Dialogues:on_settings_updated()
+	self.world:emit("create_dialogue_key")
+end
+
 function Dialogues:cleanup()
 	self.e_dialogue:destroy()
 	for _, e in ipairs(self.pool) do

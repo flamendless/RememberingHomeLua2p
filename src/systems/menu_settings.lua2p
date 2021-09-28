@@ -37,20 +37,18 @@ function MenuSettings:init(world)
 end
 
 function MenuSettings:init_settings()
-	local sc = Settings.current
+	local sc = tablex.copy(Settings.current, {})
 	self.show_message_box_reset = false
 	self.current_gq = sc.graphics_quality
 	self.current_wm = sc.window_mode
 	self.window_mode = WindowMode.list[self.current_wm]
 	self.wm_list = WindowMode.list
-	self.list_gq = Settings.get_available_graphics_quality()
-	self.ww = love.graphics.getWidth()
-	self.wh = love.graphics.getHeight()
 	self.key_id = sc.key_map
 	self.key_map = tablex.copy(Inputs.map, {})
 	self.rev_key_map = tablex.copy(Inputs.rev_maps[self.key_id], {})
 	self.muted = sc.muted
 	self.volume = sc.volume
+	self.show_keys = sc.show_keys
 
 	for k, v in pairs(key_title) do
 		for k2, v2 in pairs(self.key_map) do
@@ -82,10 +80,10 @@ end
 
 !if _PLATFORM == "desktop" then
 function MenuSettings:update_settings(dt)
-	local x = 64
-	local y = 64
-	local width = self.ww - (x * 2)
-	local height = self.wh - (y * 2)
+	local ww, wh = love.graphics.getDimensions()
+	local x, y = 64, 64
+	local width = ww - (x * 2)
+	local height = wh - (y * 2)
 
 	Slab.Update(dt)
 	Slab.BeginWindow("Settings", {
@@ -101,8 +99,12 @@ function MenuSettings:update_settings(dt)
 		Slab.SetLayoutColumn(1)
 		Slab.Text("Window Resolution")
 		Slab.Text("Graphics Quality")
-		if Slab.CheckBox(self.sounds, "Sounds") then
-			self.sounds = not self.sounds
+		if Slab.CheckBox(not self.muted, "Sounds") then
+			self.muted = not self.muted
+			Audio.set_mute(self.muted)
+		end
+		if Slab.CheckBox(self.show_keys, "Control Keys Guide") then
+			self.show_keys = not self.show_keys
 		end
 
 		Slab.SetLayoutColumn(2)
@@ -114,23 +116,27 @@ function MenuSettings:update_settings(dt)
 					self.window_mode = str
 				end
 			end
-
 			Slab.EndComboBox()
 		end
 
 		if Slab.BeginComboBox("GraphicsQuality", {Selected = self.current_gq}) then
-			for _, str in ipairs(self.list_gq) do
+			for _, str in ipairs(Settings.available_graphics_quality) do
 				if Slab.TextSelectable(str) then
 					self.current_gq = str
 				end
 			end
-
 			Slab.EndComboBox()
 		end
 
-		if Slab.InputNumberSlider("Sounds Volume", self.volume, 0, 100) then
-			Audio.set_volume(self.muted, self.volume)
+		if not self.muted then
+			if Slab.InputNumberSlider("Volume", self.volume, 0, 100, {Precision = 0}) then
+				self.volume = Slab.GetInputNumber()
+				Audio.set_volume(self.volume)
+			end
+		else
+			Slab.Text("MUTED")
 		end
+		Slab.NewLine()
 	Slab.EndLayout()
 	Slab.Separator()
 
@@ -186,7 +192,8 @@ function MenuSettings:update_settings(dt)
 					window_mode = self.current_wm,
 					muted = self.muted,
 					volume = self.volume,
-					key_id = self.key_id,
+					key_map = self.key_id,
+					show_keys = self.show_keys,
 				}, true)
 			Inputs.init(self.key_id)
 		end

@@ -250,9 +250,9 @@ function Menu:state_draw()
 
 		self.canvases.main:attach()
 		self.camera:attach()
-			local l, t = self.camera:getVisible()
 			self.world:emit("draw")
 			if self.current_state == states.settings and not self.mb.flag_process then
+				local l, t = self.camera:getVisible()
 				love.graphics.push()
 				love.graphics.translate(l, t)
 				self.world:emit("draw_settings")

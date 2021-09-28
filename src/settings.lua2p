@@ -5,18 +5,21 @@ local Utils = require("utils")
 
 local format = string.format
 
+local defaults = {
+	key_map = 1,
+	window_mode = 1,
+	muted = false,
+	volume = 100,
+	graphics_quality = !(_GFX_QUALITY),
+	show_keys = true,
+}
+
 local Settings = {
-	current = {
-		key_map = 1,
-		window_mode = 1,
-		muted = false,
-		volume = 100,
-		graphics_quality = !(_GFX_QUALITY),
-	}
+	current = tablex.copy(defaults, {}),
+	available_graphics_quality = {"low", "high"},
 }
 
 local filename = !(_SETTINGS_FILENAME)
-local graphics_quality = {"low", "high"}
 
 function Settings.init()
 	local content, exists = Utils.serial.read(filename)
@@ -29,17 +32,13 @@ function Settings.init()
 end
 
 function Settings.create_new()
+	Settings.current = tablex.copy(defaults, {})
 	local gl_version = string.sub(Info.data.renderer.version, 1, 3)
 	if gl_version == !(_MIN_GL_VERSION) then
 		Settings.current.graphics_quality = "low"
 	else
 		Settings.current.graphics_quality = "high"
 	end
-
-	Settings.current.key_map = 1
-	Settings.current.window_mode = 1
-	Settings.current.muted = false
-	Settings.current.volume = 100
 	Settings.overwrite()
 end
 
@@ -67,7 +66,7 @@ function Settings.set_from_table(t, should_overwrite)
 	@@assert(type(t) == "table")
 	@@assert(type(should_overwrite) == "boolean")
 	for k, v in pairs(t) do
-		@@assert(Settings.current[k])
+		@@assert(Settings.current[k] ~= nil, "invalid " .. k .. " key")
 		Settings.current[k] = v
 		Log.info(format("set %s to %s", k, v))
 	end
@@ -75,10 +74,6 @@ function Settings.set_from_table(t, should_overwrite)
 	if should_overwrite then
 		Settings.overwrite()
 	end
-end
-
-function Settings.get_available_graphics_quality()
-	return graphics_quality
 end
 
 return Settings

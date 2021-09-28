@@ -5,17 +5,22 @@ local Audio = {
 }
 
 function Audio.init()
-	Audio.set_volume(Settings.current.muted, Settings.current.volume)
+	Audio.set_volume(Settings.current.volume)
+	Audio.set_mute(Settings.current.muted)
 end
 
-function Audio.set_volume(muted, volume)
-	@@assert(type(muted) == "boolean")
+function Audio.set_volume(volume)
 	@@assert(type(volume) == "number")
 	Audio.volume = volume
-	if muted then
+	love.audio.setVolume(Audio.volume/100)
+end
+
+function Audio.set_mute(mute)
+	@@assert(type(mute) == "boolean")
+	if mute then
 		love.audio.setVolume(0)
 	else
-		love.audio.setVolume(volume/100)
+		love.audio.setVolume(Audio.volume/100)
 	end
 end
 
