@@ -181,7 +181,7 @@ function PlayerController:on_player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
 	player:give("is_interacting")
-	self.world:emit("on_interact_or_inventory")
+	-- self.world:emit("on_interact_or_inventory")
 	-- self.world:emit("create_speech_bubble", player)
 	local d = interactive.dialogue_meta
 	local dialogues_t = Dialogues.get(d.main, d.sub)
@@ -200,9 +200,10 @@ function PlayerController:on_interact_or_inventory()
 	self:player_can_interact(false)
 end
 
-function PlayerController:on_leave_interact_or_inventory(_)
+function PlayerController:on_leave_interact_or_inventory()
 	local body = self.player.body
 	local prev_body = self.player.prev_body
+	if not prev_body then return end
 	body.can_move = prev_body.can_move
 	body.can_run = prev_body.can_run
 	if prev_body.can_interact then

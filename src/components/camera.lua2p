@@ -11,11 +11,6 @@ Concord.component("bar_height", function(c, h)
 	c.value = h
 end)
 
-Concord.component("prev_camera_scale", function(c, prev_scale)
-	@@assert(type(prev_scale) == "number")
-	c.value = prev_scale
-end)
-
 local c_cam = Concord.component("camera", function(c, camera, is_main)
 	@@sassert(camera, Gamera.isCamera(camera))
 	@@sassert(is_main, type(is_main) == "boolean")

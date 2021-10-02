@@ -1,11 +1,16 @@
 local Concord = require("modules.concord.concord")
+local Enum = require("modules.enum.enum")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
+
+local sqrt = math.sqrt
 
 local Camera = Concord.system({
 	pool = {"camera"},
 	pool_clip = {"camera", "camera_clip"},
 })
+
+local states = Enum("zoomed_in", "zoomed_out")
 
 function Camera:init(world)
 	self.world = world
@@ -14,6 +19,10 @@ function Camera:init(world)
 	self.clip = false
 	self.follow = false
 	self.bars = false
+	self.state = states.zoomed_out
+	self.prev = {}
+	self.target = {}
+	self.is_zooming = false
 
 	self.pool.onAdded = function(pool, e)
 		local camera = e.camera
@@ -24,6 +33,7 @@ function Camera:init(world)
 		end
 
 		if camera.is_main then
+			self.e_camera = e
 			self.main_camera = camera.camera
 		end
 	end
@@ -34,6 +44,35 @@ function Camera:init(world)
 
 	self.pool_clip.onRemoved = function(pool, e)
 		self.clip = #pool == 0
+	end
+end
+
+local function circout(p)
+	p = 1 - p
+	return 1 - (-(sqrt(1 - (p * p)) - 1))
+end
+
+function Camera:update(dt)
+	if self.is_zooming then
+		self.progress = self.progress + self.rate * dt
+		local p = self.progress
+		local d_scale = p >= 1 and 1 or circout(p)
+		local diff = self.target.scale - self.prev.scale
+		self.main_camera:setScale(self.prev.scale + d_scale * diff)
+
+		if p >= 1 then
+			if self.state == states.zoomed_out then
+				self.state = states.zoomed_in
+			elseif self.state == states.zoomed_in then
+				self.state = states.zoomed_out
+			end
+			self.is_zooming = false
+		end
+	end
+
+	if self.follow and self.to_follow then
+		local x, y = self:get_follow_coords(self.to_follow)
+		self.main_camera:setPosition(x, y)
 	end
 end
 
@@ -82,13 +121,6 @@ function Camera:camera_follow(target, dur)
 		end)
 end
 
-function Camera:update(dt)
-	if self.follow and self.to_follow then
-		local x, y = self:get_follow_coords(self.to_follow)
-		self.main_camera:setPosition(x, y)
-	end
-end
-
 function Camera:draw_clip()
 	if not self.clip then return end
 	for _, e in ipairs(self.pool_clip) do
@@ -111,22 +143,24 @@ function Camera:draw_clip()
 end
 
 function Camera:on_interact_or_inventory()
-	if self.bars then return end
-	for _, e in ipairs(self.pool) do
-		if not e.prev_camera_scale then
-			local camera = e.camera.camera
-			local prev_scale = camera:getScale()
-			local t = { scale = prev_scale, }
-			e:give("prev_camera_scale", prev_scale)
-			Flux.to(t, 0.25, {
-				scale = prev_scale + 0.25
-			}):ease("circout")
-			:onupdate(function()
-				camera:setScale(t.scale)
-			end)
-		end
-	end
+	if self.state ~= states.zoomed_out then return end
+	local time = 0.25
+	self.prev.scale = self.main_camera:getScale()
+	self.target.scale = self.prev.scale + 0.25
+	self.rate = time > 0 and 1 / time or 0
+	self.progress = time > 0 and 0 or 1
+	self.is_zooming = true
 	self:display_bars()
+end
+
+function Camera:on_leave_interact_or_inventory()
+	if self.state ~= states.zoomed_in then return end
+	local time = 0.25
+	self.target.scale = self.prev.scale
+	self.rate = time > 0 and 1 / time or 0
+	self.progress = time > 0 and 0 or 1
+	self.is_zooming = true
+	self:hide_bars()
 end
 
 function Camera:display_bars()
@@ -151,24 +185,6 @@ function Camera:hide_bars()
 				e:remove("bar_height")
 			end
 		end)
-end
-
-function Camera:on_leave_interact_or_inventory(_)
-	for _, e in ipairs(self.pool) do
-		if e.prev_camera_scale then
-			local camera = e.camera.camera
-			local prev_scale = e.prev_camera_scale.value
-			local t = { scale = camera:getScale() }
-			Flux.to(t, 0.25, {
-				scale = prev_scale
-			}):ease("circout")
-			:onupdate(function()
-				camera:setScale(t.scale)
-			end)
-			e:remove("prev_camera_scale")
-		end
-	end
-	self:hide_bars()
 end
 
 !if _DEV then
