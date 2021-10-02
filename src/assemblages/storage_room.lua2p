@@ -51,6 +51,7 @@ function StorageRoom.lights.left_bulb(e)
 		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_left_bulb")
 	:give("light_group", "side_pl")
+	:give("light_switch_id", "room")
 end
 
 function StorageRoom.lights.right_bulb(e)
@@ -60,6 +61,7 @@ function StorageRoom.lights.right_bulb(e)
 		Palette.get_diffuse("storage_room_bulb_light"))
 	:give("id", "pl_right_bulb")
 	:give("light_group", "side_pl")
+	:give("light_switch_id", "room")
 end
 
 return StorageRoom

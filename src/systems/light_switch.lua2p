@@ -8,10 +8,15 @@ function LightSwitch:init(world)
 	self.world = world
 end
 
-function LightSwitch:toggle_light_switch(e, text_t, choice)
+function LightSwitch:toggle_light_switch(_, _, choice)
 	for _, e in ipairs(self.pool_lights) do
-		local ls_id = e.light_switch_id.value
-		if ls_id == choice then
+		local valid = true
+		if choice then
+			local ls_id = e.light_switch_id.value
+			valid = ls_id == choice
+		end
+
+		if valid then
 			--TODO play sound
 			if e.light_disabled then
 				e:remove("light_disabled")
