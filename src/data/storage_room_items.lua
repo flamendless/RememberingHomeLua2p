@@ -25,6 +25,7 @@ local Data = {
 	{
 		id = "light_switch",
 		x = 64, y = 48,
+		dialogue = {"storage_room", "light_switch"},
 	},
 
 	{

@@ -93,6 +93,10 @@ Dialogues.utility_room = {
 }
 
 Dialogues.storage_room = {
+	light_switch = {
+		"_toggle_light_switch",
+	},
+
 	shelf = {
 		"A shelf for storage",
 		choices = {

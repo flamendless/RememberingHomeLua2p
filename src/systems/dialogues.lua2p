@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 local TLE = require("modules.tle.timeline")
 
+local DialoguesSrc = require("dialogues")
 local Inputs = require("inputs")
 local Resources = require("resources")
 local Palette = require("palette")
@@ -34,7 +35,7 @@ function Dialogues:init(world)
 			if current_line then
 				text_t.current_index = text_t.current_index + 1
 				local should_pause = true
-				local bool, signal, handle_self = self:check_signal(current_line)
+				local bool, signal, handle_self = DialoguesSrc.check_signal(current_line)
 
 				if bool then
 					self.world:emit(signal, self.e_dialogue, dialogues)
@@ -113,23 +114,6 @@ function Dialogues:draw_dialogues()
 	end
 end
 
-function Dialogues:check_signal(str)
-	@@assert(type(str) == "string")
-	local bool = stringx.starts_with(str, "_")
-	if not bool then
-		return false, "", true
-	end
-
-	local handle_self = not stringx.starts_with(str, "__")
-	local signal
-	if handle_self then
-		signal = str:sub(2, #str)
-	else
-		signal = str:sub(3, #str)
-	end
-	return bool, signal, handle_self
-end
-
 function Dialogues:wait_dialogue(bool)
 	@@assert(type(bool) == "boolean")
 	self.is_waiting = bool
@@ -142,7 +126,9 @@ function Dialogues:spawn_dialogue(dialogues_t, main, sub)
 	self.e_dialogue:give("dialogue_meta", main, sub)
 		:give("text_t", dialogues_t)
 	self:populate_choices(dialogues_t)
-	self.world:emit("on_interact_or_inventory")
+	if DialoguesSrc.validate(dialogues_t) then
+		self.world:emit("on_interact_or_inventory")
+	end
 	self.timeline:Unpause()
 end
 
@@ -289,7 +275,7 @@ function Dialogues:proceed_choice()
 				local str = text_t[1]
 				local proceed = true
 				if str then
-					local bool, signal, handle_self = self:check_signal(str)
+					local bool, signal, handle_self = DialoguesSrc.check_signal(str)
 
 					if bool then
 						proceed = false
