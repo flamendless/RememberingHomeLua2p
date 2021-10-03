@@ -92,41 +92,23 @@ function Intro:state_setup()
 	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
 
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_clouds", ssx2, "clouds", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_buildings", ssx2, "building", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_road", ssx2, "road", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_grass", ssx2, "grass1", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_grass2", ssx2, "grass2", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_grass_back", ssx2, "grass_back", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_grass_front", ssx2, "grass_front", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_trees_bg", ssx2, "bg_trees", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover,
-		"bg_tree_cover")
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"parallax_trees_fg", ssx2, "fg_trees", 3, 3)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.parallax,
-		"bg_post", ssx2, "post", 2, 2)
-
-	Concord.entity(self.world):assemble(Assemblages.Intro.post_light,
-		"post_light", ssx2, "post_light", 2, 2)
+	for _ = 1, 2 do
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "clouds")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "buildings")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "road")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass2")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_back")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_front")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_bg")
+		Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover, "bg_tree_cover")
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_fg")
+		local e = Concord.entity(self.world):assemble(Assemblages.Intro.post_light, "post_light", 2)
+			:give("parallax_gap", w)
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "post", 2)
+			:give("attach_to", e)
+			:give("attach_to_offset", 108, 0)
+	end
 
 	self.e_car = Concord.entity(self.world):assemble(Assemblages.Intro.car)
 	Concord.entity(self.world):assemble(Assemblages.Intro.car_light, self.e_car)
@@ -134,20 +116,20 @@ function Intro:state_setup()
 		:give("intro_light")
 
 	local fw, fh = 512, 128
-	local fsx = ssx2*4/fw
+	local fsx = ssx2 * 4/fw
 	local fsy = 2
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-		"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-		"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
-		:give("fade_in_target_alpha", 0.45)
-		:give("hidden")
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
-		:give("fade_in_target_alpha", 0.45)
-		:give("hidden")
+	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	-- 	"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
+	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	-- 	"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
+	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	-- 		"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
+	-- 	:give("fade_in_target_alpha", 0.45)
+	-- 	:give("hidden")
+	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	-- 		"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
+	-- 	:give("fade_in_target_alpha", 0.45)
+	-- 	:give("hidden")
 
 	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
 			self.e_car)
@@ -338,7 +320,7 @@ function Intro:state_update(dt)
 		@@profe("intro_rain_update")
 	end
 
-	self.world:emit("parallax_move_x", dt, 1)
+	self.world:emit("parallax_move_x", dt, -1)
 
 	if effect.status == 2 then
 		@@profb("intro_ngrading_multi")

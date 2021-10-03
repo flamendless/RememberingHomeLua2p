@@ -14,7 +14,13 @@ local c_quad = Concord.component("quad", function(c, quad, info)
 	@@assert(quad:type() == "Quad")
 	@@sassert(info, type(info) == "table")
 	c.quad = quad
-	c.info = info
+
+	if info then
+		c.info = info
+	else
+		local x, y, w, h = quad:getViewport()
+		c.info = {x = x, y = y, w = w, h = h}
+	end
 end)
 
 function c_quad:serialize()

@@ -8,3 +8,13 @@ Concord.component("parallax", function(c, vx, vy)
 	c.vx = vx
 	c.vy = vy
 end)
+
+Concord.component("parallax_multi_sprite", function(c, tag)
+	@@assert(type(tag) == "string")
+	c.value = tag
+end)
+
+Concord.component("parallax_gap", function(c, gap)
+	@@assert(type(gap) == "number")
+	c.value = gap
+end)

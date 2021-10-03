@@ -1,81 +1,98 @@
 local AnimationData = require("animation_data")
 local Palette = require("palette")
-local Resources = require("resources")
+
+local Atlas = require("data.atlas_intro")
+
+local min = math.min
 
 local Intro = {}
 
 local speed = {
 	clouds = 2,
-	building = 8,
+	buildings = 8,
 	road = 512,
 	post = 512,
 	post_light = 512,
-	grass1 = 640,
+	grass = 640,
 	grass2 = 656,
 	grass_back = 48,
 	grass_front = 496,
-	bg_trees = 400,
-	fg_trees = 530,
+	trees_bg = 400,
+	trees_fg = 530,
 }
 
 --z_index, zoom_factor
 local z_index = {
 	clouds = {1, 0.005},
-	building = {1, 0.005},
+	buildings = {1, 0.005},
 	fog1 = {1, 0.005},
 	grass_back = {2, 0.01},
-	bg_trees = {3, 0.015},
+	trees_bg = {3, 0.015},
 	bg_tree_cover = {4, 0.02},
 	fog4 = {5, 0.02},
 	grass_front = {7, 0.025},
-	post_light = {8, 0.03},
 	post = {8, 0.03},
 	road = {9, 0.04},
-	grass1 = {10, 0.05},
+	post_light = {9, 0.03},
+	grass = {10, 0.05},
 	car = {11, 0.04},
 	fog2 = {12, 0.04},
 	grass2 = {13, 0.06},
-	fg_trees = {14, 0.07},
+	trees_fg = {14, 0.07},
 	fog3 = {15, 0.07},
 }
 
-function Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
+local positions = {
+	buildings = {0, 260},
+	road = {0, 360},
+	grass = {0, 390},
+	grass2 = {0, 396},
+	grass_back = {0, 324},
+	grass_front = {0, 334},
+	trees_bg = {0, 36},
+	trees_fg = {0, 256},
+	post = {108, 106},
+	post_light = {0, 108},
+}
+
+function Intro.parallax(e, tag, scale)
+	@@assert(type(tag) == "string")
+	@@sassert(scale, type(scale) == "number")
 	@@assert(speed[tag])
 	@@assert(z_index[tag])
-	@@assert(type(quad_width) == "number")
-	@@sassert(sx, type(sx) == "number")
-	@@sassert(sy, type(sy) == "number")
-	local img = Resources.data.images[resource_id]
-	local scale_x = sx or 1
-	local scale_y = sy or 1
-	local w, h = img:getDimensions()
-	local quad = love.graphics.newQuad(0, 0,
-		quad_width * scale_x, h * scale_y,
-		w * scale_x, h * scale_y)
-	local x = 0
-	local y = 0
 
-	if tag == "bg_trees" then
+	local x, y = 0, 0
+	local pos = positions[tag]
+	if pos then
+		x, y = unpack(pos)
+	end
+
+	if tag == "trees_bg" then
 		x = love.graphics.getWidth()
-		y = 90
 		e:give("parallax_stop")
 		:give("bg_tree")
-	elseif tag == "fg_trees" then
-		y = 172
+	end
+
+	local item = Atlas.frames[tag]
+	if not scale then
+		local ww, wh = love.graphics.getDimensions()
+		local w, h = item.frame.w, item.frame.h
+		scale = min(ww/w, wh/h)
 	end
 
 	e:give("id", "parallax_" .. tag)
-	:give("sprite", resource_id)
-	:give("quad", quad)
+	:give("sprite", "atlas_intro")
+	:give("atlas", item)
 	:give("pos", x, y)
 	:give("parallax", speed[tag], 0)
+	:give("parallax_multi_sprite", tag)
 	:give("z_index", z_index[tag][1], false)
-	:give("quad_transform")
+	:give("quad_transform", 0, scale, scale)
 	:give("depth_zoom", z_index[tag][2])
 end
 
-function Intro.post_light(e, resource_id, quad_width, tag, sx, sy)
-	Intro.parallax(e, resource_id, quad_width, tag, sx, sy)
+function Intro.post_light(e, tag, scale)
+	Intro.parallax(e, tag, scale)
 	e:give("transform")
 	:give("light", "custom", 1)
 	:give("color", Palette.get_diffuse("post"))
@@ -86,11 +103,12 @@ function Intro.post_light(e, resource_id, quad_width, tag, sx, sy)
 end
 
 function Intro.bg_tree_cover(e, resource_id)
-	local img = Resources.data.images[resource_id]
+	local item = Atlas.frames.bg_tree_cover
 	e:give("id", "bg_tree_cover")
-	:give("sprite", resource_id)
-	:give("pos", love.graphics.getWidth(), 90)
-	:give("transform", 0, 1, 1, img:getWidth() * 0.5)
+	:give("sprite", "atlas_intro")
+	:give("atlas", item)
+	:give("pos", love.graphics.getWidth(), 110)
+	:give("transform", 0, 1, 1, item.frame.w * 0.5)
 	:give("z_index", z_index.bg_tree_cover[1])
 	:give("depth_zoom", z_index.bg_tree_cover[2])
 	:give("bg_tree", true)
@@ -124,7 +142,8 @@ function Intro.car_light(e, car)
 	:give("depth_zoom", z_index.car[2])
 	:give("color", Palette.get_diffuse("car"))
 	:give("light", "cone", 0.8)
-	:give("sprite", "car_headlight")
+	:give("sprite", "atlas_intro")
+	:give("atlas", Atlas.frames.car_headlight)
 	:give("light_flicker", 0.075)
 	:give("attach_to", car)
 	:give("attach_to_offset", 112, 24)
@@ -133,7 +152,8 @@ end
 
 function Intro.title(e, x, y)
 	e:give("id", "title")
-	:give("sprite", "title")
+	:give("sprite", "atlas_intro")
+	:give("atlas", Atlas.frames.title)
 	:give("pos", x, y)
 	:give("hidden")
 	:give("transform", 0, 6, 6, 0.5, 0.5)
@@ -143,7 +163,8 @@ end
 
 function Intro.title_light(e, sprite)
 	e:give("id", "title_light")
-	:give("sprite", "title_light")
+	:give("sprite", "atlas_intro")
+	:give("atlas", Atlas.frames.title_light)
 	:give("pos", 142, 64)
 	:give("transform", 0, 4, 4, 0.5, 0.5)
 	:give("color", {1, 1, 1})
@@ -153,7 +174,7 @@ function Intro.title_light(e, sprite)
 	:give("hidden")
 end
 
-function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, speed)
+function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, fog_speed)
 	e:give("id", id)
 	:give("sprite", "dummy")
 	:give("noise_texture", w, h)
@@ -161,7 +182,7 @@ function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, speed)
 	:give("color", color)
 	:give("pos", x, y)
 	:give("transform", 0, fsx, fsy)
-	:give("fog", speed)
+	:give("fog", fog_speed)
 	:give("z_index", z_index[id][1], false)
 	:give("depth_zoom", z_index[id][2])
 end
