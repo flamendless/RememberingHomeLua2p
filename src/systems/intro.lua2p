@@ -92,7 +92,7 @@ function Intro:state_setup()
 	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
 	self.ps2 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
 
-	for _ = 1, 2 do
+	for i = 1, 2 do
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "clouds")
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "buildings")
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "road")
@@ -100,9 +100,12 @@ function Intro:state_setup()
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass2")
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_back")
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_front")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_bg")
-		Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover, "bg_tree_cover")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_fg")
+		local e_tree = Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_bg")
+		if i == 1 then
+			Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover, "bg_tree_cover")
+				:give("attach_to", e_tree)
+		end
+		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_fg", 4)
 		local e = Concord.entity(self.world):assemble(Assemblages.Intro.post_light, "post_light", 2)
 			:give("parallax_gap", w)
 		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "post", 2)
@@ -115,25 +118,25 @@ function Intro:state_setup()
 		:give("light_disabled")
 		:give("intro_light")
 
-	local fw, fh = 512, 128
-	local fsx = ssx2 * 4/fw
-	local fsy = 2
-	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-	-- 	"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
-	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-	-- 	"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
-	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-	-- 		"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
-	-- 	:give("fade_in_target_alpha", 0.45)
-	-- 	:give("hidden")
-	-- Concord.entity(self.world):assemble(Assemblages.Intro.fog,
-	-- 		"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
-	-- 	:give("fade_in_target_alpha", 0.45)
-	-- 	:give("hidden")
-
 	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
 			self.e_car)
 		:give("animation_on_loop", "car_reflection_flicker")
+
+	local fw, fh = 512, 128
+	local fsx = ssx2 * 4/fw
+	local fsy = 2
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+		"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+		"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
+		:give("fade_in_target_alpha", 0.45)
+		:give("hidden")
+	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
+		:give("fade_in_target_alpha", 0.45)
+		:give("hidden")
 
 	local lut_size, lut_afternoon, lut_dusk
 	if Settings.current.graphics_quality == "low" then
@@ -224,7 +227,7 @@ function Intro:state_init()
 		self.world:emit("fade_out_fog", "fog2", 3)
 		-- self.world:emit("fade_out_fog", "fog3", 2)
 		self.world:emit("fade_in_fog", "fog4", 3)
-		self.world:emit("start_trees", -320)
+		self.world:emit("start_trees")
 		for _, e in ipairs(self.pool_light) do
 			e:remove("light_disabled")
 		end
@@ -376,7 +379,9 @@ function Intro:state_draw()
 end
 
 function Intro:state_keypressed(key)
-	self.world:emit("keypressed", key)
+	if key == "space" then
+		self.world:emit("start_trees")
+	end
 end
 
 function Intro:cleanup()

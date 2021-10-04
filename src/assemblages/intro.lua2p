@@ -36,6 +36,7 @@ local z_index = {
 	post_light = {9, 0.03},
 	grass = {10, 0.05},
 	car = {11, 0.04},
+	car_reflect = {12, 0.04},
 	fog2 = {12, 0.04},
 	grass2 = {13, 0.06},
 	trees_fg = {14, 0.07},
@@ -50,7 +51,7 @@ local positions = {
 	grass_back = {0, 324},
 	grass_front = {0, 334},
 	trees_bg = {0, 36},
-	trees_fg = {0, 256},
+	trees_fg = {0, 108},
 	post = {108, 106},
 	post_light = {0, 108},
 }
@@ -80,7 +81,7 @@ function Intro.parallax(e, tag, scale)
 		scale = min(ww/w, wh/h)
 	end
 
-	e:give("id", "parallax_" .. tag)
+	e:give("id", tag)
 	:give("sprite", "atlas_intro")
 	:give("atlas", item)
 	:give("pos", x, y)
@@ -104,11 +105,15 @@ end
 
 function Intro.bg_tree_cover(e, resource_id)
 	local item = Atlas.frames.bg_tree_cover
+	local ww, wh = love.graphics.getDimensions()
+	local w, h = item.frame.w, item.frame.h
+	local scale = min(ww/w, wh/h)
+
 	e:give("id", "bg_tree_cover")
 	:give("sprite", "atlas_intro")
 	:give("atlas", item)
 	:give("pos", love.graphics.getWidth(), 110)
-	:give("transform", 0, 1, 1, item.frame.w * 0.5)
+	:give("quad_transform", 0, scale, scale, item.frame.w * 0.5)
 	:give("z_index", z_index.bg_tree_cover[1])
 	:give("depth_zoom", z_index.bg_tree_cover[2])
 	:give("bg_tree", true)
@@ -127,11 +132,11 @@ end
 function Intro.car_reflect(e, car)
 	e:give("id", "car_reflect")
 	:give("animation_data", AnimationData.get("car_reflect"))
-	:give("pos", 0, 0)
+	:give("pos", car.pos.x, car.pos.y)
 	:give("animation", false)
 	:give("attach_to", car)
-	:give("z_index", z_index.car[1])
-	:give("depth_zoom", z_index.car[2])
+	:give("z_index", z_index.car_reflect[1])
+	:give("depth_zoom", z_index.car_reflect[2])
 	:give("transform")
 end
 
@@ -155,18 +160,18 @@ function Intro.title(e, x, y)
 	:give("sprite", "atlas_intro")
 	:give("atlas", Atlas.frames.title)
 	:give("pos", x, y)
-	:give("hidden")
-	:give("transform", 0, 6, 6, 0.5, 0.5)
+	:give("quad_transform", 0, 6, 6, 0.5, 0.5)
 	:give("color", {1, 1, 1, 0})
 	:give("ui_element")
+	:give("hidden")
 end
 
-function Intro.title_light(e, sprite)
+function Intro.title_light(e, x, y)
 	e:give("id", "title_light")
 	:give("sprite", "atlas_intro")
 	:give("atlas", Atlas.frames.title_light)
-	:give("pos", 142, 64)
-	:give("transform", 0, 4, 4, 0.5, 0.5)
+	:give("pos", x, y)
+	:give("quad_transform", 0, 4, 4, 0.5, 0.5)
 	:give("color", {1, 1, 1})
 	:give("light", "custom", 1)
 	:give("light_flicker", 0.075)

@@ -101,6 +101,17 @@ function ECS.load_systems(id, world, prev_id)
 	DevTools = require("devtools")
 	!end
 
+	!if _DEV then
+	Systems.id.debug_show = DevTools.flags.id
+	Systems.id.debug_enabled = DevTools.flags.id
+	Systems.id.debug_title = "ID"
+	Systems.log.debug_show = false
+	Systems.log.debug_enabled = true
+	Systems.log.debug_title = "Log"
+	world:addSystem(Systems.id)
+	world:addSystem(Systems.log)
+	!end
+
 	for _, v in ipairs(systems[id]) do
 		@@assert(Systems[v], format("id = %s, i = %d", v, _))
 		world:addSystem(Systems[v])
@@ -122,17 +133,6 @@ function ECS.load_systems(id, world, prev_id)
 	main_sys.__unpausable = true
 	main_sys.prev_id = prev_id
 	world:addSystem(main_sys)
-
-	!if _DEV then
-	Systems.id.debug_show = DevTools.flags.id
-	Systems.id.debug_enabled = DevTools.flags.id
-	Systems.id.debug_title = "ID"
-	Systems.log.debug_show = false
-	Systems.log.debug_enabled = true
-	Systems.log.debug_title = "Log"
-	world:addSystem(Systems.id)
-	world:addSystem(Systems.log)
-	!end
 end
 
 function ECS.get_system_class(id)

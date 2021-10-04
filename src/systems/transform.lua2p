@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 
 local min = math.min
 local floor = math.floor
@@ -17,9 +18,15 @@ local Transform = Concord.system({
 
 function Transform:init()
 	self.pool.onAdded = function(pool, e)
+		!if _DEV then
+			if e.quad and e.atlas then
+				Log.warn(e.id.value .. " has quad but uses transform, maybe you want quad_transform?")
+			end
+		!end
 		local t = e.transform
 		local w, h
 		local sprite = e.sprite
+		local quad = e.quad
 		local text = e.text
 		local s_text = e.static_text
 
