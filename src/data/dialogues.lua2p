@@ -75,6 +75,9 @@ Dialogues.outside = {
 }
 
 Dialogues.utility_room = {
+	light_switch = {
+		"_toggle_light_switch",
+	},
 	washing_machine = {
 		"a washing machine",
 		"it's too late to do the laundry",
