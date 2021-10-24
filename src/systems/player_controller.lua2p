@@ -3,6 +3,7 @@ local Timer = require("modules.hump.timer")
 
 local Dialogues = require("dialogues")
 local Inputs = require("inputs")
+local Items = require("items")
 local PlayerSpawnPoints = require("data.player_spawn_points")
 local AssemPlayer = require("assemblages.player")
 
@@ -24,6 +25,15 @@ function PlayerController:init(world)
 	self.world = world
 end
 
+function PlayerController:on_toggle_equip_flashlight()
+	local has_f = Items.is_equipped("flashlight")
+	self.player:remove("multi_animation_data")
+	self.player:give("multi_animation_data", "idle",
+		AssemPlayer.get_multi_anim_data(has_f, self.player.can_open_door))
+	local tag = (self.player.body.dir == -1) and "idle_left" or "idle"
+	self.player:give("change_animation_tag", tag, true)
+end
+
 function PlayerController:spawn_player(fn)
 	@@sassert(fn, type(fn) == "function")
 	@@assert(self.player == nil, "Player already exists")
@@ -43,14 +53,13 @@ end
 function PlayerController:update(dt)
 	if not self.player then return end
 	if self.player.override_animation then return end
-	if not self.player.body.can_move then return end
+	if not self.player.can_move then return end
 	local within_int = self.player.within_interactive
-	local can_interact = self.player.can_interact
 	local body = self.player.body
 	body.dx = 0
 
-	if body.can_run then
-		body.is_run = Inputs.down("run_mod")
+	if self.player.can_run then
+		self.player.is_running.value = Inputs.down("run_mod")
 	end
 
 	if Inputs.down("left") then
@@ -62,7 +71,7 @@ function PlayerController:update(dt)
 	end
 
 	if Inputs.pressed("interact") then
-		if can_interact and within_int then
+		if self.player.can_interact and within_int then
 			local other = within_int.entity
 			local req = other.req_col_dir
 			local proceed = true
@@ -92,7 +101,7 @@ function PlayerController:player_update_animation(override_name, override_varian
 
 	if not anim_name then
 		if body.dx ~= 0 and not self.player.hit_wall then
-			if body.is_run then
+			if self.player.is_running.value then
 				anim_name = "run"
 			else
 				anim_name = "walk"
@@ -171,7 +180,7 @@ function PlayerController:player_open_door()
 end
 
 function PlayerController:player_open_locked_door()
-	local tag = (self.player.body.dir == -1) and "open_door_reverse_left" or "open_door_reverse"
+	local tag = (self.player.body.dir == -1) and "open_locked_door_left" or "open_locked_door"
 	self.player:give("change_animation_tag", tag)
 		:give("override_animation")
 	self.player:give("animation_on_loop", "anim_pause_at_end", 0, self.player)
@@ -180,7 +189,7 @@ end
 function PlayerController:on_player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
-	player:give("is_interacting")
+	self.player.is_interacting.value = true
 	-- self.world:emit("on_interact_or_inventory")
 	-- self.world:emit("create_speech_bubble", player)
 	local d = interactive.dialogue_meta
@@ -189,10 +198,8 @@ function PlayerController:on_player_interact(player, interactive)
 end
 
 function PlayerController:on_interact_or_inventory()
-	if not self.player.prev_body then
-		local body = self.player.body
-		local can_interact = self.player.can_interact
-		self.player:give("prev_body", body.can_move, body.can_run, can_interact ~= nil)
+	if not self.player.prev_can then
+		self.player:give("prev_can", self.player)
 		self:idle(true)
 	end
 	self:player_can_run(false)
@@ -201,18 +208,21 @@ function PlayerController:on_interact_or_inventory()
 end
 
 function PlayerController:on_leave_interact_or_inventory()
-	local body = self.player.body
-	local prev_body = self.player.prev_body
-	if not prev_body then return end
-	body.can_move = prev_body.can_move
-	body.can_run = prev_body.can_run
-	if prev_body.can_interact then
+	local prev_can = self.player.prev_can and self.player.prev_can.value
+	if not prev_can then return end
+	if prev_can.move then
+		self.player:give("can_move")
+	end
+	if prev_can.run then
+		self.player:give("can_run")
+	end
+	if prev_can.interact then
 		Timer.after(0.5, function()
 			self.player:give("can_interact")
-				:remove("is_interacting")
+			self.player.is_interacting.value = false
 		end)
 	end
-	self.player:remove("prev_body")
+	self.player:remove("prev_can")
 	-- self.world:emit("remove_speech_bubble")
 end
 
@@ -227,12 +237,20 @@ end
 
 function PlayerController:player_can_move(bool)
 	@@assert(type(bool) == "boolean")
-	self.player.body.can_move = bool
+	if bool then
+		self.player:give("can_move")
+	else
+		self.player:remove("can_move")
+	end
 end
 
 function PlayerController:player_can_run(bool)
 	@@assert(type(bool) == "boolean")
-	self.player.body.can_run = bool
+	if bool then
+		self.player:give("can_run")
+	else
+		self.player:remove("can_run")
+	end
 end
 
 function PlayerController:player_can_interact(bool)

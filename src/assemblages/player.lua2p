@@ -4,35 +4,40 @@ local Player = {}
 
 local player_h = 64
 
-function Player.base(e, x, y, speed_data, gravity, defaults)
-	@@sassert(defaults, type(defaults) == "table")
-	@@sassert(defaults.can_move, type(defaults.can_move) == "boolean")
-	@@sassert(defaults.can_run, type(defaults.can_run) == "boolean")
-	@@sassert(defaults.can_open_door, type(defaults.can_open_door) == "boolean")
-	local can_move = defaults.can_move
-	local can_run = defaults.can_run
-	local can_open_door = defaults.can_open_door
+function Player.get_multi_anim_data(for_flashlight, can_open_door)
+	local data, mods = {}, {}
 
-	local multi_data = {
-		idle = AnimationData.get("player_idle"),
-		walk = AnimationData.get("player_walk"),
-		run = AnimationData.get("player_run"),
-	}
-
-	local multi_data_modifier = {
-		--copy (1) as (2) applying (3)
-		idle = {"idle_left",  "flipH"},
-		walk = {"walk_left",  "flipH"},
-		run = {"run_left", "flipH"},
-	}
+	data.idle = AnimationData.get("player_idle")
+	data.walk = AnimationData.get("player_walk")
+	data.run = AnimationData.get("player_run")
 
 	if can_open_door then
-		multi_data.open_door = AnimationData.get("player_open_door")
-		multi_data_modifier.open_door = {"open_door_left", "flipH"}
-
-		multi_data.open_door_reverse = AnimationData.get("player_open_locked_door")
-		multi_data_modifier.open_door_reverse = {"open_door_reverse_left", "flipH"}
+		data.open_door = AnimationData.get("player_open_door")
+		data.open_locked_door = AnimationData.get("player_open_locked_door")
 	end
+
+	if for_flashlight then
+		for _, tag in pairs(data) do
+			tag.resource_id = tag.resource_id .. "_f"
+		end
+	end
+
+	--copy (1) as (2) applying (3)
+	mods.idle = {"idle_left", "flipH"}
+	mods.walk = {"walk_left", "flipH"}
+	mods.run = {"run_left", "flipH"}
+	mods.open_door = {"open_door_left", "flipH"}
+	mods.open_locked_door = {"open_locked_door_left", "flipH"}
+
+	return data, mods
+end
+
+function Player.base(e, x, y, speed_data, gravity, can)
+	@@sassert(can, type(can) == "table")
+	@@sassert(can.move, type(can.move) == "boolean")
+	@@sassert(can.run, type(can.run) == "boolean")
+	@@sassert(can.open_door, type(can.open_door) == "boolean")
+	local data, mods = Player.get_multi_anim_data(false, can.open_door)
 
 	e:give("id", "player")
 	:give("player")
@@ -45,11 +50,26 @@ function Player.base(e, x, y, speed_data, gravity, defaults)
 	:give("gravity", gravity)
 	:give("animation")
 	:give("player_controller")
-	:give("body", can_move, can_run)
-	:give("multi_animation_data", "idle", multi_data, multi_data_modifier)
+	:give("body")
+	:give("multi_animation_data", "idle", data, mods)
 	:give("current_frame")
 	:give("movement")
 	:give("fl_spawn_offset", 7, -16)
+	:give("is_running")
+	:give("is_interacting")
+
+	if can.move then
+		e:give("can_move")
+	end
+	if can.run then
+		e:give("can_run")
+	end
+	if can.interact then
+		e:give("can_interact")
+	end
+	if can.open_door then
+		e:give("can_open_door")
+	end
 end
 
 function Player.outside_house(e, x, y)
@@ -64,9 +84,9 @@ function Player.outside_house(e, x, y)
 		},
 		320,
 		{
-			can_move = false,
-			can_run = false,
-			can_open_door = true,
+			move = false,
+			run = false,
+			open_door = true,
 		})
 	:give("z_index", 5)
 	:give("color", {1, 1, 1, 0})
@@ -84,9 +104,9 @@ function Player.room(e, x, y)
 		},
 		320,
 		{
-			can_move = false,
-			can_run = false,
-			can_open_door = true,
+			move = false,
+			run = false,
+			open_door = true,
 		})
 	:give("z_index", 8)
 	:give("color", {1, 1, 1, 1})

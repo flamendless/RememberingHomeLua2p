@@ -3,6 +3,8 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 
+local format = string.format
+
 local Animation = Concord.system({
 	pool = {"animation", "animation_data"},
 	pool_multi = {"multi_animation_data", "animation"},
@@ -116,6 +118,7 @@ function Animation:init(world)
 		local data = multi.data[multi.first]
 		animation.current_tag = multi.first
 		e:give("animation_data", data)
+		Log.trace("added multi_animation_data")
 	end
 
 	self.pool_pause.onAdded = function(pool, e)
@@ -142,21 +145,24 @@ function Animation:init(world)
 	end
 
 	self.pool_change.onAdded = function(pool, e)
-		local new_tag = e.change_animation_tag.new_tag
-		self:switch_animation_tag(e, new_tag)
-		Log.trace("Switched animation tag to: " .. new_tag)
+		local cat = e.change_animation_tag
+		self:switch_animation_tag(e, cat.new_tag, nil, cat.override)
+		local str = format("Switched animation tag to: %s, override: %s",
+			cat.new_tag, tostring(cat.override))
+		Log.trace(str)
 	end
 end
 
-function Animation:switch_animation_tag(e, new_tag, base_tag)
+function Animation:switch_animation_tag(e, new_tag, base_tag, override)
 	@@assert(e.__isEntity)
 	@@assert(type(new_tag) == "string")
 	@@sassert(base_tag, type(base_tag) == "string")
+	@@sassert(override, type(override) == "boolean")
 	local animation = e.animation
 	local on_loop = self:setup_on_loop(e, animation)
 	animation.is_playing = true
 
-	if not (new_tag == animation.current_tag) then
+	if override or (not (new_tag == animation.current_tag)) then
 		local multi = e.multi_animation_data
 		local data = multi.data[new_tag]
 		@@assert(data)
@@ -165,6 +171,7 @@ function Animation:switch_animation_tag(e, new_tag, base_tag)
 		self:setup_animation(e, data, on_loop)
 		animation.anim8:gotoFrame(1)
 		animation.base_tag = base_tag or new_tag
+		e:remove("change_animation_tag")
 	end
 end
 
