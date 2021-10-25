@@ -33,7 +33,7 @@ function RenderUI:init(world)
 	}
 end
 
-function RenderUI:draw_ui()
+function RenderUI:draw_ui_default()
 	@@profb("render_ui_draw")
 	@@profb("render_ui")
 	for _, e in ipairs(self.pool_ui) do
@@ -54,7 +54,9 @@ function RenderUI:draw_ui()
 		end
 	end
 	@@profe("render_ui")
+end
 
+function RenderUI:draw_ui_layers()
 	@@profb("render_ui_layers")
 	for _, pool in ipairs(self.layers) do
 		for _, e in ipairs(pool) do
@@ -77,6 +79,11 @@ function RenderUI:draw_ui()
 	end
 	@@profe("render_ui_layers")
 	@@profe("render_ui_draw")
+end
+
+function RenderUI:draw_ui()
+	self:draw_ui_default()
+	self:draw_ui_layers()
 end
 
 function RenderUI:cleanup()

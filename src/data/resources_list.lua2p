@@ -40,6 +40,7 @@ t.fnt_inventory = {
 	{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
 	{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+	{"note_list", path_fonts .. "DigitalDisco.ttf", 14, "default"},
 }
 
 function get_res(id)

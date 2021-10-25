@@ -34,6 +34,7 @@ end
 -- end
 
 function RenderRect:draw_rect_ex(e)
+	if e.hidden then return end
 	local color = e.color.value
 	local pos = e.pos
 	local rect = e.rect

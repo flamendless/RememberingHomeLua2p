@@ -262,7 +262,7 @@ function Intro:state_init()
 		self.world:emit("tween_depth_zoom", 5, 4/max_n_cam_t)
 		self.world:emit("tween_camera_scale", self.camera, 5, self.scale)
 		self.world:emit("tween_camera_pos", self.camera, 5, w * 0.5, h * 0.5)
-		self.world:emit("destroy_skip")
+		self.world:emit("destroy_key", "skip")
 
 		TLE.Event.Wait(1)
 		self.e_title_light:remove("hidden")
@@ -302,7 +302,7 @@ function Intro:state_update(dt)
 	if Save.data.intro_done or !(_DEV) then
 		if not is_switching then
 			if Inputs.pressed("interact") then
-				self.world:emit("destroy_skip")
+				self.world:emit("destroy_key", "skip")
 				should_fade = true
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)

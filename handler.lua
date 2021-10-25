@@ -68,6 +68,7 @@ _LOG_SAVE = true
 _CACHED_PRELOAD = true
 _PADDING = 4
 _GLSL_NORMALS = false
+_INPUT_DELAY = 0.25
 
 _OS = "Linux"
 _PLATFORM = "desktop"

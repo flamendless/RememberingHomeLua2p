@@ -48,7 +48,7 @@ function Dialogues:init(world)
 				end
 
 				if handle_self then
-					self.world:emit("show_dialogue_key", true)
+					self.world:emit("show_key", "dialogue", true)
 					self.e_dialogue:remove("text_can_proceed")
 						:remove("hidden")
 						:give("text", current_line)
@@ -160,7 +160,7 @@ function Dialogues:on_dialogue_reached_end(e)
 			self.world:emit(on_d_end.signal, unpack(on_d_end.args))
 		else
 			self.world:emit("on_leave_interact_or_inventory")
-			self.world:emit("set_sys_inventory", true)
+			self.world:emit("set_system_to", "inventory", true)
 			e:remove("dialogue_meta")
 				:remove("text_t")
 				:remove("text")
@@ -172,7 +172,7 @@ function Dialogues:on_dialogue_reached_end(e)
 				:remove("choice_item")
 				:remove("has_choices")
 		end
-		self.world:emit("show_dialogue_key", false)
+		self.world:emit("show_key", "dialogue", false)
 	end
 	self.timeline:Pause()
 end

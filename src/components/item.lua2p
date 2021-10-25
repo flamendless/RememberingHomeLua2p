@@ -8,6 +8,8 @@ Concord.component("hovered_item")
 Concord.component("usable_with_item")
 Concord.component("item_preview")
 
+Concord.component("note_item")
+
 --TODO add serialize/deserialize
 local c_item_choice = Concord.component("item_choice", function(c, e)
 	@@assert(e.__isEntity and e.item)

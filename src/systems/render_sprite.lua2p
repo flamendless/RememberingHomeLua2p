@@ -77,9 +77,12 @@ end
 
 function RenderSprite:setup_sprite(e)
 	local sprite = e.sprite
+	!if _GLSL_NORMALS then
 	if sprite.container == "array_images" then
 		e:give("array_image")
 	end
+	!end
+
 	!if _DEV then
 	local s_id = sprite.resource_id
 	if not self.debug_batched[s_id] then
@@ -149,7 +152,7 @@ function RenderSprite:draw_sprite_ex(e)
 	!if _DEV then
 	local s_id = sprite.resource_id
 	local db = self.debug_batched[s_id]
-	if self.debug_prev_id and self.debug_prev_id == s_id then
+	if db and self.debug_prev_id and self.debug_prev_id == s_id then
 		db.current = db.current + 1
 	end
 	if db and self.debug_prev_id ~= s_id then

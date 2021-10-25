@@ -7,9 +7,13 @@ function Inventory.bg(e, x, y, scale, alpha)
 	:give("sprite", "bg_item")
 	:give("cell_bg")
 	:give("transform", 0, scale, scale, 1, 0.5)
-	:give("color", {1, 1, 1, 0})
-	:give("fade_in_target_alpha", alpha)
-	:give("color_fade_in", 0.5)
+	if alpha then
+		e:give("color", {1, 1, 1, 0})
+		:give("fade_in_target_alpha", alpha)
+		:give("color_fade_in", 0.5)
+	else
+		e:give("color", {1, 1, 1, 1})
+	end
 end
 
 function Inventory.rect(e, x, y, w, h, scale, alpha)
@@ -20,10 +24,14 @@ function Inventory.rect(e, x, y, w, h, scale, alpha)
 	:give("line_width", 2)
 	:give("draw_mode", "line")
 	:give("cell_bg")
-	:give("color", {1, 1, 1, 0})
-	:give("fade_in_target_alpha", alpha)
-	:give("color_fade_in", 0.5)
 	:give("transform", 0, scale, scale, 0.5, 0.5)
+	if alpha then
+		e:give("color", {1, 1, 1, 0})
+		:give("fade_in_target_alpha", alpha)
+		:give("color_fade_in", 0.5)
+	else
+		e:give("color", {1, 1, 1, 1})
+	end
 end
 
 function Inventory.cell(e, x, y, w, h, alpha)
@@ -37,13 +45,18 @@ function Inventory.text(e, id, x, y, alpha, res_font, limit)
 	e:give("id", id)
 	:give("nf_render_text")
 	:give("pos", x, y)
-	:give("color", {1, 1, 1, 0})
-	:give("fade_in_target_alpha", alpha)
-	:give("color_fade_in", 0.5)
 	:give("text", "")
+	:give("textf", limit, "center")
 	:give("font", res_font)
 	:give("transform", 0, 1, 1, 0.5)
-	:give("textf", limit, "center")
+
+	if alpha then
+		e:give("color", {1, 1, 1, 0})
+		:give("fade_in_target_alpha", alpha)
+		:give("color_fade_in", 0.5)
+	else
+		e:give("color", {1, 1, 1, 1})
+	end
 end
 
 return Inventory

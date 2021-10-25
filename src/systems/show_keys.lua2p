@@ -5,9 +5,7 @@ local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
 
-local ShowKeys = Concord.system({
-	pool_skip = {"skip"},
-})
+local ShowKeys = Concord.system({})
 
 local function Assemble(e, key)
 	e:give("atlas", AtlasKeys.frames[key])
@@ -19,42 +17,56 @@ end
 
 function ShowKeys:init(world)
 	self.world = world
+	self.keys = {}
+	self.texts = {}
 end
 
-function ShowKeys:show_skip()
+function ShowKeys:create_key_with_text(id, txt, key)
+	@@assert(type(id) == "string")
+	@@assert(type(txt) == "string")
 	local ww, wh = love.graphics.getDimensions()
-	local e = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
-		:give("id", "skip_key")
+	self.keys[id] = Concord.entity(self.world):assemble(Assemble, key)
+		:give("id", "key_" .. id)
 		:give("pos", ww - 8, wh - 8)
 		:give("transform", 0, 1, 1, 0.5, 1)
 		:give("quad_transform", 0, 3, 3, 1, 1)
 		:give("color", {1, 1, 1, 1})
-		:give("color_fade_in_out", 1)
-		:give("skip")
 
-	Concord.entity(self.world)
-		:give("id", "skip_text")
-		:give("static_text", "Skip")
+	self.texts[id] = Concord.entity(self.world)
+		:give("id", "text_" .. id)
+		:give("static_text", txt)
 		:give("font", "ui")
 		:give("pos", 0, 0)
-		:give("color", Palette.get("ui_skip"))
+		:give("color", Palette.get("ui_show_key_text"))
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 1, 1)
-		:give("color_fade_in_out", 1)
-		:give("skip")
-		:give("anchor", e, "right", "bottom", 16, 0)
+		:give("anchor", self.keys[id], "right", "bottom", 16, 0)
+
+	return self.keys[id], self.texts[id]
 end
 
-function ShowKeys:destroy_skip()
-	for _, e in ipairs(self.pool_skip) do
-		e:destroy()
-	end
+function ShowKeys:show_skip()
+	local k, t = self:create_key_with_text("skip", "Skip", Inputs.rev_map.interact)
+	k:give("color_fade_in_out", 1)
+	:give("skip")
+	t:give("color_fade_in_out", 1)
+	:give("skip")
+end
+
+function ShowKeys:create_inventory_key()
+	if not Settings.current.show_keys then return end
+	self:create_key_with_text("inventory", "Switch to Notes", Inputs.rev_map.inventory)
+end
+
+function ShowKeys:create_notes_key()
+	if not Settings.current.show_keys then return end
+	self:create_key_with_text("notes", "Switch to Inventory", Inputs.rev_map.inventory)
 end
 
 function ShowKeys:create_dialogue_key()
 	if not Settings.current.show_keys then return end
 	local w, h = love.graphics.getDimensions()
-	self.e_key = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
+	self.keys.dialogue = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
 		:give("id", "dialogue_proceed_key")
 		:give("pos", w - 8, h - 8)
 		:give("quad_transform", 0, 3, 3, 1, 1)
@@ -62,14 +74,33 @@ function ShowKeys:create_dialogue_key()
 		:give("hidden")
 end
 
-function ShowKeys:show_dialogue_key(bool)
+function ShowKeys:show_key(id, bool)
 	if not Settings.current.show_keys then return end
-	@@assert(self.e_key ~= nil)
+	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
+	local e = self.keys[id]
+	@@assert(e ~= nil)
 	if not bool then
-		self.e_key:give("hidden")
+		e:give("hidden")
 	else
-		self.e_key:remove("hidden")
+		e:remove("hidden")
+	end
+
+	local t = self.texts[id]
+	if t then
+		if not bool then
+			t:give("hidden")
+		else
+			t:remove("hidden")
+		end
+	end
+end
+
+function ShowKeys:destroy_key(id)
+	self.keys[id]:destroy()
+	local t = self.texts[id]
+	if t then
+		t:destroy()
 	end
 end
 

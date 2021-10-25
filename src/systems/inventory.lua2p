@@ -3,8 +3,8 @@ local Timer = require("modules.hump.timer")
 
 local Blur = require("blur")
 local Inputs = require("inputs")
-local Resources = require("resources")
 local Palette = require("palette")
+local Resources = require("resources")
 
 local floor = math.floor
 local min = math.min
@@ -16,14 +16,12 @@ local Inventory = Concord.system({
 	pool_cell_line = {"cell_line"},
 	pool_cell_fill = {"cell_fill"},
 	pool_hovered = {"hovered_cell"},
-	pool_text = {"text", "nf_render_text", "!item_choice"},
+	pool_text = {"text", "nf_render_text", "!item_choice", "!dialogue_item"},
 	pool_choices = {"text", "nf_render_text", "item_choice"},
 	pool_preview = {"sprite", "item_preview", "pos", "nf_render_sprite"},
 })
 
-local Assemblages = {
-	Inventory = require("assemblages.inventory"),
-}
+local AssemInventory = require("assemblages.inventory")
 
 local ROWS, COLS = 3, 3
 local PAD_ITEM_CELL = 8
@@ -57,20 +55,19 @@ end
 function Inventory:open_inventory()
 	if not self.can_open then return end
 	self.world:emit("on_interact_or_inventory")
-	self.world:emit("set_sys_dialogues", false)
+	self.world:emit("set_system_to", "dialogues", false)
 	self.is_open = true
 	Blur.flag_process = true
 	if not self.initialized then
 		self:create_inventory()
-	else
-		self:show_inventory()
 	end
+	self:show_inventory()
 	self.world:emit("create_items")
 end
 
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
-	self.world:emit("set_sys_dialogues", true)
+	self.world:emit("set_system_to", "dialogues", true)
 	if #self.pool_choices ~= 0 then
 		self:on_item_cancel()
 		return
@@ -86,11 +83,30 @@ end
 
 function Inventory:update(dt)
 	if self.can_open and not self.is_open and Inputs.pressed("inventory") then
+		!if _DEV then
+		local Items = require("items")
+		Items.add("flashlight")
+		local Notes = require("notes")
+		Notes.add("test")
+		Notes.add("test2")
+		Notes.add("test3")
+		Notes.add("test4")
+		Notes.add("test5")
+		Notes.add("test6")
+		Notes.add("test7")
+		Notes.add("test8")
+		!end
 		self:open_inventory()
 	elseif self.is_open then
-		if Inputs.pressed("cancel") then
+		if Inputs.pressed("inventory") then
+			Inputs.flush()
+			self.world:emit("close_inventory", true)
+			self.world:emit("inventory_to_notes")
+			self.world:emit("open_notes")
+		elseif Inputs.pressed("cancel") then
 			self:close_inventory()
 		elseif Inputs.pressed("interact") then
+			self.world:emit("show_key", "inventory", false)
 			self:item_interact()
 		end
 	end
@@ -132,13 +148,15 @@ function Inventory:draw_inventory()
 		end
 	end
 	for _, e in ipairs(self.pool_cell_line) do
-		self.world:emit("draw_rect_ex", e)
+		if not e.hidden then
+			self.world:emit("draw_rect_ex", e)
+		end
 	end
 
 	for i, e in ipairs(self.pool_cell_fill) do
 		self.world:emit("draw_rect_ex", e)
 
-		if not self.pool_item[i] then
+		if not self.pool_item[i] and not e.hidden then
 			local pos = e.pos
 			local rect = e.rect
 			local border = e.rect_border
@@ -183,40 +201,40 @@ function Inventory:create_inventory()
 	local x = w - pad2
 	local y = h * 0.5
 
-	self.inv_bg = Concord.entity(self.world):assemble(Assemblages.Inventory.bg,
+	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg,
 		x, y, scale, alpha)
 
 	local rx = x - iw * scale * 0.5
 	local ry = y - pad
 	local rs = scale * 0.5
-	self.inv_rect = Concord.entity(self.world):assemble(Assemblages.Inventory.rect,
+	self.e_rect = Concord.entity(self.world):assemble(AssemInventory.rect,
 		rx, ry, iw, ih, rs, alpha2)
 
 	local bx = rx - iw * rs * 0.5
 	local by = ry - ih * rs * 0.5
 	local sw = iw * rs / COLS
 	local sh = ih * rs / ROWS
-	for y = 0, ROWS - 1 do
-		for x = 0, COLS - 1 do
-			local srx = bx + x * sw
-			local sry = by + y * sh
-			local i = y * COLS + x
+	for row = 0, ROWS - 1 do
+		for col = 0, COLS - 1 do
+			local srx = bx + col * sw
+			local sry = by + row * sh
+			local i = row * COLS + col
 			local border = 12
-			local a = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
+			local a = Concord.entity(self.world):assemble(AssemInventory.cell,
 					srx, sry, sw, sh, alpha2)
 				:give("id", "inventory_cell_fill_" .. i)
 				:give("cell_fill")
 				:give("draw_mode", "fill")
 				:give("rect_border", border, border)
 				:give("line_width", 2)
-			local b = Concord.entity(self.world):assemble(Assemblages.Inventory.cell,
+			local b = Concord.entity(self.world):assemble(AssemInventory.cell,
 					srx, sry, sw, sh, alpha2)
 				:give("id", "inventory_cell_line_" .. i)
 				:give("cell_line")
 				:give("draw_mode", "line")
 				:give("rect_border", border, border)
 				:give("line_width", 2)
-			if y == 0 and x == 0 then
+			if row == 0 and col == 0 then
 				a:give("hovered_cell")
 				b:give("hovered_cell")
 			end
@@ -226,20 +244,22 @@ function Inventory:create_inventory()
 	local font = Resources.data.fonts.item_name
 	local pad4 = pad2 * 0.5
 	local iix = x - iw * scale * 0.5
-	local base_y = by + sh * ROWS
+	local base_y = ry + ih * rs * 0.5
 	local iiy = base_y + pad2
 	local iiy2 = iiy + font:getHeight("") + pad4
-	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
+	Concord.entity(self.world):assemble(AssemInventory.text,
 		"inventory_name_text", iix, iiy, alpha, "item_name", (iw - 16) * scale)
-	Concord.entity(self.world):assemble(Assemblages.Inventory.text,
+	Concord.entity(self.world):assemble(AssemInventory.text,
 		"inventory_desc_text", iix, iiy2, alpha, "item_desc", (iw - 16) * scale)
+	self.world:__flush()
 
 	self.initialized = true
 end
 
 function Inventory:show_inventory()
-	self.inv_bg:remove("hidden")
-	self.inv_rect:remove("hidden")
+	self.world:emit("create_inventory_key")
+	self.e_bg:remove("hidden")
+	self.e_rect:remove("hidden")
 	for _, e in ipairs(self.pool_cell_line) do
 		e:remove("hidden")
 	end
@@ -252,8 +272,9 @@ function Inventory:show_inventory()
 end
 
 function Inventory:hide_inventory()
-	self.inv_bg:give("hidden")
-	self.inv_rect:give("hidden")
+	self.world:emit("destroy_key", "inventory")
+	self.e_bg:give("hidden")
+	self.e_rect:give("hidden")
 	for _, e in ipairs(self.pool_cell_line) do
 		e:give("hidden")
 	end
@@ -271,7 +292,7 @@ function Inventory:hide_inventory()
 	for _, e in ipairs(self.pool_choices) do
 		e:destroy()
 	end
-	Timer.after(0.5, function() self.can_open = true end)
+	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
 end
 
 function Inventory:update_inventory_cells(dx, dy)
@@ -422,7 +443,7 @@ function Inventory:item_interact()
 			for i, str in ipairs(e.item_choices.value) do
 				local x = pos.x
 				local y = pos.y + fh * (i - 1)
-				local e_c = Concord.entity(self.world):assemble(Assemblages.Inventory.text,
+				local e_c = Concord.entity(self.world):assemble(AssemInventory.text,
 					"choice_" .. str, x, y, alpha, "item_name", limit)
 				:give("item_choice", e)
 				:give("text", str)
@@ -446,12 +467,13 @@ function Inventory:on_item_cancel()
 	for _, e in ipairs(self.pool_preview) do
 		e:give("hidden")
 	end
+	self.world:emit("show_key", "inventory", true)
 end
 
 function Inventory:cleanup()
 	if self.initialized then
-		self.inv_bg:destroy()
-		self.inv_rect:destroy()
+		self.e_bg:destroy()
+		self.e_rect:destroy()
 	end
 	for _, e in ipairs(self.pool_cell_line) do
 		e:destroy()

@@ -30,8 +30,8 @@ end
 
 function Items:create_items()
 	local t = ItemsList.get_acquired()
-	for _, id in ipairs(t) do
-		Concord.entity(self.world):assemble(Assemblages.Items[id])
+	for _, v in ipairs(t) do
+		Concord.entity(self.world):assemble(Assemblages.Items[v.id])
 	end
 end
 
@@ -89,8 +89,8 @@ end
 function Items:on_item_use_with(item, other)
 	@@assert(item.__isEntity and item.item)
 	@@sassert(other, other.__isEntity and other.interactive)
-	self.world:emit("set_sys_dialogues", true)
-	self.world:emit("set_sys_inventory", false)
+	self.world:emit("set_system_to", "dialogues", true)
+	self.world:emit("set_system_to", "inventory", false)
 	local item_id = item.item.id
 	if not other then
 		local dialogue_t = Dialogues.get("common", "item_without")
@@ -113,8 +113,8 @@ function Items:on_item_equip(item_e)
 	@@assert(item_e.__isEntity and item_e.item)
 	local item = item_e.item
 	if item.id == "flashlight" then
-		self.world:emit("set_sys_dialogues", true)
-		self.world:emit("set_sys_inventory", false)
+		self.world:emit("set_system_to", "dialogues", true)
+		self.world:emit("set_system_to", "inventory", false)
 		if not item.has_batteries then
 			local dialogue_t = Dialogues.get("items", "no_batteries")
 			self.world:emit("spawn_dialogue_ex", dialogue_t, "dialogue_to_inventory")

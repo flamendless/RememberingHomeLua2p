@@ -33,91 +33,96 @@ function RenderText:init(world)
 end
 
 function RenderText:draw_text_ex(e)
-	if not e.hidden then
-		local color = e.color
-		local text = e.text
-		local textf = e.textf
-		local static_text = e.static_text
-		local font = e.font
-		local font_sdf = e.font_sdf
-		local transform = e.transform
-		local sdf = e.sdf
-		local rfp = e.reflowprint
+	if e.hidden then return end
+	local color = e.color
+	local text = e.text
+	local textf = e.textf
+	local static_text = e.static_text
+	local font = e.font
+	local font_sdf = e.font_sdf
+	local transform = e.transform
+	local sdf = e.sdf
+	local rfp = e.reflowprint
 
-		love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(1, 1, 1, 1)
 
-		if color then
-			love.graphics.setColor(color.value)
-		end
+	if color then
+		love.graphics.setColor(color.value)
+	end
 
-		if font then
-			love.graphics.setFont(font.value)
-		elseif font_sdf then
-			love.graphics.setFont(font_sdf.value)
-		end
+	if font then
+		love.graphics.setFont(font.value)
+	elseif font_sdf then
+		love.graphics.setFont(font_sdf.value)
+	end
 
-		local str = text and text.value
-		local current_font = love.graphics.getFont()
-		local r, sx, sy, ox, oy
+	local str = text and text.value
+	local current_font = love.graphics.getFont()
+	local r, sx, sy, ox, oy
 
-		if transform then
-			r = transform.rotation
-			sx = transform.sx
-			sy = transform.sy
-			ox = transform.ox
-			oy = transform.oy
+	if transform then
+		r = transform.rotation
+		sx = transform.sx
+		sy = transform.sy
+		ox = transform.ox
+		oy = transform.oy
 
-			if transform.ox == 0.5 then
-				if static_text then
-					ox = static_text.obj:getWidth() * 0.5
-				elseif textf then
-					ox = textf.limit * 0.5
-				else
-					ox = current_font:getWidth(str) * 0.5
-				end
-			end
-
-			if transform.oy == 0.5 then
-				if static_text then
-					oy = static_text.obj:getHeight() * 0.5
-				elseif textf then
-					local lines = current_font:getWidth(str)/textf.limit
-					lines = ceil(lines)
-					oy = current_font:getHeight(str) * 0.5 * lines
-				else
-					oy = current_font:getHeight(str) * 0.5
-				end
-			elseif transform.oy == 1 then
-				if static_text then
-					oy = static_text.obj:getHeight()
-				else
-					oy = current_font:getHeight(str)
-				end
-			end
-		end
-
-		if sdf then
-			sx = sdf.sx
-			sy = sdf.sy
-		end
-
-		local x = e.pos.x
-		local y = e.pos.y
-
-		if rfp then
-			x = x - ox
-			y = y - oy
-			ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
-		else
+		if transform.ox == 0.5 then
 			if static_text then
-				love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy)
+				ox = static_text.obj:getWidth() * 0.5
+			elseif textf then
+				ox = textf.limit * 0.5
 			else
-				if textf then
-					love.graphics.printf(str, x, y, textf.limit, textf.align,
-						r, sx, sy, ox, oy)
-				else
-					love.graphics.print(str, x, y, r, sx, sy, ox, oy)
-				end
+				ox = current_font:getWidth(str) * 0.5
+			end
+		end
+
+		if transform.oy == 0.5 then
+			if static_text then
+				oy = static_text.obj:getHeight() * 0.5
+			elseif textf then
+				local lines = current_font:getWidth(str)/textf.limit
+				lines = ceil(lines)
+				oy = current_font:getHeight(str) * 0.5 * lines
+			else
+				oy = current_font:getHeight(str) * 0.5
+			end
+		elseif transform.oy == 1 then
+			if static_text then
+				oy = static_text.obj:getHeight()
+			else
+				oy = current_font:getHeight(str)
+			end
+		end
+	end
+
+	if sdf then
+		sx = sdf.sx
+		sy = sdf.sy
+	end
+
+	local x = e.pos.x
+	local y = e.pos.y
+
+	local w, h
+
+	if rfp then
+		x = x - ox
+		y = y - oy
+		ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
+	else
+		if static_text then
+			love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy)
+		else
+			if textf then
+				love.graphics.printf(str, x, y, textf.limit, textf.align,
+					r, sx, sy, ox, oy)
+				-- w = textf.limit
+				-- h = font.value:getHeight(str)
+				-- love.graphics.setColor(1, 0, 0, 1)
+				-- love.graphics.rectangle("line", x - transform.ox, y, w, h)
+			else
+				love.graphics.print(str, x, y, r, sx, sy, ox, oy)
 			end
 		end
 	end

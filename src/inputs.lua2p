@@ -108,6 +108,13 @@ function Inputs.update()
 	end
 end
 
+function Inputs.flush()
+	for k, v in pairs(Inputs.current) do
+		Inputs.previous[k] = false
+		Inputs.current[k] = false
+	end
+end
+
 function Inputs.get_map_keys()
 	return tablex.copy(maps, {})
 end

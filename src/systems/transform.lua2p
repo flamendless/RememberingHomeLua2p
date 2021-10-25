@@ -5,7 +5,7 @@ local min = math.min
 local floor = math.floor
 
 local Transform = Concord.system({
-	pool = {"transform", "!auto_scale"},
+	pool = {"transform", "!auto_scale", "!rect"},
 	pool_pos = {"pos", "!pos_vec2"},
 	pool_pos_vec2 = {"pos", "pos_vec2"},
 	pool_atlas = {"quad_transform", "atlas"},
@@ -26,22 +26,25 @@ function Transform:init()
 		local t = e.transform
 		local w, h
 		local sprite = e.sprite
-		local quad = e.quad
 		local text = e.text
+		local textf = e.textf
 		local s_text = e.static_text
 
 		if sprite then
 			w, h = sprite.iw, sprite.ih
+		elseif textf then
+			local font = e.font.value
+			w = textf.limit
+			h = font:getHeight(" ")
 		elseif text then
 			local font = e.font.value
 			local target_text = e.target_text
 			if target_text then
 				w = font:getWidth(target_text.value)
-				h = font:getHeight(" ")
 			else
 				w = font:getWidth(text.value)
-				h = font:getHeight(" ")
 			end
+			h = font:getHeight(" ")
 		elseif s_text then
 			w, h = s_text.obj:getDimensions()
 		end

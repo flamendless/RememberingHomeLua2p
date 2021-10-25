@@ -1,0 +1,221 @@
+local Concord = require("modules.concord.concord")
+
+local Blur = require("blur")
+local Inputs = require("inputs")
+local NotesList = require("notes")
+local Palette = require("palette")
+local Resources = require("resources")
+
+local floor = math.floor
+local min = math.min
+local insert = table.insert
+
+local Notes = Concord.system({
+	pool_camera = {"camera"},
+	pool_bg = {"cell_bg", "nf_render_sprite"},
+	pool_note = {"text", "nf_render_text", "note_item", "!item_choice", "!dialogue_item"},
+	pool_text = {"text", "nf_render_text", "!item_choice", "!dialogue_item", "!note_item"},
+})
+
+local AssemInventory = require("assemblages.inventory")
+local c_l_h = Palette.get("inventory_line_hovered", 0.25)
+local c_l_u = Palette.get("inventory_line_unhovered", 0.25)
+local c_f_h = Palette.get("inventory_fill_hovered", 0.25)
+local c_f_u = Palette.get("inventory_fill_unhovered", 0.25)
+
+function Notes:init(world)
+	self.world = world
+	self.is_open = false
+	self.rows = {}
+	self.offset = 0
+	self.max_offset = 0
+	self.cursor_y = 1
+
+	self.pool_camera.onAdded = function(pool, e)
+		local camera = e.camera
+		if camera.is_main then
+			self.main_camera = camera.camera
+		end
+	end
+
+	self:setEnabled(false)
+end
+
+function Notes:open_notes()
+	self.world:emit("set_system_to", "dialogues", false)
+	self.is_open = true
+	Blur.flag_process = true
+	self:create_notes()
+	self.world:emit("create_note_items")
+end
+
+function Notes:close_notes(not_close)
+	@@sassert(not_close, type(not_close) == "boolean")
+	self.world:emit("set_system_to", "dialogues", true)
+	if not not_close then
+		self.world:emit("on_leave_interact_or_inventory")
+	end
+	self.is_open = false
+	Blur.flag_process = false
+	self.world:emit("destroy_key", "notes")
+	self.e_bg:destroy()
+	for _, e in ipairs(self.pool_note) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_text) do
+		e:destroy()
+	end
+	tablex.clear(self.rows)
+	self.world:emit("inventory_to_notes", true)
+end
+
+function Notes:update(dt)
+	if self.is_open then
+		local dy = 0
+		if Inputs.pressed("inventory") then
+			Inputs.flush()
+			self.world:emit("close_notes", true)
+			self.world:emit("open_inventory")
+		elseif Inputs.pressed("cancel") then
+			self:close_notes()
+		elseif Inputs.pressed("interact") then
+			self:note_interact()
+		elseif Inputs.pressed("up") then
+			dy = -1
+		elseif Inputs.pressed("down") then
+			dy = 1
+		end
+
+		if dy ~= 0 then
+			local n_rows = #self.rows
+			self.cursor_y = self.cursor_y + dy
+
+			if self.cursor_y > n_rows then
+				self.cursor_y = 1
+				self.offset = self.offset + 1
+			elseif self.cursor_y <= 0 then
+				self.cursor_y = n_rows
+				self.offset = self.offset - 1
+			end
+
+			if self.offset * n_rows > self.max_offset - 1 then
+				self.cursor_y = 1
+				self.offset = 0
+			elseif self.offset < 0 then
+				self.cursor_y = n_rows
+				self.offset = self.max_offset/n_rows - 1
+			end
+
+			local text = self.e_page_nav.text
+			local index = n_rows * self.offset + self.cursor_y
+			text.value = index .. "/" .. self.max_offset
+		end
+	end
+end
+
+function Notes:draw_inventory()
+	if not self.is_open then return end
+	for _, e in ipairs(self.pool_bg) do
+		if e.sprite then
+			self.world:emit("draw_sprite_ex", e)
+		elseif e.rect then
+			self.world:emit("draw_rect_ex", e)
+		end
+	end
+
+	for i, r in ipairs(self.rows) do
+		local f_color, l_color
+		if i == self.cursor_y then
+			f_color = c_f_h
+			l_color = c_l_h
+		else
+			f_color = c_f_u
+			l_color = c_l_u
+		end
+
+		love.graphics.setColor(f_color)
+		love.graphics.rectangle("fill", r.x, r.y, r.w, r.h)
+		love.graphics.setColor(l_color)
+		love.graphics.rectangle("line", r.x, r.y, r.w, r.h)
+
+		local index = #self.rows * self.offset + i
+		local e = self.pool_note[index]
+		if e then
+			self.world:emit("draw_text_ex", e)
+		end
+	end
+
+	for _, e in ipairs(self.pool_text) do
+		self.world:emit("draw_text_ex", e)
+	end
+end
+
+function Notes:create_notes()
+	local _, _, w, h = self.main_camera:getWindow()
+	local img = Resources.data.images.bg_item
+	local iw, ih = img:getDimensions()
+	local bar_h = self.pool_camera[1].bar_height.value
+
+	local pad = 48
+	local pad2 = pad * 0.5
+	local nw = w - pad * 2
+	local nh = h - pad * 2 - bar_h * 2
+	local scale = min(nw/iw, nh/ih)
+	local x = w - pad2
+	local y = h * 0.5
+
+	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg, x, y, scale)
+		:give("color", {1, 1, 1, 0.75})
+
+	local rx = x - iw * scale * 0.5
+	local ry = y - pad
+	local rs = scale * 0.5
+	local font = Resources.data.fonts.note_list
+	local fh = font:getHeight(" ")
+	local padq = pad * 0.25
+	local row_x = rx - iw * rs * 0.5
+	local row_y = ry - ih * rs * 0.5 + fh * 2
+	local row_w = iw * rs
+	local row_h = fh + padq * 2
+	local rows = floor(ih * scale * 0.75 / row_h)
+	self.max_offset = rows * 5
+
+	for i = 0, rows - 1 do
+		local r = {
+			x = row_x, y = row_y + row_h * i,
+			w = row_w, h = row_h
+		}
+		insert(self.rows, r)
+	end
+
+	local bx = row_x + padq
+	local acquired_notes = NotesList.get_acquired()
+	for i, note in ipairs(acquired_notes) do
+		local index = i - 1
+		index = index % rows
+		local by = row_y + row_h * index + padq
+		Concord.entity(self.world)
+			:give("id", "note_" .. i)
+			:give("nf_render_text")
+			:give("font", "note_list")
+			:give("text", note.title)
+			:give("pos", bx, by)
+			:give("color", Palette.get("note_list"))
+			:give("note_item")
+	end
+
+	local tx = rx - font:getWidth("  ") * 0.25
+	local ty = row_y - fh - padq
+	local txt = "1/" .. self.max_offset
+	self.e_page_nav = Concord.entity(self.world)
+		:give("id", "txt_page")
+		:give("nf_render_text")
+		:give("font", "note_list")
+		:give("text", txt)
+		:give("pos", tx, ty)
+		:give("color", Palette.get("note_list"))
+
+	self.world:emit("create_notes_key", "notes")
+end
+
+return Notes
