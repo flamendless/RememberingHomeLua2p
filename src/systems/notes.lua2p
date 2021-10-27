@@ -27,9 +27,6 @@ function Notes:init(world)
 	self.world = world
 	self.is_open = false
 	self.rows = {}
-	self.offset = 0
-	self.max_offset = 0
-	self.cursor_y = 1
 
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
@@ -71,44 +68,12 @@ end
 
 function Notes:update(dt)
 	if self.is_open then
-		local dy = 0
 		if Inputs.pressed("inventory") then
 			Inputs.flush()
 			self.world:emit("close_notes", true)
 			self.world:emit("open_inventory")
 		elseif Inputs.pressed("cancel") then
 			self:close_notes()
-		elseif Inputs.pressed("interact") then
-			self:note_interact()
-		elseif Inputs.pressed("up") then
-			dy = -1
-		elseif Inputs.pressed("down") then
-			dy = 1
-		end
-
-		if dy ~= 0 then
-			local n_rows = #self.rows
-			self.cursor_y = self.cursor_y + dy
-
-			if self.cursor_y > n_rows then
-				self.cursor_y = 1
-				self.offset = self.offset + 1
-			elseif self.cursor_y <= 0 then
-				self.cursor_y = n_rows
-				self.offset = self.offset - 1
-			end
-
-			if self.offset * n_rows > self.max_offset - 1 then
-				self.cursor_y = 1
-				self.offset = 0
-			elseif self.offset < 0 then
-				self.cursor_y = n_rows
-				self.offset = self.max_offset/n_rows - 1
-			end
-
-			local text = self.e_page_nav.text
-			local index = n_rows * self.offset + self.cursor_y
-			text.value = index .. "/" .. self.max_offset
 		end
 	end
 end
@@ -125,28 +90,27 @@ function Notes:draw_inventory()
 
 	for i, r in ipairs(self.rows) do
 		local f_color, l_color
-		if i == self.cursor_y then
-			f_color = c_f_h
-			l_color = c_l_h
-		else
-			f_color = c_f_u
-			l_color = c_l_u
-		end
+		f_color = c_f_u
+		l_color = c_l_u
 
 		love.graphics.setColor(f_color)
 		love.graphics.rectangle("fill", r.x, r.y, r.w, r.h)
 		love.graphics.setColor(l_color)
 		love.graphics.rectangle("line", r.x, r.y, r.w, r.h)
 
-		local index = #self.rows * self.offset + i
-		local e = self.pool_note[index]
-		if e then
-			self.world:emit("draw_text_ex", e)
-		end
+		self.world:emit("draw_list", "notes", i)
 	end
 
 	for _, e in ipairs(self.pool_text) do
 		self.world:emit("draw_text_ex", e)
+	end
+end
+
+function Notes:on_item_cursor_on(e_note)
+	if e_note.note_item then
+		local info = e_note.list_cursor
+		local txt = self.e_page_nav.text
+		txt.value = info.cursor_index .. "/" .. info.max_page
 	end
 end
 
@@ -178,7 +142,7 @@ function Notes:create_notes()
 	local row_w = iw * rs
 	local row_h = fh + padq * 2
 	local rows = floor(ih * scale * 0.75 / row_h)
-	self.max_offset = rows * 5
+	local max_page = rows * 5
 
 	for i = 0, rows - 1 do
 		local r = {
@@ -187,6 +151,8 @@ function Notes:create_notes()
 		}
 		insert(self.rows, r)
 	end
+
+	self.world:emit("create_list_group", "notes", rows, max_page)
 
 	local bx = row_x + padq
 	local acquired_notes = NotesList.get_acquired()
@@ -202,11 +168,13 @@ function Notes:create_notes()
 			:give("pos", bx, by)
 			:give("color", Palette.get("note_list"))
 			:give("note_item")
+			:give("list_item")
+			:give("list_group", "notes")
 	end
 
 	local tx = rx - font:getWidth("  ") * 0.25
 	local ty = row_y - fh - padq
-	local txt = "1/" .. self.max_offset
+	local txt = "1/" .. max_page
 	self.e_page_nav = Concord.entity(self.world)
 		:give("id", "txt_page")
 		:give("nf_render_text")

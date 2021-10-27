@@ -162,7 +162,7 @@ function Animation:switch_animation_tag(e, new_tag, base_tag, override)
 	local on_loop = self:setup_on_loop(e, animation)
 	animation.is_playing = true
 
-	if override or (not (new_tag == animation.current_tag)) then
+	if override or (new_tag ~= animation.current_tag) then
 		local multi = e.multi_animation_data
 		local data = multi.data[new_tag]
 		@@assert(data)

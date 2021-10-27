@@ -41,7 +41,7 @@ systems.Outside = {
 	"gamestates", "glitch_shader_effect", "interactive", "inventory", "items",
 	"movement", "outline", "path", "pause", "player_controller", "render_rect",
 	"render_sprite", "render_text", "render_ui", "room", "systems",
-	"text_paint", "transform", "typewriter", "door", "notes",
+	"text_paint", "transform", "typewriter", "door", "notes", "list",
 }
 
 systems.StorageRoom = {
@@ -50,7 +50,7 @@ systems.StorageRoom = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes",
+	"door", "light_switch", "notes", "list",
 	--"flashlight", "animation_sync",
 }
 
@@ -60,7 +60,7 @@ systems.UtilityRoom = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes",
+	"door", "light_switch", "notes", "list",
 }
 
 systems.Kitchen = {
@@ -69,7 +69,7 @@ systems.Kitchen = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes",
+	"door", "light_switch", "notes", "list",
 }
 
 local unpausable_list = {

@@ -53,7 +53,7 @@ function Settings.set(id, value, should_overwrite)
 	@@assert(type(should_overwrite) == "boolean")
 
 	local prev = Settings.current[id]
-	if not (prev == value) then
+	if prev ~= value then
 		Settings.current[id] = value
 		Log.info(format("set %s to %s", id, value))
 		if should_overwrite then
