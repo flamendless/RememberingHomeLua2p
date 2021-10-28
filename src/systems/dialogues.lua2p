@@ -242,16 +242,14 @@ function Dialogues:populate_choices(t)
 	end
 end
 
-function Dialogues:on_list_cursor_remove(e)
-	@@assert(self.pool_choice:has(e))
-	local f = 0.25
-	self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
-end
-
 function Dialogues:on_list_cursor_update(e)
 	@@assert(self.pool_choice:has(e))
-	local f = 0.25
-	self.world:emit("lerp_color", e, c_hc, f, "circin")
+	self.world:emit("lerp_color", e, c_hc, 0.25, "circin")
+end
+
+function Dialogues:on_list_cursor_remove(e)
+	@@assert(self.pool_choice:has(e))
+	self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), 0.25, "circin")
 end
 
 function Dialogues:on_list_item_interact(e)

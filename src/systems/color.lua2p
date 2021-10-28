@@ -3,6 +3,7 @@ local Flux = require("modules.flux.flux")
 local Timer = require("modules.hump.timer")
 
 local Color = Concord.system({
+	pool = {"color", "id"},
 	pool_fade_to_black = {"color", "fade_to_black"},
 	pool_fade_in_out = {"color", "color_fade_in_out"},
 	pool_fade_in = {"color", "color_fade_in"},
@@ -10,7 +11,6 @@ local Color = Concord.system({
 	pool_colors = {"color", "lerp_colors"},
 	pool_color = {"color", "target_color"},
 	pool_blink = {"color", "blink"},
-	pool = {"color", "id"},
 })
 
 local function lerp_colors(lc, color)
@@ -206,15 +206,6 @@ function Color:start_colors_lerp()
 		local color = e.color
 		local lc = e.lerp_colors
 		lerp_colors(lc, color)
-	end
-end
-
-function Color:stop_colors_lerp()
-	for _, e in ipairs(self.pool_colors) do
-		local flux = e.lerp_colors.flux
-		if flux then
-			flux:stop()
-		end
 	end
 end
 

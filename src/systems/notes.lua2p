@@ -11,7 +11,7 @@ local min = math.min
 
 local Notes = Concord.system({
 	pool_camera = {"camera"},
-	pool_note_item = {"list_item", "list_group", "note_item", "!dialogue_item"},
+	pool_note_item = {"list_item", "list_group", "note_item", "!dialogue_item", "!choice_item"},
 })
 
 local AssemNotes = require("assemblages.notes")
@@ -83,29 +83,24 @@ function Notes:draw_inventory()
 	end
 end
 
-function Notes:on_list_cursor_update(e_hovered)
-	local color = e_hovered.color
-	local font = e_hovered.font.value
-	local pos = e_hovered.pos
+function Notes:on_list_cursor_update(e)
+	@@assert(self.pool_note_item:has(e))
+	local font = e.font.value
 	local c_pos = self.e_cursor.pos
-
-	local dx
-	if e_hovered.list_cursor.cursor_index <= self.rows_per_page then
-		dx = -1
-		self.e_cursor.transform.ox = 1
-	else
-		dx = 1
-		self.e_cursor.transform.ox = 0
-	end
-
+	local pos = e.pos
+	local on_left = e.list_cursor.cursor_index <= self.rows_per_page
+	local dx = on_left and -1 or 1
 	c_pos.x = pos.x + 4 * dx
 	c_pos.y = pos.y - font:getHeight("") * 0.5
-	color.value = c_on_hovered
+	self.e_cursor.transform.ox = on_left and 1 or 0
+	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 1}, 0.25, "circin")
+	self.world:emit("lerp_color", e, c_on_hovered, 0.25, "circin")
 end
 
 function Notes:on_list_cursor_remove(e)
-	local color = e.color
-	color.value = tablex.copy(color.original)
+	@@assert(self.pool_note_item:has(e))
+	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
+	self.world:emit("lerp_color", e, e.color.original, 0.25, "circin")
 end
 
 function Notes:on_list_item_interact(e)
