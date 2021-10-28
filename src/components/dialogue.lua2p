@@ -8,7 +8,6 @@ Concord.component("text_can_proceed")
 Concord.component("text_skipped")
 
 Concord.component("choice_item")
-Concord.component("hovered_choice")
 Concord.component("has_choices", function(c, ...)
 	c.value = {...}
 	!if _DEV then

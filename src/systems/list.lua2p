@@ -28,12 +28,13 @@ end
 function List:update(dt)
 	if not self.focused then return end
 	local group = self.groups[self.focused]
-	local dy = self:update_list(group)
+	local delta = self:update_list(group)
 	local cursor_new_index
-	if dy then
+	if delta then
 		cursor_new_index = self:update_cursor()
 	end
 
+	if not group.entities then return end
 	for i, e in ipairs(group.entities) do
 		local min = group.per_page * group.offset
 		local max = group.per_page * (group.offset + 1)
@@ -45,35 +46,41 @@ function List:update(dt)
 	end
 end
 
-function List:create_list_group(id, per_page, allow_cycling, max_page)
+function List:create_list_group(id, vertical, per_page, use_max_threshold, limit)
 	@@assert(type(id) == "string")
+	@@assert(type(vertical) == "boolean")
 	@@assert(type(per_page) == "number" and per_page > 0)
 	@@assert(self.groups[id] == nil, id .. " was already added")
-	@@sassert(allow_cycling, type(allow_cycling) == "boolean")
-	@@sassert(max_page, allow_cycling and type(max_page) == "number" and max_page > 0)
+	@@sassert(use_max_threshold, type(use_max_threshold) == "boolean")
+	@@sassert(limit, use_max_threshold and type(limit) == "number" and limit > 0)
 	self.groups[id] = {
 		entities = {},
 		cursor = 1,
 		offset = 0,
+		vertical = vertical,
 		per_page = per_page,
-		max_page = max_page,
-		allow_cycling = allow_cycling,
+		limit = limit,
+		use_max_threshold = use_max_threshold,
 	}
 end
 
 function List:update_list(group)
-	local dy = 0
+	local delta = 0
+	local up = group.vertical and "up" or "left"
+	local down = group.vertical and "down" or "right"
+
 	if Inputs.pressed("interact") then
 		local index = group.per_page * group.offset + group.cursor
+		@@assert(group.entities[index])
 		self.world:emit("on_list_item_interact", group.entities[index])
-	elseif Inputs.pressed("up") then
-		dy = -1
-	elseif Inputs.pressed("down") then
-		dy = 1
+	elseif Inputs.pressed(up) then
+		delta = -1
+	elseif Inputs.pressed(down) then
+		delta = 1
 	end
 
-	if dy == 0 then return false end
-	group.cursor = group.cursor + dy
+	if delta == 0 then return false end
+	group.cursor = group.cursor + delta
 
 	if group.cursor > group.per_page then
 		group.cursor = 1
@@ -83,23 +90,28 @@ function List:update_list(group)
 		group.offset = group.offset - 1
 	end
 
-	if not group.allow_cycling then
+	if not group.use_max_threshold then
 		local index = group.offset * group.per_page + group.cursor
-		local max_page = #group.entities
-		if index > max_page then
+		local limit = #group.entities
+		if index > limit then
 			group.cursor = 1
 			group.offset = 0
 		elseif index <= 0 then
-			group.cursor = max_page % group.per_page
-			group.offset = (max_page % group.cursor) + 1
+			if limit == group.per_page then
+				group.cursor = limit
+				group.offset = 0
+			else
+				group.cursor = limit % group.per_page
+				group.offset = limit % group.cursor
+			end
 		end
 	else
-		if group.offset * group.per_page > group.max_page - 1 then
+		if group.offset * group.per_page > group.limit - 1 then
 			group.cursor = 1
 			group.offset = 0
 		elseif group.offset < 0 then
 			group.cursor = group.per_page
-			group.offset = group.max_page/group.per_page - 1
+			group.offset = group.limit/group.per_page - 1
 		end
 	end
 
@@ -121,6 +133,7 @@ end
 function List:set_focus_list(group_id)
 	@@sassert(group_id, type(group_id) == "string" and self.groups[group_id])
 	self.focused = group_id
+	Log.trace("focused list: " .. group_id)
 end
 
 function List:destroy_list(group_id)

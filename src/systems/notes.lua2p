@@ -11,7 +11,6 @@ local min = math.min
 
 local Notes = Concord.system({
 	pool_camera = {"camera"},
-	-- pool_note = {"text", "nf_render_text", "note_item", "!item_choice", "!dialogue_item"},
 	pool_note_item = {"list_item", "list_group", "note_item", "!dialogue_item"},
 })
 
@@ -50,7 +49,7 @@ function Notes:close_notes(not_close)
 	Blur.flag_process = false
 	self.world:emit("destroy_key", "notes")
 	self.e_bg:destroy()
-	for _, e in ipairs(self.pool_note) do
+	for _, e in ipairs(self.pool_note_item) do
 		e:destroy()
 	end
 	self.world:emit("destroy_list", "notes")
@@ -138,7 +137,7 @@ function Notes:create_notes()
 	local rows = floor(ih * scale * 0.75 / row_h)
 
 	self.rows_per_page = rows
-	self.world:emit("create_list_group", "notes", rows * 2)
+	self.world:emit("create_list_group", "notes", true, rows * 2)
 
 	local acquired_notes = NotesList.get_acquired()
 	for i, note in ipairs(acquired_notes) do

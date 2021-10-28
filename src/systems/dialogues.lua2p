@@ -12,7 +12,7 @@ local remove = table.remove
 local Dialogues = Concord.system({
 	pool_camera = {"camera"},
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
-	pool_choice = {"choice_item", "text_t", "nf_render_text"},
+	pool_choice = {"list_item", "list_group", "choice_item", "!note_item"},
 })
 
 local UI = require("assemblages.ui")
@@ -92,16 +92,8 @@ end
 
 function Dialogues:update(dt)
 	if self.is_waiting then return end
-	if Inputs.released("interact") then
-		if #self.pool_choice == 0 then
-			self:proceed_dialogue()
-		else
-			self:proceed_choice()
-		end
-	elseif Inputs.pressed("left") then
-		self:update_choices(-1)
-	elseif Inputs.pressed("right") then
-		self:update_choices(1)
+	if Inputs.released("interact") and #self.pool_choice == 0 then
+		self:proceed_dialogue()
 	end
 end
 
@@ -149,7 +141,7 @@ function Dialogues:on_dialogue_reached_end(e)
 	end
 	e = e or self.e_dialogue
 	if e.choice_item then
-		self:remove_choices()
+		self.world:emit("destroy_list", "dialogue_choice")
 	end
 	if e.has_choices then
 		e:give("hidden")
@@ -209,12 +201,14 @@ function Dialogues:show_choices()
 	local y = h - h * 0.15 * 0.5
 	local p2 = PAD * 2
 	local prev_x = l + p2
+	local choice_t = self.e_dialogue.text_t.value.choices
+	self.world:emit("create_list_group", "dialogue_choice", false, #choice_t)
+
 	for i, str in ipairs(c.value) do
 		local id = "choice_" .. str
 		local fw = font:getWidth(str)
 		local x = prev_x
 		prev_x = x + fw + p2
-		local choice_t = self.e_dialogue.text_t.value.choices
 		for _, v in ipairs(choice_t) do
 			if v[1] == str then
 				choice_t = tablex.copy(v)
@@ -222,17 +216,17 @@ function Dialogues:show_choices()
 				break
 			end
 		end
+
 		local e_choice = Concord.entity(self.world):assemble(UI.choice,
 				id, str, choice_t, x, y)
 			:give("reflowprint", fw + PAD * 2, "left")
 			:give("dialogue_meta", d.main, d.sub)
+			:give("list_item")
+			:give("list_group", "dialogue_choice")
 		self:populate_choices(choice_t)
-
-		if i == 1 then
-			self.world:emit("lerp_color", e_choice, c_hc, 0.25, "circin")
-			e_choice:give("hovered_choice")
-		end
 	end
+
+	self.world:emit("set_focus_list", "dialogue_choice")
 end
 
 function Dialogues:populate_choices(t)
@@ -248,82 +242,58 @@ function Dialogues:populate_choices(t)
 	end
 end
 
-function Dialogues:update_choices(dx)
+function Dialogues:on_list_cursor_remove(e)
+	@@assert(self.pool_choice:has(e))
 	local f = 0.25
-	for i, e in ipairs(self.pool_choice) do
-		if e.hovered_choice then
-			local cur = mathx.wrap(i + dx, 1, #self.pool_choice + 1)
-			if cur ~= i then
-				e:remove("hovered_choice")
-				self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
-				local next_e = self.pool_choice[cur]:give("hovered_choice")
-				self.world:emit("lerp_color", next_e, c_hc, f, "circin")
-				break
-			end
-		end
-	end
+	self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), f, "circin")
 end
 
-function Dialogues:proceed_choice()
-	for _, e in ipairs(self.pool_choice) do
-		if e.hovered_choice then
-			local t = e.text_t
-			local text_t = t.value
-			if #text_t == 0 and not text_t.choices then
-				self:on_dialogue_reached_end(e)
-			else
-				local str = text_t[1]
-				local proceed = true
-				if str then
-					local bool, signal, handle_self = DialoguesSrc.check_signal(str)
+function Dialogues:on_list_cursor_update(e)
+	@@assert(self.pool_choice:has(e))
+	local f = 0.25
+	self.world:emit("lerp_color", e, c_hc, f, "circin")
+end
 
-					if bool then
-						proceed = false
-						--entity, table of next dialogues, chosen text
-						self.world:emit(signal, e, text_t, e.text.value)
-						if handle_self then
-							t.current_index = t.current_index + 1
-							local next_str = text_t[t.current_index]
-							if not next_str then
-								self:on_dialogue_reached_end(e)
-							end
-						end
+function Dialogues:on_list_item_interact(e)
+	@@assert(self.pool_choice:has(e))
+	local t = e.text_t
+	local text_t = t.value
+	if #text_t == 0 and not text_t.choices then
+		self:on_dialogue_reached_end(e)
+	else
+		local str = text_t[1]
+		local proceed = true
+		if str then
+			local bool, signal, handle_self = DialoguesSrc.check_signal(str)
+
+			if bool then
+				proceed = false
+				--entity, table of next dialogues, chosen text
+				self.world:emit(signal, e, text_t, e.text.value)
+				if handle_self then
+					t.current_index = t.current_index + 1
+					local next_str = text_t[t.current_index]
+					if not next_str then
+						self:on_dialogue_reached_end(e)
 					end
 				end
-
-				if proceed then
-					local d = e.dialogue_meta
-					self:remove_choices()
-					self:spawn_dialogue(text_t, d.main, d.sub)
-				end
-
-				if not text_t.choices then
-					self:remove_choices()
-					self.e_dialogue:remove("has_choices")
-				end
 			end
-			break
+		end
+
+		self.world:emit("destroy_list", "dialogue_choice")
+		if proceed then
+			local d = e.dialogue_meta
+			self:spawn_dialogue(text_t, d.main, d.sub)
+		end
+		if not text_t.choices then
+			self.e_dialogue:remove("has_choices")
 		end
 	end
-end
-
-function Dialogues:remove_choices()
-	for _, e in ipairs(self.pool_choice) do
-		e:destroy()
-	end
-end
-
---TODO emit this when in-game's settings are changed
-function Dialogues:on_settings_updated()
-	self.world:emit("create_dialogue_key")
 end
 
 function Dialogues:cleanup()
 	self.e_dialogue:destroy()
 	for _, e in ipairs(self.pool) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_choice) do
 		e:destroy()
 	end
 end
