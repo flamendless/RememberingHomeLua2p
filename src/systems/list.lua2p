@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 
 local Inputs = require("inputs")
 
@@ -18,45 +19,60 @@ function List:init(world)
 		local group = self.groups[group_id]
 		insert(group.entities, e)
 		self.focused = group_id
+		if #pool == 1 then
+			self:update_cursor(1)
+		end
 	end
 end
 
 function List:update(dt)
 	if not self.focused then return end
 	local group = self.groups[self.focused]
-	local e_new_cursor = self:update_list(group)
+	local dy = self:update_list(group)
+	local cursor_new_index
+	if dy then
+		cursor_new_index = self:update_cursor()
+	end
 
-	for _, e in ipairs(group.entities) do
-		if e ~= e_new_cursor then
+	for i, e in ipairs(group.entities) do
+		local min = group.per_page * group.offset
+		local max = group.per_page * (group.offset + 1)
+		e.list_item.on_current_page = (i > min) and (i <= max)
+		if cursor_new_index and i ~= cursor_new_index then
 			e:remove("list_cursor")
+			self.world:emit("on_list_cursor_remove", e)
 		end
 	end
 end
 
-function List:create_list_group(id, per_page, max_page)
+function List:create_list_group(id, per_page, allow_cycling, max_page)
 	@@assert(type(id) == "string")
 	@@assert(type(per_page) == "number" and per_page > 0)
-	@@assert(type(max_page) == "number" and max_page > 0)
 	@@assert(self.groups[id] == nil, id .. " was already added")
+	@@sassert(allow_cycling, type(allow_cycling) == "boolean")
+	@@sassert(max_page, allow_cycling and type(max_page) == "number" and max_page > 0)
 	self.groups[id] = {
 		entities = {},
 		cursor = 1,
 		offset = 0,
 		per_page = per_page,
-		max_page = max_page
+		max_page = max_page,
+		allow_cycling = allow_cycling,
 	}
 end
 
 function List:update_list(group)
 	local dy = 0
 	if Inputs.pressed("interact") then
+		local index = group.per_page * group.offset + group.cursor
+		self.world:emit("on_list_item_interact", group.entities[index])
 	elseif Inputs.pressed("up") then
 		dy = -1
 	elseif Inputs.pressed("down") then
 		dy = 1
 	end
 
-	if dy == 0 then return end
+	if dy == 0 then return false end
 	group.cursor = group.cursor + dy
 
 	if group.cursor > group.per_page then
@@ -67,30 +83,56 @@ function List:update_list(group)
 		group.offset = group.offset - 1
 	end
 
-	if group.offset * group.per_page > group.max_page - 1 then
-		group.cursor = 1
-		group.offset = 0
-	elseif group.offset < 0 then
-		group.cursor = group.per_page
-		group.offset = group.max_page/group.per_page - 1
+	if not group.allow_cycling then
+		local index = group.offset * group.per_page + group.cursor
+		local max_page = #group.entities
+		if index > max_page then
+			group.cursor = 1
+			group.offset = 0
+		elseif index <= 0 then
+			group.cursor = max_page % group.per_page
+			group.offset = (max_page % group.cursor) + 1
+		end
+	else
+		if group.offset * group.per_page > group.max_page - 1 then
+			group.cursor = 1
+			group.offset = 0
+		elseif group.offset < 0 then
+			group.cursor = group.per_page
+			group.offset = group.max_page/group.per_page - 1
+		end
 	end
 
-	local cursor_new_index = group.per_page * group.offset + group.cursor
+	return true
+end
+
+function List:update_cursor(index)
+	@@sassert(index, type(index) == "number" and index > 0)
+	local group = self.groups[self.focused]
+	local cursor_new_index = index or (group.per_page * group.offset + group.cursor)
 	local e_hovered = group.entities[cursor_new_index]
 	if e_hovered then
-		e_hovered:give("list_cursor", cursor_new_index, group.max_page)
-		self.world:emit("on_item_cursor_on", e_hovered)
-		return e_hovered
+		e_hovered:give("list_cursor", cursor_new_index)
+		self.world:emit("on_list_cursor_update", e_hovered)
+		return cursor_new_index
 	end
 end
 
-function List:draw_list(group_id, i)
+function List:set_focus_list(group_id)
+	@@sassert(group_id, type(group_id) == "string" and self.groups[group_id])
+	self.focused = group_id
+end
+
+function List:destroy_list(group_id)
+	@@sassert(group_id, type(group_id) == "string" and self.groups[group_id])
 	local group = self.groups[group_id]
-	local index = group.per_page * group.offset + i
-	local e = group.entities[index]
-	if e then
-		self.world:emit("draw_text_ex", e)
+	for _, e in ipairs(group.entities) do
+		e:destroy()
 	end
+	tablex.clear(group)
+	self.groups[group_id] = nil
+	self.focused = nil
+	Log.trace("deleted list: " .. group_id)
 end
 
 function List:cleanup()

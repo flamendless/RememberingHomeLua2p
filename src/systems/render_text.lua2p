@@ -58,7 +58,7 @@ function RenderText:draw_text_ex(e)
 
 	local str = text and text.value
 	local current_font = love.graphics.getFont()
-	local r, sx, sy, ox, oy
+	local r, sx, sy, ox, oy, kx, ky
 
 	if transform then
 		r = transform.rotation
@@ -66,6 +66,8 @@ function RenderText:draw_text_ex(e)
 		sy = transform.sy
 		ox = transform.ox
 		oy = transform.oy
+		kx = transform.kx
+		ky = transform.ky
 
 		if transform.ox == 0.5 then
 			if static_text then
@@ -112,7 +114,7 @@ function RenderText:draw_text_ex(e)
 		ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
 	else
 		if static_text then
-			love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy)
+			love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy, kx, ky)
 		else
 			if textf then
 				love.graphics.printf(str, x, y, textf.limit, textf.align,
@@ -122,7 +124,7 @@ function RenderText:draw_text_ex(e)
 				-- love.graphics.setColor(1, 0, 0, 1)
 				-- love.graphics.rectangle("line", x - transform.ox, y, w, h)
 			else
-				love.graphics.print(str, x, y, r, sx, sy, ox, oy)
+				love.graphics.print(str, x, y, r, sx, sy, ox, oy, kx, ky)
 			end
 		end
 	end

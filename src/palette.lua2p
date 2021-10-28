@@ -33,7 +33,8 @@ Palette.colors = {
 	inventory_line_unhovered = {1, 1, 1},
 	inventory_line_hovered = {1, 1, 1},
 
-	note_list = {1, 1, 1}
+	note_list = {0, 0, 0},
+	note_on_hovered = {1, 0, 0},
 }
 
 Palette.diffuse = {

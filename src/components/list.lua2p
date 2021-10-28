@@ -1,12 +1,12 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("list_item")
+Concord.component("list_item", function(c)
+	c.on_current_page = false
+end)
 
-Concord.component("list_cursor", function(c, cursor_index, max_page)
+Concord.component("list_cursor", function(c, cursor_index)
 	@@assert(type(cursor_index) == "number")
-	@@assert(type(max_page) == "number")
 	c.cursor_index = cursor_index
-	c.max_page = max_page
 end)
 
 Concord.component("list_group", function(c, group_id)

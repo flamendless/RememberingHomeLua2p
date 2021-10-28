@@ -261,9 +261,11 @@ function Transform:debug_update(dt)
 			pos.x = UIWrapper.edit_number("x", pos.x, true)
 			pos.y = UIWrapper.edit_number("y", pos.y, true)
 			if t then
-				t.r = UIWrapper.edit_number("r", t.r)
+				t.rotation = UIWrapper.edit_number("r", t.rotation)
 				t.sx = UIWrapper.edit_number("sx", t.sx)
 				t.sy = UIWrapper.edit_number("sy", t.sy)
+				t.kx = UIWrapper.edit_number("kx", t.kx)
+				t.ky = UIWrapper.edit_number("ky", t.ky)
 			end
 			Slab.EndTree()
 			Slab.Unindent()

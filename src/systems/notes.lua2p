@@ -8,25 +8,19 @@ local Resources = require("resources")
 
 local floor = math.floor
 local min = math.min
-local insert = table.insert
 
 local Notes = Concord.system({
 	pool_camera = {"camera"},
-	pool_bg = {"cell_bg", "nf_render_sprite"},
-	pool_note = {"text", "nf_render_text", "note_item", "!item_choice", "!dialogue_item"},
-	pool_text = {"text", "nf_render_text", "!item_choice", "!dialogue_item", "!note_item"},
+	-- pool_note = {"text", "nf_render_text", "note_item", "!item_choice", "!dialogue_item"},
+	pool_note_item = {"list_item", "list_group", "note_item", "!dialogue_item"},
 })
 
-local AssemInventory = require("assemblages.inventory")
-local c_l_h = Palette.get("inventory_line_hovered", 0.25)
-local c_l_u = Palette.get("inventory_line_unhovered", 0.25)
-local c_f_h = Palette.get("inventory_fill_hovered", 0.25)
-local c_f_u = Palette.get("inventory_fill_unhovered", 0.25)
+local AssemNotes = require("assemblages.notes")
+local c_on_hovered = Palette.get("note_on_hovered")
 
 function Notes:init(world)
 	self.world = world
 	self.is_open = false
-	self.rows = {}
 
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
@@ -59,10 +53,7 @@ function Notes:close_notes(not_close)
 	for _, e in ipairs(self.pool_note) do
 		e:destroy()
 	end
-	for _, e in ipairs(self.pool_text) do
-		e:destroy()
-	end
-	tablex.clear(self.rows)
+	self.world:emit("destroy_list", "notes")
 	self.world:emit("inventory_to_notes", true)
 end
 
@@ -80,43 +71,51 @@ end
 
 function Notes:draw_inventory()
 	if not self.is_open then return end
-	for _, e in ipairs(self.pool_bg) do
-		if e.sprite then
-			self.world:emit("draw_sprite_ex", e)
-		elseif e.rect then
-			self.world:emit("draw_rect_ex", e)
+	self.world:emit("draw_sprite_ex", self.e_bg)
+
+	for _, e in ipairs(self.pool_note_item) do
+		local list = e.list_item
+		if list.on_current_page then
+			self.world:emit("draw_text_ex", e)
+			if e.list_cursor then
+				self.world:emit("draw_sprite_ex", self.e_cursor)
+			end
 		end
-	end
-
-	for i, r in ipairs(self.rows) do
-		local f_color, l_color
-		f_color = c_f_u
-		l_color = c_l_u
-
-		love.graphics.setColor(f_color)
-		love.graphics.rectangle("fill", r.x, r.y, r.w, r.h)
-		love.graphics.setColor(l_color)
-		love.graphics.rectangle("line", r.x, r.y, r.w, r.h)
-
-		self.world:emit("draw_list", "notes", i)
-	end
-
-	for _, e in ipairs(self.pool_text) do
-		self.world:emit("draw_text_ex", e)
 	end
 end
 
-function Notes:on_item_cursor_on(e_note)
-	if e_note.note_item then
-		local info = e_note.list_cursor
-		local txt = self.e_page_nav.text
-		txt.value = info.cursor_index .. "/" .. info.max_page
+function Notes:on_list_cursor_update(e_hovered)
+	local color = e_hovered.color
+	local font = e_hovered.font.value
+	local pos = e_hovered.pos
+	local c_pos = self.e_cursor.pos
+
+	local dx
+	if e_hovered.list_cursor.cursor_index <= self.rows_per_page then
+		dx = -1
+		self.e_cursor.transform.ox = 1
+	else
+		dx = 1
+		self.e_cursor.transform.ox = 0
 	end
+
+	c_pos.x = pos.x + 4 * dx
+	c_pos.y = pos.y - font:getHeight("") * 0.5
+	color.value = c_on_hovered
+end
+
+function Notes:on_list_cursor_remove(e)
+	local color = e.color
+	color.value = tablex.copy(color.original)
+end
+
+function Notes:on_list_item_interact(e)
+	print(e.id.value)
 end
 
 function Notes:create_notes()
 	local _, _, w, h = self.main_camera:getWindow()
-	local img = Resources.data.images.bg_item
+	local img = Resources.data.images.bg_notes
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
 
@@ -128,61 +127,37 @@ function Notes:create_notes()
 	local x = w - pad2
 	local y = h * 0.5
 
-	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg, x, y, scale)
-		:give("color", {1, 1, 1, 0.75})
+	self.e_bg = Concord.entity(self.world):assemble(AssemNotes.bg, x, y, scale)
 
-	local rx = x - iw * scale * 0.5
-	local ry = y - pad
-	local rs = scale * 0.5
 	local font = Resources.data.fonts.note_list
 	local fh = font:getHeight(" ")
 	local padq = pad * 0.25
-	local row_x = rx - iw * rs * 0.5
-	local row_y = ry - ih * rs * 0.5 + fh * 2
-	local row_w = iw * rs
+
+	local row_y = y - pad - ih * scale * 0.5 + fh * 2 + 48
 	local row_h = fh + padq * 2
 	local rows = floor(ih * scale * 0.75 / row_h)
-	local max_page = rows * 5
 
-	for i = 0, rows - 1 do
-		local r = {
-			x = row_x, y = row_y + row_h * i,
-			w = row_w, h = row_h
-		}
-		insert(self.rows, r)
-	end
+	self.rows_per_page = rows
+	self.world:emit("create_list_group", "notes", rows * 2)
 
-	self.world:emit("create_list_group", "notes", rows, max_page)
-
-	local bx = row_x + padq
 	local acquired_notes = NotesList.get_acquired()
 	for i, note in ipairs(acquired_notes) do
-		local index = i - 1
-		index = index % rows
-		local by = row_y + row_h * index + padq
-		Concord.entity(self.world)
-			:give("id", "note_" .. i)
-			:give("nf_render_text")
-			:give("font", "note_list")
-			:give("text", note.title)
-			:give("pos", bx, by)
-			:give("color", Palette.get("note_list"))
-			:give("note_item")
-			:give("list_item")
-			:give("list_group", "notes")
+		local index = (i - 1) % rows
+		local offset_x = (i - 1) * 2
+		local nx, ox
+		if i <= rows then
+			ox = 0
+			nx = x - iw * scale + padq - offset_x + 64
+		else
+			ox = 1
+			nx = x - padq + offset_x - 72
+		end
+		local ny = row_y + row_h * index + padq
+
+		Concord.entity(self.world):assemble(AssemNotes.text, i, note.title, nx, ny, ox)
 	end
 
-	local tx = rx - font:getWidth("  ") * 0.25
-	local ty = row_y - fh - padq
-	local txt = "1/" .. max_page
-	self.e_page_nav = Concord.entity(self.world)
-		:give("id", "txt_page")
-		:give("nf_render_text")
-		:give("font", "note_list")
-		:give("text", txt)
-		:give("pos", tx, ty)
-		:give("color", Palette.get("note_list"))
-
+	self.e_cursor = Concord.entity(self.world):assemble(AssemNotes.cursor)
 	self.world:emit("create_notes_key", "notes")
 end
 

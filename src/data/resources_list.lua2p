@@ -2,7 +2,7 @@ local ResourcesList = {}
 
 !(
 local path_images = "res/images/"
-local path_items = path_images .. "items/"
+local path_inventory_notes = path_images .. "inventory_notes/"
 local path_lut = "res/lut/"
 local path_textures = "res/textures/"
 local path_ui = "res/ui/"
@@ -25,10 +25,13 @@ t.ui = {
 	{"atlas_keys", path_ui .. "atlas_keys.png"},
 }
 
-t.items = {
-	{"bg_item", path_items .. "bg_item.png"},
-	{"bg_desc", path_items .. "bg_desc.png"},
-	{"flashlight", path_items .. "flashlight.png"},
+t.inventory_notes = {
+	{"bg_item", path_inventory_notes .. "bg_item.png"},
+	{"bg_desc", path_inventory_notes .. "bg_desc.png"},
+	{"flashlight", path_inventory_notes .. "flashlight.png"},
+
+	{"bg_notes", path_inventory_notes .. "bg_notes.png"},
+	{"note_cursor", path_inventory_notes .. "note_cursor.png"},
 }
 
 t.pause = {
@@ -40,7 +43,7 @@ t.fnt_inventory = {
 	{"dialogue", path_fonts .. "DigitalDisco.ttf", 32, "default"},
 	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
 	{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
-	{"note_list", path_fonts .. "DigitalDisco.ttf", 14, "default"},
+	{"note_list", path_fonts .. "DigitalDisco.ttf", 16, "default"},
 }
 
 function get_res(id)
@@ -124,7 +127,7 @@ ResourcesList.Outside = {
 		{"sheet_cloud", !(path_ui .. "sheet_cloud.png")},
 		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
-		!!(get_res("items"))
+		!!(get_res("inventory_notes"))
 		!!(get_res("pause"))
 		!!(get_res("ui"))
 	},
@@ -149,7 +152,7 @@ ResourcesList.Outside = {
 
 ResourcesList.StorageRoom = {
 	images = {
-		!!(get_res("items"))
+		!!(get_res("inventory_notes"))
 		!!(get_res("pause"))
 		!!(get_res("ui"))
 	},
@@ -170,7 +173,7 @@ ResourcesList.StorageRoom = {
 
 ResourcesList.UtilityRoom = {
 	images = {
-		!!(get_res("items"))
+		!!(get_res("inventory_notes"))
 		!!(get_res("pause"))
 		!!(get_res("ui"))
 	},
@@ -192,7 +195,7 @@ ResourcesList.UtilityRoom = {
 
 ResourcesList.Kitchen = {
 	images = {
-		!!(get_res("items"))
+		!!(get_res("inventory_notes"))
 		!!(get_res("pause"))
 		!!(get_res("ui"))
 	},
