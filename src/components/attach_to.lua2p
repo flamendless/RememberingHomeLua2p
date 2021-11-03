@@ -13,17 +13,6 @@ function c_attach_to:serialize()
 end
 
 function c_attach_to:deserialize(data)
-	print("target_key: ", data.target_e_key)
-	for k, v in pairs(self.__entity:getWorld().__hash.entities) do
-		print(k, v)
-		for k2, v2 in pairs(v) do
-			if k2 == "id" then
-				print("\t", k2, v2.value)
-			else
-				print("\t", k2, v2)
-			end
-		end
-	end
 	self.target_e = self.__entity:getWorld():getEntityByKey(data.target_e_key)
 	@@assert(self.target_e)
 end

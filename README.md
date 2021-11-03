@@ -66,6 +66,6 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 ## LICENSE:
 
-* Source code is under the GPL. See [COPYING](COPYING) file.
-* Assets have a commercial license and thus can not be used without the permission from the artist
+* Source code is under the MIT license. See [LICENSE](LICENSE) file.
+* Assets are under the CC Attribution license. See [LICENSE](res/LICENSE).
 * Each library/module has their own license
