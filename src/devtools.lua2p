@@ -24,10 +24,13 @@ local DevTools = {
 		light = false,
 		log = false,
 		movement = false,
-		ngrading = true,
 		path = false,
 		render_sprite = false,
 		transform = false,
+	},
+	effects = {
+		NGrading = true,
+		FilmGrain = true,
 	},
 }
 
@@ -86,8 +89,10 @@ function DevTools.update(dt)
 	Slab.Update(dt)
 
 	Slab.BeginWindow("list", {Title = "DevTools"})
-	if Slab.CheckBox(DevTools.flags.ngrading, "NGrading") then
-		DevTools.flags.ngrading = not DevTools.flags.ngrading
+	for k, v in pairs(DevTools.effects) do
+		if Slab.CheckBox(v, k) then
+			DevTools.effects[k] = not v
+		end
 	end
 	if Slab.CheckBox(DevTools.flags.fog, "Fog") then
 		DevTools.flags.fog = not DevTools.flags.fog

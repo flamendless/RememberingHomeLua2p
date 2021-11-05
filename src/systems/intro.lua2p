@@ -30,9 +30,9 @@ local Intro = Concord.system({
 	pool_light = {"intro_light"},
 })
 
-local effect = {dt = 0, dt2 = 0, status = 1}
+local ngrading = {dt = 0, dt2 = 0, status = 1}
 local fade_duration = 4
-local current_effect
+local current_ngrading
 local is_raining = false
 local is_switching = false
 local rain_amount = {16, 32, 96}
@@ -149,9 +149,9 @@ function Intro:state_setup()
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
 
-	effect.single = NGrading(lut_afternoon, lut_size)
-	effect.multi = NGrading(lut_afternoon, lut_dusk, lut_size)
-	current_effect = effect.single
+	ngrading.single = NGrading(lut_afternoon, lut_size)
+	ngrading.multi = NGrading(lut_afternoon, lut_dusk, lut_size)
+	current_ngrading = ngrading.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			"flamendless studio presents", "ui", 32, 32)
@@ -237,9 +237,9 @@ function Intro:state_init()
 			self.world:emit("set_ambient_light", ambient_color)
 		end)
 
-		effect.status = 2
-		current_effect = effect.multi
-		Flux.to(effect, 15, {dt = 1})
+		ngrading.status = 2
+		current_ngrading = ngrading.multi
+		Flux.to(ngrading, 15, {dt = 1})
 		self.world:emit("tween_depth_zoom", 5, 3/max_n_cam_t, "backout")
 		self.world:emit("tween_camera_scale", self.camera, 5, 3, "backout")
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32, "backout")
@@ -325,9 +325,9 @@ function Intro:state_update(dt)
 
 	self.world:emit("parallax_move_x", dt, -1)
 
-	if effect.status == 2 then
+	if ngrading.status == 2 then
 		@@profb("intro_ngrading_multi")
-		effect.multi:set_dt(effect.dt)
+		ngrading.multi:set_dt(ngrading.dt)
 		@@profe("intro_ngrading_multi")
 	end
 
@@ -348,8 +348,8 @@ function Intro:state_draw()
 
 	@@profb("intro_camera_draw")
 	self.camera:attach()
-		if current_effect then
-			current_effect:apply()
+		if current_ngrading then
+			current_ngrading:apply()
 		end
 
 		love.graphics.draw(img_bg)
@@ -388,9 +388,9 @@ function Intro:cleanup()
 	self.timeline:Die()
 	self.ps1.system:stop()
 	self.ps2.system:stop()
-	effect = {dt = 0, dt2 = 0, status = 1}
+	ngrading = {dt = 0, dt2 = 0, status = 1}
 	fade_duration = 4
-	current_effect = nil
+	current_ngrading = nil
 	is_raining = false
 	is_switching = false
 	rain_amount = {16, 32, 96}

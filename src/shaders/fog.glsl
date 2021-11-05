@@ -1,8 +1,10 @@
 //credits to a13X_B over at Discord
+
 uniform float t;
 uniform float fog_speed;
 
-vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc){
+vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc)
+{
 	vec2 _uv = sc/256.;
 
 	_uv += vec2(t * fog_speed, -sin(t * fog_speed) * .001);

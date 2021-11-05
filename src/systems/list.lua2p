@@ -137,7 +137,7 @@ function List:set_focus_list(group_id)
 end
 
 function List:destroy_list(group_id)
-	@@sassert(group_id, type(group_id) == "string" and self.groups[group_id])
+	if not self.groups[group_id] then return end
 	local group = self.groups[group_id]
 	for _, e in ipairs(group.entities) do
 		e:destroy()

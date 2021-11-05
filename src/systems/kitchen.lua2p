@@ -5,8 +5,10 @@ local TLE = require("modules.tle.timeline")
 local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
+local FilmGrain = require("film_grain")
 local NGrading = require("ngrading")
 local Palette = require("palette")
+local PostProcessing = require("post_processing")
 local Resources = require("resources")
 local Settings = require("settings")
 
@@ -20,8 +22,7 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
-local Kitchen = Concord.system({
-})
+local Kitchen = Concord.system({})
 
 function Kitchen:init(world)
 	self.world = world
@@ -57,7 +58,8 @@ function Kitchen:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading(lut_dusk, lut_size)
+	self.ngrading = NGrading(lut_dusk, lut_size)
+	self.film_grain = FilmGrain()
 
 	for _, v in pairs(Assemblages.Kitchen.lights) do
 		Concord.entity(self.world):assemble(v)
@@ -83,6 +85,7 @@ function Kitchen:state_init()
 end
 
 function Kitchen:state_update(dt)
+	self.film_grain:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 end
@@ -114,16 +117,14 @@ function Kitchen:state_draw()
 			self.world:emit("draw_clip")
 		love.graphics.setCanvas() --unset canvas.canvas
 
-	Blur.apply()
-	self.effect:apply()
-		self.canvas:render_n()
-	self.effect:unapply()
-	Blur.draw()
+	-- Blur.apply()
+	PostProcessing.apply(self.canvas, self.ngrading, self.film_grain)
+	-- Blur.draw()
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
-	Fade.draw()
+	-- Fade.draw()
 end
 
 return Kitchen

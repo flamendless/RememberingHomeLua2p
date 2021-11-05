@@ -1,4 +1,5 @@
 //credits to @a13X_B over at Discord
+
 varying vec2 ndc_p;
 varying vec3 w_p;
 varying float scale;

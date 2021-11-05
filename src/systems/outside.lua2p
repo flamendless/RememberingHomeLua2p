@@ -105,7 +105,7 @@ function Outside:state_setup()
 		lut_size = 64
 		lut_dusk = Resources.data.image_data.lut_dusk_64
 	end
-	self.effect = NGrading(lut_dusk, lut_size)
+	self.ngrading = NGrading(lut_dusk, lut_size)
 
 	--setup lights
 	for k, v in pairs(Assemblages.Outside.lights) do
@@ -311,9 +311,7 @@ function Outside:state_draw()
 		love.graphics.setCanvas() --unset canvas.canvas
 
 	Blur.apply()
-	self.effect:apply()
-		self.canvas:render_n()
-	self.effect:unapply()
+	self.ngrading:draw(self.canvas)
 	Blur.draw()
 
 	self.world:emit("draw_inventory")
