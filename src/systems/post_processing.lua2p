@@ -1,0 +1,98 @@
+local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
+
+local Canvas = require("canvas")
+
+!if _DEV then
+local DevTools
+!end
+
+local PostProcessing = Concord.system()
+
+local buffer1 = Canvas.create_main({})
+local buffer2 = Canvas.create_main({})
+
+function PostProcessing:init(world)
+	!if _DEV then
+	DevTools = require("devtools")
+	!end
+	self.world = world
+	self.effects = {}
+	self.dict = {}
+end
+
+function PostProcessing:setup_post_process(t)
+	@@assert(type(t) == "table" and #t > 0)
+	Log.info("Setup post processing effects")
+	self.effects = t
+	for i, effect in ipairs(self.effects) do
+		local str = effect:type()
+		self.dict[str] = self.effects[i]
+		Log.info(str)
+	end
+end
+
+function PostProcessing:set_post_process_effect(id, bool)
+	@@assert(type(id) == "string" and self.dict[id])
+	@@assert(type(bool) == "boolean")
+	self.dict[id].is_active = bool
+	!if _DEV then
+	DevTools.effects[id] = bool
+	!end
+end
+
+function PostProcessing:update(dt)
+	for _, effect in ipairs(self.effects) do
+		if effect.update then
+			effect:update(dt)
+		end
+	end
+end
+
+function PostProcessing:begin_shader(effect)
+	!if _DEV then
+		if DevTools.effects[effect:type()] then
+			love.graphics.setShader(effect.shader)
+		end
+	!else
+	love.graphics.setShader(effect.shader)
+	!end
+end
+
+function PostProcessing:end_shader(effect)
+	!if _DEV then
+		if DevTools.effects[effect:type()] then
+			love.graphics.setShader()
+		end
+	!else
+	love.graphics.setShader()
+	!end
+end
+
+function PostProcessing:apply_post_process(canvas)
+	@@assert(canvas:type() == "CustomCanvas")
+	love.graphics.setCanvas(buffer1.canvas)
+		love.graphics.clear()
+		canvas:render_n()
+	love.graphics.setCanvas()
+
+	for _, effect in ipairs(self.effects) do
+		!if _DEV then
+		effect.is_active = DevTools.effects[effect:type()]
+		!end
+		if effect.is_active then
+			love.graphics.setCanvas(buffer2.canvas)
+				love.graphics.clear()
+				PostProcessing:begin_shader(effect)
+					buffer1:render_n()
+				PostProcessing:end_shader(effect)
+			love.graphics.setCanvas()
+
+			buffer1, buffer2 = buffer2, buffer1
+		end
+	end
+
+	buffer1:render_n()
+end
+
+return PostProcessing

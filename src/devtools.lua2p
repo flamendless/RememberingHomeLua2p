@@ -30,7 +30,8 @@ local DevTools = {
 	},
 	effects = {
 		NGrading = true,
-		FilmGrain = true,
+		FilmGrain = false,
+		Blur = false,
 	},
 }
 

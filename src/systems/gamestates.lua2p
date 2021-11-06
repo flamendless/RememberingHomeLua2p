@@ -7,8 +7,7 @@ local Fade = require("fade")
 local GS
 local Save = require("save")
 
-local GameStates = Concord.system({
-})
+local GameStates = Concord.system()
 
 function GameStates:init(world)
 	GS = require("gamestates")
@@ -21,6 +20,7 @@ function GameStates:switch_state(next_state, dur, delay)
 	@@sassert(dur, type(dur) == "number")
 	@@sassert(delay, type(delay) == "number")
 	if self.is_switching then return end
+	if GS.current_id == next_state then return end
 	Log.info("switching state to " .. next_state)
 	self.is_switching = true
 	Fade.fade_out(function()

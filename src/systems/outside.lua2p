@@ -14,7 +14,6 @@ local NGrading = require("ngrading")
 local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
-local Settings = require("settings")
 
 local format = string.format
 local min = math.min
@@ -57,12 +56,7 @@ function Outside:state_setup()
 	local w, h = bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	self.buffers = {
-		Canvas.create_main({}),
-		Canvas.create_main({}),
-	}
 	self.canvas = Canvas.create_main({})
-	Blur.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
@@ -97,15 +91,10 @@ function Outside:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
 	self.world:emit("generate_fireflies")
 
-	local lut_size, lut_dusk
-	if Settings.current.graphics_quality == "low" then
-		lut_size = 16
-		lut_dusk = Resources.data.image_data.lut_dusk_16
-	else
-		lut_size = 64
-		lut_dusk = Resources.data.image_data.lut_dusk_64
-	end
-	self.ngrading = NGrading(lut_dusk, lut_size)
+	self.world:emit("setup_post_process", {
+		NGrading("lut_dusk"),
+		Blur()
+	})
 
 	--setup lights
 	for k, v in pairs(Assemblages.Outside.lights) do
@@ -274,45 +263,19 @@ function Outside:state_update(dt)
 end
 
 function Outside:state_draw()
-	self.camera:attach()
-		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
-			love.graphics.clear()
-			self.world:emit("begin_geometry_pass")
-				love.graphics.setColor(1, 1, 1)
-				self.world:emit("draw_bg")
-				self.world:emit("draw")
-				self.world:emit("draw_z")
-			love.graphics.setShader() --unset geometry_pass
-
-		love.graphics.setCanvas(self.canvas.canvas)
-			self.world:emit("begin_light_pass", self.buffers)
-				love.graphics.clear()
-				love.graphics.setBlendMode("add")
-				self.world:emit("draw_lights")
-				love.graphics.setBlendMode("alpha")
-			love.graphics.setShader() --unset lighting_pass
-	self.camera:detach()
-			--ambient light color
-			love.graphics.setBlendMode("add")
-			self.world:emit("apply_ambiance")
-			love.graphics.draw(self.buffers[1].canvas)
-			if self.is_raining then
-				local l, t = self.camera:getVisible()
-				local s = self.camera:getScale()
-				love.graphics.push()
-				love.graphics.translate(l, t)
-				love.graphics.scale(s)
-				self.ps1:draw(0, -16)
-				self.ps2:draw(0, -16)
-				love.graphics.pop()
-			end
-			love.graphics.setBlendMode("alpha")
-			self.world:emit("draw_clip")
-		love.graphics.setCanvas() --unset canvas.canvas
-
-	Blur.apply()
-	self.ngrading:draw(self.canvas)
-	Blur.draw()
+	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
+		if self.is_raining then
+			local l, t = self.camera:getVisible()
+			local s = self.camera:getScale()
+			love.graphics.push()
+			love.graphics.translate(l, t)
+			love.graphics.scale(s)
+			self.ps1:draw(0, -16)
+			self.ps2:draw(0, -16)
+			love.graphics.pop()
+		end
+	self.world:emit("end_deferred_lighting")
+	self.world:emit("apply_post_process", self.canvas)
 
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")

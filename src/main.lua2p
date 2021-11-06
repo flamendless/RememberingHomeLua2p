@@ -31,7 +31,7 @@ love.errhand = ErrorHandler.callback
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")
-local PostProcessing = require("post_processing")
+local NGrading = require("ngrading")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
@@ -75,7 +75,6 @@ function love.load()
 	Settings.init()
 	Audio.init()
 	Inputs.init()
-	PostProcessing.init()
 	TLE.Attach()
 
 	!if _DEV then
@@ -86,7 +85,9 @@ function love.load()
 	-- GameStates.switch("StorageRoom")
 	-- GameStates.switch("UtilityRoom")
 	GameStates.switch("Kitchen")
+
 	DevTools.init()
+	NGrading.dev_init()
 	!else
 	GameStates.switch("Splash")
 	!end

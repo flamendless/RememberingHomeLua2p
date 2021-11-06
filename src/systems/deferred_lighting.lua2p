@@ -2,6 +2,8 @@ local Concord = require("modules.concord.concord")
 local Lume = require("modules.lume.lume")
 local Timer = require("modules.hump.timer")
 
+local Canvas = require("canvas")
+
 local insert = table.insert
 
 local DeferredLighting = Concord.system({
@@ -34,6 +36,10 @@ function DeferredLighting:init(world)
 	self.ambiance = {1, 1, 1, 1}
 	self.groups = {}
 	self.mesh = self:create_mesh_p()
+	self.buffers = {
+		Canvas.create_main({}),
+		Canvas.create_main({}),
+	}
 
 	self.pool.onAdded = function(pool, e)
 		local pos = e.pos
@@ -235,20 +241,38 @@ function DeferredLighting:update_light_fading(dt)
 	end
 end
 
-!if _GLSL_NORMALS then
-function DeferredLighting:begin_geometry_pass()
-	love.graphics.setShader(self.geometry_pass)
+function DeferredLighting:begin_deferred_lighting(camera, canvas)
+	camera:attach()
+		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
+			love.graphics.clear()
+			love.graphics.setShader(self.geometry_pass)
+				love.graphics.setColor(1, 1, 1)
+				self.world:emit("draw_bg")
+				self.world:emit("draw")
+				self.world:emit("draw_z")
+			love.graphics.setShader() --unset geometry_pass
+
+		love.graphics.setCanvas(canvas.canvas)
+			love.graphics.setShader(self.lighting_pass)
+			self.lighting_pass:send("cb", self.buffers[1].canvas)
+			!if _GLSL_NORMALS then
+			self.lighting_pass:send("nb", self.buffers[2].canvas)
+			!end
+				love.graphics.clear()
+				love.graphics.setBlendMode("add")
+				self.world:emit("draw_lights")
+				love.graphics.setBlendMode("alpha")
+			love.graphics.setShader() --unset lighting_pass
+	camera:detach()
+			love.graphics.setBlendMode("add")
+			self.world:emit("apply_ambiance")
+			love.graphics.draw(self.buffers[1].canvas)
 end
-!end
 
-function DeferredLighting:begin_light_pass(buffers)
-	@@assert(type(buffers) == "table" and #buffers == 2)
-	love.graphics.setShader(self.lighting_pass)
-	self.lighting_pass:send("cb", buffers[1].canvas)
-
-	!if _GLSL_NORMALS then
-	self.lighting_pass:send("nb", buffers[2].canvas)
-	!end
+function DeferredLighting:end_deferred_lighting()
+		love.graphics.setBlendMode("alpha")
+		self.world:emit("draw_clip")
+	love.graphics.setCanvas() --unset canvas.canvas
 end
 
 function DeferredLighting:draw_lights()

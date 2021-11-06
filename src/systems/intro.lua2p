@@ -11,7 +11,6 @@ local Inputs = require("inputs")
 local NGrading = require("ngrading")
 local Resources = require("resources")
 local Save = require("save")
-local Settings = require("settings")
 
 local min = math.min
 
@@ -138,19 +137,8 @@ function Intro:state_setup()
 		:give("fade_in_target_alpha", 0.45)
 		:give("hidden")
 
-	local lut_size, lut_afternoon, lut_dusk
-	if Settings.current.graphics_quality == "low" then
-		lut_size = 16
-		lut_afternoon = Resources.data.image_data.lut_afternoon_16
-		lut_dusk = Resources.data.image_data.lut_dusk_16
-	else
-		lut_size = 64
-		lut_afternoon = Resources.data.image_data.lut_afternoon_64
-		lut_dusk = Resources.data.image_data.lut_dusk_64
-	end
-
-	ngrading.single = NGrading(lut_afternoon, lut_size)
-	ngrading.multi = NGrading(lut_afternoon, lut_dusk, lut_size)
+	ngrading.single = NGrading("lut_afternoon")
+	ngrading.multi = NGrading("lut_afternoon", "lut_dusk")
 	current_ngrading = ngrading.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,

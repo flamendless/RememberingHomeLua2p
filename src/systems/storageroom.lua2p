@@ -10,9 +10,7 @@ local FilmGrain = require("film_grain")
 local Items = require("items")
 local NGrading = require("ngrading")
 local Palette = require("palette")
-local PostProcessing = require("post_processing")
 local Resources = require("resources")
-local Settings = require("settings")
 
 local min = math.min
 
@@ -35,12 +33,7 @@ function StorageRoom:state_setup()
 	local w, h = Resources.data.images.storage_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	self.buffers = {
-		Canvas.create_main({}),
-		Canvas.create_main({}),
-	}
 	self.canvas = Canvas.create_main({})
-	Blur.canvas = Canvas.create_main({})
 	self.scale = min(ww/w, hh/h)
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
@@ -53,16 +46,11 @@ function StorageRoom:state_setup()
 	end
 	self.world:emit("parse_room_items", "atlas_storage_room_items", "storage_room_items")
 
-	local lut_size, lut_dusk
-	if Settings.current.graphics_quality == "low" then
-		lut_size = 16
-		lut_dusk = Resources.data.image_data.lut_dusk_16
-	else
-		lut_size = 64
-		lut_dusk = Resources.data.image_data.lut_dusk_64
-	end
-	self.ngrading = NGrading(lut_dusk, lut_size)
-	self.film_grain = FilmGrain()
+	self.world:emit("setup_post_process", {
+		NGrading("lut_dusk"),
+		FilmGrain(),
+		Blur()
+	})
 
 	for _, v in pairs(Assemblages.StorageRoom.lights) do
 		Concord.entity(self.world):assemble(v)
@@ -92,42 +80,14 @@ function StorageRoom:state_init()
 end
 
 function StorageRoom:state_update(dt)
-	self.film_grain:update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 end
 
 function StorageRoom:state_draw()
-	self.camera:attach()
-		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
-			love.graphics.clear()
-			self.world:emit("begin_geometry_pass")
-				love.graphics.setColor(1, 1, 1)
-				self.world:emit("draw_bg")
-				self.world:emit("draw")
-				self.world:emit("draw_z")
-			love.graphics.setShader() --unset geometry_pass
-
-		love.graphics.setCanvas(self.canvas.canvas)
-			self.world:emit("begin_light_pass", self.buffers)
-				love.graphics.clear()
-				love.graphics.setBlendMode("add")
-				self.world:emit("draw_lights")
-				love.graphics.setBlendMode("alpha")
-			love.graphics.setShader() --unset lighting_pass
-	self.camera:detach()
-			--ambient light color
-			love.graphics.setBlendMode("add")
-			self.world:emit("apply_ambiance")
-			love.graphics.draw(self.buffers[1].canvas)
-			love.graphics.setBlendMode("alpha")
-			self.world:emit("draw_clip")
-		love.graphics.setCanvas() --unset canvas.canvas
-
-	Blur.apply()
-	PostProcessing.apply(self.canvas, self.ngrading, self.film_grain)
-	Blur.draw()
-
+	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
+	self.world:emit("end_deferred_lighting")
+	self.world:emit("apply_post_process", self.canvas)
 	self.world:emit("draw_inventory")
 	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")

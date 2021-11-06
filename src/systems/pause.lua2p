@@ -2,9 +2,6 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 
-!if not _DEV then
-local Blur = require("blur")
-!end
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Resources = require("resources")
@@ -146,9 +143,7 @@ function Pause:on_pause()
 		end
 	end
 	self.is_paused = not self.is_paused
-	!if not _DEV then
-	Blur.flag_process = self.is_paused
-	!end
+	self.world:emit("set_post_process_effect", "Blur", self.is_paused)
 	Log.info("Paused: " .. tostring(self.is_paused))
 end
 

@@ -1,22 +1,10 @@
-local Blur = {
-	flag_process = false,
-	canvas = nil,
-}
+local Blur = class({
+	name = "Blur"
+})
 
-local shader = love.graphics.newShader("shaders/blur.glsl")
-
-function Blur.apply()
-	if not Blur.flag_process then return end
-	love.graphics.setCanvas(Blur.canvas.canvas)
-	love.graphics.clear()
-end
-
-function Blur.draw()
-	if not Blur.flag_process then return end
-	love.graphics.setCanvas()
-	love.graphics.setShader(shader)
-		Blur.canvas:render_n()
-	love.graphics.setShader()
+function Blur:new()
+	self.shader = love.graphics.newShader("shaders/blur.glsl")
+	self.is_active = false
 end
 
 return Blur

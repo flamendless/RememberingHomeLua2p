@@ -23,6 +23,9 @@
 -- DEALINGS IN THE SOFTWARE.
 --]]---------------------------------------------------------------------------
 
+local Resources = require("resources")
+local Settings = require("settings")
+
 local NGrading = class({
 	name = "NGrading",
 })
@@ -31,6 +34,9 @@ local floor = math.floor
 
 !if _DEV then
 local DevTools
+function NGrading.dev_init()
+	DevTools = require("devtools")
+end
 !end
 
 local default_setting = {linear = true, dpiscale = 1}
@@ -148,19 +154,22 @@ function NGrading:new_multi(img, img2, cs)
 	return self
 end
 
-function NGrading:new(arg1, arg2, arg3, no_setup)
-	!if _DEV then
-	DevTools = require("devtools")
-	!end
+function NGrading:new(res_id, res_id2)
+	@@assert(type(res_id) == "string")
+	@@sassert(res_id2, type(res_id2) == "string")
+	local lut_size = Settings.current.graphics_quality == "low" and 16 or 64
+	local lut_img = Resources.data.image_data[res_id .. "_" .. lut_size]
 	local effect
-	if type(arg2) == "number" then
-		effect = self:new_single(arg1, arg2)
+
+	if not res_id2 then
+		effect = self:new_single(lut_img, lut_size)
 	else
-		effect = self:new_multi(arg1, arg2, arg3)
+		local lut_img2 = Resources.data.image_data[res_id2 .. "_" .. lut_size]
+		effect = self:new_multi(lut_img, lut_img2, lut_size)
 	end
-	if not no_setup then
-		effect:setup_data()
-	end
+
+	effect:setup_data()
+	self.is_active = true
 end
 
 function NGrading:get_shader()

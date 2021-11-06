@@ -1,6 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local Blur = require("blur")
 local Inputs = require("inputs")
 local NotesList = require("notes")
 local Palette = require("palette")
@@ -34,7 +33,7 @@ end
 function Notes:open_notes()
 	self.world:emit("set_system_to", "dialogues", false)
 	self.is_open = true
-	Blur.flag_process = true
+	self.world:emit("set_post_process_effect", "Blur", true)
 	self:create_notes()
 	self.world:emit("create_note_items")
 end
@@ -46,7 +45,7 @@ function Notes:close_notes(not_close)
 		self.world:emit("on_leave_interact_or_inventory")
 	end
 	self.is_open = false
-	Blur.flag_process = false
+	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "notes")
 	self.e_bg:destroy()
 	for _, e in ipairs(self.pool_note_item) do
