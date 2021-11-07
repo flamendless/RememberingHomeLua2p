@@ -3,15 +3,13 @@ local SortedTable = {}
 local insert = table.insert
 local remove = table.remove
 
-SortedTable.__mt = {
-	__index = SortedTable,
-}
+SortedTable.__mt = {__index = SortedTable}
 
-local sort_by_id = function(a, b)
+local function sort_by_id(a, b)
 	return a.layer.n < b.layer.n
 end
 
-local ctor = function(def)
+local function ctor(def)
 	local self = setmetatable({}, SortedTable.__mt)
 	self.layer_id = def.layer
 	insert(def, "layer")

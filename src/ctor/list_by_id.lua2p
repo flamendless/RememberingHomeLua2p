@@ -1,0 +1,47 @@
+local ListByID = {}
+
+local insert = table.insert
+local remove = table.remove
+
+ListByID.__mt = {__index = ListByID}
+
+local function ctor(def)
+	local self = setmetatable({}, ListByID.__mt)
+	self.id = def.id
+	insert(def, "item_id")
+	return self
+end
+
+function ListByID:add(entity)
+	if entity.item_id.value == self.id then
+		insert(self, entity)
+		return true
+	end
+	return false
+end
+
+function ListByID:remove(entity)
+	for i, e in ipairs(self) do
+		if e == entity then
+			remove(self, i)
+			return
+		end
+	end
+end
+
+function ListByID:has(entity)
+	for _, e in ipairs(self) do
+		if e == entity then
+			return true
+		end
+	end
+	return false
+end
+
+function ListByID:clear()
+	for i = #self, 1, -1 do
+		self[i] = nil
+	end
+end
+
+return ctor

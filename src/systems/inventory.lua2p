@@ -2,42 +2,28 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
+local ListByID = require("ctor.list_by_id")
 local Palette = require("palette")
 local Resources = require("resources")
 
-local floor = math.floor
 local min = math.min
 
 local Inventory = Concord.system({
 	pool_camera = {"camera"},
-	pool_bg = {"cell_bg", "nf_render_sprite"},
-	pool_item = {"item", "sprite", "nf_render_sprite"},
-	pool_cell_line = {"cell_line"},
-	pool_cell_fill = {"cell_fill"},
-	pool_hovered = {"hovered_cell"},
-	pool_text = {"text", "nf_render_text", "!item_choice", "!dialogue_item"},
-	pool_choices = {"text", "nf_render_text", "item_choice"},
-	pool_preview = {"sprite", "item_preview", "pos", "nf_render_sprite"},
+	pool_item = {
+		constructor = ListByID,
+		id = "inventory_item",
+		"list_item", "list_group", "item_id"
+	},
 })
 
 local AssemInventory = require("assemblages.inventory")
-
-local ROWS, COLS = 3, 3
-local PAD_ITEM_CELL = 8
-local alpha = 0.75
-local alpha2 = alpha - 0.5
-local c_l_h = Palette.get("inventory_line_hovered", alpha2)
-local c_l_u = Palette.get("inventory_line_unhovered", alpha2)
-local c_f_h = Palette.get("inventory_fill_hovered", alpha2)
-local c_f_u = Palette.get("inventory_fill_unhovered", alpha2)
-local c_h_c = Palette.get("hovered_choice", alpha)
-local c_u_c = {1, 1, 1, alpha}
+local c_f_u = Palette.get("inventory_fill_unhovered")
 
 function Inventory:init(world)
 	self.world = world
 	self.can_open = true
 	self.is_open = false
-	self.initialized = false
 
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
@@ -45,39 +31,33 @@ function Inventory:init(world)
 			self.main_camera = camera.camera
 		end
 	end
-
-	self.pool_item.onAdded = function(pool, e)
-		self:add_item(e)
-	end
 end
 
 function Inventory:open_inventory()
 	if not self.can_open then return end
 	self.world:emit("on_interact_or_inventory")
 	self.world:emit("set_system_to", "dialogues", false)
-	self.is_open = true
 	self.world:emit("set_post_process_effect", "Blur", true)
-	if not self.initialized then
-		self:create_inventory()
-	end
-	self:show_inventory()
+	self:create_inventory()
+	self.world:emit("create_inventory_key")
 	self.world:emit("create_items")
+	self.is_open = true
 end
 
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
 	self.world:emit("set_system_to", "dialogues", true)
-	if #self.pool_choices ~= 0 then
-		self:on_item_cancel()
-		return
-	end
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
 	end
 	self.is_open = false
 	self.can_open = false
+	self.e_bg:destroy()
+	self.e_rect:destroy()
+	self.world:emit("destroy_items")
 	self.world:emit("set_post_process_effect", "Blur", false)
-	self:hide_inventory()
+	self.world:emit("destroy_key", "inventory")
+	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
 end
 
 function Inventory:update(dt)
@@ -86,7 +66,7 @@ function Inventory:update(dt)
 		local Items = require("items")
 		Items.add("flashlight")
 		local Notes = require("notes")
-		Notes.add("test")
+		Notes.add("test1")
 		Notes.add("test2")
 		Notes.add("test3")
 		Notes.add("test4")
@@ -94,95 +74,36 @@ function Inventory:update(dt)
 		Notes.add("test6")
 		Notes.add("test7")
 		Notes.add("test8")
+		Notes.add("test9")
+		Notes.add("test10")
 		!end
 		self:open_inventory()
 	elseif self.is_open then
 		if Inputs.pressed("inventory") then
 			Inputs.flush()
-			self.world:emit("close_inventory", true)
+			self:close_inventory(true)
 			self.world:emit("inventory_to_notes")
 			self.world:emit("open_notes")
 		elseif Inputs.pressed("cancel") then
 			self:close_inventory()
 		elseif Inputs.pressed("interact") then
 			self.world:emit("show_key", "inventory", false)
-			self:item_interact()
 		end
-	end
-
-	if self.is_open then
-		local dx, dy = 0, 0
-		if Inputs.pressed("left") then
-			dx = -1
-		elseif Inputs.pressed("right") then
-			dx = 1
-		end
-		if Inputs.pressed("up") then
-			dy = -1
-		elseif Inputs.pressed("down") then
-			dy = 1
-		end
-
-		if dx ~= 0 or dy ~= 0 then
-			if #self.pool_choices == 0 then
-				self:update_inventory_cells(dx, dy)
-			else
-				self:update_inventory_choices(dy)
-			end
-		end
-
-		self:update_cell_color()
-		self:update_inventory_text()
-		self:update_inventory_choices_color()
 	end
 end
 
 function Inventory:draw_inventory()
 	if not self.is_open then return end
-	for _, e in ipairs(self.pool_bg) do
-		if e.sprite then
-			self.world:emit("draw_sprite_ex", e)
-		elseif e.rect then
-			self.world:emit("draw_rect_ex", e)
-		end
-	end
-	for _, e in ipairs(self.pool_cell_line) do
-		if not e.hidden then
-			self.world:emit("draw_rect_ex", e)
-		end
-	end
-
-	for i, e in ipairs(self.pool_cell_fill) do
-		self.world:emit("draw_rect_ex", e)
-
-		if not self.pool_item[i] and not e.hidden then
-			local pos = e.pos
-			local rect = e.rect
-			local border = e.rect_border
-			local rx, ry = border.rx * 0.5, border.ry * 0.5
-			local c = e.hovered_cell and c_l_h or c_l_u
-			local prev_lw = love.graphics.getLineWidth()
-			love.graphics.setColor(c)
-			love.graphics.setLineWidth(2)
-			love.graphics.line(pos.x + rx, pos.y + ry,
-				pos.x + rect.w - rx, pos.y + rect.h - ry)
-			love.graphics.line(pos.x + rx, pos.y + rect.h - ry,
-				pos.x + rect.w - rx, pos.y + ry)
-			love.graphics.setLineWidth(prev_lw)
-		end
-	end
+	self.world:emit("draw_sprite_ex", self.e_bg)
+	self.world:emit("draw_rect_ex", self.e_rect)
 
 	for _, e in ipairs(self.pool_item) do
-		self.world:emit("draw_sprite_ex", e)
-	end
-	for _, e in ipairs(self.pool_text) do
-		self.world:emit("draw_text_ex", e)
-	end
-	for _, e in ipairs(self.pool_choices) do
-		self.world:emit("draw_text_ex", e)
-	end
-	for _, e in ipairs(self.pool_preview) do
-		self.world:emit("draw_sprite_ex", e)
+		local pos = e.pos
+		local rect = e.rect
+		love.graphics.setColor(c_f_u)
+		love.graphics.rectangle("fill", pos.x, pos.y, rect.w, rect.h)
+
+		self.world:emit("draw_rect_ex", e)
 	end
 end
 
@@ -192,306 +113,53 @@ function Inventory:create_inventory()
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
 
-	local pad = 48
-	local pad2 = pad * 0.5
-	local nw = w - pad * 2
+	local pad = 32
 	local nh = h - pad * 2 - bar_h * 2
-	local scale = min(nw/iw, nh/ih)
-	local x = w - pad2
+	local scale = min(w/iw, nh/ih)
+	local x = w * 0.5
 	local y = h * 0.5
+	local rows, cols = 2, 3
 
-	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg,
-		x, y, scale, alpha)
+	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg, x, y, scale)
+	self.world:emit("create_list_group", "inventory", false, rows * cols)
 
-	local rx = x - iw * scale * 0.5
-	local ry = y - pad
-	local rs = scale * 0.5
-	self.e_rect = Concord.entity(self.world):assemble(AssemInventory.rect,
-		rx, ry, iw, ih, rs, alpha2)
+	local bg_w = iw * scale
+	local bg_h = ih * scale
+	local orig_x = x - bg_w * 0.5
+	local orig_y = y - bg_h * 0.5
 
-	local bx = rx - iw * rs * 0.5
-	local by = ry - ih * rs * 0.5
-	local sw = iw * rs / COLS
-	local sh = ih * rs / ROWS
-	for row = 0, ROWS - 1 do
-		for col = 0, COLS - 1 do
-			local srx = bx + col * sw
-			local sry = by + row * sh
-			local i = row * COLS + col
-			local border = 12
-			local a = Concord.entity(self.world):assemble(AssemInventory.cell,
-					srx, sry, sw, sh, alpha2)
-				:give("id", "inventory_cell_fill_" .. i)
-				:give("cell_fill")
-				:give("draw_mode", "fill")
-				:give("rect_border", border, border)
-				:give("line_width", 2)
-			local b = Concord.entity(self.world):assemble(AssemInventory.cell,
-					srx, sry, sw, sh, alpha2)
-				:give("id", "inventory_cell_line_" .. i)
-				:give("cell_line")
+	local rx = orig_x + bg_w * 0.4
+	local ry = orig_y + pad * 0.5
+	local rw = bg_w - orig_x
+	local rh = bg_h * 0.4
+	self.e_rect = Concord.entity(self.world)
+		:give("id", "inventory_rect")
+		:give("draw_mode", "line")
+		:give("rect", rw, rh)
+		:give("pos", rx, ry)
+		:give("color", Palette.get("inventory_line_hovered"))
+
+	local w = rw/cols
+	local h = rh/rows
+	for r = 1, rows do
+		for c = 1, cols do
+			local x = rx + (c - 1) * w
+			local y = ry + (r - 1) * h
+			local index = (r - 1) * cols + c
+			local e = Concord.entity(self.world)
+				:give("id", "cell_" .. index)
+				:give("item_id", "inventory_item")
+				:give("list_item")
+				:give("list_group", "inventory")
+				:give("pos", x, y)
+				:give("rect", w, h)
 				:give("draw_mode", "line")
-				:give("rect_border", border, border)
-				:give("line_width", 2)
-			if row == 0 and col == 0 then
-				a:give("hovered_cell")
-				b:give("hovered_cell")
-			end
+				:give("color", Palette.get("inventory_line_hovered"))
 		end
 	end
-
-	local font = Resources.data.fonts.item_name
-	local pad4 = pad2 * 0.5
-	local iix = x - iw * scale * 0.5
-	local base_y = ry + ih * rs * 0.5
-	local iiy = base_y + pad2
-	local iiy2 = iiy + font:getHeight("") + pad4
-	Concord.entity(self.world):assemble(AssemInventory.text,
-		"inventory_name_text", iix, iiy, alpha, "item_name", (iw - 16) * scale)
-	Concord.entity(self.world):assemble(AssemInventory.text,
-		"inventory_desc_text", iix, iiy2, alpha, "item_desc", (iw - 16) * scale)
-	self.world:__flush()
-
-	self.initialized = true
-end
-
-function Inventory:show_inventory()
-	self.world:emit("create_inventory_key")
-	self.e_bg:remove("hidden")
-	self.e_rect:remove("hidden")
-	for _, e in ipairs(self.pool_cell_line) do
-		e:remove("hidden")
-	end
-	for _, e in ipairs(self.pool_cell_fill) do
-		e:remove("hidden")
-	end
-	for _, e in ipairs(self.pool_text) do
-		e:remove("hidden")
-	end
-end
-
-function Inventory:hide_inventory()
-	self.world:emit("destroy_key", "inventory")
-	self.e_bg:give("hidden")
-	self.e_rect:give("hidden")
-	for _, e in ipairs(self.pool_cell_line) do
-		e:give("hidden")
-	end
-	for _, e in ipairs(self.pool_cell_fill) do
-		e:give("hidden")
-		:remove("hovered_item")
-		:remove("cell_item")
-	end
-	for _, e in ipairs(self.pool_item) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_text) do
-		e:give("hidden")
-	end
-	for _, e in ipairs(self.pool_choices) do
-		e:destroy()
-	end
-	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
-end
-
-function Inventory:update_inventory_cells(dx, dy)
-	local index
-	for i, e in ipairs(self.pool_cell_line) do
-		if e.hovered_cell then
-			e:remove("hovered_cell")
-			index = i
-			break
-		end
-	end
-	local e_fill = self.pool_cell_fill[index]
-	e_fill:remove("hovered_cell")
-
-	local x = (index - 1) % COLS
-	local y = floor((index - 1)/COLS)
-	x = (x + dx) % COLS
-	y = (y + dy) % ROWS
-	index = (y * COLS) + x + 1
-
-	local a = self.pool_cell_line[index]
-	local b = self.pool_cell_fill[index]
-	a:give("hovered_cell")
-	b:give("hovered_cell")
-end
-
-function Inventory:update_inventory_choices(dy)
-	local index
-	for i, e in ipairs(self.pool_choices) do
-		if e.hovered_item then
-			index = i
-			e:remove("hovered_item")
-			break
-		end
-	end
-	index = mathx.wrap(index + dy, 1, #self.pool_choices + 1)
-	self.pool_choices[index]:give("hovered_item")
-end
-
-function Inventory:update_cell_color()
-	for _, e in ipairs(self.pool_cell_line) do
-		local color
-		if e.hovered_cell then
-			color = c_l_h
-		else
-			color = c_l_u
-		end
-		local c = e.color.value
-		c[1] = color[1]
-		c[2] = color[2]
-		c[3] = color[3]
-		c[4] = color[4]
-	end
-	for _, e in ipairs(self.pool_cell_fill) do
-		local color
-		if e.hovered_cell then
-			color = c_f_h
-		else
-			color = c_f_u
-		end
-		local c = e.color.value
-		c[1] = color[1]
-		c[2] = color[2]
-		c[3] = color[3]
-		c[4] = color[4]
-	end
-end
-
-function Inventory:update_inventory_text()
-	if #self.pool_text == 0 then return end
-	local txt_name = self.pool_text[1]
-	local txt_desc = self.pool_text[2]
-	txt_name.text.value = ""
-	txt_desc.text.value = ""
-
-	for _, e in ipairs(self.pool_item) do
-		e:remove("hovered_item")
-	end
-
-	for _, e in ipairs(self.pool_cell_fill) do
-		if e.hovered_cell and e.cell_item then
-			local item_e = e.cell_item.item_e
-			txt_name.text.value = item_e.item.name
-			txt_desc.text.value = item_e.item.desc
-			item_e:give("hovered_item")
-			break
-		end
-	end
-end
-
-function Inventory:update_inventory_choices_color()
-	if #self.pool_choices == 0 then return end
-	for _, e in ipairs(self.pool_choices) do
-		local color
-		if e.hovered_item then
-			color = c_h_c
-		else
-			color = c_u_c
-		end
-		local c = e.color.value
-		c[1] = color[1]
-		c[2] = color[2]
-		c[3] = color[3]
-		c[4] = color[4]
-	end
-end
-
-function Inventory:add_item(item_e)
-	@@assert(item_e.__isEntity and item_e.item)
-	for _, e in ipairs(self.pool_cell_fill) do
-		if not e.cell_item then
-			local pos = e.pos
-			local rect = e.rect
-			e:give("cell_item", item_e)
-			item_e:give("pos", pos.x + rect.w * 0.5, pos.y + rect.h * 0.5)
-				:give("transform", 0, 1, 1, 0.5, 0.5)
-				:give("auto_scale", rect.w - PAD_ITEM_CELL, rect.h - PAD_ITEM_CELL, true)
-			break
-		end
-	end
-end
-
-function Inventory:item_interact()
-	if #self.pool_choices ~= 0 then
-		for _, e in ipairs(self.pool_choices) do
-			if e.hovered_item then
-				local str = e.text.value
-				--on_item_use, on_item_equip, on_item_cancel
-				local signal = "on_item_" .. str
-				self.world:emit(signal, e.item_choice.entity)
-				break
-			end
-		end
-		return
-	end
-
-	for _, e in ipairs(self.pool_item) do
-		if e.hovered_item then
-			local txt_name = self.pool_text[1]
-			local txt_desc = self.pool_text[2]
-			txt_name:give("hidden")
-			txt_desc:give("hidden")
-
-			local pos = txt_name.pos
-			local limit = txt_name.textf.limit
-			local font = txt_name.font.value
-			local fh = font:getHeight("")
-			for i, str in ipairs(e.item_choices.value) do
-				local x = pos.x
-				local y = pos.y + fh * (i - 1)
-				local e_c = Concord.entity(self.world):assemble(AssemInventory.text,
-					"choice_" .. str, x, y, alpha, "item_name", limit)
-				:give("item_choice", e)
-				:give("text", str)
-				if i == 1 then
-					e_c:give("hovered_item")
-				end
-			end
-			self.world:emit("create_item_preview", self.pool_bg[1], e)
-			break
-		end
-	end
-end
-
-function Inventory:on_item_cancel()
-	for _, e in ipairs(self.pool_choices) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_text) do
-		e:remove("hidden")
-	end
-	for _, e in ipairs(self.pool_preview) do
-		e:give("hidden")
-	end
-	self.world:emit("show_key", "inventory", true)
 end
 
 function Inventory:cleanup()
-	if self.initialized then
-		self.e_bg:destroy()
-		self.e_rect:destroy()
-	end
-	for _, e in ipairs(self.pool_cell_line) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_cell_fill) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_item) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_text) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_choices) do
-		e:destroy()
-	end
-	for _, e in ipairs(self.pool_preview) do
-		e:destroy()
-	end
 end
 
 return Inventory

@@ -1,36 +1,8 @@
 local Notes = {}
 
-Notes.test = {
-	title = "Test Note1",
-	contents = "Test Note Content"
-}
-Notes.test2 = {
-	title = "Test Note2",
-	contents = "Test Note Content"
-}
-Notes.test3 = {
-	title = "Test Note3",
-	contents = "Test Note Content"
-}
-Notes.test4 = {
-	title = "Test Note4",
-	contents = "Test Note Content"
-}
-Notes.test5 = {
-	title = "Test Note5",
-	contents = "Test Note Content"
-}
-Notes.test6 = {
-	title = "Test Note6",
-	contents = "Test Note Content"
-}
-Notes.test7 = {
-	title = "Test Note7",
-	contents = "Test Note Content"
-}
-Notes.test8 = {
-	title = "Test Note8",
-	contents = "Test Note Content"
-}
+!for i = 1, 10 do
+	local id = "test" .. !(i)
+	Notes[id] = { title = "Test Note" .. !(i), contents = "Test Note Content" .. !(i) }
+!end
 
 return Notes

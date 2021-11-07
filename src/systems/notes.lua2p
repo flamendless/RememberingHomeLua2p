@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Inputs = require("inputs")
+local ListByID = require("ctor.list_by_id")
 local NotesList = require("notes")
 local Palette = require("palette")
 local Resources = require("resources")
@@ -10,7 +11,11 @@ local min = math.min
 
 local Notes = Concord.system({
 	pool_camera = {"camera"},
-	pool_note_item = {"list_item", "list_group", "note_item", "!dialogue_item", "!choice_item"},
+	pool_item = {
+		constructor = ListByID,
+		id = "note_item",
+		"list_item", "list_group", "item_id"
+	},
 })
 
 local AssemNotes = require("assemblages.notes")
@@ -48,7 +53,8 @@ function Notes:close_notes(not_close)
 	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "notes")
 	self.e_bg:destroy()
-	for _, e in ipairs(self.pool_note_item) do
+	self.e_cursor:destroy()
+	for _, e in ipairs(self.pool_item) do
 		e:destroy()
 	end
 	self.world:emit("destroy_list", "notes")
@@ -71,7 +77,7 @@ function Notes:draw_inventory()
 	if not self.is_open then return end
 	self.world:emit("draw_sprite_ex", self.e_bg)
 
-	for _, e in ipairs(self.pool_note_item) do
+	for _, e in ipairs(self.pool_item) do
 		local list = e.list_item
 		if list.on_current_page then
 			self.world:emit("draw_text_ex", e)
@@ -83,7 +89,7 @@ function Notes:draw_inventory()
 end
 
 function Notes:on_list_cursor_update(e)
-	@@assert(self.pool_note_item:has(e))
+	@@assert(self.pool_item:has(e))
 	local font = e.font.value
 	local c_pos = self.e_cursor.pos
 	local pos = e.pos
@@ -97,7 +103,7 @@ function Notes:on_list_cursor_update(e)
 end
 
 function Notes:on_list_cursor_remove(e)
-	@@assert(self.pool_note_item:has(e))
+	@@assert(self.pool_item:has(e))
 	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
 	self.world:emit("lerp_color", e, e.color.original, 0.25, "circin")
 end
@@ -112,12 +118,10 @@ function Notes:create_notes()
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
 
-	local pad = 48
-	local pad2 = pad * 0.5
-	local nw = w - pad * 2
+	local pad = 36
 	local nh = h - pad * 2 - bar_h * 2
-	local scale = min(nw/iw, nh/ih)
-	local x = w - pad2
+	local scale = min(w/iw, nh/ih)
+	local x = w * 0.5
 	local y = h * 0.5
 
 	self.e_bg = Concord.entity(self.world):assemble(AssemNotes.bg, x, y, scale)
@@ -139,11 +143,13 @@ function Notes:create_notes()
 		local offset_x = (i - 1) * 2
 		local nx, ox
 		if i <= rows then
+			local bx = x - iw * scale * 0.5 + padq
+			nx = bx - offset_x + 64
 			ox = 0
-			nx = x - iw * scale + padq - offset_x + 64
 		else
+			local bx = x + iw * scale * 0.5 - padq
+			nx = bx + offset_x - 96
 			ox = 1
-			nx = x - padq + offset_x - 72
 		end
 		local ny = row_y + row_h * index + padq
 

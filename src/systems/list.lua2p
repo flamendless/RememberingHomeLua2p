@@ -46,9 +46,9 @@ function List:update(dt)
 	end
 end
 
-function List:create_list_group(id, vertical, per_page, use_max_threshold, limit)
+function List:create_list_group(id, vertical_only, per_page, use_max_threshold, limit)
 	@@assert(type(id) == "string")
-	@@assert(type(vertical) == "boolean")
+	@@assert(type(vertical_only) == "boolean")
 	@@assert(type(per_page) == "number" and per_page > 0)
 	@@assert(self.groups[id] == nil, id .. " was already added")
 	@@sassert(use_max_threshold, type(use_max_threshold) == "boolean")
@@ -57,7 +57,7 @@ function List:create_list_group(id, vertical, per_page, use_max_threshold, limit
 		entities = {},
 		cursor = 1,
 		offset = 0,
-		vertical = vertical,
+		vertical_only = vertical_only,
 		per_page = per_page,
 		limit = limit,
 		use_max_threshold = use_max_threshold,
@@ -66,8 +66,8 @@ end
 
 function List:update_list(group)
 	local delta = 0
-	local up = group.vertical and "up" or "left"
-	local down = group.vertical and "down" or "right"
+	local up = group.vertical_only and "up" or "left"
+	local down = group.vertical_only and "down" or "right"
 
 	if Inputs.pressed("interact") then
 		local index = group.per_page * group.offset + group.cursor

@@ -7,11 +7,10 @@ local Resources = require("resources")
 local format = string.format
 
 local Items = Concord.system({
+	pool = {"item"},
 })
 
-local Assemblages = {
-	Items = require("assemblages.items"),
-}
+local AssemItems = require("assemblages.items")
 
 local list = {
 	flashlight = {
@@ -31,7 +30,13 @@ end
 function Items:create_items()
 	local t = ItemsList.get_acquired()
 	for _, v in ipairs(t) do
-		Concord.entity(self.world):assemble(Assemblages.Items[v.id])
+		Concord.entity(self.world):assemble(AssemItems[v.id])
+	end
+end
+
+function Items:destroy_items()
+	for _, e in ipairs(self.pool) do
+		e:destroy()
 	end
 end
 

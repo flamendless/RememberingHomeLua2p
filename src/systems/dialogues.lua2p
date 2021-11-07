@@ -3,6 +3,7 @@ local TLE = require("modules.tle.timeline")
 
 local DialoguesSrc = require("dialogues")
 local Inputs = require("inputs")
+local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
 local Palette = require("palette")
 
@@ -12,7 +13,11 @@ local remove = table.remove
 local Dialogues = Concord.system({
 	pool_camera = {"camera"},
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
-	pool_choice = {"list_item", "list_group", "choice_item", "!note_item"},
+	pool_choice = {
+		constructor = ListByID,
+		id = "choice_item",
+		"list_item", "list_group", "item_id"
+	},
 })
 
 local UI = require("assemblages.ui")
@@ -74,6 +79,12 @@ function Dialogues:init(world)
 		local y = h - h * 0.15 * 0.5
 		self.e_dialogue:give("reflowprint", w - PAD * 2, "left")
 			:give("pos", x, y)
+	end
+
+	self.pool_choice.onAdded = function(pool, e)
+		if e.item_id.value ~= "choice_item" then
+			self.pool_choice:remove(e)
+		end
 	end
 end
 
@@ -140,7 +151,7 @@ function Dialogues:on_dialogue_reached_end(e)
 		return
 	end
 	e = e or self.e_dialogue
-	if e.choice_item then
+	if e.item_id then
 		self.world:emit("destroy_list", "dialogue_choice")
 	end
 	if e.has_choices then
@@ -156,12 +167,12 @@ function Dialogues:on_dialogue_reached_end(e)
 			e:remove("dialogue_meta")
 				:remove("text_t")
 				:remove("text")
-				:remove("choice_item")
+				:remove("item_id")
 				:remove("has_choices")
 			self.e_dialogue:remove("dialogue_meta")
 				:remove("text_t")
 				:remove("text")
-				:remove("choice_item")
+				:remove("item_id")
 				:remove("has_choices")
 		end
 		self.world:emit("show_key", "dialogue", false)
@@ -171,7 +182,7 @@ end
 
 function Dialogues:update_dialogues(new_dialogues_t)
 	@@assert(type(new_dialogues_t) == "table")
-	if not self.e_dialogue.choice_item then
+	if not self.e_dialogue.item_id then
 		self.e_dialogue:give("text_t", new_dialogues_t)
 		self.timeline:Unpause()
 	else
@@ -217,7 +228,7 @@ function Dialogues:show_choices()
 			end
 		end
 
-		local e_choice = Concord.entity(self.world):assemble(UI.choice,
+		Concord.entity(self.world):assemble(UI.choice,
 				id, str, choice_t, x, y)
 			:give("reflowprint", fw + PAD * 2, "left")
 			:give("dialogue_meta", d.main, d.sub)
