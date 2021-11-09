@@ -11,28 +11,6 @@ function RenderRect:init(world)
 	self.world = world
 end
 
--- local function draw_rotated_rect(mode, x, y, w, h, r)
--- --usage
--- local pos = e.pos
--- local rect = e.rect
--- local w, h = rect.w * 0.15, rect.h * 0.15
--- local w2, h2 = rect.w * 0.35, rect.h * 0.35
--- local w3, h3 = rect.w * 0.55, rect.h * 0.55
--- local x = pos.x + rect.w * 0.5
--- local y = pos.y + rect.h * 0.5
--- local c = e.hovered_cell and c_l_h or c_l_u
--- love.graphics.setColor(c)
--- draw_rotated_rect("line", x, y, w, h, 0.7853981634)
--- draw_rotated_rect("line", x, y, w2, h2, 0.7853981634)
--- draw_rotated_rect("line", x, y, w3, h3, 0.7853981634)
---
--- 	love.graphics.push()
--- 	love.graphics.translate(x, y)
--- 	love.graphics.rotate(r)
--- 	love.graphics.rectangle(mode, -w * 0.5, -h * 0.5, w, h)
--- 	love.graphics.pop()
--- end
-
 function RenderRect:draw_rect_ex(e)
 	if e.hidden then return end
 	local color = e.color.value
@@ -55,12 +33,12 @@ function RenderRect:draw_rect_ex(e)
 		w = w * t.sx
 		h = h * t.sy
 		if t.ox == 0.5 then
-			x = x - w * 0.5
+			x = x - rect.half_w
 		elseif t.ox == 1 then
 			x = x - w
 		end
 		if t.oy == 0.5 then
-			y = y - h * 0.5
+			y = y - rect.half_h
 		elseif t.oy == 1 then
 			y = y - h
 		end

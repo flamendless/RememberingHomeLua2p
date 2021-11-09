@@ -1,5 +1,12 @@
 local Inventory = {}
 
+local cache = {}
+
+local pi = math.pi
+local half_pi = pi * 0.5
+local t_pi = 3 * half_pi
+local atan2 = math.atan2
+
 function Inventory.bg(e, x, y, scale)
 	e:give("id", "inventory_bg")
 	:give("nf_render_sprite")
@@ -20,6 +27,50 @@ function Inventory.text(e, id, x, y, alpha, res_font, limit)
 	:give("color", {1, 1, 1, 0})
 	:give("fade_in_target_alpha", alpha)
 	:give("color_fade_in", 0.5)
+end
+
+function Inventory.border(e, i, x, y, rw, rh, ih, is_horizontal)
+	local id = "inventory_border" .. i
+	local r, sy
+	local cached = cache[id]
+	if cached then
+		r, sy = unpack(cached)
+	else
+		if is_horizontal then
+			r = t_pi
+			sy = rw / ih
+		else
+			r = 0
+			sy = rh / ih
+		end
+		cache[id] = {r, sy}
+	end
+	e:give("id", id)
+	:give("sprite", "inventory_border")
+	:give("pos", x, y)
+	:give("transform", r, 0.5, sy, 0.5, 0, -0.05, -0.05)
+	:give("custom_texture")
+	:give("nf_render_sprite")
+end
+
+function Inventory.dline(e, i, x1, y1, x2, y2)
+	local id = "inventory_border" .. i
+	local r
+	local cached = cache[id]
+	if cached then
+		r = unpack(cached)
+	else
+		local dx = x2 - x1
+		local dy = y2 - y1
+		r = atan2(dy, dx) - half_pi
+		cache[id] = {r}
+	end
+	e:give("id", id)
+	:give("sprite", "inventory_border")
+	:give("pos", x1, y1)
+	:give("transform", r, 0.25, 1, 0.5, 0, 0.05, 0.05)
+	:give("custom_texture")
+	:give("nf_render_sprite")
 end
 
 return Inventory

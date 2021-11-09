@@ -11,6 +11,7 @@ function Items.flashlight(e)
 	:give("color", {1, 1, 1, 1})
 	:give("pos", 0, 0)
 	:give("item_choices", "use", "equip", "cancel")
+	:give("transform", 0, 1, 1, 0.5, 0.5)
 end
 
 return Items

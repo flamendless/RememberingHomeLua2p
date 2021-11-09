@@ -10,7 +10,7 @@ local Items = Concord.system({
 	pool = {"item"},
 })
 
-local AssemItems = require("assemblages.items")
+local AItems = require("assemblages.items")
 
 local list = {
 	flashlight = {
@@ -30,7 +30,7 @@ end
 function Items:create_items()
 	local t = ItemsList.get_acquired()
 	for _, v in ipairs(t) do
-		Concord.entity(self.world):assemble(AssemItems[v.id])
+		Concord.entity(self.world):assemble(AItems[v.id])
 	end
 end
 

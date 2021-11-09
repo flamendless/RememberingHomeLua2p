@@ -1,0 +1,12 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("refs", function(c, ...)
+	local t = {...}
+	@@assert(#t > 0)
+	!if _DEV then
+	for _, e in ipairs(t) do
+		@@assert(e.__isEntity)
+	end
+	!end
+	c.value = t
+end)

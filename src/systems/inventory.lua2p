@@ -10,26 +10,50 @@ local min = math.min
 
 local Inventory = Concord.system({
 	pool_camera = {"camera"},
-	pool_item = {
+	pool_cell = {
 		constructor = ListByID,
 		id = "inventory_item",
 		"list_item", "list_group", "item_id"
 	},
+	pool_border = {"id", "sprite", "nf_render_sprite", "custom_texture"},
+	pool_item = {"item"},
 })
 
-local AssemInventory = require("assemblages.inventory")
-local c_f_u = Palette.get("inventory_fill_unhovered")
+local AInventory = require("assemblages.inventory")
 
 function Inventory:init(world)
 	self.world = world
 	self.can_open = true
 	self.is_open = false
+	self.entities = {}
 
 	self.pool_camera.onAdded = function(pool, e)
 		local camera = e.camera
 		if camera.is_main then
 			self.main_camera = camera.camera
 		end
+	end
+
+	self.pool_item.onAdded = function(pool, e)
+		local e_cell = self.pool_cell[#pool]
+		local c_pos = e_cell.pos
+		local c_rect = e_cell.rect
+
+		local refs = e_cell.refs.value
+		refs[1]:give("hidden")
+		refs[2]:give("hidden")
+
+		local pos = e.pos
+		pos.x = c_pos.x + c_rect.half_w
+		pos.y = c_pos.y + c_rect.half_h
+	end
+
+	self.pool_item.onRemoved = function(pool, e)
+		--TODO UNTESTED indexing
+		local e_cell = self.pool_cell[#pool + 1]
+		local refs = e_cell.refs.value
+		refs[1]:remove("hidden")
+		refs[2]:remove("hidden")
 	end
 end
 
@@ -46,15 +70,20 @@ end
 
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
+	self.world:emit("destroy_items")
 	self.world:emit("set_system_to", "dialogues", true)
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
 	end
 	self.is_open = false
 	self.can_open = false
-	self.e_bg:destroy()
-	self.e_rect:destroy()
-	self.world:emit("destroy_items")
+	for _, e in pairs(self.entities) do
+		e:destroy()
+	end
+	for _, e in ipairs(self.pool_border) do
+		e:destroy()
+	end
+	self.world:emit("destroy_list", "inventory")
 	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "inventory")
 	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
@@ -65,17 +94,6 @@ function Inventory:update(dt)
 		!if _DEV then
 		local Items = require("items")
 		Items.add("flashlight")
-		local Notes = require("notes")
-		Notes.add("test1")
-		Notes.add("test2")
-		Notes.add("test3")
-		Notes.add("test4")
-		Notes.add("test5")
-		Notes.add("test6")
-		Notes.add("test7")
-		Notes.add("test8")
-		Notes.add("test9")
-		Notes.add("test10")
 		!end
 		self:open_inventory()
 	elseif self.is_open then
@@ -94,16 +112,30 @@ end
 
 function Inventory:draw_inventory()
 	if not self.is_open then return end
-	self.world:emit("draw_sprite_ex", self.e_bg)
-	self.world:emit("draw_rect_ex", self.e_rect)
+	self.world:emit("draw_sprite_ex", self.entities.bg)
 
-	for _, e in ipairs(self.pool_item) do
-		local pos = e.pos
-		local rect = e.rect
-		love.graphics.setColor(c_f_u)
-		love.graphics.rectangle("fill", pos.x, pos.y, rect.w, rect.h)
-
+	for i, e in ipairs(self.pool_cell) do
 		self.world:emit("draw_rect_ex", e)
+		local item = self.pool_item[i]
+		if item then
+			self.world:emit("draw_sprite_ex", item)
+		end
+	end
+
+	for _, e in ipairs(self.pool_border) do
+		if not e.hidden then
+			self.world:emit("draw_sprite_ex", e)
+		end
+	end
+end
+
+function Inventory:on_list_cursor_update(e_hovered)
+	for _, e in ipairs(self.pool_cell) do
+		if e == e_hovered then
+			e.color.value[4] = 0.4
+		else
+			e.color.value[4] = 0
+		end
 	end
 end
 
@@ -120,8 +152,8 @@ function Inventory:create_inventory()
 	local y = h * 0.5
 	local rows, cols = 2, 3
 
-	self.e_bg = Concord.entity(self.world):assemble(AssemInventory.bg, x, y, scale)
-	self.world:emit("create_list_group", "inventory", false, rows * cols)
+	self.entities.bg = Concord.entity(self.world):assemble(AInventory.bg, x, y, scale)
+	self.world:emit("create_list_group_grid", "inventory", rows, cols)
 
 	local bg_w = iw * scale
 	local bg_h = ih * scale
@@ -132,34 +164,41 @@ function Inventory:create_inventory()
 	local ry = orig_y + pad * 0.5
 	local rw = bg_w - orig_x
 	local rh = bg_h * 0.4
-	self.e_rect = Concord.entity(self.world)
-		:give("id", "inventory_rect")
-		:give("draw_mode", "line")
-		:give("rect", rw, rh)
-		:give("pos", rx, ry)
-		:give("color", Palette.get("inventory_line_hovered"))
+	local b_ih = Resources.data.images.inventory_border:getHeight()
+	local cw = rw/cols
+	local ch = rh/rows
 
-	local w = rw/cols
-	local h = rh/rows
+	Concord.entity(self.world):assemble(AInventory.border, 1, rx, ry, rw, rh, b_ih, false)
+	Concord.entity(self.world):assemble(AInventory.border, 2, rx + rw, ry, rw, rh, b_ih, false)
+	Concord.entity(self.world):assemble(AInventory.border, 3, rx, ry, rw, rh, b_ih, true)
+	Concord.entity(self.world):assemble(AInventory.border, 4, rx, ry + rh, rw, rh, b_ih, true)
+	Concord.entity(self.world):assemble(AInventory.border, 5, rx + cw, ry, rw, rh, b_ih, false)
+	Concord.entity(self.world):assemble(AInventory.border, 6, rx + cw * 2, ry, rw, rh, b_ih, false)
+	Concord.entity(self.world):assemble(AInventory.border, 7, rx, ry + ch, rw, rh, b_ih, true)
+
 	for r = 1, rows do
 		for c = 1, cols do
-			local x = rx + (c - 1) * w
-			local y = ry + (r - 1) * h
+			local cx = rx + (c - 1) * cw
+			local cy = ry + (r - 1) * ch
 			local index = (r - 1) * cols + c
-			local e = Concord.entity(self.world)
+
+			local l1 = Concord.entity(self.world):assemble(AInventory.dline,
+				index .. "a", cx, cy, cx + cw, cy + ch)
+			local l2 = Concord.entity(self.world):assemble(AInventory.dline,
+				index .. "b", cx, cy + ch, cx + cw, cy)
+
+			Concord.entity(self.world)
 				:give("id", "cell_" .. index)
 				:give("item_id", "inventory_item")
 				:give("list_item")
 				:give("list_group", "inventory")
-				:give("pos", x, y)
-				:give("rect", w, h)
-				:give("draw_mode", "line")
-				:give("color", Palette.get("inventory_line_hovered"))
+				:give("pos", cx, cy)
+				:give("rect", cw, ch)
+				:give("draw_mode", "fill")
+				:give("color", Palette.get("inventory_cell"))
+				:give("refs", l1, l2)
 		end
 	end
-end
-
-function Inventory:cleanup()
 end
 
 return Inventory

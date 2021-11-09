@@ -28,11 +28,7 @@ Palette.colors = {
 
 	outline = {1, 1, 1},
 
-	inventory_line_unhovered = {0.098, 0.109, 0.17},
-	inventory_line_hovered = {0.098/10, 0.109/10, 0.17/10},
-	inventory_fill_unhovered = {0.05, 0.1, 0.5},
-	inventory_fill_hovered = {1, 1, 1},
-
+	inventory_cell = {0, 0, 0, 0},
 	note_list = {0, 0, 0},
 	note_on_hovered = {1, 0, 0},
 }

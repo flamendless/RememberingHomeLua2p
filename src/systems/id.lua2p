@@ -25,7 +25,7 @@ function ID:init(world)
 			local ref_id = self.ref_id[id.value]
 			if ref_id then
 				self.ref_id[id.value] = self.ref_id[id.value] + 1
-				id.value = id.value .. self.ref_id[id.value]
+				id.value = id.value .. "_" .. self.ref_id[id.value]
 			else
 				self.ref_id[id.value] = 1
 			end

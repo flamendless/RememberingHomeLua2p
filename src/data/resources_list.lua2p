@@ -29,6 +29,7 @@ t.inventory_notes = {
 	{"bg_item", path_inventory_notes .. "bg_item.png"},
 	{"bg_desc", path_inventory_notes .. "bg_desc.png"},
 	{"flashlight", path_inventory_notes .. "flashlight.png"},
+	{"inventory_border", path_inventory_notes .. "border.png"},
 
 	{"bg_notes", path_inventory_notes .. "bg_notes.png"},
 	{"note_cursor", path_inventory_notes .. "note_cursor.png"},

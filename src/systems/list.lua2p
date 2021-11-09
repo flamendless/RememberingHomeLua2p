@@ -3,6 +3,7 @@ local Log = require("modules.log.log")
 
 local Inputs = require("inputs")
 
+local abs = math.abs
 local insert = table.insert
 
 local List = Concord.system({
@@ -28,7 +29,12 @@ end
 function List:update(dt)
 	if not self.focused then return end
 	local group = self.groups[self.focused]
-	local delta = self:update_list(group)
+	local delta
+	if group.is_grid then
+		delta = self:update_list_grid(group)
+	else
+		delta = self:update_list(group)
+	end
 	local cursor_new_index
 	if delta then
 		cursor_new_index = self:update_cursor()
@@ -61,6 +67,22 @@ function List:create_list_group(id, vertical_only, per_page, use_max_threshold, 
 		per_page = per_page,
 		limit = limit,
 		use_max_threshold = use_max_threshold,
+	}
+end
+
+function List:create_list_group_grid(id, rows, cols)
+	@@assert(type(id) == "string")
+	@@assert(self.groups[id] == nil, id .. " was already added")
+	@@assert(type(rows) == "number" and rows > 0)
+	@@assert(type(cols) == "number" and cols > 0)
+	self.groups[id] = {
+		entities = {},
+		cursor = 1,
+		offset = 0,
+		rows = rows,
+		cols = cols,
+		is_grid = true,
+		per_page = rows * cols,
 	}
 end
 
@@ -113,6 +135,38 @@ function List:update_list(group)
 			group.cursor = group.per_page
 			group.offset = group.limit/group.per_page - 1
 		end
+	end
+
+	return true
+end
+
+function List:update_list_grid(group)
+	local dx, dy = 0, 0
+	if Inputs.pressed("interact") then
+		local index = group.per_page * group.offset + group.cursor
+		@@assert(group.entities[index])
+		self.world:emit("on_list_item_interact", group.entities[index])
+	elseif Inputs.pressed("left") then
+		dx = -1
+	elseif Inputs.pressed("right") then
+		dx = 1
+	elseif Inputs.pressed("up") then
+		dy = -1
+	elseif Inputs.pressed("down") then
+		dy = 1
+	end
+
+	if dx == 0 and dy == 0 then return false end
+	if dx ~= 0 then
+		group.cursor = group.cursor + dx
+	elseif dy ~= 0 then
+		group.cursor = group.cursor + dy * group.cols
+	end
+
+	if group.cursor > group.per_page then
+		group.cursor = group.cursor - group.per_page
+	elseif group.cursor <= 0 then
+		group.cursor = group.per_page - abs(group.cursor)
 	end
 
 	return true
