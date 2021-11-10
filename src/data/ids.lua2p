@@ -1,0 +1,10 @@
+local IDS = {}
+
+IDS.lists = {
+	dialogue = "dialogue_choices",
+	notes = "notes",
+	inventory_cells = "inventory_cells",
+	inventory_choices = "inventory_choices",
+}
+
+return IDS

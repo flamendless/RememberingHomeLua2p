@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Inputs = require("inputs")
+local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
 local NotesList = require("notes")
 local Palette = require("palette")
@@ -13,8 +14,7 @@ local Notes = Concord.system({
 	pool_camera = {"camera"},
 	pool_item = {
 		constructor = ListByID,
-		id = "note_item",
-		"list_item", "list_group", "item_id"
+		id = IDS.lists.notes,
 	},
 })
 
@@ -135,7 +135,7 @@ function Notes:create_notes()
 	local rows = floor(ih * scale * 0.75 / row_h)
 
 	self.rows_per_page = rows
-	self.world:emit("create_list_group", "notes", true, rows * 2)
+	self.world:emit("create_list_group", IDS.lists.notes, true, rows * 2)
 
 	local acquired_notes = NotesList.get_acquired()
 	for i, note in ipairs(acquired_notes) do
@@ -152,7 +152,6 @@ function Notes:create_notes()
 			ox = 1
 		end
 		local ny = row_y + row_h * index + padq
-
 		Concord.entity(self.world):assemble(AssemNotes.text, i, note.title, nx, ny, ox)
 	end
 

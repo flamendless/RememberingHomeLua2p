@@ -26,7 +26,7 @@ t.ui = {
 }
 
 t.inventory_notes = {
-	{"bg_item", path_inventory_notes .. "bg_item.png"},
+	{"bg_inventory", path_inventory_notes .. "bg_inventory.png"},
 	{"bg_desc", path_inventory_notes .. "bg_desc.png"},
 	{"flashlight", path_inventory_notes .. "flashlight.png"},
 	{"inventory_border", path_inventory_notes .. "border.png"},
@@ -45,6 +45,7 @@ t.fnt_inventory = {
 	{"item_name", path_fonts .. "DigitalDisco.ttf", 20, "default"},
 	{"item_desc", path_fonts .. "DigitalDisco.ttf", 16, "default"},
 	{"note_list", path_fonts .. "DigitalDisco.ttf", 16, "default"},
+	{"inventory_choice", path_fonts .. "DigitalDisco.ttf", 24, "default"},
 }
 
 function get_res(id)

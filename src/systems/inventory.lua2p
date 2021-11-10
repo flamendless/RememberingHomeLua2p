@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
+local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
 local Palette = require("palette")
 local Resources = require("resources")
@@ -12,8 +13,11 @@ local Inventory = Concord.system({
 	pool_camera = {"camera"},
 	pool_cell = {
 		constructor = ListByID,
-		id = "inventory_item",
-		"list_item", "list_group", "item_id"
+		id = IDS.lists.inventory_cells,
+	},
+	pool_choice = {
+		constructor = ListByID,
+		id = IDS.lists.inventory_choices,
 	},
 	pool_border = {"id", "sprite", "nf_render_sprite", "custom_texture"},
 	pool_item = {"item"},
@@ -49,7 +53,6 @@ function Inventory:init(world)
 	end
 
 	self.pool_item.onRemoved = function(pool, e)
-		--TODO UNTESTED indexing
 		local e_cell = self.pool_cell[#pool + 1]
 		local refs = e_cell.refs.value
 		refs[1]:remove("hidden")
@@ -63,6 +66,8 @@ function Inventory:open_inventory()
 	self.world:emit("set_system_to", "dialogues", false)
 	self.world:emit("set_post_process_effect", "Blur", true)
 	self:create_inventory()
+	self.world:__flush()
+	self.world:emit("set_focus_list", IDS.lists.inventory_cells)
 	self.world:emit("create_inventory_key")
 	self.world:emit("create_items")
 	self.is_open = true
@@ -114,6 +119,10 @@ function Inventory:draw_inventory()
 	if not self.is_open then return end
 	self.world:emit("draw_sprite_ex", self.entities.bg)
 
+	for _, e in ipairs(self.pool_choice) do
+		self.world:emit("draw_text_ex", e)
+	end
+
 	for i, e in ipairs(self.pool_cell) do
 		self.world:emit("draw_rect_ex", e)
 		local item = self.pool_item[i]
@@ -129,39 +138,39 @@ function Inventory:draw_inventory()
 	end
 end
 
-function Inventory:on_list_cursor_update(e_hovered)
-	for _, e in ipairs(self.pool_cell) do
-		if e == e_hovered then
-			e.color.value[4] = 0.4
-		else
-			e.color.value[4] = 0
-		end
-	end
-end
-
 function Inventory:create_inventory()
 	local _, _, w, h = self.main_camera:getWindow()
-	local img = Resources.data.images.bg_item
+	local img = Resources.data.images.bg_inventory
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
 
-	local pad = 32
+	local pad = 48
 	local nh = h - pad * 2 - bar_h * 2
 	local scale = min(w/iw, nh/ih)
 	local x = w * 0.5
 	local y = h * 0.5
 	local rows, cols = 2, 3
-
-	self.entities.bg = Concord.entity(self.world):assemble(AInventory.bg, x, y, scale)
-	self.world:emit("create_list_group_grid", "inventory", rows, cols)
-
 	local bg_w = iw * scale
 	local bg_h = ih * scale
 	local orig_x = x - bg_w * 0.5
 	local orig_y = y - bg_h * 0.5
 
+	self.entities.bg = Concord.entity(self.world):assemble(AInventory.bg, x, y, scale)
+	self.world:emit("create_list_group", IDS.lists.inventory_choices, true, 3)
+
+	local c_bx = orig_x + bg_w - pad
+	local c_by = orig_y + bg_h * 0.5
+	local choices = {"use", "equip", "cancel"}
+	for i, str in ipairs(choices) do
+		local c_oy = pad * (0.5 + (i - 1) * 1.2)
+		local c_y = c_by + c_oy
+		Concord.entity(self.world):assemble(AInventory.choice, str, c_bx, c_y)
+	end
+
+	self.world:emit("create_list_group_grid", IDS.lists.inventory_cells, rows, cols)
+
 	local rx = orig_x + bg_w * 0.4
-	local ry = orig_y + pad * 0.5
+	local ry = orig_y + pad * 0.3
 	local rw = bg_w - orig_x
 	local rh = bg_h * 0.4
 	local b_ih = Resources.data.images.inventory_border:getHeight()
@@ -189,14 +198,45 @@ function Inventory:create_inventory()
 
 			Concord.entity(self.world)
 				:give("id", "cell_" .. index)
-				:give("item_id", "inventory_item")
 				:give("list_item")
-				:give("list_group", "inventory")
+				:give("list_group", IDS.lists.inventory_cells)
 				:give("pos", cx, cy)
 				:give("rect", cw, ch)
 				:give("draw_mode", "fill")
 				:give("color", Palette.get("inventory_cell"))
 				:give("refs", l1, l2)
+		end
+	end
+end
+
+function Inventory:on_list_cursor_update(e_hovered)
+	local lg = e_hovered.list_group
+	if lg.value == IDS.lists.inventory_cells and lg.is_focused then
+		for _, e in ipairs(self.pool_cell) do
+			e.color.value[4] = e == e_hovered and 0.4 or 0
+		end
+	elseif lg.value == IDS.lists.inventory_choices and lg.is_focused then
+		for _, e in ipairs(self.pool_choice) do
+			e.color.value[4] = e == e_hovered and 1 or 0.5
+		end
+	end
+end
+
+function Inventory:on_list_item_interact(e_hovered)
+	local group_id = e_hovered.list_group.value
+	if group_id == IDS.lists.inventory_cells then
+		for _, e in ipairs(self.pool_choice) do
+			e.color.value[4] = 0.5
+		end
+		self.world:emit("set_focus_list", IDS.lists.inventory_choices)
+	elseif group_id == IDS.lists.inventory_choices then
+		local text = e_hovered.text.value
+		if text == "Cancel" then
+			for _, e in ipairs(self.pool_choice) do
+				e.color.value[4] = 0
+			end
+			self.world:emit("set_focus_list", IDS.lists.inventory_cells)
+		else
 		end
 	end
 end

@@ -1,7 +1,10 @@
+local IDS = require("data.ids")
+
 local Inventory = {}
 
 local cache = {}
 
+local lower = string.lower
 local pi = math.pi
 local half_pi = pi * 0.5
 local t_pi = 3 * half_pi
@@ -11,22 +14,21 @@ function Inventory.bg(e, x, y, scale)
 	e:give("id", "inventory_bg")
 	:give("nf_render_sprite")
 	:give("pos", x, y)
-	:give("sprite", "bg_item")
+	:give("sprite", "bg_inventory")
 	:give("transform", 0, scale, scale, 0.5, 0.5)
 	:give("color", {1, 1, 1, 1})
 end
 
-function Inventory.text(e, id, x, y, alpha, res_font, limit)
-	e:give("id", id)
+function Inventory.choice(e, str, x, y)
+	e:give("id", "inventory_choice_" .. lower(str))
 	:give("nf_render_text")
+	:give("font", "inventory_choice")
+	:give("static_text", str)
 	:give("pos", x, y)
-	:give("text", "")
-	:give("textf", limit, "center")
-	:give("font", res_font)
-	:give("transform", 0, 1, 1, 0.5)
-	:give("color", {1, 1, 1, 0})
-	:give("fade_in_target_alpha", alpha)
-	:give("color_fade_in", 0.5)
+	:give("color", {0, 0, 0, 0})
+	:give("list_item")
+	:give("list_group", IDS.lists.inventory_choices)
+	:give("transform", 0.1745329, 1, 1, 0.5, 0.5, -0.25)
 end
 
 function Inventory.border(e, i, x, y, rw, rh, ih, is_horizontal)

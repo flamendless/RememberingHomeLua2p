@@ -18,9 +18,10 @@ function List:init(world)
 	self.pool.onAdded = function(pool, e)
 		local group_id = e.list_group.value
 		local group = self.groups[group_id]
+		@@assert(group, group_id .. " does not exist")
 		insert(group.entities, e)
 		self.focused = group_id
-		if #pool == 1 then
+		if #group.entities == 1 then
 			self:update_cursor(1)
 		end
 	end
@@ -93,8 +94,9 @@ function List:update_list(group)
 
 	if Inputs.pressed("interact") then
 		local index = group.per_page * group.offset + group.cursor
-		@@assert(group.entities[index])
-		self.world:emit("on_list_item_interact", group.entities[index])
+		local e = group.entities[index]
+		@@assert(e)
+		self.world:emit("on_list_item_interact", e)
 	elseif Inputs.pressed(up) then
 		delta = -1
 	elseif Inputs.pressed(down) then
@@ -179,14 +181,21 @@ function List:update_cursor(index)
 	local e_hovered = group.entities[cursor_new_index]
 	if e_hovered then
 		e_hovered:give("list_cursor", cursor_new_index)
-		self.world:emit("on_list_cursor_update", e_hovered)
+		self.world:emit("on_list_cursor_update", e_hovered, self.focused)
 		return cursor_new_index
 	end
 end
 
 function List:set_focus_list(group_id)
-	@@sassert(group_id, type(group_id) == "string" and self.groups[group_id])
+	local group = self.groups[group_id]
+	@@sassert(group_id, type(group_id) == "string" and group)
 	self.focused = group_id
+	for k, g in pairs(self.groups) do
+		for _, e in ipairs(g.entities) do
+			e.list_group.is_focused = k == group_id
+		end
+	end
+	self:update_cursor(group.cursor)
 	Log.trace("focused list: " .. group_id)
 end
 

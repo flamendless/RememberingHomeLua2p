@@ -44,7 +44,7 @@ function Items:initialize_entities()
 	if self.e_bg and self.e_prev then return end
 	self.e_bg = Concord.entity(self.world)
 		:give("id", "item_preview_bg")
-		:give("sprite", "bg_item")
+		:give("sprite", "bg_inventory")
 		:give("transform", 0, 1, 1, 1, 0.5)
 		:give("nf_render_sprite")
 		:give("color", {1, 1, 1, 1})

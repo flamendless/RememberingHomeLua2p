@@ -8,12 +8,13 @@ ListByID.__mt = {__index = ListByID}
 local function ctor(def)
 	local self = setmetatable({}, ListByID.__mt)
 	self.id = def.id
-	insert(def, "item_id")
+	insert(def, "list_item")
+	insert(def, "list_group")
 	return self
 end
 
 function ListByID:add(entity)
-	if entity.item_id.value == self.id then
+	if entity.list_group.value == self.id then
 		insert(self, entity)
 		return true
 	end

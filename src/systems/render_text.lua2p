@@ -34,8 +34,9 @@ end
 
 function RenderText:draw_text_ex(e)
 	if e.hidden then return end
-	local color = e.color
 	local text = e.text
+	if text and #text.value == 0 then return end
+	local color = e.color
 	local textf = e.textf
 	local static_text = e.static_text
 	local font = e.font
@@ -106,27 +107,16 @@ function RenderText:draw_text_ex(e)
 	local x = e.pos.x
 	local y = e.pos.y
 
-	local w, h
-
 	if rfp then
 		x = x - ox
 		y = y - oy
 		ReflowPrint(rfp.dt/rfp.current, str, x, y, rfp.width, rfp.alignment, sx, sy)
+	elseif static_text then
+		love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy, kx, ky)
+	elseif textf then
+		love.graphics.printf(str, x, y, textf.limit, textf.align, r, sx, sy, ox, oy)
 	else
-		if static_text then
-			love.graphics.draw(static_text.obj, x, y, r, sx, sy, ox, oy, kx, ky)
-		else
-			if textf then
-				love.graphics.printf(str, x, y, textf.limit, textf.align,
-					r, sx, sy, ox, oy)
-				-- w = textf.limit
-				-- h = font.value:getHeight(str)
-				-- love.graphics.setColor(1, 0, 0, 1)
-				-- love.graphics.rectangle("line", x - transform.ox, y, w, h)
-			else
-				love.graphics.print(str, x, y, r, sx, sy, ox, oy, kx, ky)
-			end
-		end
+		love.graphics.print(str, x, y, r, sx, sy, ox, oy, kx, ky)
 	end
 end
 
