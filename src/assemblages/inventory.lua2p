@@ -1,14 +1,9 @@
 local IDS = require("data.ids")
+local Palette = require("palette")
 
 local Inventory = {}
 
 local cache = {}
-
-local lower = string.lower
-local pi = math.pi
-local half_pi = pi * 0.5
-local t_pi = 3 * half_pi
-local atan2 = math.atan2
 
 function Inventory.bg(e, x, y, scale)
 	e:give("id", "inventory_bg")
@@ -20,7 +15,7 @@ function Inventory.bg(e, x, y, scale)
 end
 
 function Inventory.choice(e, str, x, y)
-	e:give("id", "inventory_choice_" .. lower(str))
+	e:give("id", "inventory_choice_" .. string.lower(str))
 	:give("nf_render_text")
 	:give("font", "inventory_choice")
 	:give("static_text", str)
@@ -39,7 +34,7 @@ function Inventory.border(e, i, x, y, rw, rh, ih, is_horizontal)
 		r, sy = unpack(cached)
 	else
 		if is_horizontal then
-			r = t_pi
+			r = !(_T_H_PI)
 			sy = rw / ih
 		else
 			r = 0
@@ -64,7 +59,7 @@ function Inventory.dline(e, i, x1, y1, x2, y2)
 	else
 		local dx = x2 - x1
 		local dy = y2 - y1
-		r = atan2(dy, dx) - half_pi
+		r = math.atan2(dy, dx) - !(_HALF_PI)
 		cache[id] = {r}
 	end
 	e:give("id", id)
@@ -73,6 +68,17 @@ function Inventory.dline(e, i, x1, y1, x2, y2)
 	:give("transform", r, 0.25, 1, 0.5, 0, 0.05, 0.05)
 	:give("custom_texture")
 	:give("nf_render_sprite")
+end
+
+function Inventory.cell(e, i, x, y, w, h, l1, l2)
+	e:give("id", "cell_" .. i)
+	:give("list_item")
+	:give("list_group", IDS.lists.inventory_cells)
+	:give("pos", x, y)
+	:give("rect", w, h)
+	:give("draw_mode", "fill")
+	:give("color", Palette.get("inventory_cell"))
+	:give("refs", l1, l2)
 end
 
 return Inventory

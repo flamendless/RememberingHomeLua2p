@@ -1,9 +1,11 @@
+local Shaders = require("shaders")
+
 local Blur = class({
 	name = "Blur"
 })
 
 function Blur:new()
-	self.shader = love.graphics.newShader("shaders/blur.glsl")
+	self.shader = love.graphics.newShader(Shaders.blur)
 	self.is_active = false
 end
 

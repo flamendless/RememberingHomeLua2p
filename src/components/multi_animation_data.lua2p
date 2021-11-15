@@ -2,8 +2,6 @@ local Concord = require("modules.concord.concord")
 
 local Resources = require("resources")
 
-local floor = math.floor
-
 local c_multi_anim_data = Concord.component("multi_animation_data", function(c, first, data, modifier)
 	@@assert(type(first) == "string")
 	@@assert(type(data) == "table")
@@ -33,8 +31,8 @@ local c_multi_anim_data = Concord.component("multi_animation_data", function(c, 
 		v.spritesheet = Resources.data.images[v.resource_id]
 		v.sheet_width = v.spritesheet:getWidth()
 		v.sheet_height = v.spritesheet:getHeight()
-		v.frame_width = floor(v.sheet_width/v.columns_count)
-		v.frame_height = floor(v.sheet_height/v.rows_count)
+		v.frame_width = math.floor(v.sheet_width/v.columns_count)
+		v.frame_height = math.floor(v.sheet_height/v.rows_count)
 	end
 
 	if modifier then

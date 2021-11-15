@@ -15,14 +15,6 @@ local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
 
-local insert = table.insert
-local remove = table.remove
-local max = math.max
-local min = math.min
-local format = string.format
-local lower = string.lower
-local gsub = string.gsub
-
 local Assemblages = {
 	Menu = require("assemblages.menu"),
 }
@@ -121,13 +113,13 @@ local function generate_about()
 		local c = tools[i + 2] or ""
 		if b ~= "" then a = a .. "," end
 		if c ~= "" then b = b .. "," end
-		local subt = {format("%s %s %s", a, b, c)}
-		insert(t, subt)
+		local subt = {string.format("%s %s %s", a, b, c)}
+		table.insert(t, subt)
 	end
 
-	insert(t, {"@LAYOUT:RIGHT"})
-	insert(t, {"@COLOR"})
-	insert(t, {"LIBRARIES USED:"})
+	table.insert(t, {"@LAYOUT:RIGHT"})
+	table.insert(t, {"@COLOR"})
+	table.insert(t, {"LIBRARIES USED:"})
 
 	for i = 1, #libs, 4 do
 		local a = libs[i]
@@ -137,14 +129,14 @@ local function generate_about()
 		if b ~= "" then a = a .. "," end
 		if c ~= "" then b = b .. "," end
 		if d ~= "" then c = c .. "," end
-		local subt = {format("%s %s %s %s", a, b, c, d)}
-		insert(t, subt)
+		local subt = {string.format("%s %s %s %s", a, b, c, d)}
+		table.insert(t, subt)
 	end
 
-	insert(t, {"@LAYOUT:CENTER"})
-	insert(t, {""})
-	insert(t, {"SPECIAL THANKS to the people at the Löve Discord server"})
-	insert(t, {
+	table.insert(t, {"@LAYOUT:CENTER"})
+	table.insert(t, {""})
+	table.insert(t, {"SPECIAL THANKS to the people at the Löve Discord server"})
+	table.insert(t, {
 		"_IMAGES", "twitter", "discord", "website", "mail",
 	})
 
@@ -169,7 +161,7 @@ function Menu:init(world)
 			if not self.keys[page] then
 				self.keys[page] = {}
 			end
-			insert(self.keys[page], option_key.id)
+			table.insert(self.keys[page], option_key.id)
 		end
 	end
 
@@ -179,7 +171,7 @@ function Menu:init(world)
 		for i = #t, 1, -1 do
 			local key = t[i]
 			if key == option_key.id then
-				remove(t, key)
+				table.remove(t, key)
 				break
 			end
 		end
@@ -282,10 +274,10 @@ function Menu:setup_menu()
 	local title_w, title_h = title:getDimensions()
 	local subt_w, subt_h = subtitle:getDimensions()
 
-	local scale = min(ww/bg_door_w, wh/bg_door_h)
-	local scale_hallway = min(ww/bg_hw_w, wh/bg_hw_h)
-	local scale_title = min((bg_door_w * scale)/title_w, (bg_door_h * scale)/title_h)
-	local scale_subt = min((title_w * scale_title)/subt_w, (title_h * scale)/subt_h)
+	local scale = math.min(ww/bg_door_w, wh/bg_door_h)
+	local scale_hallway = math.min(ww/bg_hw_w, wh/bg_hw_h)
+	local scale_title = math.min((bg_door_w * scale)/title_w, (bg_door_h * scale)/title_h)
+	local scale_subt = math.min((title_w * scale_title)/subt_w, (title_h * scale)/subt_h)
 	scale_subt = scale_subt * 0.75
 
 	Concord.entity(self.world)
@@ -324,7 +316,7 @@ function Menu:setup_menu()
 	local padding = 2
 
 	for i, str in ipairs(options) do
-		local lstr = lower(str)
+		local lstr = string.lower(str)
 		local str_w = sdf_menu:getWidth(str) * str_scale
 		local x = self.canvases.bot.width - str_w - offset
 		local y = self.canvases.bot.y + (i * str_h) + (padding * i) - offset
@@ -338,8 +330,8 @@ function Menu:setup_menu()
 	end
 
 	for i, str in ipairs(options_sub) do
-		local lstr = lower(str)
-		lstr = gsub(lstr, "%s+", "")
+		local lstr = string.lower(str)
+		lstr = string.gsub(lstr, "%s+", "")
 		local str_w = sdf_menu:getWidth(str) * str_scale
 		local x = self.canvases.bot.width - str_w - offset
 		local y = self.canvases.bot.y + (i * str_h) + (padding * i) - offset
@@ -400,7 +392,7 @@ function Menu:setup_about()
 				if layout then
 					y = layout_base_y
 					layout_base_y = layout_base_y + str_h
-					largest = max(largest, layout_base_y)
+					largest = math.max(largest, layout_base_y)
 				end
 				local id = "about_text_" .. i
 				Concord.entity(self.world):assemble(Assemblages.Menu.about_text,
@@ -656,7 +648,7 @@ function Menu:on_exit()
 		end
 	elseif btn == 2 then
 		self.current_state = states.menu
-		Log.info("Switched Menu State to: ", self.current_state)
+		Log.info("Switched Menu State to:", self.current_state)
 		self:on_menu()
 	end
 	!end
@@ -725,7 +717,7 @@ function Menu:MB_return()
 		end)
 		:oncomplete(function()
 			self.current_state = states.menu
-			Log.info("Switched Menu State to: ", self.current_state)
+			Log.info("Switched Menu State to:", self.current_state)
 			self.mb.flag_process = false
 			self:on_menu()
 		end)

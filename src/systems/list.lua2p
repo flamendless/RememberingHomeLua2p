@@ -3,9 +3,6 @@ local Log = require("modules.log.log")
 
 local Inputs = require("inputs")
 
-local abs = math.abs
-local insert = table.insert
-
 local List = Concord.system({
 	pool = {"list_item", "list_group"},
 })
@@ -19,7 +16,7 @@ function List:init(world)
 		local group_id = e.list_group.value
 		local group = self.groups[group_id]
 		@@assert(group, group_id .. " does not exist")
-		insert(group.entities, e)
+		table.insert(group.entities, e)
 		self.focused = group_id
 		if #group.entities == 1 then
 			self:update_cursor(1)
@@ -168,7 +165,7 @@ function List:update_list_grid(group)
 	if group.cursor > group.per_page then
 		group.cursor = group.cursor - group.per_page
 	elseif group.cursor <= 0 then
-		group.cursor = group.per_page - abs(group.cursor)
+		group.cursor = group.per_page - math.abs(group.cursor)
 	end
 
 	return true
@@ -196,7 +193,7 @@ function List:set_focus_list(group_id)
 		end
 	end
 	self:update_cursor(group.cursor)
-	Log.trace("focused list: " .. group_id)
+	Log.trace("focused list:", group_id)
 end
 
 function List:destroy_list(group_id)
@@ -208,7 +205,7 @@ function List:destroy_list(group_id)
 	tablex.clear(group)
 	self.groups[group_id] = nil
 	self.focused = nil
-	Log.trace("deleted list: " .. group_id)
+	Log.trace("deleted list:", group_id)
 end
 
 function List:cleanup()

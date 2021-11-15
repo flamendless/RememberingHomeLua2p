@@ -15,10 +15,6 @@ local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
 
-local format = string.format
-local min = math.min
-local floor = math.floor
-
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
@@ -39,7 +35,7 @@ local Outside = Concord.system({
 })
 
 local function tle_log(msg)
-	local str = format("TLE: %s", msg)
+	local str = string.format("TLE: %s", msg)
 	Log.debug(str)
 end
 
@@ -57,7 +53,7 @@ function Outside:state_setup()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main({})
-	self.scale = min(ww/w, hh/h)
+	self.scale = math.min(ww/w, hh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
@@ -76,7 +72,7 @@ function Outside:state_setup()
 
 	for i = 1, div do
 		local x = bg_house_w * ((i - 1) % div)/div
-		local y = bg_house_h * floor((i - 1)/div)/div
+		local y = bg_house_h * math.floor((i - 1)/div)/div
 		local quad = love.graphics.newQuad(x, y, qw, qh, bg_house_w, bg_house_h)
 		Concord.entity(self.world):assemble(Assemblages.Outside.bg_house,
 			x, y, quad)

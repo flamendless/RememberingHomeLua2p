@@ -12,8 +12,6 @@ local NGrading = require("ngrading")
 local Palette = require("palette")
 local Resources = require("resources")
 
-local min = math.min
-
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
@@ -22,8 +20,7 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
-local StorageRoom = Concord.system({
-})
+local StorageRoom = Concord.system()
 
 function StorageRoom:init(world)
 	self.world = world
@@ -34,7 +31,7 @@ function StorageRoom:state_setup()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main({})
-	self.scale = min(ww/w, hh/h)
+	self.scale = math.min(ww/w, hh/h)
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,

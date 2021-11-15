@@ -58,7 +58,7 @@ function AnimationSync:update(dt)
 			end
 		!if _DEV then
 		else
-			Log.warn("there is no animation tag in sync data:" .. animation.base_tag)
+			Log.warn("there is no animation tag in sync data:", animation.base_tag)
 		!end
 		end
 	end

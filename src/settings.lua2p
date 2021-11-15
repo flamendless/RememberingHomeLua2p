@@ -3,8 +3,6 @@ local Log = require("modules.log.log")
 local Info = require("info")
 local Utils = require("utils")
 
-local format = string.format
-
 local defaults = {
 	key_map = 1,
 	window_mode = 1,
@@ -55,7 +53,7 @@ function Settings.set(id, value, should_overwrite)
 	local prev = Settings.current[id]
 	if prev ~= value then
 		Settings.current[id] = value
-		Log.info(format("set %s to %s", id, value))
+		Log.info("set", id, "to", value)
 		if should_overwrite then
 			Settings.overwrite()
 		end
@@ -68,7 +66,7 @@ function Settings.set_from_table(t, should_overwrite)
 	for k, v in pairs(t) do
 		@@assert(Settings.current[k] ~= nil, "invalid " .. k .. " key")
 		Settings.current[k] = v
-		Log.info(format("set %s to %s", k, v))
+		Log.info(string.format("set %s to %s", k, v))
 	end
 
 	if should_overwrite then

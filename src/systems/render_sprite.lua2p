@@ -2,11 +2,6 @@ local Concord = require("modules.concord.concord")
 
 local Helper = require("helper")
 
-!if _DEV then
-local max = math.max
-local format = string.format
-!end
-
 local RenderSprite = Concord.system({
 	pool_bg = {"pos", "sprite", "bg"},
 	pool = {"pos", "sprite",
@@ -156,7 +151,7 @@ function RenderSprite:draw_sprite_ex(e)
 		db.current = db.current + 1
 	end
 	if db and self.debug_prev_id ~= s_id then
-		db.highest = max(db.highest, db.current)
+		db.highest = math.max(db.highest, db.current)
 		db.current = 0
 	end
 	self.debug_prev_id = s_id
@@ -217,7 +212,7 @@ function RenderSprite:debug_update(dt)
 	Slab.Indent()
 	for k, v in pairs(self.debug_batched) do
 		if v.current ~= 0 or v.highest ~= 0 then
-			local str = format("%s: %d/%d", k, v.current + 1, v.highest + 1)
+			local str = string.format("%s: %d/%d", k, v.current + 1, v.highest + 1)
 			Slab.Text(str)
 		end
 	end

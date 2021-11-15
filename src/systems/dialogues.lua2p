@@ -8,9 +8,6 @@ local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
 local Palette = require("palette")
 
-local insert = table.insert
-local remove = table.remove
-
 local Dialogues = Concord.system({
 	pool_camera = {"camera"},
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
@@ -223,7 +220,7 @@ function Dialogues:show_choices()
 		for _, v in ipairs(choice_t) do
 			if v[1] == str then
 				choice_t = tablex.copy(v)
-				remove(choice_t, 1)
+				table.remove(choice_t, 1)
 				break
 			end
 		end
@@ -245,7 +242,7 @@ function Dialogues:populate_choices(t)
 	local choices = {}
 	if t.choices then
 		for _, v in ipairs(t.choices) do
-			insert(choices, v[1])
+			table.insert(choices, v[1])
 		end
 	end
 	if #choices ~= 0 then
@@ -254,17 +251,18 @@ function Dialogues:populate_choices(t)
 end
 
 function Dialogues:on_list_cursor_update(e)
-	@@assert(self.pool_choice:has(e))
+	if not self.pool_choice:has(e) then return end
 	self.world:emit("lerp_color", e, c_hc, 0.25, "circin")
 end
 
 function Dialogues:on_list_cursor_remove(e)
-	@@assert(self.pool_choice:has(e))
+	if not self.pool_choice:has(e) then return end
 	self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), 0.25, "circin")
 end
 
 function Dialogues:on_list_item_interact(e)
-	@@assert(self.pool_choice:has(e))
+	local group_id = e.list_group.value
+	if group_id ~= IDS.lists.dialogue then return end
 	local t = e.text_t
 	local text_t = t.value
 	if #text_t == 0 and not text_t.choices then

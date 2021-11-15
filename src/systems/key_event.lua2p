@@ -3,8 +3,6 @@ local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
 
-local pi = math.pi
-
 local KeyEvent = Concord.system({
 	-- pool_progress = {"hold", "hold_key", "arc"},
 	-- pool = {"on_keypressed", "key_value"},
@@ -29,7 +27,7 @@ function KeyEvent:update(dt)
 			hold.is_held = false
 		end
 		hold.was_held = Inputs.released(key)
-		arc.end_angle = arc.start_angle + (hold.current_time * 2 * pi/hold.max_time)
+		arc.end_angle = arc.start_angle + (hold.current_time * 2 * math.pi/hold.max_time)
 
 		if hold.current_time >= hold.max_time then
 			if on_finished then

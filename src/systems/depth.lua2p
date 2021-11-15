@@ -1,8 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
-local max = math.max
-
 local Depth = Concord.system({
 	pool = {"depth_zoom", "z_index"}
 })
@@ -26,20 +24,19 @@ function Depth:tween_depth_zoom(dur, factor, ease)
 		local zf = e.depth_zoom.value
 		local t = e.transform or e.quad_transform
 		Flux.to(t, dur, {
-			sx = max(t.orig_sx, t.orig_sx + zf * factor),
-			sy = max(t.orig_sy, t.orig_sy + zf * factor),
+			sx = math.max(t.orig_sx, t.orig_sx + zf * factor),
+			sy = math.max(t.orig_sy, t.orig_sy + zf * factor),
 		}):ease(ease or "linear")
 	end
 end
 
 !if _DEV then
-local max = math.max
 function Depth:debug_wheelmoved(wx, wy)
 	for _, e in ipairs(self.pool) do
 		local zf = e.depth_zoom.value
 		local t = e.transform or e.quad_transform
-		t.sx = max(t.orig_sx, t.orig_sx + zf * wy)
-		t.sy = max(t.orig_sy, t.orig_sy + zf * wy)
+		t.sx = math.max(t.orig_sx, t.orig_sx + zf * wy)
+		t.sy = math.max(t.orig_sy, t.orig_sy + zf * wy)
 	end
 end
 !end

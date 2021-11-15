@@ -3,8 +3,6 @@ local Slab = require("modules.slab")
 
 local GameStates = require("gamestates")
 
-local format = string.format
-
 local DevTools = {
 	show = false,
 	show_fps = true,
@@ -165,8 +163,8 @@ function DevTools.draw_mouse()
 	local cx, cy = 0, 0
 	local camera = DevTools.camera
 	if camera then cx, cy = camera:toWorld(mx, my) end
-	local str_m = format("Mouse: (%d, %d)", mx, my)
-	local str_c = format("Camera: (%d, %d)", cx, cy)
+	local str_m = string.format("Mouse: (%d, %d)", mx, my)
+	local str_c = string.format("Camera: (%d, %d)", cx, cy)
 	Slab.Text(str_m)
 	Slab.Text(str_c)
 	Slab.EndWindow()

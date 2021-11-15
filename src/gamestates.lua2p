@@ -71,7 +71,7 @@ function GameStates.switch(next_id)
 		GameStates.exit()
 	end
 
-	Log.info("Switching to: " .. next_id)
+	Log.info("Switching to:", next_id)
 	GameStates.current_id = next_id
 	@@profb("preload")
 	GameStates.preload()

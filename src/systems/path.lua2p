@@ -1,7 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local insert = table.insert
-
 local Path = Concord.system({
 	pool = {"path", "pos"},
 	pool_move = {"path", "pos", "path_move", "path_speed"},
@@ -30,10 +28,10 @@ function Path:get_points(e)
 	for i = low, high do
 		local p = path.points[i]
 		if bezier_curve then
-			insert(points, p.x)
-			insert(points, p.y)
+			table.insert(points, p.x)
+			table.insert(points, p.y)
 		else
-			insert(points, {x = p.x, y = p.y})
+			table.insert(points, {x = p.x, y = p.y})
 		end
 	end
 

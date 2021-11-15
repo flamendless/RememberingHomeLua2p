@@ -2,10 +2,6 @@ local Log = require("modules.log.log")
 
 local Utils = require("utils")
 
-local format = string.format
-local concat = table.concat
-local insert = table.insert
-
 local Info = {
 	data = {},
 	options = {},
@@ -17,8 +13,8 @@ local function insert_str(src, dest)
 	@@assert(type(src) == "table")
 	@@assert(type(dest) == "table")
 	for k, v in pairs(src) do
-		local str = format("\t%s: %s\n", k, v)
-		insert(dest, str)
+		local str = string.format("\t%s: %s\n", k, v)
+		table.insert(dest, str)
 	end
 end
 
@@ -39,7 +35,7 @@ function Info.init()
 	}
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
-	data.game_version = format("%i.%i.%i", unpack(!(_GAME_VERSION)))
+	data.game_version = string.format("%i.%i.%i", unpack(!(_GAME_VERSION)))
 	data.git_version = !(_COMMIT_VERSION)
 	data.limits = love.graphics.getSystemLimits()
 	data.canvasformats = love.graphics.getCanvasFormats()
@@ -54,38 +50,38 @@ function Info.init()
 	insert_str(data.supported, supported)
 
 	local str = {
-		format("Game Version: %s", data.game_version),
-		format("Git Commit Version: %s", data.git_version),
-		format("OS: %s", data.info_os),
+		string.format("Game Version: %s", data.game_version),
+		string.format("Git Commit Version: %s", data.git_version),
+		string.format("OS: %s", data.info_os),
 
-		format("Processor Count: %s", data.processor_count),
+		string.format("Processor Count: %s", data.processor_count),
 
 		"Renderer Info:",
-		format("\tName: %s", data.renderer.name),
-		format("\tVersion: %s", data.renderer.version),
-		format("\tVendor: %s", data.renderer.vendor),
-		format("\tDevice: %s", data.renderer.device),
+		string.format("\tName: %s", data.renderer.name),
+		string.format("\tVersion: %s", data.renderer.version),
+		string.format("\tVendor: %s", data.renderer.vendor),
+		string.format("\tDevice: %s", data.renderer.device),
 
 		"System Limits:",
-		concat(system_limits),
+		table.concat(system_limits),
 
 		"Canvas Formats:",
-		concat(canvas_formats),
+		table.concat(canvas_formats),
 
 		"Image Formats:",
-		concat(image_formats),
+		table.concat(image_formats),
 
 		"Texture Types:",
-		concat(texture_types),
+		table.concat(texture_types),
 
 		"Supported:",
-		concat(supported),
+		table.concat(supported),
 
 		"Other Info:",
-		format("Developer Mode: %s", !(_DEV)),
+		string.format("Developer Mode: %s", !(_DEV)),
 	}
 
-	local to_write = concat(str, "\n")
+	local to_write = table.concat(str, "\n")
 	local content, exists = Utils.file.read(filename)
 
 	if exists then
@@ -100,10 +96,10 @@ end
 function Info.validate_file(content, to_write)
 	local same = Utils.hash.compare(content, to_write)
 	if same then
-		Log.info(format("'%s' untouched", filename))
+		Log.info(filename, "untouched")
 	else
 		love.filesystem.write(filename, to_write)
-		Log.info(format("'%s' overwritten", filename))
+		Log.info(filename, "overwritten")
 	end
 end
 

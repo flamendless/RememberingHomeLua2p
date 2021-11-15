@@ -1,11 +1,6 @@
 local Bitser = require("modules.bitser.bitser")
 local Log = require("modules.log.log")
 
-local max = math.max
-local format = string.format
-local floor = math.floor
-local log10 = math.log10
-
 local Utils = {
 	file = {},
 	serial = {},
@@ -18,7 +13,7 @@ local Utils = {
 function Utils.file.read(filename)
 	@@assert(type(filename) == "string")
 	local file = love.filesystem.getInfo(filename)
-	Log.info(format("'%s' exists: %s", filename, file ~= nil))
+	Log.info(filename, "exists:", file ~= nil)
 	if file then
 		local content = love.filesystem.read(filename)
 		return content, true
@@ -30,7 +25,7 @@ end
 function Utils.file.write(filename, data)
 	@@assert(type(filename) == "string")
 	love.filesystem.write(filename, data)
-	Log.info(format("'%s' written", filename))
+	Log.info(filename, "written")
 end
 
 function Utils.serial.write(filename, data)
@@ -74,7 +69,7 @@ function Utils.string.get_widest(t)
 	@@assert(#t ~= 0)
 	local widest = 0
 	for i, str in ipairs(t) do
-		widest = max(widest, #str)
+		widest = math.max(widest, #str)
 	end
 	return widest
 end
@@ -93,7 +88,7 @@ function Utils.table.rotate(t, amount)
 end
 
 function Utils.math.n_digits(x)
-	return floor(log10(x)) + 1
+	return math.floor(math.log10(x)) + 1
 end
 
 return Utils

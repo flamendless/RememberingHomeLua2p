@@ -25,12 +25,11 @@
 
 local Resources = require("resources")
 local Settings = require("settings")
+local Shaders = require("shaders")
 
 local NGrading = class({
 	name = "NGrading",
 })
-
-local floor = math.floor
 
 !if _DEV then
 local DevTools
@@ -40,23 +39,12 @@ end
 !end
 
 local default_setting = {linear = true, dpiscale = 1}
-local shaders = {
-	old = "shaders/ngrading_old.glsl",
-	volume = "shaders/ngrading_volume.glsl",
-	volume_multi = "shaders/ngrading_volume_multi.glsl",
-}
-local str_effect = [[
-vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
-{
-	return ngrading(tex, tc) * color;
-}
-]]
 
 function NGrading:new_single(img, cs)
 	@@assert(img:type() == "ImageData")
 	local data = img
-	local tw = floor(data:getWidth() / cs)
-	local th = floor(data:getHeight() / cs)
+	local tw = math.floor(data:getWidth() / cs)
+	local th = math.floor(data:getHeight() / cs)
 	local used_shader = love.graphics.getTextureTypes().volume
 	local volume_img, image
 	if used_shader == 0 then used_shader = false end
@@ -87,7 +75,7 @@ function NGrading:new_single(img, cs)
 	self.cell_size = cs
 	self.volume_img = volume_img
 	self.image = image
-	local str = love.filesystem.read(shaders[used_shader]) .. str_effect
+	local str = love.filesystem.read(Shaders["ngrading_" .. used_shader]) .. Shaders.ngrading_effect
 	self.shader = love.graphics.newShader(str)
 	self.used_shader = used_shader
 	return self
@@ -99,8 +87,8 @@ function NGrading:new_multi(img, img2, cs)
 	@@assert(type(cs) == "number")
 	local data = img
 	local data2 = img2
-	local tw = floor(data:getWidth() / cs)
-	local th = floor(data:getHeight() / cs)
+	local tw = math.floor(data:getWidth() / cs)
+	local th = math.floor(data:getHeight() / cs)
 	local volume_img, image
 	local volume_img2, image2
 	local used_shader = love.graphics.getTextureTypes().volume
@@ -148,7 +136,7 @@ function NGrading:new_multi(img, img2, cs)
 	self.volume_img2 = volume_img2
 	self.image = image
 	self.image2 = image2
-	local str = love.filesystem.read(shaders[used_shader]) .. str_effect
+	local str = love.filesystem.read(Shaders["ngrading_" .. used_shader]) .. Shaders.ngrading_effect
 	self.shader = love.graphics.newShader(str)
 	self.used_shader = used_shader
 	return self
@@ -173,7 +161,7 @@ function NGrading:new(res_id, res_id2)
 end
 
 function NGrading:get_shader()
-	return love.filesystem.read(shaders[self.used_shader])
+	return love.filesystem.read(Shaders.ngrading[self.used_shader])
 end
 
 function NGrading:set_dt(dt)

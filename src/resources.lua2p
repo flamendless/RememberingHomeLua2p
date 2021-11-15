@@ -1,8 +1,5 @@
 local Log = require("modules.log.log")
 
-local format = string.format
-local remove = table.remove
-
 local Resources = {
 	meta = {},
 	data = {},
@@ -69,7 +66,7 @@ function Resources.manage_cache(resources, list)
 				if res[id] then
 					Resources.cache[id] = res[id]
 					resources[kind][id] = res[id]
-					remove(list[kind], i)
+					table.remove(list[kind], i)
 				end
 			end
 		end
@@ -91,14 +88,14 @@ function Resources.clean()
 			if not Resources.cache[name] then
 				Resources.data[k][name]:release()
 				Resources.data[k][name] = nil
-				Log.trace(format("Cleaned '%s':'%s'", k, name))
+				Log.trace("Cleaned:", k, name)
 			else
-				Log.trace(format("Cached, skipping '%s':'%s'", k, name))
+				Log.trace("Cached, skipping:", k, name)
 			end
 			!else
 				Resources.data[k][name]:release()
 				Resources.data[k][name] = nil
-				Log.trace(format("Cleaned '%s':'%s'", k, name))
+				Log.trace("Cleaned:", k, name)
 			!end
 		end
 		Resources.data[k] = nil

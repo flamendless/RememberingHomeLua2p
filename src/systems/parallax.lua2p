@@ -2,8 +2,6 @@ local Concord = require("modules.concord.concord")
 
 local Utils = require("utils")
 
-local insert = table.insert
-
 local Parallax = Concord.system({
 	pool = {"parallax", "quad", "sprite", "quad_transform", "!parallax_multi_sprite"},
 	pool_multi = {"parallax", "sprite", "pos", "parallax_multi_sprite"},
@@ -30,7 +28,7 @@ function Parallax:init(world)
 			self:push_to_end(e, t)
 		end
 
-		insert(t, e)
+		table.insert(t, e)
 	end
 end
 

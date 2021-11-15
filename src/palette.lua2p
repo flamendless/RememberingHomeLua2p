@@ -1,5 +1,3 @@
-local random = love.math.random
-
 local Palette = {}
 
 -- TODO finalize colors
@@ -55,13 +53,6 @@ Palette.diffuse = {
 	ambiance_kitchen = {0.7, 0.7, 0.7, 0.3},
 	kitchen_side = {1.44, 1.64, 0.2},
 	kitchen_mid_pl = {1, 1.12, 0.1},
-}
-
-Palette.color_glitches = {
-	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
-	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
-	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
-	{random(0.1, 0.9), random(0.1, 0.9), random(0.1, 0.9), random(0.3, 0.7)},
 }
 
 function Palette.get(color, alpha)

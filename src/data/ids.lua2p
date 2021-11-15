@@ -1,5 +1,11 @@
 local IDS = {}
 
+IDS.item_actions = {
+	use = "Use",
+	equip = "Equip",
+	cancel = "Cancel",
+}
+
 IDS.lists = {
 	dialogue = "dialogue_choices",
 	notes = "notes",

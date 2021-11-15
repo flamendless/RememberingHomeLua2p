@@ -3,8 +3,6 @@ local Concord = require("modules.concord")
 local AnimationData = require("animation_data")
 local Inputs = require("inputs")
 
-local insert = table.insert
-
 local Flashlight = Concord.system({
 	pool = {"id", "light_id", "point_light", "pos", "diffuse", "flashlight"},
 	pool_flashlight = {"id", "flashlight_light"},
@@ -46,8 +44,8 @@ function Flashlight:create_flashlight()
 	!end
 	self.start_l = Concord.entity(self.world):assemble(Light.fl_start)
 	self.end_l = Concord.entity(self.world):assemble(Light.fl_end)
-	insert(self.pool_flashlight, self.start_l)
-	insert(self.pool_flashlight, self.end_l)
+	table.insert(self.pool_flashlight, self.start_l)
+	table.insert(self.pool_flashlight, self.end_l)
 end
 
 function Flashlight:update(dt)

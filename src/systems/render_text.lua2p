@@ -1,8 +1,6 @@
 local Concord = require("modules.concord.concord")
 local ReflowPrint = require("modules.reflowprint.reflowprint")
 
-local ceil = math.ceil
-
 local RenderText = Concord.system({
 	pool = {"pos", "text", "!nf_render_text", "!shader", "!use_canvas"},
 	pool_static = {"pos", "static_text", "font", "!shader", "!use_canvas"},
@@ -85,7 +83,7 @@ function RenderText:draw_text_ex(e)
 				oy = static_text.obj:getHeight() * 0.5
 			elseif textf then
 				local lines = current_font:getWidth(str)/textf.limit
-				lines = ceil(lines)
+				lines = math.ceil(lines)
 				oy = current_font:getHeight(str) * 0.5 * lines
 			else
 				oy = current_font:getHeight(str) * 0.5

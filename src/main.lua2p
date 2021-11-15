@@ -35,6 +35,7 @@ local NGrading = require("ngrading")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
+local Shaders = require("shaders")
 local WindowMode = require("window_mode")
 
 !if _DEV then
@@ -42,7 +43,6 @@ require("modules.strict")
 local DevTools = require("devtools")
 !end
 
-local format = string.format
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
 local function custom_loading_screen()
@@ -51,7 +51,7 @@ local function custom_loading_screen()
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", 0, 0, w, h)
 
-	local str_loading = format("LOADING: %i%%", Preloader.percent)
+	local str_loading = string.format("LOADING: %i%%", Preloader.percent)
 	local ox = font_preload:getWidth(str_loading) * 0.5
 	local oy = font_preload:getHeight(str_loading) * 0.5
 
@@ -64,12 +64,13 @@ function love.load()
 	@@profb("frame")
 	@@profb("love load")
 
-	Log.info(string.format("Starting... Game Version : %s", Config.this_version))
+	Log.info("Starting... Game Version:", Config.this_version)
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
 
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
 	WindowMode.init()
+	Shaders.init()
 	Info.init()
 	Save.init()
 	Settings.init()

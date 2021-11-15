@@ -71,7 +71,7 @@ _GLSL_NORMALS = false
 _INPUT_DELAY = 0.25
 
 _OS = "Linux"
-_PLATFORM = "desktop"
+_PLATFORM = "desktop" --mobile
 _GAME_TITLE  = "Going Home: Revisited"
 _GAME_TITLE_SECRET  = "COMING SOON"
 _GAME_SIZE = { x = 1024, y = 640 }
@@ -153,5 +153,10 @@ _LIBS = {
 	"ReflowPrint", "SDF", "Semver", "Slab", "Splashes", "strict",
 	"TimelineEvents",
 }
+
+--PRE CALCULATED
+_HALF_PI = math.pi * 0.5
+_TWO_PI = math.pi * 2
+_T_H_PI = 3 * _HALF_PI
 
 return {}

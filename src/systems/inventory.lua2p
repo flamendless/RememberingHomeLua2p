@@ -7,8 +7,6 @@ local ListByID = require("ctor.list_by_id")
 local Palette = require("palette")
 local Resources = require("resources")
 
-local min = math.min
-
 local Inventory = Concord.system({
 	pool_camera = {"camera"},
 	pool_cell = {
@@ -146,7 +144,7 @@ function Inventory:create_inventory()
 
 	local pad = 48
 	local nh = h - pad * 2 - bar_h * 2
-	local scale = min(w/iw, nh/ih)
+	local scale = math.min(w/iw, nh/ih)
 	local x = w * 0.5
 	local y = h * 0.5
 	local rows, cols = 2, 3
@@ -160,7 +158,7 @@ function Inventory:create_inventory()
 
 	local c_bx = orig_x + bg_w - pad
 	local c_by = orig_y + bg_h * 0.5
-	local choices = {"use", "equip", "cancel"}
+	local choices = {IDS.item_actions.use, IDS.item_actions.equip, IDS.item_actions.cancel}
 	for i, str in ipairs(choices) do
 		local c_oy = pad * (0.5 + (i - 1) * 1.2)
 		local c_y = c_by + c_oy
@@ -189,22 +187,12 @@ function Inventory:create_inventory()
 		for c = 1, cols do
 			local cx = rx + (c - 1) * cw
 			local cy = ry + (r - 1) * ch
-			local index = (r - 1) * cols + c
-
+			local i = (r - 1) * cols + c
 			local l1 = Concord.entity(self.world):assemble(AInventory.dline,
-				index .. "a", cx, cy, cx + cw, cy + ch)
+				i .. "a", cx, cy, cx + cw, cy + ch)
 			local l2 = Concord.entity(self.world):assemble(AInventory.dline,
-				index .. "b", cx, cy + ch, cx + cw, cy)
-
-			Concord.entity(self.world)
-				:give("id", "cell_" .. index)
-				:give("list_item")
-				:give("list_group", IDS.lists.inventory_cells)
-				:give("pos", cx, cy)
-				:give("rect", cw, ch)
-				:give("draw_mode", "fill")
-				:give("color", Palette.get("inventory_cell"))
-				:give("refs", l1, l2)
+				i .. "b", cx, cy + ch, cx + cw, cy)
+			Concord.entity(self.world):assemble(AInventory.cell, i, cx, cy, cw, ch, l1, l2)
 		end
 	end
 end
@@ -230,13 +218,26 @@ function Inventory:on_list_item_interact(e_hovered)
 		end
 		self.world:emit("set_focus_list", IDS.lists.inventory_choices)
 	elseif group_id == IDS.lists.inventory_choices then
-		local text = e_hovered.text.value
-		if text == "Cancel" then
+		local text = e_hovered.static_text.value
+		local item = self:get_selected_item()
+		if text == IDS.item_actions.use then
+			self.world:emit("on_item_use", item)
+		elseif text == IDS.item_actions.equip then
+			self.world:emit("on_item_equip", item)
+		elseif text == IDS.item_actions.cancel then
 			for _, e in ipairs(self.pool_choice) do
 				e.color.value[4] = 0
 			end
 			self.world:emit("set_focus_list", IDS.lists.inventory_cells)
-		else
+		end
+	end
+end
+
+function Inventory:get_selected_item()
+	for i, e in ipairs(self.pool_cell) do
+		if e.list_cursor then
+			@@assert(self.pool_item[i], "item should have existed at cell " .. i)
+			return self.pool_item[i]
 		end
 	end
 end

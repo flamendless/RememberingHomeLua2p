@@ -3,14 +3,13 @@ local Concord = require("modules.concord.concord")
 Concord.component("paint")
 
 local c_twp = Concord.component("text_with_paint", function(c)
-	--paint is an entity
-	c.paint = nil
+	c.e_paint = nil
 end)
 
 function c_twp:serialize()
-	if self.paint then
+	if self.e_paint then
 		return {
-			paint_key = self.paint.key.value
+			paint_key = self.e_paint.key.value
 		}
 	else
 		return {}
@@ -18,5 +17,5 @@ function c_twp:serialize()
 end
 
 function c_twp:deserialize(data)
-	self.paint = self.__entity:getWorld():getEntityByKey(data.paint_key)
+	self.e_paint = self.__entity:getWorld():getEntityByKey(data.paint_key)
 end

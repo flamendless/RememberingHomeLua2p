@@ -2,10 +2,7 @@
 local Concord = require("modules.concord.concord")
 local Slab = require("modules.slab")
 
-local insert = table.insert
-
-local Log = Concord.system({
-})
+local Log = Concord.system()
 
 function Log:init(world)
 	self.world = world
@@ -19,22 +16,22 @@ end
 
 function Log:on_add_entity(e)
 	local str = "on_add_entity: " .. e.id.value
-	insert(self.logs.entity, str)
+	table.insert(self.logs.entity, str)
 end
 
 function Log:on_remove_entity(e)
 	local str = "on_remove_entity: " .. e.id.value
-	insert(self.logs.entity, str)
+	table.insert(self.logs.entity, str)
 end
 
 function Log:on_collide_interactive(e, other)
 	local str = string.format("on_col: %s, %s", e.id.value, other.id.value)
-	insert(self.logs.interactive, str)
+	table.insert(self.logs.interactive, str)
 end
 
 function Log:on_leave_interactive(e)
 	local str = "on_leave_col: " .. e.id.value
-	insert(self.logs.interactive, str)
+	table.insert(self.logs.interactive, str)
 end
 
 function Log:debug_update(dt)

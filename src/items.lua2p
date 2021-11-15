@@ -1,7 +1,5 @@
 local Log = require("modules.log.log")
 
-local insert = table.insert
-
 local Items = {}
 
 local list = require("data.items")
@@ -22,8 +20,8 @@ function Items.add(id)
 	@@assert(type(id) == "string")
 	@@assert(list[id], "no " .. id .. " in data.items")
 	@@assert(Items.has(id) == false, id .. " was already added")
-	insert(acquired, { id = id, equipped = false })
-	Log.info("item: " .. id .. " was added")
+	table.insert(acquired, { id = id, equipped = false })
+	Log.info("item:", id, "was added")
 end
 
 function Items.get_info(id)

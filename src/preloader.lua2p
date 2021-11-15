@@ -1,8 +1,6 @@
 local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 
-local format = string.format
-
 local Preloader = {
 	percent = 0
 }
@@ -87,7 +85,7 @@ function Preloader.load(data, userdata, container, on_complete)
 				container.fonts[id] = data
 			end
 
-			local str = format("Loaded: #%i - %s : %s", i, dt, id)
+			local str = string.format("Loaded: #%i - %s : %s", i, dt, id)
 			Log.trace(str)
 		end
 

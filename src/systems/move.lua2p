@@ -23,14 +23,7 @@ local function internal_move_by(e, is_repeat)
 		-- 	internal_move_by(e, is_repeat)
 		-- end)
 	else
-		local on_complete = e.move_on_complete
-
 		f:oncomplete(function()
-			if on_complete then
-				on_complete.callback()
-				e:remove("move_on_complete")
-			end
-
 			e:remove("move_by")
 		end)
 	end
@@ -46,16 +39,10 @@ function Move:init()
 	self.pool_move_x.onAdded = function(pool, e)
 		local pos = e.pos
 		local target = e.move_to_x
-		local on_complete = e.move_on_complete
 
 		Flux.to(pos, target.duration, {x = target.target_x})
 			:delay(target.delay)
 			:oncomplete(function()
-				if on_complete then
-					on_complete.callback()
-					e:remove("move_on_complete")
-				end
-
 				e:remove("move_to_x")
 			end)
 	end
@@ -63,7 +50,6 @@ function Move:init()
 	self.pool_original.onAdded = function(pool, e)
 		local pos = e.pos
 		local move = e.move_to_original
-		local on_complete = e.move_on_complete
 
 		Flux.to(pos, move.duration, {
 				x = pos.orig_x,
@@ -71,11 +57,6 @@ function Move:init()
 			})
 			:delay(move.delay)
 			:oncomplete(function()
-				if on_complete then
-					on_complete.callback()
-					e:remove("move_on_complete")
-				end
-
 				e:remove("move_to_original")
 			end)
 	end

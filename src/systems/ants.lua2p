@@ -7,8 +7,6 @@ local Log = require("modules.log.log")
 local Generator = require("generator")
 local Utils = require("utils")
 
-local random = love.math.random
-
 local Ants = Concord.system({
 	pool = {"id", "bug", "ant"},
 })
@@ -25,7 +23,7 @@ function Ants:generate_ants(n, start_p, end_p, path_repeat, ms)
 	@@assert(type(ms) == "number")
 	local sx, sy = start_p:unpack()
 	local ex, ey = end_p:unpack()
-	local np = random(2, 5) * 3
+	local np = love.math.random(2, 5) * 3
 	local points = Generator.path_points_ants(sx, sy, ex, ey, np)
 	local p = points[1]
 

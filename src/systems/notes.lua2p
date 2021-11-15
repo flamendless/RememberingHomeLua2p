@@ -7,9 +7,6 @@ local NotesList = require("notes")
 local Palette = require("palette")
 local Resources = require("resources")
 
-local floor = math.floor
-local min = math.min
-
 local Notes = Concord.system({
 	pool_camera = {"camera"},
 	pool_item = {
@@ -93,7 +90,7 @@ function Notes:on_list_cursor_update(e)
 	local font = e.font.value
 	local c_pos = self.e_cursor.pos
 	local pos = e.pos
-	local on_left = e.list_cursor.cursor_index <= self.rows_per_page
+	local on_left = e.list_cursor.value <= self.rows_per_page
 	local dx = on_left and -1 or 1
 	c_pos.x = pos.x + 4 * dx
 	c_pos.y = pos.y - font:getHeight("") * 0.5
@@ -120,7 +117,7 @@ function Notes:create_notes()
 
 	local pad = 36
 	local nh = h - pad * 2 - bar_h * 2
-	local scale = min(w/iw, nh/ih)
+	local scale = math.min(w/iw, nh/ih)
 	local x = w * 0.5
 	local y = h * 0.5
 
@@ -132,7 +129,7 @@ function Notes:create_notes()
 
 	local row_y = y - pad - ih * scale * 0.5 + fh * 2 + 48
 	local row_h = fh + padq * 2
-	local rows = floor(ih * scale * 0.75 / row_h)
+	local rows = math.floor(ih * scale * 0.75 / row_h)
 
 	self.rows_per_page = rows
 	self.world:emit("create_list_group", IDS.lists.notes, true, rows * 2)

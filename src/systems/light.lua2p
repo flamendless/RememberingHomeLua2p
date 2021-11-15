@@ -1,13 +1,11 @@
 local Concord = require("modules.concord.concord")
 
-local random = love.math.random
-
 local Light = Concord.system({
 	pool = {"id", "pos", "transform", "color", "light", "sprite"},
 })
 
 local function randomf(min, max)
-	return min + random() * (max - min)
+	return min + love.math.random() * (max - min)
 end
 
 local function generate_recolor(e)
@@ -29,7 +27,7 @@ end
 local function generate_flicker(e)
 	local flicker = e.light_flicker.off_chance
 	local color = e.color.value
-	local r = random()
+	local r = love.math.random()
 
 	if r < flicker then
 		color[4] = 0.3

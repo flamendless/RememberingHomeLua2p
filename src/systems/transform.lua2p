@@ -1,9 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
-local min = math.min
-local floor = math.floor
-
 local Transform = Concord.system({
 	pool = {"transform", "!auto_scale", "!rect"},
 	pool_pos = {"pos", "!pos_vec2"},
@@ -20,7 +17,7 @@ function Transform:init()
 	self.pool.onAdded = function(pool, e)
 		!if _DEV then
 			if e.quad and e.atlas then
-				Log.warn(e.id.value .. " has quad but uses transform, maybe you want quad_transform?")
+				Log.warn(e.id.value, "has quad but uses transform, maybe you want quad_transform?")
 			end
 		!end
 		local t = e.transform
@@ -112,7 +109,7 @@ function Transform:init()
 			dsy = auto_scale.th/sprite.ih
 		end
 		if auto_scale.is_proportion then
-			local scale = min(dsx, dsy)
+			local scale = math.min(dsx, dsy)
 			transform.sx = transform.sx * scale
 			transform.sy = transform.sy * scale
 		else
@@ -120,8 +117,8 @@ function Transform:init()
 			transform.sy = transform.sy * dsy
 		end
 		if auto_scale.is_floored then
-			transform.sx = floor(transform.sx)
-			transform.sy = floor(transform.sy)
+			transform.sx = math.floor(transform.sx)
+			transform.sy = math.floor(transform.sy)
 		end
 	end
 end

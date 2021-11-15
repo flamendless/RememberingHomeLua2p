@@ -1,15 +1,9 @@
 local Concord = require("modules.concord.concord")
 
-local lerp = mathx.lerp
-
 local HoverEffect = Concord.system({
 	pool_change_color = {"bounding_box", "hoverable", "color", "hover_change_color"},
 	pool_change_scale = {"bounding_box", "hoverable", "transform", "hover_change_scale"},
 })
-
-!if _DEV then
-local MouseHover = require("systems.mouse_hover")
-!end
 
 function HoverEffect:init(world)
 	self.world = world
@@ -34,15 +28,15 @@ function HoverEffect:hover_change_color()
 		local hoverable = e.hoverable
 
 		if hoverable.is_hovered then
-			color.value[1] = lerp(color.value[1], hcc.target[1], hcc.step)
-			color.value[2] = lerp(color.value[2], hcc.target[2], hcc.step)
-			color.value[3] = lerp(color.value[3], hcc.target[3], hcc.step)
-			color.value[4] = lerp(color.value[4], hcc.target[4], hcc.step)
+			color.value[1] = mathx.lerp(color.value[1], hcc.target[1], hcc.step)
+			color.value[2] = mathx.lerp(color.value[2], hcc.target[2], hcc.step)
+			color.value[3] = mathx.lerp(color.value[3], hcc.target[3], hcc.step)
+			color.value[4] = mathx.lerp(color.value[4], hcc.target[4], hcc.step)
 		else
-			color.value[1] = lerp(color.value[1], color.original[1], hcc.step)
-			color.value[2] = lerp(color.value[2], color.original[2], hcc.step)
-			color.value[3] = lerp(color.value[3], color.original[3], hcc.step)
-			color.value[4] = lerp(color.value[4], color.original[4], hcc.step)
+			color.value[1] = mathx.lerp(color.value[1], color.original[1], hcc.step)
+			color.value[2] = mathx.lerp(color.value[2], color.original[2], hcc.step)
+			color.value[3] = mathx.lerp(color.value[3], color.original[3], hcc.step)
+			color.value[4] = mathx.lerp(color.value[4], color.original[4], hcc.step)
 		end
 	end
 end
@@ -54,11 +48,11 @@ function HoverEffect:hover_change_scale(mx, my)
 		local hcs = e.hover_change_scale
 
 		if hoverable.is_hovered then
-			transform.sx = lerp(transform.sx, hcs.target, hcs.step)
-			transform.sy = lerp(transform.sy, hcs.target, hcs.step)
+			transform.sx = mathx.lerp(transform.sx, hcs.target, hcs.step)
+			transform.sy = mathx.lerp(transform.sy, hcs.target, hcs.step)
 		else
-			transform.sx = lerp(transform.sx, transform.orig_sx, hcs.step)
-			transform.sy = lerp(transform.sy, transform.orig_sy, hcs.step)
+			transform.sx = mathx.lerp(transform.sx, transform.orig_sx, hcs.step)
+			transform.sy = mathx.lerp(transform.sy, transform.orig_sy, hcs.step)
 		end
 	end
 end

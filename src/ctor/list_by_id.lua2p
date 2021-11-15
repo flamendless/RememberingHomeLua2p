@@ -1,21 +1,18 @@
 local ListByID = {}
 
-local insert = table.insert
-local remove = table.remove
-
 ListByID.__mt = {__index = ListByID}
 
 local function ctor(def)
 	local self = setmetatable({}, ListByID.__mt)
 	self.id = def.id
-	insert(def, "list_item")
-	insert(def, "list_group")
+	table.insert(def, "list_item")
+	table.insert(def, "list_group")
 	return self
 end
 
 function ListByID:add(entity)
 	if entity.list_group.value == self.id then
-		insert(self, entity)
+		table.insert(self, entity)
 		return true
 	end
 	return false
@@ -24,7 +21,7 @@ end
 function ListByID:remove(entity)
 	for i, e in ipairs(self) do
 		if e == entity then
-			remove(self, i)
+			table.remove(self, i)
 			return
 		end
 	end

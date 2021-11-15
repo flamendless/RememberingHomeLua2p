@@ -1,9 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("acceleration", function(c, accel)
-	!if _ASSERT then
-	Assert.is(accel, Types.T_VEC2)
-	!end
-	c.accel = accel
-end)
-

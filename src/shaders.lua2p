@@ -1,0 +1,42 @@
+local Log = require("modules.log.log")
+
+local Shaders = {
+	blur = "shaders/blur.glsl",
+	dissolve = "shaders/dissolve.glsl",
+	motion_blur = "shaders/motion_blur.glsl",
+	film_grain = "shaders/film_grain.glsl",
+	fog = "shaders/fog.glsl",
+	glitch = "shaders/glitch.glsl",
+
+	ngrading_old = "shaders/ngrading_old.glsl",
+	ngrading_volume = "shaders/ngrading_volume.glsl",
+	ngrading_volume_multi = "shaders/ngrading_volume_multi.glsl",
+	ngrading_effect = [[
+	vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
+	{
+		return ngrading(tex, tc) * color;
+	}
+	]],
+
+	!if _GLSL_NORMALS then
+	df_geometry = "shaders/geometry_pass.glsl",
+	df_lighting = "shaders/lighting_pass.glsl",
+	!else
+	df_lighting = "shaders/lighting_pass_basic.glsl",
+	!end
+}
+
+function Shaders.init()
+	local is_mobile = !(_PLATFORM ~= "desktop")
+	Log.debug("Validating shaders... GL ES:", is_mobile)
+	for k, v in pairs(Shaders) do
+		if type(v) == "string" then
+			if not stringx.starts_with(k, "ngrading_") then
+				local status, message = love.graphics.validateShader(is_mobile, v)
+				Log.debug(k, status, message)
+			end
+		end
+	end
+end
+
+return Shaders

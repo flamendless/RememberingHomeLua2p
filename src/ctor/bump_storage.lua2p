@@ -2,9 +2,6 @@ local Bump = require("modules.bump.bump-niji")
 
 local BumpStorage = {}
 
-local insert = table.insert
-local remove = table.remove
-
 local meta = getmetatable(Bump.newWorld())
 local BumpStorage = setmetatable({super = meta.__index}, meta)
 

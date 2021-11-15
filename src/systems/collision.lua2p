@@ -1,16 +1,13 @@
 local Concord = require("modules.concord.concord")
 
-local max = math.max
-local min = math.min
-
 local Collision = Concord.system({
 	pool = {"pos", "collider"},
 	pool_circle = {"pos", "collider_circle"},
 })
 
 local function circle_rect(cx, cy, cr, rx, ry, rw, rh)
-	local dx = cx - max(rx, min(cx, rx + rw))
-	local dy = cy - max(ry, min(cy, ry + rh))
+	local dx = cx - math.max(rx, math.min(cx, rx + rw))
+	local dy = cy - math.max(ry, math.min(cy, ry + rh))
 
 	return (dx * dx + dy * dy) < (cr * cr)
 end

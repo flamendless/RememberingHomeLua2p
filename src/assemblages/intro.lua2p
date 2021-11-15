@@ -3,8 +3,6 @@ local Palette = require("palette")
 
 local Atlas = require("data.atlas_intro")
 
-local min = math.min
-
 local Intro = {}
 
 local speed = {
@@ -78,7 +76,7 @@ function Intro.parallax(e, tag, scale)
 	if not scale then
 		local ww, wh = love.graphics.getDimensions()
 		local w, h = item.frame.w, item.frame.h
-		scale = min(ww/w, wh/h)
+		scale = math.min(ww/w, wh/h)
 	end
 
 	e:give("id", tag)
@@ -107,7 +105,7 @@ function Intro.bg_tree_cover(e, resource_id)
 	local item = Atlas.frames.bg_tree_cover
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = item.frame.w, item.frame.h
-	local scale = min(ww/w, wh/h)
+	local scale = math.min(ww/w, wh/h)
 
 	e:give("id", "bg_tree_cover")
 	:give("sprite", "atlas_intro")

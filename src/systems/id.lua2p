@@ -33,7 +33,7 @@ function ID:init(world)
 		!if _DEV then
 		self.world:emit("on_add_entity", e)
 		!end
-		Log.info("Added entity: " .. id.value)
+		Log.info("Added entity:", id.value)
 	end
 
 	self.pool.onRemoved = function(pool, e)
@@ -50,7 +50,7 @@ function ID:init(world)
 		!if _DEV then
 		self.world:emit("on_remove_entity", e)
 		!end
-		Log.info("Removed entity: " .. (id or tostring(e)))
+		Log.info("Removed entity:", id or tostring(e))
 	end
 end
 

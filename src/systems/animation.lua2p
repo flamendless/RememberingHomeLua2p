@@ -3,8 +3,6 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 
-local format = string.format
-
 local Animation = Concord.system({
 	pool = {"animation", "animation_data"},
 	pool_multi = {"multi_animation_data", "animation"},
@@ -147,7 +145,7 @@ function Animation:init(world)
 	self.pool_change.onAdded = function(pool, e)
 		local cat = e.change_animation_tag
 		self:switch_animation_tag(e, cat.new_tag, nil, cat.override)
-		local str = format("Switched animation tag to: %s, override: %s",
+		local str = string.format("Switched animation tag to: %s, override: %s",
 			cat.new_tag, tostring(cat.override))
 		Log.trace(str)
 	end

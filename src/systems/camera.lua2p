@@ -3,8 +3,6 @@ local Enum = require("modules.enum.enum")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 
-local sqrt = math.sqrt
-
 local Camera = Concord.system({
 	pool = {"camera"},
 	pool_clip = {"camera", "camera_clip"},
@@ -49,7 +47,7 @@ end
 
 local function circout(p)
 	p = 1 - p
-	return 1 - (-(sqrt(1 - (p * p)) - 1))
+	return 1 - (-(math.sqrt(1 - (p * p)) - 1))
 end
 
 function Camera:update(dt)

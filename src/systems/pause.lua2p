@@ -6,8 +6,6 @@ local Fade = require("fade")
 local Inputs = require("inputs")
 local Resources = require("resources")
 
-local lower = string.lower
-
 local Pause = Concord.system({
 	pool = {"pause"},
 	pool_choice = {"pause_choice"},
@@ -78,7 +76,7 @@ function Pause:create_pause_choices()
 
 	for i, str in ipairs(opt) do
 		local e = Concord.entity(self.world)
-			:give("id", "c_" .. lower(str))
+			:give("id", "c_" .. string.lower(str))
 			:give("font", "ui")
 			:give("static_text", str)
 			:give("pos", ww2, by + (i - 1) * fh)
@@ -144,7 +142,7 @@ function Pause:on_pause()
 	end
 	self.is_paused = not self.is_paused
 	self.world:emit("set_post_process_effect", "Blur", self.is_paused)
-	Log.info("Paused: " .. tostring(self.is_paused))
+	Log.info("Paused:", self.is_paused)
 end
 
 function Pause:update_pause_choices()
@@ -157,7 +155,7 @@ function Pause:update_pause_choices()
 	elseif Inputs.pressed("interact") then
 		for _, e in ipairs(self.pool_choice) do
 			if e.pause_hovered then
-				local signal = "on_pause_" .. lower(e.static_text.value)
+				local signal = "on_pause_" .. string.lower(e.static_text.value)
 				e:give("pause_interacted")
 				:give("blink", 0.1, 1)
 				:give("on_blink_end", signal)

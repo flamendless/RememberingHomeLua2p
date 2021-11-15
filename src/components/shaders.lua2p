@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Shaders = require("shaders")
+
 Concord.component("no_shader")
 Concord.component("shader")
 
@@ -11,7 +13,7 @@ local default_glitch = {
 	max_a = 1,
 }
 
-local c_glitch_shader = Concord.component("glitch_shader", function(c, values)
+Concord.component("glitch_shader", function(c, values)
 	@@sassert(values, type(values) == "table")
 	!if _DEV and values then
 	@@assert(values.dis_amount >= 0 and values.dis_amount <= 0.1)
@@ -20,6 +22,12 @@ local c_glitch_shader = Concord.component("glitch_shader", function(c, values)
 	@@assert(values.abb_amount_y >= 0 and values.abb_amount_y <= 0.1)
 	@@assert(values.max_a >= 0.1 and values.max_a <= 1.0)
 	!end
-	c.shader = love.graphics.newShader("shaders/glitch.glsl")
+	c.shader = love.graphics.newShader(Shaders.glitch)
 	c.values = values or default_glitch
+end)
+
+Concord.component("fog", function(c, speed)
+	@@assert(type(speed) == "number")
+	c.shader = love.graphics.newShader(Shaders.fog)
+	c.speed = speed
 end)

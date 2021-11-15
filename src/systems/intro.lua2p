@@ -12,8 +12,6 @@ local NGrading = require("ngrading")
 local Resources = require("resources")
 local Save = require("save")
 
-local min = math.min
-
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Intro = require("assemblages.intro"),
@@ -78,7 +76,7 @@ function Intro:state_setup()
 
 	local ssx, ssy = love.graphics.getDimensions()
 	local ssx2 = ssx * 2
-	self.scale = min(ssx/w, ssy/h)
+	self.scale = math.min(ssx/w, ssy/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ssx, ssy)

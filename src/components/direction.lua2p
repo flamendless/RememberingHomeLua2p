@@ -1,5 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("direction", function(c, dir)
-	c.dir = dir or 1
-end)

@@ -23,12 +23,13 @@ end
 
 function PostProcessing:setup_post_process(t)
 	@@assert(type(t) == "table" and #t > 0)
-	Log.info("Setup post processing effects")
+	local t_names = functional.map(t, function(v) return v:type() end)
+	Log.info("Setup post processing effects:", table.concat(t_names, ","))
+
 	self.effects = t
 	for i, effect in ipairs(self.effects) do
 		local str = effect:type()
 		self.dict[str] = self.effects[i]
-		Log.info(str)
 	end
 end
 

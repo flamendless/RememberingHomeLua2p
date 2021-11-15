@@ -1,8 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("tween_dur", function(c, dur, delay)
-	@@assert(type(dur) == "number")
-	@@sassert(delay, type(delay) == "number")
-	c.dur = dur
-	c.delay = delay or 0
-end)
