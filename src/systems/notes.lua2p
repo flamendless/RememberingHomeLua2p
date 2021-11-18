@@ -54,7 +54,7 @@ function Notes:close_notes(not_close)
 	for _, e in ipairs(self.pool_item) do
 		e:destroy()
 	end
-	self.world:emit("destroy_list", "notes")
+	self.world:emit("destroy_list", IDS.lists.notes)
 	self.world:emit("inventory_to_notes", true)
 end
 

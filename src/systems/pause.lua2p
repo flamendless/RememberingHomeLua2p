@@ -3,13 +3,19 @@ local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 
 local Fade = require("fade")
+local IDS = require("data.ids")
 local Inputs = require("inputs")
+local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
 
 local Pause = Concord.system({
-	pool = {"pause"},
-	pool_choice = {"pause_choice"},
+	pool_choice = {
+		constructor = ListByID,
+		id = IDS.lists.pause_choices,
+	},
 })
+
+local APause = require("assemblages.pause")
 
 local glitch_chance = {glitch = 0.15, reset = 0.85}
 local glitch_chance_h = {glitch = 1, reset = 0}
@@ -19,50 +25,21 @@ function Pause:init(world)
 	self.world = world
 	self.is_paused = false
 	self.prev = {}
-	local ECS = require("ecs")
-	local sc_glitch = ECS.get_system_class("glitch_shader_effect")
-	self.has_glitch = self.world:hasSystem(sc_glitch)
-	self:create_pause_e()
+
+	local ww, wh = love.graphics.getDimensions()
+	self.canvas = love.graphics.newCanvas(ww, wh)
+	self.timer = timer(6, nil, function()
+		self:do_pause_glitch(glitch_chance_h)
+		self.timer:reset()
+	end)
 end
 
 function Pause:create_pause_e()
 	local ww, wh = love.graphics.getDimensions()
 	local ww2, wh2 = ww * 0.5, wh * 0.5
-	Concord.entity(self.world)
-		:give("id", "pause_bg")
-		:give("pos", ww2, wh2)
-		:give("transform", 0, 4, 3, 0.5, 0.5)
-		:give("color", {1, 1, 1, 1})
-		:give("ui_element")
-		:give("sprite", "pause_bg")
-		:give("hidden")
-		:give("pause")
-		:give("nf_render_sprite")
-
-	local e_text = Concord.entity(self.world)
-		:give("id", "pause")
-		:give("font", "ui")
-		:give("static_text", "PAUSED")
-		:give("pos", ww2, wh2 - 64)
-		:give("transform", 0, 1.5, 1.5, 0.5, 0.5)
-		:give("color", {1, 1, 1, 1})
-		:give("ui_element")
-		:give("hidden")
-		:give("pause")
-		:give("nf_render_text")
-
-	if self.has_glitch then
-		e_text:give("displacement_texture", "tex_displacement")
-		:give("glitch_shader")
-
-		self.world:emit("reset_glitch", e_text)
-		self.timer = timer(6, nil, function()
-			self:do_pause_glitch(glitch_chance_h)
-			self.timer:reset()
-		end)
-	end
-
-	self.canvas = love.graphics.newCanvas(ww, wh)
+	self.e_bg = Concord.entity(self.world):assemble(APause.bg, ww2, wh2)
+	self.e_title = Concord.entity(self.world):assemble(APause.text, ww2, wh2 - 64)
+	self.world:emit("reset_glitch", self.e_title)
 end
 
 function Pause:create_pause_choices()
@@ -74,39 +51,29 @@ function Pause:create_pause_choices()
 	local fnt = Resources.data.fonts.ui
 	local fh = fnt:getHeight("") * scale + 8
 
+	self.world:emit("create_list_group", IDS.lists.pause_choices, true, #opt)
 	for i, str in ipairs(opt) do
-		local e = Concord.entity(self.world)
-			:give("id", "c_" .. string.lower(str))
-			:give("font", "ui")
-			:give("static_text", str)
-			:give("pos", ww2, by + (i - 1) * fh)
-			:give("transform", 0, scale, scale, 0.5, 0.5)
-			:give("color", {1, 1, 1, 1})
-			:give("ui_element")
-			:give("nf_render_text")
-			:give("pause_choice")
-		if i == 1 then
-			e:give("pause_hovered")
-		end
+		local x = ww2
+		local y = by + (i - 1) * fh
+		Concord.entity(self.world):assemble(APause.choice, str, x, y, scale)
 	end
 end
 
 function Pause:do_pause_glitch(chance)
-	if not self.has_glitch then return end
 	@@assert(type(chance) == "table")
 	local res = Lume.weightedchoice(chance)
 	if res == "glitch" then
-		self.world:emit("do_random_glitch", self.pool[2])
+		self.world:emit("do_random_glitch", self.e_title)
 	elseif res == "reset" then
-		self.world:emit("reset_glitch", self.pool[2])
+		self.world:emit("reset_glitch", self.e_title)
 	end
 	self.timer2 = timer(0.25, nil, function()
-		self.world:emit("reset_glitch", self.pool[2])
+		self.world:emit("reset_glitch", self.e_title)
 	end)
 end
 
 function Pause:update(dt)
-	if self.has_glitch and self.is_paused then
+	if self.is_paused then
 		self.timer:update(dt)
 		if self.timer2 then
 			self.timer2:update(dt)
@@ -115,7 +82,20 @@ function Pause:update(dt)
 	if Inputs.pressed("pause") then
 		self:on_pause()
 	end
-	self:update_pause_choices()
+end
+
+function Pause:draw_paused()
+	if not self.is_paused then return end
+	love.graphics.setCanvas(self.canvas)
+	love.graphics.clear()
+	self.world:emit("draw_sprite_ex", self.e_bg)
+	self.world:emit("draw_text_ex", self.e_title)
+	for _, e in ipairs(self.pool_choice) do
+		self.world:emit("draw_text_ex", e)
+	end
+	love.graphics.setCanvas()
+	self.world:emit("draw_glitch_effect", self.canvas)
+	Fade.draw()
 end
 
 function Pause:on_pause()
@@ -125,123 +105,64 @@ function Pause:on_pause()
 			if not v.__unpausable then
 				v:setEnabled(false)
 			end
-			for _, e in ipairs(self.pool) do
-				e:remove("hidden")
-			end
 		end
+		self:create_pause_e()
 		self:create_pause_choices()
+		self.world:__flush()
 		self:do_pause_glitch(glitch_chance_h)
 	else
 		for i, v in ipairs(self.world:getSystems()) do
 			v:setEnabled(self.prev[i])
 		end
 		tablex.clear(self.prev)
-		for _, e in ipairs(self.pool) do
-			e:give("hidden")
-		end
+		self.e_bg:destroy()
+		self.e_title:destroy()
+		self.world:emit("destroy_list", IDS.lists.pause_choices)
 	end
+
 	self.is_paused = not self.is_paused
 	self.world:emit("set_post_process_effect", "Blur", self.is_paused)
 	Log.info("Paused:", self.is_paused)
 end
 
-function Pause:update_pause_choices()
-	if not self.is_paused then return end
-	local dy = 0
-	if Inputs.pressed("up") then
-		dy = -1
-	elseif Inputs.pressed("down") then
-		dy = 1
-	elseif Inputs.pressed("interact") then
-		for _, e in ipairs(self.pool_choice) do
-			if e.pause_hovered then
-				local signal = "on_pause_" .. string.lower(e.static_text.value)
-				e:give("pause_interacted")
-				:give("blink", 0.1, 1)
-				:give("on_blink_end", signal)
-				:give("remove_blink_on_end")
-				break
-			end
-		end
-	end
-
-	if dy ~= 0 then
-		self:do_pause_glitch(glitch_chance)
-		local index
-		for i, e in ipairs(self.pool_choice) do
-			if e.pause_hovered then
-				index = i
-				e:remove("pause_hovered")
-				break
-			end
-		end
-		index = mathx.wrap(index + dy, 1, #self.pool_choice + 1)
-		self.pool_choice[index]:give("pause_hovered")
-	end
-
+function Pause:on_list_cursor_update(e_hovered)
+	local lg = e_hovered.list_group
+	if lg.value ~= IDS.lists.pause_choices then return end
+	self:do_pause_glitch(glitch_chance)
 	for _, e in ipairs(self.pool_choice) do
-		if not e.pause_interacted then
+		if e ~= e_hovered then
 			local color = e.color.value
-			if e.pause_hovered then
-				color[1] = 1
-				color[2] = 0
-				color[3] = 0
-			else
-				color[1] = 1
-				color[2] = 1
-				color[3] = 1
-			end
+			color[1] = 1
+			color[2] = 1
+			color[3] = 1
 		end
 	end
+	local hovered_color = e_hovered.color.value
+	hovered_color[1] = 1
+	hovered_color[2] = 0
+	hovered_color[3] = 0
 end
 
-function Pause:draw_paused()
-	if not self.is_paused then return end
-	love.graphics.setCanvas(self.canvas)
-	love.graphics.clear()
-	for _, e in ipairs(self.pool) do
-		if e.sprite then
-			self.world:emit("draw_sprite_ex", e)
-		elseif e.static_text then
-			self.world:emit("draw_text_ex", e)
+function Pause:on_list_item_interact(e_hovered)
+	local lg = e_hovered.list_group
+	if lg.value ~= IDS.lists.pause_choices then return end
+	local text = e_hovered.static_text.value
+	if text == "Resume" then
+		self:on_pause()
+	elseif text == "Settings" then
+		--TODO
+	elseif text == "Quit" then
+		!if _PLATFORM == "desktop" then
+		local btn = love.window.showMessageBox("Alert",
+			"Are you sure you want to exit the game?",
+			{"Return to Main Menu", "Exit Game", "Cancel", escapebutton = 3})
+		if btn == 1 then
+			self.world:emit("switch_state", "Menu")
+		elseif btn == 2 then
+			love.event.quit()
 		end
+		!end
 	end
-	for _, e in ipairs(self.pool_choice) do
-		self.world:emit("draw_text_ex", e)
-	end
-	love.graphics.setCanvas()
-	if self.has_glitch then
-		self.world:emit("draw_glitch_effect", self.canvas)
-	else
-		love.graphics.draw(self.canvas)
-	end
-	Fade.draw()
-end
-
-function Pause:on_pause_resume(e)
-	@@assert(e.__isEntity and e.pause_interacted)
-	e:remove("pause_interacted")
-	self:on_pause()
-end
-
-function Pause:on_pause_settings(e)
-	@@assert(e.__isEntity and e.pause_interacted)
-	e:remove("pause_interacted")
-end
-
-function Pause:on_pause_quit(e)
-	@@assert(e.__isEntity and e.pause_interacted)
-	e:remove("pause_interacted")
-	!if _PLATFORM == "desktop" then
-	local btn = love.window.showMessageBox("Alert",
-		"Are you sure you want to exit the game?",
-		{"Return to Main Menu", "Exit Game", "Cancel", escapebutton = 3})
-	if btn == 1 then
-		self.world:emit("switch_state", "Menu")
-	elseif btn == 2 then
-		love.event.quit()
-	end
-	!end
 end
 
 return Pause

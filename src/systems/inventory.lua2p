@@ -86,7 +86,8 @@ function Inventory:close_inventory(not_close)
 	for _, e in ipairs(self.pool_border) do
 		e:destroy()
 	end
-	self.world:emit("destroy_list", "inventory")
+	self.world:emit("destroy_list", IDS.lists.inventory_cells)
+	self.world:emit("destroy_list", IDS.lists.inventory_choices)
 	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "inventory")
 	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)

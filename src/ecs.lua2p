@@ -75,6 +75,7 @@ systems.Kitchen = {
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
 	"color", "glitch_shader_effect", "gamestates", "deferred_lighting", "post_processing",
+	"list",
 }
 
 !if _DEV then

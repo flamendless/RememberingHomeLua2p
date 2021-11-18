@@ -13,7 +13,7 @@ local Dialogues = Concord.system({
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
 	pool_choice = {
 		constructor = ListByID,
-		id = IDS.lists.dialogue,
+		id = IDS.lists.dialogue_choices,
 	},
 })
 
@@ -210,7 +210,7 @@ function Dialogues:show_choices()
 	local p2 = PAD * 2
 	local prev_x = l + p2
 	local choice_t = self.e_dialogue.text_t.value.choices
-	self.world:emit("create_list_group", IDS.lists.dialogue, false, #choice_t)
+	self.world:emit("create_list_group", IDS.lists.dialogue_choices, false, #choice_t)
 
 	for _, str in ipairs(c.value) do
 		local id = "choice_" .. str
@@ -230,11 +230,11 @@ function Dialogues:show_choices()
 			:give("reflowprint", fw + PAD * 2, "left")
 			:give("dialogue_meta", d.main, d.sub)
 			:give("list_item")
-			:give("list_group", IDS.lists.dialogue)
+			:give("list_group", IDS.lists.dialogue_choices)
 		self:populate_choices(choice_t)
 	end
 
-	self.world:emit("set_focus_list", IDS.lists.dialogue)
+	self.world:emit("set_focus_list", IDS.lists.dialogue_choices)
 end
 
 function Dialogues:populate_choices(t)
@@ -262,7 +262,7 @@ end
 
 function Dialogues:on_list_item_interact(e)
 	local group_id = e.list_group.value
-	if group_id ~= IDS.lists.dialogue then return end
+	if group_id ~= IDS.lists.dialogue_choices then return end
 	local t = e.text_t
 	local text_t = t.value
 	if #text_t == 0 and not text_t.choices then
@@ -288,6 +288,7 @@ function Dialogues:on_list_item_interact(e)
 		end
 
 		self.world:emit("destroy_list", "dialogue_choice")
+		self.world:emit("destroy_list", IDS.lists.dialogue_choices)
 		if proceed then
 			local d = e.dialogue_meta
 			self:spawn_dialogue(text_t, d.main, d.sub)

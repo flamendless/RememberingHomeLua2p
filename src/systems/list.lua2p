@@ -10,6 +10,7 @@ local List = Concord.system({
 function List:init(world)
 	self.world = world
 	self.groups = {}
+	self.focus_stack = {}
 	self.focused = nil
 
 	self.pool.onAdded = function(pool, e)
@@ -66,6 +67,7 @@ function List:create_list_group(id, vertical_only, per_page, use_max_threshold, 
 		limit = limit,
 		use_max_threshold = use_max_threshold,
 	}
+	Log.trace("created list:", id)
 end
 
 function List:create_list_group_grid(id, rows, cols)
@@ -82,6 +84,7 @@ function List:create_list_group_grid(id, rows, cols)
 		is_grid = true,
 		per_page = rows * cols,
 	}
+	Log.trace("created list grid:", id)
 end
 
 function List:update_list(group)
@@ -178,7 +181,7 @@ function List:update_cursor(index)
 	local e_hovered = group.entities[cursor_new_index]
 	if e_hovered then
 		e_hovered:give("list_cursor", cursor_new_index)
-		self.world:emit("on_list_cursor_update", e_hovered, self.focused)
+		self.world:emit("on_list_cursor_update", e_hovered)
 		return cursor_new_index
 	end
 end
@@ -186,6 +189,9 @@ end
 function List:set_focus_list(group_id)
 	local group = self.groups[group_id]
 	@@sassert(group_id, type(group_id) == "string" and group)
+	if self.focused then
+		table.insert(self.focus_stack, self.focused)
+	end
 	self.focused = group_id
 	for k, g in pairs(self.groups) do
 		for _, e in ipairs(g.entities) do
@@ -197,15 +203,20 @@ function List:set_focus_list(group_id)
 end
 
 function List:destroy_list(group_id)
-	if not self.groups[group_id] then return end
+	if not self.groups[group_id] then
+		!if _DEV then
+		Log.warn("no", group_id, "in list")
+		!end
+		return
+	end
 	local group = self.groups[group_id]
 	for _, e in ipairs(group.entities) do
 		e:destroy()
 	end
 	tablex.clear(group)
 	self.groups[group_id] = nil
-	self.focused = nil
-	Log.trace("deleted list:", group_id)
+	self.focused = table.remove(self.focus_stack, #self.focus_stack)
+	Log.trace("deleted list:", group_id, "new focus:", self.focused)
 end
 
 function List:cleanup()
@@ -215,6 +226,7 @@ function List:cleanup()
 		end
 	end
 	tablex.clear(self.groups)
+	tablex.clear(self.focus_stack)
 	self.focused = nil
 end
 

@@ -7,10 +7,11 @@ IDS.item_actions = {
 }
 
 IDS.lists = {
-	dialogue = "dialogue_choices",
+	dialogue_choices = "dialogue_choices",
 	notes = "notes",
 	inventory_cells = "inventory_cells",
 	inventory_choices = "inventory_choices",
+	pause_choices = "pause_choices",
 }
 
 return IDS
