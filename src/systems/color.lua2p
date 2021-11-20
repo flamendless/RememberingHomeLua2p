@@ -135,6 +135,7 @@ function Color:init(world)
 		local target = e.target_color
 		local target_color = e.target_color.target
 		local on_finish = e.lerp_on_finish
+		local on_finish_multi = e.lerp_on_finish_multi
 		local ease = e.ease
 
 		local f = Flux.to(color.value, target.duration, {
@@ -150,6 +151,13 @@ function Color:init(world)
 						self.world:emit(on_finish.signal, unpack(on_finish.args))
 					end)
 					e:remove("lerp_on_finish")
+				elseif on_finish_multi then
+					for _, t in ipairs(on_finish_multi.values) do
+						Timer.after(t.delay or 0, function()
+							self.world:emit(t.signal, t.args and unpack(t.args))
+						end)
+					end
+					e:remove("lerp_on_finish_multi")
 				end
 				e:remove("target_color")
 			end)

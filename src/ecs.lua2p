@@ -26,7 +26,7 @@ systems.Splash = {
 systems.Menu = {
 	"animation", "bounding_box", "click", "color", "hover_effect", "show_keys",
 	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
-	"transform", "entity", "gamestates",
+	"transform", "entity", "gamestates", "list",
 }
 
 systems.Intro = {

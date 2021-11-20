@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local function ctor(c, signal, delay, ...)
+local function ctor_single(c, signal, delay, ...)
 	@@assert(type(signal) == "string")
 	@@sassert(delay, type(delay) == "number")
 	c.signal = signal
@@ -8,7 +8,17 @@ local function ctor(c, signal, delay, ...)
 	c.args = {...}
 end
 
-local function callback(name)
+local function ctor_multi(c, ...)
+	c.values = {...}
+	!if _DEV then
+	for _, v in ipairs(c.values) do
+		@@assert(type(v.signal) == "string")
+		@@sassert(v.delay, type(v.delay) == "number")
+	end
+	!end
+end
+
+local function callback(name, ctor)
 	return Concord.component(name, ctor)
 end
 
@@ -32,6 +42,14 @@ local names = {
 	"on_path_reached_end",
 }
 
+local names_multi = {
+	"lerp_on_finish_multi",
+}
+
 for _, v in ipairs(names) do
-	local c = callback(v)
+	local c = callback(v, ctor_single)
+end
+
+for _, v in ipairs(names_multi) do
+	local c = callback(v, ctor_multi)
 end

@@ -35,7 +35,6 @@ function Menu.desk(e, ww, wh)
 	:give("transform", 0, 1, 1, 0.5, 0.5)
 	:give("auto_scale", ww, wh, true)
 	:give("color", Palette.get("white"))
-	:give("menu_desk")
 end
 
 function Menu.bg_door(e, x, y, scale, ox, oy)
@@ -71,7 +70,7 @@ function Menu.subtitle(e, x, y, target, scale, ox, oy)
 	:give("menu_text")
 end
 
-function Menu.option_item(e, id, str, fnt, png, x, y, scale, i, sub_i)
+function Menu.option_item(e, id, str, fnt, png, x, y, scale, i, sub_i, list_id)
 	e:give("id", id)
 	:give("text", str)
 	:give("font_sdf", fnt, png)
@@ -79,6 +78,8 @@ function Menu.option_item(e, id, str, fnt, png, x, y, scale, i, sub_i)
 	:give("sdf", scale, scale)
 	:give("option_key", i, sub_i)
 	:give("color", Palette.get("menu_text"))
+	:give("list_item")
+	:give("list_group", list_id)
 end
 
 function Menu.about_text(e, id, resource_id, str, x, y, color)

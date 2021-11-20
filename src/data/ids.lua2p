@@ -7,6 +7,8 @@ IDS.item_actions = {
 }
 
 IDS.lists = {
+	main_menu = "main_menu",
+	sub_menu = "sub_menu",
 	dialogue_choices = "dialogue_choices",
 	notes = "notes",
 	inventory_cells = "inventory_cells",

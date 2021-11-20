@@ -34,10 +34,7 @@ function List:update(dt)
 	else
 		delta = self:update_list(group)
 	end
-	local cursor_new_index
-	if delta then
-		cursor_new_index = self:update_cursor()
-	end
+	local cursor_new_index = delta and self:update_cursor()
 
 	if not group.entities then return end
 	for i, e in ipairs(group.entities) do
@@ -179,6 +176,9 @@ function List:update_cursor(index)
 	local group = self.groups[self.focused]
 	local cursor_new_index = index or (group.per_page * group.offset + group.cursor)
 	local e_hovered = group.entities[cursor_new_index]
+	if e_hovered.list_item_skip then
+		return
+	end
 	if e_hovered then
 		e_hovered:give("list_cursor", cursor_new_index)
 		self.world:emit("on_list_cursor_update", e_hovered)
@@ -186,7 +186,7 @@ function List:update_cursor(index)
 	end
 end
 
-function List:set_focus_list(group_id)
+function List:set_focus_list(group_id, override_cursor)
 	local group = self.groups[group_id]
 	@@sassert(group_id, type(group_id) == "string" and group)
 	if self.focused then
@@ -198,17 +198,13 @@ function List:set_focus_list(group_id)
 			e.list_group.is_focused = k == group_id
 		end
 	end
+	group.cursor = override_cursor or group.cursor
 	self:update_cursor(group.cursor)
 	Log.trace("focused list:", group_id)
 end
 
 function List:destroy_list(group_id)
-	if not self.groups[group_id] then
-		!if _DEV then
-		Log.warn("no", group_id, "in list")
-		!end
-		return
-	end
+	if not self.groups[group_id] then return end
 	local group = self.groups[group_id]
 	for _, e in ipairs(group.entities) do
 		e:destroy()

@@ -4,31 +4,37 @@ local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
+local TLE = require("modules.tle.timeline")
 
 local Canvas = require("canvas")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
+local IDS = require("data.ids")
 local Image = require("image")
 local Inputs = require("inputs")
+local ListByID = require("ctor.list_by_id")
 local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
 
-local Assemblages = {
-	Menu = require("assemblages.menu"),
-}
-
 local Menu = Concord.system({
 	pool = {"option_key", "color", "pos", "text", "on_enter_menu"},
 	pool_disabled = {"option_key", "option_disabled"},
-	pool_opt = {"menu_opt"},
-	pool_sub_opt = {"menu_sub_opt"},
-	pool_desk = {"menu_desk"},
 	pool_text = {"menu_text"},
+	pool_main_menu = {
+		constructor = ListByID,
+		id = IDS.lists.main_menu,
+	},
+	pool_sub_menu = {
+		constructor = ListByID,
+		id = IDS.lists.sub_menu,
+	},
 })
 
-local states = Enum("menu", "play", "settings", "about", "exit")
+local AMenu = require("assemblages.menu")
+
+local states = Enum("menu", "sub_menu", "play", "settings", "about", "exit")
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
@@ -46,31 +52,13 @@ local libs = !(_LIBS)
 local options = {"Play", "Settings", "About", "Exit"}
 local options_sub = {"Continue", "New Game"}
 
-local function color_to_select(color)
-	Flux.to(color.value, dur_in, {
-			[1] = color_select[1],
-			[2] = color_select[2],
-			[3] = color_select[3],
-			[4] = color_select[4]
-		})
-end
-
-local function color_to_white(color)
-	Flux.to(color.value, dur_out, {
-			[1] = color.original[1],
-			[2] = color.original[2],
-			[3] = color.original[3],
-			[4] = color.original[4],
-		})
-end
-
-local function color_to_disabled(color)
-	Flux.to(color.value, dur_out, {
-			[1] = color_disabled[1],
-			[2] = color_disabled[2],
-			[3] = color_disabled[3],
-			[4] = color_disabled[4]
-		})
+local function color_to(color, target_color, dur)
+	Flux.to(color.value, dur, {
+		[1] = target_color[1],
+		[2] = target_color[2],
+		[3] = target_color[3],
+		[4] = target_color[4]
+	})
 end
 
 local about_template = {
@@ -145,37 +133,9 @@ end
 
 function Menu:init(world)
 	self.world = world
-	self.cursor = 1
-	self.prev_cursor = self.cursor
-	self.current_page = 1
 	self.keys = {}
-	self.flags = {allow_cursor = false}
 	self.is_transition = true
-	self.is_sub_menu = false
 	self.current_state = states.menu
-
-	self.pool.onAdded = function(pool, e)
-		if not e.option_disabled then
-			local option_key = e.option_key
-			local page = option_key.page
-			if not self.keys[page] then
-				self.keys[page] = {}
-			end
-			table.insert(self.keys[page], option_key.id)
-		end
-	end
-
-	self.pool_disabled.onAdded = function(pool, e)
-		local option_key = e.option_key
-		local t = self.keys[option_key.page]
-		for i = #t, 1, -1 do
-			local key = t[i]
-			if key == option_key.id then
-				table.remove(t, key)
-				break
-			end
-		end
-	end
 end
 
 function Menu:state_setup()
@@ -191,33 +151,23 @@ function Menu:state_setup()
 end
 
 function Menu:state_init()
-	self:hide_main_menu(0.1)
-	self:hide_sub_menu(0.1)
-
 	Fade.set_color({0, 0, 0, 1})
-	Fade.fade_in(function()
-		self:allow_cursor(true)
-		self:set_cursor(1)
+	self.timeline = TLE.Do(function()
+		self:hide_main_menu(0.1)
+		self:hide_sub_menu(0.1)
+		self.timeline:Pause()
+		Fade.fade_in(function() self:menu_unpause() end)
+		self.timeline:Pause()
 		self.subtitle:remove("anchor")
 		self:show_main_menu()
-		self.world:emit("show_main_menu")
-	end, 1.5, 0.25)
+		self.timeline:Pause()
+		self.world:emit("set_focus_list", IDS.lists.main_menu)
+		self.is_transition = false
+	end)
 end
 
 function Menu:state_update(dt)
 	if self.is_transition then return end
-	local dir = 0
-	if Inputs.pressed("down") then
-		dir = 1
-	elseif Inputs.pressed("up") then
-		dir = -1
-	end
-
-	if Inputs.pressed("interact") then
-		self:enter_option()
-	end
-	self:update_cursor(dir)
-
 	if Inputs.released("cancel") then
 		self:menu_back()
 	end
@@ -235,11 +185,7 @@ function Menu:state_update(dt)
 end
 
 function Menu:state_draw()
-	if self.current_state == states.menu or
-		self.current_state == states.settings or
-		self.current_state == states.about or
-		self.current_state == states.play then
-
+	if self.current_state ~= states.exit then
 		self.canvases.main:attach()
 		self.camera:attach()
 			self.world:emit("draw")
@@ -262,6 +208,65 @@ function Menu:state_draw()
 	end
 end
 
+function Menu:on_list_cursor_update(e_hovered)
+	local lg = e_hovered.list_group
+	if lg.value == IDS.lists.main_menu then
+		for _, e in ipairs(self.pool_main_menu) do
+			local pos = e.pos
+			local color = e.color
+			if e == e_hovered then
+				color_to(color, color_select, dur_in)
+				Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
+			else
+				color_to(color, color.original, dur_out)
+				Flux.to(pos, dur_out, {x = pos.orig_x})
+			end
+		end
+	elseif lg.value == IDS.lists.sub_menu then
+		for _, e in ipairs(self.pool_sub_menu) do
+			local pos = e.pos
+			local color = e.color
+			if e.list_item_skip then
+				color_to(color, color_disabled, dur_out)
+				Flux.to(pos, dur_out, {x = pos.orig_x})
+			elseif e == e_hovered then
+				color_to(color, color_select, dur_in)
+				Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
+			else
+				color_to(color, color.original, dur_out)
+				Flux.to(pos, dur_out, {x = pos.orig_x})
+			end
+		end
+	end
+end
+
+function Menu:on_list_item_interact(e_hovered)
+	local lg = e_hovered.list_group
+	local text = e_hovered.text.value
+	if lg.value == IDS.lists.main_menu then
+		if text == "Play" then
+			self.is_transition = true
+			self:hide_main_menu()
+			self:show_sub_menu()
+		elseif text == "Settings" then
+			self.current_state = states.settings
+			self:on_settings()
+		elseif text == "About" then
+			self.current_state = states.about
+			self:on_about()
+		elseif text == "Exit" then
+			self.current_state = states.exit
+			self:on_exit()
+		end
+	elseif lg.value == IDS.lists.sub_menu then
+		if text == "Continue" then
+			self:on_continue()
+		elseif text == "New Game" then
+			self:on_newgame()
+		end
+	end
+end
+
 function Menu:setup_menu()
 	local ww, wh = love.graphics.getDimensions()
 	local bg_door = Resources.data.images.bg_door
@@ -281,28 +286,27 @@ function Menu:setup_menu()
 	scale_subt = scale_subt * 0.75
 
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.bg_door,
+		:assemble(AMenu.bg_door,
 			ww * 1.5, wh * 0.5, scale, bg_door_w * 0.5, bg_door_h * 0.5)
 
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.bg_hallway,
+		:assemble(AMenu.bg_hallway,
 			ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
 
-	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.desk, ww, wh)
+	self.e_desk = Concord.entity(self.world):assemble(AMenu.desk, ww, wh)
 
 	!if _DEV then
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.secret_title, 32, wh * 0.5)
+		:assemble(AMenu.secret_title, 32, wh * 0.5)
 		:give("color_fade_in", 5, 3)
 	!end
 
 	self.title = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.title, ww * 0.25, wh * 0.5 - 36,
+		:assemble(AMenu.title, ww * 0.25, wh * 0.5 - 36,
 			scale_title, title_w * 0.5, title_h * 0.5)
 
 	self.subtitle = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.subtitle, ww * 0.25, wh * 1.5,
+		:assemble(AMenu.subtitle, ww * 0.25, wh * 1.5,
 			self.title, scale_subt, subt_w * 0.5, subt_h * 0.5)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
@@ -315,20 +319,10 @@ function Menu:setup_menu()
 	local offset = 16
 	local padding = 2
 
-	for i, str in ipairs(options) do
-		local lstr = string.lower(str)
-		local str_w = sdf_menu:getWidth(str) * str_scale
-		local x = self.canvases.bot.width - str_w - offset
-		local y = self.canvases.bot.y + (i * str_h) + (padding * i) - offset
-		local id = "text_" .. lstr
+	local has_save = Save.valid_checkpoints
+	local n_opt_sub = has_save and #options_sub or (#options_sub - 1)
 
-		Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item,
-				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 1)
-			:give("on_enter_menu", "on_" .. lstr, 0, lstr)
-			:give("menu_opt")
-	end
-
+	self.world:emit("create_list_group", IDS.lists.sub_menu, true, n_opt_sub)
 	for i, str in ipairs(options_sub) do
 		local lstr = string.lower(str)
 		lstr = string.gsub(lstr, "%s+", "")
@@ -337,12 +331,29 @@ function Menu:setup_menu()
 		local y = self.canvases.bot.y + (i * str_h) + (padding * i) - offset
 		local id = "text_sub_" .. lstr
 
-		Concord.entity(self.world)
-			:assemble(Assemblages.Menu.option_item,
-				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2)
+		local e = Concord.entity(self.world):assemble(AMenu.option_item,
+				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2,
+				IDS.lists.sub_menu)
 			:give("on_enter_menu", "on_" .. lstr)
-			:give("menu_sub_opt")
+		if not has_save and str == "Continue" then
+			e:give("list_item_skip")
+		end
 	end
+
+	self.world:emit("create_list_group", IDS.lists.main_menu, true, #options)
+	for i, str in ipairs(options) do
+		local lstr = string.lower(str)
+		local str_w = sdf_menu:getWidth(str) * str_scale
+		local x = self.canvases.bot.width - str_w - offset
+		local y = self.canvases.bot.y + (i * str_h) + (padding * i) - offset
+		local id = "text_" .. lstr
+
+		Concord.entity(self.world):assemble(AMenu.option_item,
+				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 1,
+				IDS.lists.main_menu)
+			:give("on_enter_menu", "on_" .. lstr, 0, lstr)
+	end
+	self.world:__flush()
 end
 
 function Menu:setup_about()
@@ -358,7 +369,7 @@ function Menu:setup_about()
 	local color = Palette.get("about_normal")
 
 	Concord.entity(self.world)
-		:assemble(Assemblages.Menu.btn_back, 8, base_y)
+		:assemble(AMenu.btn_back, 8, base_y)
 		:give("on_click", 1, "menu_back")
 
 	for i, el in ipairs(about) do
@@ -395,7 +406,7 @@ function Menu:setup_about()
 					largest = math.max(largest, layout_base_y)
 				end
 				local id = "about_text_" .. i
-				Concord.entity(self.world):assemble(Assemblages.Menu.about_text,
+				Concord.entity(self.world):assemble(AMenu.about_text,
 					id, resource_id, str, x, y, color)
 				if dt_color then
 					color = Palette.get("about_normal")
@@ -419,7 +430,7 @@ function Menu:setup_about()
 				local bx = base_x - (n2 * iw)
 				local x = bx + (iw * (i2 - 2)) + pad * 0.5
 				local y = base_y - ih * 0.5 - pad * 0.5
-				Concord.entity(self.world):assemble(Assemblages.Menu.about_ext_link,
+				Concord.entity(self.world):assemble(AMenu.about_ext_link,
 						id, resource_id, x, y)
 					:give("on_click", 1, "open_url", about_links[i2])
 			end
@@ -427,155 +438,56 @@ function Menu:setup_about()
 	end
 end
 
+function Menu:menu_unpause(bool)
+	self.timeline:Unpause()
+	if bool ~= nil then
+		self.is_transition = bool
+	end
+end
+
 function Menu:show_main_menu()
-	for _, e in ipairs(self.pool_opt) do
+	for _, e in ipairs(self.pool_main_menu) do
 		e:remove("hidden")
 		:give("target_color", Palette.get("white", 1), duration_show)
-		:give("lerp_on_finish", "enable_main_menu")
+		:give("lerp_on_finish", "menu_unpause", 0, false)
 		:give("move_to_original", duration_pos)
 	end
+	self.current_state = states.menu
+	self.world:emit("set_focus_list", IDS.lists.main_menu)
 end
 
 function Menu:hide_main_menu(duration)
 	@@sassert(duration, type(duration) == "number")
-	for _, e in ipairs(self.pool_opt) do
+	for _, e in ipairs(self.pool_main_menu) do
 		e:give("target_color", Palette.get("white", 0), duration or duration_hide)
-		:give("lerp_on_finish", "hide_entity", 0, e)
+		:give("lerp_on_finish_multi",
+			{signal = "hide_entity", args = {e}},
+			{signal = "menu_unpause"})
 		:give("move_by", tx, 0, duration or duration_pos)
 	end
 end
 
 function Menu:show_sub_menu()
-	local next_cursor = (Save.valid_checkpoints == true) and 1 or 2
-	for i, e in ipairs(self.pool_sub_opt) do
+	for _, e in ipairs(self.pool_sub_menu) do
 		e:remove("hidden")
 		:give("target_color", Palette.get("white", 1), duration_show)
-		:give("lerp_on_finish", "enable_sub_menu", 0, next_cursor)
+		:give("lerp_on_finish", "menu_unpause", 0, false)
 		:give("move_to_original", duration_pos)
-
-		if next_cursor == 2 and i == 1 then
-			e:give("option_disabled")
-		end
 	end
-	self:set_page(2)
+
+	Timer.after(duration_show, function()
+		self.current_state = states.sub_menu
+		local override_cursor = Save.valid_checkpoints and 1 or 2
+		self.world:emit("set_focus_list", IDS.lists.sub_menu, override_cursor)
+	end)
 end
 
 function Menu:hide_sub_menu(duration)
 	@@sassert(duration, type(duration) == "number")
-	for _, e in ipairs(self.pool_sub_opt) do
+	for _, e in ipairs(self.pool_sub_menu) do
 		e:give("target_color", Palette.get("white", 0), duration or duration_hide)
 		:give("lerp_on_finish", "hide_entity", 0, e)
 		:give("move_by", tx, 0, duration or duration_pos)
-	end
-end
-
-function Menu:on_menu()
-	self:allow_cursor(true)
-	self:set_to_prev_cursor()
-	self:set_page(1)
-end
-
-function Menu:on_play()
-	self.is_transition = true
-	self.is_sub_menu = true
-	self:allow_cursor(false)
-	self:hide_main_menu()
-	self:show_sub_menu()
-end
-
-function Menu:enable_main_menu()
-	self:on_menu()
-	self.is_transition = false
-end
-
-function Menu:enable_sub_menu(next_cursor)
-	@@assert(type(next_cursor) == "number")
-	self:allow_cursor(true)
-	self:set_cursor(next_cursor)
-	self.is_transition = false
-end
-
-function Menu:set_page(page)
-	@@assert(type(page) == "number")
-	@@assert(self.keys[page])
-	self.current_page = page
-	self:update_cursor_color()
-end
-
-function Menu:allow_cursor(flag)
-	@@assert(type(flag) == "boolean")
-	self.flags.allow_cursor = flag
-end
-
-function Menu:set_cursor(cursor)
-	@@assert(type(cursor) == "number")
-	self.cursor = cursor
-	self:update_cursor_color()
-end
-
-function Menu:set_to_prev_cursor()
-	self.cursor = self.prev_cursor
-	self:update_cursor_color()
-end
-
-function Menu:update_cursor(dt)
-	if dt == 0 then return end
-	if not self.flags.allow_cursor then return end
-	local t = self.keys[self.current_page]
-	if dt > 0 then
-		self.cursor = t[self.cursor + 1] or t[1]
-	elseif dt < 0 then
-		self.cursor = t[self.cursor - 1] or t[#t]
-	end
-	self:update_cursor_color()
-end
-
-function Menu:update_cursor_color()
-	for _, e in ipairs(self.pool) do
-		local option_key = e.option_key
-		local pos = e.pos
-		local color = e.color
-		local disabled = e.option_disabled
-
-		if self.current_page == option_key.page then
-			if disabled then
-				color_to_disabled(color)
-			else
-				if self.cursor == option_key.id then
-					color_to_select(color)
-					Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
-				else
-					color_to_white(color)
-					Flux.to(pos, dur_out, {x = pos.orig_x})
-				end
-			end
-		end
-	end
-end
-
-function Menu:enter_option()
-	if self.cursor == 0 then return end
-	if self.current_state == states.settings then return end
-	if not self.flags.allow_cursor then return end
-	for _, e in ipairs(self.pool) do
-		local option_key = e.option_key
-		local cb_on_menu = e.on_enter_menu
-		local menu_opt = e.menu_opt
-
-		if self.current_page == option_key.page then
-			for _, key in ipairs(self.keys[self.current_page]) do
-				if key == option_key.id and key == self.cursor then
-					self.prev_cursor = option_key.id
-					if cb_on_menu then
-						self.world:emit(cb_on_menu.signal)
-						if menu_opt then
-							self.current_state = cb_on_menu.args[1]
-						end
-					end
-					return
-				end
-			end
-		end
 	end
 end
 
@@ -586,9 +498,7 @@ function Menu:on_newgame()
 	-- TODO turn off BGM
 
 	self:hide_sub_menu()
-	for _, e in ipairs(self.pool_desk) do
-		e:give("hidden")
-	end
+	self.pool_desk:give("hidden")
 
 	--TODO change target_color
 	for _, e in ipairs(self.pool_text) do
@@ -596,7 +506,7 @@ function Menu:on_newgame()
 	end
 
 	local e_desk_fast = Concord.entity(self.world)
-		:assemble(Assemblages.Menu.desk_fast, ww, wh)
+		:assemble(AMenu.desk_fast, ww, wh)
 
 	Timer.after(timer, function()
 		-- TODO add sudden static sound
@@ -614,8 +524,6 @@ end
 function Menu:on_settings()
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = {x = l, y = t, w = w, h = h}
-
-	self:allow_cursor(true)
 	self.world:emit("init_settings")
 	self:MB_move(cworld.w, nil, ANGLE_RIGHT)
 end
@@ -623,18 +531,14 @@ end
 function Menu:on_about()
 	local l, t, w, h = self.camera:getWorld()
 	local cworld = {x = l, y = t, w = w, h = h}
-
 	if not about_done then
 		self:setup_about()
 		about_done = true
 	end
-
-	self.world:emit("allow_cursor", false)
 	self:MB_move(nil, cworld.h, ANGLE_UP)
 end
 
 function Menu:on_exit()
-	self.world:emit("allow_cursor", false)
 	!if _PLATFORM == "desktop" then
 	local btn = love.window.showMessageBox("Alert",
 		"Are you sure you want to exit the game?",
@@ -649,17 +553,14 @@ function Menu:on_exit()
 	elseif btn == 2 then
 		self.current_state = states.menu
 		Log.info("Switched Menu State to:", self.current_state)
-		self:on_menu()
 	end
 	!end
 end
 
 function Menu:menu_back()
-	if self.current_state == states.play and self.is_sub_menu and
+	if self.current_state == states.sub_menu and
 		not self.is_transition then
 		self.is_transition = true
-		self.is_sub_menu = false
-		self:allow_cursor(false)
 		self:hide_sub_menu()
 		self:show_main_menu()
 	elseif self.current_state ~= states.menu and self.current_state ~= states.play then
@@ -719,7 +620,6 @@ function Menu:MB_return()
 			self.current_state = states.menu
 			Log.info("Switched Menu State to:", self.current_state)
 			self.mb.flag_process = false
-			self:on_menu()
 		end)
 end
 
