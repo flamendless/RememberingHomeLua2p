@@ -85,30 +85,6 @@ function Notes:draw_inventory()
 	end
 end
 
-function Notes:on_list_cursor_update(e)
-	@@assert(self.pool_item:has(e))
-	local font = e.font.value
-	local c_pos = self.e_cursor.pos
-	local pos = e.pos
-	local on_left = e.list_cursor.value <= self.rows_per_page
-	local dx = on_left and -1 or 1
-	c_pos.x = pos.x + 4 * dx
-	c_pos.y = pos.y - font:getHeight("") * 0.5
-	self.e_cursor.transform.ox = on_left and 1 or 0
-	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 1}, 0.25, "circin")
-	self.world:emit("lerp_color", e, c_on_hovered, 0.25, "circin")
-end
-
-function Notes:on_list_cursor_remove(e)
-	@@assert(self.pool_item:has(e))
-	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
-	self.world:emit("lerp_color", e, e.color.original, 0.25, "circin")
-end
-
-function Notes:on_list_item_interact(e)
-	print(e.id.value)
-end
-
 function Notes:create_notes()
 	local _, _, w, h = self.main_camera:getWindow()
 	local img = Resources.data.images.bg_notes
@@ -154,6 +130,30 @@ function Notes:create_notes()
 
 	self.e_cursor = Concord.entity(self.world):assemble(AssemNotes.cursor)
 	self.world:emit("create_notes_key", "notes")
+end
+
+Notes["on_list_cursor_update_" .. IDS.lists.notes] = function(self, e_hovered)
+	@@assert(self.pool_item:has(e_hovered))
+	local font = e_hovered.font.value
+	local c_pos = self.e_cursor.pos
+	local pos = e_hovered.pos
+	local on_left = e_hovered.list_cursor.value <= self.rows_per_page
+	local dx = on_left and -1 or 1
+	c_pos.x = pos.x + 4 * dx
+	c_pos.y = pos.y - font:getHeight("") * 0.5
+	self.e_cursor.transform.ox = on_left and 1 or 0
+	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 1}, 0.25, "circin")
+	self.world:emit("lerp_color", e_hovered, c_on_hovered, 0.25, "circin")
+end
+
+Notes["on_list_cursor_remove_" .. IDS.lists.notes] = function(self, e_hovered)
+	@@assert(self.pool_item:has(e_hovered))
+	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
+	self.world:emit("lerp_color", e_hovered, e_hovered.color.original, 0.25, "circin")
+end
+
+Notes["on_list_item_interact_" .. IDS.lists.notes] = function(self, e_hovered)
+	print(e_hovered.id.value)
 end
 
 return Notes

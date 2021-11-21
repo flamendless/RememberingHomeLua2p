@@ -4,7 +4,7 @@ local Timer = require("modules.hump.timer")
 local Inputs = require("inputs")
 local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
-local Palette = require("palette")
+local Notes = require("notes")
 local Resources = require("resources")
 
 local Inventory = Concord.system({
@@ -98,6 +98,8 @@ function Inventory:update(dt)
 		!if _DEV then
 		local Items = require("items")
 		Items.add("flashlight")
+		Notes.add("test1")
+		Notes.add("test2")
 		!end
 		self:open_inventory()
 	elseif self.is_open then
@@ -198,48 +200,46 @@ function Inventory:create_inventory()
 	end
 end
 
-function Inventory:on_list_cursor_update(e_hovered)
-	local lg = e_hovered.list_group
-	if lg.value == IDS.lists.inventory_cells and lg.is_focused then
-		for _, e in ipairs(self.pool_cell) do
-			e.color.value[4] = e == e_hovered and 0.4 or 0
-		end
-	elseif lg.value == IDS.lists.inventory_choices and lg.is_focused then
-		for _, e in ipairs(self.pool_choice) do
-			e.color.value[4] = e == e_hovered and 1 or 0.5
-		end
-	end
-end
-
-function Inventory:on_list_item_interact(e_hovered)
-	local group_id = e_hovered.list_group.value
-	if group_id == IDS.lists.inventory_cells then
-		for _, e in ipairs(self.pool_choice) do
-			e.color.value[4] = 0.5
-		end
-		self.world:emit("set_focus_list", IDS.lists.inventory_choices)
-	elseif group_id == IDS.lists.inventory_choices then
-		local text = e_hovered.static_text.value
-		local item = self:get_selected_item()
-		if text == IDS.item_actions.use then
-			self.world:emit("on_item_use", item)
-		elseif text == IDS.item_actions.equip then
-			self.world:emit("on_item_equip", item)
-		elseif text == IDS.item_actions.cancel then
-			for _, e in ipairs(self.pool_choice) do
-				e.color.value[4] = 0
-			end
-			self.world:emit("set_focus_list", IDS.lists.inventory_cells)
-		end
-	end
-end
-
 function Inventory:get_selected_item()
 	for i, e in ipairs(self.pool_cell) do
 		if e.list_cursor then
 			@@assert(self.pool_item[i], "item should have existed at cell " .. i)
 			return self.pool_item[i]
 		end
+	end
+end
+
+Inventory["on_list_cursor_update_" .. IDS.lists.inventory_cells] = function(self, e_hovered)
+	for _, e in ipairs(self.pool_cell) do
+		e.color.value[4] = e == e_hovered and 0.4 or 0
+	end
+end
+
+Inventory["on_list_cursor_update_" .. IDS.lists.inventory_choices] = function(self, e_hovered)
+	for _, e in ipairs(self.pool_choice) do
+		e.color.value[4] = e == e_hovered and 1 or 0.5
+	end
+end
+
+Inventory["on_list_item_interact_" .. IDS.lists.inventory_cells] = function(self, e_hovered)
+	for _, e in ipairs(self.pool_choice) do
+		e.color.value[4] = 0.5
+	end
+	self.world:emit("set_focus_list", IDS.lists.inventory_choices)
+end
+
+Inventory["on_list_item_interact_" .. IDS.lists.inventory_choices] = function(self, e_hovered)
+	local text = e_hovered.static_text.value
+	local item = self:get_selected_item()
+	if text == IDS.item_actions.use then
+		self.world:emit("on_item_use", item)
+	elseif text == IDS.item_actions.equip then
+		self.world:emit("on_item_equip", item)
+	elseif text == IDS.item_actions.cancel then
+		for _, e in ipairs(self.pool_choice) do
+			e.color.value[4] = 0
+		end
+		self.world:emit("set_focus_list", IDS.lists.inventory_cells)
 	end
 end
 

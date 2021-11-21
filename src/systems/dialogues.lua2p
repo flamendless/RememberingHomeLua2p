@@ -250,23 +250,28 @@ function Dialogues:populate_choices(t)
 	end
 end
 
-function Dialogues:on_list_cursor_update(e)
-	if not self.pool_choice:has(e) then return end
-	self.world:emit("lerp_color", e, c_hc, 0.25, "circin")
+function Dialogues:cleanup()
+	self.e_dialogue:destroy()
+	for _, e in ipairs(self.pool) do
+		e:destroy()
+	end
 end
 
-function Dialogues:on_list_cursor_remove(e)
-	if not self.pool_choice:has(e) then return end
-	self.world:emit("lerp_color", e, Palette.get("ui_dialogue"), 0.25, "circin")
+Dialogues["on_list_cursor_update_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+	if not self.pool_choice:has(e_hovered) then return end
+	self.world:emit("lerp_color", e_hovered, c_hc, 0.25, "circin")
 end
 
-function Dialogues:on_list_item_interact(e)
-	local group_id = e.list_group.value
-	if group_id ~= IDS.lists.dialogue_choices then return end
-	local t = e.text_t
+Dialogues["on_list_cursor_remove_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+	if not self.pool_choice:has(e_hovered) then return end
+	self.world:emit("lerp_color", e_hovered, Palette.get("ui_dialogue"), 0.25, "circin")
+end
+
+Dialogues["on_list_item_interact_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+	local t = e_hovered.text_t
 	local text_t = t.value
 	if #text_t == 0 and not text_t.choices then
-		self:on_dialogue_reached_end(e)
+		self:on_dialogue_reached_end(e_hovered)
 	else
 		local str = text_t[1]
 		local proceed = true
@@ -276,12 +281,12 @@ function Dialogues:on_list_item_interact(e)
 			if bool then
 				proceed = false
 				--entity, table of next dialogues, chosen text
-				self.world:emit(signal, e, text_t, e.text.value)
+				self.world:emit(signal, e_hovered, text_t, e_hovered.text.value)
 				if handle_self then
 					t.current_index = t.current_index + 1
 					local next_str = text_t[t.current_index]
 					if not next_str then
-						self:on_dialogue_reached_end(e)
+						self:on_dialogue_reached_end(e_hovered)
 					end
 				end
 			end
@@ -290,19 +295,12 @@ function Dialogues:on_list_item_interact(e)
 		self.world:emit("destroy_list", "dialogue_choice")
 		self.world:emit("destroy_list", IDS.lists.dialogue_choices)
 		if proceed then
-			local d = e.dialogue_meta
+			local d = e_hovered.dialogue_meta
 			self:spawn_dialogue(text_t, d.main, d.sub)
 		end
 		if not text_t.choices then
 			self.e_dialogue:remove("has_choices")
 		end
-	end
-end
-
-function Dialogues:cleanup()
-	self.e_dialogue:destroy()
-	for _, e in ipairs(self.pool) do
-		e:destroy()
 	end
 end
 

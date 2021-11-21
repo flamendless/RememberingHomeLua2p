@@ -125,9 +125,7 @@ function Pause:on_pause()
 	Log.info("Paused:", self.is_paused)
 end
 
-function Pause:on_list_cursor_update(e_hovered)
-	local lg = e_hovered.list_group
-	if lg.value ~= IDS.lists.pause_choices then return end
+Pause["on_list_cursor_update_" .. IDS.lists.pause_choices] = function(self, e_hovered)
 	self:do_pause_glitch(glitch_chance)
 	for _, e in ipairs(self.pool_choice) do
 		if e ~= e_hovered then
@@ -143,9 +141,7 @@ function Pause:on_list_cursor_update(e_hovered)
 	hovered_color[3] = 0
 end
 
-function Pause:on_list_item_interact(e_hovered)
-	local lg = e_hovered.list_group
-	if lg.value ~= IDS.lists.pause_choices then return end
+Pause["on_list_item_interact_" .. IDS.lists.pause_choices] = function(self, e_hovered)
 	local text = e_hovered.static_text.value
 	if text == "Resume" then
 		self:on_pause()

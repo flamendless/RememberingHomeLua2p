@@ -34,7 +34,6 @@ function profe(a)
 	return "JPROF.pop(" .. a .. ")"
 end
 
-
 local bit = require("bit")
 local band, bor = bit.band, bit.bor
 local lshift, rshift = bit.lshift, bit.rshift
@@ -117,12 +116,12 @@ _URL_DISCORD = "https://discord.gg/2W4tyyV"
 _URL_WEBSITE = "https://flamendless.itch.io"
 _URL_MAIL = "mailto:flamendless.studio@gmail.com"
 
-_ABOUT_LINKS = {
+_ABOUT_LINKS = toLua({
 	_URL_TWITTER,
 	_URL_DISCORD,
 	_URL_WEBSITE,
 	_URL_MAIL,
-}
+})
 
 _NAME_DEVELOPER = "Brandon"
 _NAME_ARTIST = "Conrad"

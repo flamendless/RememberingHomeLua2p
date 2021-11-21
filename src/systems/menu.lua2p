@@ -208,65 +208,6 @@ function Menu:state_draw()
 	end
 end
 
-function Menu:on_list_cursor_update(e_hovered)
-	local lg = e_hovered.list_group
-	if lg.value == IDS.lists.main_menu then
-		for _, e in ipairs(self.pool_main_menu) do
-			local pos = e.pos
-			local color = e.color
-			if e == e_hovered then
-				color_to(color, color_select, dur_in)
-				Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
-			else
-				color_to(color, color.original, dur_out)
-				Flux.to(pos, dur_out, {x = pos.orig_x})
-			end
-		end
-	elseif lg.value == IDS.lists.sub_menu then
-		for _, e in ipairs(self.pool_sub_menu) do
-			local pos = e.pos
-			local color = e.color
-			if e.list_item_skip then
-				color_to(color, color_disabled, dur_out)
-				Flux.to(pos, dur_out, {x = pos.orig_x})
-			elseif e == e_hovered then
-				color_to(color, color_select, dur_in)
-				Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
-			else
-				color_to(color, color.original, dur_out)
-				Flux.to(pos, dur_out, {x = pos.orig_x})
-			end
-		end
-	end
-end
-
-function Menu:on_list_item_interact(e_hovered)
-	local lg = e_hovered.list_group
-	local text = e_hovered.text.value
-	if lg.value == IDS.lists.main_menu then
-		if text == "Play" then
-			self.is_transition = true
-			self:hide_main_menu()
-			self:show_sub_menu()
-		elseif text == "Settings" then
-			self.current_state = states.settings
-			self:on_settings()
-		elseif text == "About" then
-			self.current_state = states.about
-			self:on_about()
-		elseif text == "Exit" then
-			self.current_state = states.exit
-			self:on_exit()
-		end
-	elseif lg.value == IDS.lists.sub_menu then
-		if text == "Continue" then
-			self:on_continue()
-		elseif text == "New Game" then
-			self:on_newgame()
-		end
-	end
-end
-
 function Menu:setup_menu()
 	local ww, wh = love.graphics.getDimensions()
 	local bg_door = Resources.data.images.bg_door
@@ -358,7 +299,7 @@ end
 
 function Menu:setup_about()
 	local about = generate_about()
-	!!local about_links = _ABOUT_LINKS
+	local about_links = $_ABOUT_LINKS
 	local _, _, w, h = self.camera:getVisible()
 	local base_x = w * 0.5
 	local base_y = h + 16
@@ -630,6 +571,64 @@ end
 function Menu:open_url(str)
 	@@assert(type(str) == "string")
 	love.system.openURL(str)
+end
+
+Menu["on_list_cursor_update_" .. IDS.lists.main_menu] = function(self, e_hovered)
+	for _, e in ipairs(self.pool_main_menu) do
+		local pos = e.pos
+		local color = e.color
+		if e == e_hovered then
+			color_to(color, color_select, dur_in)
+			Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
+		else
+			color_to(color, color.original, dur_out)
+			Flux.to(pos, dur_out, {x = pos.orig_x})
+		end
+	end
+end
+
+Menu["on_list_cursor_update_" .. IDS.lists.sub_menu] = function(self, e_hovered)
+	for _, e in ipairs(self.pool_sub_menu) do
+		local pos = e.pos
+		local color = e.color
+		if e.list_item_skip then
+			color_to(color, color_disabled, dur_out)
+			Flux.to(pos, dur_out, {x = pos.orig_x})
+		elseif e == e_hovered then
+			color_to(color, color_select, dur_in)
+			Flux.to(pos, dur_in, {x = pos.orig_x - offset_x})
+		else
+			color_to(color, color.original, dur_out)
+			Flux.to(pos, dur_out, {x = pos.orig_x})
+		end
+	end
+end
+
+Menu["on_list_item_interact_" .. IDS.lists.main_menu] = function(self, e_hovered)
+	local text = e_hovered.text.value
+	if text == "Play" then
+		self.is_transition = true
+		self:hide_main_menu()
+		self:show_sub_menu()
+	elseif text == "Settings" then
+		self.current_state = states.settings
+		self:on_settings()
+	elseif text == "About" then
+		self.current_state = states.about
+		self:on_about()
+	elseif text == "Exit" then
+		self.current_state = states.exit
+		self:on_exit()
+	end
+end
+
+Menu["on_list_item_interact_" .. IDS.lists.sub_menu] = function(self, e_hovered)
+	local text = e_hovered.text.value
+	if text == "Continue" then
+		self:on_continue()
+	elseif text == "New Game" then
+		self:on_newgame()
+	end
 end
 
 return Menu
