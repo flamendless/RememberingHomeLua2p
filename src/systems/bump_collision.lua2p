@@ -197,7 +197,7 @@ function BumpCollision:debug_update(dt)
 		flags.visible_only = not flags.visible_only
 	end
 	Slab.SameLine()
-	if Slab.CheckBox(flags.fill, "Fil") then
+	if Slab.CheckBox(flags.fill, "Fill") then
 		flags.fill = not flags.fill
 	end
 

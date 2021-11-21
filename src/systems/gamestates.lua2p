@@ -51,6 +51,7 @@ local states = {
 	"StorageRoom",
 	"UtilityRoom",
 	"Kitchen",
+	"LivingRoom",
 }
 
 function GameStates:debug_update(dt)

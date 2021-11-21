@@ -1,0 +1,79 @@
+local Palette = require("palette")
+
+local LivingRoom = {
+	colliders = {},
+	lights = {},
+}
+
+local Light = require("assemblages.light")
+
+local left_wall_w = 16
+local right_wall_w = 16
+local ground_h = 16
+
+function LivingRoom.bg(e)
+	e:give("id", "bg")
+	:give("pos", 0, 0)
+	:give("sprite", "living_room")
+	:give("bg")
+end
+
+function LivingRoom.colliders.ground(e, w, h)
+	e:give("id", "col_ground")
+	:give("pos", left_wall_w, h - ground_h)
+	:give("collider", w - left_wall_w - right_wall_w, ground_h)
+	:give("bump")
+	:give("ground")
+end
+
+function LivingRoom.colliders.left_bound(e, w, h)
+	e:give("id", "col_left_bound")
+	:give("pos", 0, 0)
+	:give("collider", left_wall_w, h)
+	:give("bump")
+	:give("wall")
+end
+
+function LivingRoom.colliders.right_bound(e, w, h)
+	e:give("id", "col_right_bound")
+	:give("pos", w - right_wall_w, 0)
+	:give("collider", right_wall_w, h)
+	:give("bump")
+	:give("wall")
+end
+
+-- local lz = 48
+-- local ls = 128
+-- function LivingRoom.lights.left_bulb(e)
+-- 	e:assemble(Light.point,
+-- 		86, 26, lz, ls,
+-- 		Palette.get_diffuse("kitchen_side"))
+-- 	:give("id", "pl_left")
+-- 	:give("light_group", "side_pl")
+-- 	:give("light_switch_id", "top")
+-- end
+--
+-- function LivingRoom.lights.right_bulb(e)
+-- 	e:assemble(Light.point,
+-- 		386, 27, lz, ls,
+-- 		Palette.get_diffuse("kitchen_side"))
+-- 	:give("id", "pl_right")
+-- 	:give("light_group", "side_pl")
+-- 	:give("light_switch_id", "top")
+-- end
+--
+-- local lzmp = 7
+-- local lsmp = 128
+-- local pl_x = {184, 215, 242}
+-- for i = 1, 3 do
+-- 	LivingRoom.lights["mid_bulb_pl" .. i] = function(e)
+-- 		e:assemble(Light.point,
+-- 			pl_x[i], 57, lzmp, lsmp,
+-- 			Palette.get_diffuse("kitchen_mid_pl"))
+-- 		:give("id", "pl_mid" .. i)
+-- 		:give("light_group", "mid_bulb_pl")
+-- 	:give("light_switch_id", "bottom")
+-- 	end
+-- end
+
+return LivingRoom

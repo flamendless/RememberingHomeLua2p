@@ -72,6 +72,15 @@ systems.Kitchen = {
 	"door", "light_switch", "notes", "list", "post_processing",
 }
 
+systems.LivingRoom = {
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"outline", "pause", "player_controller", "render_rect", "render_sprite",
+	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
+	"door", "light_switch", "notes", "list", "post_processing",
+}
+
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
 	"color", "glitch_shader_effect", "gamestates", "deferred_lighting", "post_processing",

@@ -1,0 +1,75 @@
+local Data = {
+	{
+		id = "painting",
+		x = 64, y = 40,
+	},
+	{
+		id = "chair",
+		x = 124, y = 97, z = 5,
+		no_col = true,
+	},
+	{
+		id = "stool",
+		x = 132, y = 113, z = 5,
+		no_col = true,
+	},
+	{
+		id = "table",
+		x = 164, y = 117, z = 5,
+		no_col = true,
+	},
+
+	{
+		id = "fireplace",
+		x = 183, y = 21,
+		no_col = true,
+	},
+	{
+		id = "fireplace_inner",
+		x = 199, y = 91, z = 5,
+	},
+
+	{
+		id = "clock",
+		x = 264, y = 62,
+	},
+	{
+		id = "table2",
+		x = 290, y = 80, z = 5,
+		no_col = true,
+	},
+
+	{
+		id = "plant",
+		name = "plant1",
+		x = 74, y = 99,
+		no_col = true,
+	},
+	{
+		id = "plant",
+		name = "plant2",
+		x = 92, y = 99,
+		no_col = true,
+	},
+	{
+		id = "plant",
+		name = "plant3",
+		x = 110, y = 99,
+		no_col = true,
+	},
+
+	{
+		id = "plant",
+		name = "plant4",
+		x = 332, y = 99,
+		no_col = true,
+	},
+	{
+		id = "plant",
+		name = "plant5",
+		x = 350, y = 99,
+		no_col = true,
+	},
+}
+
+return Data

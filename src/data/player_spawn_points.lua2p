@@ -31,4 +31,10 @@ PlayerSpawnPoints.Kitchen = {
 	UtilityRoom = {398, 64},
 }
 
+PlayerSpawnPoints.LivingRoom = {
+	!if _DEV then
+	default = {360, 64},
+	!end
+}
+
 return PlayerSpawnPoints

@@ -13,19 +13,19 @@ local Resources = require("resources")
 local Assemblages = {
 	Common = require("assemblages.common"),
 	Inventory = require("assemblages.inventory"),
+	LivingRoom = require("assemblages.living_room"),
 	Player = require("assemblages.player"),
-	Kitchen = require("assemblages.kitchen"),
 	UI = require("assemblages.ui"),
 }
 
-local Kitchen = Concord.system()
+local LivingRoom = Concord.system({})
 
-function Kitchen:init(world)
+function LivingRoom:init(world)
 	self.world = world
 end
 
-function Kitchen:state_setup()
-	local w, h = Resources.data.images.kitchen:getDimensions()
+function LivingRoom:state_setup()
+	local w, h = Resources.data.images.living_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main({})
@@ -34,12 +34,12 @@ function Kitchen:state_setup()
 	self.camera:setWindow(0, 0, ww, hh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.Kitchen.bg)
+	Concord.entity(self.world):assemble(Assemblages.LivingRoom.bg)
 
-	for _, v in pairs(Assemblages.Kitchen.colliders) do
+	for _, v in pairs(Assemblages.LivingRoom.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-	self.world:emit("parse_room_items", "atlas_kitchen_items", "kitchen_items")
+	self.world:emit("parse_room_items", "atlas_living_room_items", "living_room_items")
 
 	self.world:emit("setup_post_process", {
 		NGrading("lut_dusk"),
@@ -47,13 +47,13 @@ function Kitchen:state_setup()
 		Blur()
 	})
 
-	for _, v in pairs(Assemblages.Kitchen.lights) do
+	for _, v in pairs(Assemblages.LivingRoom.lights) do
 		Concord.entity(self.world):assemble(v)
 	end
-	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_kitchen"))
+	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_living_room"))
 end
 
-function Kitchen:state_init()
+function LivingRoom:state_init()
 	self.world:emit("spawn_player", function(e_player)
 		self.world:emit("camera_follow", e_player, 0.25)
 		self.world:emit("player_can_move", true, e_player)
@@ -70,12 +70,12 @@ function Kitchen:state_init()
 	end)
 end
 
-function Kitchen:state_update(dt)
+function LivingRoom:state_update(dt)
 	self.world:emit("preupdate", dt)
 	self.world:emit("update", dt)
 end
 
-function Kitchen:state_draw()
+function LivingRoom:state_draw()
 	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
@@ -85,4 +85,4 @@ function Kitchen:state_draw()
 	Fade.draw()
 end
 
-return Kitchen
+return LivingRoom

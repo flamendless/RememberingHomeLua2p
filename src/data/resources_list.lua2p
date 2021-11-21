@@ -216,4 +216,25 @@ ResourcesList.Kitchen = {
 	},
 }
 
+ResourcesList.LivingRoom = {
+	images = {
+		!!(get_res("inventory_notes"))
+		!!(get_res("pause"))
+		!!(get_res("ui"))
+	},
+	array_images = {
+		{"living_room", !(path_images .. "living_room/living_room.png")},
+		{"atlas_living_room_items", !(path_images .. "living_room/atlas_living_room_items.png")},
+		!!(get_res("player"))
+	},
+	image_data = {
+		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},
+		{"lut_dusk_64", !(path_lut .. "lut_dusk_64.png")},
+	},
+	fonts = {
+		{"ui", !(path_fonts .. "Jamboree.ttf"), 32, "default"},
+		!!(get_res("fnt_inventory"))
+	},
+}
+
 return ResourcesList
