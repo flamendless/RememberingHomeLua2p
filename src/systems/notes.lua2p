@@ -132,7 +132,7 @@ function Notes:create_notes()
 	self.world:emit("create_notes_key", "notes")
 end
 
-Notes["on_list_cursor_update_" .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_LIST_UPDATE .. IDS.lists.notes] = function(self, e_hovered)
 	@@assert(self.pool_item:has(e_hovered))
 	local font = e_hovered.font.value
 	local c_pos = self.e_cursor.pos
@@ -146,13 +146,13 @@ Notes["on_list_cursor_update_" .. IDS.lists.notes] = function(self, e_hovered)
 	self.world:emit("lerp_color", e_hovered, c_on_hovered, 0.25, "circin")
 end
 
-Notes["on_list_cursor_remove_" .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_LIST_REMOVE .. IDS.lists.notes] = function(self, e_hovered)
 	@@assert(self.pool_item:has(e_hovered))
 	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
 	self.world:emit("lerp_color", e_hovered, e_hovered.color.original, 0.25, "circin")
 end
 
-Notes["on_list_item_interact_" .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_LIST_INTERACT .. IDS.lists.notes] = function(self, e_hovered)
 	print(e_hovered.id.value)
 end
 

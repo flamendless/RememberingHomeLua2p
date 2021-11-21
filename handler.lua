@@ -158,4 +158,9 @@ _HALF_PI = math.pi * 0.5
 _TWO_PI = math.pi * 2
 _T_H_PI = 3 * _HALF_PI
 
+--SIGNALS
+_LIST_REMOVE = toLua("on_list_cursor_remove_")
+_LIST_INTERACT = toLua("on_list_item_interact_")
+_LIST_UPDATE = toLua("on_list_cursor_update_")
+
 return {}

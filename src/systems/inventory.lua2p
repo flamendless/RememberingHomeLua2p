@@ -209,26 +209,26 @@ function Inventory:get_selected_item()
 	end
 end
 
-Inventory["on_list_cursor_update_" .. IDS.lists.inventory_cells] = function(self, e_hovered)
+Inventory[$_LIST_UPDATE .. IDS.lists.inventory_cells] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_cell) do
 		e.color.value[4] = e == e_hovered and 0.4 or 0
 	end
 end
 
-Inventory["on_list_cursor_update_" .. IDS.lists.inventory_choices] = function(self, e_hovered)
+Inventory[$_LIST_UPDATE .. IDS.lists.inventory_choices] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_choice) do
 		e.color.value[4] = e == e_hovered and 1 or 0.5
 	end
 end
 
-Inventory["on_list_item_interact_" .. IDS.lists.inventory_cells] = function(self, e_hovered)
+Inventory[$_LIST_INTERACT .. IDS.lists.inventory_cells] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_choice) do
 		e.color.value[4] = 0.5
 	end
 	self.world:emit("set_focus_list", IDS.lists.inventory_choices)
 end
 
-Inventory["on_list_item_interact_" .. IDS.lists.inventory_choices] = function(self, e_hovered)
+Inventory[$_LIST_INTERACT .. IDS.lists.inventory_choices] = function(self, e_hovered)
 	local text = e_hovered.static_text.value
 	local item = self:get_selected_item()
 	if text == IDS.item_actions.use then

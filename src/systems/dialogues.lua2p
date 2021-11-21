@@ -257,17 +257,17 @@ function Dialogues:cleanup()
 	end
 end
 
-Dialogues["on_list_cursor_update_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_LIST_UPDATE .. IDS.lists.dialogue_choices] = function(self, e_hovered)
 	if not self.pool_choice:has(e_hovered) then return end
 	self.world:emit("lerp_color", e_hovered, c_hc, 0.25, "circin")
 end
 
-Dialogues["on_list_cursor_remove_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_LIST_REMOVE .. IDS.lists.dialogue_choices] = function(self, e_hovered)
 	if not self.pool_choice:has(e_hovered) then return end
 	self.world:emit("lerp_color", e_hovered, Palette.get("ui_dialogue"), 0.25, "circin")
 end
 
-Dialogues["on_list_item_interact_" .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_LIST_INTERACT .. IDS.lists.dialogue_choices] = function(self, e_hovered)
 	local t = e_hovered.text_t
 	local text_t = t.value
 	if #text_t == 0 and not text_t.choices then
