@@ -2,7 +2,6 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
-local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
 local Notes = require("notes")
 local Resources = require("resources")
@@ -11,11 +10,11 @@ local Inventory = Concord.system({
 	pool_camera = {"camera"},
 	pool_cell = {
 		constructor = ListByID,
-		id = IDS.lists.inventory_cells,
+		id = $_LIST_INVENTORY_CELLS,
 	},
 	pool_choice = {
 		constructor = ListByID,
-		id = IDS.lists.inventory_choices,
+		id = $_LIST_INVENTORY_CHOICES,
 	},
 	pool_border = {"id", "sprite", "nf_render_sprite", "custom_texture"},
 	pool_item = {"item"},
@@ -27,6 +26,7 @@ function Inventory:init(world)
 	self.world = world
 	self.can_open = true
 	self.is_open = false
+	self.in_choices = false
 	self.entities = {}
 
 	self.pool_camera.onAdded = function(pool, e)
@@ -65,7 +65,7 @@ function Inventory:open_inventory()
 	self.world:emit("set_post_process_effect", "Blur", true)
 	self:create_inventory()
 	self.world:__flush()
-	self.world:emit("set_focus_list", IDS.lists.inventory_cells)
+	self.world:emit("set_focus_list", $_LIST_INVENTORY_CELLS)
 	self.world:emit("create_inventory_key")
 	self.world:emit("create_items")
 	self.is_open = true
@@ -86,8 +86,8 @@ function Inventory:close_inventory(not_close)
 	for _, e in ipairs(self.pool_border) do
 		e:destroy()
 	end
-	self.world:emit("destroy_list", IDS.lists.inventory_cells)
-	self.world:emit("destroy_list", IDS.lists.inventory_choices)
+	self.world:emit("destroy_list", $_LIST_INVENTORY_CELLS)
+	self.world:emit("destroy_list", $_LIST_INVENTORY_CHOICES)
 	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "inventory")
 	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
@@ -108,10 +108,14 @@ function Inventory:update(dt)
 			self:close_inventory(true)
 			self.world:emit("inventory_to_notes")
 			self.world:emit("open_notes")
-		elseif Inputs.pressed("cancel") then
-			self:close_inventory()
 		elseif Inputs.pressed("interact") then
 			self.world:emit("show_key", "inventory", false)
+		elseif Inputs.pressed("cancel") then
+			if self.in_choices then
+				self[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CHOICES](self, self.pool_choice[3])
+			else
+				self:close_inventory()
+			end
 		end
 	end
 end
@@ -144,7 +148,6 @@ function Inventory:create_inventory()
 	local img = Resources.data.images.bg_inventory
 	local iw, ih = img:getDimensions()
 	local bar_h = self.pool_camera[1].bar_height.value
-
 	local pad = 48
 	local nh = h - pad * 2 - bar_h * 2
 	local scale = math.min(w/iw, nh/ih)
@@ -155,20 +158,19 @@ function Inventory:create_inventory()
 	local bg_h = ih * scale
 	local orig_x = x - bg_w * 0.5
 	local orig_y = y - bg_h * 0.5
-
 	self.entities.bg = Concord.entity(self.world):assemble(AInventory.bg, x, y, scale)
-	self.world:emit("create_list_group", IDS.lists.inventory_choices, true, 3)
+	self.world:emit("create_list_group", $_LIST_INVENTORY_CHOICES, true, 3)
 
 	local c_bx = orig_x + bg_w - pad
 	local c_by = orig_y + bg_h * 0.5
-	local choices = {IDS.item_actions.use, IDS.item_actions.equip, IDS.item_actions.cancel}
+	local choices = {!(_ITEMS_ACTIONS.use), !(_ITEMS_ACTIONS.equip), !(_ITEMS_ACTIONS.cancel)}
 	for i, str in ipairs(choices) do
 		local c_oy = pad * (0.5 + (i - 1) * 1.2)
 		local c_y = c_by + c_oy
 		Concord.entity(self.world):assemble(AInventory.choice, str, c_bx, c_y)
 	end
 
-	self.world:emit("create_list_group_grid", IDS.lists.inventory_cells, rows, cols)
+	self.world:emit("create_list_group_grid", $_LIST_INVENTORY_CELLS, rows, cols)
 
 	local rx = orig_x + bg_w * 0.4
 	local ry = orig_y + pad * 0.3
@@ -203,43 +205,50 @@ end
 function Inventory:get_selected_item()
 	for i, e in ipairs(self.pool_cell) do
 		if e.list_cursor then
-			@@assert(self.pool_item[i], "item should have existed at cell " .. i)
 			return self.pool_item[i]
 		end
 	end
+	return nil
 end
 
-Inventory[$_LIST_UPDATE .. IDS.lists.inventory_cells] = function(self, e_hovered)
+Inventory[$_SIGNAL_LIST_UPDATE .. $_LIST_INVENTORY_CELLS] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_cell) do
 		e.color.value[4] = e == e_hovered and 0.4 or 0
 	end
 end
 
-Inventory[$_LIST_UPDATE .. IDS.lists.inventory_choices] = function(self, e_hovered)
+Inventory[$_SIGNAL_LIST_UPDATE .. $_LIST_INVENTORY_CHOICES] = function(self, e_hovered)
+	if not e_hovered.list_group.is_focused then return end
 	for _, e in ipairs(self.pool_choice) do
-		e.color.value[4] = e == e_hovered and 1 or 0.5
+		e.color.value[4] = e == e_hovered and 1 or 0.25
 	end
 end
 
-Inventory[$_LIST_INTERACT .. IDS.lists.inventory_cells] = function(self, e_hovered)
+Inventory[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CELLS] = function(self, e_hovered)
+	if not self:get_selected_item() then
+		--TODO play invalid sound
+		return
+	end
 	for _, e in ipairs(self.pool_choice) do
 		e.color.value[4] = 0.5
 	end
-	self.world:emit("set_focus_list", IDS.lists.inventory_choices)
+	self.world:emit("set_focus_list", $_LIST_INVENTORY_CHOICES)
+	self.in_choices = true
 end
 
-Inventory[$_LIST_INTERACT .. IDS.lists.inventory_choices] = function(self, e_hovered)
+Inventory[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CHOICES] = function(self, e_hovered)
 	local text = e_hovered.static_text.value
 	local item = self:get_selected_item()
-	if text == IDS.item_actions.use then
+	if text == !(_ITEMS_ACTIONS.use) then
 		self.world:emit("on_item_use", item)
-	elseif text == IDS.item_actions.equip then
+	elseif text == !(_ITEMS_ACTIONS.equip) then
 		self.world:emit("on_item_equip", item)
-	elseif text == IDS.item_actions.cancel then
+	elseif text == !(_ITEMS_ACTIONS.cancel) then
 		for _, e in ipairs(self.pool_choice) do
 			e.color.value[4] = 0
 		end
-		self.world:emit("set_focus_list", IDS.lists.inventory_cells)
+		self.world:emit("set_focus_list", $_LIST_INVENTORY_CELLS)
+		self.in_choices = false
 	end
 end
 

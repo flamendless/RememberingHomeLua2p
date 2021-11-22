@@ -3,7 +3,6 @@ local TLE = require("modules.tle.timeline")
 
 local DialoguesSrc = require("dialogues")
 local Inputs = require("inputs")
-local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
 local Palette = require("palette")
@@ -13,7 +12,7 @@ local Dialogues = Concord.system({
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
 	pool_choice = {
 		constructor = ListByID,
-		id = IDS.lists.dialogue_choices,
+		id = $_LIST_DIALOGUE_CHOICES,
 	},
 })
 
@@ -210,7 +209,7 @@ function Dialogues:show_choices()
 	local p2 = PAD * 2
 	local prev_x = l + p2
 	local choice_t = self.e_dialogue.text_t.value.choices
-	self.world:emit("create_list_group", IDS.lists.dialogue_choices, false, #choice_t)
+	self.world:emit("create_list_group", $_LIST_DIALOGUE_CHOICES, false, #choice_t)
 
 	for _, str in ipairs(c.value) do
 		local id = "choice_" .. str
@@ -230,11 +229,11 @@ function Dialogues:show_choices()
 			:give("reflowprint", fw + PAD * 2, "left")
 			:give("dialogue_meta", d.main, d.sub)
 			:give("list_item")
-			:give("list_group", IDS.lists.dialogue_choices)
+			:give("list_group", $_LIST_DIALOGUE_CHOICES)
 		self:populate_choices(choice_t)
 	end
 
-	self.world:emit("set_focus_list", IDS.lists.dialogue_choices)
+	self.world:emit("set_focus_list", $_LIST_DIALOGUE_CHOICES)
 end
 
 function Dialogues:populate_choices(t)
@@ -257,17 +256,17 @@ function Dialogues:cleanup()
 	end
 end
 
-Dialogues[$_LIST_UPDATE .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_SIGNAL_LIST_UPDATE .. $_LIST_DIALOGUE_CHOICES] = function(self, e_hovered)
 	if not self.pool_choice:has(e_hovered) then return end
 	self.world:emit("lerp_color", e_hovered, c_hc, 0.25, "circin")
 end
 
-Dialogues[$_LIST_REMOVE .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_SIGNAL_LIST_REMOVE .. $_LIST_DIALOGUE_CHOICES] = function(self, e_hovered)
 	if not self.pool_choice:has(e_hovered) then return end
 	self.world:emit("lerp_color", e_hovered, Palette.get("ui_dialogue"), 0.25, "circin")
 end
 
-Dialogues[$_LIST_INTERACT .. IDS.lists.dialogue_choices] = function(self, e_hovered)
+Dialogues[$_SIGNAL_LIST_INTERACT .. $_LIST_DIALOGUE_CHOICES] = function(self, e_hovered)
 	local t = e_hovered.text_t
 	local text_t = t.value
 	if #text_t == 0 and not text_t.choices then
@@ -293,7 +292,7 @@ Dialogues[$_LIST_INTERACT .. IDS.lists.dialogue_choices] = function(self, e_hove
 		end
 
 		self.world:emit("destroy_list", "dialogue_choice")
-		self.world:emit("destroy_list", IDS.lists.dialogue_choices)
+		self.world:emit("destroy_list", $_LIST_DIALOGUE_CHOICES)
 		if proceed then
 			local d = e_hovered.dialogue_meta
 			self:spawn_dialogue(text_t, d.main, d.sub)

@@ -1,4 +1,3 @@
-local IDS = require("data.ids")
 local Palette = require("palette")
 
 local Inventory = {}
@@ -20,9 +19,9 @@ function Inventory.choice(e, str, x, y)
 	:give("font", "inventory_choice")
 	:give("static_text", str)
 	:give("pos", x, y)
-	:give("color", {0, 0, 0, 0})
+	:give("color", {0, 0, 0, 0.25})
 	:give("list_item")
-	:give("list_group", IDS.lists.inventory_choices)
+	:give("list_group", $_LIST_INVENTORY_CHOICES)
 	:give("transform", 0.1745329, 1, 1, 0.5, 0.5, -0.25)
 end
 
@@ -73,7 +72,7 @@ end
 function Inventory.cell(e, i, x, y, w, h, l1, l2)
 	e:give("id", "cell_" .. i)
 	:give("list_item")
-	:give("list_group", IDS.lists.inventory_cells)
+	:give("list_group", $_LIST_INVENTORY_CELLS)
 	:give("pos", x, y)
 	:give("rect", w, h)
 	:give("draw_mode", "fill")

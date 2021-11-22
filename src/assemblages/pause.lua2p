@@ -1,7 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-local IDS = require("data.ids")
-
 local Pause = {}
 
 function Pause.bg(e, x, y)
@@ -35,7 +33,7 @@ function Pause.choice(e, str, x, y, scale)
 	:give("pos", x, y)
 	:give("color", {1, 1, 1, 1})
 	:give("list_item")
-	:give("list_group", IDS.lists.pause_choices)
+	:give("list_group", $_LIST_PAUSE_CHOICES)
 	:give("transform", 0, scale, scale, 0.5, 0.5)
 end
 

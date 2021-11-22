@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-local Room = Concord.system({})
+local Room = Concord.system()
+
+local ARoom = require("assemblages.room")
 
 function Room:init(world)
 	self.world = world
@@ -119,6 +121,12 @@ function Room:create_grouped_items(group, group_t, frames, list)
 		if gt.usable_with_item then
 			e_g:give("usable_with_item")
 		end
+	end
+end
+
+function Room:create_room_bounds(w, h)
+	for _, v in pairs(ARoom) do
+		Concord.entity(self.world):assemble(v, w, h)
 	end
 end
 

@@ -179,9 +179,6 @@ function Camera:hide_bars()
 	Flux.to(self.bar_bot, 0.25, { h = 0 }):ease("circout")
 		:oncomplete(function()
 			self.bars = false
-			for _, e in ipairs(self.pool) do
-				e:remove("bar_height")
-			end
 		end)
 end
 

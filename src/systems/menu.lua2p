@@ -9,7 +9,6 @@ local TLE = require("modules.tle.timeline")
 local Canvas = require("canvas")
 local Dissolve = require("dissolve")
 local Fade = require("fade")
-local IDS = require("data.ids")
 local Image = require("image")
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
@@ -24,11 +23,11 @@ local Menu = Concord.system({
 	pool_text = {"menu_text"},
 	pool_main_menu = {
 		constructor = ListByID,
-		id = IDS.lists.main_menu,
+		id = $_LIST_MAIN_MENU,
 	},
 	pool_sub_menu = {
 		constructor = ListByID,
-		id = IDS.lists.sub_menu,
+		id = $_LIST_SUB_MENU,
 	},
 })
 
@@ -161,7 +160,7 @@ function Menu:state_init()
 		self.subtitle:remove("anchor")
 		self:show_main_menu()
 		self.timeline:Pause()
-		self.world:emit("set_focus_list", IDS.lists.main_menu)
+		self.world:emit("set_focus_list", $_LIST_MAIN_MENU)
 		self.is_transition = false
 	end)
 end
@@ -263,7 +262,7 @@ function Menu:setup_menu()
 	local has_save = Save.valid_checkpoints
 	local n_opt_sub = has_save and #options_sub or (#options_sub - 1)
 
-	self.world:emit("create_list_group", IDS.lists.sub_menu, true, n_opt_sub)
+	self.world:emit("create_list_group", $_LIST_SUB_MENU, true, n_opt_sub)
 	for i, str in ipairs(options_sub) do
 		local lstr = string.lower(str)
 		lstr = string.gsub(lstr, "%s+", "")
@@ -274,14 +273,14 @@ function Menu:setup_menu()
 
 		local e = Concord.entity(self.world):assemble(AMenu.option_item,
 				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2,
-				IDS.lists.sub_menu)
+				$_LIST_SUB_MENU)
 			:give("on_enter_menu", "on_" .. lstr)
 		if not has_save and str == "Continue" then
 			e:give("list_item_skip")
 		end
 	end
 
-	self.world:emit("create_list_group", IDS.lists.main_menu, true, #options)
+	self.world:emit("create_list_group", $_LIST_MAIN_MENU, true, #options)
 	for i, str in ipairs(options) do
 		local lstr = string.lower(str)
 		local str_w = sdf_menu:getWidth(str) * str_scale
@@ -291,7 +290,7 @@ function Menu:setup_menu()
 
 		Concord.entity(self.world):assemble(AMenu.option_item,
 				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 1,
-				IDS.lists.main_menu)
+				$_LIST_MAIN_MENU)
 			:give("on_enter_menu", "on_" .. lstr, 0, lstr)
 	end
 	self.world:__flush()
@@ -394,7 +393,7 @@ function Menu:show_main_menu()
 		:give("move_to_original", duration_pos)
 	end
 	self.current_state = states.menu
-	self.world:emit("set_focus_list", IDS.lists.main_menu)
+	self.world:emit("set_focus_list", $_LIST_MAIN_MENU)
 end
 
 function Menu:hide_main_menu(duration)
@@ -419,7 +418,7 @@ function Menu:show_sub_menu()
 	Timer.after(duration_show, function()
 		self.current_state = states.sub_menu
 		local override_cursor = Save.valid_checkpoints and 1 or 2
-		self.world:emit("set_focus_list", IDS.lists.sub_menu, override_cursor)
+		self.world:emit("set_focus_list", $_LIST_SUB_MENU, override_cursor)
 	end)
 end
 
@@ -573,7 +572,7 @@ function Menu:open_url(str)
 	love.system.openURL(str)
 end
 
-Menu[$_LIST_UPDATE .. IDS.lists.main_menu] = function(self, e_hovered)
+Menu[$_SIGNAL_LIST_UPDATE .. $_LIST_MAIN_MENU] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_main_menu) do
 		local pos = e.pos
 		local color = e.color
@@ -587,7 +586,7 @@ Menu[$_LIST_UPDATE .. IDS.lists.main_menu] = function(self, e_hovered)
 	end
 end
 
-Menu[$_LIST_UPDATE .. IDS.lists.sub_menu] = function(self, e_hovered)
+Menu[$_SIGNAL_LIST_UPDATE .. $_LIST_SUB_MENU] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_sub_menu) do
 		local pos = e.pos
 		local color = e.color
@@ -604,7 +603,7 @@ Menu[$_LIST_UPDATE .. IDS.lists.sub_menu] = function(self, e_hovered)
 	end
 end
 
-Menu[$_LIST_INTERACT .. IDS.lists.main_menu] = function(self, e_hovered)
+Menu[$_SIGNAL_LIST_INTERACT .. $_LIST_MAIN_MENU] = function(self, e_hovered)
 	local text = e_hovered.text.value
 	if text == "Play" then
 		self.is_transition = true
@@ -622,7 +621,7 @@ Menu[$_LIST_INTERACT .. IDS.lists.main_menu] = function(self, e_hovered)
 	end
 end
 
-Menu[$_LIST_INTERACT .. IDS.lists.sub_menu] = function(self, e_hovered)
+Menu[$_SIGNAL_LIST_INTERACT .. $_LIST_SUB_MENU] = function(self, e_hovered)
 	local text = e_hovered.text.value
 	if text == "Continue" then
 		self:on_continue()

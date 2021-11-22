@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 
 local Inputs = require("inputs")
-local IDS = require("data.ids")
 local ListByID = require("ctor.list_by_id")
 local NotesList = require("notes")
 local Palette = require("palette")
@@ -11,7 +10,7 @@ local Notes = Concord.system({
 	pool_camera = {"camera"},
 	pool_item = {
 		constructor = ListByID,
-		id = IDS.lists.notes,
+		id = $_LIST_NOTES,
 	},
 })
 
@@ -54,7 +53,7 @@ function Notes:close_notes(not_close)
 	for _, e in ipairs(self.pool_item) do
 		e:destroy()
 	end
-	self.world:emit("destroy_list", IDS.lists.notes)
+	self.world:emit("destroy_list", $_LIST_NOTES)
 	self.world:emit("inventory_to_notes", true)
 end
 
@@ -108,7 +107,7 @@ function Notes:create_notes()
 	local rows = math.floor(ih * scale * 0.75 / row_h)
 
 	self.rows_per_page = rows
-	self.world:emit("create_list_group", IDS.lists.notes, true, rows * 2)
+	self.world:emit("create_list_group", $_LIST_NOTES, true, rows * 2)
 
 	local acquired_notes = NotesList.get_acquired()
 	for i, note in ipairs(acquired_notes) do
@@ -132,7 +131,7 @@ function Notes:create_notes()
 	self.world:emit("create_notes_key", "notes")
 end
 
-Notes[$_LIST_UPDATE .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_SIGNAL_LIST_UPDATE .. $_LIST_NOTES] = function(self, e_hovered)
 	@@assert(self.pool_item:has(e_hovered))
 	local font = e_hovered.font.value
 	local c_pos = self.e_cursor.pos
@@ -146,13 +145,13 @@ Notes[$_LIST_UPDATE .. IDS.lists.notes] = function(self, e_hovered)
 	self.world:emit("lerp_color", e_hovered, c_on_hovered, 0.25, "circin")
 end
 
-Notes[$_LIST_REMOVE .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_SIGNAL_LIST_REMOVE .. $_LIST_NOTES] = function(self, e_hovered)
 	@@assert(self.pool_item:has(e_hovered))
 	self.world:emit("lerp_color", self.e_cursor, {1, 1, 1, 0}, 0.25, "circin")
 	self.world:emit("lerp_color", e_hovered, e_hovered.color.original, 0.25, "circin")
 end
 
-Notes[$_LIST_INTERACT .. IDS.lists.notes] = function(self, e_hovered)
+Notes[$_SIGNAL_LIST_INTERACT .. $_LIST_NOTES] = function(self, e_hovered)
 	print(e_hovered.id.value)
 end
 

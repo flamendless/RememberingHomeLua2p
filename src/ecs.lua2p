@@ -16,6 +16,26 @@ Concord.utils.loadNamespace("components", Components)
 local Systems = {}
 Concord.utils.loadNamespace("systems", Systems)
 
+!(
+local commons = {
+	"animation", "atlas", "bump_collision", "camera", "color", "culling",
+	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
+	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
+	"outline", "pause", "player_controller", "render_rect", "render_sprite",
+	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
+	"door", "light_switch", "notes", "list", "post_processing",
+	--"flashlight", "animation_sync",
+}
+
+function get_commons_ex(...)
+	local c = copyTable(commons, true)
+	for _, str in ipairs({...}) do
+		table.insert(c, str)
+	end
+	return toLua(c)
+end
+)
+
 local systems = {}
 systems.Splash = {
 	"animation", "color", "render_sprite", "render_text", "show_keys",
@@ -35,63 +55,17 @@ systems.Intro = {
 	"transform", "tween", "gamestates", "fog", "entity", "atlas",
 }
 
-systems.Outside = {
-	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"show_keys", "deferred_lighting", "dialogues", "entity", "fireflies",
-	"gamestates", "glitch_shader_effect", "interactive", "inventory", "items",
-	"movement", "outline", "path", "pause", "player_controller", "render_rect",
-	"render_sprite", "render_text", "render_ui", "room", "systems",
-	"text_paint", "transform", "typewriter", "door", "notes", "list", "post_processing",
-}
-
-systems.StorageRoom = {
-	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
-	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "pause", "player_controller", "render_rect", "render_sprite",
-	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes", "list", "post_processing",
-	--"flashlight", "animation_sync",
-}
-
-systems.UtilityRoom = {
-	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
-	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "pause", "player_controller", "render_rect", "render_sprite",
-	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes", "list", "post_processing",
-}
-
-systems.Kitchen = {
-	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
-	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "pause", "player_controller", "render_rect", "render_sprite",
-	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes", "list", "post_processing",
-}
-
-systems.LivingRoom = {
-	"animation", "atlas", "bump_collision", "camera", "color", "culling",
-	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
-	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "pause", "player_controller", "render_rect", "render_sprite",
-	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes", "list", "post_processing",
-}
+systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint", "typewriter"))
+systems.StorageRoom = $get_commons_ex
+systems.UtilityRoom = $get_commons_ex
+systems.Kitchen = $get_commons_ex
+systems.LivingRoom = $get_commons_ex
 
 local unpausable_list = {
 	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
 	"color", "glitch_shader_effect", "gamestates", "deferred_lighting", "post_processing",
 	"list",
 }
-
-!if _DEV then
-local fn = {
-	"state_setup", "state_init", "state_update", "state_draw", "state_cleanup",
-}
-!end
 
 function ECS.load_systems(id, world, prev_id)
 	@@assert(type(id) == "string")
@@ -102,12 +76,6 @@ function ECS.load_systems(id, world, prev_id)
 	@@assert(Systems[lid], lid .. " state system does not exist")
 
 	!if _DEV then
-	for _, ev in ipairs(fn) do
-		if not Systems[lid][ev] then
-			local str = format("state system '%s' does not have '%s' event", lid, ev)
-			Log.warn(str)
-		end
-	end
 	DevTools = require("devtools")
 	!end
 

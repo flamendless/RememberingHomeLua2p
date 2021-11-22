@@ -3,7 +3,6 @@ local Log = require("modules.log.log")
 local Lume = require("modules.lume.lume")
 
 local Fade = require("fade")
-local IDS = require("data.ids")
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
@@ -11,7 +10,7 @@ local Resources = require("resources")
 local Pause = Concord.system({
 	pool_choice = {
 		constructor = ListByID,
-		id = IDS.lists.pause_choices,
+		id = $_LIST_PAUSE_CHOICES
 	},
 })
 
@@ -51,7 +50,7 @@ function Pause:create_pause_choices()
 	local fnt = Resources.data.fonts.ui
 	local fh = fnt:getHeight("") * scale + 8
 
-	self.world:emit("create_list_group", IDS.lists.pause_choices, true, #opt)
+	self.world:emit("create_list_group", $_LIST_PAUSE_CHOICES, true, #opt)
 	for i, str in ipairs(opt) do
 		local x = ww2
 		local y = by + (i - 1) * fh
@@ -117,7 +116,7 @@ function Pause:on_pause()
 		tablex.clear(self.prev)
 		self.e_bg:destroy()
 		self.e_title:destroy()
-		self.world:emit("destroy_list", IDS.lists.pause_choices)
+		self.world:emit("destroy_list", $_LIST_PAUSE_CHOICES)
 	end
 
 	self.is_paused = not self.is_paused
@@ -125,7 +124,7 @@ function Pause:on_pause()
 	Log.info("Paused:", self.is_paused)
 end
 
-Pause[$_LIST_UPDATE .. IDS.lists.pause_choices] = function(self, e_hovered)
+Pause[$_SIGNAL_LIST_UPDATE .. $_LIST_PAUSE_CHOICES] = function(self, e_hovered)
 	self:do_pause_glitch(glitch_chance)
 	for _, e in ipairs(self.pool_choice) do
 		if e ~= e_hovered then
@@ -141,7 +140,7 @@ Pause[$_LIST_UPDATE .. IDS.lists.pause_choices] = function(self, e_hovered)
 	hovered_color[3] = 0
 end
 
-Pause[$_LIST_INTERACT .. IDS.lists.pause_choices] = function(self, e_hovered)
+Pause[$_SIGNAL_LIST_INTERACT .. $_LIST_PAUSE_CHOICES] = function(self, e_hovered)
 	local text = e_hovered.static_text.value
 	if text == "Resume" then
 		self:on_pause()

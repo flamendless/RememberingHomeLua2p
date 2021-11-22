@@ -36,11 +36,8 @@ function LivingRoom:state_setup()
 		self.camera, self.scale, w, h)
 	Concord.entity(self.world):assemble(Assemblages.LivingRoom.bg)
 
-	for _, v in pairs(Assemblages.LivingRoom.colliders) do
-		Concord.entity(self.world):assemble(v, w, h)
-	end
+	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "atlas_living_room_items", "living_room_items")
-
 	self.world:emit("setup_post_process", {
 		NGrading("lut_dusk"),
 		FilmGrain(),
