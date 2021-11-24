@@ -11,6 +11,9 @@ BumpStorage.__mt = {
 
 local ctor = function(def)
 	local self = setmetatable(Bump.newWorld(), BumpStorage.__mt)
+	table.insert(def, "collider")
+	table.insert(def, "pos")
+	table.insert(def, "bump")
 	return self
 end
 

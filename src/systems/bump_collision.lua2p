@@ -4,7 +4,6 @@ local BumpStorage = require("ctor.bump_storage")
 local BumpCollision = Concord.system({
 	pool = {
 		constructor = BumpStorage,
-		"collider", "pos", "bump"
 	},
 	pool_camera = {"camera",}
 })

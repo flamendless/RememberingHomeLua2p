@@ -1,10 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local format = string.format
-local lower = string.lower
-
 !if _DEV then
-local Log = require("modules.log.log")
 local DevTools
 !end
 
@@ -55,7 +51,7 @@ systems.Intro = {
 	"transform", "tween", "gamestates", "fog", "entity", "atlas",
 }
 
-systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint", "typewriter"))
+systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))
 systems.StorageRoom = $get_commons_ex
 systems.UtilityRoom = $get_commons_ex
 systems.Kitchen = $get_commons_ex
@@ -72,7 +68,7 @@ function ECS.load_systems(id, world, prev_id)
 	@@assert(systems[id])
 	@@assert(world.__isWorld)
 	@@sassert(prev_id, type(prev_id) == "string" and systems[prev_id])
-	local lid = lower(id)
+	local lid = string.lower(id)
 	@@assert(Systems[lid], lid .. " state system does not exist")
 
 	!if _DEV then
@@ -91,7 +87,7 @@ function ECS.load_systems(id, world, prev_id)
 	!end
 
 	for _, v in ipairs(systems[id]) do
-		@@assert(Systems[v], format("id = %s, i = %d", v, _))
+		@@assert(Systems[v], string.format("id = %s, i = %d", v, _))
 		world:addSystem(Systems[v])
 		local sys = Systems[v]
 		for _, u in ipairs(unpausable_list) do
@@ -115,8 +111,8 @@ end
 
 function ECS.get_system_class(id)
 	@@assert(type(id) == "string")
-	@@assert(Systems[lower(id)], "system " .. id .. " not found")
-	return Systems[lower(id)]
+	@@assert(Systems[string.lower(id)], "system " .. id .. " not found")
+	return Systems[string.lower(id)]
 end
 
 return ECS

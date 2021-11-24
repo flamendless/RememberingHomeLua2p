@@ -1,11 +1,12 @@
 local Log = require("modules.log.log")
 
+!if _CACHED_PRELOAD then
+local Cache = require("cache")
+!end
+
 local Resources = {
 	meta = {},
 	data = {},
-	!if _CACHED_PRELOAD then
-	cache = {},
-	!end
 }
 
 !if _DEV then
@@ -51,28 +52,6 @@ function Resources.set_resources(t)
 end
 
 !if _CACHED_PRELOAD then
-function Resources.manage_cache(resources, list)
-	@@assert(type(resources) == "table")
-	@@assert(type(list) == "table")
-	local prev_res = Resources.data
-	for kind, t in pairs(list) do
-		local res = prev_res[kind]
-		if res then
-			!if _DEV then
-			setmetatable(res, nil)
-			!end
-			for i = #t, 1, -1 do
-				local id = t[i][1]
-				if res[id] then
-					Resources.cache[id] = res[id]
-					resources[kind][id] = res[id]
-					table.remove(list[kind], i)
-				end
-			end
-		end
-	end
-end
-
 function Resources.copy_array_images(resources)
 	@@assert(type(resources) == "table")
 	for k, v in pairs(resources.array_images) do
@@ -85,7 +64,7 @@ function Resources.clean()
 	for k, t in pairs(Resources.data) do
 		for name, _ in pairs(t) do
 			!if _CACHED_PRELOAD then
-			if not Resources.cache[name] then
+			if not Cache.has_resource(name) then
 				Resources.data[k][name]:release()
 				Resources.data[k][name] = nil
 				Log.trace("Cleaned:", k, name)
@@ -101,8 +80,7 @@ function Resources.clean()
 		Resources.data[k] = nil
 	end
 	!if _CACHED_PRELOAD then
-	tablex.clear(Resources.cache)
-	@@assert(#Resources.cache == 0)
+	Cache.clean_resources()
 	!end
 end
 

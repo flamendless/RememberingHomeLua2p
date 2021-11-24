@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Outliner = require("outliner")
 
+local Cache = require("cache")
 local Palette = require("palette")
 
 local Outline = Concord.system({
@@ -25,14 +26,21 @@ function Outline:create_outline(e)
 	@@assert(e.__isEntity and e.id and e.pos)
 	local sprite = e.sprite
 	if not sprite then return end
+
+	local grouped = e.grouped
+	local id = "outline_" .. (grouped and grouped.value or e.id.value)
+	local cached_e = Cache.get_entity(id)
+	if cached_e then
+		cached_e:remove("hidden")
+		return
+	end
+
 	local pos = e.pos
 	local quad = e.quad
-	local grouped = e.grouped
 	local x, y = pos.x - $_PADDING, pos.y - $_PADDING
-	local id = grouped and grouped.value or e.id.value
 
 	local outline_e = Concord.entity(self.world)
-		:give("id", "outline_" .. id)
+		:give("id", id)
 		:give("pos", x, y)
 		:give("sprite", sprite.resource_id)
 		:give("outline")
@@ -79,6 +87,16 @@ end
 
 function Outline:remove_outlines()
 	for _, e in ipairs(self.pool) do
+		e:give("hidden")
+		if not Cache.has_entity(e) then
+			Cache.add_entity(e)
+		end
+	end
+end
+
+function Outline:cleanup()
+	for _, e in ipairs(self.pool) do
+		Cache.remove_entity(e)
 		e:destroy()
 	end
 end

@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
+local Cache = require("cache")
 local ECS = require("ecs")
 local Preloader = require("preloader")
 local Resources = require("resources")
@@ -24,7 +25,7 @@ function GameStates.preload()
 	}
 	local list = Resources.get_meta(GameStates.current_id)
 	!if _CACHED_PRELOAD then
-	Resources.manage_cache(resources, list)
+	Cache.manage_resources(resources, list, Resources.data)
 	!end
 	Resources.clean()
 	!if _CACHED_PRELOAD and _GLSL_NORMALS then
