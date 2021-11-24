@@ -18,9 +18,12 @@ Doors.Kitchen = {
 	right_door = "StorageRoom",
 }
 
+Doors.LivingRoom = {
+	door = "DiningArea",
+}
+
 function Doors.get_next(current_id, door_id)
-	@@assert(type(current_id) == "string")
-	@@assert(type(door_id) == "string")
+	@@assert(type(current_id) == "string" and type(door_id) == "string")
 	@@assert(Doors[current_id][door_id])
 	return Doors[current_id][door_id]
 end

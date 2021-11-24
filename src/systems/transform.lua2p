@@ -13,7 +13,8 @@ local Transform = Concord.system({
 	pool_spawn = {"pos", "attach_to_spawn_point"},
 })
 
-function Transform:init()
+function Transform:init(world)
+	self.world = world
 	self.pool.onAdded = function(pool, e)
 		!if _DEV then
 			if e.quad and e.atlas then
@@ -263,6 +264,9 @@ function Transform:debug_update(dt)
 				t.sy = UIWrapper.edit_number("sy", t.sy)
 				t.kx = UIWrapper.edit_number("kx", t.kx)
 				t.ky = UIWrapper.edit_number("ky", t.ky)
+			end
+			if e.point_light then
+				self.world:emit("update_light_pos", e)
 			end
 			Slab.EndTree()
 			Slab.Unindent()

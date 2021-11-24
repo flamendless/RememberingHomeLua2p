@@ -24,10 +24,34 @@ local Data = {
 				y = 0.5
 			}
 		},
-		clock = {
+		door = {
 			frame = {
 				x = 4,
 				y = 119,
+				w = 38,
+				h = 70
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 38,
+				h = 70
+			},
+			sourceSize = {
+				w = 38,
+				h = 70
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
+		clock = {
+			frame = {
+				x = 4,
+				y = 197,
 				w = 23,
 				h = 66
 			},
@@ -51,7 +75,7 @@ local Data = {
 		table2 = {
 			frame = {
 				x = 4,
-				y = 193,
+				y = 271,
 				w = 56,
 				h = 48
 			},
@@ -75,7 +99,7 @@ local Data = {
 		painting = {
 			frame = {
 				x = 35,
-				y = 119,
+				y = 197,
 				w = 71,
 				h = 47
 			},
@@ -99,7 +123,7 @@ local Data = {
 		table = {
 			frame = {
 				x = 35,
-				y = 174,
+				y = 252,
 				w = 87,
 				h = 11
 			},
@@ -114,6 +138,78 @@ local Data = {
 			sourceSize = {
 				w = 87,
 				h = 11
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
+		fireplace_inner = {
+			frame = {
+				x = 50,
+				y = 119,
+				w = 34,
+				h = 33
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 34,
+				h = 33
+			},
+			sourceSize = {
+				w = 34,
+				h = 33
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
+		plant = {
+			frame = {
+				x = 50,
+				y = 160,
+				w = 16,
+				h = 29
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 16,
+				h = 29
+			},
+			sourceSize = {
+				w = 16,
+				h = 29
+			},
+			pivot = {
+				x = 0.5,
+				y = 0.5
+			}
+		},
+		stool = {
+			frame = {
+				x = 74,
+				y = 160,
+				w = 22,
+				h = 16
+			},
+			rotated = false,
+			trimmed = false,
+			spriteSourceSize = {
+				x = 0,
+				y = 0,
+				w = 22,
+				h = 16
+			},
+			sourceSize = {
+				w = 22,
+				h = 16
 			},
 			pivot = {
 				x = 0.5,
@@ -143,78 +239,6 @@ local Data = {
 				x = 0.5,
 				y = 0.5
 			}
-		},
-		plant = {
-			frame = {
-				x = 78,
-				y = 43,
-				w = 16,
-				h = 29
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 16,
-				h = 29
-			},
-			sourceSize = {
-				w = 16,
-				h = 29
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
-		},
-		fireplace_inner = {
-			frame = {
-				x = 78,
-				y = 80,
-				w = 34,
-				h = 26
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 34,
-				h = 26
-			},
-			sourceSize = {
-				w = 34,
-				h = 26
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
-		},
-		stool = {
-			frame = {
-				x = 102,
-				y = 43,
-				w = 22,
-				h = 16
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 22,
-				h = 16
-			},
-			sourceSize = {
-				w = 22,
-				h = 16
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
 		}
 	},
 	meta = {
@@ -224,7 +248,7 @@ local Data = {
 		format = "RGBA8888",
 		size = {
 			w = 128,
-			h = 256
+			h = 512
 		},
 		scale = 1
 	}

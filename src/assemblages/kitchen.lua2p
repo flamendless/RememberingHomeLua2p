@@ -13,9 +13,9 @@ function Kitchen.bg(e)
 	:give("bg")
 end
 
-
 local lz = 48
 local ls = 128
+local fade = 6
 function Kitchen.lights.left_bulb(e)
 	e:assemble(Light.point,
 		86, 26, lz, ls,
@@ -23,6 +23,7 @@ function Kitchen.lights.left_bulb(e)
 	:give("id", "pl_left")
 	:give("light_group", "side_pl")
 	:give("light_switch_id", "top")
+	:give("light_fading", fade, -1)
 end
 
 function Kitchen.lights.right_bulb(e)
@@ -32,19 +33,21 @@ function Kitchen.lights.right_bulb(e)
 	:give("id", "pl_right")
 	:give("light_group", "side_pl")
 	:give("light_switch_id", "top")
+	:give("light_fading", fade, -1)
 end
 
 local lzmp = 7
 local lsmp = 128
 local pl_x = {184, 215, 242}
-for i = 1, 3 do
+for i = 1, #pl_x do
 	Kitchen.lights["mid_bulb_pl" .. i] = function(e)
 		e:assemble(Light.point,
 			pl_x[i], 57, lzmp, lsmp,
 			Palette.get_diffuse("kitchen_mid_pl"))
 		:give("id", "pl_mid" .. i)
 		:give("light_group", "mid_bulb_pl")
-	:give("light_switch_id", "bottom")
+		:give("light_switch_id", "bottom")
+		:give("light_fading", fade, -1)
 	end
 end
 

@@ -32,19 +32,27 @@ end
 -- 	:give("light_group", "side_pl")
 -- 	:give("light_switch_id", "top")
 -- end
---
--- local lzmp = 7
--- local lsmp = 128
--- local pl_x = {184, 215, 242}
--- for i = 1, 3 do
--- 	LivingRoom.lights["mid_bulb_pl" .. i] = function(e)
--- 		e:assemble(Light.point,
--- 			pl_x[i], 57, lzmp, lsmp,
--- 			Palette.get_diffuse("kitchen_mid_pl"))
--- 		:give("id", "pl_mid" .. i)
--- 		:give("light_group", "mid_bulb_pl")
--- 	:give("light_switch_id", "bottom")
--- 	end
--- end
+
+local lzmp = 2
+local lsmp = 64
+local pl_pos = {
+	{x = 186, y = 53},
+	{x = 193, y = 45},
+	{x = 202, y = 45},
+	{x = 209, y = 53},
+}
+
+for i = 1, #pl_pos do
+	local p = pl_pos[i]
+	LivingRoom.lights["mid_light_pl" .. i] = function(e)
+		e:assemble(Light.point,
+			p.x, p.y, lzmp, lsmp,
+			Palette.get_diffuse("living_room_mid_pl"))
+		:give("id", "pl_mid" .. i)
+		:give("light_group", "mid_light_pl")
+		:give("light_switch_id", "bottom")
+		:give("light_fading", 32, -1)
+	end
+end
 
 return LivingRoom

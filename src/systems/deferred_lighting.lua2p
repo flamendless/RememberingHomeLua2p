@@ -141,6 +141,7 @@ end
 
 function DeferredLighting:update(dt)
 	self.timer:update(dt)
+	self:update_light_fading(dt)
 end
 
 function DeferredLighting:apply_ambiance()

@@ -250,7 +250,6 @@ function Outside:state_update(dt)
 	end
 	!end
 	self.world:emit("update", dt)
-	self.world:emit("update_light_fading", dt)
 
 	if self.is_raining then
 		self.ps1:update(dt)
