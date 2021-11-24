@@ -18,9 +18,9 @@ function create_data()
 		frames[key].frame.y = 0
 	end
 
-	return {frames = frames}
+	return toLua({frames = frames})
 end
 )
 
-local Data = !(create_data())
+local Data = $create_data
 return Data

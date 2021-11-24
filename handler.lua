@@ -57,59 +57,59 @@ elseif args[1] == "prof" then
 	_PROF = true
 end
 
-_IDENTITY = "goinghomerevisited"
-_LOVE_VERSION = "11.3"
-_GAME_VERSION = { 0, 0, 1 }
-_COMMIT_VERSION = args[2]
+_IDENTITY = toLua("goinghomerevisited")
+_LOVE_VERSION = toLua("11.3")
+_GAME_VERSION = toLua("0.0.1")
+_COMMIT_VERSION = toLua(args[2])
 
-_MODE = args[1]
+_MODE = toLua(args[1])
 _LOG_SAVE = true
 _CACHED_PRELOAD = true
-_PADDING = 4
+_PADDING = toLua(4)
 _GLSL_NORMALS = false
-_INPUT_DELAY = 0.25
+_INPUT_DELAY = toLua(0.25)
 
 _OS = "Linux"
 _PLATFORM = "desktop" --mobile
-_GAME_TITLE  = "Going Home: Revisited"
-_GAME_TITLE_SECRET  = "COMING SOON"
-_GAME_SIZE = { x = 1024, y = 640 }
-_GAME_BASE_SIZE = { x = 128, y = 32 }
+_GAME_TITLE  = toLua("Going Home: Revisited")
+_GAME_TITLE_SECRET  = toLua("COMING SOON")
+_GAME_SIZE = {x = 1024, y = 640}
+_GAME_BASE_SIZE = toLua({x = 128, y = 32})
 
-_MIN_GL_VERSION = "2.1"
+_MIN_GL_VERSION = toLua("2.1")
 
-_DEFAULT_FILTER = "nearest"
-_IMAGE_FILTER = "nearest"
-_FONT_FILTER = "nearest"
-_CANVAS_FILTER = "nearest"
+_DEFAULT_FILTER = toLua("nearest")
+_IMAGE_FILTER = toLua("nearest")
+_FONT_FILTER = toLua("nearest")
+_CANVAS_FILTER = toLua("nearest")
 
-_WINDOW_MODES = {
+_WINDOW_MODES = toLua({
 	{
 		width = _GAME_SIZE.x,
 		height = _GAME_SIZE.y
 	}
-}
-_WINDOW_MODES_STR = {
+})
+_WINDOW_MODES_STR = toLua({
 	(_GAME_SIZE.x .. "x" .. _GAME_SIZE.y),
-}
+})
 
 _GFX_QUALITY = nil
 if _DEV then
-	_GFX_QUALITY = "low"
+	_GFX_QUALITY = toLua("low")
 else
-	_GFX_QUALITY = "high"
+	_GFX_QUALITY = toLua("high")
 end
 
 _EMAIL = "flamendless.studio@gmail.com"
 _GITHUB_URL = "https://github.com/flamendless/GoingHomeRevisited"
 _GITHUB_URL_RELEASE = ""
 
-_LOG_OUTPUT = "log"
-_LOG_INFO = "info.txt"
-_SETTINGS_FILENAME = "user_settings"
-_SAVE_FILENAME = "save_data"
-_SAVESTATE_FILENAME = "save_state"
-_SAVE_KEY = "data_store"
+_LOG_OUTPUT = toLua("log")
+_LOG_INFO = toLua("info.txt")
+_SETTINGS_FILENAME = toLua("user_settings")
+_SAVE_FILENAME = toLua("save_data")
+_SAVESTATE_FILENAME = toLua("save_state")
+_SAVE_KEY = toLua("data_store")
 
 _URL_TWITTER = "https://twitter.com/@flam8studio"
 _URL_DISCORD = "https://discord.gg/2W4tyyV"
@@ -140,30 +140,29 @@ _TWITTER_ARTIST = "@Shizzy619"
 _TWITTER_DESIGNER = "@piotato"
 _TWITTER_MUSICIAN = "@???"
 
-_TOOLS = {
+_TOOLS = toLua({
 	"Manjaro", "i3-Gaps", "Discord", "Löve Framework",
 	"Luapreprocess", "Vim", "Aseprite", "Audacity", "Free Texture Packer",
 	"makelove", "msdf-bmfont",
-}
+})
 
-_LIBS = {
+_LIBS = toLua({
 	"Anim8", "Batteries", "Bitser", "Bump-niji", "Concord", "Enum", "Flux",
 	"Gamera", "HUMP", "JProf", "Lily", "Log", "Lume", "ngrading", "Outliner",
 	"ReflowPrint", "SDF", "Semver", "Slab", "Splashes", "strict",
 	"TimelineEvents",
-}
+})
 
 --PRE CALCULATED
-_HALF_PI = math.pi * 0.5
-_TWO_PI = math.pi * 2
-_T_H_PI = 3 * _HALF_PI
+_HALF_PI = toLua(math.pi * 0.5)
+_TWO_PI = toLua(math.pi * 2)
+_T_H_PI = toLua(3 * _HALF_PI)
+_RA = toLua({math.cos(math.pi/32), math.sin(math.pi/32)})
 
 --IDS
-_ITEMS_ACTIONS = {
-	use = "Use",
-	equip = "Equip",
-	cancel = "Cancel",
-}
+_ITEMS_ACTION_USE = toLua("Use")
+_ITEMS_ACTION_EQUIP = toLua("Equip")
+_ITEMS_ACTION_CANCEL = toLua("Cancel")
 
 _LIST_MAIN_MENU = toLua("main_menu")
 _LIST_SUB_MENU = toLua("sub_menu")

@@ -33,11 +33,11 @@ end
 
 function GameStates:save_game()
 	-- local data = self.world:serialize()
-	-- Utils.serial.write(!(_SAVESTATE_FILENAME), data)
+	-- Utils.serial.write($_SAVESTATE_FILENAME, data)
 end
 
 function GameStates:load_game()
-	-- local data = Utils.serial.read(!(_SAVESTATE_FILENAME))
+	-- local data = Utils.serial.read($_SAVESTATE_FILENAME)
 	-- self.world:deserialize(data, true)
 end
 

@@ -4,7 +4,7 @@ local Canvas = class({
 
 function Canvas.init_canvases(canvases)
 	@@assert(type(canvases) == "table")
-	local game_size = !(_GAME_BASE_SIZE)
+	local game_size = $_GAME_BASE_SIZE
 	local ww, wh = love.graphics.getDimensions()
 	local scale = math.min(ww/game_size.x, wh/game_size.y)
 	local mid_canvas_prop = {}
@@ -76,7 +76,7 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 	@@assert(type(rotation) == "number")
 	@@assert(type(scale) == "number")
 	self.canvas = love.graphics.newCanvas(width, height)
-	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
 	self.x, self.y = x, y
 	self.width, self.height = width, height
 	self.rotation = rotation
@@ -93,14 +93,14 @@ function Canvas:new_from_table(tbl)
 	self.rotation = tbl.rotation
 	self.scale = tbl.scale or 1
 	self.canvas = love.graphics.newCanvas(self.width, self.height)
-	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
 	return self
 end
 
 function Canvas:new_from_canvas(source)
 	@@assert(source:type() == "CustomCanvas")
 	self.canvas = love.graphics.newCanvas(source.width, source.height)
-	self.canvas:setFilter(!(_CANVAS_FILTER), !(_CANVAS_FILTER))
+	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
 	self.x, self.y = source.x, source.y
 	self.width, self.height = source.width, source.height
 	self.rotation = source.rotation

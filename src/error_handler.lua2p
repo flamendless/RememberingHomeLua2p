@@ -69,7 +69,7 @@ function ErrorHandler.callback(msg)
 
 	love.graphics.reset()
 	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 16)
-	font:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+	font:setFilter($_FONT_FILTER, $_FONT_FILTER)
 	love.graphics.setFont(font)
 	love.graphics.setColor(1, 1, 1, 1)
 

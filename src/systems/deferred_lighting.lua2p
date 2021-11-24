@@ -15,7 +15,7 @@ local DeferredLighting = Concord.system({
 local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
 local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
 local lvfd = {{"diffuse", "float", 3}} -- color
-local RA = !({math.cos(math.pi/32), math.sin(math.pi/32)})
+local RA = $_RA
 local MAX_LIGHTS = 96
 
 function DeferredLighting:init(world)

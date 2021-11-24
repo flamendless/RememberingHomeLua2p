@@ -46,8 +46,8 @@ local duration_show = 0.75
 local duration_hide = 0.75
 local duration_pos = 0.75
 local tx = 176
-local tools = !(_TOOLS)
-local libs = !(_LIBS)
+local tools = $_TOOLS
+local libs = $_LIBS
 local options = {"Play", "Settings", "About", "Exit"}
 local options_sub = {"Continue", "New Game"}
 

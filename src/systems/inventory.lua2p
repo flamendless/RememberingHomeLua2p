@@ -90,7 +90,7 @@ function Inventory:close_inventory(not_close)
 	self.world:emit("destroy_list", $_LIST_INVENTORY_CHOICES)
 	self.world:emit("set_post_process_effect", "Blur", false)
 	self.world:emit("destroy_key", "inventory")
-	Timer.after(!(_INPUT_DELAY), function() self.can_open = true end)
+	Timer.after($_INPUT_DELAY, function() self.can_open = true end)
 end
 
 function Inventory:update(dt)
@@ -163,7 +163,7 @@ function Inventory:create_inventory()
 
 	local c_bx = orig_x + bg_w - pad
 	local c_by = orig_y + bg_h * 0.5
-	local choices = {!(_ITEMS_ACTIONS.use), !(_ITEMS_ACTIONS.equip), !(_ITEMS_ACTIONS.cancel)}
+	local choices = {$_ITEMS_ACTION_USE, $_ITEMS_ACTION_EQUIP, $_ITEMS_ACTION_CANCEL}
 	for i, str in ipairs(choices) do
 		local c_oy = pad * (0.5 + (i - 1) * 1.2)
 		local c_y = c_by + c_oy
@@ -239,11 +239,11 @@ end
 Inventory[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CHOICES] = function(self, e_hovered)
 	local text = e_hovered.static_text.value
 	local item = self:get_selected_item()
-	if text == !(_ITEMS_ACTIONS.use) then
+	if text == $_ITEMS_ACTION_USE then
 		self.world:emit("on_item_use", item)
-	elseif text == !(_ITEMS_ACTIONS.equip) then
+	elseif text == $_ITEMS_ACTION_EQUIP then
 		self.world:emit("on_item_equip", item)
-	elseif text == !(_ITEMS_ACTIONS.cancel) then
+	elseif text == $_ITEMS_ACTION_CANCEL then
 		for _, e in ipairs(self.pool_choice) do
 			e.color.value[4] = 0
 		end

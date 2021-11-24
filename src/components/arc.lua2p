@@ -10,9 +10,9 @@ Concord.component("arc", function(c, radius, segments, start_angle, end_angle)
 	@@sassert(end_angle, type(end_angle) == "number")
 	c.radius = radius
 	c.segments = segments or radius
-	c.start_angle = start_angle or -!(_HALF_PI)
-	c.start_angle = start_angle or -!(_HALF_PI)
-	c.end_angle = end_angle or !(_TWO_PI)
+	c.start_angle = start_angle or -$_HALF_PI
+	c.start_angle = start_angle or -$_HALF_PI
+	c.end_angle = end_angle or $_TWO_PI
 end)
 
 Concord.component("arc_type", function(c, arc_type)

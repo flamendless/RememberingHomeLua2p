@@ -28,9 +28,7 @@ function Outline:create_outline(e)
 	local pos = e.pos
 	local quad = e.quad
 	local grouped = e.grouped
-	local x, y = pos.x, pos.y
-	x = x - !(_PADDING)
-	y = y - !(_PADDING)
+	local x, y = pos.x - $_PADDING, pos.y - $_PADDING
 	local id = grouped and grouped.value or e.id.value
 
 	local outline_e = Concord.entity(self.world)
@@ -49,10 +47,10 @@ function Outline:create_outline(e)
 			outline_e:give("quad_transform", 0, qt.sx, qt.sy)
 		end
 
-		qx = qx - !(_PADDING)
-		qy = qy - !(_PADDING)
-		qw = qw + !(_PADDING * 2)
-		qh = qh + !(_PADDING * 2)
+		qx = qx - $_PADDING
+		qy = qy - $_PADDING
+		qw = qw + $_PADDING * 2
+		qh = qh + $_PADDING * 2
 		local nq = love.graphics.newQuad(qx, qy, qw, qh, qsw, qsh)
 		outline_e:give("quad", nq)
 	end

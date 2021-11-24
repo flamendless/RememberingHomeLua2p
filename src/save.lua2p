@@ -13,8 +13,8 @@ local Save = {
 	exists = false,
 }
 
-local save_filename = !(_SAVE_FILENAME)
-local key_filename = !(_SAVE_KEY)
+local save_filename = $_SAVE_FILENAME
+local key_filename = $_SAVE_KEY
 
 local function validate_checkpoints(data)
 	@@assert(type(data) == "table")

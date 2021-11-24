@@ -121,7 +121,7 @@ end
 !if _DEV then
 function Menu.secret_title(e, x, y)
 	e:give("id", "secret_title")
-	:give("text", !(_GAME_TITLE_SECRET))
+	:give("text", $_GAME_TITLE_SECRET)
 	:give("font", "about_64")
 	:give("pos", x, y)
 	:give("color", Palette.get("red_desaturated", 0))

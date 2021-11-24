@@ -33,7 +33,7 @@ function Inventory.border(e, i, x, y, rw, rh, ih, is_horizontal)
 		r, sy = unpack(cached)
 	else
 		if is_horizontal then
-			r = !(_T_H_PI)
+			r = $_T_H_PI
 			sy = rw / ih
 		else
 			r = 0
@@ -58,7 +58,7 @@ function Inventory.dline(e, i, x1, y1, x2, y2)
 	else
 		local dx = x2 - x1
 		local dy = y2 - y1
-		r = math.atan2(dy, dx) - !(_HALF_PI)
+		r = math.atan2(dy, dx) - $_HALF_PI
 		cache[id] = {r}
 	end
 	e:give("id", id)

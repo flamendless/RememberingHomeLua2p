@@ -8,7 +8,7 @@ local defaults = {
 	window_mode = 1,
 	muted = false,
 	volume = 100,
-	graphics_quality = !(_GFX_QUALITY),
+	graphics_quality = $_GFX_QUALITY,
 	show_keys = true,
 }
 
@@ -17,7 +17,7 @@ local Settings = {
 	available_graphics_quality = {"low", "high"},
 }
 
-local filename = !(_SETTINGS_FILENAME)
+local filename = $_SETTINGS_FILENAME
 
 function Settings.init()
 	local content, exists = Utils.serial.read(filename)
@@ -32,7 +32,7 @@ end
 function Settings.create_new()
 	Settings.current = tablex.copy(defaults, {})
 	local gl_version = string.sub(Info.data.renderer.version, 1, 3)
-	if gl_version == !(_MIN_GL_VERSION) then
+	if gl_version == $_MIN_GL_VERSION then
 		Settings.current.graphics_quality = "low"
 	else
 		Settings.current.graphics_quality = "high"

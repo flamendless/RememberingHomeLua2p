@@ -66,7 +66,7 @@ function Preloader.load(data, userdata, container, on_complete)
 			local dt = data:type()
 			if dt == "Image" then
 				local tt = data:getTextureType()
-				data:setFilter(!(_IMAGE_FILTER), !(_IMAGE_FILTER))
+				data:setFilter($_IMAGE_FILTER, $_IMAGE_FILTER)
 				if tt == "array" then
 					@@assert(type(container.array_images) == "table")
 					container.array_images[id] = data
@@ -81,7 +81,7 @@ function Preloader.load(data, userdata, container, on_complete)
 				container.sources[id] = data
 			elseif dt == "Font" then
 				@@assert(type(container.fonts) == "table")
-				data:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+				data:setFilter($_FONT_FILTER, $_FONT_FILTER)
 				container.fonts[id] = data
 			end
 

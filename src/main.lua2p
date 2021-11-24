@@ -44,7 +44,7 @@ local DevTools = require("devtools")
 !end
 
 local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
-font_preload:setFilter(!(_FONT_FILTER), !(_FONT_FILTER))
+font_preload:setFilter($_FONT_FILTER, $_FONT_FILTER)
 local function custom_loading_screen()
 	local w, h = love.graphics.getDimensions()
 
@@ -68,7 +68,7 @@ function love.load()
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
 
 	love.math.setRandomSeed(love.timer.getTime())
-	love.graphics.setDefaultFilter(!(_DEFAULT_FILTER), !(_DEFAULT_FILTER))
+	love.graphics.setDefaultFilter($_DEFAULT_FILTER, $_DEFAULT_FILTER)
 	WindowMode.init()
 	Shaders.init()
 	Info.init()
@@ -129,7 +129,7 @@ function love.draw()
 		love.graphics.setColor(1, 0, 0)
 		love.graphics.setFont(font_preload)
 		love.graphics.print(love.timer.getFPS())
-		love.graphics.print(!(_MODE), love.graphics.getWidth() - font_preload:getWidth(!(_MODE)))
+		love.graphics.print($_MODE, love.graphics.getWidth() - font_preload:getWidth($_MODE))
 	end
 	DevTools.end_draw()
 	!end
@@ -184,7 +184,7 @@ function love.quit()
 	Log.info("Quitting...")
 
 	!if not _DEV and _LOG_SAVE then
-	Log.quit(!(_LOG_OUTPUT))
+	Log.quit($_LOG_OUTPUT)
 	!end
 
 	!if _PROF then

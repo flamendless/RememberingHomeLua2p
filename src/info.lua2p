@@ -7,7 +7,7 @@ local Info = {
 	options = {},
 }
 
-local filename = !(_LOG_INFO)
+local filename = $_LOG_INFO
 
 local function insert_str(src, dest)
 	@@assert(type(src) == "table")
@@ -35,8 +35,8 @@ function Info.init()
 	}
 	data.info_os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
-	data.game_version = string.format("%i.%i.%i", unpack(!(_GAME_VERSION)))
-	data.git_version = !(_COMMIT_VERSION)
+	data.game_version = $_GAME_VERSION
+	data.git_version = $_COMMIT_VERSION
 	data.limits = love.graphics.getSystemLimits()
 	data.canvasformats = love.graphics.getCanvasFormats()
 	data.imageformats = love.graphics.getImageFormats()
