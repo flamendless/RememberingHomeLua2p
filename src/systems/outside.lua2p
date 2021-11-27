@@ -82,7 +82,7 @@ function Outside:state_setup()
 	for _, v in pairs(Assemblages.Outside.colliders) do
 		Concord.entity(self.world):assemble(v, w, h)
 	end
-	self.world:emit("parse_room_items", "atlas_outside_items", "outside_items")
+	self.world:emit("parse_room_items", "outside")
 
 	Concord.entity(self.world):assemble(Assemblages.Outside.splashes)
 	self.world:emit("generate_fireflies")

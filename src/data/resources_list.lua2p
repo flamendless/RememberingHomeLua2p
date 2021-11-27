@@ -59,6 +59,13 @@ function get_res(id)
 	end
 	return str
 end
+
+function get_atlas(id)
+	local t = {}
+	t[1] = "atlas_" .. id .. "_items"
+	t[2] = path_images .. "atlases/" .. id .. "/atlas.png"
+	return toLua(t)
+end
 )
 
 ResourcesList.Splash = {
@@ -134,12 +141,12 @@ ResourcesList.Outside = {
 		!!(get_res("ui"))
 	},
 	array_images = {
-		{"bg_sky", !(path_images .. "house_outside/bg_sky.png")},
-		{"bg_house", !(path_images .. "house_outside/bg_house.png")},
-		{"atlas_outside_items", !(path_images .. "house_outside/atlas_outside_items.png")},
-		{"firefly", !(path_images .. "house_outside/firefly.png")},
-		{"splashes", !(path_images .. "house_outside/splashes.png")},
-		{"splashes_low", !(path_images .. "house_outside/splashes_low.png")},
+		{"bg_sky", !(path_images .. "outside/bg_sky.png")},
+		{"bg_house", !(path_images .. "outside/bg_house.png")},
+		{"atlas_outside_items", !(path_images .. "outside/atlas_outside_items.png")},
+		{"firefly", !(path_images .. "outside/firefly.png")},
+		{"splashes", !(path_images .. "outside/splashes.png")},
+		{"splashes_low", !(path_images .. "outside/splashes_low.png")},
 		!!(get_res("player"))
 	},
 	image_data = {
@@ -224,7 +231,8 @@ ResourcesList.LivingRoom = {
 	},
 	array_images = {
 		{"living_room", !(path_images .. "living_room/living_room.png")},
-		{"atlas_living_room_items", !(path_images .. "living_room/atlas_living_room_items.png")},
+		-- {"atlas_living_room_items", !(path_images .. "living_room/atlas_living_room_items.png")},
+		!!(get_atlas("living_room")),
 		!!(get_res("player"))
 	},
 	image_data = {

@@ -11,11 +11,10 @@ function create_data()
 
 	for i, key in ipairs(list) do
 		frames[key] = {}
-		frames[key].frame = {}
-		frames[key].frame.w = w
-		frames[key].frame.h = h
-		frames[key].frame.x = (i - 1) * w
-		frames[key].frame.y = 0
+		frames[key].w = w
+		frames[key].h = h
+		frames[key].x = (i - 1) * w
+		frames[key].y = 0
 	end
 
 	return toLua({frames = frames})

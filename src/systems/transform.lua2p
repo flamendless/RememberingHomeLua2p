@@ -61,7 +61,7 @@ function Transform:init(world)
 	end
 
 	self.pool_atlas.onAdded = function(pool, e)
-		local frame = e.atlas.value.frame
+		local frame = e.atlas.value
 		local qt = e.quad_transform
 		if qt.ox == 0.5 then
 			qt.ox = frame.w * 0.5

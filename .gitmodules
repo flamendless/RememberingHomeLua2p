@@ -58,3 +58,6 @@
 [submodule "modules/slab"]
 	path = modules/slab
 	url = https://github.com/flamendless/Slab
+[submodule "libs/ExportTextureAtlas"]
+	path = libs/ExportTextureAtlas
+	url = https://github.com/EngineerSmith/Export-TextureAtlas

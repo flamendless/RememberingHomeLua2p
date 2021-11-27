@@ -15,16 +15,14 @@ dir_source=src
 dir_sub=(assemblages components shaders states systems)
 appdata=~/.local/share/love/goinghomerevisited
 
-meta_exclude_modules=(spec docs example test love-sdf-text-testing rockspecs main.lua .travis .git examples .travis.yml changelog.txt README.md MakeSingle.mak bench CHANGELOG.md *.rockspec config.ld performance_test.lua USAGE.md img)
+meta_exclude_modules=(
+	spec docs example test love-sdf-text-testing rockspecs main.lua .travis
+	.git examples .travis.yml changelog.txt README.md MakeSingle.mak bench
+	CHANGELOG.md *.rockspec config.ld performance_test.lua USAGE.md img
+)
 exclude_modules=()
 for e in "${meta_exclude_modules[@]}"; do
 	exclude_modules+=("--exclude=$e")
-done
-
-meta_exclude_res=(android audio gallery icons _images media new_assets soundtracks)
-exclude_res=()
-for e in "${meta_exclude_res[@]}"; do
-	exclude_res+=("--exclude=$e")
 done
 
 function create_output_dir()
@@ -86,6 +84,24 @@ function check()
 		--jobs 2
 }
 
+function create_atlas()
+{
+	exported_path=./res/exported
+	exported_dirs=(intro kitchen living_room outside storage_room utility_room)
+	out_dir=./res/images/atlases/
+	eta_path=./libs/ExportTextureAtlas/
+
+	for in_dir in "${exported_dirs[@]}"; do
+		love $eta_path \
+			$exported_path/$in_dir \
+			$out_dir/$in_dir \
+			-removeFileExtension \
+			-throwUnsupportedImageExtension \
+			-padding 4 \
+			-template "./scripts/atlas_template.lua"
+	done
+}
+
 function copy_modules()
 {
 	rsync -av --progress "$dir_modules" "$dir_output" "${exclude_modules[@]}"
@@ -93,7 +109,7 @@ function copy_modules()
 
 function copy_res()
 {
-	rsync -av --progress "$dir_res" "$dir_output" "${exclude_res[@]}"
+	rsync -av --progress "$dir_res" "$dir_output"
 }
 
 function clean()
@@ -145,7 +161,7 @@ function prof_viewer()
 }
 
 if [ $# -eq 0 ]; then
-	echo "Must pass command: init, rebuild, clean, run"
+	echo "Must pass command: init, rebuild, clean, run, create_atlas"
 else
 	"$@"
 fi

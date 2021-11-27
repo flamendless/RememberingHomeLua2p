@@ -37,7 +37,7 @@ function UtilityRoom:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.UtilityRoom.bg)
 
 	self.world:emit("create_room_bounds", w, h)
-	self.world:emit("parse_room_items", "atlas_utility_room_items", "utility_room_items")
+	self.world:emit("parse_room_items", "utility_room")
 	self.world:emit("setup_post_process", {
 		NGrading("lut_dusk"),
 		FilmGrain(),

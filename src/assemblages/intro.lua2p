@@ -1,7 +1,7 @@
 local AnimationData = require("animation_data")
 local Palette = require("palette")
 
-local Atlas = require("data.atlas_intro")
+local Atlas = require("atlases.atlas_intro")
 
 local Intro = {}
 

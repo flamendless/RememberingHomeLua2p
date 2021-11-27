@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local AtlasKeys = require("data.atlas_keys")
+local AtlasKeys = require("atlases.atlas_keys")
 local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
