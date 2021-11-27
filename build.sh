@@ -6,6 +6,7 @@ lpp_path=./libs/LPP/preprocess-cl.lua
 gv=$(git log -1 --format='v%cd.%h' --date=short 2>/dev/null)
 data=dev
 handler=handler.lua
+padding=4
 
 dir_modules=modules
 dir_res=res
@@ -55,7 +56,7 @@ function process_file()
 	local out=$dir_output/$2/$file
 
 	if [ "$ext" == "lua2p" ]; then
-		$lua "$lpp_path" --handler="$handler" --data="$data $gv" --outputpaths "$1" "$out".lua --silent;
+		$lua "$lpp_path" --handler="$handler" --data="$data $gv $padding" --outputpaths "$1" "$out".lua --silent;
 		if [ $? -ne 0 ]; then
 			exit;
 		fi
@@ -96,8 +97,7 @@ function create_atlas()
 			$exported_path/$in_dir \
 			$out_dir/$in_dir \
 			-removeFileExtension \
-			-throwUnsupportedImageExtension \
-			-padding 4 \
+			-padding $padding \
 			-template "./scripts/atlas_template.lua"
 	done
 }

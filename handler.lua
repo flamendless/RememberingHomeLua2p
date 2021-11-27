@@ -1,4 +1,4 @@
-local args = dataFromCommandLine
+local args = dataFromCommandLine --from build.sh
 
 local function split(str)
 	local t = {}
@@ -45,6 +45,9 @@ function hex_to_rgb(hex)
 end
 
 args = split(args)
+assert(type(args[1]) == "string")
+assert(type(args[2]) == "string")
+assert(type(args[3]) == "number" and args[3] > 0)
 
 if args[1] == "dev" then
 	_DEV = true
@@ -65,7 +68,7 @@ _COMMIT_VERSION = toLua(args[2])
 _MODE = toLua(args[1])
 _LOG_SAVE = true
 _CACHED_PRELOAD = true
-_PADDING = toLua(4)
+_PADDING = toLua(args[3])
 _GLSL_NORMALS = false
 _INPUT_DELAY = toLua(0.25)
 
