@@ -4,7 +4,7 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
@@ -142,22 +142,22 @@ function Intro:state_setup()
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			"flamendless studio presents", "ui", 32, 32)
 		:give("intro_text")
-		:give("animation_data", AnimationData.get("splat"))
+		:give("animation_data", Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("a game by " .. _NAME_DEVELOPER), "ui", 32, 32)
 		:give("intro_text")
-		:give("animation_data", AnimationData.get("splat"))
+		:give("animation_data", Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("arts by " .. _NAME_ARTIST), "ui", 32, 32)
 		:give("intro_text")
-		:give("animation_data", AnimationData.get("splat"))
+		:give("animation_data", Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("music by " .. _NAME_MUSICIAN), "ui", 32, 32)
 		:give("intro_text")
-		:give("animation_data", AnimationData.get("splat"))
+		:give("animation_data", Animation.get("splat"))
 
 	self.e_title_light = Concord.entity(self.world):assemble(Assemblages.Intro.title_light,
 			ssx * 0.5, ssy * 0.5)

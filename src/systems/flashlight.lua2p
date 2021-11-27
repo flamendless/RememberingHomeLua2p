@@ -1,6 +1,6 @@
 local Concord = require("modules.concord")
 
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 local Inputs = require("inputs")
 
 local Flashlight = Concord.system({
@@ -37,7 +37,7 @@ end
 
 function Flashlight:create_flashlight()
 	Concord.entity(self.world):assemble(Light.fl_spot,
-			self.player, AnimationData.get_sync_data("flashlight"))
+			self.player, Animation.get_sync_data("flashlight"))
 	!if _DEV then
 		:give("battery", 100)
 		:give("battery_state", "FULL")

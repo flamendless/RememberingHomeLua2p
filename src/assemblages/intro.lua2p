@@ -1,4 +1,4 @@
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 local Palette = require("palette")
 
 local Atlas = require("atlases.atlas_intro")
@@ -119,7 +119,7 @@ end
 
 function Intro.car(e)
 	e:give("id", "car")
-	:give("animation_data", AnimationData.get("car"))
+	:give("animation_data", Animation.get("car"))
 	:give("pos", 16, 325)
 	:give("animation", false)
 	:give("z_index", z_index.car[1])
@@ -129,7 +129,7 @@ end
 
 function Intro.car_reflect(e, car)
 	e:give("id", "car_reflect")
-	:give("animation_data", AnimationData.get("car_reflect"))
+	:give("animation_data", Animation.get("car_reflect"))
 	:give("pos", car.pos.x, car.pos.y)
 	:give("animation", false)
 	:give("attach_to", car)

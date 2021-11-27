@@ -5,7 +5,7 @@ local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 local Timer = require("modules.hump.timer")
 
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Palette = require("palette")
@@ -44,7 +44,7 @@ end
 function Splash:create_splash_wits()
 	local ww, wh = love.graphics.getDimensions()
 	self.splash_wits = Concord.entity(self.world):assemble(Common.animated_sprite,
-			AnimationData.get("wits"), ww * 0.5, wh * 0.5)
+			Animation.get("wits"), ww * 0.5, wh * 0.5)
 		:give("id", "splash_wits")
 		:give("color", {1, 1, 1, 1})
 		:give("transform", 0, 1, 1, 0.5, 0.5)

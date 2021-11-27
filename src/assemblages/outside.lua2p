@@ -1,6 +1,6 @@
 local Log = require("modules.log.log")
 
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 local Info = require("info")
 local Palette = require("palette")
 local Resources = require("resources")
@@ -51,7 +51,7 @@ function Outside.splashes(e)
 	:give("z_index", z_index.splashes)
 	:give("color", {1, 1, 1, 1})
 	:give("animation")
-	:give("animation_data", AnimationData.get("outside_" .. resource_id))
+	:give("animation_data", Animation.get("outside_" .. resource_id))
 
 	if not is_compatible then
 		e:give("transform", 0, 4, 4)

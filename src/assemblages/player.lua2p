@@ -1,4 +1,4 @@
-local AnimationData = require("animation_data")
+local Animation = require("animation")
 
 local Player = {}
 
@@ -7,13 +7,13 @@ local player_h = 64
 function Player.get_multi_anim_data(for_flashlight, can_open_door)
 	local data, mods = {}, {}
 
-	data.idle = AnimationData.get("player_idle")
-	data.walk = AnimationData.get("player_walk")
-	data.run = AnimationData.get("player_run")
+	data.idle = Animation.get("player_idle")
+	data.walk = Animation.get("player_walk")
+	data.run = Animation.get("player_run")
 
 	if can_open_door then
-		data.open_door = AnimationData.get("player_open_door")
-		data.open_locked_door = AnimationData.get("player_open_locked_door")
+		data.open_door = Animation.get("player_open_door")
+		data.open_locked_door = Animation.get("player_open_locked_door")
 	end
 
 	if for_flashlight then
