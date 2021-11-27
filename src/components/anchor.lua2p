@@ -6,7 +6,8 @@ local c_anchor = Concord.component("anchor", function(c, entity, ax, ay, padding
 	@@assert(type(ay) == "string" and (ay == "top" or ay == "center" or ay == "bottom"))
 	@@sassert(padding_x, type(padding_x) == "number")
 	@@sassert(padding_y, type(padding_y) == "number")
-	c.entity = entity
+	entity:ensure("key")
+	c.key = entity.key.value
 	c.anchor_x = ax
 	c.anchor_y = ay
 	c.padding_x = padding_x
@@ -15,7 +16,7 @@ end)
 
 function c_anchor:serialize()
 	return {
-		e_key = self.entity.key.value,
+		key = self.key,
 		anchor_x = self.anchor_x,
 		anchor_y = self.anchor_y,
 		padding_x = self.padding_x,
@@ -24,7 +25,7 @@ function c_anchor:serialize()
 end
 
 function c_anchor:deserialize(data)
-	self.entity = self.__entity:getWorld():getEntityByKey(data.e_key)
+	self.key = data.key
 	self.anchor_x = data.anchor_x
 	self.anchor_y = data.anchor_y
 	self.padding_x = data.padding_x

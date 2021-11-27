@@ -8,7 +8,6 @@ local Resources = require("resources")
 local Palette = require("palette")
 
 local Dialogues = Concord.system({
-	pool_camera = {"camera"},
 	pool = {"dialogue_item", "text_t", "nf_render_text"},
 	pool_choice = {
 		constructor = ListByID,
@@ -22,11 +21,16 @@ local c_hc = Palette.get("hovered_choice")
 
 function Dialogues:init(world)
 	self.world = world
-	self.camera = nil
 	self.is_waiting = false
 	self.world:emit("create_dialogue_key")
-	self:create_e_dialogue()
+	self.pool_choice.onAdded = function(pool, e)
+		if e.item_id.value ~= "choice_item" then
+			self.pool_choice:remove(e)
+		end
+	end
+end
 
+function Dialogues:create_tle()
 	self.timeline = TLE.Do(function()
 		while true do
 			local text_t = self.e_dialogue.text_t
@@ -65,26 +69,14 @@ function Dialogues:init(world)
 			end
 		end
 	end)
-
-	self.pool_camera.onAdded = function(pool, e)
-		local camera = e.camera
-		self.camera = camera.camera
-
-		local l, _, w, h = self.camera:getWindow()
-		local x = l + PAD
-		local y = h - h * 0.15 * 0.5
-		self.e_dialogue:give("reflowprint", w - PAD * 2, "left")
-			:give("pos", x, y)
-	end
-
-	self.pool_choice.onAdded = function(pool, e)
-		if e.item_id.value ~= "choice_item" then
-			self.pool_choice:remove(e)
-		end
-	end
 end
 
 function Dialogues:create_e_dialogue()
+	local camera = self.world:getResource("camera")
+	@@assert(camera, "camera resource should be set by now")
+	local l, _, w, h = camera:getWindow()
+	local x = l + PAD
+	local y = h - h * 0.15 * 0.5
 	self.e_dialogue = Concord.entity(self.world)
 		:give("id", "dialogue_holder")
 		:give("font", "ui")
@@ -95,10 +87,16 @@ function Dialogues:create_e_dialogue()
 		:give("transform", 0, 1, 1, 0, 0.5)
 		:give("layer", "dialogue", 3)
 		:give("nf_render_text")
+		:give("reflowprint", w - PAD * 2, "left")
+		:give("pos", x, y)
+	self:create_tle()
 end
 
 function Dialogues:update(dt)
 	if self.is_waiting then return end
+	if not self.e_dialogue then
+		self:create_e_dialogue()
+	end
 	if Inputs.released("interact") and #self.pool_choice == 0 then
 		self:proceed_dialogue()
 	end
@@ -202,7 +200,7 @@ end
 
 function Dialogues:show_choices()
 	local d = self.e_dialogue.dialogue_meta
-	local l, _, _, h = self.camera:getWindow()
+	local l, _, _, h = self.world:getResource("camera"):getWindow()
 	local c = self.e_dialogue.has_choices
 	local font = Resources.data.fonts.ui
 	local y = h - h * 0.15 * 0.5

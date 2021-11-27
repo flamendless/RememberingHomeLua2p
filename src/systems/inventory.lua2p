@@ -7,7 +7,6 @@ local Notes = require("notes")
 local Resources = require("resources")
 
 local Inventory = Concord.system({
-	pool_camera = {"camera"},
 	pool_cell = {
 		constructor = ListByID,
 		id = $_LIST_INVENTORY_CELLS,
@@ -28,13 +27,6 @@ function Inventory:init(world)
 	self.is_open = false
 	self.in_choices = false
 	self.entities = {}
-
-	self.pool_camera.onAdded = function(pool, e)
-		local camera = e.camera
-		if camera.is_main then
-			self.main_camera = camera.camera
-		end
-	end
 
 	self.pool_item.onAdded = function(pool, e)
 		local e_cell = self.pool_cell[#pool]
@@ -144,10 +136,10 @@ function Inventory:draw_inventory()
 end
 
 function Inventory:create_inventory()
-	local _, _, w, h = self.main_camera:getWindow()
+	local _, _, w, h = self.world:getResource("camera"):getWindow()
 	local img = Resources.data.images.bg_inventory
 	local iw, ih = img:getDimensions()
-	local bar_h = self.pool_camera[1].bar_height.value
+	local bar_h = self.world:getResource("e_camera").bar_height.value
 	local pad = 48
 	local nh = h - pad * 2 - bar_h * 2
 	local scale = math.min(w/iw, nh/ih)

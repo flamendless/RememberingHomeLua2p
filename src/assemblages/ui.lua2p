@@ -1,13 +1,7 @@
-local Enum = require("modules.enum.enum")
-
 local Animation = require("animation")
 local Palette = require("palette")
-local Resources = require("resources")
 
 local UI = {}
-
-local dirs = Enum("up", "down", "left", "right")
-local line_width = 7
 
 function UI.ui_text(e, text, resource_id, x, y)
 	e:give("id", "ui_text")
@@ -40,72 +34,6 @@ function UI.choice(e, id, text, text_t, x, y)
 	:give("nf_render_text")
 end
 
-function UI.hold_progress_bg(e, x, y, radius, segments)
-	e:give("id", "hold_progress_bg")
-	:give("pos", x, y)
-	:give("arc", radius, segments)
-	:give("line_width", line_width * 2)
-	:give("color", Palette.get("ui_hold_progress", 0))
-	:give("draw_mode", "line")
-	:give("arc_type", "open")
-	:give("ui_element")
-end
-
-function UI.hold_progress(e, key, x, y, timer, radius, segments)
-	e:give("id", "hold_progress")
-	:give("pos", x, y)
-	:give("hold", timer)
-	:give("hold_key", key)
-	:give("arc", radius, segments)
-	:give("line_width", line_width)
-	:give("color", Palette.get("ui_hold_progress", 0))
-	:give("draw_mode", "line")
-	:give("arc_type", "open")
-	:give("ui_element")
-end
-
-function UI.keypress(e, is_hold, resource_id)
-	@@assert(type(is_hold) == "boolean")
-	local delay = is_hold and {0.5, 0.5, 2} or 0.5
-
-	e:give("id", "keypress")
-	:give("ui_element")
-	:give("animation_data", {
-			resource_id = resource_id,
-			frames = {"1-3", 1},
-			delay = delay,
-			rows_count = 1,
-			columns_count = 3,
-			n_frames = 3,
-		})
-	:give("animation")
-	:give("pos", 0, 0)
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("color", {1, 1, 1, 0})
-end
-
-function UI.key(e, key, x, y, resource_id)
-	e:give("id", "key_" .. key)
-	:give("text", key)
-	:give("font", resource_id)
-	:give("pos", x, y)
-	:give("color", Palette.get("ui_key", 0))
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("ui_element")
-	:give("key_input")
-end
-
-function UI.key_sdf(e, key, x, y, fnt, png)
-	e:give("id", "key_sdf_" .. key)
-	:give("text", key)
-	:give("font_sdf", fnt, png)
-	:give("pos", x, y)
-	:give("color", Palette.get("ui_key", 0))
-	:give("transform", 0, 1, 1, 0.5, 0.5)
-	:give("ui_element")
-	:give("key_input")
-end
-
 function UI.speech_bubble(e, player, x, y)
 	local sx = 0.5
 	if player.body.dir == -1 then
@@ -124,29 +52,6 @@ function UI.speech_bubble(e, player, x, y)
 	:give("notification", "speech_bubble")
 	:give("attach_to", player)
 	:give("attach_to_offset", 16, 18)
-end
-
-function UI.arrow(e, dir, x, y)
-	@@assert(type(dir) == "string")
-	local d = dirs[dir]
-	local q
-	local sheet = Resources.data.images.sheet_arrows
-	if d == "up" then
-		q = love.graphics.newQuad(128, 0, 64, 64, sheet:getDimensions())
-	elseif d == "down" then
-		q = love.graphics.newQuad(192, 0, 64, 64, sheet:getDimensions())
-	elseif d == "left" then
-		q = love.graphics.newQuad(64, 0, 64, 64, sheet:getDimensions())
-	elseif d == "right" then
-		q = love.graphics.newQuad(0, 0, 64, 64, sheet:getDimensions())
-	end
-
-	e:give("id", "arrow_" .. dir)
-	:give("sprite", "sheet_arrows")
-	:give("pos", x, y)
-	:give("quad", q)
-	:give("color", {1, 1, 1, 0})
-	:give("ui_element")
 end
 
 return UI

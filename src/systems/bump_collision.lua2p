@@ -5,12 +5,12 @@ local BumpCollision = Concord.system({
 	pool = {
 		constructor = BumpStorage,
 	},
-	pool_camera = {"camera",}
 })
 
 local function get_query_rect(self)
-	if self.camera then
-		return self.camera:getVisible()
+	local camera = self.world:getResource("camera")
+	if camera then
+		return camera:getVisible()
 	else
 		return 0, 0, love.graphics.getDimensions()
 	end
@@ -18,7 +18,7 @@ end
 
 local function get_query_point(self)
 	local mx, my = love.mouse.getPosition()
-	local camera = self.camera
+	local camera = self.world:getResource("camera")
 	if camera then
 		mx, my = camera:toWorld(mx, my)
 	end
@@ -32,9 +32,6 @@ end
 
 function BumpCollision:init(world)
 	self.world = world
-	self.pool_camera.onAdded = function(pool, e)
-		self.camera = e.camera.camera
-	end
 end
 
 function BumpCollision:preupdate(dt)
@@ -247,14 +244,14 @@ function BumpCollision:debug_draw()
 		for i = 1, len do
 			local e = items[i]
 			local id = e.id.value
-			local x, y, w, h = self.pool:getRect(e)
+			local rx, ry, rw, rh = self.pool:getRect(e)
 			local scale = 1
-			local camera = self.camera
+			local camera = self.world:getResource("camera")
 			if camera then scale = camera:getScale() end
 
 			if flags.fill then
 				love.graphics.setColor(1, 0, 0, 0.3)
-				love.graphics.rectangle("fill", x, y, w, h)
+				love.graphics.rectangle("fill", rx, ry, rw, rh)
 			end
 
 			love.graphics.setLineWidth(1/scale)
@@ -264,36 +261,36 @@ function BumpCollision:debug_draw()
 			else
 				love.graphics.setColor(1, 0, 0, 0.7)
 			end
-			love.graphics.rectangle("line", x, y, w, h)
+			love.graphics.rectangle("line", rx, ry, rw, rh)
 
 			if flags.ids then
-				love.graphics.print(id, x, y)
+				love.graphics.print(id, rx, ry)
 			end
 		end
 	end
 end
 
-function BumpCollision:debug_mousemoved(mx, my, dx, dy)
+function BumpCollision:debug_mousemoved(_, _, dx, dy)
 	if flags.drag then
-		mx, my = get_query_point(self)
+		local mx, my = get_query_point(self)
 		local x, y, w, h = get_query_rect(self)
 		local items, len = self.pool:queryRect(x, y, w, h)
 		for i = 1, len do
 			local e = items[i]
 			if e.bump.debug_clicked then
-				local x, y, w, h = self.pool:getRect(e)
+				local _, _, rw, rh = self.pool:getRect(e)
 				e.pos.x = floor(mx)
 				e.pos.y = floor(my)
-				self.pool:update(e, e.pos.x, e.pos.y, w, h)
+				self.pool:update(e, e.pos.x, e.pos.y, rw, rh)
 			end
 		end
 	end
 end
 
-function BumpCollision:debug_mousepressed(mx, my, mb)
+function BumpCollision:debug_mousepressed(_, _, mb)
 	if not flags.drag then return end
 	if mb ~= 1 then return end
-	mx, my = get_query_point(self)
+	local mx, my = get_query_point(self)
 	local items, len = self.pool:queryPoint(mx, my)
 	for i = 1, len do
 		local e = items[i]
@@ -303,19 +300,19 @@ function BumpCollision:debug_mousepressed(mx, my, mb)
 	end
 end
 
-function BumpCollision:debug_mousereleased(mx, my, mb)
+function BumpCollision:debug_mousereleased(_, _, mb)
 	if flags.drag and mb == 1 then
-		mx, my = get_query_point(self)
+		local mx, my = get_query_point(self)
 		local x, y, w, h = get_query_rect(self)
 		local items, len = self.pool:queryRect(x, y, w, h)
 		for i = 1, len do
 			local e = items[i]
 			if e.bump.debug_clicked then
-				local x, y, w, h = self.pool:getRect(e)
+				local _, _, rw, rh = self.pool:getRect(e)
 				e.pos.x = floor(mx)
 				e.pos.y = floor(my)
 				e.bump.debug_clicked = false
-				self.pool:update(e, e.pos.x, e.pos.y, w, h)
+				self.pool:update(e, e.pos.x, e.pos.y, rw, rh)
 			end
 		end
 	end

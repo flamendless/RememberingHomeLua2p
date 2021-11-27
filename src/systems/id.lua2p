@@ -5,19 +5,12 @@ local ID = Concord.system({
 	pool = {"id"},
 	!if _DEV then
 	pool_dev = {"id", "sprite", "pos"},
-	pool_camera = {"camera"},
 	!end
 })
 
 function ID:init(world)
 	self.world = world
 	self.ref_id = {}
-
-	!if _DEV then
-	self.pool_camera.onAdded = function(pool, e)
-		self.camera = e.camera.camera
-	end
-	!end
 
 	self.pool.onAdded = function(pool, e)
 		local id = e.id
@@ -92,9 +85,10 @@ end
 
 function ID:debug_draw()
 	if not self.debug_show then return end
-	if not self.camera then return end
+	local camera = self.world:getResource("camera")
+	if not camera then return end
 	local mx, my = love.mouse.getPosition()
-	mx, my = self.camera:toWorld(mx, my)
+	mx, my = camera:toWorld(mx, my)
 	local v = vec2(mx, my)
 	local r, g, b, a = love.graphics.getColor()
 	love.graphics.push()

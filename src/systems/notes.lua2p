@@ -7,7 +7,6 @@ local Palette = require("palette")
 local Resources = require("resources")
 
 local Notes = Concord.system({
-	pool_camera = {"camera"},
 	pool_item = {
 		constructor = ListByID,
 		id = $_LIST_NOTES,
@@ -20,14 +19,6 @@ local c_on_hovered = Palette.get("note_on_hovered")
 function Notes:init(world)
 	self.world = world
 	self.is_open = false
-
-	self.pool_camera.onAdded = function(pool, e)
-		local camera = e.camera
-		if camera.is_main then
-			self.main_camera = camera.camera
-		end
-	end
-
 	self:setEnabled(false)
 end
 
@@ -85,10 +76,11 @@ function Notes:draw_inventory()
 end
 
 function Notes:create_notes()
-	local _, _, w, h = self.main_camera:getWindow()
+	local camera = self.world:getResource("camera")
+	local _, _, w, h = camera:getWindow()
 	local img = Resources.data.images.bg_notes
 	local iw, ih = img:getDimensions()
-	local bar_h = self.pool_camera[1].bar_height.value
+	local bar_h = self.world:getResource("e_camera").bar_height.value
 
 	local pad = 36
 	local nh = h - pad * 2 - bar_h * 2

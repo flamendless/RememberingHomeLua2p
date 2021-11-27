@@ -3,15 +3,10 @@ local Concord = require("modules.concord.concord")
 local Path = Concord.system({
 	pool = {"path", "pos"},
 	pool_move = {"path", "pos", "path_move", "path_speed"},
-	pool_camera = {"camera"},
 })
 
 function Path:init(world)
 	self.world = world
-
-	self.pool_camera.onAdded = function(pool, e)
-		self.camera = e.camera.camera
-	end
 end
 
 function Path:get_points(e)
@@ -137,8 +132,9 @@ function Path:debug_draw()
 	if not self.debug_show then return end
 	if flags.path then
 		local scale = 1
-		if self.camera then
-			scale = 1/self.camera:getScale()
+		local camera = self.world:getResource("camera")
+		if camera then
+			scale = 1/camera:getScale()
 		end
 		love.graphics.setLineWidth(scale)
 		for _, e in ipairs(self.pool) do

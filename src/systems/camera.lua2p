@@ -34,6 +34,8 @@ function Camera:init(world)
 			self.e_camera = e
 			self.main_camera = camera.camera
 		end
+		self.world:setResource("camera", self.main_camera)
+		self.world:setResource("e_camera", e)
 	end
 
 	self.pool_clip.onAdded = function(pool, e)

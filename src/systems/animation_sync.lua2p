@@ -13,7 +13,7 @@ function AnimationSync:init(world)
 
 	!if _DEV then
 	self.pool.onAdded = function(pool, e)
-		local e_target = e.anim_sync_with.e_target
+		local e_target = self.world:getEntityByKey(e.anim_sync_with.key)
 		local c_name = e.anim_sync_data.c_name
 		local target_c = e_target[c_name]
 		@@assert(target_c, "sync target must have component: " .. c_name)
@@ -41,7 +41,7 @@ end
 
 function AnimationSync:update(dt)
 	for _, e in ipairs(self.pool) do
-		local e_target = e.anim_sync_with.e_target
+		local e_target = self.world:getEntityByKey(e.anim_sync_with.key)
 		local anim_sync_data = e.anim_sync_data
 		local animation = e_target.animation
 		local c_props = anim_sync_data.c_props

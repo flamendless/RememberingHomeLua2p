@@ -3,13 +3,13 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local Culling = Concord.system({
-	pool_camera = {"camera"},
 	pool_sprite = {"sprite", "pos", "cullable", "!nf_render_sprite", "!notification"},
 })
 
 local function get_query_rect(self)
-	if self.camera then
-		return self.camera:getVisible()
+	local camera = self.world:getResource("camera")
+	if camera then
+		return camera:getVisible()
 	else
 		return 0, 0, love.graphics.getDimensions()
 	end
@@ -18,10 +18,6 @@ end
 function Culling:init(world)
 	self.world = world
 	self.padding = 32
-
-	self.pool_camera.onAdded = function(pool, e)
-		self.camera = e.camera.camera
-	end
 end
 
 function Culling:update(dt)
