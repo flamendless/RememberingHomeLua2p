@@ -32,11 +32,11 @@ function Inventory:init(world)
 		local e_cell = self.pool_cell[#pool]
 		local c_pos = e_cell.pos
 		local c_rect = e_cell.rect
-
 		local refs = e_cell.refs.value
-		refs[1]:give("hidden")
-		refs[2]:give("hidden")
-
+		local e1 = self.world:getEntityByKey(refs[1])
+		local e2 = self.world:getEntityByKey(refs[2])
+		e1:give("hidden")
+		e2:give("hidden")
 		local pos = e.pos
 		pos.x = c_pos.x + c_rect.half_w
 		pos.y = c_pos.y + c_rect.half_h
@@ -45,8 +45,10 @@ function Inventory:init(world)
 	self.pool_item.onRemoved = function(pool, e)
 		local e_cell = self.pool_cell[#pool + 1]
 		local refs = e_cell.refs.value
-		refs[1]:remove("hidden")
-		refs[2]:remove("hidden")
+		local e1 = self.world:getEntityByKey(refs[1])
+		local e2 = self.world:getEntityByKey(refs[2])
+		e1:remove("hidden")
+		e2:remove("hidden")
 	end
 end
 
@@ -66,6 +68,7 @@ end
 function Inventory:close_inventory(not_close)
 	@@sassert(not_close, type(not_close) == "boolean")
 	self.world:emit("destroy_items")
+	self.world:emit("destroy_key", "inventory")
 	self.world:emit("set_system_to", "dialogues", true)
 	if not not_close then
 		self.world:emit("on_leave_interact_or_inventory")
@@ -81,7 +84,6 @@ function Inventory:close_inventory(not_close)
 	self.world:emit("destroy_list", $_LIST_INVENTORY_CELLS)
 	self.world:emit("destroy_list", $_LIST_INVENTORY_CHOICES)
 	self.world:emit("set_post_process_effect", "Blur", false)
-	self.world:emit("destroy_key", "inventory")
 	Timer.after($_INPUT_DELAY, function() self.can_open = true end)
 end
 

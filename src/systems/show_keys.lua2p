@@ -41,16 +41,15 @@ function ShowKeys:create_key_with_text(id, txt, key)
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 1, 1)
 		:give("anchor", self.keys[id], "right", "bottom", 16, 0)
+	print(id, self.keys[id].key.value, self.texts[id].anchor.key)
 
 	return self.keys[id], self.texts[id]
 end
 
 function ShowKeys:show_skip()
 	local k, t = self:create_key_with_text("skip", "Skip", Inputs.rev_map.interact)
-	k:give("color_fade_in_out", 1)
-	:give("skip")
-	t:give("color_fade_in_out", 1)
-	:give("skip")
+	k:give("color_fade_in_out", 1):give("skip")
+	t:give("color_fade_in_out", 1):give("skip")
 end
 
 function ShowKeys:create_inventory_key()
@@ -102,6 +101,7 @@ function ShowKeys:destroy_key(id)
 	if t then
 		t:destroy()
 	end
+	self.world:__flush()
 end
 
 return ShowKeys

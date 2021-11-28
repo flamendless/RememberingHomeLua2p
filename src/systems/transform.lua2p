@@ -126,7 +126,6 @@ end
 
 function Transform:update_anchor(e)
 	local anchor = e.anchor
-	local pos = e.pos
 	local e_target = self.world:getEntityByKey(anchor.key)
 	@@assert(e_target)
 	local target_pos = e_target.pos
@@ -172,6 +171,7 @@ function Transform:update_anchor(e)
 		y = y + anchor.padding_y
 	end
 
+	local pos = e.pos
 	pos.x = x
 	pos.y = y
 	pos.orig_x = pos.x
