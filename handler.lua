@@ -145,7 +145,7 @@ _TWITTER_MUSICIAN = "@???"
 
 _TOOLS = toLua({
 	"Manjaro", "i3-Gaps", "Discord", "Löve Framework",
-	"Luapreprocess", "Vim", "Aseprite", "Audacity", "Free Texture Packer",
+	"Luapreprocess", "Vim", "Aseprite", "Audacity", "Export-TextureAtlas",
 	"makelove", "msdf-bmfont",
 })
 

@@ -29,6 +29,7 @@ done
 function create_output_dir()
 {
 	if [ ! -d "$dir_output" ]; then
+		echo "creating $dir_output..."
 		mkdir $dir_output
 	fi
 }
@@ -87,45 +88,67 @@ function check()
 
 function create_atlas()
 {
-	exported_path=./res/exported
-	exported_dirs=(intro kitchen living_room outside storage_room utility_room)
-	out_dir=./res/images/atlases/
 	eta_path=./libs/ExportTextureAtlas/
+	output_path=./res/images/atlases
+	source_path=./res/exported
+	exported_dirs=(intro kitchen living_room outside storage_room utility_room)
+	input_dirs=()
+	output_dirs=()
+	data_dirs=()
+	ignores=()
 
-	for in_dir in "${exported_dirs[@]}"; do
-		love $eta_path \
-			$exported_path/$in_dir \
-			$out_dir/$in_dir \
-			-removeFileExtension \
-			-padding $padding \
-			-template "./scripts/atlas_template.lua"
+	for ((i = 0; i < ${#exported_dirs[@]}; i++)); do
+		cur_dir=${exported_dirs[$i]}
+		in_dir=$source_path/$cur_dir/
+		out_dir=$output_path/$cur_dir.png
+		data_dir=./src/atlases/atlas_$cur_dir.lua
+		ignore=$source_path/$cur_dir/$cur_dir.png
+		input_dirs+=($in_dir)
+		output_dirs+=($out_dir)
+		data_dirs+=($data_dir)
+		ignores+=($ignore)
+		echo "gen atlas: '$in_dir' -> '$out_dir' + '$data_dir' !'$ignore'"
 	done
+
+	love $eta_path \
+		-input "${input_dirs[@]}" \
+		-output "${output_dirs[@]}" \
+		-dataOutput "${data_dirs[@]}" \
+		-ignore "${ignores[@]}" \
+		-removeFileExtension \
+		-padding $padding \
+		-template "./scripts/atlas_template.lua"
 }
 
 function copy_modules()
 {
-	rsync -av --progress "$dir_modules" "$dir_output" "${exclude_modules[@]}"
+	echo "copying modules..."
+	rsync -a "$dir_modules" "$dir_output" "${exclude_modules[@]}"
 }
 
 function copy_res()
 {
-	rsync -av --progress "$dir_res" "$dir_output"
+	echo "copying resources..."
+	rsync -a "$dir_res" "$dir_output"
 }
 
 function clean()
 {
-	rm -rfv $dir_output/*
+	echo "cleaning $dir_output..."
+	rm -rf $dir_output/*
 }
 
 function clean_logs()
 {
-	rm -v $appdata/*
+	echo "cleaning $appdata..."
+	rm $appdata/*
 }
 
 function init()
 {
 	create_output_dir
 	process_src "$dir_source"
+	create_atlas
 	copy_modules
 	copy_res
 }
@@ -133,9 +156,7 @@ function init()
 function rebuild()
 {
 	clean
-	create_output_dir
-	copy_modules
-	copy_res
+	init
 	cp slab.style $dir_output
 }
 

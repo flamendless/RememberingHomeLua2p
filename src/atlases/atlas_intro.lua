@@ -1,377 +1,104 @@
+-- https://github.com/EngineerSmith/Export-TextureAtlas
+-- check build.sh create_atlas
 local Data = {
 	frames = {
-		clouds = {
-			frame = {
-				x = 4,
-				y = 4,
-				w = 745,
-				h = 231
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 745,
-				h = 231
-			},
-			sourceSize = {
-				w = 745,
-				h = 231
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["grass2"] = {
+			x = 2078,
+			y = 177,
+			w = 384,
+			h = 27
 		},
-		trees_fg = {
-			frame = {
-				x = 4,
-				y = 243,
-				w = 474,
-				h = 91
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 474,
-				h = 91
-			},
-			sourceSize = {
-				w = 474,
-				h = 91
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["post_light"] = {
+			x = 844,
+			y = 4,
+			w = 146,
+			h = 154
 		},
-		buildings = {
-			frame = {
-				x = 4,
-				y = 342,
-				w = 384,
-				h = 59
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 59
-			},
-			sourceSize = {
-				w = 384,
-				h = 59
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["trees_fg"] = {
+			x = 1596,
+			y = 4,
+			w = 474,
+			h = 91
 		},
-		grass = {
-			frame = {
-				x = 4,
-				y = 409,
-				w = 384,
-				h = 31
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 31
-			},
-			sourceSize = {
-				w = 384,
-				h = 31
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["grass"] = {
+			x = 2078,
+			y = 138,
+			w = 384,
+			h = 31
 		},
-		grass2 = {
-			frame = {
-				x = 4,
-				y = 448,
-				w = 384,
-				h = 27
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 27
-			},
-			sourceSize = {
-				w = 384,
-				h = 27
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["title_light"] = {
+			x = 1124,
+			y = 137,
+			w = 118,
+			h = 86
 		},
-		grass_back = {
-			frame = {
-				x = 4,
-				y = 483,
-				w = 384,
-				h = 69
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 69
-			},
-			sourceSize = {
-				w = 384,
-				h = 69
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["buildings"] = {
+			x = 2078,
+			y = 4,
+			w = 384,
+			h = 59
 		},
-		grass_front = {
-			frame = {
-				x = 4,
-				y = 560,
-				w = 384,
-				h = 59
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 59
-			},
-			sourceSize = {
-				w = 384,
-				h = 59
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["grass_front"] = {
+			x = 2078,
+			y = 71,
+			w = 384,
+			h = 59
 		},
-		road = {
-			frame = {
-				x = 4,
-				y = 627,
-				w = 384,
-				h = 47
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 47
-			},
-			sourceSize = {
-				w = 384,
-				h = 47
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["road"] = {
+			x = 1596,
+			y = 180,
+			w = 384,
+			h = 47
 		},
-		trees_bg = {
-			frame = {
-				x = 4,
-				y = 682,
-				w = 384,
-				h = 125
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 384,
-				h = 125
-			},
-			sourceSize = {
-				w = 384,
-				h = 125
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["grass_back"] = {
+			x = 1596,
+			y = 103,
+			w = 384,
+			h = 69
 		},
-		bg_tree_cover = {
-			frame = {
-				x = 486,
-				y = 243,
-				w = 79,
-				h = 249
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 79,
-				h = 249
-			},
-			sourceSize = {
-				w = 79,
-				h = 249
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["post"] = {
+			x = 4,
+			y = 261,
+			w = 25,
+			h = 131
 		},
-		car_headlight = {
-			frame = {
-				x = 396,
-				y = 500,
-				w = 198,
-				h = 99
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 198,
-				h = 99
-			},
-			sourceSize = {
-				w = 198,
-				h = 99
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["title"] = {
+			x = 998,
+			y = 137,
+			w = 118,
+			h = 86
 		},
-		post_light = {
-			frame = {
-				x = 602,
-				y = 243,
-				w = 146,
-				h = 154
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 146,
-				h = 154
-			},
-			sourceSize = {
-				w = 146,
-				h = 154
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["bg_tree_cover"] = {
+			x = 4,
+			y = 4,
+			w = 79,
+			h = 249
 		},
-		post = {
-			frame = {
-				x = 396,
-				y = 342,
-				w = 25,
-				h = 131
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 25,
-				h = 131
-			},
-			sourceSize = {
-				w = 25,
-				h = 131
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["clouds"] = {
+			x = 91,
+			y = 4,
+			w = 745,
+			h = 231
 		},
-		title = {
-			frame = {
-				x = 573,
-				y = 405,
-				w = 118,
-				h = 86
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 118,
-				h = 86
-			},
-			sourceSize = {
-				w = 118,
-				h = 86
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["car_headlight"] = {
+			x = 1390,
+			y = 4,
+			w = 198,
+			h = 99
 		},
-		title_light = {
-			frame = {
-				x = 602,
-				y = 499,
-				w = 118,
-				h = 86
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 118,
-				h = 86
-			},
-			sourceSize = {
-				w = 118,
-				h = 86
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["trees_bg"] = {
+			x = 998,
+			y = 4,
+			w = 384,
+			h = 125
 		}
 	},
 	meta = {
-		app = "http://free-tex-packer.com",
-		version = "0.6.7",
-		image = "atlas_intro.png",
-		format = "RGBA8888",
-		size = {
-			w = 1024,
-			h = 1024
-		},
-		scale = 1
+		padding = 4,
+		extrude = 0,
+		atlasWidth = 2466,
+		atlasHeight = 396,
+		quadCount = 15
 	}
 }
-
 return Data

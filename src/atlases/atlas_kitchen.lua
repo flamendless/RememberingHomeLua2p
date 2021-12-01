@@ -1,593 +1,158 @@
+-- https://github.com/EngineerSmith/Export-TextureAtlas
+-- check build.sh create_atlas
 local Data = {
 	frames = {
-		tiles = {
-			frame = {
-				x = 4,
-				y = 4,
-				w = 253,
-				h = 27
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 253,
-				h = 27
-			},
-			sourceSize = {
-				w = 253,
-				h = 27
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["b_connector"] = {
+			x = 4,
+			y = 222,
+			w = 22,
+			h = 30
 		},
-		table = {
-			frame = {
-				x = 4,
-				y = 39,
-				w = 113,
-				h = 33
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 113,
-				h = 33
-			},
-			sourceSize = {
-				w = 113,
-				h = 33
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["left_door"] = {
+			x = 4,
+			y = 80,
+			w = 4,
+			h = 65
 		},
-		t_cabinet_long = {
-			frame = {
-				x = 125,
-				y = 39,
-				w = 97,
-				h = 29
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 97,
-				h = 29
-			},
-			sourceSize = {
-				w = 97,
-				h = 29
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["right_door"] = {
+			x = 16,
+			y = 80,
+			w = 4,
+			h = 65
 		},
-		b_cabinet_open2 = {
-			frame = {
-				x = 4,
-				y = 80,
-				w = 77,
-				h = 31
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 77,
-				h = 31
-			},
-			sourceSize = {
-				w = 77,
-				h = 31
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_connector"] = {
+			x = 4,
+			y = 260,
+			w = 21,
+			h = 28
 		},
-		b_cabinet_open1 = {
-			frame = {
-				x = 125,
-				y = 76,
-				w = 75,
-				h = 34
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 75,
-				h = 34
-			},
-			sourceSize = {
-				w = 75,
-				h = 34
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_cabinet_single1"] = {
+			x = 527,
+			y = 4,
+			w = 45,
+			h = 29
 		},
-		utility_door = {
-			frame = {
-				x = 4,
-				y = 119,
-				w = 32,
-				h = 68
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 32,
-				h = 68
-			},
-			sourceSize = {
-				w = 32,
-				h = 68
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_cabinet_multi"] = {
+			x = 461,
+			y = 4,
+			w = 58,
+			h = 29
 		},
-		light2 = {
-			frame = {
-				x = 44,
-				y = 119,
-				w = 67,
-				h = 28
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 67,
-				h = 28
-			},
-			sourceSize = {
-				w = 67,
-				h = 28
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["stool"] = {
+			x = 4,
+			y = 296,
+			w = 19,
+			h = 26
 		},
-		left_door = {
-			frame = {
-				x = 119,
-				y = 118,
-				w = 4,
-				h = 65
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 4,
-				h = 65
-			},
-			sourceSize = {
-				w = 4,
-				h = 65
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["outlet"] = {
+			x = 4,
+			y = 349,
+			w = 14,
+			h = 5
 		},
-		right_door = {
-			frame = {
-				x = 131,
-				y = 118,
-				w = 4,
-				h = 65
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 4,
-				h = 65
-			},
-			sourceSize = {
-				w = 4,
-				h = 65
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["b_cabinet_open2"] = {
+			x = 248,
+			y = 4,
+			w = 77,
+			h = 31
 		},
-		ref = {
-			frame = {
-				x = 230,
-				y = 39,
-				w = 25,
-				h = 61
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 25,
-				h = 61
-			},
-			sourceSize = {
-				w = 25,
-				h = 61
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["tiles"] = {
+			x = 890,
+			y = 4,
+			w = 253,
+			h = 27
 		},
-		t_cabinet_multi = {
-			frame = {
-				x = 44,
-				y = 155,
-				w = 58,
-				h = 29
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 58,
-				h = 29
-			},
-			sourceSize = {
-				w = 58,
-				h = 29
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["b_cabinet_open1"] = {
+			x = 44,
+			y = 4,
+			w = 75,
+			h = 34
 		},
-		b_cabinet_single2 = {
-			frame = {
-				x = 143,
-				y = 118,
-				w = 57,
-				h = 30
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 57,
-				h = 30
-			},
-			sourceSize = {
-				w = 57,
-				h = 30
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["light_switch"] = {
+			x = 28,
+			y = 80,
+			w = 5,
+			h = 8
 		},
-		t_cabinet_open = {
-			frame = {
-				x = 143,
-				y = 156,
-				w = 57,
-				h = 28
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 57,
-				h = 28
-			},
-			sourceSize = {
-				w = 57,
-				h = 28
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["ref"] = {
+			x = 4,
+			y = 153,
+			w = 25,
+			h = 61
 		},
-		t_cabinet_right = {
-			frame = {
-				x = 4,
-				y = 195,
-				w = 57,
-				h = 28
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 57,
-				h = 28
-			},
-			sourceSize = {
-				w = 57,
-				h = 28
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["b_cabinet_single2"] = {
+			x = 396,
+			y = 4,
+			w = 57,
+			h = 30
 		},
-		b_cabinet_single1 = {
-			frame = {
-				x = 69,
-				y = 192,
-				w = 55,
-				h = 30
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 55,
-				h = 30
-			},
-			sourceSize = {
-				w = 55,
-				h = 30
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["stove"] = {
+			x = 1151,
+			y = 20,
+			w = 42,
+			h = 6
 		},
-		light1 = {
-			frame = {
-				x = 208,
-				y = 108,
-				w = 47,
-				h = 8
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 47,
-				h = 8
-			},
-			sourceSize = {
-				w = 47,
-				h = 8
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_cabinet_long"] = {
+			x = 580,
+			y = 4,
+			w = 97,
+			h = 29
 		},
-		t_cabinet_single1 = {
-			frame = {
-				x = 132,
-				y = 192,
-				w = 45,
-				h = 29
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 45,
-				h = 29
-			},
-			sourceSize = {
-				w = 45,
-				h = 29
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_cabinet_open"] = {
+			x = 825,
+			y = 4,
+			w = 57,
+			h = 28
 		},
-		stove = {
-			frame = {
-				x = 208,
-				y = 124,
-				w = 42,
-				h = 6
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 42,
-				h = 6
-			},
-			sourceSize = {
-				w = 42,
-				h = 6
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["light1"] = {
+			x = 1151,
+			y = 4,
+			w = 47,
+			h = 8
 		},
-		b_connector = {
-			frame = {
-				x = 89,
-				y = 80,
-				w = 22,
-				h = 30
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 22,
-				h = 30
-			},
-			sourceSize = {
-				w = 22,
-				h = 30
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["table"] = {
+			x = 127,
+			y = 4,
+			w = 113,
+			h = 33
 		},
-		t_connector = {
-			frame = {
-				x = 185,
-				y = 192,
-				w = 21,
-				h = 28
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 21,
-				h = 28
-			},
-			sourceSize = {
-				w = 21,
-				h = 28
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["t_cabinet_right"] = {
+			x = 685,
+			y = 4,
+			w = 57,
+			h = 28
 		},
-		sink = {
-			frame = {
-				x = 214,
-				y = 138,
-				w = 26,
-				h = 11
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 26,
-				h = 11
-			},
-			sourceSize = {
-				w = 26,
-				h = 11
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["utility_door"] = {
+			x = 4,
+			y = 4,
+			w = 32,
+			h = 68
 		},
-		stool = {
-			frame = {
-				x = 208,
-				y = 157,
-				w = 19,
-				h = 26
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 19,
-				h = 26
-			},
-			sourceSize = {
-				w = 19,
-				h = 26
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["sink"] = {
+			x = 4,
+			y = 330,
+			w = 26,
+			h = 11
 		},
-		outlet = {
-			frame = {
-				x = 208,
-				y = 76,
-				w = 14,
-				h = 5
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 14,
-				h = 5
-			},
-			sourceSize = {
-				w = 14,
-				h = 5
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["light2"] = {
+			x = 750,
+			y = 4,
+			w = 67,
+			h = 28
 		},
-		light_switch = {
-			frame = {
-				x = 208,
-				y = 89,
-				w = 5,
-				h = 8
-			},
-			rotated = false,
-			trimmed = false,
-			spriteSourceSize = {
-				x = 0,
-				y = 0,
-				w = 5,
-				h = 8
-			},
-			sourceSize = {
-				w = 5,
-				h = 8
-			},
-			pivot = {
-				x = 0.5,
-				y = 0.5
-			}
+		["b_cabinet_single1"] = {
+			x = 333,
+			y = 4,
+			w = 55,
+			h = 30
 		}
 	},
 	meta = {
-		app = "http://free-tex-packer.com",
-		version = "0.6.7",
-		image = "atlas_kitchen_items.png",
-		format = "RGBA8888",
-		size = {
-			w = 512,
-			h = 256
-		},
-		scale = 1
+		padding = 4,
+		extrude = 0,
+		atlasWidth = 1202,
+		atlasHeight = 358,
+		quadCount = 24
 	}
 }
-
 return Data

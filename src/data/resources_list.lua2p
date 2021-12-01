@@ -63,7 +63,7 @@ end
 function get_atlas(id)
 	local t = {}
 	t[1] = "atlas_" .. id .. "_items"
-	t[2] = path_images .. "atlases/" .. id .. "/atlas.png"
+	t[2] = path_images .. "atlases/" .. id .. ".png"
 	return toLua(t)
 end
 )
@@ -143,7 +143,7 @@ ResourcesList.Outside = {
 	array_images = {
 		{"bg_sky", !(path_images .. "outside/bg_sky.png")},
 		{"bg_house", !(path_images .. "outside/bg_house.png")},
-		{"atlas_outside_items", !(path_images .. "outside/atlas_outside_items.png")},
+		!!(get_atlas("outside")),
 		{"firefly", !(path_images .. "outside/firefly.png")},
 		{"splashes", !(path_images .. "outside/splashes.png")},
 		{"splashes_low", !(path_images .. "outside/splashes_low.png")},
@@ -167,7 +167,7 @@ ResourcesList.StorageRoom = {
 	},
 	array_images = {
 		{"storage_room", !(path_images .. "storage_room/storage_room.png")},
-		{"atlas_storage_room_items", !(path_images .. "storage_room/atlas_storage_room_items.png")},
+		!!(get_atlas("storage_room")),
 		!!(get_res("player"))
 	},
 	image_data = {
@@ -188,7 +188,7 @@ ResourcesList.UtilityRoom = {
 	},
 	array_images = {
 		{"utility_room", !(path_images .. "utility_room/utility_room.png")},
-		{"atlas_utility_room_items", !(path_images .. "utility_room/atlas_utility_room_items.png")},
+		!!(get_atlas("utility_room")),
 		!!(get_res("player"))
 	},
 	image_data = {
@@ -210,7 +210,7 @@ ResourcesList.Kitchen = {
 	},
 	array_images = {
 		{"kitchen", !(path_images .. "kitchen/kitchen.png")},
-		{"atlas_kitchen_items", !(path_images .. "kitchen/atlas_kitchen_items.png")},
+		!!(get_atlas("kitchen")),
 		!!(get_res("player"))
 	},
 	image_data = {
@@ -231,7 +231,6 @@ ResourcesList.LivingRoom = {
 	},
 	array_images = {
 		{"living_room", !(path_images .. "living_room/living_room.png")},
-		-- {"atlas_living_room_items", !(path_images .. "living_room/atlas_living_room_items.png")},
 		!!(get_atlas("living_room")),
 		!!(get_res("player"))
 	},

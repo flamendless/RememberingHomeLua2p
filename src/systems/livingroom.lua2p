@@ -18,7 +18,7 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
-local LivingRoom = Concord.system({})
+local LivingRoom = Concord.system()
 
 function LivingRoom:init(world)
 	self.world = world
