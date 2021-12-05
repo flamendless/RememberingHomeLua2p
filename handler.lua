@@ -70,7 +70,6 @@ _LOG_SAVE = true
 _CACHED_PRELOAD = true
 _PADDING = toLua(args[3])
 _GLSL_NORMALS = false
-_INPUT_DELAY = toLua(0.25)
 
 _OS = "Linux"
 _PLATFORM = "desktop" --mobile

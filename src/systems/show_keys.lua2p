@@ -41,7 +41,6 @@ function ShowKeys:create_key_with_text(id, txt, key)
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 1, 1)
 		:give("anchor", self.keys[id], "right", "bottom", 16, 0)
-	print(id, self.keys[id].key.value, self.texts[id].anchor.key)
 
 	return self.keys[id], self.texts[id]
 end

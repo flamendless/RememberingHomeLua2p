@@ -9,6 +9,7 @@ local Camera = Concord.system({
 })
 
 local states = Enum("zoomed_in", "zoomed_out")
+local dur_transition = 0.15
 
 function Camera:init(world)
 	self.world = world
@@ -18,9 +19,6 @@ function Camera:init(world)
 	self.follow = false
 	self.bars = false
 	self.state = states.zoomed_out
-	self.prev = {}
-	self.target = {}
-	self.is_zooming = false
 
 	self.pool.onAdded = function(pool, e)
 		local camera = e.camera
@@ -34,6 +32,7 @@ function Camera:init(world)
 			self.e_camera = e
 			self.main_camera = camera.camera
 		end
+		self.scale = self.main_camera:getScale()
 		self.world:setResource("camera", self.main_camera)
 		self.world:setResource("e_camera", e)
 	end
@@ -47,29 +46,7 @@ function Camera:init(world)
 	end
 end
 
-local function circout(p)
-	p = 1 - p
-	return 1 - (-(math.sqrt(1 - (p * p)) - 1))
-end
-
 function Camera:update(dt)
-	if self.is_zooming then
-		self.progress = self.progress + self.rate * dt
-		local p = self.progress
-		local d_scale = p >= 1 and 1 or circout(p)
-		local diff = self.target.scale - self.prev.scale
-		self.main_camera:setScale(self.prev.scale + d_scale * diff)
-
-		if p >= 1 then
-			if self.state == states.zoomed_out then
-				self.state = states.zoomed_in
-			elseif self.state == states.zoomed_in then
-				self.state = states.zoomed_out
-			end
-			self.is_zooming = false
-		end
-	end
-
 	if self.follow and self.to_follow then
 		local x, y = self:get_follow_coords(self.to_follow)
 		self.main_camera:setPosition(x, y)
@@ -92,15 +69,12 @@ end
 function Camera:get_follow_coords(target)
 	@@assert(target.__isEntity)
 	local pos = target.pos
-	local x = pos.x
-	local y = pos.y
-
+	local x, y = pos.x, pos.y
 	if target.camera_follow_offset then
 		local offset = target.camera_follow_offset
 		x = x + offset.x
 		y = y + offset.y
 	end
-
 	return x, y
 end
 
@@ -142,24 +116,46 @@ function Camera:draw_clip()
 	end
 end
 
+function Camera:force(dir)
+	@@assert(type(dir) == "number" and (dir == 1 or dir == -1))
+	self.flux:stop()
+	self.main_camera:setScale(self.target_scale)
+	self.state = self.target_state
+	self.target_scale = nil
+	self.target_state = nil
+	self.flux = nil
+end
+
+function Camera:tween_camera(dir)
+	@@assert(type(dir) == "number" and (dir == 1 or dir == -1))
+	local cs = self.main_camera:getScale()
+	self.target_scale = dir == 1 and cs + 0.25 or cs - 0.25
+	self.target_state = dir == 1 and states.zoomed_in or states.zoomed_out
+
+	self.flux = Flux.to(self, dur_transition, {scale = self.target_scale})
+		:ease("circout")
+		:onupdate(function()
+			self.main_camera:setScale(self.scale)
+		end)
+		:oncomplete(function()
+			self.state = self.target_state
+			self.target_scale = nil
+			self.target_state = nil
+			self.flux = nil
+		end)
+end
+
 function Camera:on_interact_or_inventory()
+	if self.flux then self:force(1) return end
 	if self.state ~= states.zoomed_out then return end
-	local time = 0.25
-	self.prev.scale = self.main_camera:getScale()
-	self.target.scale = self.prev.scale + 0.25
-	self.rate = time > 0 and 1 / time or 0
-	self.progress = time > 0 and 0 or 1
-	self.is_zooming = true
+	self:tween_camera(1)
 	self:display_bars()
 end
 
 function Camera:on_leave_interact_or_inventory()
+	if self.flux then self:force(-1) return end
 	if self.state ~= states.zoomed_in then return end
-	local time = 0.25
-	self.target.scale = self.prev.scale
-	self.rate = time > 0 and 1 / time or 0
-	self.progress = time > 0 and 0 or 1
-	self.is_zooming = true
+	self:tween_camera(-1)
 	self:hide_bars()
 end
 
@@ -169,16 +165,16 @@ function Camera:display_bars()
 	self.bars = true
 	self.bar_top = { x = l, y = t, w = w, h = 0, }
 	self.bar_bot = { x = l, y = h, w = w, h = 0, }
-	Flux.to(self.bar_top, 0.25, { h = h * p }):ease("circout")
-	Flux.to(self.bar_bot, 0.25, { h = -h * p }):ease("circout")
+	Flux.to(self.bar_top, dur_transition, { h = h * p }):ease("circout")
+	Flux.to(self.bar_bot, dur_transition, { h = -h * p }):ease("circout")
 	for _, e in ipairs(self.pool) do
 		e:give("bar_height", h * p)
 	end
 end
 
 function Camera:hide_bars()
-	Flux.to(self.bar_top, 0.25, { h = 0 }):ease("circout")
-	Flux.to(self.bar_bot, 0.25, { h = 0 }):ease("circout")
+	Flux.to(self.bar_top, dur_transition, { h = 0 }):ease("circout")
+	Flux.to(self.bar_bot, dur_transition, { h = 0 }):ease("circout")
 		:oncomplete(function()
 			self.bars = false
 		end)

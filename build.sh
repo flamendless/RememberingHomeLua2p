@@ -97,8 +97,7 @@ function create_atlas()
 	data_dirs=()
 	ignores=()
 
-	for ((i = 0; i < ${#exported_dirs[@]}; i++)); do
-		cur_dir=${exported_dirs[$i]}
+	for cur_dir in "${exported_dirs[@]}"; do
 		in_dir=$source_path/$cur_dir/
 		out_dir=$output_path/$cur_dir.png
 		data_dir=./src/atlases/atlas_$cur_dir.lua

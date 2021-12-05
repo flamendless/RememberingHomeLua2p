@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Timer = require("modules.hump.timer")
 
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
@@ -23,7 +22,6 @@ local AInventory = require("assemblages.inventory")
 
 function Inventory:init(world)
 	self.world = world
-	self.can_open = true
 	self.is_open = false
 	self.in_choices = false
 	self.entities = {}
@@ -53,7 +51,7 @@ function Inventory:init(world)
 end
 
 function Inventory:open_inventory()
-	if not self.can_open then return end
+	if self.is_open then return end
 	self.world:emit("on_interact_or_inventory")
 	self.world:emit("set_system_to", "dialogues", false)
 	self.world:emit("set_post_process_effect", "Blur", true)
@@ -74,7 +72,6 @@ function Inventory:close_inventory(not_close)
 		self.world:emit("on_leave_interact_or_inventory")
 	end
 	self.is_open = false
-	self.can_open = false
 	for _, e in pairs(self.entities) do
 		e:destroy()
 	end
@@ -84,16 +81,21 @@ function Inventory:close_inventory(not_close)
 	self.world:emit("destroy_list", $_LIST_INVENTORY_CELLS)
 	self.world:emit("destroy_list", $_LIST_INVENTORY_CHOICES)
 	self.world:emit("set_post_process_effect", "Blur", false)
-	Timer.after($_INPUT_DELAY, function() self.can_open = true end)
 end
 
+!if _DEV then
+local added = false
+!end
 function Inventory:update(dt)
-	if self.can_open and not self.is_open and Inputs.pressed("inventory") then
+	if not self.is_open and Inputs.pressed("inventory") then
 		!if _DEV then
-		local Items = require("items")
-		Items.add("flashlight")
-		Notes.add("test1")
-		Notes.add("test2")
+		if not added then
+			local Items = require("items")
+			Items.add("flashlight")
+			Notes.add("test1")
+			Notes.add("test2")
+			added = true
+		end
 		!end
 		self:open_inventory()
 	elseif self.is_open then
