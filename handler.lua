@@ -78,6 +78,8 @@ _GAME_TITLE_SECRET  = toLua("COMING SOON")
 _GAME_SIZE = {x = 1024, y = 640}
 _GAME_BASE_SIZE = toLua({x = 128, y = 32})
 
+_BUMP_CELL_SIZE = toLua(128)
+_CULL_PAD = toLua(32)
 _MIN_GL_VERSION = toLua("2.1")
 
 _DEFAULT_FILTER = toLua("nearest")

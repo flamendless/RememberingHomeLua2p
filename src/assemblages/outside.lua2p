@@ -4,12 +4,13 @@ local Animation = require("animation")
 local Info = require("info")
 local Palette = require("palette")
 local Resources = require("resources")
-local Light = require("assemblages.light")
 
 local Outside = {
 	colliders = {},
 	lights = {},
 }
+
+local Light = require("assemblages.light")
 
 local z_index = {
 	bg_house = 0,

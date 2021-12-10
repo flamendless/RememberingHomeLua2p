@@ -2,7 +2,7 @@ local Bump = require("modules.bump.bump-niji")
 
 local BumpStorage = {}
 
-local meta = getmetatable(Bump.newWorld())
+local meta = getmetatable(Bump.newWorld($_BUMP_CELL_SIZE))
 local BumpStorage = setmetatable({super = meta.__index}, meta)
 
 BumpStorage.__mt = {
@@ -22,7 +22,6 @@ function BumpStorage:add(entity)
 	local y = entity.pos.y
 	local w = entity.collider.w
 	local h = entity.collider.h
-
 	local col_offset = entity.collider_offset
 	if col_offset then
 		x = x + col_offset.ox

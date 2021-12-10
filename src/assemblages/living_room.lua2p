@@ -1,7 +1,8 @@
 local Palette = require("palette")
+local Lights = require("data.lights")
 
 local LivingRoom = {
-	lights = {},
+	lights = {}
 }
 
 local Light = require("assemblages.light")
@@ -13,45 +14,29 @@ function LivingRoom.bg(e)
 	:give("bg")
 end
 
--- local lz = 48
--- local ls = 128
--- function LivingRoom.lights.left_bulb(e)
--- 	e:assemble(Light.point,
--- 		86, 26, lz, ls,
--- 		Palette.get_diffuse("kitchen_side"))
--- 	:give("id", "pl_left")
--- 	:give("light_group", "side_pl")
--- 	:give("light_switch_id", "top")
--- end
---
--- function LivingRoom.lights.right_bulb(e)
--- 	e:assemble(Light.point,
--- 		386, 27, lz, ls,
--- 		Palette.get_diffuse("kitchen_side"))
--- 	:give("id", "pl_right")
--- 	:give("light_group", "side_pl")
--- 	:give("light_switch_id", "top")
--- end
-
-local lzmp = 2
-local lsmp = 64
-local pl_pos = {
-	{x = 186, y = 53},
-	{x = 193, y = 45},
-	{x = 202, y = 45},
-	{x = 209, y = 53},
-}
-
-for i = 1, #pl_pos do
-	local p = pl_pos[i]
-	LivingRoom.lights["mid_light_pl" .. i] = function(e)
+local pl = Lights.living_room.pl
+for i, pos in ipairs(pl.pos) do
+	LivingRoom.lights["pl" .. i] = function(e)
 		e:assemble(Light.point,
-			p.x, p.y, lzmp, lsmp,
+			pos.x, pos.y, pl.lz, pl.ls,
+			Palette.get_diffuse("living_room_side"))
+		:give("id", "pl" .. i)
+		:give("light_group", "side_pl")
+		:give("light_switch_id", "top")
+		:give("light_fading", pl.fade, -1)
+	end
+end
+
+local pl_mid = Lights.living_room.pl_mid
+for i, pos in ipairs(pl_mid.pos) do
+	LivingRoom.lights["pl_mid" .. i] = function(e)
+		e:assemble(Light.point,
+			pos.x, pos.y, pl_mid.lz, pl_mid.ls,
 			Palette.get_diffuse("living_room_mid_pl"))
 		:give("id", "pl_mid" .. i)
-		:give("light_group", "mid_light_pl")
+		:give("light_group", "pl_mid")
 		:give("light_switch_id", "bottom")
-		:give("light_fading", 32, -1)
+		:give("light_fading", pl_mid.fade, -1)
 	end
 end
 

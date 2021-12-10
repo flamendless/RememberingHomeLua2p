@@ -6,7 +6,11 @@ local Culling = Concord.system({
 	pool_sprite = {"sprite", "pos", "cullable", "!nf_render_sprite", "!notification"},
 })
 
-local function get_query_rect(self)
+function Culling:init(world)
+	self.world = world
+end
+
+function Culling:get_query_rect()
 	local camera = self.world:getResource("camera")
 	if camera then
 		return camera:getVisible()
@@ -15,13 +19,12 @@ local function get_query_rect(self)
 	end
 end
 
-function Culling:init(world)
-	self.world = world
-	self.padding = 32
-end
-
 function Culling:update(dt)
-	local x, y, w, h = get_query_rect(self)
+	local x, y, w, h = self:get_query_rect()
+	x = x - $_CULL_PAD
+	y = y - $_CULL_PAD
+	w = w + $_CULL_PAD * 2
+	h = h + $_CULL_PAD * 2
 	local w2 = w * 0.5
 	local h2 = h * 0.5
 

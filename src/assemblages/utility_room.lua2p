@@ -1,4 +1,5 @@
 local Palette = require("palette")
+local Lights = require("data.lights")
 
 local UtilityRoom = {
 	lights = {},
@@ -13,29 +14,17 @@ function UtilityRoom.bg(e)
 	:give("bg")
 end
 
-local lz = 26
-local ls = 106
-local fade = 12
-function UtilityRoom.lights.left_bulb(e)
-	e:assemble(Light.point,
-		92, 33, lz,
-		ls,
-		Palette.get_diffuse("utility_room_bulb_light"))
-	:give("id", "pl_left_bulb")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "room")
-	:give("light_fading", fade, -1)
-end
-
-function UtilityRoom.lights.right_bulb(e)
-	e:assemble(Light.point,
-		242, 33, lz,
-		ls,
-		Palette.get_diffuse("utility_room_bulb_light"))
-	:give("id", "pl_right_bulb")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "room")
-	:give("light_fading", fade, -1)
+local pl = Lights.utility_room.pl
+for i, pos in ipairs(pl.pos) do
+	UtilityRoom.lights["pl" .. i] = function(e)
+		e:assemble(Light.point,
+			pos.x, pos.y, pl.lz, pl.ls,
+			Palette.get_diffuse("utility_room_bulb_light"))
+		:give("id", "pl" .. i)
+		:give("light_group", "side_pl")
+		:give("light_switch_id", "room")
+		:give("light_fading", pl.fade, -1)
+	end
 end
 
 return UtilityRoom

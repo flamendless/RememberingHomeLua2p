@@ -4,9 +4,23 @@ local Data = {
 		x = 354, y = 58,
 		is_door = true,
 	},
+
+	{
+		id = "light",
+		name = "light1",
+		x = 81, y = 21,
+		no_col = true,
+	},
+	{
+		id = "light",
+		name = "light2",
+		x = 320, y = 21,
+		no_col = true,
+	},
+
 	{
 		id = "painting",
-		x = 56, y = 40,
+		x = 56, y = 46,
 	},
 	{
 		id = "chair",

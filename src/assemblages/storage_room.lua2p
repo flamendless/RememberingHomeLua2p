@@ -1,4 +1,5 @@
 local Palette = require("palette")
+local Lights = require("data.lights")
 
 local StorageRoom = {
 	lights = {},
@@ -13,29 +14,17 @@ function StorageRoom.bg(e)
 	:give("bg")
 end
 
-local lz = 26
-local ls = 106
-local fade = 12
-function StorageRoom.lights.left_bulb(e)
-	e:assemble(Light.point,
-		92, 33, lz,
-		ls,
-		Palette.get_diffuse("storage_room_bulb_light"))
-	:give("id", "pl_left_bulb")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "room")
-	:give("light_fading", fade, -1)
-end
-
-function StorageRoom.lights.right_bulb(e)
-	e:assemble(Light.point,
-		242, 33, lz,
-		ls,
-		Palette.get_diffuse("storage_room_bulb_light"))
-	:give("id", "pl_right_bulb")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "room")
-	:give("light_fading", fade, -1)
+local pl = Lights.storage_room.pl
+for i, pos in ipairs(pl.pos) do
+	StorageRoom.lights["pl" .. i] = function(e)
+		e:assemble(Light.point,
+			pos.x, pos.y, pl.lz, pl.ls,
+			Palette.get_diffuse("storage_room_bulb_light"))
+		:give("id", "pl" .. i)
+		:give("light_group", "side_pl")
+		:give("light_switch_id", "room")
+		:give("light_fading", pl.fade, -1)
+	end
 end
 
 return StorageRoom

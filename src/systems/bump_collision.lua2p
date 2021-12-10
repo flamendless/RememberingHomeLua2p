@@ -152,8 +152,6 @@ local flags = {
 	fill = false,
 }
 
-local floor = math.floor
-
 local function edit(id, value, t)
 	Slab.Text(id .. ":")
 	Slab.SameLine()
@@ -163,7 +161,7 @@ local function edit(id, value, t)
 		NumbersOnly = true,
 	}) then
 		value = Slab.GetInputNumber()
-		t[id] = floor(value)
+		t[id] = math.floor(value)
 	end
 	return value
 end
@@ -238,6 +236,10 @@ function BumpCollision:debug_update(dt)
 end
 
 function BumpCollision:debug_draw()
+	local scale = 1
+	local camera = self.world:getResource("camera")
+	if camera then scale = camera:getScale() end
+
 	if flags.bodies then
 		local x, y, w, h = get_query_rect(self)
 		local items, len = self.pool:queryRect(x, y, w, h)
@@ -245,9 +247,6 @@ function BumpCollision:debug_draw()
 			local e = items[i]
 			local id = e.id.value
 			local rx, ry, rw, rh = self.pool:getRect(e)
-			local scale = 1
-			local camera = self.world:getResource("camera")
-			if camera then scale = camera:getScale() end
 
 			if flags.fill then
 				love.graphics.setColor(1, 0, 0, 0.3)
@@ -279,8 +278,8 @@ function BumpCollision:debug_mousemoved(_, _, dx, dy)
 			local e = items[i]
 			if e.bump.debug_clicked then
 				local _, _, rw, rh = self.pool:getRect(e)
-				e.pos.x = floor(mx)
-				e.pos.y = floor(my)
+				e.pos.x = math.floor(mx)
+				e.pos.y = math.floor(my)
 				self.pool:update(e, e.pos.x, e.pos.y, rw, rh)
 			end
 		end
@@ -309,8 +308,8 @@ function BumpCollision:debug_mousereleased(_, _, mb)
 			local e = items[i]
 			if e.bump.debug_clicked then
 				local _, _, rw, rh = self.pool:getRect(e)
-				e.pos.x = floor(mx)
-				e.pos.y = floor(my)
+				e.pos.x = math.floor(mx)
+				e.pos.y = math.floor(my)
 				e.bump.debug_clicked = false
 				self.pool:update(e, e.pos.x, e.pos.y, rw, rh)
 			end

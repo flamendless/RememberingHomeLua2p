@@ -26,11 +26,17 @@ local Data = {
 			w = 71,
 			h = 47
 		},
-		["chair"] = {
-			x = 4,
-			y = 327,
-			w = 35,
-			h = 31
+		["plant"] = {
+			x = 50,
+			y = 119,
+			w = 16,
+			h = 29
+		},
+		["light"] = {
+			x = 50,
+			y = 156,
+			w = 17,
+			h = 23
 		},
 		["table"] = {
 			x = 157,
@@ -44,11 +50,11 @@ local Data = {
 			w = 22,
 			h = 16
 		},
-		["plant"] = {
-			x = 50,
-			y = 119,
-			w = 16,
-			h = 29
+		["chair"] = {
+			x = 4,
+			y = 327,
+			w = 35,
+			h = 31
 		},
 		["fireplace_inner"] = {
 			x = 35,
@@ -68,7 +74,7 @@ local Data = {
 		extrude = 0,
 		atlasWidth = 248,
 		atlasHeight = 362,
-		quadCount = 10
+		quadCount = 11
 	}
 }
 return Data

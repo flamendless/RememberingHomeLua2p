@@ -1,4 +1,5 @@
 local Palette = require("palette")
+local Lights = require("data.lights")
 
 local Kitchen = {
 	lights = {},
@@ -13,41 +14,29 @@ function Kitchen.bg(e)
 	:give("bg")
 end
 
-local lz = 48
-local ls = 128
-local fade = 6
-function Kitchen.lights.left_bulb(e)
-	e:assemble(Light.point,
-		86, 26, lz, ls,
-		Palette.get_diffuse("kitchen_side"))
-	:give("id", "pl_left")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "top")
-	:give("light_fading", fade, -1)
-end
-
-function Kitchen.lights.right_bulb(e)
-	e:assemble(Light.point,
-		386, 27, lz, ls,
-		Palette.get_diffuse("kitchen_side"))
-	:give("id", "pl_right")
-	:give("light_group", "side_pl")
-	:give("light_switch_id", "top")
-	:give("light_fading", fade, -1)
-end
-
-local lzmp = 7
-local lsmp = 128
-local pl_x = {184, 215, 242}
-for i = 1, #pl_x do
-	Kitchen.lights["mid_bulb_pl" .. i] = function(e)
+local pl = Lights.kitchen.pl
+for i, pos in ipairs(pl.pos) do
+	Kitchen.lights["pl" .. i] = function(e)
 		e:assemble(Light.point,
-			pl_x[i], 57, lzmp, lsmp,
+			pos.x, pos.y, pl.lz, pl.ls,
+			Palette.get_diffuse("kitchen_side"))
+		:give("id", "pl" .. i)
+		:give("light_group", "side_pl")
+		:give("light_switch_id", "top")
+		:give("light_fading", pl.fade, -1)
+	end
+end
+
+local pl_mid = Lights.kitchen.pl_mid
+for i, pos in ipairs(pl_mid.pos) do
+	Kitchen.lights["pl_mid" .. i] = function(e)
+		e:assemble(Light.point,
+			pos.x, 57, pl_mid.lz, pl_mid.ls,
 			Palette.get_diffuse("kitchen_mid_pl"))
 		:give("id", "pl_mid" .. i)
-		:give("light_group", "mid_bulb_pl")
+		:give("light_group", "mid_pl")
 		:give("light_switch_id", "bottom")
-		:give("light_fading", fade, -1)
+		:give("light_fading", pl_mid.fade, -1)
 	end
 end
 
