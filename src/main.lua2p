@@ -21,6 +21,9 @@ local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 Log.lovesave = true
 require("modules.sdf").mount()
+!if _DEV then
+local Peeker = require("modules.peeker.peeker")
+!end
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
@@ -100,6 +103,9 @@ end
 
 function love.update(dt)
 	@@profb("love.update")
+	!if _DEV then
+	Peeker.update(dt)
+	!end
 
 	Timer.update(dt)
 	Flux.update(dt)
@@ -115,6 +121,9 @@ end
 
 function love.draw()
 	@@profb("love.draw")
+	!if _DEV then
+	Peeker.attach()
+	!end
 
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
@@ -134,11 +143,25 @@ function love.draw()
 	DevTools.end_draw()
 	!end
 
+	!if _DEV then
+	Peeker.detach()
+	!end
 	@@profe("love.draw")
 end
 
 function love.keypressed(key)
 	!if _DEV then
+	if key == "/" then
+		if Peeker.get_status() then
+			Peeker.stop(true)
+		else
+			Peeker.start({
+				fps = 24,
+				overlay = "circle", --or "text"
+				post_clean_frames = true,
+			})
+		end
+	end
 	DevTools.keypressed(key)
 	!end
 	Inputs.keypressed(key)
