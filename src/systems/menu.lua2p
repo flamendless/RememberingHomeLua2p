@@ -234,20 +234,10 @@ function Menu:setup_menu()
 			ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
 
 	self.e_desk = Concord.entity(self.world):assemble(AMenu.desk, ww, wh)
-
-	!if _DEV then
-	Concord.entity(self.world)
-		:assemble(AMenu.secret_title, 32, wh * 0.5)
-		:give("color_fade_in", 5, 3)
-	!end
-
-	self.title = Concord.entity(self.world)
-		:assemble(AMenu.title, ww * 0.25, wh * 0.5 - 36,
-			scale_title, title_w * 0.5, title_h * 0.5)
-
-	self.subtitle = Concord.entity(self.world)
-		:assemble(AMenu.subtitle, ww * 0.25, wh * 1.5,
-			self.title, scale_subt, subt_w * 0.5, subt_h * 0.5)
+	self.title = Concord.entity(self.world):assemble(AMenu.title,
+		ww * 0.25, wh * 0.5 - 36, scale_title, title_w * 0.5, title_h * 0.5)
+	self.subtitle = Concord.entity(self.world):assemble(AMenu.subtitle,
+		ww * 0.25, wh * 1.5, self.title, scale_subt, subt_w * 0.5, subt_h * 0.5)
 
 	local jamboree_fnt = "res/fonts/Jamboree.fnt"
 	local jamboree_png = "res/fonts/Jamboree.png"

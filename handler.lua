@@ -74,7 +74,6 @@ _GLSL_NORMALS = false
 _OS = "Linux"
 _PLATFORM = "desktop" --mobile
 _GAME_TITLE  = toLua("Going Home: Revisited")
-_GAME_TITLE_SECRET  = toLua("COMING SOON")
 _GAME_SIZE = {x = 1024, y = 640}
 _GAME_BASE_SIZE = toLua({x = 128, y = 32})
 
