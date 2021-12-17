@@ -5,6 +5,7 @@ local ITEM_IDS = Enum("note_item", "inventory_item", "choice_item")
 
 Concord.component("usable_with_item")
 Concord.component("item_preview")
+Concord.component("room_item")
 
 Concord.component("item_id", function(c, id)
 	@@assert(type(id) == "string")

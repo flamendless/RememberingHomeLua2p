@@ -8,7 +8,7 @@ local DevTools = {
 	show_fps = true,
 	designer = false,
 	flags = {
-		deferred_lighting = true,
+		deferred_lighting = false,
 		bounding_box = false,
 		bump_collision = false,
 		camera = true,
@@ -25,6 +25,7 @@ local DevTools = {
 		path = false,
 		render_sprite = false,
 		transform = false,
+		randomize_uv = true,
 	},
 	effects = {
 		NGrading = true,

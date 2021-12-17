@@ -19,7 +19,7 @@ local commons = {
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
 	"outline", "pause", "player_controller", "render_rect", "render_sprite",
 	"render_text", "render_ui", "room", "systems", "transform", "typewriter",
-	"door", "light_switch", "notes", "list", "post_processing",
+	"door", "light_switch", "notes", "list", "post_processing", "randomize_uv",
 	--"flashlight", "animation_sync",
 }
 
