@@ -1,11 +1,11 @@
 extern VolumeImage lut;
 
-vec4 ngrading(vec4 texCol)
+vec4 ngrading(vec4 color)
 {
-	return vec4(Texel(lut, texCol.rgb).rgb, texCol.a);
+	return vec4(Texel(lut, color.rgb).rgb, color.a);
 }
 
-vec4 ngrading(Image tex, vec2 tc)
+vec4 ngrading(Image tex, vec2 uv)
 {
-	return ngrading(Texel(tex, tc));
+	return ngrading(Texel(tex, uv));
 }

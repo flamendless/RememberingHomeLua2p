@@ -88,7 +88,7 @@ function Outside:state_setup()
 	self.world:emit("generate_fireflies")
 
 	self.world:emit("setup_post_process", {
-		NGrading("lut_dusk"),
+		NGrading($_LUT_DUSK),
 		Blur()
 	})
 

@@ -28,13 +28,13 @@ vec4 position(mat4 transform_projection, vec4 vertex_position)
 #ifdef PIXEL
 uniform Image cb;
 
-vec4 effect(vec4 col, Image tex, vec2 uv, vec2 sc)
+vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc)
 {
 	sc /= love_ScreenSize.xy;
 	vec2 ndc = (sc - vec2(0.5)) * 2.0;
 	vec3 c = Texel(cb, sc).xyz;
 
-	vec3 tl = vec3(normalize(ndc_p - ndc) * col.x, w_p.z/scale); //vector towards the light
+	vec3 tl = vec3(normalize(ndc_p - ndc) * color.x, w_p.z/scale); //vector towards the light
 	float ld = length(tl);
 	vec3 l = normalize(tl);
 

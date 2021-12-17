@@ -39,9 +39,9 @@ function LivingRoom:state_setup()
 	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "living_room")
 	self.world:emit("setup_post_process", {
-		NGrading("lut_dusk"),
+		NGrading($_LUT_DUSK),
 		FilmGrain(),
-		Blur()
+		Blur(),
 	})
 
 	for _, v in pairs(Assemblages.LivingRoom.lights) do

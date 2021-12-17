@@ -2,13 +2,13 @@ extern Image lut;
 extern number cell_size;
 extern vec2 tile_size;
 
-vec4 ngrading(vec4 texCol)
+vec4 ngrading(vec4 color)
 {
 	number cdim = cellDimensions.x * cellDimensions.y - 1.0;
 	number cw = cellPixels * cellDimensions.x;
 	// Sampling must be done at 0.5-increments
-	vec2 cpos = clamp(texCol.rg * cellPixels, 0.0, cellPixels - 1.0) + 0.5;
-	number z = clamp(texCol.b * cdim, 0.0, cdim);
+	vec2 cpos = clamp(color.rg * cellPixels, 0.0, cellPixels - 1.0) + 0.5;
+	number z = clamp(color.b * cdim, 0.0, cdim);
 	number zf = fract(z);
 	number zp = floor(z);
 	// Calculate cell position
@@ -17,10 +17,10 @@ vec4 ngrading(vec4 texCol)
 	// Sample
 	vec4 p1 = Texel(lut, tp1 / cw);
 	vec4 p2 = Texel(lut, tp2 / cw);
-	return vec4(mix(p1.rgb, p2.rgb, zf), texCol.a);
+	return vec4(mix(p1.rgb, p2.rgb, zf), color.a);
 }
 
-vec4 ngrading(Image tex, vec2 tc)
+vec4 ngrading(Image tex, vec2 uv)
 {
-	return ngrading(Texel(tex, tc));
+	return ngrading(Texel(tex, uv));
 }

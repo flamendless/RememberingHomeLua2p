@@ -40,6 +40,24 @@ end
 
 local default_setting = {linear = true, dpiscale = 1}
 
+function NGrading:new(res_id, res_id2)
+	@@assert(type(res_id) == "string")
+	@@sassert(res_id2, type(res_id2) == "string")
+	local lut_size = Settings.current.graphics_quality == "low" and 16 or 64
+	local lut_img = Resources.data.image_data[res_id .. "_" .. lut_size]
+	local effect
+
+	if not res_id2 then
+		effect = self:new_single(lut_img, lut_size)
+	else
+		local lut_img2 = Resources.data.image_data[res_id2 .. "_" .. lut_size]
+		effect = self:new_multi(lut_img, lut_img2, lut_size)
+	end
+
+	effect:setup_data()
+	self.is_active = true
+end
+
 function NGrading:new_single(img, cs)
 	@@assert(img:type() == "ImageData")
 	local data = img
@@ -140,24 +158,6 @@ function NGrading:new_multi(img, img2, cs)
 	self.shader = love.graphics.newShader(str)
 	self.used_shader = used_shader
 	return self
-end
-
-function NGrading:new(res_id, res_id2)
-	@@assert(type(res_id) == "string")
-	@@sassert(res_id2, type(res_id2) == "string")
-	local lut_size = Settings.current.graphics_quality == "low" and 16 or 64
-	local lut_img = Resources.data.image_data[res_id .. "_" .. lut_size]
-	local effect
-
-	if not res_id2 then
-		effect = self:new_single(lut_img, lut_size)
-	else
-		local lut_img2 = Resources.data.image_data[res_id2 .. "_" .. lut_size]
-		effect = self:new_multi(lut_img, lut_img2, lut_size)
-	end
-
-	effect:setup_data()
-	self.is_active = true
 end
 
 function NGrading:get_shader()

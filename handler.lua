@@ -162,6 +162,10 @@ _TWO_PI = toLua(math.pi * 2)
 _T_H_PI = toLua(3 * _HALF_PI)
 _RA = toLua({math.cos(math.pi/32), math.sin(math.pi/32)})
 
+--LUTS
+_LUT_DUSK = toLua("lut_dusk")
+_LUT_AFTERNOON = toLua("lut_afternoon")
+
 --IDS
 _ITEMS_ACTION_USE = toLua("Use")
 _ITEMS_ACTION_EQUIP = toLua("Equip")

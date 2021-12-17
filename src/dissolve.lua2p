@@ -12,7 +12,7 @@ function Dissolve:new(texture, duration)
 	@@assert(texture:type() == "Image")
 	@@assert(type(duration) == "number")
 	self.shader_code = love.graphics.newShader(Shaders.dissolve)
-	self.shader_code:send("tex", texture)
+	self.shader_code:send("tex_noise", texture)
 	self.flag_process = false
 	self.duration = duration
 	self.time = 0

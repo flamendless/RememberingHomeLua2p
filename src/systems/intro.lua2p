@@ -135,8 +135,8 @@ function Intro:state_setup()
 		:give("fade_in_target_alpha", 0.45)
 		:give("hidden")
 
-	ngrading.single = NGrading("lut_afternoon")
-	ngrading.multi = NGrading("lut_afternoon", "lut_dusk")
+	ngrading.single = NGrading($_LUT_AFTERNOON)
+	ngrading.multi = NGrading($_LUT_AFTERNOON, $_LUT_DUSK)
 	current_ngrading = ngrading.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,

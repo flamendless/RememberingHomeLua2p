@@ -32,8 +32,15 @@ function Shaders.init()
 	for k, v in pairs(Shaders) do
 		if type(v) == "string" then
 			if not stringx.starts_with(k, "ngrading_") then
+				Log.debug("checking:", v)
 				local status, message = love.graphics.validateShader(is_mobile, v)
-				Log.debug(k, status, message)
+				if not status then
+					error(v .. "- error with validateShader: " .. message)
+				end
+				local shader = love.graphics.newShader(v)
+				if not shader then
+					error(v .. "- error with newShader: " .. message)
+				end
 			end
 		end
 	end
