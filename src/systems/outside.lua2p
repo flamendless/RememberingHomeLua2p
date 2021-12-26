@@ -5,15 +5,14 @@ local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
-local Blur = require("blur")
 local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Items = require("items")
-local NGrading = require("ngrading")
 local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
+local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -88,8 +87,8 @@ function Outside:state_setup()
 	self.world:emit("generate_fireflies")
 
 	self.world:emit("setup_post_process", {
-		NGrading($_LUT_DUSK),
-		Blur()
+		Shaders.NGrading($_LUT_DUSK),
+		Shaders.Blur()
 	})
 
 	--setup lights

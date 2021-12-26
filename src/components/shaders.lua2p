@@ -22,12 +22,12 @@ Concord.component("glitch_shader", function(c, values)
 	@@assert(values.abb_amount_y >= 0 and values.abb_amount_y <= 0.1)
 	@@assert(values.max_a >= 0.1 and values.max_a <= 1.0)
 	!end
-	c.shader = love.graphics.newShader(Shaders.glitch)
+	c.shader = love.graphics.newShader(Shaders.paths.glitch)
 	c.values = values or default_glitch
 end)
 
 Concord.component("fog", function(c, speed)
 	@@assert(type(speed) == "number")
-	c.shader = love.graphics.newShader(Shaders.fog)
+	c.shader = love.graphics.newShader(Shaders.paths.fog)
 	c.speed = speed
 end)

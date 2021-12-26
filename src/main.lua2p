@@ -34,11 +34,11 @@ love.errhand = ErrorHandler.callback
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")
-local NGrading = require("ngrading")
 local Preloader = require("preloader")
 local Save = require("save")
 local Settings = require("settings")
 local Shaders = require("shaders")
+Shaders.load_shaders()
 local WindowMode = require("window_mode")
 
 !if _DEV then
@@ -92,7 +92,7 @@ function love.load()
 	GameStates.switch("LivingRoom")
 
 	DevTools.init()
-	NGrading.dev_init()
+	Shaders.NGrading.dev_init()
 	!else
 	GameStates.switch("Splash")
 	!end

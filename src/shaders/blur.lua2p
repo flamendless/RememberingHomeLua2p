@@ -5,7 +5,7 @@ local Blur = class({
 })
 
 function Blur:new()
-	self.shader = love.graphics.newShader(Shaders.blur)
+	self.shader = love.graphics.newShader(Shaders.paths.blur)
 	self.is_active = false
 end
 

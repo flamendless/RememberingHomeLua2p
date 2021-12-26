@@ -7,15 +7,14 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local Canvas = require("canvas")
-local Dissolve = require("dissolve")
 local Fade = require("fade")
 local Image = require("image")
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
-local MotionBlur = require("motion_blur")
 local Palette = require("palette")
 local Resources = require("resources")
 local Save = require("save")
+local Shaders = require("shaders")
 
 local Menu = Concord.system({
 	pool = {"option_key", "color", "pos", "text", "on_enter_menu"},
@@ -144,8 +143,8 @@ function Menu:state_setup()
 	self.camera:setWindow(0, 0, ww, wh)
 	self.canvases = {}
 	Canvas.init_canvases(self.canvases)
-	self.mb = MotionBlur(self.canvases.main)
-	self.dissolve = Dissolve(img_ff, 2)
+	self.mb = Shaders.MotionBlur(self.canvases.main)
+	self.dissolve = Shaders.Dissolve(img_ff, 2)
 	self:setup_menu()
 end
 

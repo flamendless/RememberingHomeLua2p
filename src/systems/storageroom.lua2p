@@ -2,15 +2,13 @@ local Concord = require("modules.concord.concord")
 local Gamera = require("modules.gamera.gamera")
 local TLE = require("modules.tle.timeline")
 
-local Blur = require("blur")
 local Canvas = require("canvas")
 local Dialouges = require("dialogues")
 local Fade = require("fade")
-local FilmGrain = require("film_grain")
 local Items = require("items")
-local NGrading = require("ngrading")
 local Palette = require("palette")
 local Resources = require("resources")
+local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -41,9 +39,9 @@ function StorageRoom:state_setup()
 	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "storage_room")
 	self.world:emit("setup_post_process", {
-		NGrading($_LUT_DUSK),
-		FilmGrain(),
-		Blur()
+		Shaders.NGrading($_LUT_DUSK),
+		Shaders.FilmGrain(),
+		Shaders.Blur(),
 	})
 
 	for _, v in pairs(Assemblages.StorageRoom.lights) do

@@ -93,7 +93,8 @@ function NGrading:new_single(img, cs)
 	self.cell_size = cs
 	self.volume_img = volume_img
 	self.image = image
-	local str = love.filesystem.read(Shaders["ngrading_" .. used_shader]) .. Shaders.ngrading_effect
+	local str = love.filesystem.read(Shaders.paths["ngrading_" .. used_shader])
+		.. Shaders.paths.ngrading_effect
 	self.shader = love.graphics.newShader(str)
 	self.used_shader = used_shader
 	return self
@@ -154,14 +155,15 @@ function NGrading:new_multi(img, img2, cs)
 	self.volume_img2 = volume_img2
 	self.image = image
 	self.image2 = image2
-	local str = love.filesystem.read(Shaders["ngrading_" .. used_shader]) .. Shaders.ngrading_effect
+	local str = love.filesystem.read(Shaders.paths["ngrading_" .. used_shader])
+		.. Shaders.paths.ngrading_effect
 	self.shader = love.graphics.newShader(str)
 	self.used_shader = used_shader
 	return self
 end
 
 function NGrading:get_shader()
-	return love.filesystem.read(Shaders.ngrading[self.used_shader])
+	return love.filesystem.read(Shaders.paths.ngrading[self.used_shader])
 end
 
 function NGrading:set_dt(dt)

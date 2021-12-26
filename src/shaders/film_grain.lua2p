@@ -17,7 +17,7 @@ function FilmGrain:new()
 	noise_texture:setWrap("repeat", "repeat")
 
 	self.random_offset = {}
-	self.shader = love.graphics.newShader(Shaders.film_grain)
+	self.shader = love.graphics.newShader(Shaders.paths.film_grain)
 	self.shader:send("noise_texture", noise_texture)
 	self.shader:send("size", w)
 
