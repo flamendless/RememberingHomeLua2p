@@ -60,6 +60,14 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 ## Dependencies:
 
 * [LOVE framework](https://love2d.org) - version 11.3 is used for development
+* [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating systems
+* [rsync](https://rsync.samba.org/) - for copying/moving
+
+## Setup:
+* `git clone <this_repo>`
+* `git submodule init` then `git submodule update`
+* `cd libs/ExportTextureAtlas`, `git submodule init` then `git submodule update`
+* `./build.sh init`
 
 ## Coding Style Guide
 

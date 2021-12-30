@@ -18,5 +18,8 @@ function win64()
 if [ $# -eq 0 ]; then
 	echo "Must pass command: win32 or win64"
 else
+	if [ ! -d "$dir_output" ]; then
+		mkdir "$dir_output"
+	fi
 	"$@"
 fi
