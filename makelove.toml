@@ -1,18 +1,17 @@
-name = "Going Home: Revisited"
+name = "GoingHomeRevisited"
+love_version = "11.3"
+
 build_directory = "../release"
-love_files = ["./*"]
+love_files = [
+	"*/*",
+]
 
 [windows]
 [windows.exe_metadata]
 CompanyName = "flamendless"
-LegalCopyright = "Copyright of flamendless 2020-2030"
-
-[win32]
-shared_libraries = [
-	"../libs/x86/libcurl.dll"
-]
+LegalCopyright = "Copyright of flamendless studio 2020-2030"
 
 [linux]
 [linux.desktop_file_metadata]
-Comment="Going Home: Revisited - a game by flamendless"
+Comment="Going Home: Revisited - a game by flamendless studio"
 Categories="Game;"
