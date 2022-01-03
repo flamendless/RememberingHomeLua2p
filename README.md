@@ -62,6 +62,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [LOVE framework](https://love2d.org) - version 11.3 is used for development
 * [makelove](https://github.com/pfirsich/makelove) - for packaging the game for other operating systems
 * [rsync](https://rsync.samba.org/) - for copying/moving
+* [luacheck](https://github.com/mpeterv/luacheck)
 
 ## Setup:
 * `git clone <this_repo>`

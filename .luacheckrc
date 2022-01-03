@@ -8,6 +8,7 @@ return {
 		"mathx",
 		"stringx",
 		"tablex",
+		"functional",
 	},
 	ignore = {'212'},
 }

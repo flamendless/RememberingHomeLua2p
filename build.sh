@@ -162,8 +162,14 @@ function rebuild()
 function run()
 {
 	echo "Running build.sh"
-	process_src "$dir_source"
-	love "$dir_output"
+	if [ $(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip') ]; then
+		echo "This is Windows WSL!"
+		./build_win.sh run
+	else
+		echo "This is Linux"
+		process_src "$dir_source"
+		love "$dir_output"
+	fi
 	echo "Completed build.sh"
 }
 
