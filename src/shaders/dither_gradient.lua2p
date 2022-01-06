@@ -1,0 +1,39 @@
+local Resources = require("resources")
+local Shaders = require("shaders")
+
+local DitherGradient = class({
+	name = "DitherGradient"
+})
+
+function DitherGradient:new()
+	self.shader = love.graphics.newShader(Shaders.paths.dither_gradient)
+	self.is_active = true
+
+	local tex_dither = Resources.data.images.bayer16
+	local tex_palette = Resources.data.images.pal_oil
+
+	self.shader:send("u_tex_dither", tex_dither)
+	self.shader:send("u_tex_palette", tex_palette)
+	self.shader:send("u_size_tex_dither", {tex_dither:getDimensions()})
+	self.shader:send("u_size_tex_palette", {tex_palette:getDimensions()})
+	self.shader:send("u_depth", 16)
+	self.shader:send("u_contrast", 0)
+	self.shader:send("u_offset", 0)
+	self.shader:send("u_dither_size", 2)
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+
+function DitherGradient:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("dither_gradient", {
+		Title = "DitherGradient",
+		IsOpen = self.debug_show,
+	})
+
+	Slab.EndWindow()
+end
+!end
+
+return DitherGradient

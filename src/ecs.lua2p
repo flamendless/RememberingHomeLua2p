@@ -46,9 +46,10 @@ systems.Menu = {
 }
 
 systems.Intro = {
-	"animation", "camera", "color", "light", "parallax", "depth", "show_keys",
-	"tree", "render_sprite", "render_text", "render_ui", "text_paint_intro",
-	"transform", "tween", "gamestates", "fog", "entity", "atlas",
+	"animation", "atlas", "camera", "color", "deferred_lighting", "depth",
+	"entity", "fog", "gamestates", "parallax", "post_processing",
+	"render_sprite", "render_text", "render_ui", "show_keys",
+	"text_paint_intro", "transform", "tree", "tween",
 }
 
 systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))

@@ -35,55 +35,23 @@ local is_switching = false
 local rain_amount = {16, 32, 96}
 local should_fade = false
 local intro_text_n = 1
-local img_bg
-
-function Intro:enable_next_intro_text()
-	local e = self.pool_intro_text[intro_text_n]
-	self.world:emit("fade_text", e, fade_duration,
-		function()
-			self.timeline:Unpause()
-			intro_text_n = intro_text_n + 1
-		end)
-end
-
-function Intro:car_reflection_flicker()
-	local chance = Lume.randomchoice({true, false})
-	if chance then
-		self.e_car_reflect:remove("hidden")
-	else
-		self.e_car_reflect:give("hidden")
-	end
-end
-
-function Intro:update_rain(i)
-	@@assert(type(i) == "number")
-	@@assert(rain_amount[i])
-	local amount = rain_amount[i]
-	is_raining = true
-	self.ps1.system:setEmissionRate(amount)
-	self.ps2.system:setEmissionRate(amount)
-end
 
 function Intro:init(world)
 	self.world = world
 end
 
 function Intro:state_setup()
-	img_bg = Resources.data.images.bg
-	local w, h = img_bg:getDimensions()
-	self.canvases = {}
-	self.canvases.main = Canvas.create_main({})
+	local w, h = Resources.data.images.bg:getDimensions()
+	local ww, wh = love.graphics.getDimensions()
+	local ssx2 = ww * 2
 
-	local ssx, ssy = love.graphics.getDimensions()
-	local ssx2 = ssx * 2
-	self.scale = math.min(ssx/w, ssy/h)
-
+	self.canvas = Canvas.create_main()
+	self.scale = math.min(ww/w, wh/h)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ssx, ssy)
-	self.camera:setScale(self.scale)
-
+	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
+	Concord.entity(self.world):assemble(Assemblages.Intro.bg)
 
 	self.world:emit("create_light_map", self.canvases.main.x, self.canvases.main.y, w, h)
 	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
@@ -160,11 +128,11 @@ function Intro:state_setup()
 		:give("animation_data", Animation.get("splat"))
 
 	self.e_title_light = Concord.entity(self.world):assemble(Assemblages.Intro.title_light,
-			ssx * 0.5, ssy * 0.5)
+			ww * 0.5, wh * 0.5)
 		:give("intro_text")
 
 	self.e_title = Concord.entity(self.world):assemble(Assemblages.Intro.title,
-			ssx * 0.5, ssy * 0.5)
+			ww * 0.5, wh * 0.5)
 		:give("intro_text")
 
 	if Save.data.intro_done or !(_DEV) then
@@ -173,7 +141,7 @@ function Intro:state_setup()
 end
 
 function Intro:state_init()
-	local ssx = love.graphics.getWidth()
+	local ww = love.graphics.getWidth()
 	local w, h = img_bg:getDimensions()
 
 	self.timeline = TLE.Do(function()
@@ -242,7 +210,7 @@ function Intro:state_init()
 
 		TLE.Event.Wait(1)
 		self.world:emit("slow_parallax", 0.75)
-		Flux.to(car_pos, 3, {x = ssx * 0.5})
+		Flux.to(car_pos, 3, {x = ww * 0.5})
 
 		TLE.Event.Wait(2)
 		self.world:emit("tween_depth_zoom", 5, 4/max_n_cam_t)
@@ -260,7 +228,7 @@ function Intro:state_init()
 
 		TLE.Event.Wait(2)
 		self.world:emit("stop_parallax")
-		Flux.to(car_pos, 5, {x = ssx * 1.5})
+		Flux.to(car_pos, 5, {x = ww * 1.5})
 
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
@@ -323,17 +291,14 @@ function Intro:state_update(dt)
 end
 
 function Intro:state_draw()
-	@@profb("intro_draw")
-	@@profb("draw_light")
-	self.world:emit("draw_light_start")
-	self.world:emit("draw_light")
+	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
+	self.world:emit("end_deferred_lighting")
+	self.world:emit("apply_post_process", self.canvas)
+	self.world:emit("draw_inventory")
+	self.world:emit("draw_dialogues")
+	self.world:emit("draw_ui")
+	Fade.draw()
 
-	love.graphics.setBlendMode("alpha")
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas(self.canvases.main.canvas)
-
-	@@profb("intro_camera_draw")
-	self.camera:attach()
 		if current_ngrading then
 			current_ngrading:apply()
 		end
@@ -348,20 +313,6 @@ function Intro:state_draw()
 			self.ps2:draw(0, -16)
 			@@profe("intro_rain_draw")
 		end
-
-		love.graphics.setShader()
-		self.world:emit("draw_light_end", self.canvases.main.x, self.canvases.main.y)
-	self.camera:detach()
-	@@profe("intro_camera_draw")
-	@@profe("draw_light")
-
-	self.world:emit("draw_clip")
-	self.world:emit("draw_ui")
-	if should_fade then Fade.draw() end
-
-	love.graphics.setCanvas()
-	self.canvases.main:render()
-	@@profe("intro_draw")
 end
 
 function Intro:state_keypressed(key)
@@ -383,6 +334,33 @@ function Intro:cleanup()
 	should_fade = false
 	intro_text_n = 1
 	img_bg = nil
+end
+
+function Intro:enable_next_intro_text()
+	local e = self.pool_intro_text[intro_text_n]
+	self.world:emit("fade_text", e, fade_duration,
+		function()
+			self.timeline:Unpause()
+			intro_text_n = intro_text_n + 1
+		end)
+end
+
+function Intro:car_reflection_flicker()
+	local chance = Lume.randomchoice({true, false})
+	if chance then
+		self.e_car_reflect:remove("hidden")
+	else
+		self.e_car_reflect:give("hidden")
+	end
+end
+
+function Intro:update_rain(i)
+	@@assert(type(i) == "number")
+	@@assert(rain_amount[i])
+	local amount = rain_amount[i]
+	is_raining = true
+	self.ps1.system:setEmissionRate(amount)
+	self.ps2.system:setEmissionRate(amount)
 end
 
 function Intro:resume_tle()

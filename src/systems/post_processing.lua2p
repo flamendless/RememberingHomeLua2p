@@ -15,6 +15,7 @@ local buffer2 = Canvas.create_main()
 function PostProcessing:init(world)
 	!if _DEV then
 	DevTools = require("devtools")
+	self.debug_effects = {}
 	!end
 	self.world = world
 	self.effects = {}
@@ -29,7 +30,14 @@ function PostProcessing:setup_post_process(t)
 	self.effects = t
 	for i, effect in ipairs(self.effects) do
 		local str = effect:type()
-		self.dict[str] = self.effects[i]
+		self.dict[str] = effect
+
+		!if _DEV then
+		if effect.debug_update then
+			effect.debug_show = false
+			table.insert(self.debug_effects, effect)
+		end
+		!end
 	end
 end
 
@@ -98,5 +106,28 @@ function PostProcessing:apply_post_process(canvas)
 
 	buffer1:render_n()
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+
+function PostProcessing:debug_update(dt)
+	if not self.debug_show then return end
+
+	self.debug_show = Slab.BeginWindow("post_processing", {
+		Title = "PostProcessing",
+		IsOpen = self.debug_show,
+	})
+		for _, v in ipairs(self.debug_effects) do
+			local name = v:type()
+			if Slab.CheckBox(v.debug_show, name) then
+				v.debug_show = not v.debug_show
+			end
+			if v.debug_show then
+				v:debug_update(dt)
+			end
+		end
+	Slab.EndWindow()
+end
+!end
 
 return PostProcessing

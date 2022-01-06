@@ -35,9 +35,11 @@ t.inventory_notes = {
 	{"note_cursor", path_inventory_notes .. "note_cursor.png"},
 }
 
-t.pause = {
+t.textures = {
 	{"tex_displacement", path_textures .. "displacement.png"},
 	{"pause_bg", path_textures .. "pause_bg.png"},
+	{"bayer16", path_textures .. "bayer16.png"},
+	{"pal_oil", path_textures .. "pal_oil.png"},
 }
 
 t.fnt_inventory = {
@@ -137,7 +139,7 @@ ResourcesList.Outside = {
 		{"sheet_splat", !(path_ui .. "sheet_splat.png")},
 		{"sheet_brush", !(path_ui .. "sheet_brush.png")},
 		!!(get_res("inventory_notes"))
-		!!(get_res("pause"))
+		!!(get_res("textures"))
 		!!(get_res("ui"))
 	},
 	array_images = {
@@ -162,7 +164,7 @@ ResourcesList.Outside = {
 ResourcesList.StorageRoom = {
 	images = {
 		!!(get_res("inventory_notes"))
-		!!(get_res("pause"))
+		!!(get_res("textures"))
 		!!(get_res("ui"))
 	},
 	array_images = {
@@ -183,7 +185,7 @@ ResourcesList.StorageRoom = {
 ResourcesList.UtilityRoom = {
 	images = {
 		!!(get_res("inventory_notes"))
-		!!(get_res("pause"))
+		!!(get_res("textures"))
 		!!(get_res("ui"))
 	},
 	array_images = {
@@ -205,7 +207,7 @@ ResourcesList.UtilityRoom = {
 ResourcesList.Kitchen = {
 	images = {
 		!!(get_res("inventory_notes"))
-		!!(get_res("pause"))
+		!!(get_res("textures"))
 		!!(get_res("ui"))
 	},
 	array_images = {
@@ -226,7 +228,7 @@ ResourcesList.Kitchen = {
 ResourcesList.LivingRoom = {
 	images = {
 		!!(get_res("inventory_notes"))
-		!!(get_res("pause"))
+		!!(get_res("textures"))
 		!!(get_res("ui"))
 	},
 	array_images = {

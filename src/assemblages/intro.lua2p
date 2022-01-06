@@ -54,6 +54,13 @@ local positions = {
 	post_light = {0, 108},
 }
 
+function Intro.bg(e)
+	e:give("id", "bg")
+	:give("pos", 0, 0)
+	:give("sprite", "bg")
+	:give("bg")
+end
+
 function Intro.parallax(e, tag, scale)
 	@@assert(type(tag) == "string")
 	@@sassert(scale, type(scale) == "number")
@@ -75,7 +82,7 @@ function Intro.parallax(e, tag, scale)
 	local item = Atlas.frames[tag]
 	if not scale then
 		local ww, wh = love.graphics.getDimensions()
-		local w, h = item.frame.w, item.frame.h
+		local w, h = item.w, item.h
 		scale = math.min(ww/w, wh/h)
 	end
 
@@ -104,14 +111,14 @@ end
 function Intro.bg_tree_cover(e, resource_id)
 	local item = Atlas.frames.bg_tree_cover
 	local ww, wh = love.graphics.getDimensions()
-	local w, h = item.frame.w, item.frame.h
+	local w, h = item.w, item.h
 	local scale = math.min(ww/w, wh/h)
 
 	e:give("id", "bg_tree_cover")
 	:give("sprite", "atlas_intro")
 	:give("atlas", item)
 	:give("pos", love.graphics.getWidth(), 110)
-	:give("quad_transform", 0, scale, scale, item.frame.w * 0.5)
+	:give("quad_transform", 0, scale, scale, item.w * 0.5)
 	:give("z_index", z_index.bg_tree_cover[1])
 	:give("depth_zoom", z_index.bg_tree_cover[2])
 	:give("bg_tree", true)

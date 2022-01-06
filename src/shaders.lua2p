@@ -5,6 +5,7 @@ local Shaders = {}
 Shaders.paths = {
 	blur = "shaders/blur.glsl",
 	dissolve = "shaders/dissolve.glsl",
+	dither_gradient = "shaders/dither_gradient.glsl",
 	motion_blur = "shaders/motion_blur.glsl",
 	film_grain = "shaders/film_grain.glsl",
 	fog = "shaders/fog.glsl",
