@@ -168,7 +168,7 @@ end
 
 function NGrading:set_dt(dt)
 	if self.is_multi then
-		self.shader:send("dt", dt)
+		self.shader:send("u_time", dt)
 	end
 end
 
@@ -176,25 +176,25 @@ function NGrading:setup_data(shader)
 	local s = shader or self.shader
 	if self.is_multi then
 		if self.image then
-			s:send("lut", self.image)
-			s:send("cell_size", self.cell_size)
-			s:send("cell_dimensions", self.tile_size)
+			s:send("u_lut", self.image)
+			s:send("u_cell_size", self.cell_size)
+			s:send("u_cell_dimensions", self.tile_size)
 		else
-			s:send("lut", self.volume_img)
+			s:send("u_lut", self.volume_img)
 		end
 
 		if self.image2 then
-			s:send("lut2", self.image)
+			s:send("u_lut2", self.image)
 		else
-			s:send("lut2", self.volume_img2)
+			s:send("u_lut2", self.volume_img2)
 		end
 	else
 		if self.image then
-			s:send("lut", self.image)
-			s:send("cell_size", self.cell_size)
-			s:send("cell_dimensions", self.tile_size)
+			s:send("u_lut", self.image)
+			s:send("u_cell_size", self.cell_size)
+			s:send("u_cell_dimensions", self.tile_size)
 		else
-			s:send("lut", self.volume_img)
+			s:send("u_lut", self.volume_img)
 		end
 	end
 end

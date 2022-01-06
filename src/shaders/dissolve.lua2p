@@ -12,7 +12,7 @@ function Dissolve:new(texture, duration)
 	@@assert(texture:type() == "Image")
 	@@assert(type(duration) == "number")
 	self.shader_code = love.graphics.newShader(Shaders.paths.dissolve)
-	self.shader_code:send("tex_noise", texture)
+	self.shader_code:send("u_tex_noise", texture)
 	self.flag_process = false
 	self.duration = duration
 	self.time = 0
@@ -31,7 +31,7 @@ function Dissolve:update(dt)
 
 		local n = self.kind + smootherstep(math.max(0, math.min(self.time/self.duration, 1)))
 
-		self.shader_code:send("time", math.abs(n))
+		self.shader_code:send("u_time", math.abs(n))
 
 		if self.time > self.duration then
 			if self.on_complete then

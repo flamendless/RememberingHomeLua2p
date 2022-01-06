@@ -18,8 +18,8 @@ function FilmGrain:new()
 
 	self.random_offset = {}
 	self.shader = love.graphics.newShader(Shaders.paths.film_grain)
-	self.shader:send("noise_texture", noise_texture)
-	self.shader:send("size", w)
+	self.shader:send("u_noise_texture", noise_texture)
+	self.shader:send("u_size", w)
 
 	!if _DEV then
 	self.is_active = false
@@ -32,7 +32,7 @@ function FilmGrain:update(dt)
 	if not self.is_active then return end
 	self.random_offset[1] = love.math.random()
 	self.random_offset[2] = love.math.random()
-	self.shader:send("random_offset", self.random_offset)
+	self.shader:send("u_random_offset", self.random_offset)
 end
 
 return FilmGrain

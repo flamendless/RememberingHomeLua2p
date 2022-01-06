@@ -12,9 +12,9 @@ local DeferredLighting = Concord.system({
 	pool_flicker = {"id", "light_id", "point_light", "pos", "diffuse", "d_light_flicker"},
 })
 
-local lvfp = {{"lpos", "float", 4}} -- pos.xyz, scale
-local lvft = {{"ldir", "float", 4}} -- dir.xyz, angle
-local lvfd = {{"diffuse", "float", 3}} -- color
+local lvfp = {{"u_lpos", "float", 4}} -- pos.xyz, scale
+local lvft = {{"u_ldir", "float", 4}} -- dir.xyz, angle
+local lvfd = {{"u_diffuse", "float", 3}} -- color
 local RA = $_RA
 local MAX_LIGHTS = 96
 
@@ -30,8 +30,8 @@ function DeferredLighting:init(world)
 	self.groups = {}
 	self.mesh = self:create_mesh_p()
 	self.buffers = {
-		Canvas.create_main({}),
-		Canvas.create_main({}),
+		Canvas.create_main(),
+		Canvas.create_main(),
 	}
 
 	self.pool.onAdded = function(pool, e)
@@ -248,9 +248,9 @@ function DeferredLighting:begin_deferred_lighting(camera, canvas)
 
 		love.graphics.setCanvas(canvas.canvas)
 			love.graphics.setShader(self.lighting_pass)
-			self.lighting_pass:send("cb", self.buffers[1].canvas)
+			self.lighting_pass:send("u_cb", self.buffers[1].canvas)
 			!if _GLSL_NORMALS then
-			self.lighting_pass:send("nb", self.buffers[2].canvas)
+			self.lighting_pass:send("u_nb", self.buffers[2].canvas)
 			!end
 				love.graphics.clear()
 				love.graphics.setBlendMode("add")
@@ -277,15 +277,19 @@ function DeferredLighting:create_mesh_p()
 	local v = {{0,0, 0,0, 0,0,0,1}, {0,1, 0,0, 1,1,1,1}}
 	for _ = 1, 64 do
 		local t = v[#v]
-		v[#v+1] = {t[1]*RA[1] - t[2]*RA[2], t[1]*RA[2] + t[2]*RA[1], 0,0, 1,1,1,1}
+		v[#v+1] = {
+			t[1] * RA[1] - t[2] * RA[2], t[1] * RA[2] + t[2] * RA[1],
+			0, 0,
+			1, 1, 1, 1
+		}
 	end
 	local light = love.graphics.newMesh(v, nil, "static")
 	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
 	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
 	local m_direction = love.graphics.newMesh(lvft, MAX_LIGHTS)
-	light:attachAttribute("lpos", m_position, "perinstance")
-	light:attachAttribute("diffuse", m_diffuse, "perinstance")
-	light:attachAttribute("ldir", m_direction, "perinstance")
+	light:attachAttribute("u_lpos", m_position, "perinstance")
+	light:attachAttribute("u_diffuse", m_diffuse, "perinstance")
+	light:attachAttribute("u_ldir", m_direction, "perinstance")
 	return {
 		light = light,
 		pos = m_position,

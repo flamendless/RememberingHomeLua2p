@@ -1,6 +1,4 @@
-extern Image lut;
-extern number cell_size;
-extern vec2 tile_size;
+extern Image u_lut;
 
 vec4 ngrading(vec4 color)
 {
@@ -15,8 +13,8 @@ vec4 ngrading(vec4 color)
 	vec2 tp1 = vec2(mod(zp, cellDimensions.x), floor(zp / cellDimensions.x)) * cellPixels + cpos;
 	vec2 tp2 = vec2(mod((zp + 1.0), cellDimensions.x), floor((zp + 1.0) / cellDimensions.x)) * cellPixels + cpos;
 	// Sample
-	vec4 p1 = Texel(lut, tp1 / cw);
-	vec4 p2 = Texel(lut, tp2 / cw);
+	vec4 p1 = Texel(u_lut, tp1 / cw);
+	vec4 p2 = Texel(u_lut, tp2 / cw);
 	return vec4(mix(p1.rgb, p2.rgb, zf), color.a);
 }
 
