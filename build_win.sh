@@ -21,7 +21,7 @@ function win64()
 
 function love_only()
 {
-	cd "$dir_output" && zip -9r "${love_title}" . -x "${love_title}"
+	cd "$dir_output" && zip -9ru "${love_title}" . -x "${love_title}"
 	if [ ! -d release ]; then
 		mkdir -p ../release/love
 	fi

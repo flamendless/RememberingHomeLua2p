@@ -51,7 +51,7 @@ function Outside:state_setup()
 	local w, h = bg_house:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	self.canvas = Canvas.create_main({})
+	self.canvas = Canvas.create_main()
 	self.scale = math.min(ww/w, hh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)

@@ -52,7 +52,7 @@ function Canvas.init_canvases(canvases)
 end
 
 function Canvas.create_main(canvases)
-	@@assert(type(canvases) == "table")
+	canvases = canvases or {}
 	local ww, wh = love.graphics.getDimensions()
 	local main_canvas_prop = {}
 	main_canvas_prop.width = ww

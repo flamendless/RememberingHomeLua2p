@@ -9,8 +9,8 @@ local DevTools
 
 local PostProcessing = Concord.system()
 
-local buffer1 = Canvas.create_main({})
-local buffer2 = Canvas.create_main({})
+local buffer1 = Canvas.create_main()
+local buffer2 = Canvas.create_main()
 
 function PostProcessing:init(world)
 	!if _DEV then
@@ -79,7 +79,10 @@ function PostProcessing:apply_post_process(canvas)
 
 	for _, effect in ipairs(self.effects) do
 		!if _DEV then
-		effect.is_active = DevTools.effects[effect:type()]
+		local v = DevTools.effects[effect:type()]
+		if v then
+			effect.is_active = v
+		end
 		!end
 		if effect.is_active then
 			love.graphics.setCanvas(buffer2.canvas)

@@ -2,8 +2,6 @@ local Palette = require("palette")
 
 local Common = {}
 
-local def_col_clip = Palette.get("camera_clip")
-
 function Common.text(e, pos, str, font, color)
 	e:give("id", "text")
 	:give("text", str)
@@ -31,7 +29,7 @@ function Common.camera(e, cam, scale, w, h, clip_col)
 	e:give("id", "camera")
 	:give("camera", cam, true)
 	:give("camera_transform", 0, scale)
-	:give("camera_clip", w, h, clip_col or def_col_clip)
+	:give("camera_clip", w, h, clip_col or Palette.get("camera_clip"))
 end
 
 return Common

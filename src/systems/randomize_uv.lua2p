@@ -40,7 +40,6 @@ function RandomizeUV:randomize_uv()
 		end
 
 		local other = tablex.take_random(choices)
-		local other_id = other.id
 		self.world:emit("update_atlas", e, other.info)
 	end
 	self.has_randomized = true

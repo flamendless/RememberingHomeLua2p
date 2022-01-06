@@ -26,7 +26,7 @@ function UtilityRoom:state_setup()
 	local w, h = Resources.data.images.utility_room:getDimensions()
 	local ww, hh = love.graphics.getDimensions()
 
-	self.canvas = Canvas.create_main({})
+	self.canvas = Canvas.create_main()
 	self.scale = math.min(ww/w, hh/h)
 	self.camera = Gamera.new(0, 0, w, h)
 	self.camera:setWindow(0, 0, ww, hh)
