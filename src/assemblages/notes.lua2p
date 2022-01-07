@@ -4,7 +4,7 @@ local Notes = {}
 
 function Notes.bg(e, x, y, scale)
 	e:give("id", "inventory_bg")
-	:give("nf_render_sprite")
+	:give("nf_renderer")
 	:give("pos", x, y)
 	:give("sprite", "bg_notes")
 	:give("color", {1, 1, 1, 0.75})
@@ -13,7 +13,7 @@ end
 
 function Notes.text(e, i, title, x, y, ox)
 	e:give("id", "note_" .. i)
-	:give("nf_render_text")
+	:give("nf_renderer")
 	:give("font", "note_list")
 	:give("static_text", title)
 	:give("pos", x, y)
@@ -25,7 +25,7 @@ end
 
 function Notes.cursor(e)
 	e:give("id", "note_cursor")
-	:give("nf_render_sprite")
+	:give("nf_renderer")
 	:give("color", {1, 1, 1, 1})
 	:give("sprite", "note_cursor")
 	:give("pos", 0, 0)

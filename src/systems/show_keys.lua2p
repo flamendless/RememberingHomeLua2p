@@ -12,7 +12,6 @@ local function Assemble(e, key)
 	:give("sprite", "atlas_keys")
 	:give("ui_element")
 	:give("layer", "hud")
-	:give("ui_element")
 end
 
 function ShowKeys:init(world)

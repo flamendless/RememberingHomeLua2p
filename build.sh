@@ -30,7 +30,7 @@ function create_output_dir()
 {
 	if [ ! -d "$dir_output" ]; then
 		echo "creating $dir_output..."
-		mkdir $dir_output
+		mkdir $dir_output && echo "created $dir_output"
 	fi
 }
 
@@ -122,25 +122,25 @@ function create_atlas()
 function copy_modules()
 {
 	echo "copying modules..."
-	rsync -a "$dir_modules" "$dir_output" "${exclude_modules[@]}"
+	rsync -a "$dir_modules" "$dir_output" "${exclude_modules[@]}" && echo "copied modules"
 }
 
 function copy_res()
 {
 	echo "copying resources..."
-	rsync -a "$dir_res" "$dir_output"
+	rsync -a "$dir_res" "$dir_output" && echo "copied resources"
 }
 
 function clean()
 {
 	echo "cleaning $dir_output..."
-	rm -rf $dir_output/*
+	rm -rf $dir_output/* && echo "cleaned $dir_output"
 }
 
 function clean_logs()
 {
 	echo "cleaning $appdata..."
-	rm $appdata/*
+	rm $appdata/* && echo "removed $appdata"
 }
 
 function init()

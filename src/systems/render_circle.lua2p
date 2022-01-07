@@ -2,15 +2,15 @@ local Concord = require("modules.concord.concord")
 
 local RenderCircle = Concord.system({
 	pool = {"pos", "circle", "draw_mode", "!ui_element"},
-	pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
+	-- pool_arc = {"pos", "arc", "draw_mode", "!ui_element"},
 	pool_point = {"pos", "point", "!ui_element"},
 
 	pool_ui = {"pos", "circle", "draw_mode"},
-	pool_arc_ui = {"pos", "arc", "draw_mode"},
+	-- pool_arc_ui = {"pos", "arc", "draw_mode"},
 })
 
 function RenderCircle:internal_draw(e)
-	if e.nf_render_circle then return end
+	if e.nf_renderer then return end
 	local pos = e.pos
 	local circle = e.circle
 	local color = e.color
@@ -39,7 +39,7 @@ function RenderCircle:internal_draw(e)
 end
 
 function RenderCircle:internal_draw_arc(e)
-	if e.nf_render_circle then return end
+	if e.nf_renderer then return end
 	local pos = e.pos
 	local arc = e.arc
 	local arc_type = e.arc_type
@@ -93,7 +93,7 @@ function RenderCircle:internal_draw_point(e)
 end
 
 function RenderCircle:draw_circle_ex(e)
-	if e.hidden or e.nf_render_circle then return end
+	if e.hidden or e.nf_renderer then return end
 
 	if self.pool:has(e) then
 		self:internal_draw(e)

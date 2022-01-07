@@ -14,7 +14,7 @@ local Inventory = Concord.system({
 		constructor = ListByID,
 		id = $_LIST_INVENTORY_CHOICES,
 	},
-	pool_border = {"id", "sprite", "nf_render_sprite", "custom_texture"},
+	pool_border = {"id", "sprite", "nf_renderer", "custom_texture"},
 	pool_item = {"item"},
 })
 

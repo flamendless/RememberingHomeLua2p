@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local ReflowPrint = require("modules.reflowprint.reflowprint")
 
 local Helper = require("helper")
 
@@ -15,47 +16,47 @@ local Renderer = Concord.system({
 	!end
 })
 
-function Renderer:init(world)
-	self.world = world
-	self.list = {}
-
-	self.pool_text.onAdded = function(pool, e)
-		if e.sdf then
-			@@assert(e.font_sdf, "sdf must have font_sdf")
-			@@assert(not e.font, "sdf must NOT have font")
-		end
-	end
-
-	self.pool_static_text.onAdded = function(pool, e)
+function Renderer:add_to_pool(pool, e)
+	if pool == self.pool_text and e.sdf then
+		@@assert(e.font_sdf, "sdf must have font_sdf")
+		@@assert(not e.font, "sdf must NOT have font")
+	elseif pool == self.pool_static_text then
 		@@assert(not e.sdf, "static_font can NOT use sdf font")
 		e.static_text.obj = love.graphics.newText(e.font.value, e.static_text.value)
-	end
-
-	self.pool_bg.onAdded = function(pool, e)
+	elseif pool == self.pool_bg then
 		!if _DEV then
-		@@assert(self.e_bg ~= nil, "There can only be 1 entity for background")
+		@@assert(self.e_bg == nil, "There can only be 1 entity for background")
 		!end
 		self.e_bg = e
+	elseif pool == self.pool_layer or pool == self.pool_sprite then
+		self:setup_sprite(e)
 	end
+
+	local list = e.ui_element and self.list_ui or self.list
+	list:add(e)
+end
+
+function Renderer:init(world)
+	self.world = world
+	self.list = set()
+	self.list_ui = set()
 
 	!if _DEV then
 	self.debug_batched = {}
-	self.pool_layer.onAdded = function(pool, e)
-		self:setup_sprite(e)
-	end
 	!end
 
-	self.pool_sprite.onAdded = function(pool, e)
-		self:setup_sprite(e)
+	for k in pairs(self.__definition) do
+		self[k].onAdded = function(pool, e) self:add_to_pool(pool, e) end
 	end
 end
 
 function Renderer:draw_bg()
-	@@assert(self.e_bg)
+	if not self.e_bg then return end
 	self:render_sprite(self.e_bg)
 end
 
-function Renderer:draw()
+function Renderer:draw(is_ui)
+	@@sassert(is_ui, type(is_ui) == "boolean")
 	!if _DEV then
 	for _, v in pairs(self.debug_batched) do
 		v.current = 0
@@ -63,12 +64,14 @@ function Renderer:draw()
 	end
 	!end
 
-	for _, e in ipairs(self.list) do
-		local culled - e.cullable and e.cullable.value
+	local list = is_ui and self.list_ui or self.list
+
+	for _, e in list:ipairs() do
+		local culled = e.cullable and e.cullable.value
 		if e.nf_renderer or e.hidden or culled then return end
 
 		local no_shader, temp_shader = e.no_shader
-		if no shader then
+		if no_shader then
 			temp_shader = love.graphics.getShader()
 			love.graphics.setShader()
 		end
@@ -224,7 +227,7 @@ function Renderer:render_text(e)
 	end
 
 	local pos = e.pos
-	x, y = pos.x, pos.y
+	local x, y = pos.x, pos.y
 
 	local rfp = e.reflowprint
 	if rfp then

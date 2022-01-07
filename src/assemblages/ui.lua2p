@@ -31,7 +31,7 @@ function UI.choice(e, id, text, text_t, x, y)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0, 0.5)
 	:give("layer", "dialogue", 3)
-	:give("nf_render_text")
+	:give("nf_renderer")
 end
 
 function UI.speech_bubble(e, player, x, y)

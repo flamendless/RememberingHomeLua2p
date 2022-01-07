@@ -5,11 +5,11 @@ local Helper = require("helper")
 local RenderSprite = Concord.system({
 	pool_bg = {"pos", "sprite", "bg"},
 	pool = {"pos", "sprite",
-		"!bg", "!z_index", "!ui_element", "!nf_render_sprite", "!use_canvas"},
+		"!bg", "!z_index", "!ui_element", "!nf_renderer", "!use_canvas"},
 	pool_z = {"pos", "sprite", "z_index",
-		"!ui_element", "!nf_render_sprite", "!use_canvas"},
+		"!ui_element", "!nf_renderer", "!use_canvas"},
 	!if _DEV then
-	pool_layer = {"pos", "sprite", "layer", "!nf_render_sprite", "!use_canvas"},
+	pool_layer = {"pos", "sprite", "layer", "!nf_renderer", "!use_canvas"},
 	!end
 })
 
@@ -97,7 +97,7 @@ end
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
 	local culled = e.cullable and e.cullable.value
-	if e.nf_render_sprite then return end
+	if e.nf_renderer then return end
 	if hidden or culled then return end
 
 	local pos = e.pos

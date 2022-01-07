@@ -9,6 +9,7 @@ return {
 		"stringx",
 		"tablex",
 		"functional",
+		"set",
 	},
 	ignore = {'212'},
 }

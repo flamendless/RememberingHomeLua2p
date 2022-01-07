@@ -8,7 +8,7 @@ local Resources = require("resources")
 local Palette = require("palette")
 
 local Dialogues = Concord.system({
-	pool = {"dialogue_item", "text_t", "nf_render_text"},
+	pool = {"dialogue_item", "text_t", "nf_renderer"},
 	pool_choice = {
 		constructor = ListByID,
 		id = $_LIST_DIALOGUE_CHOICES,
@@ -86,7 +86,7 @@ function Dialogues:create_e_dialogue()
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 0, 0.5)
 		:give("layer", "dialogue", 3)
-		:give("nf_render_text")
+		:give("nf_renderer")
 		:give("reflowprint", w - PAD * 2, "left")
 		:give("pos", x, y)
 	self:create_tle()

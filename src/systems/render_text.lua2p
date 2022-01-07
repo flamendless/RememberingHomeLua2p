@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local ReflowPrint = require("modules.reflowprint.reflowprint")
 
 local RenderText = Concord.system({
-	pool = {"pos", "text", "!nf_render_text", "!shader", "!use_canvas"},
+	pool = {"pos", "text", "!nf_renderer", "!shader", "!use_canvas"},
 	pool_static = {"pos", "static_text", "font", "!shader", "!use_canvas"},
 })
 
@@ -32,7 +32,7 @@ end
 
 function RenderText:draw_text_ex(e)
 	if e.hidden then return end
-	if e.nf_render_text then return end
+	if e.nf_renderer then return end
 	local text = e.text
 	if text and #text.value == 0 then return end
 	local color = e.color
@@ -127,7 +127,7 @@ function RenderText:draw()
 	end
 
 	for _, e in ipairs(self.pool_static) do
-		if not e.ui_element and not e.nf_render_text then
+		if not e.ui_element and not e.nf_renderer then
 			self:draw_text_ex(e)
 		end
 	end
