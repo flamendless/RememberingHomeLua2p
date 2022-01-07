@@ -27,12 +27,6 @@ local DevTools = {
 		transform = false,
 		randomize_uv = true,
 	},
-	effects = {
-		NGrading = true,
-		FilmGrain = false,
-		Blur = false,
-		DitherGradient = true,
-	},
 }
 
 local stats = {
@@ -90,9 +84,14 @@ function DevTools.update(dt)
 	Slab.Update(dt)
 
 	Slab.BeginWindow("list", {Title = "DevTools"})
-	for k, v in pairs(DevTools.effects) do
-		if Slab.CheckBox(v, k) then
-			DevTools.effects[k] = not v
+	if DevTools.pp_effects then
+		for _, effect in ipairs(DevTools.pp_effects) do
+			if Slab.CheckBox(effect.is_active, effect:type()) then
+				effect.debug_show = not effect.debug_show
+			end
+			if effect.debug_update then
+				effect:debug_update(dt)
+			end
 		end
 	end
 	if Slab.CheckBox(DevTools.flags.fog, "Fog") then
@@ -192,6 +191,7 @@ function DevTools.draw_entities_list()
 	if Slab.Button("Toggle List (with ID)") then
 		entity_list.show_list = not entity_list.show_list
 	end
+
 	if entity_list.show_list then
 		Slab.BeginLayout("layout_e_id", {
 			Columns = cols,

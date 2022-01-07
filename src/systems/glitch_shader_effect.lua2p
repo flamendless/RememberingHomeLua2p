@@ -96,15 +96,17 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
+local opt_slider = {
+	ReturnOnText = false,
+	NumbersOnly = true,
+	Precision = 2,
+}
+
 function GlitchShaderEffect:debug_slider(id, min, max)
 	local val = debug_values[id]
 	Slab.Text(id)
 	Slab.SameLine()
-	if Slab.InputNumberSlider(id, val, min, max, {
-		ReturnOnText = false,
-		NumbersOnly = true,
-		Precision = 2,
-	}) then
+	if Slab.InputNumberSlider(id, val, min, max, opt_slider) then
 		local t = {}
 		t[id] = Slab.GetInputNumber()
 		for _, e in ipairs(self.pool) do

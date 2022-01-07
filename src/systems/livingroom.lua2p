@@ -39,8 +39,8 @@ function LivingRoom:state_setup()
 	self.world:emit("setup_post_process", {
 		Shaders.NGrading($_LUT_DUSK),
 		Shaders.FilmGrain(),
-		Shaders.DitherGradient(),
 		Shaders.Blur(),
+		Shaders.DitherGradient(),
 	})
 
 	for _, v in pairs(Assemblages.LivingRoom.lights) do

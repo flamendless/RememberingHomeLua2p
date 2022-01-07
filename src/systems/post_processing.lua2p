@@ -15,43 +15,41 @@ local buffer2 = Canvas.create_main()
 function PostProcessing:init(world)
 	!if _DEV then
 	DevTools = require("devtools")
-	self.debug_effects = {}
 	!end
 	self.world = world
 	self.effects = {}
-	self.dict = {}
 end
 
 function PostProcessing:setup_post_process(t)
 	@@assert(type(t) == "table" and #t > 0)
 	local t_names = functional.map(t, function(v) return v:type() end)
 	Log.info("Setup post processing effects:", table.concat(t_names, ","))
-
 	self.effects = t
-	for i, effect in ipairs(self.effects) do
-		local str = effect:type()
-		self.dict[str] = effect
 
-		!if _DEV then
-		if effect.debug_update then
-			effect.debug_show = false
-			table.insert(self.debug_effects, effect)
-		end
-		!end
-	end
+	!if _DEV then
+	DevTools.pp_effects = self.effects
+	functional.foreach(DevTools.pp_effects,
+		function(effect)
+			effect.debug_show = effect.is_active
+		end)
+	!end
 end
 
 function PostProcessing:set_post_process_effect(id, bool)
-	@@assert(type(id) == "string" and self.dict[id])
 	@@assert(type(bool) == "boolean")
-	self.dict[id].is_active = bool
-	!if _DEV then
-	DevTools.effects[id] = bool
-	!end
+	for _, effect in ipairs(self.effects) do
+		if effect:type() == id then
+			effect.is_active = bool
+		end
+	end
+	@@assert(false, id .. " not found in registered pp effects")
 end
 
 function PostProcessing:update(dt)
 	for _, effect in ipairs(self.effects) do
+		!if _DEV then
+		effect.is_active = effect.debug_show
+		!end
 		if effect.update then
 			effect:update(dt)
 		end
@@ -59,23 +57,11 @@ function PostProcessing:update(dt)
 end
 
 function PostProcessing:begin_shader(effect)
-	!if _DEV then
-		if DevTools.effects[effect:type()] then
-			love.graphics.setShader(effect.shader)
-		end
-	!else
 	love.graphics.setShader(effect.shader)
-	!end
 end
 
 function PostProcessing:end_shader(effect)
-	!if _DEV then
-		if DevTools.effects[effect:type()] then
-			love.graphics.setShader()
-		end
-	!else
 	love.graphics.setShader()
-	!end
 end
 
 function PostProcessing:apply_post_process(canvas)
@@ -86,12 +72,6 @@ function PostProcessing:apply_post_process(canvas)
 	love.graphics.setCanvas()
 
 	for _, effect in ipairs(self.effects) do
-		!if _DEV then
-		local v = DevTools.effects[effect:type()]
-		if v then
-			effect.is_active = v
-		end
-		!end
 		if effect.is_active then
 			love.graphics.setCanvas(buffer2.canvas)
 				love.graphics.clear()
@@ -99,7 +79,6 @@ function PostProcessing:apply_post_process(canvas)
 					buffer1:render_n()
 				PostProcessing:end_shader(effect)
 			love.graphics.setCanvas()
-
 			buffer1, buffer2 = buffer2, buffer1
 		end
 	end
@@ -110,22 +89,51 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
+-- local opt = {
+-- 	Columns = 2,
+-- 	ExpandW = true,
+-- 	ExpandH = true,
+-- 	AlignX = "center",
+-- 	AlignY = "center",
+-- 	AlignRowY = "center",
+-- }
+
 function PostProcessing:debug_update(dt)
 	if not self.debug_show then return end
 
-	self.debug_show = Slab.BeginWindow("post_processing", {
+	self.debug_show = Slab.BeginWindow("pp", {
 		Title = "PostProcessing",
 		IsOpen = self.debug_show,
 	})
-		for _, v in ipairs(self.debug_effects) do
-			local name = v:type()
-			if Slab.CheckBox(v.debug_show, name) then
-				v.debug_show = not v.debug_show
-			end
-			if v.debug_show then
-				v:debug_update(dt)
-			end
+
+	-- Slab.BeginLayout("pp_layout", opt)
+	for i, effect in ipairs(self.effects) do
+		local b
+		local str = effect:type()
+
+		-- Slab.SetLayoutColumn(1)
+		if Slab.CheckBox(effect.debug_show, str) then
+			effect.debug_show = not effect.debug_show
 		end
+
+		Slab.SameLine()
+
+		-- Slab.SetLayoutColumn(2)
+		if Slab.Button("up") then
+			b = mathx.wrap_index(i - 1, self.effects)
+		end
+
+		Slab.SameLine()
+		if Slab.Button("down") then
+			b = mathx.wrap_index(i + 1, self.effects)
+		end
+
+		if b then
+			self.effects[i], self.effects[b] = self.effects[b], self.effects[i]
+		end
+	end
+
+	-- Slab.EndLayout()
 	Slab.EndWindow()
 end
 !end

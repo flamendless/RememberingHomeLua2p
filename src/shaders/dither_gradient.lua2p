@@ -9,29 +9,65 @@ function DitherGradient:new()
 	self.shader = love.graphics.newShader(Shaders.paths.dither_gradient)
 	self.is_active = true
 
+	self.depth = 32
+	self.dither_size = 1
+	self.contrast = 1
+	self.offset = 0
+
 	local tex_dither = Resources.data.images.bayer16
-	local tex_palette = Resources.data.images.pal_oil
+	tex_dither:setWrap("repeat", "repeat")
+	local tex_palette = Resources.data.images.pal_hollow
 
 	self.shader:send("u_tex_dither", tex_dither)
 	self.shader:send("u_tex_palette", tex_palette)
-	self.shader:send("u_size_tex_dither", {tex_dither:getDimensions()})
-	self.shader:send("u_size_tex_palette", {tex_palette:getDimensions()})
-	self.shader:send("u_depth", 16)
-	self.shader:send("u_contrast", 0)
-	self.shader:send("u_offset", 0)
-	self.shader:send("u_dither_size", 2)
+	self.shader:send("u_size_tex_dither", {tex_dither:getPixelDimensions()})
+	self.shader:send("u_size_tex_palette", {tex_palette:getPixelDimensions()})
+	self:update_values()
+end
+
+function DitherGradient:update_values()
+	self.shader:send("u_depth", self.depth)
+	self.shader:send("u_dither_size", self.dither_size)
+	self.shader:send("u_contrast", self.contrast)
+	self.shader:send("u_offset", self.offset)
 end
 
 !if _DEV then
 local Slab = require("modules.slab")
 
+local opt_slider_int = {
+	ReturnOnText = false,
+	NumbersOnly = true,
+	Precision = 0,
+}
+
+local opt_slider_float = {
+	ReturnOnText = false,
+	NumbersOnly = true,
+	Precision = 2,
+}
+
+function DitherGradient:debug_slider(id, val, min, max, opt)
+	Slab.Text(id)
+	Slab.SameLine()
+	if Slab.InputNumberSlider(id, val, min, max, opt) then
+		@@assert(self[id])
+		self[id] = Slab.GetInputNumber()
+		self.shader:send("u_" .. id, self[id])
+	end
+end
+
 function DitherGradient:debug_update(dt)
 	if not self.debug_show then return end
+
 	self.debug_show = Slab.BeginWindow("dither_gradient", {
 		Title = "DitherGradient",
 		IsOpen = self.debug_show,
 	})
-
+	self:debug_slider("depth", self.depth, 0, 32, opt_slider_int)
+	self:debug_slider("dither_size", self.dither_size, 0, 32, opt_slider_int)
+	self:debug_slider("contrast", self.contrast, 0, 4, opt_slider_float)
+	self:debug_slider("offset", self.offset, -1, 1, opt_slider_float)
 	Slab.EndWindow()
 end
 !end
