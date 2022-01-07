@@ -46,6 +46,7 @@ function UtilityRoom:state_setup()
 		Concord.entity(self.world):assemble(v)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_utility_room"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function UtilityRoom:state_init()
@@ -78,6 +79,12 @@ function UtilityRoom:state_draw()
 	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function UtilityRoom:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
+	self.world:emit("draw_z")
 end
 
 return UtilityRoom

@@ -112,6 +112,7 @@ function Outside:state_setup()
 		:give("car_lights")
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_outside"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function Outside:state_init()
@@ -283,6 +284,12 @@ function Outside:state_draw()
 		self.camera:detach()
 	end
 	Fade.draw()
+end
+
+function Outside:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
+	self.world:emit("draw_z")
 end
 
 function Outside:start_rain_fade()

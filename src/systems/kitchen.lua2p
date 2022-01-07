@@ -45,6 +45,7 @@ function Kitchen:state_setup()
 		Concord.entity(self.world):assemble(v)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_kitchen"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function Kitchen:state_init()
@@ -77,6 +78,12 @@ function Kitchen:state_draw()
 	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function Kitchen:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
+	self.world:emit("draw_z")
 end
 
 return Kitchen

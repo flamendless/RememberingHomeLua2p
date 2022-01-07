@@ -131,6 +131,11 @@ function DeferredLighting:start_flicker(e)
 	end)
 end
 
+function DeferredLighting:set_draw(id)
+	@@assert(type(id) == "string")
+	self.ev_draw_main_id = id
+end
+
 function DeferredLighting:set_ambiance(t)
 	@@assert(type(t) == "table")
 	if not self.orig_ambiance then
@@ -241,9 +246,7 @@ function DeferredLighting:begin_deferred_lighting(camera, canvas)
 			love.graphics.clear()
 			love.graphics.setShader(self.geometry_pass)
 				love.graphics.setColor(1, 1, 1)
-				self.world:emit("draw_bg")
-				self.world:emit("draw")
-				self.world:emit("draw_z")
+				self.world:emit(self.ev_draw_main_id)
 			love.graphics.setShader() --unset geometry_pass
 
 		love.graphics.setCanvas(canvas.canvas)

@@ -48,6 +48,7 @@ function StorageRoom:state_setup()
 		Concord.entity(self.world):assemble(v)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_storage_room"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function StorageRoom:state_init()
@@ -84,6 +85,12 @@ function StorageRoom:state_draw()
 	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function StorageRoom:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
+	self.world:emit("draw_z")
 end
 
 function StorageRoom:search_shelf(e, dialogues_t)
