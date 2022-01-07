@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Enum = require("modules.enum.enum")
 
 local modes = Enum("fill", "line")
+local arc_types = Enum("pie", "open", "closed")
 
 Concord.component("custom_texture")
 
@@ -14,11 +15,19 @@ Concord.component("point", function(c, size)
 	c.value = size
 end)
 
-Concord.component("circle", function(c, radius, segments)
+Concord.component("circle", function(c, radius, segments, start_angle, end_angle)
 	@@assert(type(radius) == "number")
 	@@sassert(segments, type(segments) == "number")
+	@@sassert(start_angle, type(start_angle) == "number")
+	@@sassert(end_angle, type(end_angle) == "number")
 	c.radius = radius
 	c.segments = segments or radius
+
+	if start_angle and end_angle then
+		c.start_angle = start_angle or -$_HALF_PI
+		c.end_angle = end_angle or $_TWO_PI
+		c.is_arc = true
+	end
 end)
 
 Concord.component("rect", function(c, w, h)
@@ -40,4 +49,8 @@ end)
 Concord.component("line_width", function(c, line_width)
 	@@assert(type(line_width) == "number")
 	c.value = line_width
+end)
+
+Concord.component("arc_type", function(c, arc_type)
+	c.value = arc_types[arc_type]
 end)

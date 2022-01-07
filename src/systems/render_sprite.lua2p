@@ -97,6 +97,7 @@ end
 function RenderSprite:draw_sprite_ex(e)
 	local hidden = e.hidden
 	local culled = e.cullable and e.cullable.value
+	if e.nf_render_sprite then return end
 	if hidden or culled then return end
 
 	local pos = e.pos
