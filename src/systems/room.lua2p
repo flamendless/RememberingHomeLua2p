@@ -26,13 +26,12 @@ function Room:parse_room_items(res)
 			end
 			for _, t2 in ipairs(t) do
 				local e = self:create_room_item(frames, spr_res, t2, g_id)
-					:give("room_item")
+				table.insert(group[g_id], e)
 			end
 			group_t[g_id] = t
 			has_group = true
 		else
-			local e = self:create_room_item(frames, spr_res, t)
-				:give("room_item")
+			self:create_room_item(frames, spr_res, t):give("room_item")
 		end
 	end
 
@@ -91,6 +90,7 @@ function Room:create_grouped_items(group, group_t, frames, list)
 	@@assert(type(group_t) == "table")
 	@@assert(type(frames) == "table")
 	@@assert(type(list) == "table")
+
 	for id, t in pairs(group) do
 		local x, y = math.huge, math.huge
 		local w, h = -math.huge, -math.huge

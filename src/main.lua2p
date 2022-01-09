@@ -12,9 +12,7 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 
 !if _DEV then
 love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";modules/?.lua")
--- local zone = require("jit.zone")
--- local profile = require("jit.profile")
-require("jit.p").start("lvz")
+require("jit.p").start("lz")
 !end
 
 require("modules.batteries"):export()
@@ -73,7 +71,7 @@ end
 
 function love.load()
 	@@profb("frame")
-	@@profb("love load")
+	@@profb("love.load")
 
 	Log.info("Starting... Game Version:", Config.this_version)
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
@@ -95,9 +93,9 @@ function love.load()
 	-- GameStates.switch("Intro")
 	-- GameStates.switch("Outside")
 	-- GameStates.switch("StorageRoom")
-	-- GameStates.switch("UtilityRoom")
+	GameStates.switch("UtilityRoom")
 	-- GameStates.switch("Kitchen")
-	GameStates.switch("LivingRoom")
+	-- GameStates.switch("LivingRoom")
 
 	DevTools.init()
 	Shaders.NGrading.dev_init()
@@ -105,7 +103,7 @@ function love.load()
 	GameStates.switch("Splash")
 	!end
 
-	@@profe("love load")
+	@@profe("love.load")
 	@@profe("frame")
 end
 

@@ -4,6 +4,7 @@ local UTF8 = require("utf8")
 
 local ErrorHandler = {}
 local font, p
+local pos_x, pos_y = 0, 24
 
 local function error_printer(msg, layer)
 	local err_msg = (debug.traceback("Error: " .. tostring(msg),
@@ -12,8 +13,6 @@ local function error_printer(msg, layer)
 end
 
 local function draw()
-	local pos_x = 0
-	local pos_y = 24
 
 	love.graphics.clear()
 	love.graphics.setColor(1, 1, 1, 1)
