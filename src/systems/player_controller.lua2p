@@ -297,6 +297,17 @@ function PlayerController:debug_update(dt)
 	view_number("oy", transform.oy)
 	Slab.Unindent()
 
+	local qt = self.player.quad_transform
+	if qt then
+		Slab.Text("Quad Transform")
+		Slab.Indent()
+		view_number("qsx", qt.sx, true)
+		view_number("qsy", qt.sy)
+		view_number("qox", qt.ox, true)
+		view_number("qoy", qt.oy)
+		Slab.Unindent()
+	end
+
 	local current_frame = self.player.current_frame
 	Slab.Text("animation")
 	Slab.Indent()

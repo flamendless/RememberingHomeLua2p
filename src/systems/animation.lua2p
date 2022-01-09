@@ -83,9 +83,10 @@ function Animation:setup_animation(e, data, on_loop)
 	e:give("quad", quad)
 
 	if data.is_flipped then
-		if e.transform then
-			ox = ox - e.transform.ox
-			oy = oy - e.transform.oy
+		local transform = e.transform
+		if transform then
+			ox = ox - transform.ox
+			oy = oy - transform.oy
 		end
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else

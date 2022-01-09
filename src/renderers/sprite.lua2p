@@ -74,6 +74,14 @@ function RendererSprite.render(e)
 	local pos = e.pos
 	local sprite = e.sprite
 
+	local transform = e.transform
+	if transform then
+		rot = transform.rotation
+		sx, sy = transform.sx, transform.sy
+		ox, oy = Helper.get_offset(e)
+		kx, ky = transform.kx, transform.ky
+	end
+
 	local quad = e.quad
 	if quad then
 		local quad_transform = e.quad_transform
@@ -85,13 +93,6 @@ function RendererSprite.render(e)
 		end
 		draw(e, sprite.image, quad.quad, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 	else
-		local transform = e.transform
-		if transform then
-			rot = transform.rotation
-			sx, sy = transform.sx, transform.sy
-			ox, oy = Helper.get_offset(e)
-			kx, ky = transform.kx, transform.ky
-		end
 		draw(e, sprite.image, pos.x, pos.y, rot, sx, sy, ox, oy, kx, ky)
 	end
 end
