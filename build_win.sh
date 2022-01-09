@@ -7,6 +7,7 @@ file_makelove=makelove.toml
 cmd="/mnt/c/Windows/System32/cmd.exe"
 path_love="C:\Program Files\LOVE"
 path_game="A:\home\flamendless\GoingHomeRevisited\release\love\\"${love_title}
+path_prof_viewer="A:\home\flamendless\GoingHomeRevisited\modules\jprof"
 echo $path_game
 
 function win32()
@@ -28,10 +29,14 @@ function love_only()
 	mv -v ${love_title} ../release/love
 }
 
+function prof_viewer()
+{
+	$cmd /c "cd $path_love & lovec.exe $path_prof_viewer goinghomerevisited prof.mpack"
+}
+
 function run()
 {
 	echo "Running build_win.sh"
-	./build.sh process_src "$dir_source"
 	# TODO change this when in RELEASE mode
 	# win64
 	love_only

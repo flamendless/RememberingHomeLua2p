@@ -27,7 +27,9 @@ local renderer_per_pool = {
 	pool_static_text = RendererText,
 	pool_bg = RendererSprite,
 	pool_sprite = RendererSprite,
+	!if _DEV then
 	pool_layer = RendererSprite,
+	!end
 }
 
 function Renderer:init(world)

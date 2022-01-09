@@ -241,6 +241,7 @@ function DeferredLighting:update_light_fading(dt)
 end
 
 function DeferredLighting:begin_deferred_lighting(camera, canvas)
+	@@profb("deferred_lighting")
 	camera:attach()
 		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
@@ -270,10 +271,13 @@ function DeferredLighting:end_deferred_lighting()
 		love.graphics.setBlendMode("alpha")
 		self.world:emit("draw_clip")
 	love.graphics.setCanvas() --unset canvas.canvas
+	@@profe("deferred_lighting")
 end
 
 function DeferredLighting:draw_lights()
+	@@profb("draw_lights")
 	love.graphics.drawInstanced(self.mesh.light, #self.pool)
+	@@profe("draw_lights")
 end
 
 function DeferredLighting:create_mesh_p()

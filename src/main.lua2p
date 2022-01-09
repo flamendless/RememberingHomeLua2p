@@ -1,5 +1,6 @@
 --[[
 Project: Going Home: Revisited
+(2017 - 2030)
 By: flamendless studio @flam8studio
 
 Author: Brandon Blanker Lim-it @flamendless
@@ -8,6 +9,13 @@ Level Designer: Piolo Maurice Laudencia @piotato
 
 Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
+
+!if _DEV then
+love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";modules/?.lua")
+-- local zone = require("jit.zone")
+-- local profile = require("jit.profile")
+require("jit.p").start("lvz")
+!end
 
 require("modules.batteries"):export()
 
@@ -115,7 +123,6 @@ function love.update(dt)
 	!if _DEV then
 	DevTools.update(dt)
 	!end
-
 	@@profe("love.update")
 end
 

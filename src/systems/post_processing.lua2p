@@ -56,15 +56,8 @@ function PostProcessing:update(dt)
 	end
 end
 
-function PostProcessing:begin_shader(effect)
-	love.graphics.setShader(effect.shader)
-end
-
-function PostProcessing:end_shader(effect)
-	love.graphics.setShader()
-end
-
 function PostProcessing:apply_post_process(canvas)
+	@@profb("pp")
 	@@assert(canvas:type() == "CustomCanvas")
 	love.graphics.setCanvas(buffer1.canvas)
 		love.graphics.clear()
@@ -73,17 +66,20 @@ function PostProcessing:apply_post_process(canvas)
 
 	for _, effect in ipairs(self.effects) do
 		if effect.is_active then
+			@@profb(effect:type())
 			love.graphics.setCanvas(buffer2.canvas)
 				love.graphics.clear()
-				PostProcessing:begin_shader(effect)
+				love.graphics.setShader(effect.shader)
 					buffer1:render_n()
-				PostProcessing:end_shader(effect)
+				love.graphics.setShader()
 			love.graphics.setCanvas()
 			buffer1, buffer2 = buffer2, buffer1
+			@@profe(effect:type())
 		end
 	end
 
 	buffer1:render_n()
+	@@profe("pp")
 end
 
 !if _DEV then
