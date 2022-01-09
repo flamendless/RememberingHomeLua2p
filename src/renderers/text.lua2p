@@ -1,8 +1,10 @@
 local ReflowPrint = require("modules.reflowprint.reflowprint")
 
-local RendererText = {}
+local RendererText = {
+	id = "RendererText"
+}
 
-function RendererText:render_text(e)
+function RendererText.render(e)
 	local str = e.text and e.text.value
 	if #str == 0 then return end
 

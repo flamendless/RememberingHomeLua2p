@@ -1,6 +1,8 @@
-local RendererRect = {}
+local RendererRect = {
+	id = "RendererRect"
+}
 
-function RendererRect:render(e)
+function RendererRect.render(e)
 	local pos = e.pos
 	local rect = e.rect
 	local draw_mode = e.draw_mode.value

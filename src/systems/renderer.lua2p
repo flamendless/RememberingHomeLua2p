@@ -1,40 +1,51 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 
-local RendererSprite = require("renderers.sprite")
-local RendererText = require("renderers.text")
-local RendererRect = require("renderers.rect")
-local RendererCircle = require("renderers.circle")
-local RendererPoint = require("renderers.point")
+local Renderers = {
+	sprite = require("renderers.sprite"),
+	text = require("renderers.text"),
+	rect = require("renderers.rect"),
+	circle = require("renderers.circle"),
+	point = require("renderers.point"),
+}
 
 local Renderer = Concord.system({
-	pool_circle = {"circle", "draw_mode", "pos",},
-	pool_point = {"point", "pos", },
-	pool_rect = {"rect", "pos", "draw_mode",},
-	pool_text = {"text", "pos", },
-	pool_static_text = {"static_text", "pos", "font",},
-	pool_bg = {"bg", "sprite", "pos",},
-	pool_sprite = {"sprite", "pos", "!bg",},
+	pool_circle = {"circle", "draw_mode", "pos"},
+	pool_point = {"point", "pos"},
+	pool_rect = {"rect", "pos", "draw_mode"},
+	pool_text = {"text", "pos"},
+	pool_static_text = {"static_text", "pos", "font"},
+	pool_bg = {"bg", "sprite", "pos"},
+	pool_sprite = {"sprite", "pos", "!bg"},
 	!if _DEV then
-	pool_layer = {"sprite", "pos", "layer",},
+	pool_layer = {"sprite", "pos", "layer"},
 	!end
 })
 
 local renderer_per_pool = {
-	pool_circle = RendererCircle,
-	pool_point = RendererPoint,
-	pool_rect = RendererRect,
-	pool_text = RendererText,
-	pool_static_text = RendererText,
-	pool_bg = RendererSprite,
-	pool_sprite = RendererSprite,
+	pool_circle = Renderers.circle,
+	pool_point = Renderers.point,
+	pool_rect = Renderers.rect,
+	pool_text = Renderers.text,
+	pool_static_text = Renderers.text,
+	pool_bg = Renderers.sprite,
+	pool_sprite = Renderers.sprite,
 	!if _DEV then
-	pool_layer = RendererSprite,
+	pool_layer = Renderers.sprite,
 	!end
 }
 
+Renderer.draw_bg = Renderers.sprite.render_bg
+
 function Renderer:init(world)
 	self.world = world
-	self.list, self.list_ui = set(), set()
+	self.list, self.list_ui = {}, {}
+
+	for _, renderer in pairs(Renderers) do
+		if renderer.init then
+			renderer.init()
+		end
+	end
 
 	for pool_id in pairs(self.__definition) do
 		local pool = self[pool_id]
@@ -45,12 +56,9 @@ end
 
 function Renderer:add_to_pool(pool, e)
 	if pool == self.pool_layer or pool == self.pool_sprite then
-		RendererSprite:setup_sprite(e)
+		Renderers.sprite.setup_sprite(e)
 	elseif pool == self.pool_bg then
-		!if _DEV then
-		@@assert(self.e_bg == nil, "There can only be 1 entity for background")
-		!end
-		self.e_bg = e
+		Renderers.sprite.set_bg(e)
 	elseif pool == self.pool_text and e.sdf then
 		@@assert(e.font_sdf, "sdf must have font_sdf")
 		@@assert(not e.font, "sdf must NOT have font")
@@ -59,45 +67,100 @@ function Renderer:add_to_pool(pool, e)
 		e.static_text.obj = love.graphics.newText(e.font.value, e.static_text.value)
 	end
 
-	e.renderer = renderer_per_pool[pool.id]
-
 	local list = e.ui_element and self.list_ui or self.list
-	list:add(e)
-end
-
-function Renderer:draw_bg()
-	if not self.e_bg then return end
-	self.e_bg.renderer:render(self.e_bg)
+	!if _DEV then
+	if functional.contains(list, e) then
+		Log.warn(e.id.value, "was already added in", e.ui_element and "list_ui" or "list")
+	end
+	!end
+	table.insert(list, e)
+	e.renderer = renderer_per_pool[pool.id]
 end
 
 function Renderer:draw(is_ui)
 	@@sassert(is_ui, type(is_ui) == "boolean")
 	!if _DEV then
-	RendererSprite:debug_batching()
+	if not is_ui then
+		Renderers.sprite.debug_batching()
+	end
 	!end
 
 	local list = is_ui and self.list_ui or self.list
-	for _, e in list:ipairs() do
+	for _, e in ipairs(list) do
 		local culled = e.cullable and e.cullable.value
-		if e.nf_renderer or e.hidden or culled then return end
+		local is_not_drawn = e.nf_renderer or e.hidden or culled
 
-		local no_shader, temp_shader = e.no_shader
-		if no_shader then
-			temp_shader = love.graphics.getShader()
-			love.graphics.setShader()
-		end
+		if not is_not_drawn then
+			local no_shader, temp_shader = e.no_shader
+			if no_shader then
+				temp_shader = love.graphics.getShader()
+				love.graphics.setShader()
+			end
 
-		local color = e.color
-		if color then
-			love.graphics.setColor(color.value)
-		end
+			local color = e.color
+			if color then
+				love.graphics.setColor(color.value)
+			end
 
-		e.renderer:render(e)
+			e.renderer.render(e)
 
-		if no_shader then
-			love.graphics.setShader(temp_shader)
+			!if _DEV then
+			if not is_ui and e.renderer == Renderers.sprite then
+				Renderers.sprite.debug_batching_update(e)
+			end
+			!end
+
+			if no_shader then
+				love.graphics.setShader(temp_shader)
+			end
 		end
 	end
 end
+
+function Renderer:draw_ui()
+	self:draw(true)
+end
+
+!if _DEV then
+local Slab = require("modules.slab")
+
+local function show_list(id, list)
+	if Slab.BeginTree(id) then
+		Slab.Indent()
+		for i, e in ipairs(list) do
+			local culled = e.cullable and e.cullable.value
+			local is_not_drawn = e.nf_renderer or e.hidden or culled
+			Slab.CheckBox(not is_not_drawn, i)
+			Slab.SameLine()
+			Slab.Text(e.id.value)
+			Slab.SameLine()
+			Slab.Text(e.renderer.id)
+		end
+		Slab.Unindent()
+		Slab.EndTree()
+	end
+end
+
+function Renderer:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("renderer", {
+		Title = "Renderer",
+		IsOpen = self.debug_show
+	})
+	show_list("list", self.list)
+	show_list("ui list", self.list_ui)
+	for k, v in pairs(Renderers) do
+		if v.debug_update then
+			if Slab.CheckBox(v.debug_show, k) then
+				v.debug_show = not v.debug_show
+			end
+			if v.debug_show then
+				v.debug_update(dt)
+			end
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return Renderer

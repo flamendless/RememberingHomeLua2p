@@ -87,7 +87,6 @@ function Animation:setup_animation(e, data, on_loop)
 			ox = ox - e.transform.ox
 			oy = oy - e.transform.oy
 		end
-
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else
 		e:remove("quad_transform")

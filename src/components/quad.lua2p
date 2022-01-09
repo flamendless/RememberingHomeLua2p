@@ -37,8 +37,3 @@ function c_quad:deserialize(data)
 	local quad = love.graphics.newQuad(unpack(data.data))
 	self:__populate(quad, data.info)
 end
-
-Concord.component("quad_size", function(c, size)
-	@@assert(type(size) == "number")
-	c.value = size
-end)

@@ -262,4 +262,72 @@ function PlayerController:player_can_interact(bool)
 	end
 end
 
+!if _DEV then
+local Slab = require("modules.slab")
+
+local function view_number(id, value, sl)
+	Slab.Text(id)
+	Slab.SameLine()
+	Slab.Input(id, {Text = value, ReadOnly = true, NumbersOnly = true})
+	if sl then
+		Slab.SameLine()
+	end
+end
+
+function PlayerController:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("player", {
+		Title = "PlayerController",
+		IsOpen = self.debug_show
+	})
+
+	local pos = self.player.pos
+	Slab.Text("Pos")
+	Slab.Indent()
+	view_number("x", pos.x, true)
+	view_number("y", pos.y)
+	Slab.Unindent()
+
+	local transform = self.player.transform
+	Slab.Text("Transform")
+	Slab.Indent()
+	view_number("sx", transform.sx, true)
+	view_number("sy", transform.sy)
+	view_number("ox", transform.ox, true)
+	view_number("oy", transform.oy)
+	Slab.Unindent()
+
+	local current_frame = self.player.current_frame
+	Slab.Text("animation")
+	Slab.Indent()
+	Slab.Input("anim_tag", {Text = self.player.animation.current_tag, ReadOnly = true})
+	Slab.SameLine()
+	view_number("frame", current_frame.value)
+	Slab.Unindent()
+
+	local quad = self.player.quad
+	local qx, qy, qw, qh = quad.quad:getViewport()
+	local qsw, qsh = quad.quad:getTextureDimensions()
+	Slab.Text("quad")
+	Slab.Indent()
+	view_number("x", qx, true)
+	view_number("y", qy)
+	view_number("w", qw, true)
+	view_number("h", qh)
+	view_number("rw", qsw, true)
+	view_number("rh", qsh)
+	Slab.Unindent()
+
+	Slab.CheckBox(self.player.can_move, "move")
+	Slab.SameLine()
+	Slab.CheckBox(self.player.can_run, "run")
+	Slab.SameLine()
+	Slab.CheckBox(self.player.can_interact, "interact")
+	Slab.SameLine()
+	Slab.CheckBox(self.player.can_open_door, "open_door")
+
+	Slab.EndWindow()
+end
+!end
+
 return PlayerController

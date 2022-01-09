@@ -1,6 +1,8 @@
-local RendererCircle = {}
+local RendererCircle = {
+	id = "RendererCircle"
+}
 
-function RendererCircle:render(e)
+function RendererCircle.render(e)
 	local pos = e.pos
 	local circle = e.circle
 	local mode = e.draw_mode.value

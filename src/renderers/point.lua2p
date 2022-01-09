@@ -1,6 +1,8 @@
-local RendererPoint = {}
+local RendererPoint = {
+	id = "RendererPoint"
+}
 
-function RendererPoint:render(e)
+function RendererPoint.render(e)
 	local pos = e.pos
 	love.graphics.setPointSize(e.point.value)
 	love.graphics.points(pos.x, pos.y)
