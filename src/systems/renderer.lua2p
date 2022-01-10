@@ -1,5 +1,5 @@
 local Concord = require("modules.concord.concord")
-local Log = require("modules.log.log")
+local List = require("modules.concord.concord.list")
 
 local Renderers = {
 	sprite = require("renderers.sprite"),
@@ -7,6 +7,7 @@ local Renderers = {
 	rect = require("renderers.rect"),
 	circle = require("renderers.circle"),
 	point = require("renderers.point"),
+	ui = require("renderers.ui"),
 }
 
 local Renderer = Concord.system({
@@ -35,28 +36,66 @@ local renderer_per_pool = {
 	!end
 }
 
+!if _DEV then
+for k in pairs(renderer_per_pool) do
+	@@assert(Renderer.__definition[k], k .. " must exists")
+end
+!end
+
 Renderer.draw_bg = Renderers.sprite.render_bg
+Renderer.draw_ui = Renderers.ui.render
+
+local function sort_z(a, b)
+	local a_z, b_z = a.z_index, b.z_index
+	if a_z == nil or b_z == nil then return end
+
+	if a_z.sortable and b_z.sortable then
+		return a.pos.y < b.pos.y
+	elseif a_z.current and b_z.current then
+		return a_z.current < b_z.current
+	end
+
+	return a_z.value < b_z.value
+end
 
 function Renderer:init(world)
 	self.world = world
-	self.list, self.list_ui = {}, {}
+	self.list, self.list_ui = List(), List()
 
 	for _, renderer in pairs(Renderers) do
 		if renderer.init then
-			renderer.init()
+			renderer.init(self)
 		end
 	end
+
+	!if _DEV then
+	Renderers.sprite.debug_list = self.list
+	!end
 
 	for pool_id in pairs(self.__definition) do
 		local pool = self[pool_id]
 		pool.id = pool_id
-		pool.onAdded = function(p, e) self:add_to_pool(p, e) end
+		pool.onAdded = function(p, e) self:pool_on_added(p, e) end
+		pool.onRemoved = function(p, e) self:pool_on_removed(p, e) end
 	end
 end
 
-function Renderer:add_to_pool(pool, e)
+function Renderer:sort_by_z()
+	if self.list.size == 0 then return end
+	self.list:sort(sort_z)
+	for i, e in ipairs(self.list) do
+		local z_index = e.z_index
+		if z_index then
+			z_index.current = i
+		end
+	end
+end
+
+function Renderer:pool_on_added(pool, e)
+	local should_sort = false
 	if pool == self.pool_layer or pool == self.pool_sprite then
 		Renderers.sprite.setup_sprite(e)
+		should_sort = true
 	elseif pool == self.pool_bg then
 		Renderers.sprite.set_bg(e)
 	elseif pool == self.pool_text and e.sdf then
@@ -68,13 +107,18 @@ function Renderer:add_to_pool(pool, e)
 	end
 
 	local list = e.ui_element and self.list_ui or self.list
-	!if _DEV then
-	if functional.contains(list, e) then
-		Log.warn(e.id.value, "was already added in", e.ui_element and "list_ui" or "list")
-	end
-	!end
-	table.insert(list, e)
+	list:add(e)
 	e.renderer = renderer_per_pool[pool.id]
+
+	if should_sort then
+		self:sort_by_z()
+	end
+end
+
+function Renderer:pool_on_removed(pool, e)
+	if pool == self.pool_sprite and not e.z_index then return end
+	self.list:remove(e)
+	self:sort_by_z()
 end
 
 function Renderer:draw(is_ui)
@@ -117,8 +161,14 @@ function Renderer:draw(is_ui)
 	end
 end
 
-function Renderer:draw_ui()
-	self:draw(true)
+function Renderer:cleanup()
+	tablex.clear(self.list)
+	tablex.clear(self.list_ui)
+	for _, renderer in pairs(Renderers) do
+		if renderer.cleanup then
+			renderer.cleanup()
+		end
+	end
 end
 
 !if _DEV then

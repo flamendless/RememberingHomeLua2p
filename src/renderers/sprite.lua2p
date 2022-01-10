@@ -8,16 +8,6 @@ local RendererSprite = {
 	!end
 }
 
-local function sort_z_ex(a, b)
-	local a_z, b_z = a.z_index, b.z_index
-	if a_z.sortable and b_z.sortable then
-		return a.pos.y < b.pos.y
-	elseif a_z.current and b_z.current then
-		return a_z.current < b_z.current
-	end
-	return a_z.value < b_z.value
-end
-
 local function draw(e, ...)
 	local outline = e.outline and e.outline.outliner
 	if outline then
@@ -97,57 +87,9 @@ function RendererSprite.render(e)
 	end
 end
 
--- function RenderSprite:init(world)
--- 	self.world = world
---
--- 	!if _DEV then
--- 	self.debug_batched = {}
--- 	self.pool_layer.onAdded = function(pool, e)
--- 		self:setup_sprite(e)
--- 	end
--- 	!end
---
--- 	self.pool.onAdded = function(pool, e)
--- 		self:setup_sprite(e)
--- 	end
---
--- 	self.pool_z.onAdded = function(pool, e)
--- 		self:setup_sprite(e)
--- 		self:sort_z()
--- 	end
---
--- 	self.pool_z.onRemoved = function(pool, e)
--- 		self:sort_z()
--- 	end
--- end
---
--- function RenderSprite:sort_z()
--- 	self.pool_z:sort(sort_z_ex)
--- 	for i, e in ipairs(self.pool_z) do
--- 		local z = e.z_index
--- 		z.current = i
--- 	end
--- end
---
--- function RenderSprite:draw_z()
--- 	@@profb("render_sprite_z")
--- 	local temp = love.graphics.getShader()
--- 	for _, e in ipairs(self.pool_z) do
--- 		if e.fog and not e.hidden then
--- 			@@profb("draw_fog")
--- 			self.world:emit("draw_fog", e)
--- 			self:draw_sprite_ex(e)
--- 			self.world:emit("end_draw_fog")
--- 			@@profe("draw_fog")
--- 		elseif e.outline and not e.hidden then
--- 			self:draw_sprite_ex(e)
--- 		else
--- 			love.graphics.setShader(temp)
--- 			self:draw_sprite_ex(e)
--- 		end
--- 	end
--- 	@@profe("render_sprite_z")
--- end
+function RendererSprite.cleanup()
+	RendererSprite.e_bg = nil
+end
 
 !if _DEV then
 local Slab = require("modules.slab")
@@ -182,6 +124,7 @@ function RendererSprite.debug_update(dt)
 		Title = "RendererSprite",
 		IsOpen = RendererSprite.debug_show
 	})
+
 	Slab.Text("Atlas Batching (highest : total)")
 	Slab.Indent()
 	for k, v in pairs(RendererSprite.debug_batched) do
@@ -189,25 +132,23 @@ function RendererSprite.debug_update(dt)
 		Slab.Text(str)
 	end
 	Slab.Unindent()
-	Slab.EndWindow()
 
-	-- if Slab.BeginTree("z_index") then
-	-- 	for _, e in ipairs(self.pool_z) do
-	-- 		local s_id = e.sprite.resource_id
-	-- 		if prev_id and prev_id ~= s_id then
-	-- 			Slab.Separator()
-	-- 		end
-	-- 		local id = e.id.value
-	-- 		local z = e.z_index
-	-- 		Slab.Text(z.value)
-	-- 		Slab.SameLine()
-	-- 		Slab.Text(id)
-	-- 		Slab.SameLine()
-	-- 		Slab.Text(tostring(z.sortable))
-	-- 		prev_id = s_id
-	-- 	end
-	-- 	Slab.EndTree()
-	-- end
+	if RendererSprite.debug_list then
+		if Slab.BeginTree("z_index") then
+			for _, e in ipairs(RendererSprite.debug_list) do
+				local z_index = e.z_index
+				if z_index then
+					local id = e.id.value
+					Slab.CheckBox(z_index.sortable, z_index.value)
+					Slab.SameLine()
+					Slab.Text(id)
+				end
+			end
+			Slab.EndTree()
+		end
+	end
+
+	Slab.EndWindow()
 end
 !end
 

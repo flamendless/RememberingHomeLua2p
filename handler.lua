@@ -68,7 +68,7 @@ _COMMIT_VERSION = toLua(args[2])
 _MODE = toLua(args[1])
 _LOG_SAVE = true
 _CACHED_PRELOAD = true
-_PADDING = toLua(args[3])
+_OUTLINE_PADDING = toLua(args[3])
 _GLSL_NORMALS = false
 
 _OS = "Linux"

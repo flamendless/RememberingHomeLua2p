@@ -1,0 +1,15 @@
+local RendererUI = {
+	id = "RendererUI",
+	main_renderer = nil,
+}
+
+function RendererUI.init(main_renderer)
+	@@assert(main_renderer.__isSystem)
+	RendererUI.main_renderer = main_renderer
+end
+
+function RendererUI.render()
+	RendererUI.main_renderer:draw(true)
+end
+
+return RendererUI
