@@ -1,7 +1,7 @@
 local Shaders = require("shaders")
 
 local FilmGrain = class({
-	name = "FilmGrain"
+	name = $_PP_FILMGRAIN,
 })
 
 function FilmGrain:new()

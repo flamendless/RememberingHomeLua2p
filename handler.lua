@@ -179,6 +179,14 @@ _LIST_INVENTORY_CELLS = toLua("inventory_cells")
 _LIST_INVENTORY_CHOICES = toLua("inventory_choices")
 _LIST_PAUSE_CHOICES = toLua("pause_choices")
 
+--POST PROCESS IDS
+_PP_BLUR = toLua("Blur")
+_PP_DISSOLVE = toLua("Dissolve")
+_PP_DITHERGRADIENT = toLua("DitherGradient")
+_PP_FILMGRAIN = toLua("FilmGrain")
+_PP_MOTIONBLUR = toLua("MotionBlur")
+_PP_NGRADING = toLua("NGrading")
+
 --SIGNALS
 _SIGNAL_LIST_REMOVE = toLua("on_list_cursor_remove_")
 _SIGNAL_LIST_INTERACT = toLua("on_list_item_interact_")

@@ -120,7 +120,7 @@ function Pause:on_pause()
 	end
 
 	self.is_paused = not self.is_paused
-	self.world:emit("set_post_process_effect", "Blur", self.is_paused)
+	self.world:emit("set_post_process_effect", $_PP_BLUR, self.is_paused)
 	Log.info("Paused:", self.is_paused)
 end
 

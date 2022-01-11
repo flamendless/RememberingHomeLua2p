@@ -178,10 +178,10 @@ end
 
 function Dialogues:proceed_dialogue()
 	for _, e in ipairs(self.pool) do
-		local rfp = e.reflowprint
 		if e.text_skipped then
 			e:remove("text_skipped")
 		elseif e.text_can_proceed then
+			local rfp = e.reflowprint
 			rfp.dt = 0
 			rfp.current = 1
 			self.timeline:Unpause()

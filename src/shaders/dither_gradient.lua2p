@@ -2,7 +2,7 @@ local Resources = require("resources")
 local Shaders = require("shaders")
 
 local DitherGradient = class({
-	name = "DitherGradient"
+	name = $_PP_DITHERGRADIENT,
 })
 
 function DitherGradient:new()

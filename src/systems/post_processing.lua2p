@@ -36,10 +36,12 @@ function PostProcessing:setup_post_process(t)
 end
 
 function PostProcessing:set_post_process_effect(id, bool)
+	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
 	for _, effect in ipairs(self.effects) do
 		if effect:type() == id then
 			effect.is_active = bool
+			return true
 		end
 	end
 	@@assert(false, id .. " not found in registered pp effects")
@@ -48,7 +50,7 @@ end
 function PostProcessing:update(dt)
 	for _, effect in ipairs(self.effects) do
 		!if _DEV then
-		effect.is_active = effect.debug_show
+		effect.debug_show = effect.is_active
 		!end
 		if effect.update then
 			effect:update(dt)
@@ -109,7 +111,7 @@ function PostProcessing:debug_update(dt)
 
 		-- Slab.SetLayoutColumn(1)
 		if Slab.CheckBox(effect.debug_show, str) then
-			effect.debug_show = not effect.debug_show
+			effect.is_active = not effect.is_active
 		end
 
 		Slab.SameLine()
