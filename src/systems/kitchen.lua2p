@@ -6,6 +6,7 @@ local Canvas = require("canvas")
 local Fade = require("fade")
 local Palette = require("palette")
 local Resources = require("resources")
+local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
@@ -75,7 +76,6 @@ function Kitchen:state_draw()
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
 	self.world:emit("draw_inventory")
-	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
 end

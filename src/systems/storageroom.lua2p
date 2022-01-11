@@ -82,7 +82,6 @@ function StorageRoom:state_draw()
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
 	self.world:emit("draw_inventory")
-	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
 end

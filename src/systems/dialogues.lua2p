@@ -8,7 +8,7 @@ local Resources = require("resources")
 local Palette = require("palette")
 
 local Dialogues = Concord.system({
-	pool = {"dialogue_item", "text_t", "nf_renderer"},
+	pool = {"dialogue_item", "text_t"},
 	pool_choice = {
 		constructor = ListByID,
 		id = $_LIST_DIALOGUE_CHOICES,
@@ -16,8 +16,8 @@ local Dialogues = Concord.system({
 })
 
 local UI = require("assemblages.ui")
+local c_hc = Palette.colors.hovered_choice
 local PAD = 32
-local c_hc = Palette.get("hovered_choice")
 
 function Dialogues:init(world)
 	self.world = world
@@ -86,7 +86,6 @@ function Dialogues:create_e_dialogue()
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 0, 0.5)
 		:give("layer", "dialogue", 3)
-		:give("nf_renderer")
 		:give("reflowprint", w - PAD * 2, "left")
 		:give("pos", x, y)
 	self:create_tle()
@@ -102,15 +101,6 @@ function Dialogues:update(dt)
 	end
 end
 
-function Dialogues:draw_dialogues()
-	if self.e_dialogue.text then
-		self.world:emit("draw_text_ex", self.e_dialogue)
-	end
-	for _, e in ipairs(self.pool_choice) do
-		self.world:emit("draw_text_ex", e)
-	end
-end
-
 function Dialogues:wait_dialogue(bool)
 	@@assert(type(bool) == "boolean")
 	self.is_waiting = bool
@@ -120,8 +110,7 @@ function Dialogues:spawn_dialogue(dialogues_t, main, sub)
 	@@assert(type(dialogues_t) == "table")
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
-	self.e_dialogue:give("dialogue_meta", main, sub)
-		:give("text_t", dialogues_t)
+	self.e_dialogue:give("dialogue_meta", main, sub):give("text_t", dialogues_t)
 	self:populate_choices(dialogues_t)
 	if DialoguesSrc.validate(dialogues_t) then
 		self.world:emit("on_interact_or_inventory")
@@ -144,10 +133,12 @@ function Dialogues:on_dialogue_reached_end(e)
 		self.timeline:Pause()
 		return
 	end
+
 	e = e or self.e_dialogue
 	if e.item_id then
 		self.world:emit("destroy_list", "dialogue_choice")
 	end
+
 	if e.has_choices then
 		e:give("hidden")
 		self:show_choices()
