@@ -122,10 +122,10 @@ function Renderer:pool_on_added(pool, e)
 end
 
 function Renderer:pool_on_removed(pool, e)
-	if pool == self.pool_sprite and not e.z_index then return end
 	local list = get_list(self, e)
-	list:remove(e)
-	self:sort_by_z(list)
+	if list:remove(e) then
+		self:sort_by_z(list)
+	end
 end
 
 function Renderer:draw(is_ui)
@@ -181,19 +181,22 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
+local search = ""
+
 local function show_list(id, list)
-	if Slab.BeginTree(id) then
+	if Slab.BeginTree(id .. " size: " .. #list) then
 		Slab.Indent()
 		for i, e in ipairs(list) do
 			local culled = e.cullable and e.cullable.value
 			local is_not_drawn = e.nf_renderer or e.hidden or culled
-			Slab.CheckBox(not is_not_drawn, i)
-			Slab.SameLine()
-			Slab.Text(e.id.value)
-			Slab.SameLine()
-			Slab.Text(e.renderer.id)
-			Slab.SameLine()
-			Slab.Text(tostring(e))
+			local e_id = e.id.value
+			if #search == 0 or stringx.contains(e_id, search) then
+				Slab.CheckBox(not is_not_drawn, i)
+				Slab.SameLine()
+				Slab.Text(e_id)
+				Slab.SameLine()
+				Slab.Text(e.renderer.id)
+			end
 		end
 		Slab.Unindent()
 		Slab.EndTree()
@@ -206,6 +209,11 @@ function Renderer:debug_update(dt)
 		Title = "Renderer",
 		IsOpen = self.debug_show
 	})
+
+	if Slab.Input("search", {Text = search}) then
+		search = Slab.GetInputText()
+	end
+
 	show_list("list", self.list)
 	show_list("ui list", self.list_ui)
 	for k, v in pairs(Renderers) do

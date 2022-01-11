@@ -88,6 +88,7 @@ function DevTools.update(dt)
 		for _, effect in ipairs(DevTools.pp_effects) do
 			if Slab.CheckBox(effect.is_active, effect:type()) then
 				effect.debug_show = not effect.debug_show
+				effect.is_active = not effect.is_active
 			end
 			if effect.debug_update then
 				effect:debug_update(dt)
@@ -301,6 +302,7 @@ end
 
 function DevTools.keypressed(key)
 	if not GameStates.world then return end
+	if Slab.IsAnyInputFocused() then return end
 	if key == "`" then
 		DevTools.show = not DevTools.show
 		Slab.EnableStats(DevTools.show)

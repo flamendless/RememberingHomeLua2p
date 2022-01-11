@@ -39,7 +39,14 @@ local Inputs = {
 }
 
 !if _DEV then
-Inputs.dev_map = {}
+local Slab = require("modules.slab")
+Inputs.dev_map = {
+	m = "play",
+	k = "camera_down",
+	i = "camera_up",
+	j = "camera_left",
+	l = "camera_right",
+}
 !end
 
 function Inputs.init(key_map)
@@ -48,11 +55,6 @@ function Inputs.init(key_map)
 	@@assert(maps[n])
 	Inputs.map = maps[n]
 	!if _DEV then
-	Inputs.dev_map.m = "play"
-	Inputs.dev_map.k = "camera_down"
-	Inputs.dev_map.i = "camera_up"
-	Inputs.dev_map.j = "camera_left"
-	Inputs.dev_map.l = "camera_right"
 	tablex.overlay(Inputs.map, Inputs.dev_map)
 	!end
 	tablex.clear(Inputs.previous)
@@ -93,12 +95,18 @@ end
 function Inputs.keypressed(key)
 	@@assert(type(key) == "string")
 	if not Inputs.map[key] then return end
+	!if _DEV then
+	if Slab.IsAnyInputFocused() then return end
+	!end
 	Inputs.current[Inputs.map[key]] = true
 end
 
 function Inputs.keyreleased(key)
 	@@assert(type(key) == "string")
 	if not Inputs.map[key] then return end
+	!if _DEV then
+	if Slab.IsAnyInputFocused() then return end
+	!end
 	Inputs.current[Inputs.map[key]] = false
 end
 
@@ -109,22 +117,22 @@ function Inputs.update()
 end
 
 function Inputs.flush()
-	for k, v in pairs(Inputs.current) do
+	for k in pairs(Inputs.current) do
 		Inputs.previous[k] = false
 		Inputs.current[k] = false
 	end
 end
 
 function Inputs.get_map_keys()
-	return tablex.copy(maps, {})
+	return tablex.copy(maps)
 end
 
 function Inputs.get_map_names()
-	return tablex.copy(map_names, {})
+	return tablex.copy(map_names)
 end
 
 function Inputs.get_current_map_name()
-	return tablex.copy(map_names[Settings.current.key_map], {})
+	return tablex.copy(map_names[Settings.current.key_map])
 end
 
 return Inputs

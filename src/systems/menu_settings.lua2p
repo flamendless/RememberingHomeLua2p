@@ -37,15 +37,15 @@ function MenuSettings:init(world)
 end
 
 function MenuSettings:init_settings()
-	local sc = tablex.copy(Settings.current, {})
+	local sc = tablex.copy(Settings.current)
 	self.show_message_box_reset = false
 	self.current_gq = sc.graphics_quality
 	self.current_wm = sc.window_mode
 	self.window_mode = WindowMode.list[self.current_wm]
 	self.wm_list = WindowMode.list
 	self.key_id = sc.key_map
-	self.key_map = tablex.copy(Inputs.map, {})
-	self.rev_key_map = tablex.copy(Inputs.rev_maps[self.key_id], {})
+	self.key_map = tablex.copy(Inputs.map)
+	self.rev_key_map = tablex.copy(Inputs.rev_maps[self.key_id])
 	self.muted = sc.muted
 	self.volume = sc.volume
 	self.show_keys = sc.show_keys
@@ -158,8 +158,8 @@ function MenuSettings:update_settings(dt)
 			for i, id in ipairs(Inputs.get_map_names()) do
 				if Slab.TextSelectable(id) then
 					self.key_id = i
-					self.key_map = tablex.copy(Inputs.get_map_keys()[i], {})
-					self.rev_key_map = tablex.copy(Inputs.rev_maps[i], {})
+					self.key_map = tablex.copy(Inputs.get_map_keys()[i])
+					self.rev_key_map = tablex.copy(Inputs.rev_maps[i])
 					for k, v in pairs(key_title) do
 						for k2, v2 in pairs(self.key_map) do
 							if k == v2 then

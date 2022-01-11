@@ -294,7 +294,6 @@ function Intro:state_draw()
 	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
-	self.world:emit("draw_inventory")
 	self.world:emit("draw_ui")
 	Fade.draw()
 

@@ -4,13 +4,13 @@ local data, sync_data = require("data.animation_data")
 function Animation.get(id)
 	@@assert(type(id) == "string")
 	@@assert(data[id])
-	return tablex.copy(data[id], {})
+	return tablex.copy(data[id])
 end
 
 function Animation.get_sync_data(id)
 	@@assert(type(id) == "string")
 	@@assert(sync_data[id])
-	return tablex.copy(sync_data[id], {})
+	return tablex.copy(sync_data[id])
 end
 
 return Animation
