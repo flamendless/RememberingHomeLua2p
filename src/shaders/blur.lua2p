@@ -4,9 +4,10 @@ local Blur = class({
 	name = "Blur"
 })
 
-function Blur:new()
+function Blur:new(is_active)
+	@@sassert(is_active, type(is_active) == "boolean")
 	self.shader = love.graphics.newShader(Shaders.paths.blur)
-	self.is_active = false
+	self.is_active = not not is_active --default is false
 end
 
 return Blur

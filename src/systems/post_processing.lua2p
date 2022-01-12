@@ -36,10 +36,15 @@ function PostProcessing:setup_post_process(t)
 end
 
 function PostProcessing:set_post_process_effect(id, bool)
+	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
 	for _, effect in ipairs(self.effects) do
 		if effect:type() == id then
+			!if _DEV then
+			effect.debug_show = bool
+			!end
 			effect.is_active = bool
+			return
 		end
 	end
 	@@assert(false, id .. " not found in registered pp effects")
