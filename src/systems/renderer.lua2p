@@ -1,5 +1,6 @@
 local Concord = require("modules.concord.concord")
 local List = require("modules.concord.concord.list")
+local Log = require("modules.log.log")
 
 local Renderers = {
 	sprite = require("renderers.sprite"),
@@ -101,7 +102,7 @@ function Renderer:pool_on_added(pool, e)
 	local should_sort = false
 	if pool == self.pool_layer or pool == self.pool_sprite then
 		Renderers.sprite.setup_sprite(e)
-		should_sort = true
+		should_sort = e.z_index ~= nil
 	elseif pool == self.pool_bg then
 		Renderers.sprite.set_bg(e)
 	elseif pool == self.pool_text and e.sdf then
@@ -113,11 +114,14 @@ function Renderer:pool_on_added(pool, e)
 	end
 
 	local list = get_list(self, e)
-	list:add(e)
-	e.renderer = renderer_per_pool[pool.id]
-
-	if should_sort then
-		self:sort_by_z(list)
+	if not list:has(e) then
+		list:add(e)
+		e.renderer = renderer_per_pool[pool.id]
+		if should_sort then
+			self:sort_by_z(list)
+		end
+	else
+		Log.warn(e.id.value, "is already in list")
 	end
 end
 
@@ -191,7 +195,14 @@ local function show_list(id, list)
 			local is_not_drawn = e.nf_renderer or e.hidden or culled
 			local e_id = e.id.value
 			if #search == 0 or stringx.contains(e_id, search) then
-				Slab.CheckBox(not is_not_drawn, i)
+				if Slab.CheckBox(not is_not_drawn, i) then
+					is_not_drawn = not is_not_drawn
+					if is_not_drawn then
+						e:give("hidden")
+					else
+						e:remove("hidden")
+					end
+				end
 				Slab.SameLine()
 				Slab.Text(e_id)
 				Slab.SameLine()

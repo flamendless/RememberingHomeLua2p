@@ -4,7 +4,7 @@ local Enum = require("modules.enum.enum")
 local modes = Enum("fill", "line")
 local arc_types = Enum("pie", "open", "closed")
 
-Concord.component("custom_texture")
+Concord.component("textured_line")
 
 Concord.component("draw_mode", function(c, draw_mode)
 	c.value = modes[draw_mode]

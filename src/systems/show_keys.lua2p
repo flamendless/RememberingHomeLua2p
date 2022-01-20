@@ -5,13 +5,12 @@ local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
 
-local ShowKeys = Concord.system({})
+local ShowKeys = Concord.system()
 
 local function Assemble(e, key)
 	e:give("atlas", AtlasKeys.frames[key])
 	:give("sprite", "atlas_keys")
 	:give("ui_element")
-	:give("layer", "hud")
 end
 
 function ShowKeys:init(world)
