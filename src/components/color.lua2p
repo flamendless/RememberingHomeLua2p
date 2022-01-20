@@ -1,7 +1,5 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("pre_shader_color")
-
 Concord.component("color", function(c, color, original)
 	@@assert(type(color) == "table")
 	@@sassert(original, type(original) == "table")

@@ -5,7 +5,7 @@ By: flamendless studio @flam8studio
 
 Author: Brandon Blanker Lim-it @flamendless
 Artist: Conrad Reyes @Shizzy619
-Level Designer: Piolo Maurice Laudencia @piotato
+Room Designer: Piolo Maurice Laudencia @piotato
 
 Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
@@ -40,7 +40,7 @@ love.errhand = ErrorHandler.callback
 local GameStates = require("gamestates")
 local Info = require("info")
 local Inputs = require("inputs")
-local Preloader = require("preloader")
+local LoadingScreen = require("loading_screen")
 local Save = require("save")
 local Settings = require("settings")
 local Shaders = require("shaders")
@@ -50,24 +50,9 @@ local WindowMode = require("window_mode")
 !if _DEV then
 require("modules.strict")
 local DevTools = require("devtools")
+local font = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
+font:setFilter($_FONT_FILTER, $_FONT_FILTER)
 !end
-
-local font_preload = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
-font_preload:setFilter($_FONT_FILTER, $_FONT_FILTER)
-local function custom_loading_screen()
-	local w, h = love.graphics.getDimensions()
-
-	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", 0, 0, w, h)
-
-	local str_loading = string.format("LOADING: %i%%", Preloader.percent)
-	local ox = font_preload:getWidth(str_loading) * 0.5
-	local oy = font_preload:getHeight(str_loading) * 0.5
-
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(font_preload)
-	love.graphics.print(str_loading, w * 0.5, h * 0.75, 0, 1, 1, ox, oy)
-end
 
 function love.load()
 	@@profb("frame")
@@ -80,6 +65,7 @@ function love.load()
 	love.graphics.setDefaultFilter($_DEFAULT_FILTER, $_DEFAULT_FILTER)
 	WindowMode.init()
 	Shaders.init()
+	LoadingScreen.init()
 	Info.init()
 	Save.init()
 	Settings.init()
@@ -93,8 +79,8 @@ function love.load()
 	-- GameStates.switch("Intro")
 	-- GameStates.switch("Outside")
 	-- GameStates.switch("StorageRoom")
-	GameStates.switch("UtilityRoom")
-	-- GameStates.switch("Kitchen")
+	-- GameStates.switch("UtilityRoom")
+	GameStates.switch("Kitchen")
 	-- GameStates.switch("LivingRoom")
 
 	DevTools.init()
@@ -118,6 +104,10 @@ function love.update(dt)
 	GameStates.update(dt)
 	Inputs.update()
 
+	if not GameStates.is_ready then
+		LoadingScreen.update(dt)
+	end
+
 	!if _DEV then
 	DevTools.update(dt)
 	!end
@@ -134,16 +124,16 @@ function love.draw()
 	GameStates.draw()
 
 	if not GameStates.is_ready then
-		custom_loading_screen()
+		LoadingScreen.draw()
 	end
 
 	!if _DEV then
 	DevTools.draw()
 	if DevTools.show_fps then
 		love.graphics.setColor(1, 0, 0)
-		love.graphics.setFont(font_preload)
+		love.graphics.setFont(font)
 		love.graphics.print(love.timer.getFPS())
-		love.graphics.print($_MODE, love.graphics.getWidth() - font_preload:getWidth($_MODE))
+		love.graphics.print($_MODE, love.graphics.getWidth() - font:getWidth($_MODE))
 	end
 	DevTools.end_draw()
 	!end

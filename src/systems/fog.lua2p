@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Fog = Concord.system({
-	pool = {"id", "fog", "noise_texture", "pos", "pre_shader_color", "color", "transform"},
+	pool = {"id", "fog", "noise_texture", "pos", "color", "transform"},
 })
 
 function Fog:init(world)
@@ -12,12 +12,12 @@ function Fog:init(world)
 	end
 end
 
-function Fog:update(_)
+function Fog:update()
 	for _, e in ipairs(self.pool) do
 		if not e.hidden then
 			local fog = e.fog
-			fog.shader:send("fog_speed", fog.speed)
-			fog.shader:send("t", love.timer.getTime())
+			fog.shader:send("u_fog_speed", fog.speed)
+			fog.shader:send("u_time", love.timer.getTime())
 		end
 	end
 end
@@ -25,7 +25,7 @@ end
 function Fog:draw_fog(e)
 	local fog = e.fog
 	local color = e.color.value
-	love.graphics.setColor(unpack(color))
+	love.graphics.setColor(color)
 	love.graphics.setShader(fog.shader)
 end
 
