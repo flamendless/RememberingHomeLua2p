@@ -89,6 +89,9 @@ end
 
 function RendererSprite.cleanup()
 	RendererSprite.e_bg = nil
+	!if _DEV then
+	tablex.clear(RendererSprite.debug_batched)
+	!end
 end
 
 !if _DEV then

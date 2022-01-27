@@ -86,6 +86,7 @@ function Helper.get_ltwh(e)
 	local w, h = sprite.iw, sprite.ih
 	local collider = e.collider
 	local anim_data = e.animation_data
+
 	if collider then
 		w = collider.w
 		h = collider.h

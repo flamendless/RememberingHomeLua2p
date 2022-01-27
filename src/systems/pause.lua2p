@@ -48,7 +48,7 @@ function Pause:create_pause_choices()
 	local by = wh2 + 16
 	local scale = 0.75
 	local fnt = Resources.data.fonts.ui
-	local fh = fnt:getHeight("") * scale + 8
+	local fh = fnt:getHeight() * scale + 8
 
 	self.world:emit("create_list_group", $_LIST_PAUSE_CHOICES, true, #opt)
 	for i, str in ipairs(opt) do

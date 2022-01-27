@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
+local Helper = require("helper")
+
 local Transform = Concord.system({
 	pool = {"transform", "!auto_scale", "!rect"},
 	pool_pos = {"pos", "!pos_vec2"},
@@ -257,10 +259,16 @@ function Transform:debug_update(dt)
 			local t = e.transform or e.quad_transform
 			pos.x = UIWrapper.edit_number("x", pos.x, true)
 			pos.y = UIWrapper.edit_number("y", pos.y, true)
+			local z_index = e.z_index
+			if z_index and z_index.sortable then
+				z_index.value = UIWrapper.edit_number("z", z_index.value, true)
+			end
 			if t then
 				t.rotation = UIWrapper.edit_number("r", t.rotation)
 				t.sx = UIWrapper.edit_number("sx", t.sx)
 				t.sy = UIWrapper.edit_number("sy", t.sy)
+				t.ox = UIWrapper.edit_number("ox", t.ox)
+				t.oy = UIWrapper.edit_number("oy", t.oy)
 				t.kx = UIWrapper.edit_number("kx", t.kx)
 				t.ky = UIWrapper.edit_number("ky", t.ky)
 			end

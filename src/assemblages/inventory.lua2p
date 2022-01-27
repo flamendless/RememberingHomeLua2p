@@ -11,7 +11,6 @@ function Inventory.bg(e, x, y, scale)
 	:give("sprite", "bg_inventory")
 	:give("transform", 0, scale, scale, 0.5, 0.5)
 	:give("color", {1, 1, 1, 1})
-	-- :give("z_index", 90, false)
 	:give("ui_element")
 end
 
@@ -24,7 +23,6 @@ function Inventory.choice(e, str, x, y)
 	:give("list_item")
 	:give("list_group", $_LIST_INVENTORY_CHOICES)
 	:give("transform", 0.1745329, 1, 1, 0.5, 0.5, -0.25)
-	-- :give("z_index", 90, false)
 	:give("ui_element")
 end
 
@@ -47,7 +45,6 @@ function Inventory.border(e, i, x, y, rw, rh, ih, is_horizontal)
 	:give("pos", x, y)
 	:give("transform", r, 0.5, sy, 0.5, 0, -0.05, -0.05)
 	:give("textured_line")
-	-- :give("z_index", 90, false)
 	:give("ui_element")
 end
 
@@ -65,20 +62,19 @@ function Inventory.dline(e, i, x1, y1, x2, y2)
 	:give("pos", x1, y1)
 	:give("transform", r, 0.25, 1, 0.5, 0, 0.05, 0.05)
 	:give("textured_line")
-	-- :give("z_index", 90, false)
 	:give("ui_element")
+	:give("color", {1, 1, 1, 1})
 end
 
-function Inventory.cell(e, i, x, y, w, h, l1, l2)
+function Inventory.cell(e, i, x, y, w, h)
 	e:give("id", "cell_" .. i)
 	:give("list_item")
 	:give("list_group", $_LIST_INVENTORY_CELLS)
 	:give("pos", x, y)
 	:give("rect", w, h)
 	:give("draw_mode", "fill")
-	:give("color", Palette.get("inventory_cell"))
-	:give("refs", l1, l2)
-	-- :give("z_index", 90, false)
+	:give("color", Palette.get("inventory_cell", 0.4))
+	:give("alpha_range", 0, 0.4)
 	:give("ui_element")
 end
 

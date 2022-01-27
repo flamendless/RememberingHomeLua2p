@@ -5,7 +5,7 @@ local RendererText = {
 }
 
 function RendererText.render(e)
-	local str = e.text and e.text.value
+	local str = (e.text and e.text.value) or (e.static_text and e.static_text.value)
 	if (not str) or #str == 0 then return end
 
 	local font = e.font or e.font_sdf

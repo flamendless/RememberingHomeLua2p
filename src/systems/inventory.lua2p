@@ -31,10 +31,10 @@ function Inventory:init(world)
 		local c_pos = e_cell.pos
 		local c_rect = e_cell.rect
 		local refs = e_cell.refs.value
-		local e1 = self.world:getEntityByKey(refs[1])
-		local e2 = self.world:getEntityByKey(refs[2])
-		e1:give("hidden")
-		e2:give("hidden")
+		local e_dline1 = self.world:getEntityByKey(refs[1])
+		local e_dline2 = self.world:getEntityByKey(refs[2])
+		e_dline1:give("hidden")
+		e_dline2:give("hidden")
 		local pos = e.pos
 		pos.x = c_pos.x + c_rect.half_w
 		pos.y = c_pos.y + c_rect.half_h
@@ -43,10 +43,10 @@ function Inventory:init(world)
 	self.pool_item.onRemoved = function(pool, e)
 		local e_cell = self.pool_cell[#pool + 1]
 		local refs = e_cell.refs.value
-		local e1 = self.world:getEntityByKey(refs[1])
-		local e2 = self.world:getEntityByKey(refs[2])
-		e1:remove("hidden")
-		e2:remove("hidden")
+		local e_dline1 = self.world:getEntityByKey(refs[1])
+		local e_dline2 = self.world:getEntityByKey(refs[2])
+		e_dline1:remove("hidden")
+		e_dline2:remove("hidden")
 	end
 end
 
@@ -193,7 +193,8 @@ function Inventory:create_inventory()
 				i .. "a", cx, cy, cx + cw, cy + ch)
 			local l2 = Concord.entity(self.world):assemble(AInventory.dline,
 				i .. "b", cx, cy + ch, cx + cw, cy)
-			Concord.entity(self.world):assemble(AInventory.cell, i, cx, cy, cw, ch, l1, l2)
+			Concord.entity(self.world):assemble(AInventory.cell, i, cx, cy, cw, ch)
+				:give("refs", l1, l2)
 		end
 	end
 end
@@ -209,7 +210,8 @@ end
 
 Inventory[$_SIGNAL_LIST_UPDATE .. $_LIST_INVENTORY_CELLS] = function(self, e_hovered)
 	for _, e in ipairs(self.pool_cell) do
-		e.color.value[4] = e == e_hovered and 0.4 or 0
+		local alpha_range = e.alpha_range
+		e.color.value[4] = e == e_hovered and alpha_range.max or alpha_range.min
 	end
 end
 

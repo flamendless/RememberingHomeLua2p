@@ -1,5 +1,12 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component("alpha_range", function(c, min, max)
+	@@assert(type(min) == "number")
+	@@assert(type(max) == "number")
+	c.min = min
+	c.max = max
+end)
+
 Concord.component("color", function(c, color, original)
 	@@assert(type(color) == "table")
 	@@sassert(original, type(original) == "table")

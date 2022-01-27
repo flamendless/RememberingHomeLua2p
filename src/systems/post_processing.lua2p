@@ -87,15 +87,6 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
--- local opt = {
--- 	Columns = 2,
--- 	ExpandW = true,
--- 	ExpandH = true,
--- 	AlignX = "center",
--- 	AlignY = "center",
--- 	AlignRowY = "center",
--- }
-
 function PostProcessing:debug_update(dt)
 	if not self.debug_show then return end
 
@@ -104,19 +95,15 @@ function PostProcessing:debug_update(dt)
 		IsOpen = self.debug_show,
 	})
 
-	-- Slab.BeginLayout("pp_layout", opt)
 	for i, effect in ipairs(self.effects) do
 		local b
 		local str = effect:type()
 
-		-- Slab.SetLayoutColumn(1)
 		if Slab.CheckBox(effect.debug_show, str) then
 			effect.is_active = not effect.is_active
 		end
-
 		Slab.SameLine()
 
-		-- Slab.SetLayoutColumn(2)
 		if Slab.Button("up") then
 			b = mathx.wrap_index(i - 1, self.effects)
 		end
@@ -130,8 +117,6 @@ function PostProcessing:debug_update(dt)
 			self.effects[i], self.effects[b] = self.effects[b], self.effects[i]
 		end
 	end
-
-	-- Slab.EndLayout()
 	Slab.EndWindow()
 end
 !end

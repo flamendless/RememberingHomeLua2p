@@ -56,7 +56,7 @@ function NGrading:new(res_id, res_id2, is_active)
 	end
 
 	effect:setup_data()
-	self.is_active = true
+	self.is_active = is_active ~= false --default is true
 end
 
 function NGrading:new_single(img, cs)

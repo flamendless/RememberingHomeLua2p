@@ -77,6 +77,7 @@ function DevTools.init()
 	Slab.Initialize({"NoDocks"})
 end
 
+local color_white = {1, 1, 1, 1}
 function DevTools.update(dt)
 	if not DevTools.show then return end
 	if not GameStates.world then return end
@@ -109,7 +110,7 @@ function DevTools.update(dt)
 	Slab.EndWindow()
 
 	if DevTools.designer then
-		GameStates.world:emit("set_ambiance", {1, 1, 1, 1})
+		GameStates.world:emit("set_ambiance", color_white)
 	end
 
 	DevTools.draw_stats()
@@ -129,11 +130,14 @@ function DevTools.draw()
 	@@profb("devtools_draw")
 	love.graphics.setFont(font)
 	if DevTools.camera then
-		DevTools.camera:draw(function(l, t, w, h)
-			GameStates.world:emit("debug_draw")
-		end)
-	else
-		GameStates.world:emit("debug_draw")
+		DevTools.camera:attach()
+	end
+
+	GameStates.world:emit("debug_draw")
+	GameStates.world:emit("debug_draw_ui")
+
+	if DevTools.camera then
+		DevTools.camera:detach()
 	end
 	Slab.Draw()
 	@@profe("devtools_draw")

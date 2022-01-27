@@ -8,7 +8,9 @@ local Renderers = {
 	rect = require("renderers.rect"),
 	circle = require("renderers.circle"),
 	point = require("renderers.point"),
-	ui = require("renderers.ui"),
+	!if _DEV then
+	bounding_box = require("renderers.bounding_box")
+	!end
 }
 
 local Renderer = Concord.system({
@@ -44,7 +46,6 @@ end
 !end
 
 Renderer.draw_bg = Renderers.sprite.render_bg
-Renderer.draw_ui = Renderers.ui.render
 
 local function get_list(self, e_or_bool)
 	@@sassert(e_or_bool, type(e_or_bool) == "boolean" or e_or_bool.__isEntity)
@@ -55,7 +56,6 @@ end
 local function sort_z(a, b)
 	local a_z, b_z = a.z_index, b.z_index
 	if a_z == nil or b_z == nil then return end
-
 	if a_z.sortable and b_z.sortable then
 		return a.pos.y < b.pos.y
 	elseif a_z.current and b_z.current then
@@ -67,6 +67,10 @@ end
 function Renderer:init(world)
 	self.world = world
 	self.list, self.list_ui = List(), List()
+	!if _DEV then
+	self.list.__id = "list"
+	self.list_ui.__id = "list_ui"
+	!end
 
 	for _, renderer in pairs(Renderers) do
 		if renderer.init then
@@ -114,14 +118,14 @@ function Renderer:pool_on_added(pool, e)
 	end
 
 	local list = get_list(self, e)
-	if not list:has(e) then
+	if list:has(e) then
+		Log.warn(e.id.value, "is already in list")
+	else
 		list:add(e)
 		e.renderer = renderer_per_pool[pool.id]
 		if should_sort then
 			self:sort_by_z(list)
 		end
-	else
-		Log.warn(e.id.value, "is already in list")
 	end
 end
 
@@ -132,6 +136,7 @@ function Renderer:pool_on_removed(pool, e)
 	end
 end
 
+function Renderer:draw_ui() self:draw(true) end
 function Renderer:draw(is_ui)
 	@@sassert(is_ui, type(is_ui) == "boolean")
 	!if _DEV then
@@ -185,7 +190,11 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
+local show_borders, show_borders_ui = true, true
+local mouse_mode = true
+local shows = {quad = true, sprite = true, rect = true, text = true, static_text = true}
 local search = ""
+local STR_BORDER = "border_"
 
 local function show_list(id, list)
 	if Slab.BeginTree(id .. " size: " .. #list) then
@@ -225,8 +234,29 @@ function Renderer:debug_update(dt)
 		search = Slab.GetInputText()
 	end
 
+	Slab.SameLine()
+	if Slab.Button("Resort-z") then
+		self:sort_by_z(self.list)
+		self:sort_by_z(self.list_ui)
+	end
+
 	show_list("list", self.list)
-	show_list("ui list", self.list_ui)
+	show_list("ui", self.list_ui)
+
+	if Slab.CheckBox(show_borders, "borders") then
+		show_borders = not show_borders
+	end
+	Slab.SameLine()
+	if Slab.CheckBox(show_borders_ui, "borders_ui") then
+		show_borders_ui = not show_borders_ui
+	end
+
+	for k, v in pairs(shows) do
+		if Slab.CheckBox(v, STR_BORDER .. k) then
+			shows[k] = not v
+		end
+	end
+
 	for k, v in pairs(Renderers) do
 		if v.debug_update then
 			if Slab.CheckBox(v.debug_show, k) then
@@ -238,6 +268,21 @@ function Renderer:debug_update(dt)
 		end
 	end
 	Slab.EndWindow()
+end
+
+function Renderer:debug_draw()
+	if not self.debug_show or not show_borders then return end
+	for _, e in ipairs(self.list) do
+		Renderers.bounding_box.render(shows, e)
+	end
+end
+
+function Renderer:debug_draw_ui()
+	if not self.debug_show or not show_borders_ui then return end
+	local camera = self.world:getResource("camera")
+	for _, e in ipairs(self.list_ui) do
+		Renderers.bounding_box.render(shows, e, camera)
+	end
 end
 !end
 

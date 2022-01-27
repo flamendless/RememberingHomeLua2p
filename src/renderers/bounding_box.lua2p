@@ -1,0 +1,106 @@
+!if _DEV then
+local Helper = require("helper")
+
+local BoundingBox = {
+	id = "BoundingBox"
+}
+
+local alpha = 0.7
+local COL_SPRITE = {1, 0, 0, alpha}
+local COL_RECT = {0, 1, 0, alpha}
+local COL_QUAD = {0, 0, 1, alpha}
+local COL_TEXT = {1, 1, 0, alpha}
+local COL_STATIC_TEXT = {1, 0, 1, alpha}
+
+function BoundingBox.render(shows, e, camera)
+	@@assert(type(shows) == "table")
+	@@assert(e.__isEntity)
+	@@sassert(camera, camera.__camera)
+	local w, h = 0, 0
+	local sprite = e.sprite
+	local quad = e.quad
+	local rect = e.rect
+	local text = e.text
+	local static_text = e.static_text
+	local culled = e.cullable and e.cullable.value
+	local is_not_drawn = e.nf_renderer or e.hidden or culled
+	local mode = is_not_drawn and "fill" or "line"
+
+	if (quad and not shows.quad) or
+		(sprite and not quad and not shows.sprite) or
+		(rect and not shows.rect) or
+		(text and not shows.text) or
+		(static_text and not shows.static_text) then
+		return
+	end
+
+	local color = COL_SPRITE
+	if quad then
+		local quad_info = quad.info
+		w, h = quad_info.w, quad_info.h
+		color = COL_QUAD
+	elseif sprite then
+		w, h = sprite.iw, sprite.ih
+		color = COL_SPRITE
+	elseif rect then
+		w, h = rect.w, rect.h
+		color = COL_RECT
+	elseif text then
+		local font = e.font.value
+		w = font:getWidth(text.value)
+		h = font:getHeight()
+		color = COL_TEXT
+	elseif static_text then
+		w = static_text.obj:getWidth()
+		h = static_text.obj:getHeight()
+		color = COL_STATIC_TEXT
+	end
+
+	local rotation = 0
+	local sx, sy = 1, 1
+	local ox, oy = 0, 0
+	local transform = e.transform
+	if transform then
+		sx, sy = transform.sx, transform.sy
+		rotation = transform.rotation
+		ox, oy = Helper.get_offset(e)
+	end
+
+	if camera then
+		local scale = camera:getScale()
+		sx = sx/scale
+		sy = sy/scale
+	end
+
+	local pos = e.pos
+	local x, y = pos.x, pos.y
+	if camera then
+		x, y = camera:toWorld(x, y)
+		x = x - ox * sx
+		y = y - oy * sy
+	else
+		x = x - ox
+		y = y - oy
+	end
+
+	w = w * sx
+	h = h * sy
+
+	love.graphics.setColor(color)
+	if rotation == 0 then
+		love.graphics.rectangle(mode, x, y, w, h)
+	else
+		love.graphics.push()
+		love.graphics.translate(x, y)
+		love.graphics.rotate(rotation)
+		love.graphics.rectangle(mode, 0, 0, w, h)
+		love.graphics.pop()
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+!else
+local BoundingBox = {}
+!end
+
+return BoundingBox
