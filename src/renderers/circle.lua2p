@@ -1,8 +1,8 @@
-local RendererCircle = {
-	id = "RendererCircle"
+local Circle = {
+	id = "Circle"
 }
 
-function RendererCircle.render(e)
+function Circle.render(e)
 	local pos = e.pos
 	local circle = e.circle
 	local mode = e.draw_mode.value
@@ -26,4 +26,4 @@ function RendererCircle.render(e)
 	end
 end
 
-return RendererCircle
+return Circle

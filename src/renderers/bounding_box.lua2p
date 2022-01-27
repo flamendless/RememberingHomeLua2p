@@ -1,8 +1,13 @@
 !if _DEV then
+local Slab = require("modules.slab")
+
 local Helper = require("helper")
 
 local BoundingBox = {
-	id = "BoundingBox"
+	id = "BoundingBox",
+	!if _DEV then
+	debug_show = false,
+	!end
 }
 
 local alpha = 0.7
@@ -11,9 +16,49 @@ local COL_RECT = {0, 1, 0, alpha}
 local COL_QUAD = {0, 0, 1, alpha}
 local COL_TEXT = {1, 1, 0, alpha}
 local COL_STATIC_TEXT = {1, 0, 1, alpha}
+local show_borders, show_borders_ui = true, true
+local mouse_mode = true
+local shows = {quad = true, sprite = true, rect = true, text = true, static_text = true}
+local STR_BORDER = "border_"
 
-function BoundingBox.render(shows, e, camera)
-	@@assert(type(shows) == "table")
+function BoundingBox.debug_update(dt)
+	BoundingBox.debug_show = Slab.BeginWindow("bb", {
+		Title = BoundingBox.id,
+		IsOpen = BoundingBox.debug_show,
+	})
+
+	if Slab.CheckBox(show_borders, "borders") then
+		show_borders = not show_borders
+	end
+
+	if Slab.CheckBox(show_borders_ui, "borders_ui") then
+		show_borders_ui = not show_borders_ui
+	end
+
+	for k, v in pairs(shows) do
+		if Slab.CheckBox(v, STR_BORDER .. k) then
+			shows[k] = not v
+		end
+	end
+	Slab.EndWindow()
+end
+
+function BoundingBox.debug_draw()
+	if not BoundingBox.debug_show or not borders then return end
+	for _, e in ipairs(BoundingBox.list) do
+		BoundingBox.render(e)
+	end
+end
+
+function BoundingBox.debug_draw_ui(camera)
+	if not BoundingBox.debug_show or not borders_ui then return end
+	@@assert(camera, camera.__camera)
+	for _, e in ipairs(BoundingBox.list_ui) do
+		BoundingBox.render(e, camera)
+	end
+end
+
+function BoundingBox.render(e, camera)
 	@@assert(e.__isEntity)
 	@@sassert(camera, camera.__camera)
 	local w, h = 0, 0

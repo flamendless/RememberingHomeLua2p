@@ -1,10 +1,10 @@
 local ReflowPrint = require("modules.reflowprint.reflowprint")
 
-local RendererText = {
-	id = "RendererText"
+local Text = {
+	id = "Text"
 }
 
-function RendererText.render(e)
+function Text.render(e)
 	local str = (e.text and e.text.value) or (e.static_text and e.static_text.value)
 	if (not str) or #str == 0 then return end
 
@@ -77,4 +77,4 @@ function RendererText.render(e)
 	end
 end
 
-return RendererText
+return Text

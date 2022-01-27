@@ -1,15 +1,15 @@
 local RendererUI = {
-	id = "RendererUI",
+	id = "UI",
 	main_renderer = nil,
 }
 
-function RendererUI.init(main_renderer)
+function UI.init(main_renderer)
 	@@assert(main_renderer.__isSystem)
-	RendererUI.main_renderer = main_renderer
+	UI.main_renderer = main_renderer
 end
 
-function RendererUI.render()
-	RendererUI.main_renderer:draw(true)
+function UI.render()
+	UI.main_renderer:draw(true)
 end
 
-return RendererUI
+return UI

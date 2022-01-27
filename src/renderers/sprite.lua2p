@@ -1,9 +1,10 @@
 local Helper = require("helper")
 
-local RendererSprite = {
-	id = "RendererSprite",
+local Sprite = {
+	id = "Sprite",
 	e_bg = nil,
 	!if _DEV then
+	debug_show = false,
 	debug_batched = {},
 	!end
 }
@@ -26,13 +27,13 @@ local function draw(e, ...)
 	end
 end
 
-function RendererSprite.init()
+function Sprite.init()
 	!if _DEV then
-	tablex.clear(RendererSprite.debug_batched)
+	tablex.clear(Sprite.debug_batched)
 	!end
 end
 
-function RendererSprite.setup_sprite(e)
+function Sprite.setup_sprite(e)
 	local sprite = e.sprite
 	!if _GLSL_NORMALS then
 	if sprite.container == "array_images" then
@@ -42,24 +43,24 @@ function RendererSprite.setup_sprite(e)
 
 	!if _DEV then
 	local s_id = sprite.resource_id
-	if not RendererSprite.debug_batched[s_id] then
-		RendererSprite.debug_batched[s_id] = {highest = 0, total = 0, current = 0}
+	if not Sprite.debug_batched[s_id] then
+		Sprite.debug_batched[s_id] = {highest = 0, total = 0, current = 0}
 	end
 	!end
 end
 
-function RendererSprite.set_bg(e)
+function Sprite.set_bg(e)
 	@@assert(e.__isEntity and e.sprite and e.bg)
-	@@assert(RendererSprite.e_bg == nil, "only 1 bg entity is allowed")
-	RendererSprite.e_bg = e
+	@@assert(Sprite.e_bg == nil, "only 1 bg entity is allowed")
+	Sprite.e_bg = e
 end
 
-function RendererSprite.render_bg()
-	if not RendererSprite.e_bg then return end
-	RendererSprite.render(RendererSprite.e_bg)
+function Sprite.render_bg()
+	if not Sprite.e_bg then return end
+	Sprite.render(Sprite.e_bg)
 end
 
-function RendererSprite.render(e)
+function Sprite.render(e)
 	local rot, sx, sy, ox, oy, kx, ky
 	local pos = e.pos
 	local sprite = e.sprite
@@ -87,28 +88,28 @@ function RendererSprite.render(e)
 	end
 end
 
-function RendererSprite.cleanup()
-	RendererSprite.e_bg = nil
+function Sprite.cleanup()
+	Sprite.e_bg = nil
 	!if _DEV then
-	tablex.clear(RendererSprite.debug_batched)
+	tablex.clear(Sprite.debug_batched)
 	!end
 end
 
 !if _DEV then
 local Slab = require("modules.slab")
 
-function RendererSprite.debug_batching()
-	for _, v in pairs(RendererSprite.debug_batched) do
+function Sprite.debug_batching()
+	for _, v in pairs(Sprite.debug_batched) do
 		v.highest = 0
 		v.total = 0
 	end
 end
 
-function RendererSprite.debug_batching_update(e)
+function Sprite.debug_batching_update(e)
 	local resource_id = e.sprite.resource_id
-	local db = RendererSprite.debug_batched[resource_id]
+	local db = Sprite.debug_batched[resource_id]
 	if not db then return end
-	local prev_id = RendererSprite.debug_prev_id
+	local prev_id = Sprite.debug_prev_id
 	if prev_id then
 		if prev_id == resource_id then
 			db.current = db.current + 1
@@ -118,27 +119,27 @@ function RendererSprite.debug_batching_update(e)
 		end
 	end
 	db.total = db.total + 1
-	RendererSprite.debug_prev_id = resource_id
+	Sprite.debug_prev_id = resource_id
 end
 
-function RendererSprite.debug_update(dt)
-	if not RendererSprite.debug_show then return end
-	RendererSprite.debug_show = Slab.BeginWindow("renderer_sprite", {
-		Title = "RendererSprite",
-		IsOpen = RendererSprite.debug_show
+function Sprite.debug_update(dt)
+	if not Sprite.debug_show then return end
+	Sprite.debug_show = Slab.BeginWindow("renderer_sprite", {
+		Title = "Sprite",
+		IsOpen = Sprite.debug_show
 	})
 
 	Slab.Text("Atlas Batching (highest : total)")
 	Slab.Indent()
-	for k, v in pairs(RendererSprite.debug_batched) do
+	for k, v in pairs(Sprite.debug_batched) do
 		local str = string.format("%s = %d/%d", k, v.highest + 1, v.total + 1)
 		Slab.Text(str)
 	end
 	Slab.Unindent()
 
-	if RendererSprite.debug_list then
+	if Sprite.debug_list then
 		if Slab.BeginTree("z_index") then
-			for _, e in ipairs(RendererSprite.debug_list) do
+			for _, e in ipairs(Sprite.debug_list) do
 				local z_index = e.z_index
 				if z_index then
 					local id = e.id.value
@@ -155,4 +156,4 @@ function RendererSprite.debug_update(dt)
 end
 !end
 
-return RendererSprite
+return Sprite

@@ -80,6 +80,8 @@ function Renderer:init(world)
 
 	!if _DEV then
 	Renderers.sprite.debug_list = self.list
+	Renderers.bounding_box.list = self.list
+	Renderers.bounding_box.list_ui = self.list_ui
 	!end
 
 	for pool_id in pairs(self.__definition) do
@@ -190,11 +192,7 @@ end
 !if _DEV then
 local Slab = require("modules.slab")
 
-local show_borders, show_borders_ui = true, true
-local mouse_mode = true
-local shows = {quad = true, sprite = true, rect = true, text = true, static_text = true}
 local search = ""
-local STR_BORDER = "border_"
 
 local function show_list(id, list)
 	if Slab.BeginTree(id .. " size: " .. #list) then
@@ -234,32 +232,12 @@ function Renderer:debug_update(dt)
 		search = Slab.GetInputText()
 	end
 
-	Slab.SameLine()
-	if Slab.Button("Resort-z") then
-		self:sort_by_z(self.list)
-		self:sort_by_z(self.list_ui)
-	end
-
 	show_list("list", self.list)
 	show_list("ui", self.list_ui)
 
-	if Slab.CheckBox(show_borders, "borders") then
-		show_borders = not show_borders
-	end
-	Slab.SameLine()
-	if Slab.CheckBox(show_borders_ui, "borders_ui") then
-		show_borders_ui = not show_borders_ui
-	end
-
-	for k, v in pairs(shows) do
-		if Slab.CheckBox(v, STR_BORDER .. k) then
-			shows[k] = not v
-		end
-	end
-
-	for k, v in pairs(Renderers) do
+	for _, v in pairs(Renderers) do
 		if v.debug_update then
-			if Slab.CheckBox(v.debug_show, k) then
+			if Slab.CheckBox(v.debug_show, v.id) then
 				v.debug_show = not v.debug_show
 			end
 			if v.debug_show then
@@ -271,17 +249,21 @@ function Renderer:debug_update(dt)
 end
 
 function Renderer:debug_draw()
-	if not self.debug_show or not show_borders then return end
-	for _, e in ipairs(self.list) do
-		Renderers.bounding_box.render(shows, e)
+	if not self.debug_show then return end
+	for _, v in pairs(Renderers) do
+		if v.debug_show and v.debug_draw then
+			v.debug_draw()
+		end
 	end
 end
 
 function Renderer:debug_draw_ui()
-	if not self.debug_show or not show_borders_ui then return end
+	if not self.debug_show then return end
 	local camera = self.world:getResource("camera")
-	for _, e in ipairs(self.list_ui) do
-		Renderers.bounding_box.render(shows, e, camera)
+	for _, v in pairs(Renderers) do
+		if v.debug_show and v.debug_draw then
+			v.debug_draw_ui(camera)
+		end
 	end
 end
 !end
