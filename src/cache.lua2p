@@ -37,7 +37,7 @@ function Cache.get(t_id, id)
 	@@assert(type(t_id) == "string")
 	@@assert(type(id) == "string")
 	@@assert(Cache[t_id], t_id .. " is not valid")
-	return Cache[t_id][id] or nil
+	return Cache[t_id][id]
 end
 
 function Cache.store(t_id, id, v)

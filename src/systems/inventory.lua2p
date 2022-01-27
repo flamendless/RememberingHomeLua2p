@@ -116,29 +116,6 @@ function Inventory:update(dt)
 	end
 end
 
--- function Inventory:draw_inventory()
--- 	if not self.is_open then return end
--- 	self.world:emit("draw_sprite_ex", self.entities.bg)
---
--- 	for _, e in ipairs(self.pool_choice) do
--- 		self.world:emit("draw_text_ex", e)
--- 	end
---
--- 	for i, e in ipairs(self.pool_cell) do
--- 		self.world:emit("draw_rect_ex", e)
--- 		local item = self.pool_item[i]
--- 		if item then
--- 			self.world:emit("draw_sprite_ex", item)
--- 		end
--- 	end
---
--- 	for _, e in ipairs(self.pool_border) do
--- 		if not e.hidden then
--- 			self.world:emit("draw_sprite_ex", e)
--- 		end
--- 	end
--- end
-
 function Inventory:create_inventory()
 	local _, _, w, h = self.world:getResource("camera"):getWindow()
 	local img = Resources.data.images.bg_inventory

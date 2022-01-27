@@ -27,6 +27,10 @@ function BoundingBox.debug_update(dt)
 		IsOpen = BoundingBox.debug_show,
 	})
 
+	if Slab.CheckBox(mouse_mode, "mouse_mode") then
+		mouse_mode = not mouse_mode
+	end
+
 	if Slab.CheckBox(show_borders, "borders") then
 		show_borders = not show_borders
 	end
@@ -44,14 +48,14 @@ function BoundingBox.debug_update(dt)
 end
 
 function BoundingBox.debug_draw()
-	if not BoundingBox.debug_show or not borders then return end
+	if not BoundingBox.debug_show or not show_borders then return end
 	for _, e in ipairs(BoundingBox.list) do
 		BoundingBox.render(e)
 	end
 end
 
 function BoundingBox.debug_draw_ui(camera)
-	if not BoundingBox.debug_show or not borders_ui then return end
+	if not BoundingBox.debug_show or not show_borders_ui then return end
 	@@assert(camera, camera.__camera)
 	for _, e in ipairs(BoundingBox.list_ui) do
 		BoundingBox.render(e, camera)
@@ -130,6 +134,16 @@ function BoundingBox.render(e, camera)
 
 	w = w * sx
 	h = h * sy
+
+	if mouse_mode then
+		local mx, my = love.mouse.getPosition()
+		if camera then
+			mx, my = camera:toWorld(mx, my)
+		end
+		if not (mx >= x and mx <= x + w and my >= y and my <= y + h) then
+			return
+		end
+	end
 
 	love.graphics.setColor(color)
 	if rotation == 0 then
