@@ -189,7 +189,7 @@ function Light:debug_update(dt)
 	local t = {self.ambient[1], self.ambient[2], self.ambient[3], 1}
 	local ret = Slab.ColorPicker({Color = t})
 	--TODO replace this when Slab got updated
-	if ret.Button == "OK" then
+	if ret.Button == 1 then
 		self.ambient[1] = ret.Color[1]
 		self.ambient[2] = ret.Color[2]
 		self.ambient[3] = ret.Color[3]

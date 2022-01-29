@@ -27,9 +27,6 @@ local Lily = require("modules.lily.lily")
 local Log = require("modules.log.log")
 Log.lovesave = true
 require("modules.sdf").mount()
-!if _DEV then
-local Peeker = require("modules.peeker.peeker")
-!end
 local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
@@ -57,10 +54,8 @@ font:setFilter($_FONT_FILTER, $_FONT_FILTER)
 function love.load()
 	@@profb("frame")
 	@@profb("love.load")
-
 	Log.info("Starting... Game Version:", Config.this_version)
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
-
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter($_DEFAULT_FILTER, $_DEFAULT_FILTER)
 	WindowMode.init()
@@ -80,8 +75,8 @@ function love.load()
 	-- GameStates.switch("Outside")
 	-- GameStates.switch("StorageRoom")
 	-- GameStates.switch("UtilityRoom")
-	GameStates.switch("Kitchen")
-	-- GameStates.switch("LivingRoom")
+	-- GameStates.switch("Kitchen")
+	GameStates.switch("LivingRoom")
 
 	DevTools.init()
 	Shaders.NGrading.dev_init()
@@ -95,10 +90,6 @@ end
 
 function love.update(dt)
 	@@profb("love.update")
-	!if _DEV then
-	Peeker.update(dt)
-	!end
-
 	Timer.update(dt)
 	Flux.update(dt)
 	GameStates.update(dt)
@@ -116,10 +107,6 @@ end
 
 function love.draw()
 	@@profb("love.draw")
-	!if _DEV then
-	Peeker.attach()
-	!end
-
 	love.graphics.setColor(1, 1, 1, 1)
 	GameStates.draw()
 
@@ -137,65 +124,8 @@ function love.draw()
 	end
 	DevTools.end_draw()
 	!end
-
-	!if _DEV then
-	Peeker.detach()
-	!end
 	@@profe("love.draw")
 end
-
-function love.keypressed(key, scancode)
-	!if _DEV then
-	if key == "/" then
-		if Peeker.get_status() then
-			Peeker.stop(true)
-		else
-			Peeker.start({
-				fps = 24,
-				overlay = "circle", --or "text"
-				post_clean_frames = true,
-			})
-		end
-	end
-	DevTools.keypressed(key)
-	!end
-	Inputs.keypressed(key, scancode)
-	GameStates.keypressed(key)
-end
-
-function love.keyreleased(key, scancode)
-	Inputs.keyreleased(key, scancode)
-	GameStates.keyreleased(key)
-end
-
-!if _DEV then
-function love.mousemoved(mx, my, dx, dy)
-	!if _DEV then
-	DevTools.mousemoved(mx, my, dx, dy)
-	!end
-	GameStates.mousemoved(mx, my, dx, dy)
-end
-
-function love.mousepressed(mx, my, mb)
-	!if _DEV then
-	DevTools.mousepressed(mx, my, mb)
-	!end
-	GameStates.mousepressed(mx, my, mb)
-end
-
-function love.mousereleased(mx, my, mb)
-	!if _DEV then
-	DevTools.mousereleased(mx, my, mb)
-	!end
-	GameStates.mousereleased(mx, my, mb)
-end
-
-function love.wheelmoved(wx, wy)
-	!if _DEV then
-	DevTools.wheelmoved(wx, wy)
-	!end
-end
-!end
 
 function love.quit()
 	Lily.quit()
@@ -215,6 +145,7 @@ function love.run()
 	if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 	if love.timer then love.timer.step() end
 	local dt = 0
+
 	-- Main loop time.
 	return function()
 		-- Process events.
@@ -231,14 +162,29 @@ function love.run()
 						return a or 0
 					end
 				end
-				love.handlers[name](a,b,c,d,e,f)
+				love.handlers[name](a, b, c, d, e, f)
+
+				--EVENTS/CALLBACKS
+				!if _DEV then
+				if DevTools[name] then
+					DevTools[name](a, b, c, d, e, f)
+				end
+				!end
+				if Inputs[name] then
+					Inputs[name](a, b, c, d, e, f)
+				end
+				if GameStates[name] then
+					GameStates[name](a, b, c, d, e, f)
+				end
+				--END EVENTS/CALLBACKS
 				@@profe(name)
 			end
 			@@profe("love.event")
 		end
-
 		if love.timer then dt = love.timer.step() end
+
 		if love.update then love.update(dt) end
+
 		if love.graphics and love.graphics.isActive() then
 			love.graphics.origin()
 			love.graphics.clear(love.graphics.getBackgroundColor())
@@ -247,6 +193,7 @@ function love.run()
 			love.graphics.present()
 			@@profe("present")
 		end
+
 		@@profb("sleep")
 		if love.timer then love.timer.sleep(0.001) end
 		@@profe("sleep")

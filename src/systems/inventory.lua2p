@@ -104,8 +104,6 @@ function Inventory:update(dt)
 			self:close_inventory(true)
 			self.world:emit("inventory_to_notes")
 			self.world:emit("open_notes")
-		elseif Inputs.pressed("interact") then
-			self.world:emit("show_key", "inventory", false)
 		elseif Inputs.pressed("cancel") then
 			if self.in_choices then
 				self[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CHOICES](self, self.pool_choice[3])
@@ -205,8 +203,10 @@ Inventory[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CELLS] = function(self, e_h
 		return
 	end
 	for _, e in ipairs(self.pool_choice) do
-		e.color.value[4] = 0.5
+		local alpha_range = e.alpha_range
+		e.color.value[4] = alpha_range.max
 	end
+	self.world:emit("show_key", "inventory", false)
 	self.world:emit("set_focus_list", $_LIST_INVENTORY_CHOICES)
 	self.in_choices = true
 end
@@ -220,7 +220,8 @@ Inventory[$_SIGNAL_LIST_INTERACT .. $_LIST_INVENTORY_CHOICES] = function(self, e
 		self.world:emit("on_item_equip", item)
 	elseif text == $_ITEMS_ACTION_CANCEL then
 		for _, e in ipairs(self.pool_choice) do
-			e.color.value[4] = 0
+			local alpha_range = e.alpha_range
+			e.color.value[4] = alpha_range.min
 		end
 		self.world:emit("set_focus_list", $_LIST_INVENTORY_CELLS)
 		self.world:emit("show_key", "inventory", true)
