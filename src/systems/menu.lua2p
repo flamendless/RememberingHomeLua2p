@@ -427,7 +427,7 @@ function Menu:on_newgame()
 	-- TODO turn off BGM
 
 	self:hide_sub_menu()
-	self.pool_desk:give("hidden")
+	self.e_desk:give("hidden")
 
 	--TODO change target_color
 	for _, e in ipairs(self.pool_text) do

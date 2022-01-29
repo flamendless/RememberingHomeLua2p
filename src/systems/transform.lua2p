@@ -46,6 +46,7 @@ function Transform:init(world)
 			end
 			h = font:getHeight(" ")
 		elseif s_text then
+			@@assert(s_text, "renderer first before transform system")
 			w, h = s_text.obj:getDimensions()
 		end
 

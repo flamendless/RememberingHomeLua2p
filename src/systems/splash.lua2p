@@ -57,6 +57,7 @@ end
 
 function Splash:create_splash_flamendless()
 	local ww, wh = love.graphics.getDimensions()
+	self.world:emit("set_glitch_effect", true)
 	self.splash_flamendless = Concord.entity(self.world)
 		:give("id", "splash_flamendless")
 		:give("sprite", "flamendless_logo")
@@ -65,7 +66,6 @@ function Splash:create_splash_flamendless()
 		:give("color", {1, 1, 1, 1})
 		:give("splash")
 		:give("displacement_texture", "tex_displacement")
-		:give("nf_renderer")
 		:give("glitch_shader")
 		:give("use_canvas", ww, wh)
 
@@ -78,7 +78,6 @@ function Splash:create_splash_flamendless()
 		:give("color", {1, 1, 1, 1})
 		:give("splash")
 		:give("displacement_texture", "tex_displacement")
-		:give("nf_renderer")
 		:give("glitch_shader")
 		:give("use_canvas", ww, wh)
 

@@ -17,9 +17,7 @@ local commons = {
 	"animation", "atlas", "bump_collision", "camera", "color", "culling",
 	"show_keys", "deferred_lighting", "dialogues", "entity", "gamestates",
 	"glitch_shader_effect", "interactive", "inventory", "items", "movement",
-	"outline", "pause", "player_controller", "renderer",
-	-- "render_rect", "render_sprite", "render_text", "render_ui",
-	"room", "systems",
+	"outline", "pause", "player_controller", "renderer", "room", "systems",
 	"transform", "typewriter", "door", "light_switch", "notes", "list",
 	"post_processing", "randomize_uv",
 	--"flashlight", "animation_sync",
@@ -36,22 +34,20 @@ end
 
 local systems = {}
 systems.Splash = {
-	"animation", "color", "render_sprite", "render_text", "show_keys",
-	"transform", "typewriter_splash", "render_ui", "gamestates", "entity",
-	"glitch_shader_effect", "atlas",
+	"animation", "color", "show_keys", "renderer", "transform", "typewriter_splash",
+	"gamestates", "entity", "glitch_shader_effect", "atlas",
 }
 
 systems.Menu = {
 	"animation", "bounding_box", "click", "color", "hover_effect", "show_keys",
-	"menu_settings", "mouse_hover", "move", "render_sprite", "render_text",
-	"transform", "entity", "gamestates", "list",
+	"menu_settings", "mouse_hover", "move", "renderer", "transform", "entity",
+	"gamestates", "list",
 }
 
 systems.Intro = {
 	"animation", "atlas", "camera", "color", "deferred_lighting", "depth",
-	"entity", "fog", "gamestates", "parallax", "post_processing",
-	"render_sprite", "render_text", "render_ui", "show_keys",
-	"text_paint_intro", "transform", "tree", "tween",
+	"entity", "fog", "gamestates", "parallax", "post_processing", "renderer",
+	"show_keys", "text_paint_intro", "transform", "tree", "tween",
 }
 
 systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))
@@ -61,9 +57,8 @@ systems.Kitchen = $get_commons_ex
 systems.LivingRoom = $get_commons_ex
 
 local unpausable_list = {
-	"pause", "render_sprite", "render_text", "render_ui", "light", "culling",
-	"color", "glitch_shader_effect", "gamestates", "deferred_lighting", "post_processing",
-	"list",
+	"pause", "renderer", "light", "culling", "color", "glitch_shader_effect",
+	"gamestates", "deferred_lighting", "post_processing", "list",
 }
 
 function ECS.load_systems(id, world, prev_id)

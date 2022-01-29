@@ -1,24 +1,38 @@
 local Concord = require("modules.concord.concord")
 
 local GlitchShaderEffect = Concord.system({
-	pool = {"glitch_shader", "displacement_texture"},
+	pool = {"glitch_shader", "displacement_texture", "use_canvas"},
 })
 
 !if _DEV then
 local debug_values = {
-	dis_amount = 0.1,
-	dis_size = 0.1,
-	abb_amount_x = 0.1,
-	abb_amount_y = 0.1,
-	max_a = 0.5,
+	u_dis_amount = 0.1,
+	u_dis_size = 0.1,
+	u_abb_amount_x = 0.1,
+	u_abb_amount_y = 0.1,
+	u_max_a = 0.5,
 }
 !end
 
+local reset_tbl = {
+	u_dis_amount = 0,
+	u_dis_size = 0.1,
+	u_abb_amount_x = 0,
+	u_abb_amount_y = 0,
+	u_max_a = 1.0,
+}
+
 function GlitchShaderEffect:init(world)
 	self.world = world
+	self.is_active = false
 	self.pool.onAdded = function(pool, e)
 		self:setup_shader(e)
 	end
+end
+
+function GlitchShaderEffect:set_glitch_effect(bool)
+	@@assert(type(bool) == "boolean")
+	self.is_active = bool
 end
 
 function GlitchShaderEffect:setup_shader(e)
@@ -30,6 +44,7 @@ function GlitchShaderEffect:setup_shader(e)
 end
 
 function GlitchShaderEffect:update_values_e(e, new_values)
+	if not self.is_active then return end
 	local gs = e.glitch_shader
 	local shader = gs.shader
 	local values = gs.values
@@ -57,35 +72,14 @@ end
 function GlitchShaderEffect:reset_glitch(e)
 	@@assert(e.__isEntity and e.glitch_shader)
 	if not self.pool:has(e) then return end
-	self:update_values_e(e, {
-		u_dis_amount = 0,
-		u_dis_size = 0.1,
-		u_abb_amount_x = 0,
-		u_abb_amount_y = 0,
-		u_max_a = 1.0,
-	})
+	self:update_values_e(e, reset_tbl)
 end
 
-function GlitchShaderEffect:draw()
-	for _, e in ipairs(self.pool) do
-		local canvas = e.use_canvas
-		if canvas then
-			love.graphics.setCanvas(canvas.canvas)
-			love.graphics.clear()
-			if e.sprite then
-				self.world:emit("draw_sprite_ex", e)
-			elseif e.text or e.static_text then
-				self.world:emit("draw_text_ex", e)
-			end
-			love.graphics.setCanvas()
-		end
-	end
-end
-
-function GlitchShaderEffect:draw_glitch_effect(c)
+function GlitchShaderEffect:draw_glitch_effect()
+	if not self.is_active then return end
 	love.graphics.setColor(1, 1, 1, 1)
 	for _, e in ipairs(self.pool) do
-		local canvas = (e.use_canvas and e.use_canvas.canvas) or c
+		local canvas = (e.use_canvas and e.use_canvas.canvas)
 		local shader = e.glitch_shader.shader
 		love.graphics.setShader(shader)
 		love.graphics.draw(canvas)
@@ -121,11 +115,11 @@ function GlitchShaderEffect:debug_update(dt)
 		Title = "Glitch Shader",
 		IsOpen = self.debug_show,
 	})
-	self:debug_slider("dis_amount", 0, 0.1)
-	self:debug_slider("dis_size", 0.1, 2.0)
-	self:debug_slider("abb_amount_x", 0, 0.1)
-	self:debug_slider("abb_amount_y", 0, 0.1)
-	self:debug_slider("max_a", 0.1, 1.0)
+	self:debug_slider("u_dis_amount", 0, 0.1)
+	self:debug_slider("u_dis_size", 0.1, 2.0)
+	self:debug_slider("u_abb_amount_x", 0, 0.1)
+	self:debug_slider("u_abb_amount_y", 0, 0.1)
+	self:debug_slider("u_max_a", 0.1, 1.0)
 	if Slab.Button("do_random_glitch") then
 		for _, e in ipairs(self.pool) do
 			self:do_random_glitch(e)

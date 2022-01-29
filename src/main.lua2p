@@ -71,12 +71,12 @@ function love.load()
 	!if _DEV then
 	-- GameStates.switch("Splash")
 	-- GameStates.switch("Menu")
-	-- GameStates.switch("Intro")
+	GameStates.switch("Intro")
 	-- GameStates.switch("Outside")
 	-- GameStates.switch("StorageRoom")
 	-- GameStates.switch("UtilityRoom")
 	-- GameStates.switch("Kitchen")
-	GameStates.switch("LivingRoom")
+	-- GameStates.switch("LivingRoom")
 
 	DevTools.init()
 	Shaders.NGrading.dev_init()
@@ -90,6 +90,9 @@ end
 
 function love.update(dt)
 	@@profb("love.update")
+	!if _DEV then
+	if DevTools.pause then return end
+	!end
 	Timer.update(dt)
 	Flux.update(dt)
 	GameStates.update(dt)
@@ -116,11 +119,16 @@ function love.draw()
 
 	!if _DEV then
 	DevTools.draw()
+	love.graphics.setColor(1, 0, 0, 1)
 	if DevTools.show_fps then
-		love.graphics.setColor(1, 0, 0)
 		love.graphics.setFont(font)
 		love.graphics.print(love.timer.getFPS())
 		love.graphics.print($_MODE, love.graphics.getWidth() - font:getWidth($_MODE))
+	end
+	if DevTools.pause then
+		local ww, wh = love.graphics.getDimensions()
+		love.graphics.setFont(font)
+		love.graphics.printf("PAUSED", 0, wh * 0.5, ww, "center")
 	end
 	DevTools.end_draw()
 	!end
