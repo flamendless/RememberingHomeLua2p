@@ -28,7 +28,16 @@ local maps = {
 		p = "pause",
 	},
 }
-local map_names = { "WASD", "Arrows" }
+
+local scancodes = {}
+for i, t in ipairs(maps) do
+	scancodes[i] = {}
+	for k, v in pairs(t) do
+		local sc = love.keyboard.getScancodeFromKey(k)
+		scancodes[i][sc] = v
+	end
+end
+maps = scancodes
 
 local Inputs = {
 	map = maps[1],
@@ -37,6 +46,7 @@ local Inputs = {
 	previous = {},
 	current = {},
 }
+local map_names = {"WASD", "Arrows"}
 
 !if _DEV then
 local Slab = require("modules.slab")
@@ -92,22 +102,22 @@ function Inputs.down(key)
 	return Inputs.current[key]
 end
 
-function Inputs.keypressed(key)
-	@@assert(type(key) == "string")
-	if not Inputs.map[key] then return end
+function Inputs.keypressed(_, scancode)
+	@@assert(type(scancode) == "string")
+	if not Inputs.map[scancode] then return end
 	!if _DEV then
 	if Slab.IsAnyInputFocused() then return end
 	!end
-	Inputs.current[Inputs.map[key]] = true
+	Inputs.current[Inputs.map[scancode]] = true
 end
 
-function Inputs.keyreleased(key)
-	@@assert(type(key) == "string")
-	if not Inputs.map[key] then return end
+function Inputs.keyreleased(_, scancode)
+	@@assert(type(scancode) == "string")
+	if not Inputs.map[scancode] then return end
 	!if _DEV then
 	if Slab.IsAnyInputFocused() then return end
 	!end
-	Inputs.current[Inputs.map[key]] = false
+	Inputs.current[Inputs.map[scancode]] = false
 end
 
 function Inputs.update()

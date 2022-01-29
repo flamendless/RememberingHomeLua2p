@@ -31,6 +31,12 @@ Palette.colors = {
 	note_on_hovered = {1, 0, 0},
 }
 
+!if _DEV then
+for k, v in pairs(Palette.colors) do
+	@@assert(v[4] == nil, k .. " must have no alpha set")
+end
+!end
+
 Palette.diffuse = {
 	--intro
 	car = {1, 1, 1},
@@ -63,10 +69,8 @@ function Palette.get(color, alpha)
 	@@assert(type(color) == "string")
 	@@assert(Palette.colors[color])
 	@@sassert(alpha, type(alpha) == "number")
-
 	local c = Palette.colors[color]
 	local a = alpha or c[4] or 1
-
 	return {c[1], c[2], c[3], a}
 end
 

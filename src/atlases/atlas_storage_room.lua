@@ -3,38 +3,38 @@
 local Data = {
 	frames = {
 		["left_door"] = {
-			x = 158,
-			y = 4,
+			x = 123,
+			y = 82,
 			w = 4,
 			h = 65
 		},
 		["right_door"] = {
-			x = 170,
-			y = 4,
+			x = 135,
+			y = 82,
 			w = 4,
 			h = 65
 		},
 		["tires"] = {
-			x = 354,
-			y = 4,
+			x = 71,
+			y = 150,
 			w = 35,
 			h = 22
 		},
-		["table"] = {
-			x = 287,
-			y = 4,
-			w = 59,
-			h = 40
+		["filing_cabinet"] = {
+			x = 82,
+			y = 82,
+			w = 19,
+			h = 44
 		},
 		["bulb"] = {
-			x = 260,
-			y = 56,
+			x = 109,
+			y = 82,
 			w = 5,
 			h = 18
 		},
 		["light_switch"] = {
-			x = 327,
-			y = 52,
+			x = 44,
+			y = 198,
 			w = 13,
 			h = 17
 		},
@@ -44,27 +44,27 @@ local Data = {
 			w = 111,
 			h = 70
 		},
+		["table"] = {
+			x = 4,
+			y = 150,
+			w = 59,
+			h = 40
+		},
+		["shelf"] = {
+			x = 4,
+			y = 82,
+			w = 70,
+			h = 60
+		},
 		["shelf_side"] = {
 			x = 123,
 			y = 4,
 			w = 27,
 			h = 70
 		},
-		["shelf"] = {
-			x = 182,
-			y = 4,
-			w = 70,
-			h = 60
-		},
-		["filing_cabinet"] = {
-			x = 260,
-			y = 4,
-			w = 19,
-			h = 44
-		},
 		["barrell"] = {
-			x = 287,
-			y = 52,
+			x = 4,
+			y = 198,
 			w = 32,
 			h = 22
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 393,
-		atlasHeight = 78,
+		atlasWidth = 154,
+		atlasHeight = 224,
 		quadCount = 11
 	}
 }

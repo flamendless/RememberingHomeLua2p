@@ -1,6 +1,8 @@
 local Concord = require("modules.concord.concord")
-local List = require("modules.concord.concord.list")
 local Log = require("modules.log.log")
+
+
+local CustomList = require("ctor.custom_list")
 
 local Renderers = {
 	sprite = require("renderers.sprite"),
@@ -53,7 +55,7 @@ local function get_list(self, e_or_bool)
 	return is_ui and self.list_ui or self.list
 end
 
-local function sort_z(a, b)
+local function fn_sort_z(a, b)
 	local a_z, b_z = a.z_index, b.z_index
 	if a_z == nil or b_z == nil then return end
 	if a_z.sortable and b_z.sortable then
@@ -66,7 +68,7 @@ end
 
 function Renderer:init(world)
 	self.world = world
-	self.list, self.list_ui = List(), List()
+	self.list, self.list_ui = CustomList(), CustomList()
 	!if _DEV then
 	self.list.__id = "list"
 	self.list_ui.__id = "list_ui"
@@ -94,8 +96,7 @@ end
 
 function Renderer:sort_by_z(list)
 	if list.size == 0 then return end
-	list:sort(sort_z)
-
+	list:sort(fn_sort_z)
 	for i, e in ipairs(list) do
 		local z_index = e.z_index
 		if z_index then

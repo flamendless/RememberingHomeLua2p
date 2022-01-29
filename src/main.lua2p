@@ -144,7 +144,7 @@ function love.draw()
 	@@profe("love.draw")
 end
 
-function love.keypressed(key)
+function love.keypressed(key, scancode)
 	!if _DEV then
 	if key == "/" then
 		if Peeker.get_status() then
@@ -159,12 +159,12 @@ function love.keypressed(key)
 	end
 	DevTools.keypressed(key)
 	!end
-	Inputs.keypressed(key)
+	Inputs.keypressed(key, scancode)
 	GameStates.keypressed(key)
 end
 
-function love.keyreleased(key)
-	Inputs.keyreleased(key)
+function love.keyreleased(key, scancode)
+	Inputs.keyreleased(key, scancode)
 	GameStates.keyreleased(key)
 end
 

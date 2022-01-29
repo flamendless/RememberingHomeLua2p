@@ -9,14 +9,14 @@ local Data = {
 			h = 107
 		},
 		["table2"] = {
-			x = 4,
-			y = 271,
+			x = 78,
+			y = 59,
 			w = 56,
 			h = 48
 		},
 		["door"] = {
-			x = 4,
-			y = 119,
+			x = 157,
+			y = 4,
 			w = 38,
 			h = 70
 		},
@@ -26,45 +26,45 @@ local Data = {
 			w = 71,
 			h = 47
 		},
-		["plant"] = {
-			x = 50,
-			y = 119,
-			w = 16,
-			h = 29
-		},
-		["light"] = {
-			x = 50,
-			y = 156,
-			w = 17,
-			h = 23
-		},
 		["table"] = {
-			x = 157,
-			y = 4,
+			x = 89,
+			y = 119,
 			w = 87,
 			h = 11
 		},
+		["light"] = {
+			x = 203,
+			y = 78,
+			w = 17,
+			h = 23
+		},
+		["plant"] = {
+			x = 157,
+			y = 82,
+			w = 16,
+			h = 29
+		},
 		["stool"] = {
-			x = 35,
-			y = 238,
+			x = 4,
+			y = 160,
 			w = 22,
 			h = 16
 		},
 		["chair"] = {
-			x = 4,
-			y = 327,
+			x = 46,
+			y = 119,
 			w = 35,
 			h = 31
 		},
 		["fireplace_inner"] = {
-			x = 35,
-			y = 197,
+			x = 4,
+			y = 119,
 			w = 34,
 			h = 33
 		},
 		["clock"] = {
-			x = 4,
-			y = 197,
+			x = 203,
+			y = 4,
 			w = 23,
 			h = 66
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 248,
-		atlasHeight = 362,
+		atlasWidth = 230,
+		atlasHeight = 180,
 		quadCount = 11
 	}
 }
