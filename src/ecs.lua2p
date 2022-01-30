@@ -6,11 +6,14 @@ local DevTools
 
 local ECS = {}
 
-local Components = {}
-Concord.utils.loadNamespace("components", Components)
+local components = {}
+Concord.utils.loadNamespace("components", components)
 
-local Systems = {}
-Concord.utils.loadNamespace("systems", Systems)
+local systems = {}
+Concord.utils.loadNamespace("systems", systems)
+
+local states = {}
+Concord.utils.loadNamespace("systems", states)
 
 !(
 local commons = {
@@ -32,29 +35,29 @@ function get_commons_ex(...)
 end
 )
 
-local systems = {}
-systems.Splash = {
+local state_systems = {}
+state_systems.Splash = {
 	"animation", "color", "show_keys", "renderer", "transform", "typewriter_splash",
 	"gamestates", "entity", "glitch_shader_effect", "atlas",
 }
 
-systems.Menu = {
+state_systems.Menu = {
 	"animation", "bounding_box", "click", "color", "hover_effect", "show_keys",
 	"menu_settings", "mouse_hover", "move", "renderer", "transform", "entity",
 	"gamestates", "list",
 }
 
-systems.Intro = {
+state_systems.Intro = {
 	"animation", "atlas", "camera", "color", "deferred_lighting", "depth",
 	"entity", "fog", "gamestates", "parallax", "post_processing", "renderer",
 	"show_keys", "text_paint_intro", "transform", "tree", "tween",
 }
 
-systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))
-systems.StorageRoom = $get_commons_ex
-systems.UtilityRoom = $get_commons_ex
-systems.Kitchen = $get_commons_ex
-systems.LivingRoom = $get_commons_ex
+state_systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))
+state_systems.StorageRoom = $get_commons_ex
+state_systems.UtilityRoom = $get_commons_ex
+state_systems.Kitchen = $get_commons_ex
+state_systems.LivingRoom = $get_commons_ex
 
 local unpausable_list = {
 	"pause", "renderer", "light", "culling", "color", "glitch_shader_effect",
@@ -62,32 +65,31 @@ local unpausable_list = {
 }
 
 function ECS.load_systems(id, world, prev_id)
-	@@assert(type(id) == "string")
-	@@assert(systems[id])
+	@@assert(type(id) == "string" and state_systems[id])
 	@@assert(world.__isWorld)
-	@@sassert(prev_id, type(prev_id) == "string" and systems[prev_id])
-	local lid = string.lower(id)
-	@@assert(Systems[lid], lid .. " state system does not exist")
+	@@sassert(prev_id, type(prev_id) == "string" and state_systems[prev_id])
+	local l_id = string.lower(id)
+	@@assert(states[l_id], l_id .. " state system does not exist")
 
 	!if _DEV then
 	DevTools = require("devtools")
 	!end
 
 	!if _DEV then
-	Systems.id.debug_show = DevTools.flags.id
-	Systems.id.debug_enabled = DevTools.flags.id
-	Systems.id.debug_title = "ID"
-	Systems.log.debug_show = false
-	Systems.log.debug_enabled = true
-	Systems.log.debug_title = "Log"
-	world:addSystem(Systems.id)
-	world:addSystem(Systems.log)
+	systems.id.debug_show = DevTools.flags.id
+	systems.id.debug_enabled = DevTools.flags.id
+	systems.id.debug_title = "ID"
+	systems.log.debug_show = false
+	systems.log.debug_enabled = true
+	systems.log.debug_title = "Log"
+	world:addSystem(systems.id)
+	world:addSystem(systems.log)
 	!end
 
-	for _, v in ipairs(systems[id]) do
-		@@assert(Systems[v], string.format("id = %s, i = %d", v, _))
-		world:addSystem(Systems[v])
-		local sys = Systems[v]
+	for _, v in ipairs(state_systems[id]) do
+		@@assert(systems[v], string.format("id = %s, i = %d", v, _))
+		world:addSystem(systems[v])
+		local sys = systems[v]
 		for _, u in ipairs(unpausable_list) do
 			if u == v then
 				sys.__unpausable = true
@@ -101,7 +103,7 @@ function ECS.load_systems(id, world, prev_id)
 		!end
 	end
 
-	local main_sys = Systems[lid]
+	local main_sys = states[l_id]
 	main_sys.__unpausable = true
 	main_sys.prev_id = prev_id
 	world:addSystem(main_sys)
@@ -109,8 +111,9 @@ end
 
 function ECS.get_system_class(id)
 	@@assert(type(id) == "string")
-	@@assert(Systems[string.lower(id)], "system " .. id .. " not found")
-	return Systems[string.lower(id)]
+	local l_id = string.lower(id)
+	@@assert(systems[l_id], "system " .. id .. " not found")
+	return systems[l_id]
 end
 
 return ECS

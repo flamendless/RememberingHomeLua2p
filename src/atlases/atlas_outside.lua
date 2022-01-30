@@ -3,8 +3,8 @@
 local Data = {
 	frames = {
 		["frontdoor"] = {
-			x = 4,
-			y = 60,
+			x = 138,
+			y = 4,
 			w = 33,
 			h = 67
 		},
@@ -15,8 +15,8 @@ local Data = {
 			h = 48
 		},
 		["backdoor"] = {
-			x = 45,
-			y = 60,
+			x = 179,
+			y = 4,
 			w = 10,
 			h = 67
 		}
@@ -24,8 +24,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 134,
-		atlasHeight = 131,
+		atlasWidth = 193,
+		atlasHeight = 75,
 		quadCount = 3
 	}
 }

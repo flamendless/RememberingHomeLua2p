@@ -3,38 +3,38 @@
 local Data = {
 	frames = {
 		["left_door"] = {
-			x = 123,
-			y = 82,
+			x = 370,
+			y = 4,
 			w = 4,
 			h = 65
 		},
 		["right_door"] = {
-			x = 135,
-			y = 82,
+			x = 382,
+			y = 4,
 			w = 4,
 			h = 65
 		},
 		["tires"] = {
-			x = 71,
-			y = 150,
+			x = 201,
+			y = 52,
 			w = 35,
 			h = 22
 		},
 		["filing_cabinet"] = {
-			x = 82,
-			y = 82,
+			x = 303,
+			y = 4,
 			w = 19,
 			h = 44
 		},
 		["bulb"] = {
-			x = 109,
-			y = 82,
+			x = 244,
+			y = 52,
 			w = 5,
 			h = 18
 		},
 		["light_switch"] = {
-			x = 44,
-			y = 198,
+			x = 303,
+			y = 56,
 			w = 13,
 			h = 17
 		},
@@ -45,26 +45,26 @@ local Data = {
 			h = 70
 		},
 		["table"] = {
-			x = 4,
-			y = 150,
+			x = 201,
+			y = 4,
 			w = 59,
 			h = 40
 		},
 		["shelf"] = {
-			x = 4,
-			y = 82,
+			x = 123,
+			y = 4,
 			w = 70,
 			h = 60
 		},
 		["shelf_side"] = {
-			x = 123,
+			x = 268,
 			y = 4,
 			w = 27,
 			h = 70
 		},
 		["barrell"] = {
-			x = 4,
-			y = 198,
+			x = 330,
+			y = 4,
 			w = 32,
 			h = 22
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 154,
-		atlasHeight = 224,
+		atlasWidth = 390,
+		atlasHeight = 78,
 		quadCount = 11
 	}
 }

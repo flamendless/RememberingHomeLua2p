@@ -40,6 +40,7 @@ t.textures = {
 	{"pause_bg", path_textures .. "pause_bg.png"},
 	{"bayer16", path_textures .. "bayer16.png"},
 	{"pal_oil", path_textures .. "pal_oil.png"},
+	{"pal_hollow", path_textures .. "pal_hollow.png"},
 }
 
 t.fnt_inventory = {

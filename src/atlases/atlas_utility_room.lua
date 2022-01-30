@@ -3,50 +3,50 @@
 local Data = {
 	frames = {
 		["ironing_board"] = {
-			x = 4,
-			y = 67,
+			x = 79,
+			y = 4,
 			w = 30,
 			h = 57
 		},
 		["wood3"] = {
-			x = 4,
-			y = 132,
+			x = 219,
+			y = 4,
 			w = 36,
 			h = 17
 		},
 		["basket"] = {
-			x = 79,
-			y = 48,
+			x = 184,
+			y = 4,
 			w = 27,
 			h = 27
 		},
 		["bulb"] = {
-			x = 101,
-			y = 83,
+			x = 206,
+			y = 39,
 			w = 5,
 			h = 18
 		},
 		["washing_machine"] = {
-			x = 79,
+			x = 117,
 			y = 4,
 			w = 33,
 			h = 36
 		},
 		["broom"] = {
-			x = 42,
-			y = 67,
+			x = 158,
+			y = 4,
 			w = 18,
 			h = 52
 		},
 		["light_switch"] = {
-			x = 120,
-			y = 4,
+			x = 263,
+			y = 28,
 			w = 13,
 			h = 17
 		},
 		["wood"] = {
-			x = 72,
-			y = 132,
+			x = 263,
+			y = 4,
 			w = 17,
 			h = 16
 		},
@@ -57,14 +57,14 @@ local Data = {
 			h = 55
 		},
 		["wood2"] = {
-			x = 48,
-			y = 132,
+			x = 219,
+			y = 29,
 			w = 16,
 			h = 17
 		},
 		["electrical_box"] = {
-			x = 79,
-			y = 83,
+			x = 184,
+			y = 39,
 			w = 14,
 			h = 21
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 137,
-		atlasHeight = 153,
+		atlasWidth = 284,
+		atlasHeight = 65,
 		quadCount = 11
 	}
 }
