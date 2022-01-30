@@ -26,6 +26,7 @@ function c_sprite:deserialize(data)
 	self:__populate(data.resource_id, data.container)
 end
 
+--TODO remove with fog?
 local c_noise_tex = Concord.component("noise_texture", function(c, w, h)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")
@@ -46,10 +47,3 @@ end
 function c_noise_tex:deserialize(data)
 	self:__populate(data.w, data.h)
 end
-
---TODO add serialize/deserialize
-local c_displacement_tex = Concord.component("displacement_texture", function(c, resource_id)
-	@@assert(type(resource_id) == "string")
-	c.resource_id = resource_id
-	c.texture = Resources.data.images[resource_id]
-end)

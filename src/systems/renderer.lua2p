@@ -165,17 +165,7 @@ function Renderer:draw(is_ui)
 				love.graphics.setColor(color.value)
 			end
 
-			local use_canvas = e.use_canvas
-			if use_canvas then
-				love.graphics.setCanvas(use_canvas.canvas)
-				love.graphics.clear()
-			end
-
 			e.renderer.render(e)
-
-			if use_canvas then
-				love.graphics.setCanvas()
-			end
 
 			!if _DEV then
 			if not is_ui and e.renderer == Renderers.sprite then

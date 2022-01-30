@@ -184,6 +184,7 @@ _PP_BLUR = toLua("Blur")
 _PP_DISSOLVE = toLua("Dissolve")
 _PP_DITHERGRADIENT = toLua("DitherGradient")
 _PP_FILMGRAIN = toLua("FilmGrain")
+_PP_GLITCH = toLua("Glitch")
 _PP_MOTIONBLUR = toLua("MotionBlur")
 _PP_NGRADING = toLua("NGrading")
 

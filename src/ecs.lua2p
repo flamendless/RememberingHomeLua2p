@@ -13,7 +13,7 @@ local systems = {}
 Concord.utils.loadNamespace("systems", systems)
 
 local states = {}
-Concord.utils.loadNamespace("systems", states)
+Concord.utils.loadNamespace("states", states)
 
 !(
 local commons = {
@@ -38,7 +38,7 @@ end
 local state_systems = {}
 state_systems.Splash = {
 	"animation", "color", "show_keys", "renderer", "transform", "typewriter_splash",
-	"gamestates", "entity", "glitch_shader_effect", "atlas",
+	"gamestates", "entity", "post_processing", "atlas",
 }
 
 state_systems.Menu = {
@@ -112,8 +112,8 @@ end
 function ECS.get_system_class(id)
 	@@assert(type(id) == "string")
 	local l_id = string.lower(id)
-	@@assert(systems[l_id], "system " .. id .. " not found")
-	return systems[l_id]
+	@@assert(states[l_id], "system " .. id .. " not found")
+	return states[l_id]
 end
 
 return ECS

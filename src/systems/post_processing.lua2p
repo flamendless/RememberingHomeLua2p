@@ -47,6 +47,18 @@ function PostProcessing:set_post_process_effect(id, bool)
 	@@assert(false, id .. " not found in registered pp effects")
 end
 
+function PostProcessing:ev_pp_invoke(id, str_fn, ...)
+	@@assert(type(id) == "string")
+	@@assert(type(str_fn) == "string")
+	for _, effect in ipairs(self.effects) do
+		if effect:type() == id then
+			effect[str_fn](effect, ...)
+			return
+		end
+	end
+	@@assert(false, id .. " was not registered")
+end
+
 function PostProcessing:update(dt)
 	for _, effect in ipairs(self.effects) do
 		!if _DEV then

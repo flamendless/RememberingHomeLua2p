@@ -1,9 +1,0 @@
-local Concord = require("modules.concord.concord")
-
-Concord.component("use_canvas", function(c, w, h)
-	@@assert(type(w) == "number")
-	@@assert(type(h) == "number")
-	c.w = w
-	c.h = h
-	c.canvas = love.graphics.newCanvas(w, h)
-end)
