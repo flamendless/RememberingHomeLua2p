@@ -15,14 +15,6 @@ local debug_values = {
 }
 !end
 
-local default_values = {
-	u_dis_amount = 0.1,
-	u_dis_size = 0.1,
-	u_abb_amount_x = 0.1,
-	u_abb_amount_y = 0.1,
-	u_max_a = 1,
-}
-
 local reset_tbl = {
 	u_dis_amount = 0,
 	u_dis_size = 0.1,
@@ -35,28 +27,26 @@ function Glitch:new(values, is_active)
 	@@sassert(values, type(values) == "table")
 	@@sassert(is_active, type(is_active) == "boolean")
 	self.is_active = not not is_active --default is false
-	self.values = values or default_values
+	self.values = values or tablex.copy(reset_tbl)
 
 	self.tex_displacement = Resources.data.images.tex_displacement
 	self.shader = love.graphics.newShader(Shaders.paths.glitch)
 	self.shader:send("u_tex_displace", self.tex_displacement)
-	self:send_values_to_shader()
+	self:send_values_to_shader(self.values, true)
 end
 
 function Glitch:send_values_to_shader(new_values)
-	if not self.is_active then return end
-	@@sassert(new_values, type(new_values) == "table")
-	new_values = new_values or self.values
+	@@assert(type(new_values) == "table")
 	for k, v in pairs(new_values) do
+		self.values[k] = v
 		self.shader:send(k, v)
 		!if _DEV then
-		default_values[k] = v
+		debug_values[k] = v
 		!end
 	end
 end
 
 function Glitch:do_random_glitch()
-	if not self.is_active then return end
 	self:send_values_to_shader({
 		u_dis_amount = love.math.random() * 0.1,
 		u_dis_size = love.math.random() * 2.0,
@@ -67,7 +57,6 @@ function Glitch:do_random_glitch()
 end
 
 function Glitch:reset_glitch()
-	if not self.is_active then return end
 	self:send_values_to_shader(reset_tbl)
 end
 
@@ -92,7 +81,7 @@ function Glitch:debug_slider(id, min, max)
 end
 
 function Glitch:debug_update(dt)
-	if not self.debug_show then return end
+	if not self.debug_show or not self.is_active then return end
 	self.debug_show = Slab.BeginWindow("glitch_shader", {
 		Title = "Glitch",
 		IsOpen = self.debug_show,
