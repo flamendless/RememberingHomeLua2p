@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
+local Log = require("modules.log.log")
 local Slab = require("modules.slab")
 local Style = Slab.GetStyle()
 
@@ -33,7 +34,9 @@ local key_title = {
 function MenuSettings:init(world)
 	self.world = world
 	Slab.Initialize()
-	Style.API.LoadStyle("slab.style", true)
+	if not Style.API.LoadStyle("slab.style", true, true) then
+		Log.warn("Can't load slab.style")
+	end
 end
 
 function MenuSettings:init_settings()

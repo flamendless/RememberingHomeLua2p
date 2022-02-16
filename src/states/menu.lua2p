@@ -44,7 +44,7 @@ local ANGLE_RIGHT = 0
 local duration_show = 0.75
 local duration_hide = 0.75
 local duration_pos = 0.75
-local tx = 176
+local target_x = 176
 local tools = $_TOOLS
 local libs = $_LIBS
 local options = {"Play", "Settings", "About", "Exit"}
@@ -264,6 +264,7 @@ function Menu:setup_menu()
 				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2,
 				$_LIST_SUB_MENU)
 			:give("on_enter_menu", "on_" .. lstr)
+
 		if not has_save and str == "Continue" then
 			e:give("list_item_skip")
 		end
@@ -392,7 +393,7 @@ function Menu:hide_main_menu(duration)
 		:give("lerp_on_finish_multi",
 			{signal = "hide_entity", args = {e}},
 			{signal = "menu_unpause"})
-		:give("move_by", tx, 0, duration or duration_pos)
+		:give("move_by", target_x, 0, duration or duration_pos)
 	end
 end
 
@@ -416,7 +417,7 @@ function Menu:hide_sub_menu(duration)
 	for _, e in ipairs(self.pool_sub_menu) do
 		e:give("target_color", Palette.get("white", 0), duration or duration_hide)
 		:give("lerp_on_finish", "hide_entity", 0, e)
-		:give("move_by", tx, 0, duration or duration_pos)
+		:give("move_by", target_x, 0, duration or duration_pos)
 	end
 end
 

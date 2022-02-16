@@ -247,7 +247,9 @@ function DeferredLighting:begin_deferred_lighting(camera, canvas)
 			love.graphics.clear()
 			love.graphics.setShader(self.geometry_pass)
 				love.graphics.setColor(1, 1, 1)
-				self.world:emit(self.ev_draw_main_id)
+				if self.ev_draw_main_id then
+					self.world:emit(self.ev_draw_main_id)
+				end
 			love.graphics.setShader() --unset geometry_pass
 
 		love.graphics.setCanvas(canvas.canvas)

@@ -24,12 +24,12 @@ end
 
 function Kitchen:state_setup()
 	local w, h = Resources.data.images.kitchen:getDimensions()
-	local ww, hh = love.graphics.getDimensions()
+	local ww, wh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main()
-	self.scale = math.min(ww/w, hh/h)
+	self.scale = math.min(ww/w, wh/h)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, hh)
+	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
 	Concord.entity(self.world):assemble(Assemblages.Kitchen.bg)

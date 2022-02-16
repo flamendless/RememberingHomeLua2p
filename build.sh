@@ -129,6 +129,7 @@ function copy_res()
 {
 	echo "copying resources..."
 	rsync -a "$dir_res" "$dir_output" && echo "copied resources"
+	rsync -a "slab.style" "$dir_output" && echo "copied slab.style"
 }
 
 function clean()
