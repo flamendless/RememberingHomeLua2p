@@ -228,9 +228,8 @@ function Menu:setup_menu()
 		:assemble(AMenu.bg_door,
 			ww * 1.5, wh * 0.5, scale, bg_door_w * 0.5, bg_door_h * 0.5)
 
-	Concord.entity(self.world)
-		:assemble(AMenu.bg_hallway,
-			ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
+	Concord.entity(self.world):assemble(AMenu.bg_hallway,
+		ww * 0.5, wh * 1.5, scale_hallway, bg_hw_w * 0.5, bg_hw_h * 0.5)
 
 	self.e_desk = Concord.entity(self.world):assemble(AMenu.desk, ww, wh)
 	self.title = Concord.entity(self.world):assemble(AMenu.title,

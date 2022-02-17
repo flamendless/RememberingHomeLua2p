@@ -7,13 +7,6 @@ local UtilityRoom = {
 
 local Light = require("assemblages.light")
 
-function UtilityRoom.bg(e)
-	e:give("id", "bg")
-	:give("pos", 0, 0)
-	:give("sprite", "utility_room")
-	:give("bg")
-end
-
 local pl = Lights.utility_room.pl
 for i, pos in ipairs(pl.pos) do
 	UtilityRoom.lights["pl" .. i] = function(e)

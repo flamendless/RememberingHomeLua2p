@@ -18,7 +18,7 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
-local ParticleSystems = {
+local PS = {
 	RainIntro = require("particle_systems/rain_intro"),
 }
 
@@ -27,23 +27,21 @@ local Intro = Concord.system({
 	pool_light = {"intro_light"},
 })
 
-local ngrading = {dt = 0, dt2 = 0, status = 1}
-local fade_duration = 4
-local current_ngrading
-local is_raining = false
-local is_switching = false
-local rain_amount = {16, 32, 96}
-local should_fade = false
-local intro_text_n = 1
-
 function Intro:init(world)
 	self.world = world
+	-- self.ngrading = {dt = 0, dt2 = 0, status = 1}
+	-- self.fade_duration = 4
+	-- self.current_ngrading = nil
+	self.is_raining = false
+	-- self.is_switching = false
+	-- self.rain_amount = {16, 32, 96}
+	-- self.intro_text_n = 1
 end
 
 function Intro:state_setup()
 	local w, h = Resources.data.images.bg:getDimensions()
 	local ww, wh = love.graphics.getDimensions()
-	local ssx2 = ww * 2
+	local ww2 = ww * 2
 
 	self.canvas = Canvas.create_main()
 	self.scale = math.min(ww/w, wh/h)
@@ -51,61 +49,67 @@ function Intro:state_setup()
 	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.Intro.bg)
+	Concord.entity(self.world):assemble(Assemblages.Common.bg, "intro")
 
-	self.world:emit("create_light_map", self.canvases.main.x, self.canvases.main.y, w, h)
-	self.ps1 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
-	self.ps2 = ParticleSystems.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
+	self.ps1 = PS.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
+	self.ps2 = PS.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
+	self.world:emit("setup_post_process", {
+		Shaders.NGrading($_LUT_AFTERNOON),
+		Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK, false),
+	})
+	self.world:emit("set_draw", "ev_draw_ex")
 
+	local asm_intro = Assemblages.Intro
+	local asm_parallax = asm_intro.parallax
 	for i = 1, 2 do
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "clouds")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "buildings")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "road")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass2")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_back")
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "grass_front")
-		local e_tree = Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_bg")
+		Concord.entity(self.world):assemble(asm_parallax, "clouds")
+		Concord.entity(self.world):assemble(asm_parallax, "buildings")
+		Concord.entity(self.world):assemble(asm_parallax, "road")
+		Concord.entity(self.world):assemble(asm_parallax, "grass")
+		Concord.entity(self.world):assemble(asm_parallax, "grass2")
+		Concord.entity(self.world):assemble(asm_parallax, "grass_back")
+		Concord.entity(self.world):assemble(asm_parallax, "grass_front")
+		local e_tree = Concord.entity(self.world):assemble(asm_parallax, "trees_bg")
 		if i == 1 then
-			Concord.entity(self.world):assemble(Assemblages.Intro.bg_tree_cover, "bg_tree_cover")
+			Concord.entity(self.world):assemble(asm_intro.bg_tree_cover)
 				:give("attach_to", e_tree)
 		end
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "trees_fg", 4)
-		local e = Concord.entity(self.world):assemble(Assemblages.Intro.post_light, "post_light", 2)
+		Concord.entity(self.world):assemble(asm_parallax, "trees_fg", 4)
+		local e_post_light = Concord.entity(self.world)
+			:assemble(Assemblages.Intro.post_light, "post_light", 2)
 			:give("parallax_gap", w)
-		Concord.entity(self.world):assemble(Assemblages.Intro.parallax, "post", 2)
-			:give("attach_to", e)
+		Concord.entity(self.world):assemble(asm_parallax, "post", 2)
+			:give("attach_to", e_post_light)
 			:give("attach_to_offset", 108, 0)
 	end
 
-	self.e_car = Concord.entity(self.world):assemble(Assemblages.Intro.car)
-	Concord.entity(self.world):assemble(Assemblages.Intro.car_light, self.e_car)
+	self.e_car = Concord.entity(self.world):assemble(asm_intro.car)
+	Concord.entity(self.world):assemble(asm_intro.car_light, self.e_car)
 		:give("light_disabled")
 		:give("intro_light")
-
-	self.e_car_reflect = Concord.entity(self.world):assemble(Assemblages.Intro.car_reflect,
-			self.e_car)
+	self.e_car_reflect = Concord.entity(self.world)
+		:assemble(asm_intro.car_reflect, self.e_car)
 		:give("animation_on_loop", "car_reflection_flicker")
 
 	local fw, fh = 512, 128
-	local fsx = ssx2 * 4/fw
+	local fsx = ww2 * 4/fw
 	local fsy = 2
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	Concord.entity(self.world):assemble(asm_intro.fog,
 		"fog1", fw, fh, {0.6, 0.6, 0.6, 1}, 0, 250, fsx, fsy * 0.45, 0.05)
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	Concord.entity(self.world):assemble(asm_intro.fog,
 		"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	Concord.entity(self.world):assemble(asm_intro.fog,
 			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
 		:give("fade_in_target_alpha", 0.45)
 		:give("hidden")
-	Concord.entity(self.world):assemble(Assemblages.Intro.fog,
+	Concord.entity(self.world):assemble(asm_intro.fog,
 			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
 		:give("fade_in_target_alpha", 0.45)
 		:give("hidden")
 
-	ngrading.single = Shaders.NGrading($_LUT_AFTERNOON)
-	ngrading.multi = Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK)
-	current_ngrading = ngrading.single
+	-- ngrading.single = Shaders.NGrading($_LUT_AFTERNOON)
+	-- ngrading.multi = Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK)
+	-- current_ngrading = ngrading.single
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			"flamendless studio presents", "ui", 32, 32)
@@ -127,20 +131,21 @@ function Intro:state_setup()
 		:give("intro_text")
 		:give("animation_data", Animation.get("splat"))
 
-	self.e_title_light = Concord.entity(self.world):assemble(Assemblages.Intro.title_light,
+	self.e_title_light = Concord.entity(self.world)
+		:assemble(asm_intro.title_light, ww * 0.5, wh * 0.5)
+		:give("intro_text")
+
+	self.e_title = Concord.entity(self.world):assemble(asm_intro.title,
 			ww * 0.5, wh * 0.5)
 		:give("intro_text")
 
-	self.e_title = Concord.entity(self.world):assemble(Assemblages.Intro.title,
-			ww * 0.5, wh * 0.5)
-		:give("intro_text")
-
-	if Save.data.intro_done or !(_DEV) then
+	if Save.data.intro_done or $_DEV then
 		self.world:emit("show_skip")
 	end
 end
 
 function Intro:state_init()
+	local img_bg = Resources.data.images.bg
 	local ww = love.graphics.getWidth()
 	local w, h = img_bg:getDimensions()
 
@@ -154,7 +159,8 @@ function Intro:state_init()
 		local max_n_cam_t = 4
 		local ambient_color = {0.9, 0.9, 0.9}
 		self.world:emit("set_ambient_light", ambient_color)
-		self.world:emit("set_camera_transform", self.camera, {x = 53, y = 544, scale = 15})
+		self.world:emit("set_camera_transform", self.camera,
+			{x = 53, y = 544, scale = 15})
 
 		TLE.Event.Wait(2)
 		self.world:emit("fade_in_fog", "fog3", 32)
@@ -232,10 +238,9 @@ function Intro:state_init()
 
 		-- TODO implement lightning to quickly black out scene
 		if not is_switching then
-			should_fade = true
 			Fade.fade_out(function()
 				Save.toggle_flag("intro_done", true)
-				is_raining = false
+				self.is_raining = false
 				is_switching = true
 				self.ps1.system:stop()
 				self.ps2.system:stop()
@@ -257,10 +262,9 @@ function Intro:state_update(dt)
 		if not is_switching then
 			if Inputs.pressed("interact") then
 				self.world:emit("destroy_key", "skip")
-				should_fade = true
 				Fade.fade_out(function()
 					Save.toggle_flag("intro_done", true)
-					is_raining = false
+					self.is_raining = false
 					is_switching = true
 					self.ps1.system:stop()
 					self.ps2.system:stop()
@@ -270,7 +274,7 @@ function Intro:state_update(dt)
 		end
 	end
 
-	if is_raining then
+	if self.is_raining then
 		@@profb("intro_rain_update")
 		self.ps1:update(dt)
 		self.ps2:update(dt)
@@ -296,21 +300,18 @@ function Intro:state_draw()
 	self.world:emit("apply_post_process", self.canvas)
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
 
-		if current_ngrading then
-			current_ngrading:apply()
-		end
-
-		love.graphics.draw(img_bg)
-		self.world:emit("draw")
-		self.world:emit("draw_z")
-
-		if is_raining then
-			@@profb("intro_rain_draw")
-			self.ps1:draw(0, -16)
-			self.ps2:draw(0, -16)
-			@@profe("intro_rain_draw")
-		end
+function Intro:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
+	self.world:emit("draw_z")
+	if self.is_raining then
+		@@profb("intro_rain_draw")
+		self.ps1:draw(0, -16)
+		self.ps2:draw(0, -16)
+		@@profe("intro_rain_draw")
+	end
 end
 
 function Intro:state_keypressed(key)
@@ -323,15 +324,6 @@ function Intro:cleanup()
 	self.timeline:Die()
 	self.ps1.system:stop()
 	self.ps2.system:stop()
-	ngrading = {dt = 0, dt2 = 0, status = 1}
-	fade_duration = 4
-	current_ngrading = nil
-	is_raining = false
-	is_switching = false
-	rain_amount = {16, 32, 96}
-	should_fade = false
-	intro_text_n = 1
-	img_bg = nil
 end
 
 function Intro:enable_next_intro_text()
@@ -356,7 +348,7 @@ function Intro:update_rain(i)
 	@@assert(type(i) == "number")
 	@@assert(rain_amount[i])
 	local amount = rain_amount[i]
-	is_raining = true
+	self.is_raining = true
 	self.ps1.system:setEmissionRate(amount)
 	self.ps2.system:setEmissionRate(amount)
 end

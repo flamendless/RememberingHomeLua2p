@@ -23,13 +23,6 @@ local ground_h = 48
 local bounds_w, bounds_h = 52, 72
 local bounds_l_w = 28
 
-function Outside.bg(e)
-	e:give("id", "bg")
-	:give("pos", 0, 0)
-	:give("sprite", "bg_sky")
-	:give("bg")
-end
-
 function Outside.bg_house(e, x, y, quad)
 	e:give("id", "bg_house")
 	:give("sprite", "bg_house")

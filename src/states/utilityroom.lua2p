@@ -32,7 +32,7 @@ function UtilityRoom:state_setup()
 	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.UtilityRoom.bg)
+	Concord.entity(self.world):assemble(Assemblages.Common.bg, "utility_room")
 
 	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "utility_room")

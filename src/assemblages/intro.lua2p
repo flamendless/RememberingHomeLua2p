@@ -54,13 +54,6 @@ local positions = {
 	post_light = {0, 108},
 }
 
-function Intro.bg(e)
-	e:give("id", "bg")
-	:give("pos", 0, 0)
-	:give("sprite", "bg")
-	:give("bg")
-end
-
 function Intro.parallax(e, tag, scale)
 	@@assert(type(tag) == "string")
 	@@sassert(scale, type(scale) == "number")
@@ -108,7 +101,7 @@ function Intro.post_light(e, tag, scale)
 	:give("depth_zoom", z_index.post_light[2])
 end
 
-function Intro.bg_tree_cover(e, resource_id)
+function Intro.bg_tree_cover(e)
 	local item = Atlas.frames.bg_tree_cover
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = item.w, item.h

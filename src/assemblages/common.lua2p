@@ -2,6 +2,14 @@ local Palette = require("palette")
 
 local Common = {}
 
+function Common.bg(e, bg_id)
+	@@assert(type(bg_id) == "string")
+	e:give("id", "bg")
+	:give("pos", 0, 0)
+	:give("sprite", bg_id)
+	:give("bg")
+end
+
 function Common.text(e, pos, str, font, color)
 	e:give("id", "text")
 	:give("text", str)
