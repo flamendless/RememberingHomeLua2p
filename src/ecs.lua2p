@@ -49,8 +49,8 @@ state_systems.Menu = {
 
 state_systems.Intro = {
 	"animation", "atlas", "camera", "color", "deferred_lighting", "depth",
-	"entity", "fog", "gamestates", "parallax", "post_processing", "renderer",
-	"show_keys", "text_paint_intro", "transform", "tree", "tween",
+	"entity", "fog", "gamestates", "parallax", "particle_system", "post_processing",
+	"renderer", "show_keys", "text_paint_intro", "transform", "tree", "tween",
 }
 
 state_systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))

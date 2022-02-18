@@ -187,6 +187,11 @@ _PP_FILMGRAIN = toLua("FilmGrain")
 _PP_GLITCH = toLua("Glitch")
 _PP_MOTIONBLUR = toLua("MotionBlur")
 _PP_NGRADING = toLua("NGrading")
+_PP_NGRADING_MULTI = toLua("NGradingMulti")
+
+--PARTICLE SYSTEM IDS
+_PS_RAIN_INTRO = toLua("PSRainIntro")
+_PS_RAIN_OUTSIDE = toLua("PSRainOutside")
 
 --SIGNALS
 _SIGNAL_LIST_REMOVE = toLua("on_list_cursor_remove_")

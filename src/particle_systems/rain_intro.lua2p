@@ -1,6 +1,8 @@
 local lg = love.graphics
 
-local RainIntroParticles = class()
+local RainIntroParticles = class({
+	name = $_PS_RAIN_INTRO
+})
 
 function RainIntroParticles:new(image, buffer, w)
 	@@assert(image:type() == "Image")
@@ -28,14 +30,14 @@ function RainIntroParticles:new(image, buffer, w)
 	ps:setSpinVariation(0)
 	ps:setSpread(0.034906584769487)
 	ps:setTangentialAcceleration(0, 0)
-	ps:setQuads(lg.newQuad(0, 0, 32, 32, 96, 32), lg.newQuad(32, 0, 32, 32, 96, 32), lg.newQuad(64, 0, 32, 32, 96, 32))
+	ps:setQuads(
+		lg.newQuad(0, 0, 32, 32, 96, 32),
+		lg.newQuad(32, 0, 32, 32, 96, 32),
+		lg.newQuad(64, 0, 32, 32, 96, 32)
+	)
 
 	self.system = ps
 	self.blend_mode = "alpha"
-end
-
-function RainIntroParticles:update(dt)
-	self.system:update(dt)
 end
 
 function RainIntroParticles:draw(x, y)

@@ -168,7 +168,7 @@ function NGrading:get_shader()
 end
 
 function NGrading:set_dt(dt)
-	if self.is_multi then
+	if self.is_multi and self.is_active then
 		self.shader:send("u_time", dt)
 	end
 end
@@ -208,6 +208,13 @@ function NGrading:apply()
 	!else
 	love.graphics.setShader(self.shader)
 	!end
+end
+
+function NGrading:get_type()
+	if self.is_multi then
+		return $_PP_NGRADING_MULTI
+	end
+	return self:type()
 end
 
 return NGrading

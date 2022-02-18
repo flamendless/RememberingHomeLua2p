@@ -9,14 +9,13 @@ local DevTools
 
 local PostProcessing = Concord.system()
 
-local buffer1 = Canvas.create_main()
-local buffer2 = Canvas.create_main()
-
 function PostProcessing:init(world)
 	!if _DEV then
 	DevTools = require("devtools")
 	!end
 	self.world = world
+	self.buffer1 = Canvas.create_main()
+	self.buffer2 = Canvas.create_main()
 	self.effects = {}
 end
 
@@ -39,7 +38,8 @@ function PostProcessing:set_post_process_effect(id, bool)
 	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
 	for _, effect in ipairs(self.effects) do
-		if effect:type() == id then
+		local t = effect.get_type and effect:get_type() or effect:type()
+		if t == id then
 			effect.is_active = bool
 			return
 		end
@@ -51,7 +51,8 @@ function PostProcessing:ev_pp_invoke(id, str_fn, ...)
 	@@assert(type(id) == "string")
 	@@assert(type(str_fn) == "string")
 	for _, effect in ipairs(self.effects) do
-		if effect:type() == id then
+		local t = effect.get_type and effect:get_type() or effect:type()
+		if t == id then
 			effect[str_fn](effect, ...)
 			return
 		end
@@ -73,7 +74,7 @@ end
 function PostProcessing:apply_post_process(canvas)
 	@@profb("pp")
 	@@assert(canvas:type() == "CustomCanvas")
-	love.graphics.setCanvas(buffer1.canvas)
+	love.graphics.setCanvas(self.buffer1.canvas)
 		love.graphics.clear()
 		canvas:render_n()
 	love.graphics.setCanvas()
@@ -81,18 +82,18 @@ function PostProcessing:apply_post_process(canvas)
 	for _, effect in ipairs(self.effects) do
 		if effect.is_active then
 			@@profb(effect:type())
-			love.graphics.setCanvas(buffer2.canvas)
+			love.graphics.setCanvas(self.buffer2.canvas)
 				love.graphics.clear()
 				love.graphics.setShader(effect.shader)
-					buffer1:render_n()
+					self.buffer1:render_n()
 				love.graphics.setShader()
 			love.graphics.setCanvas()
-			buffer1, buffer2 = buffer2, buffer1
+			self.buffer1, self.buffer2 = self.buffer2, self.buffer1
 			@@profe(effect:type())
 		end
 	end
 
-	buffer1:render_n()
+	self.buffer1:render_n()
 	@@profe("pp")
 end
 
@@ -109,7 +110,7 @@ function PostProcessing:debug_update(dt)
 
 	for i, effect in ipairs(self.effects) do
 		local b
-		local str = effect:type()
+		local str = effect.get_type and effect:get_type() or effect:type()
 
 		if Slab.CheckBox(effect.debug_show, str) then
 			effect.is_active = not effect.is_active

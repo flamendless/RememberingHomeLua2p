@@ -29,17 +29,14 @@ local Intro = Concord.system({
 
 function Intro:init(world)
 	self.world = world
-	-- self.ngrading = {dt = 0, dt2 = 0, status = 1}
-	-- self.fade_duration = 4
-	-- self.current_ngrading = nil
 	self.is_raining = false
-	-- self.is_switching = false
-	-- self.rain_amount = {16, 32, 96}
+	self.is_switching = false
+	-- self.fade_duration = 4
 	-- self.intro_text_n = 1
 end
 
 function Intro:state_setup()
-	local w, h = Resources.data.images.bg:getDimensions()
+	local w, h = Resources.data.images.intro:getDimensions()
 	local ww, wh = love.graphics.getDimensions()
 	local ww2 = ww * 2
 
@@ -51,8 +48,10 @@ function Intro:state_setup()
 		self.camera, self.scale, w, h)
 	Concord.entity(self.world):assemble(Assemblages.Common.bg, "intro")
 
-	self.ps1 = PS.RainIntro(Resources.data.images.rain_drop_tilted, 128, w)
-	self.ps2 = PS.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
+	self.world:emit("setup_particle_system", {
+		PS.RainIntro(Resources.data.images.rain_drop_tilted, 128, w),
+		PS.RainIntro(Resources.data.images.rain_drop_tilted2, 128, w)
+	})
 	self.world:emit("setup_post_process", {
 		Shaders.NGrading($_LUT_AFTERNOON),
 		Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK, false),
@@ -107,10 +106,6 @@ function Intro:state_setup()
 		:give("fade_in_target_alpha", 0.45)
 		:give("hidden")
 
-	-- ngrading.single = Shaders.NGrading($_LUT_AFTERNOON)
-	-- ngrading.multi = Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK)
-	-- current_ngrading = ngrading.single
-
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			"flamendless studio presents", "ui", 32, 32)
 		:give("intro_text")
@@ -139,13 +134,13 @@ function Intro:state_setup()
 			ww * 0.5, wh * 0.5)
 		:give("intro_text")
 
-	if Save.data.intro_done or $_DEV then
+	if Save.data.intro_done or !(_DEV) then
 		self.world:emit("show_skip")
 	end
 end
 
 function Intro:state_init()
-	local img_bg = Resources.data.images.bg
+	local img_bg = Resources.data.images.intro
 	local ww = love.graphics.getWidth()
 	local w, h = img_bg:getDimensions()
 
@@ -178,7 +173,7 @@ function Intro:state_init()
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 160, -32, "circout")
 		Flux.to(car_pos, 5, {x = 128})
 
-		self:update_rain(1)
+		self:update_rain(16)
 		self:enable_next_intro_text()
 		self.timeline:Pause()
 
@@ -197,9 +192,11 @@ function Intro:state_init()
 			self.world:emit("set_ambient_light", ambient_color)
 		end)
 
-		ngrading.status = 2
-		current_ngrading = ngrading.multi
-		Flux.to(ngrading, 15, {dt = 1})
+		self.world:emit("set_post_process_effect", $_PP_NGRADING, false)
+		self.world:emit("set_post_process_effect", $_PP_NGRADING_MULTI, true)
+		-- ngrading.status = 2
+		-- current_ngrading = ngrading.multi
+		-- Flux.to(ngrading, 15, {dt = 1})
 		self.world:emit("tween_depth_zoom", 5, 3/max_n_cam_t, "backout")
 		self.world:emit("tween_camera_scale", self.camera, 5, 3, "backout")
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32, "backout")
@@ -212,7 +209,7 @@ function Intro:state_init()
 		self.timeline:Pause()
 
 		TLE.Event.Wait(2)
-		self:update_rain(2)
+		self:update_rain(32)
 
 		TLE.Event.Wait(1)
 		self.world:emit("slow_parallax", 0.75)
@@ -241,9 +238,8 @@ function Intro:state_init()
 			Fade.fade_out(function()
 				Save.toggle_flag("intro_done", true)
 				self.is_raining = false
-				is_switching = true
-				self.ps1.system:stop()
-				self.ps2.system:stop()
+				self.is_switching = true
+				self.world:emit("setup_particle_system", $_PS_RAIN_INTRO, "stop")
 				self.world:emit("switch_state", "Outside")
 			end, 2)
 		end
@@ -258,37 +254,24 @@ function Intro:state_update(dt)
 	end
 	!end
 
-	if Save.data.intro_done or !(_DEV) then
-		if not is_switching then
-			if Inputs.pressed("interact") then
-				self.world:emit("destroy_key", "skip")
-				Fade.fade_out(function()
-					Save.toggle_flag("intro_done", true)
-					self.is_raining = false
-					is_switching = true
-					self.ps1.system:stop()
-					self.ps2.system:stop()
-					self.world:emit("switch_state", "Outside")
-				end, 2)
-			end
-		end
+	if (Save.data.intro_done or !(_DEV))
+		and not self.is_switching
+		and Inputs.pressed("interact") then
+		self.world:emit("destroy_key", "skip")
+		Fade.fade_out(function()
+			Save.toggle_flag("intro_done", true)
+			self.is_raining = false
+			self.is_switching = true
+			self.world:emit("set_particle_system", $_PS_RAIN_INTRO, "stop")
+			self.world:emit("switch_state", "Outside")
+		end, 2)
 	end
 
 	if self.is_raining then
-		@@profb("intro_rain_update")
-		self.ps1:update(dt)
-		self.ps2:update(dt)
-		@@profe("intro_rain_update")
+		self.world:emit("update_particle_system", dt)
 	end
-
 	self.world:emit("parallax_move_x", dt, -1)
-
-	if ngrading.status == 2 then
-		@@profb("intro_ngrading_multi")
-		ngrading.multi:set_dt(ngrading.dt)
-		@@profe("intro_ngrading_multi")
-	end
-
+	self.world:emit("ev_pp_invoke", $_PP_NGRADING, "set_dt", dt)
 	self.world:emit("update", dt)
 	self.world:emit("update_light", dt)
 	@@profe("intro_update")
@@ -307,10 +290,7 @@ function Intro:ev_draw_ex()
 	self.world:emit("draw")
 	self.world:emit("draw_z")
 	if self.is_raining then
-		@@profb("intro_rain_draw")
-		self.ps1:draw(0, -16)
-		self.ps2:draw(0, -16)
-		@@profe("intro_rain_draw")
+		self.world:emit("draw_particle_system", 0, -16)
 	end
 end
 
@@ -322,8 +302,7 @@ end
 
 function Intro:cleanup()
 	self.timeline:Die()
-	self.ps1.system:stop()
-	self.ps2.system:stop()
+	self.world:emit("set_particle_system", $_PS_RAIN_INTRO, "stop")
 end
 
 function Intro:enable_next_intro_text()
@@ -344,13 +323,10 @@ function Intro:car_reflection_flicker()
 	end
 end
 
-function Intro:update_rain(i)
-	@@assert(type(i) == "number")
-	@@assert(rain_amount[i])
-	local amount = rain_amount[i]
+function Intro:update_rain(amount)
+	@@assert(type(amount) == "number")
 	self.is_raining = true
-	self.ps1.system:setEmissionRate(amount)
-	self.ps2.system:setEmissionRate(amount)
+	self.world:emit("set_particle_system", $_PS_RAIN_INTRO, "setEmissionRate", amount)
 end
 
 function Intro:resume_tle()

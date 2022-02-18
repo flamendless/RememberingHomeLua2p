@@ -59,6 +59,7 @@ function process_file()
 	if [ "$ext" == "lua2p" ]; then
 		$lua "$lpp_path" --handler="$handler" --data="$data $gv $padding" --outputpaths "$1" "$out".lua --silent;
 		if [ $? -ne 0 ]; then
+			echo "error in $1"
 			exit;
 		fi
 	else

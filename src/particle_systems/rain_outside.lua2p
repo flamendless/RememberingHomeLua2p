@@ -1,6 +1,8 @@
 local lg = love.graphics
 
-local RainOutsideParticles = class()
+local RainOutsideParticles = class({
+	name = $_PS_RAIN_OUTSIDE
+})
 
 function RainOutsideParticles:new(image, buffer, w)
 	@@assert(image:type() == "Image")
