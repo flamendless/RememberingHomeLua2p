@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 
-
 local CustomList = require("ctor.custom_list")
 
 local Renderers = {
@@ -140,6 +139,7 @@ function Renderer:pool_on_removed(pool, e)
 end
 
 function Renderer:draw_ui() self:draw(true) end
+
 function Renderer:draw(is_ui)
 	@@sassert(is_ui, type(is_ui) == "boolean")
 	!if _DEV then
@@ -165,7 +165,12 @@ function Renderer:draw(is_ui)
 				love.graphics.setColor(color.value)
 			end
 
-			e.renderer.render(e)
+			local custom_renderer = e.custom_renderer
+			if custom_renderer then
+				self.world:emit(custom_renderer.value, e)
+			else
+				e.renderer.render(e)
+			end
 
 			!if _DEV then
 			if not is_ui and e.renderer == Renderers.sprite then

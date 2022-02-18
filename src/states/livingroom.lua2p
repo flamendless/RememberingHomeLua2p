@@ -83,7 +83,6 @@ end
 function LivingRoom:ev_draw_ex()
 	self.world:emit("draw_bg")
 	self.world:emit("draw")
-	self.world:emit("draw_z")
 end
 
 return LivingRoom

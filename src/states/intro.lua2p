@@ -9,6 +9,7 @@ local Canvas = require("canvas")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Resources = require("resources")
+local Palette = require("palette")
 local Save = require("save")
 local Shaders = require("shaders")
 
@@ -18,9 +19,7 @@ local Assemblages = {
 	UI = require("assemblages.ui"),
 }
 
-local PS = {
-	RainIntro = require("particle_systems/rain_intro"),
-}
+local PS = {RainIntro = require("particle_systems/rain_intro")}
 
 local Intro = Concord.system({
 	pool_intro_text = {"intro_text"},
@@ -31,8 +30,7 @@ function Intro:init(world)
 	self.world = world
 	self.is_raining = false
 	self.is_switching = false
-	-- self.fade_duration = 4
-	-- self.intro_text_n = 1
+	self.intro_text_n = 1
 end
 
 function Intro:state_setup()
@@ -146,14 +144,14 @@ function Intro:state_init()
 
 	self.timeline = TLE.Do(function()
 		!if _DEV then
-		self.world:emit("set_ambient_light", {0.5, 0.5, 0.5})
+		self.world:emit("set_ambiance", {0.5, 0.5, 0.5})
 		self.timeline:Pause()
 		!end
 
 		--how many times we will scale/move the camera for this cutscene
+		local ambient_color = Palette.get("ambiance_intro")
 		local max_n_cam_t = 4
-		local ambient_color = {0.9, 0.9, 0.9}
-		self.world:emit("set_ambient_light", ambient_color)
+		self.world:emit("set_ambiance", ambient_color)
 		self.world:emit("set_camera_transform", self.camera,
 			{x = 53, y = 544, scale = 15})
 
@@ -234,7 +232,7 @@ function Intro:state_init()
 		Flux.to(car_pos, 5, {x = ww * 1.5})
 
 		-- TODO implement lightning to quickly black out scene
-		if not is_switching then
+		if not self.is_switching then
 			Fade.fade_out(function()
 				Save.toggle_flag("intro_done", true)
 				self.is_raining = false
@@ -270,10 +268,10 @@ function Intro:state_update(dt)
 	if self.is_raining then
 		self.world:emit("update_particle_system", dt)
 	end
+
 	self.world:emit("parallax_move_x", dt, -1)
 	self.world:emit("ev_pp_invoke", $_PP_NGRADING, "set_dt", dt)
 	self.world:emit("update", dt)
-	self.world:emit("update_light", dt)
 	@@profe("intro_update")
 end
 
@@ -288,7 +286,6 @@ end
 function Intro:ev_draw_ex()
 	self.world:emit("draw_bg")
 	self.world:emit("draw")
-	self.world:emit("draw_z")
 	if self.is_raining then
 		self.world:emit("draw_particle_system", 0, -16)
 	end
@@ -306,11 +303,10 @@ function Intro:cleanup()
 end
 
 function Intro:enable_next_intro_text()
-	local e = self.pool_intro_text[intro_text_n]
-	self.world:emit("fade_text", e, fade_duration,
-		function()
+	local e = self.pool_intro_text[self.intro_text_n]
+	self.world:emit("fade_text", e, 4, function()
 			self.timeline:Unpause()
-			intro_text_n = intro_text_n + 1
+			self.intro_text_n = self.intro_text_n + 1
 		end)
 end
 

@@ -6,7 +6,6 @@ local Fog = Concord.system({
 
 function Fog:init(world)
 	self.world = world
-
 	self.pool.onAdded = function(pool, e)
 		e.sprite.image = e.noise_texture.texture
 	end
@@ -23,13 +22,12 @@ function Fog:update()
 end
 
 function Fog:draw_fog(e)
+	@@assert(e.__isEntity, e.fog)
 	local fog = e.fog
 	local color = e.color.value
 	love.graphics.setColor(color)
 	love.graphics.setShader(fog.shader)
-end
-
-function Fog:end_draw_fog()
+	e.renderer.render(e)
 	love.graphics.setShader()
 end
 

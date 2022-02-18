@@ -88,7 +88,6 @@ end
 function StorageRoom:ev_draw_ex()
 	self.world:emit("draw_bg")
 	self.world:emit("draw")
-	self.world:emit("draw_z")
 end
 
 function StorageRoom:search_shelf(e, dialogues_t)

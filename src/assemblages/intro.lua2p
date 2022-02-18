@@ -187,6 +187,7 @@ function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, fog_speed)
 	:give("fog", fog_speed)
 	:give("z_index", z_index[id][1], false)
 	:give("depth_zoom", z_index[id][2])
+	:give("custom_renderer", "draw_fog")
 end
 
 return Intro
