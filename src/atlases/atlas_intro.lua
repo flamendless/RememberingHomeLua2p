@@ -3,80 +3,80 @@
 local Data = {
 	frames = {
 		["post"] = {
-			x = 1303,
-			y = 261,
+			x = 2264,
+			y = 4,
 			w = 25,
 			h = 131
 		},
 		["post_light"] = {
-			x = 1149,
+			x = 1631,
 			y = 4,
 			w = 146,
 			h = 154
 		},
 		["trees_fg"] = {
-			x = 4,
-			y = 243,
+			x = 757,
+			y = 137,
 			w = 474,
 			h = 91
 		},
 		["road"] = {
-			x = 396,
-			y = 342,
+			x = 1149,
+			y = 81,
 			w = 384,
 			h = 47
 		},
 		["grass_back"] = {
-			x = 757,
-			y = 137,
+			x = 1149,
+			y = 4,
 			w = 384,
 			h = 69
 		},
 		["grass_front"] = {
-			x = 486,
-			y = 243,
+			x = 1239,
+			y = 137,
 			w = 384,
 			h = 59
 		},
 		["title_light"] = {
-			x = 1149,
+			x = 1631,
 			y = 166,
 			w = 118,
 			h = 86
 		},
 		["grass2"] = {
-			x = 396,
-			y = 409,
+			x = 1872,
+			y = 150,
 			w = 384,
 			h = 27
 		},
 		["grass"] = {
-			x = 4,
-			y = 409,
+			x = 1872,
+			y = 111,
 			w = 384,
 			h = 31
 		},
 		["title"] = {
-			x = 1390,
-			y = 111,
+			x = 2078,
+			y = 4,
 			w = 118,
 			h = 86
 		},
 		["car_headlight"] = {
-			x = 1390,
+			x = 1872,
 			y = 4,
 			w = 198,
 			h = 99
 		},
 		["bg_tree_cover"] = {
-			x = 1303,
+			x = 1785,
 			y = 4,
 			w = 79,
 			h = 249
 		},
 		["buildings"] = {
-			x = 4,
-			y = 342,
+			x = 1239,
+			y = 204,
 			w = 384,
 			h = 59
 		},
@@ -96,8 +96,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 1592,
-		atlasHeight = 444,
+		atlasWidth = 2293,
+		atlasHeight = 267,
 		quadCount = 15
 	}
 }

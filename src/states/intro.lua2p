@@ -54,6 +54,7 @@ function Intro:state_setup()
 		Shaders.NGrading($_LUT_AFTERNOON),
 		Shaders.NGrading($_LUT_AFTERNOON, $_LUT_DUSK, false),
 	})
+	-- self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_intro"))
 	self.world:emit("set_draw", "ev_draw_ex")
 
 	local asm_intro = Assemblages.Intro
@@ -142,14 +143,14 @@ function Intro:state_init()
 	local ww = love.graphics.getWidth()
 	local w, h = img_bg:getDimensions()
 
-	self.timeline = TLE.Do(function()
+	self.world:emit("start_timeline", function()
 		!if _DEV then
 		self.world:emit("set_ambiance", {0.5, 0.5, 0.5})
-		self.timeline:Pause()
+		self.world:emit("pause_timeline")
 		!end
 
 		--how many times we will scale/move the camera for this cutscene
-		local ambient_color = Palette.get("ambiance_intro")
+		local ambient_color = Palette.get_diffuse("ambiance_intro")
 		local max_n_cam_t = 4
 		self.world:emit("set_ambiance", ambient_color)
 		self.world:emit("set_camera_transform", self.camera,
@@ -162,8 +163,8 @@ function Intro:state_init()
 		self.world:emit("tween_camera_scale", self.camera, 5, 10, "cubicinout")
 
 		TLE.Event.Wait(2)
-		self:enable_next_intro_text()
-		self.timeline:Pause()
+		self.world:emit("enable_next_intro_text")
+		self.world:emit("pause_timeline")
 
 		local car_pos = self.e_car.pos
 		self.world:emit("tween_depth_zoom", 5, 2/max_n_cam_t, "circout")
@@ -171,9 +172,9 @@ function Intro:state_init()
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 160, -32, "circout")
 		Flux.to(car_pos, 5, {x = 128})
 
-		self:update_rain(16)
-		self:enable_next_intro_text()
-		self.timeline:Pause()
+		self.world:emit("update_rain", 16)
+		self.world:emit("enable_next_intro_text")
+		self.world:emit("pause_timeline")
 
 		--Enter forest
 		self.world:emit("fade_out_fog", "fog1", 3)
@@ -187,7 +188,7 @@ function Intro:state_init()
 		Flux.to(ambient_color, 15, {
 			[1] = 0.3, [2] = 0.3, [3] = 0.3,
 		}):onupdate(function()
-			self.world:emit("set_ambient_light", ambient_color)
+			self.world:emit("set_ambiance", ambient_color)
 		end)
 
 		self.world:emit("set_post_process_effect", $_PP_NGRADING, false)
@@ -200,14 +201,14 @@ function Intro:state_init()
 		self.world:emit("tween_camera_pos_rel", self.camera, 5, 72, -32, "backout")
 		Flux.to(car_pos, 3, {x = 160})
 
-		self:enable_next_intro_text()
-		self.timeline:Pause()
+		self.world:emit("enable_next_intro_text")
+		self.world:emit("pause_timeline")
 
-		self:enable_next_intro_text()
-		self.timeline:Pause()
+		self.world:emit("enable_next_intro_text")
+		self.world:emit("pause_timeline")
 
 		TLE.Event.Wait(2)
-		self:update_rain(32)
+		self.world:emit("update_rain", 32)
 
 		TLE.Event.Wait(1)
 		self.world:emit("slow_parallax", 0.75)
@@ -224,8 +225,8 @@ function Intro:state_init()
 		self.e_title_light:remove("light_disabled")
 		self.e_title:remove("hidden")
 			:give("color_fade_in", 4)
-			:give("color_fade_in_finish", "resume_tle")
-		self.timeline:Pause()
+			:give("color_fade_in_finish", "resume_timeline")
+		self.world:emit("pause_timeline")
 
 		TLE.Event.Wait(2)
 		self.world:emit("stop_parallax")
@@ -246,9 +247,10 @@ end
 
 function Intro:state_update(dt)
 	@@profb("intro_update")
+	self.world:emit("preupdate", dt)
 	!if _DEV then
 	if Inputs.pressed("play") then
-		self.timeline:Unpause()
+		self.world:emit("resume_timeline")
 	end
 	!end
 
@@ -298,14 +300,14 @@ function Intro:state_keypressed(key)
 end
 
 function Intro:cleanup()
-	self.timeline:Die()
+	self.world:emit("kill_timeline")
 	self.world:emit("set_particle_system", $_PS_RAIN_INTRO, "stop")
 end
 
 function Intro:enable_next_intro_text()
 	local e = self.pool_intro_text[self.intro_text_n]
 	self.world:emit("fade_text", e, 4, function()
-			self.timeline:Unpause()
+			self.world:emit("resume_timeline")
 			self.intro_text_n = self.intro_text_n + 1
 		end)
 end
@@ -323,10 +325,6 @@ function Intro:update_rain(amount)
 	@@assert(type(amount) == "number")
 	self.is_raining = true
 	self.world:emit("set_particle_system", $_PS_RAIN_INTRO, "setEmissionRate", amount)
-end
-
-function Intro:resume_tle()
-	self.timeline:Unpause()
 end
 
 return Intro

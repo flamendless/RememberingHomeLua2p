@@ -3,13 +3,13 @@
 local Data = {
 	frames = {
 		["left_door"] = {
-			x = 370,
+			x = 343,
 			y = 4,
 			w = 4,
 			h = 65
 		},
 		["right_door"] = {
-			x = 382,
+			x = 355,
 			y = 4,
 			w = 4,
 			h = 65
@@ -27,14 +27,14 @@ local Data = {
 			h = 44
 		},
 		["bulb"] = {
-			x = 244,
-			y = 52,
+			x = 330,
+			y = 4,
 			w = 5,
 			h = 18
 		},
 		["light_switch"] = {
-			x = 303,
-			y = 56,
+			x = 244,
+			y = 52,
 			w = 13,
 			h = 17
 		},
@@ -63,8 +63,8 @@ local Data = {
 			h = 70
 		},
 		["barrell"] = {
-			x = 330,
-			y = 4,
+			x = 303,
+			y = 56,
 			w = 32,
 			h = 22
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 390,
-		atlasHeight = 78,
+		atlasWidth = 363,
+		atlasHeight = 82,
 		quadCount = 11
 	}
 }

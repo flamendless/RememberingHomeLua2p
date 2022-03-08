@@ -3,50 +3,50 @@
 local Data = {
 	frames = {
 		["b_connector"] = {
-			x = 938,
-			y = 41,
+			x = 456,
+			y = 46,
 			w = 22,
 			h = 30
 		},
 		["left_door"] = {
-			x = 1066,
+			x = 744,
 			y = 4,
 			w = 4,
 			h = 65
 		},
 		["right_door"] = {
-			x = 1054,
+			x = 732,
 			y = 4,
 			w = 4,
 			h = 65
 		},
 		["t_connector"] = {
-			x = 991,
-			y = 4,
+			x = 486,
+			y = 46,
 			w = 21,
 			h = 28
 		},
 		["t_cabinet_single1"] = {
-			x = 938,
-			y = 4,
+			x = 403,
+			y = 46,
 			w = 45,
 			h = 29
 		},
 		["t_cabinet_multi"] = {
-			x = 774,
-			y = 4,
+			x = 144,
+			y = 46,
 			w = 58,
 			h = 29
 		},
 		["stool"] = {
-			x = 4,
+			x = 515,
 			y = 46,
 			w = 19,
 			h = 26
 		},
 		["t_cabinet_right"] = {
-			x = 840,
-			y = 40,
+			x = 338,
+			y = 46,
 			w = 57,
 			h = 28
 		},
@@ -69,26 +69,26 @@ local Data = {
 			h = 34
 		},
 		["b_cabinet_single1"] = {
-			x = 774,
-			y = 41,
+			x = 210,
+			y = 46,
 			w = 55,
 			h = 30
 		},
 		["ref"] = {
-			x = 905,
+			x = 699,
 			y = 4,
 			w = 25,
 			h = 61
 		},
 		["b_cabinet_single2"] = {
-			x = 699,
-			y = 40,
+			x = 79,
+			y = 46,
 			w = 57,
 			h = 30
 		},
 		["light_switch"] = {
-			x = 991,
-			y = 40,
+			x = 597,
+			y = 65,
 			w = 5,
 			h = 8
 		},
@@ -99,31 +99,31 @@ local Data = {
 			h = 29
 		},
 		["t_cabinet_open"] = {
-			x = 840,
-			y = 4,
+			x = 273,
+			y = 46,
 			w = 57,
 			h = 28
 		},
 		["outlet"] = {
-			x = 968,
-			y = 41,
+			x = 631,
+			y = 46,
 			w = 14,
 			h = 5
 		},
 		["stove"] = {
-			x = 86,
-			y = 46,
+			x = 542,
+			y = 62,
 			w = 42,
 			h = 6
 		},
 		["sink"] = {
-			x = 1020,
-			y = 4,
+			x = 597,
+			y = 46,
 			w = 26,
 			h = 11
 		},
 		["light1"] = {
-			x = 31,
+			x = 542,
 			y = 46,
 			w = 47,
 			h = 8
@@ -135,8 +135,8 @@ local Data = {
 			h = 68
 		},
 		["light2"] = {
-			x = 699,
-			y = 4,
+			x = 4,
+			y = 46,
 			w = 67,
 			h = 28
 		},
@@ -150,8 +150,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 1074,
-		atlasHeight = 76,
+		atlasWidth = 752,
+		atlasHeight = 80,
 		quadCount = 24
 	}
 }

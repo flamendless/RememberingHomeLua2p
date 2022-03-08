@@ -113,7 +113,7 @@ function NGrading:new_multi(img, img2, cs)
 	local volume_img2, image2
 	local used_shader = love.graphics.getTextureTypes().volume
 	if used_shader == 0 then used_shader = false end
-	used_shader = used_shader and "volume_multi" or "old_multi"
+	used_shader = used_shader and "volume_multi"
 	if used_shader == "volume_multi" then
 		local imgs = {}
 		local imgs2 = {}

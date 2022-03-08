@@ -9,8 +9,8 @@ local Data = {
 			h = 57
 		},
 		["wood3"] = {
-			x = 219,
-			y = 4,
+			x = 184,
+			y = 39,
 			w = 36,
 			h = 17
 		},
@@ -21,7 +21,7 @@ local Data = {
 			h = 27
 		},
 		["bulb"] = {
-			x = 206,
+			x = 252,
 			y = 39,
 			w = 5,
 			h = 18
@@ -39,14 +39,14 @@ local Data = {
 			h = 52
 		},
 		["light_switch"] = {
-			x = 263,
-			y = 28,
+			x = 241,
+			y = 4,
 			w = 13,
 			h = 17
 		},
 		["wood"] = {
-			x = 263,
-			y = 4,
+			x = 117,
+			y = 48,
 			w = 17,
 			h = 16
 		},
@@ -57,14 +57,14 @@ local Data = {
 			h = 55
 		},
 		["wood2"] = {
-			x = 219,
-			y = 29,
+			x = 228,
+			y = 39,
 			w = 16,
 			h = 17
 		},
 		["electrical_box"] = {
-			x = 184,
-			y = 39,
+			x = 219,
+			y = 4,
 			w = 14,
 			h = 21
 		}
@@ -72,8 +72,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 284,
-		atlasHeight = 65,
+		atlasWidth = 261,
+		atlasHeight = 68,
 		quadCount = 11
 	}
 }

@@ -22,7 +22,7 @@ local commons = {
 	"interactive", "inventory", "items", "movement", "outline", "pause",
 	"player_controller", "renderer", "room", "systems", "transform",
 	"typewriter", "door", "light_switch", "notes", "list", "post_processing",
-	"randomize_uv",
+	"randomize_uv", "timeline"
 	--"flashlight", "animation_sync",
 }
 
@@ -51,6 +51,7 @@ state_systems.Intro = {
 	"animation", "atlas", "camera", "color", "deferred_lighting", "depth",
 	"entity", "fog", "gamestates", "parallax", "particle_system", "post_processing",
 	"renderer", "show_keys", "text_paint_intro", "transform", "tree", "tween",
+	"timeline",
 }
 
 state_systems.Outside = !!(get_commons_ex("path", "fireflies", "text_paint"))
