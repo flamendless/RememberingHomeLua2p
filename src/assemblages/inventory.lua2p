@@ -1,4 +1,5 @@
 local Cache = require("cache")
+local Enums = require("enums")
 local Palette = require("palette")
 
 local Inventory = {}
@@ -76,7 +77,7 @@ function Inventory.cell(e, i, x, y, w, h)
 	:give("list_group", $_LIST_INVENTORY_CELLS)
 	:give("pos", x, y)
 	:give("rect", w, h)
-	:give("draw_mode", "fill")
+	:give("draw_mode", Enums.draw_mode.fill)
 	:give("color", Palette.get("inventory_cell", 0.4))
 	:give("alpha_range", 0, 0.4)
 	:give("ui_element")

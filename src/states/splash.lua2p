@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
@@ -7,6 +6,7 @@ local Timer = require("modules.hump.timer")
 
 local Animation = require("animation")
 local Canvas = require("canvas")
+local Enums = require("enums")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Palette = require("palette")
@@ -38,7 +38,7 @@ function Splash:state_init()
 
 	self.timeline = TLE.Do(function()
 		self.world:emit("set_post_process_effect", $_PP_GLITCH, true)
-		self.current_state = states.splash_love
+		self.current_state = Enums.splash_state.love
 		self:set_skippable_timer()
 		self:create_splash_love()
 		self:do_glitch(3, 2)
@@ -46,14 +46,14 @@ function Splash:state_init()
 
 		self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
 		self.world:emit("set_post_process_effect", $_PP_GLITCH, false)
-		self.current_state = states.splash_wits
+		self.current_state = Enums.splash_state.wits
 		self:set_skippable_timer()
 		self:create_splash_wits()
 		self.timeline:Pause()
 
 		self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
 		self.world:emit("set_post_process_effect", $_PP_GLITCH, true)
-		self.current_state = states.splash_flam
+		self.current_state = Enums.splash_state.flam
 		self:set_skippable_timer()
 		self:create_splash_flamendless()
 		self:do_glitch(5, 1)
@@ -158,7 +158,7 @@ function Splash:state_update(dt)
 		self.timer_skip:update(dt)
 	end
 
-	if self.current_state == states.splash_love then
+	if self.current_state == Enums.splash_state.love then
 		self.splash_love:update(dt)
 	else
 		self.world:emit("update", dt)
@@ -166,17 +166,17 @@ function Splash:state_update(dt)
 
 	if Save.data.splash_done then
 		if Inputs.released("interact") then
-			if self.current_state == states.splash_love and self.skippable then
+			if self.current_state == Enums.splash_state.love and self.skippable then
 				self.splash_love:skip()
 				self.skippable = false
 			end
 
-			if self.current_state == states.splash_wits and self.skippable then
+			if self.current_state == Enums.splash_state.wits and self.skippable then
 				self.splash_wits:give("animation_stop", "pauseAtEnd")
 				self.skippable = false
 			end
 
-			if self.current_state == states.splash_flam and self.skippable then
+			if self.current_state == Enums.splash_state.flam and self.skippable then
 				self.world:emit("switch_state", "Menu")
 				self.skippable = false
 			end
@@ -187,7 +187,7 @@ end
 function Splash:state_draw()
 	love.graphics.setCanvas(self.canvas.canvas)
 		love.graphics.clear()
-		if self.current_state == states.splash_love then
+		if self.current_state == Enums.splash_state.love then
 			self.splash_love:draw()
 		else
 			self.world:emit("draw")

@@ -1,6 +1,7 @@
 local Concord = require("modules.concord")
 
 local Animation = require("animation")
+local Enums = require("enums")
 local Inputs = require("inputs")
 
 local Flashlight = Concord.system({
@@ -40,7 +41,7 @@ function Flashlight:create_flashlight()
 			self.player, Animation.get_sync_data("flashlight"))
 	!if _DEV then
 		:give("battery", 100)
-		:give("battery_state", "FULL")
+		:give("battery_state", Enums.battery_state.full)
 	!end
 	self.start_l = Concord.entity(self.world):assemble(Light.fl_start)
 	self.end_l = Concord.entity(self.world):assemble(Light.fl_end)
@@ -105,11 +106,11 @@ function Flashlight:update_battery(dt)
 	if not self.flashlight then return end
 	local battery = self.flashlight.battery
 	local bs = self.flashlight.battery_state
-	if not battery or bs.value == "EMPTY" then return end
+	if not battery or bs.value == Enums.battery_state.empty then return end
 
 	local f_pl = self.flashlight.point_light
 	if f_pl.value <= 0 then
-		bs:set("EMPTY")
+		bs:set(Enums.battery_state.empty)
 		self.flashlight:give("light_disabled")
 			:remove("battery")
 			:remove("d_light_flicker")
@@ -123,14 +124,14 @@ function Flashlight:update_battery(dt)
 
 	local flicker = self.flashlight.d_light_flicker
 	local f_repeat = self.flashlight.d_light_flicker_repeat
-	if bs.value == "FULL" and battery.pct <= 50 then
-		bs:set("LOW")
+	if bs.value == Enums.battery_state.full and battery.pct <= 50 then
+		bs:set(Enums.battery_state.low)
 		flicker.during = 0.5
 		flicker.on_chance = 0.65
 		flicker.off_chance = 0.35
 		f_repeat.delay = 2
-	elseif bs.value == "LOW" and battery.pct <= 25 then
-		bs:set("CRITICAL")
+	elseif bs.value == Enums.battery_state.low and battery.pct <= 25 then
+		bs:set(Enums.battery_state.critical)
 		flicker.during = 0.3
 		flicker.on_chance = 0.5
 		flicker.off_chance = 0.5

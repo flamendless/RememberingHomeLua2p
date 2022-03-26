@@ -12,10 +12,7 @@ local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Inventory = require("assemblages.inventory"),
-	Player = require("assemblages.player"),
 	StorageRoom = require("assemblages.storage_room"),
-	UI = require("assemblages.ui"),
 }
 
 local StorageRoom = Concord.system()

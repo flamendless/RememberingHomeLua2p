@@ -16,11 +16,8 @@ local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Inventory = require("assemblages.inventory"),
 	Light = require("assemblages.light"),
 	Outside = require("assemblages.outside"),
-	Player = require("assemblages.player"),
-	UI = require("assemblages.ui"),
 }
 
 local ParticleSystems = {

@@ -1,5 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 local Log = require("modules.log.log")
@@ -7,6 +6,7 @@ local Timer = require("modules.hump.timer")
 local TLE = require("modules.tle.timeline")
 
 local Canvas = require("canvas")
+local Enums = require("enums")
 local Fade = require("fade")
 local Image = require("image")
 local Inputs = require("inputs")
@@ -32,7 +32,6 @@ local Menu = Concord.system({
 
 local AMenu = require("assemblages.menu")
 
-local states = Enum("menu", "sub_menu", "play", "settings", "about", "exit")
 local offset_x = 64
 local dur_in = 0.75
 local dur_out = 0.5
@@ -133,7 +132,7 @@ function Menu:init(world)
 	self.world = world
 	self.keys = {}
 	self.is_transition = true
-	self.current_state = states.menu
+	self.current_state = Enums.menu_state.menu
 end
 
 function Menu:state_setup()
@@ -175,19 +174,19 @@ function Menu:state_update(dt)
 	self.world:emit("check_mouse_hover", mx, my)
 	self.world:emit("hover_effects")
 
-	if self.current_state == states.settings and not self.mb.flag_process then
+	if self.current_state == Enums.menu_state.settings and not self.mb.flag_process then
 		self.world:emit("update_settings", dt)
-	elseif self.current_state == states.exit then
+	elseif self.current_state == Enums.menu_state.exit then
 		self.dissolve:update(dt)
 	end
 end
 
 function Menu:state_draw()
-	if self.current_state ~= states.exit then
+	if self.current_state ~= Enums.menu_state.exit then
 		self.canvases.main:attach()
 		self.camera:attach()
 			self.world:emit("draw")
-			if self.current_state == states.settings and not self.mb.flag_process then
+			if self.current_state == Enums.menu_state.settings and not self.mb.flag_process then
 				local l, t = self.camera:getVisible()
 				love.graphics.push()
 				love.graphics.translate(l, t)
@@ -199,7 +198,7 @@ function Menu:state_draw()
 		self.canvases.main:detach()
 		self.mb:post_process_draw()
 		self.canvases.main:render()
-	elseif self.current_state == states.exit then
+	elseif self.current_state == Enums.menu_state.exit then
 		self.dissolve:draw(function()
 			self.world:emit("draw")
 		end)
@@ -381,7 +380,7 @@ function Menu:show_main_menu()
 		:give("lerp_on_finish", "menu_unpause", 0, false)
 		:give("move_to_original", duration_pos)
 	end
-	self.current_state = states.menu
+	self.current_state = Enums.menu_state.menu
 	self.world:emit("set_focus_list", $_LIST_MAIN_MENU)
 end
 
@@ -405,7 +404,7 @@ function Menu:show_sub_menu()
 	end
 
 	Timer.after(duration_show, function()
-		self.current_state = states.sub_menu
+		self.current_state = Enums.menu_state.sub_menu
 		local override_cursor = Save.valid_checkpoints and 1 or 2
 		self.world:emit("set_focus_list", $_LIST_SUB_MENU, override_cursor)
 	end)
@@ -480,19 +479,19 @@ function Menu:on_exit()
 			love.event.quit()
 		end
 	elseif btn == 2 then
-		self.current_state = states.menu
+		self.current_state = Enums.menu_state.menu
 		Log.info("Switched Menu State to:", self.current_state)
 	end
 	!end
 end
 
 function Menu:menu_back()
-	if self.current_state == states.sub_menu and
+	if self.current_state == Enums.menu_state.sub_menu and
 		not self.is_transition then
 		self.is_transition = true
 		self:hide_sub_menu()
 		self:show_main_menu()
-	elseif self.current_state ~= states.menu and self.current_state ~= states.play then
+	elseif self.current_state ~= Enums.menu_state.menu and self.current_state ~= Enums.menu_state.play then
 		self:MB_return()
 	end
 end
@@ -546,7 +545,7 @@ function Menu:MB_return()
 			self.world:emit("on_camera_move", self.camera)
 		end)
 		:oncomplete(function()
-			self.current_state = states.menu
+			self.current_state = Enums.menu_state.menu
 			Log.info("Switched Menu State to:", self.current_state)
 			self.mb.flag_process = false
 		end)
@@ -599,13 +598,13 @@ Menu[$_SIGNAL_LIST_INTERACT .. $_LIST_MAIN_MENU] = function(self, e_hovered)
 		self:hide_main_menu()
 		self:show_sub_menu()
 	elseif text == "Settings" then
-		self.current_state = states.settings
+		self.current_state = Enums.menu_state.settings
 		self:on_settings()
 	elseif text == "About" then
-		self.current_state = states.about
+		self.current_state = Enums.menu_state.about
 		self:on_about()
 	elseif text == "Exit" then
-		self.current_state = states.exit
+		self.current_state = Enums.menu_state.exit
 		self:on_exit()
 	end
 end

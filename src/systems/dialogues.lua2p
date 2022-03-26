@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local TLE = require("modules.tle.timeline")
 
 local DialoguesSrc = require("dialogues")
+local Enums = require("enums")
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
 local Resources = require("resources")
@@ -24,7 +25,7 @@ function Dialogues:init(world)
 	self.is_waiting = false
 	self.world:emit("create_dialogue_key")
 	self.pool_choice.onAdded = function(pool, e)
-		if e.item_id.value ~= "choice_item" then
+		if e.item_id.value ~= Enums.item.choice then
 			self.pool_choice:remove(e)
 		end
 	end

@@ -1,3 +1,4 @@
+local Enums = require("enums")
 local Palette = require("palette")
 local Resources = require("resources")
 
@@ -64,7 +65,7 @@ function Menu.subtitle(e, x, y, target, scale, ox, oy)
 	e:give("id", "subtitle")
 	:give("sprite", "subtitle")
 	:give("pos", x, y)
-	:give("anchor", target, "center", "bottom")
+	:give("anchor", target, Enums.anchor.center, Enums.anchor.bottom)
 	:give("transform", 0, scale, scale, ox, oy)
 	:give("color", Palette.get("white", 0.5))
 	:give("menu_text")

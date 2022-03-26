@@ -1,5 +1,7 @@
 local Concord = require("modules.concord.concord")
 
+local Enums = require("enums")
+
 local Light = Concord.system({
 	pool = {"id", "pos", "transform", "color", "light", "sprite"},
 })
@@ -39,10 +41,10 @@ end
 local function manage_offset(shape, transform, sprite)
 	local w, h = sprite:getDimensions()
 
-	if shape == "round" or shape == "rectangle" then
+	if shape == Enums.light_shape.round or shape == Enums.light_shape.rectangle then
 		transform.ox = w * 0.5
 		transform.oy = h * 0.5
-	elseif shape == "cone" then
+	elseif shape == Enums.light_shape.cone then
 		transform.ox = 0
 		transform.oy = h * 0.5
 	end

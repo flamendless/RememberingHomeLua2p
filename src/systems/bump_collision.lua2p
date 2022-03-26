@@ -1,10 +1,10 @@
 local Concord = require("modules.concord.concord")
+
 local BumpStorage = require("ctor.bump_storage")
+local Enums = require("enums")
 
 local BumpCollision = Concord.system({
-	pool = {
-		constructor = BumpStorage,
-	},
+	pool = {constructor = BumpStorage},
 })
 
 local function get_query_rect(self)
@@ -27,7 +27,7 @@ end
 
 local function filter(item, other)
 	local other_col = other.collider
-	return other_col.filter or "slide"
+	return other_col.filter or Enums.bump_filter.slide
 end
 
 function BumpCollision:init(world)

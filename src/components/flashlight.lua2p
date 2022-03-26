@@ -1,7 +1,4 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
-
-local BATTERY_STATES = Enum("FULL", "LOW", "CRITICAL", "EMPTY")
 
 Concord.component("flashlight")
 Concord.component("flashlight_light")
@@ -13,13 +10,11 @@ Concord.component("battery", function(c, pct)
 end)
 
 local c_bs = Concord.component("battery_state", function(c, state)
-	@@assert(type(state) == "string")
-	c.value = BATTERY_STATES[state]
+	c.value = state
 end)
 
 function c_bs:set(state)
-	@@assert(type(state) == "string")
-	self.value = BATTERY_STATES[state]
+	self.value = state
 end
 
 Concord.component("fl_spawn_offset", function(c, x, y)

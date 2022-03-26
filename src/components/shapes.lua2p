@@ -1,13 +1,9 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
-
-local modes = Enum("fill", "line")
-local arc_types = Enum("pie", "open", "closed")
 
 Concord.component("textured_line")
 
 Concord.component("draw_mode", function(c, draw_mode)
-	c.value = modes[draw_mode]
+	c.value = draw_mode
 end)
 
 Concord.component("point", function(c, size)
@@ -52,5 +48,5 @@ Concord.component("line_width", function(c, line_width)
 end)
 
 Concord.component("arc_type", function(c, arc_type)
-	c.value = arc_types[arc_type]
+	c.value = arc_type
 end)
