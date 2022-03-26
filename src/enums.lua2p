@@ -2,7 +2,6 @@ local Enum = require("modules.enum.enum")
 
 local Enums = {}
 
-Enums.enemy = Enum("suit")
 Enums.mode = Enum("fill", "line")
 Enums.arc_type = Enum("pie", "open", "closed")
 Enums.bump_filter = Enum("touch", "slide", "cross", "bounce")
@@ -25,5 +24,9 @@ Enums.splash_state = Enum("love", "wits", "flam")
 Enums.menu_state = Enum("menu", "sub_menu", "play", "settings", "about", "exit")
 Enums.camera_state = Enum("zoomed_in", "zoomed_out")
 Enums.battery_state = Enum("full", "low", "critical", "empty")
+
+Enums.face_dir = Enum("left", "right")
+Enums.player_anim = Enum("idle", "idle_left", "walk", "run")
+Enums.enemy_type = Enum("suit")
 
 return Enums

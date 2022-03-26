@@ -1,3 +1,5 @@
+local Enums = require("enums")
+
 local PlayerSpawnPoints = {}
 
 PlayerSpawnPoints.Outside = {
@@ -13,14 +15,14 @@ PlayerSpawnPoints.StorageRoom = {
 	default = {312, 48},
 	!end
 	Outside = {312, 48},
-	Kitchen = {16, 48, "face_right"},
+	Kitchen = {16, 48, Enums.face_dir.right},
 }
 
 PlayerSpawnPoints.UtilityRoom = {
 	!if _DEV then
 	default = {318, 48},
 	!end
-	Kitchen = {16, 48, "face_right"},
+	Kitchen = {16, 48, Enums.face_dir.right},
 }
 
 PlayerSpawnPoints.Kitchen = {

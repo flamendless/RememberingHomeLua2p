@@ -2,6 +2,7 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local Dialogues = require("dialogues")
+local Enums = require("enums")
 local Inputs = require("inputs")
 local Items = require("items")
 local PlayerSpawnPoints = require("data.player_spawn_points")
@@ -15,9 +16,9 @@ local function get_spawn_points(current_id, prev_id)
 	local d = PlayerSpawnPoints[current_id][prev_id or "default"]
 	@@assert(d)
 	if not d[3] then
-		d[3] = "face_left"
+		d[3] = Enums.face_dir.left
 	end
-	@@assert(type(d[3]) == "string" and (d[3] == "face_left" or d[3] == "face_right"))
+	@@assert(type(d[3]) == "string" and (d[3] == Enums.face_dir.left or d[3] == Enums.face_dir.right))
 	return unpack(d)
 end
 
@@ -28,9 +29,9 @@ end
 function PlayerController:on_toggle_equip_flashlight()
 	local has_f = Items.is_equipped("flashlight")
 	self.player:remove("multi_animation_data")
-	self.player:give("multi_animation_data", "idle",
+	self.player:give("multi_animation_data", Enums.player_anim.idle,
 		AssemPlayer.get_multi_anim_data(has_f, self.player.can_open_door))
-	local tag = (self.player.body.dir == -1) and "idle_left" or "idle"
+	local tag = (self.player.body.dir == -1) and Enums.player_anim.idle_left or Enums.player_anim.idle
 	self.player:give("change_animation_tag", tag, true)
 end
 
@@ -40,9 +41,9 @@ function PlayerController:spawn_player(fn)
 	local x, y, face = get_spawn_points(self.world.current_id, self.world.prev_id)
 	self.player = Concord.entity(self.world):assemble(AssemPlayer.room, x, y)
 	self.world:__flush()
-	if face == "face_left" then
+	if face == Enums.face_dir.left then
 		self:face_left()
-	elseif face == "face_right" then
+	elseif face == Enums.face_dir.right then
 		self:face_right()
 	end
 	if fn then
@@ -102,12 +103,12 @@ function PlayerController:player_update_animation(override_name, override_varian
 	if not anim_name then
 		if body.dx ~= 0 and not self.player.hit_wall then
 			if self.player.is_running.value then
-				anim_name = "run"
+				anim_name = Enums.player_anim.run
 			else
-				anim_name = "walk"
+				anim_name = Enums.player_anim.walk
 			end
 		else
-			anim_name = "idle"
+			anim_name = Enums.player_anim.idle
 		end
 	end
 
@@ -146,23 +147,23 @@ function PlayerController:face_left()
 	if not self.player then return end
 	if self.player.override_animation then return end
 	self.player.body.dir = -1
-	self:player_update_animation("idle", "_left")
+	self:player_update_animation(Enums.player_anim.idle, "_left")
 end
 
 function PlayerController:face_right()
 	if not self.player then return end
 	if self.player.override_animation then return end
 	self.player.body.dir = 1
-	self:player_update_animation("idle")
+	self:player_update_animation(Enums.player_anim.idle)
 end
 
 function PlayerController:idle(stop)
 	if self.player.override_animation then return end
 	local body = self.player.body
 	if body.dir == -1 then
-		self:player_update_animation("idle", "_left")
+		self:player_update_animation(Enums.player_anim.idle, "_left")
 	else
-		self:player_update_animation("idle")
+		self:player_update_animation(Enums.player_anim.idle)
 	end
 
 	if stop then

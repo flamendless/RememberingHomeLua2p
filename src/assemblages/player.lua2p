@@ -1,4 +1,5 @@
 local Animation = require("animation")
+local Enums = require("enums")
 
 local Player = {}
 
@@ -51,7 +52,7 @@ function Player.base(e, x, y, speed_data, gravity, can)
 	:give("animation")
 	:give("player_controller")
 	:give("body")
-	:give("multi_animation_data", "idle", data, mods)
+	:give("multi_animation_data", Enums.player_anim.idle, data, mods)
 	:give("current_frame")
 	:give("movement")
 	:give("fl_spawn_offset", 7, -16)
