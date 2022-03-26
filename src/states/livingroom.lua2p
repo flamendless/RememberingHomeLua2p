@@ -3,6 +3,7 @@ local Gamera = require("modules.gamera.gamera")
 local TLE = require("modules.tle.timeline")
 
 local Canvas = require("canvas")
+local Enums = require("enums")
 local Fade = require("fade")
 local Palette = require("palette")
 local Resources = require("resources")
@@ -53,6 +54,11 @@ function LivingRoom:state_init()
 		self.world:emit("player_can_move", true, e_player)
 		self.world:emit("player_can_interact", true, e_player)
 		self.world:emit("player_can_run", true, e_player)
+
+		local pos = e_player.pos
+		local ex = pos.x - 96
+		local ey = pos.y
+		self.world:emit("spawn_enemy", Enums.enemy_type.suit, ex, ey)
 	end)
 
 	self.timeline = TLE.Do(function()

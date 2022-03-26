@@ -6,30 +6,17 @@ local Player = {}
 local player_h = 64
 
 function Player.get_multi_anim_data(for_flashlight, can_open_door)
-	local data, mods = {}, {}
-
-	data.idle = Animation.get("player_idle")
-	data.walk = Animation.get("player_walk")
-	data.run = Animation.get("player_run")
-
+	local tbl_anim = {"idle", "walk", "run"}
 	if can_open_door then
-		data.open_door = Animation.get("player_open_door")
-		data.open_locked_door = Animation.get("player_open_locked_door")
+		table.insert(tbl_anim, "open_door")
+		table.insert(tbl_anim, "open_locked_door")
 	end
-
+	local data, mods = Animation.get_multi_by_id("player", tbl_anim)
 	if for_flashlight then
 		for _, tag in pairs(data) do
 			tag.resource_id = tag.resource_id .. "_f"
 		end
 	end
-
-	--copy (1) as (2) applying (3)
-	mods.idle = {"idle_left", "flipH"}
-	mods.walk = {"walk_left", "flipH"}
-	mods.run = {"run_left", "flipH"}
-	mods.open_door = {"open_door_left", "flipH"}
-	mods.open_locked_door = {"open_locked_door_left", "flipH"}
-
 	return data, mods
 end
 

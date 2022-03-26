@@ -1,0 +1,18 @@
+local Concord = require("modules.concord.concord")
+
+local Enemy = require("assemblages.enemy")
+
+local EnemyController = Concord.system()
+
+function EnemyController:init(world)
+	self.world = world
+end
+
+function EnemyController:spawn_enemy(enemy_type, x, y)
+	@@assert(type(enemy_type) == "string")
+	@@assert(type(x) == "number")
+	@@assert(type(y) == "number")
+	Concord.entity(self.world):assemble(Enemy.base, enemy_type, x, y)
+end
+
+return EnemyController

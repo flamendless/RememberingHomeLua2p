@@ -248,6 +248,7 @@ function List:debug_update(dt)
 		for id in pairs(self.groups) do
 			if Slab.TextSelectable(id) then
 				selected = id
+				break
 			end
 		end
 		Slab.EndComboBox()

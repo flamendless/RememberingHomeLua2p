@@ -21,6 +21,12 @@ t.player = {
 	{"sheet_player_open_door_f", path_images .. "player/sheet_player_open_door_flashlight.png"},
 }
 
+t.enemy_suit = {
+	{"sheet_enemy_suit_walk", path_images .. "enemy_suit/sheet_enemy_walk.png"},
+	{"sheet_enemy_suit_lean_back", path_images .. "enemy_suit/sheet_enemy_lean_back.png"},
+	{"sheet_enemy_suit_lean_return_back", path_images .. "enemy_suit/sheet_enemy_lean_return_back.png"},
+}
+
 t.ui = {
 	{"atlas_keys", path_ui .. "atlas_keys.png"},
 }
@@ -236,6 +242,7 @@ ResourcesList.LivingRoom = {
 		{"living_room", !(path_images .. "living_room/living_room.png")},
 		!!(get_atlas("living_room")),
 		!!(get_res("player"))
+		!!(get_res("enemy_suit"))
 	},
 	image_data = {
 		{"lut_dusk_16", !(path_lut .. "lut_dusk_16.png")},

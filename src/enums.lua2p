@@ -9,6 +9,8 @@ Enums.align_mode = Enum("center", "left", "right", "justify")
 Enums.anchor = Enum("center", "bottom", "right")
 Enums.item = Enum("note", "inventory", "choice")
 Enums.light_shape = Enum("round", "rectangle", "cone", "custom")
+Enums.pause_at = Enum("first", "last")
+Enums.stop_at = Enum("pauseAtStart", "pauseAtEnd")
 
 Enums.ease = Enum("linear", "quadin", "quadout", "quadinout",
   "cubicin", "cubicout", "cubicinout",
@@ -27,6 +29,8 @@ Enums.battery_state = Enum("full", "low", "critical", "empty")
 
 Enums.face_dir = Enum("left", "right")
 Enums.player_anim = Enum("idle", "idle_left", "walk", "run")
+
 Enums.enemy_type = Enum("suit")
+Enums.enemy_suit_anim = Enum("idle", "walk")
 
 return Enums

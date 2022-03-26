@@ -117,6 +117,7 @@ function MenuSettings:update_settings(dt)
 				if Slab.TextSelectable(str) then
 					self.current_wm = i
 					self.window_mode = str
+					break
 				end
 			end
 			Slab.EndComboBox()
@@ -126,6 +127,7 @@ function MenuSettings:update_settings(dt)
 			for _, str in ipairs(Settings.available_graphics_quality) do
 				if Slab.TextSelectable(str) then
 					self.current_gq = str
+					break
 				end
 			end
 			Slab.EndComboBox()
