@@ -28,7 +28,7 @@ Resources.meta = require("data.resources_list")
 function Resources.get_meta(key)
 	@@assert(type(key) == "string")
 	@@assert(Resources.meta[key], key .. " is invalid")
-	local t = tablex.copy(Resources.meta[key], {})
+	local t = tablex.copy(Resources.meta[key])
 	!if not _GLSL_NORMALS then
 	t.images = tablex.append({}, t.images, t.array_images)
 	if t.array_images then

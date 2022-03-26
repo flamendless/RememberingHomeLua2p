@@ -68,7 +68,7 @@ _COMMIT_VERSION = toLua(args[2])
 _MODE = toLua(args[1])
 _LOG_SAVE = true
 _CACHED_PRELOAD = true
-_PADDING = toLua(args[3])
+_OUTLINE_PADDING = toLua(args[3])
 _GLSL_NORMALS = false
 
 _OS = "Linux"
@@ -178,6 +178,20 @@ _LIST_NOTES = toLua("notes")
 _LIST_INVENTORY_CELLS = toLua("inventory_cells")
 _LIST_INVENTORY_CHOICES = toLua("inventory_choices")
 _LIST_PAUSE_CHOICES = toLua("pause_choices")
+
+--POST PROCESS IDS
+_PP_BLUR = toLua("Blur")
+_PP_DISSOLVE = toLua("Dissolve")
+_PP_DITHERGRADIENT = toLua("DitherGradient")
+_PP_FILMGRAIN = toLua("FilmGrain")
+_PP_GLITCH = toLua("Glitch")
+_PP_MOTIONBLUR = toLua("MotionBlur")
+_PP_NGRADING = toLua("NGrading")
+_PP_NGRADING_MULTI = toLua("NGradingMulti")
+
+--PARTICLE SYSTEM IDS
+_PS_RAIN_INTRO = toLua("PSRainIntro")
+_PS_RAIN_OUTSIDE = toLua("PSRainOutside")
 
 --SIGNALS
 _SIGNAL_LIST_REMOVE = toLua("on_list_cursor_remove_")

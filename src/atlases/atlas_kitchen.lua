@@ -3,155 +3,155 @@
 local Data = {
 	frames = {
 		["b_connector"] = {
-			x = 4,
-			y = 222,
+			x = 456,
+			y = 46,
 			w = 22,
 			h = 30
 		},
 		["left_door"] = {
-			x = 4,
-			y = 80,
+			x = 744,
+			y = 4,
 			w = 4,
 			h = 65
 		},
 		["right_door"] = {
-			x = 16,
-			y = 80,
+			x = 732,
+			y = 4,
 			w = 4,
 			h = 65
 		},
 		["t_connector"] = {
-			x = 4,
-			y = 260,
+			x = 486,
+			y = 46,
 			w = 21,
 			h = 28
 		},
 		["t_cabinet_single1"] = {
-			x = 527,
-			y = 4,
+			x = 403,
+			y = 46,
 			w = 45,
 			h = 29
 		},
 		["t_cabinet_multi"] = {
-			x = 461,
-			y = 4,
+			x = 144,
+			y = 46,
 			w = 58,
 			h = 29
 		},
 		["stool"] = {
-			x = 4,
-			y = 296,
+			x = 515,
+			y = 46,
 			w = 19,
 			h = 26
 		},
-		["outlet"] = {
-			x = 4,
-			y = 349,
-			w = 14,
-			h = 5
+		["t_cabinet_right"] = {
+			x = 338,
+			y = 46,
+			w = 57,
+			h = 28
 		},
 		["b_cabinet_open2"] = {
-			x = 248,
+			x = 574,
 			y = 4,
 			w = 77,
 			h = 31
 		},
 		["tiles"] = {
-			x = 890,
+			x = 4,
 			y = 4,
 			w = 253,
 			h = 27
 		},
 		["b_cabinet_open1"] = {
-			x = 44,
+			x = 491,
 			y = 4,
 			w = 75,
 			h = 34
 		},
-		["light_switch"] = {
-			x = 28,
-			y = 80,
-			w = 5,
-			h = 8
+		["b_cabinet_single1"] = {
+			x = 210,
+			y = 46,
+			w = 55,
+			h = 30
 		},
 		["ref"] = {
-			x = 4,
-			y = 153,
+			x = 699,
+			y = 4,
 			w = 25,
 			h = 61
 		},
 		["b_cabinet_single2"] = {
-			x = 396,
-			y = 4,
+			x = 79,
+			y = 46,
 			w = 57,
 			h = 30
 		},
-		["stove"] = {
-			x = 1151,
-			y = 20,
-			w = 42,
-			h = 6
+		["light_switch"] = {
+			x = 597,
+			y = 65,
+			w = 5,
+			h = 8
 		},
 		["t_cabinet_long"] = {
-			x = 580,
+			x = 386,
 			y = 4,
 			w = 97,
 			h = 29
 		},
 		["t_cabinet_open"] = {
-			x = 825,
-			y = 4,
+			x = 273,
+			y = 46,
 			w = 57,
 			h = 28
 		},
+		["outlet"] = {
+			x = 631,
+			y = 46,
+			w = 14,
+			h = 5
+		},
+		["stove"] = {
+			x = 542,
+			y = 62,
+			w = 42,
+			h = 6
+		},
+		["sink"] = {
+			x = 597,
+			y = 46,
+			w = 26,
+			h = 11
+		},
 		["light1"] = {
-			x = 1151,
-			y = 4,
+			x = 542,
+			y = 46,
 			w = 47,
 			h = 8
 		},
-		["table"] = {
-			x = 127,
-			y = 4,
-			w = 113,
-			h = 33
-		},
-		["t_cabinet_right"] = {
-			x = 685,
-			y = 4,
-			w = 57,
-			h = 28
-		},
 		["utility_door"] = {
-			x = 4,
+			x = 659,
 			y = 4,
 			w = 32,
 			h = 68
 		},
-		["sink"] = {
-			x = 4,
-			y = 330,
-			w = 26,
-			h = 11
-		},
 		["light2"] = {
-			x = 750,
-			y = 4,
+			x = 4,
+			y = 46,
 			w = 67,
 			h = 28
 		},
-		["b_cabinet_single1"] = {
-			x = 333,
+		["table"] = {
+			x = 265,
 			y = 4,
-			w = 55,
-			h = 30
+			w = 113,
+			h = 33
 		}
 	},
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 1202,
-		atlasHeight = 358,
+		atlasWidth = 752,
+		atlasHeight = 80,
 		quadCount = 24
 	}
 }

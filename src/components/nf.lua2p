@@ -1,6 +1,0 @@
-local Concord = require("modules.concord.concord")
-
---not for render system
-Concord.component("nf_render_text")
-Concord.component("nf_render_sprite")
-Concord.component("nf_render_rect")

@@ -1,4 +1,5 @@
 local Animation = require("animation")
+local Enums = require("enums")
 local Palette = require("palette")
 
 local UI = {}
@@ -27,11 +28,10 @@ function UI.choice(e, id, text, text_t, x, y)
 	:give("font", "ui")
 	:give("pos", x, y)
 	:give("color", Palette.get("ui_dialogue"))
-	:give("item_id", "choice_item")
+	:give("item_id", Enums.item.choice)
 	:give("ui_element")
 	:give("transform", 0, 1, 1, 0, 0.5)
 	:give("layer", "dialogue", 3)
-	:give("nf_render_text")
 end
 
 function UI.speech_bubble(e, player, x, y)

@@ -48,7 +48,7 @@ function Pause:create_pause_choices()
 	local by = wh2 + 16
 	local scale = 0.75
 	local fnt = Resources.data.fonts.ui
-	local fh = fnt:getHeight("") * scale + 8
+	local fh = fnt:getHeight() * scale + 8
 
 	self.world:emit("create_list_group", $_LIST_PAUSE_CHOICES, true, #opt)
 	for i, str in ipairs(opt) do
@@ -120,7 +120,7 @@ function Pause:on_pause()
 	end
 
 	self.is_paused = not self.is_paused
-	self.world:emit("set_post_process_effect", "Blur", self.is_paused)
+	self.world:emit("set_post_process_effect", $_PP_BLUR, self.is_paused)
 	Log.info("Paused:", self.is_paused)
 end
 

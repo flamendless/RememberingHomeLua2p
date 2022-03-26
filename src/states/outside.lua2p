@@ -16,11 +16,8 @@ local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Inventory = require("assemblages.inventory"),
 	Light = require("assemblages.light"),
 	Outside = require("assemblages.outside"),
-	Player = require("assemblages.player"),
-	UI = require("assemblages.ui"),
 }
 
 local ParticleSystems = {
@@ -49,16 +46,16 @@ end
 function Outside:state_setup()
 	local bg_house = Resources.data.images.bg_house
 	local w, h = bg_house:getDimensions()
-	local ww, hh = love.graphics.getDimensions()
+	local ww, wh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main()
-	self.scale = math.min(ww/w, hh/h)
+	self.scale = math.min(ww/w, wh/h)
 
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, hh)
+	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.Outside.bg)
+	Concord.entity(self.world):assemble(Assemblages.Common.bg, "bg_sky")
 
 	local _, _, cw, _ = self.camera:getVisible()
 	self.ps1 = ParticleSystems.RainOutside(Resources.data.images.rain_drop, 128, cw)
@@ -112,6 +109,7 @@ function Outside:state_setup()
 		:give("car_lights")
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_outside"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function Outside:state_init()
@@ -271,8 +269,6 @@ function Outside:state_draw()
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
 
-	self.world:emit("draw_inventory")
-	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 
 	if self.overlay_flag then
@@ -283,6 +279,11 @@ function Outside:state_draw()
 		self.camera:detach()
 	end
 	Fade.draw()
+end
+
+function Outside:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
 end
 
 function Outside:start_rain_fade()

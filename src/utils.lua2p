@@ -112,4 +112,10 @@ function Utils.math.n_digits(x)
 	return math.floor(math.log10(x)) + 1
 end
 
+function Utils.math.lerp_range(range, t)
+	@@assert(type(range) == "table" and range.min and range.max)
+	@@assert(type(t) == "number")
+	return mathx.lerp(range.min, range.max, t)
+end
+
 return Utils

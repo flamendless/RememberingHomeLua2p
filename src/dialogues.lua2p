@@ -7,7 +7,7 @@ function Dialogues.get(main, sub)
 	@@assert(#sub ~= 0 and type(sub) == "string")
 	@@assert(DialoguesList[main], "there is no " .. main .. " in dialogue table")
 	@@assert(DialoguesList[main][sub], "there is no " .. sub .. " in dialogue table")
-	return tablex.copy(DialoguesList[main][sub], {})
+	return tablex.copy(DialoguesList[main][sub])
 end
 
 function Dialogues.check_signal(str)

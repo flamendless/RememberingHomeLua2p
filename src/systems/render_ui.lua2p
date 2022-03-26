@@ -23,7 +23,7 @@ local RenderUI = Concord.system({
 		"ui_element",
 	},
 	pool_ui = {"ui_element", "pos", "!layer"},
-});
+})
 
 function RenderUI:init(world)
 	self.world = world
@@ -44,11 +44,11 @@ function RenderUI:draw_ui_default()
 			local stext = e.static_text
 			local sprite = e.sprite
 
-			if (text or stext) and (not e.nf_render_text) then
+			if (text or stext) and (not e.nf_renderer) then
 				self.world:emit("draw_text_ex", e)
 			end
 
-			if sprite and (not e.nf_render_sprite) then
+			if sprite and (not e.nf_renderer) then
 				self.world:emit("draw_sprite_ex", e)
 			end
 		end
@@ -67,11 +67,11 @@ function RenderUI:draw_ui_layers()
 				local stext = e.static_text
 				local sprite = e.sprite
 
-				if (text or stext) and (not e.nf_render_text) then
+				if (text or stext) and (not e.nf_renderer) then
 					self.world:emit("draw_text_ex", e)
 				end
 
-				if sprite and (not e.nf_render_sprite) then
+				if sprite and (not e.nf_renderer) then
 					self.world:emit("draw_sprite_ex", e)
 				end
 			end

@@ -61,6 +61,3 @@
 [submodule "libs/ExportTextureAtlas"]
 	path = libs/ExportTextureAtlas
 	url = https://github.com/EngineerSmith/Export-TextureAtlas
-[submodule "modules/peeker"]
-	path = modules/peeker
-	url = https://github.com/flamendless/peeker

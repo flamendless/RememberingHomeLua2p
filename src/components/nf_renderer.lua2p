@@ -1,3 +1,3 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("splash")
+Concord.component("nf_renderer")

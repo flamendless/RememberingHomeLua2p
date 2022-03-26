@@ -63,8 +63,9 @@ function Preloader.load(data, userdata, container, on_complete)
 		for i, tbl in ipairs(tbl_data) do
 			local id = id[i]
 			local data = tbl[1]
-			local dt = data:type()
-			if dt == "Image" then
+			local data_type = data:type()
+
+			if data_type == "Image" then
 				local tt = data:getTextureType()
 				data:setFilter($_IMAGE_FILTER, $_IMAGE_FILTER)
 				if tt == "array" then
@@ -73,19 +74,19 @@ function Preloader.load(data, userdata, container, on_complete)
 				end
 				@@assert(type(container.images) == "table")
 				container.images[id] = data
-			elseif dt == "ImageData" then
+			elseif data_type == "ImageData" then
 				@@assert(type(container.image_data) == "table")
 				container.image_data[id] = data
-			elseif dt == "Source" then
+			elseif data_type == "Source" then
 				@@assert(type(container.sources) == "table")
 				container.sources[id] = data
-			elseif dt == "Font" then
+			elseif data_type == "Font" then
 				@@assert(type(container.fonts) == "table")
 				data:setFilter($_FONT_FILTER, $_FONT_FILTER)
 				container.fonts[id] = data
 			end
 
-			local str = string.format("Loaded: #%i - %s : %s", i, dt, id)
+			local str = string.format("Loaded: #%i - %s : %s", i, data_type, id)
 			Log.trace(str)
 		end
 

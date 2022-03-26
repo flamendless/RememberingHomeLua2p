@@ -6,13 +6,11 @@ local Canvas = require("canvas")
 local Fade = require("fade")
 local Palette = require("palette")
 local Resources = require("resources")
+local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Inventory = require("assemblages.inventory"),
-	Player = require("assemblages.player"),
 	Kitchen = require("assemblages.kitchen"),
-	UI = require("assemblages.ui"),
 }
 
 local Kitchen = Concord.system()
@@ -23,15 +21,15 @@ end
 
 function Kitchen:state_setup()
 	local w, h = Resources.data.images.kitchen:getDimensions()
-	local ww, hh = love.graphics.getDimensions()
+	local ww, wh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main()
-	self.scale = math.min(ww/w, hh/h)
+	self.scale = math.min(ww/w, wh/h)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, hh)
+	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.Kitchen.bg)
+	Concord.entity(self.world):assemble(Assemblages.Common.bg, "kitchen")
 
 	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "kitchen")
@@ -45,6 +43,7 @@ function Kitchen:state_setup()
 		Concord.entity(self.world):assemble(v)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_kitchen"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function Kitchen:state_init()
@@ -73,10 +72,13 @@ function Kitchen:state_draw()
 	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
-	self.world:emit("draw_inventory")
-	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function Kitchen:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
 end
 
 return Kitchen

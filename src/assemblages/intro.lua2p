@@ -1,4 +1,5 @@
 local Animation = require("animation")
+local Enums = require("enums")
 local Palette = require("palette")
 
 local Atlas = require("atlases.atlas_intro")
@@ -54,13 +55,6 @@ local positions = {
 	post_light = {0, 108},
 }
 
-function Intro.bg(e)
-	e:give("id", "bg")
-	:give("pos", 0, 0)
-	:give("sprite", "bg")
-	:give("bg")
-end
-
 function Intro.parallax(e, tag, scale)
 	@@assert(type(tag) == "string")
 	@@sassert(scale, type(scale) == "number")
@@ -100,7 +94,7 @@ end
 function Intro.post_light(e, tag, scale)
 	Intro.parallax(e, tag, scale)
 	e:give("transform")
-	:give("light", "custom", 1)
+	:give("light", Enums.light_shape.custom, 1)
 	:give("color", Palette.get_diffuse("post"))
 	:give("light_flicker", 0.1)
 	:give("light_disabled")
@@ -108,7 +102,7 @@ function Intro.post_light(e, tag, scale)
 	:give("depth_zoom", z_index.post_light[2])
 end
 
-function Intro.bg_tree_cover(e, resource_id)
+function Intro.bg_tree_cover(e)
 	local item = Atlas.frames.bg_tree_cover
 	local ww, wh = love.graphics.getDimensions()
 	local w, h = item.w, item.h
@@ -178,7 +172,7 @@ function Intro.title_light(e, x, y)
 	:give("pos", x, y)
 	:give("quad_transform", 0, 4, 4, 0.5, 0.5)
 	:give("color", {1, 1, 1})
-	:give("light", "custom", 1)
+	:give("light", Enums.light_shape.custom, 1)
 	:give("light_flicker", 0.075)
 	:give("light_disabled")
 	:give("hidden")
@@ -188,13 +182,13 @@ function Intro.fog(e, id, w, h, color, x, y, fsx, fsy, fog_speed)
 	e:give("id", id)
 	:give("sprite", "dummy")
 	:give("noise_texture", w, h)
-	:give("pre_shader_color")
 	:give("color", color)
 	:give("pos", x, y)
 	:give("transform", 0, fsx, fsy)
 	:give("fog", fog_speed)
 	:give("z_index", z_index[id][1], false)
 	:give("depth_zoom", z_index[id][2])
+	:give("custom_renderer", "draw_fog")
 end
 
 return Intro

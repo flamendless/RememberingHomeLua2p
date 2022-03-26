@@ -26,13 +26,20 @@ Palette.colors = {
 
 	outline = {1, 1, 1},
 
-	inventory_cell = {0.623529411765, 0.63137254902, 0.556862745098, 0},
+	inventory_cell = {0.623529411765, 0.63137254902, 0.556862745098},
 	note_list = {0, 0, 0},
 	note_on_hovered = {1, 0, 0},
 }
 
+!if _DEV then
+for k, v in pairs(Palette.colors) do
+	@@assert(v[4] == nil, k .. " must have no alpha set")
+end
+!end
+
 Palette.diffuse = {
 	--intro
+	ambiance_intro = {0.9, 0.9, 0.9, 0.3},
 	car = {1, 1, 1},
 	post = {1, 1, 1},
 
@@ -63,10 +70,8 @@ function Palette.get(color, alpha)
 	@@assert(type(color) == "string")
 	@@assert(Palette.colors[color])
 	@@sassert(alpha, type(alpha) == "number")
-
 	local c = Palette.colors[color]
 	local a = alpha or c[4] or 1
-
 	return {c[1], c[2], c[3], a}
 end
 

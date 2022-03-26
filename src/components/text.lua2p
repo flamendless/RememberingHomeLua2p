@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
-local align_modes = Enum("center", "left", "right", "justify")
+local Enums = require("enums")
 
 Concord.component("target_text", function(c, text)
 	@@assert(type(text) == "string")
@@ -24,7 +23,7 @@ Concord.component("textf", function(c, limit, align)
 	@@assert(type(limit) == "number")
 	@@assert(type(align) == "string")
 	c.limit = limit
-	c.align = align_modes[align]
+	c.align = align
 end)
 
 local c_static_text = Concord.component("static_text", function(c, text)

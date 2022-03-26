@@ -9,14 +9,13 @@ local DevTools
 
 local PostProcessing = Concord.system()
 
-local buffer1 = Canvas.create_main()
-local buffer2 = Canvas.create_main()
-
 function PostProcessing:init(world)
 	!if _DEV then
 	DevTools = require("devtools")
 	!end
 	self.world = world
+	self.buffer1 = Canvas.create_main()
+	self.buffer2 = Canvas.create_main()
 	self.effects = {}
 end
 
@@ -39,10 +38,8 @@ function PostProcessing:set_post_process_effect(id, bool)
 	@@assert(type(id) == "string")
 	@@assert(type(bool) == "boolean")
 	for _, effect in ipairs(self.effects) do
-		if effect:type() == id then
-			!if _DEV then
-			effect.debug_show = bool
-			!end
+		local t = effect.get_type and effect:get_type() or effect:type()
+		if t == id then
 			effect.is_active = bool
 			return
 		end
@@ -50,10 +47,23 @@ function PostProcessing:set_post_process_effect(id, bool)
 	@@assert(false, id .. " not found in registered pp effects")
 end
 
+function PostProcessing:ev_pp_invoke(id, str_fn, ...)
+	@@assert(type(id) == "string")
+	@@assert(type(str_fn) == "string")
+	for _, effect in ipairs(self.effects) do
+		local t = effect.get_type and effect:get_type() or effect:type()
+		if t == id then
+			effect[str_fn](effect, ...)
+			return
+		end
+	end
+	@@assert(false, id .. " was not registered")
+end
+
 function PostProcessing:update(dt)
 	for _, effect in ipairs(self.effects) do
 		!if _DEV then
-		effect.is_active = effect.debug_show
+		effect.debug_show = effect.is_active
 		!end
 		if effect.update then
 			effect:update(dt)
@@ -61,47 +71,34 @@ function PostProcessing:update(dt)
 	end
 end
 
-function PostProcessing:begin_shader(effect)
-	love.graphics.setShader(effect.shader)
-end
-
-function PostProcessing:end_shader(effect)
-	love.graphics.setShader()
-end
-
 function PostProcessing:apply_post_process(canvas)
+	@@profb("pp")
 	@@assert(canvas:type() == "CustomCanvas")
-	love.graphics.setCanvas(buffer1.canvas)
+	love.graphics.setCanvas(self.buffer1.canvas)
 		love.graphics.clear()
 		canvas:render_n()
 	love.graphics.setCanvas()
 
 	for _, effect in ipairs(self.effects) do
 		if effect.is_active then
-			love.graphics.setCanvas(buffer2.canvas)
+			@@profb(effect:type())
+			love.graphics.setCanvas(self.buffer2.canvas)
 				love.graphics.clear()
-				PostProcessing:begin_shader(effect)
-					buffer1:render_n()
-				PostProcessing:end_shader(effect)
+				love.graphics.setShader(effect.shader)
+					self.buffer1:render_n()
+				love.graphics.setShader()
 			love.graphics.setCanvas()
-			buffer1, buffer2 = buffer2, buffer1
+			self.buffer1, self.buffer2 = self.buffer2, self.buffer1
+			@@profe(effect:type())
 		end
 	end
 
-	buffer1:render_n()
+	self.buffer1:render_n()
+	@@profe("pp")
 end
 
 !if _DEV then
 local Slab = require("modules.slab")
-
--- local opt = {
--- 	Columns = 2,
--- 	ExpandW = true,
--- 	ExpandH = true,
--- 	AlignX = "center",
--- 	AlignY = "center",
--- 	AlignRowY = "center",
--- }
 
 function PostProcessing:debug_update(dt)
 	if not self.debug_show then return end
@@ -111,19 +108,15 @@ function PostProcessing:debug_update(dt)
 		IsOpen = self.debug_show,
 	})
 
-	-- Slab.BeginLayout("pp_layout", opt)
 	for i, effect in ipairs(self.effects) do
 		local b
-		local str = effect:type()
+		local str = effect.get_type and effect:get_type() or effect:type()
 
-		-- Slab.SetLayoutColumn(1)
 		if Slab.CheckBox(effect.debug_show, str) then
-			effect.debug_show = not effect.debug_show
+			effect.is_active = not effect.is_active
 		end
-
 		Slab.SameLine()
 
-		-- Slab.SetLayoutColumn(2)
 		if Slab.Button("up") then
 			b = mathx.wrap_index(i - 1, self.effects)
 		end
@@ -137,8 +130,6 @@ function PostProcessing:debug_update(dt)
 			self.effects[i], self.effects[b] = self.effects[b], self.effects[i]
 		end
 	end
-
-	-- Slab.EndLayout()
 	Slab.EndWindow()
 end
 !end

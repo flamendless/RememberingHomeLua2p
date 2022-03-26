@@ -26,13 +26,13 @@ end)
 Concord.component("light_dir", function(c, t)
 	@@assert(type(t) == "table")
 	c.value = t
-	c.orig_value = tablex.copy(t, {})
+	c.orig_value = tablex.copy(t)
 end)
 
 Concord.component("diffuse", function(c, t)
 	@@assert(type(t) == "table")
 	c.value = t
-	c.orig_value = tablex.copy(t, {})
+	c.orig_value = tablex.copy(t)
 end)
 
 Concord.component("light_fading", function(c, amount, dir)

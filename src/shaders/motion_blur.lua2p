@@ -1,7 +1,7 @@
 local Shaders = require("shaders")
 
 local MotionBlur = class({
-	name = "MotionBlur",
+	name = $_PP_MOTIONBLUR,
 })
 
 function MotionBlur:new(canvas, config)

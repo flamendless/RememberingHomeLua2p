@@ -1,17 +1,16 @@
 local Concord = require("modules.concord.concord")
 
 local AtlasKeys = require("atlases.atlas_keys")
+local Enums = require("enums")
 local Inputs = require("inputs")
 local Palette = require("palette")
 local Settings = require("settings")
 
-local ShowKeys = Concord.system({})
+local ShowKeys = Concord.system()
 
 local function Assemble(e, key)
 	e:give("atlas", AtlasKeys.frames[key])
 	:give("sprite", "atlas_keys")
-	:give("ui_element")
-	:give("layer", "hud")
 	:give("ui_element")
 end
 
@@ -40,7 +39,7 @@ function ShowKeys:create_key_with_text(id, txt, key)
 		:give("color", Palette.get("ui_show_key_text"))
 		:give("ui_element")
 		:give("transform", 0, 1, 1, 1, 1)
-		:give("anchor", self.keys[id], "right", "bottom", 16, 0)
+		:give("anchor", self.keys[id], Enums.anchor.right, Enums.anchor.bottom, 16, 0)
 
 	return self.keys[id], self.texts[id]
 end

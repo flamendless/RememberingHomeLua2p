@@ -37,7 +37,6 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 * [love-sdf-text](https://github.com/Tjakka5/love-sdf-text) - for SDF rendering
 * [ngrading](https://github.com/MikuAuahDark/NPad93/tree/master/ngrading) - color grading (heavily modified for this project)
 * [Outliner](https://love2d.org/forums/viewtopic.php?p=221215#p221215) - for Outline shader (modified for this project)
-* [Peeker](https://github.com/flamendless/peeker) - for screen recording
 * [ReflowPrint](https://github.com/josefnpat/reflowprint) - for alignment of text that is shown one character at a time
 * [semver](https://github.com/kikito/semver) - for semantic versioning
 * [Slab](https://github.com/flamendless/Slab) - for GUI and in-game editor tools

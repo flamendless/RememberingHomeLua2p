@@ -3,6 +3,8 @@ local Concord = require("modules.concord.concord")
 local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 
+local Enums = require("enums")
+
 local Animation = Concord.system({
 	pool = {"animation", "animation_data"},
 	pool_multi = {"multi_animation_data", "animation"},
@@ -12,7 +14,6 @@ local Animation = Concord.system({
 
 function Animation:setup_on_loop(e, animation)
 	@@assert(animation.__isComponent)
-
 	local on_loop = e.animation_on_loop
 	local on_finish = e.animation_on_finish
 	local on_loop_fn
@@ -50,11 +51,11 @@ function Animation:setup_animation(e, data, on_loop)
 		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
 			data.sheet_width, data.sheet_height)
 		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
-			 data.delay, on_loop)
+			data.delay, on_loop)
 	else
-		if self.cache_multi_animation[current_tag] then
-			local cached = self.cache_multi_animation[current_tag]
-
+		local cache = self.cache_multi_animation[e.id.value]
+		if cache[current_tag] then
+			local cached = cache[current_tag]
 			obj_grid = cached.grid
 			obj_animation = cached.animation
 		else
@@ -62,12 +63,7 @@ function Animation:setup_animation(e, data, on_loop)
 				data.sheet_width, data.sheet_height)
 			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
 				data.delay, on_loop)
-
-			self.cache_multi_animation[current_tag] = {
-				grid = obj_grid,
-				animation = obj_animation
-			}
-
+			cache[current_tag] = {grid = obj_grid, animation = obj_animation}
 			if data.is_flipped then
 				obj_animation:flipH()
 			end
@@ -83,11 +79,11 @@ function Animation:setup_animation(e, data, on_loop)
 	e:give("quad", quad)
 
 	if data.is_flipped then
-		if e.transform then
-			ox = ox - e.transform.ox
-			oy = oy - e.transform.oy
+		local transform = e.transform
+		if transform then
+			ox = ox - transform.ox
+			oy = oy - transform.oy
 		end
-
 		e:give("quad_transform", r, sx, sy, ox, oy)
 	else
 		e:remove("quad_transform")
@@ -106,6 +102,7 @@ function Animation:init(world)
 		local data = e.animation_data
 		local animation = e.animation
 		local on_loop = self:setup_on_loop(e, animation)
+		self.cache_multi_animation[e.id.value] = {}
 		self:setup_animation(e, data, on_loop)
 	end
 
@@ -238,5 +235,85 @@ function Animation:anim_pause_at_end(e, signal)
 		self.world:emit(signal, e)
 	end
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+local selected
+local selected_e
+local selected_anim
+local opt_slider = {
+	ReturnOnText = false,
+	NumbersOnly = true,
+	Precision = 0,
+}
+
+function Animation:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("animation", {
+		Title = "MultiAnimation",
+		IsOpen = self.debug_show
+	})
+
+	if Slab.BeginComboBox("cb_e", {Selected = selected}) then
+		for _, e in ipairs(self.pool_multi) do
+			local id = e.id.value
+			if Slab.TextSelectable(id) then
+				selected = id
+				selected_e = e
+				break
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	if selected_e then
+		local multi_anim_data = selected_e.multi_animation_data.data
+		if Slab.BeginComboBox("cb_anim", {Selected = selected_anim}) then
+			for tag in pairs(multi_anim_data) do
+				if Slab.TextSelectable(tag) then
+					selected_anim = tag
+					self:switch_animation_tag(selected_e, tag)
+					break
+				end
+			end
+			Slab.EndComboBox()
+		end
+
+		if selected_anim then
+			Slab.Text("Frame")
+			Slab.SameLine()
+			local cur_frame = selected_e.current_frame
+			local max = multi_anim_data[selected_anim].n_frames
+			local anim_pause_at = selected_e.animation_pause_at
+			local anim_stop = selected_e.animation_stop
+			local cat = selected_e.change_animation_tag
+
+			if Slab.InputNumberSlider("frame", cur_frame.value, 1, max, opt_slider) then
+				local v = Slab.GetInputNumber()
+				selected_e.animation.anim8:gotoFrame(v)
+				if not anim_pause_at and not anim_stop then
+					cur_frame.value = v
+				end
+			end
+
+			if Slab.CheckBox(anim_pause_at, "PauseAt") then
+				if anim_pause_at then
+					selected_e:remove("animation_pause_at")
+				end
+			end
+
+			if Slab.CheckBox(anim_stop, "Stop") then
+				if anim_stop then
+					selected_e:remove("animation_stop")
+				end
+			end
+
+			Slab.CheckBox(cat, "ChangeAnimTag")
+		end
+	end
+
+	Slab.EndWindow()
+end
+!end
 
 return Animation

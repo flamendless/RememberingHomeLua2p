@@ -2,6 +2,7 @@ local Log = require("modules.log.log")
 
 local Cache = {
 	entities = {},
+	calculated = {},
 	!if _CACHED_PRELOAD then
 	resources = {},
 	!end
@@ -30,6 +31,20 @@ function Cache.remove_entity(e)
 		Cache.entities[id] = nil
 		Log.info(id, "removed from cache")
 	end
+end
+
+function Cache.get(t_id, id)
+	@@assert(type(t_id) == "string")
+	@@assert(type(id) == "string")
+	@@assert(Cache[t_id], t_id .. " is not valid")
+	return Cache[t_id][id]
+end
+
+function Cache.store(t_id, id, v)
+	@@assert(type(t_id) == "string")
+	@@assert(type(id) == "string")
+	@@assert(v ~= nil)
+	Cache[t_id][id] = v
 end
 
 !if _CACHED_PRELOAD then

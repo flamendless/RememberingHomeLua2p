@@ -7,10 +7,12 @@ local DevTools = {
 	show = false,
 	show_fps = true,
 	designer = false,
+	pause = false,
 	flags = {
+		animation = false,
 		deferred_lighting = false,
 		bounding_box = false,
-		bump_collision = false,
+		bump_collision = true,
 		camera = true,
 		culling = false,
 		fireflies = false,
@@ -18,7 +20,7 @@ local DevTools = {
 		fog = false,
 		gamestates = false,
 		glitch_shader_effect = false,
-		id = false,
+		id = true,
 		light = false,
 		log = false,
 		movement = false,
@@ -77,6 +79,7 @@ function DevTools.init()
 	Slab.Initialize({"NoDocks"})
 end
 
+local color_white = {1, 1, 1, 1}
 function DevTools.update(dt)
 	if not DevTools.show then return end
 	if not GameStates.world then return end
@@ -88,6 +91,7 @@ function DevTools.update(dt)
 		for _, effect in ipairs(DevTools.pp_effects) do
 			if Slab.CheckBox(effect.is_active, effect:type()) then
 				effect.debug_show = not effect.debug_show
+				effect.is_active = not effect.is_active
 			end
 			if effect.debug_update then
 				effect:debug_update(dt)
@@ -108,7 +112,7 @@ function DevTools.update(dt)
 	Slab.EndWindow()
 
 	if DevTools.designer then
-		GameStates.world:emit("set_ambiance", {1, 1, 1, 1})
+		GameStates.world:emit("set_ambiance", color_white)
 	end
 
 	DevTools.draw_stats()
@@ -128,11 +132,14 @@ function DevTools.draw()
 	@@profb("devtools_draw")
 	love.graphics.setFont(font)
 	if DevTools.camera then
-		DevTools.camera:draw(function(l, t, w, h)
-			GameStates.world:emit("debug_draw")
-		end)
-	else
-		GameStates.world:emit("debug_draw")
+		DevTools.camera:attach()
+	end
+
+	GameStates.world:emit("debug_draw")
+	GameStates.world:emit("debug_draw_ui")
+
+	if DevTools.camera then
+		DevTools.camera:detach()
 	end
 	Slab.Draw()
 	@@profe("devtools_draw")
@@ -301,6 +308,7 @@ end
 
 function DevTools.keypressed(key)
 	if not GameStates.world then return end
+	if Slab.IsAnyInputFocused() then return end
 	if key == "`" then
 		DevTools.show = not DevTools.show
 		Slab.EnableStats(DevTools.show)
@@ -308,6 +316,8 @@ function DevTools.keypressed(key)
 	-- 	GameStates.world:emit("save_game")
 	-- elseif key == "l" then
 	-- 	GameStates.world:emit("load_game")
+	elseif key == "space" then
+		DevTools.pause = not DevTools.pause
 	elseif key == "h" then
 		DevTools.show_fps = not DevTools.show_fps
 	elseif key == "r" then

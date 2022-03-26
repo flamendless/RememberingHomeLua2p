@@ -131,6 +131,11 @@ function DeferredLighting:start_flicker(e)
 	end)
 end
 
+function DeferredLighting:set_draw(id)
+	@@assert(type(id) == "string")
+	self.ev_draw_main_id = id
+end
+
 function DeferredLighting:set_ambiance(t)
 	@@assert(type(t) == "table")
 	if not self.orig_ambiance then
@@ -236,14 +241,15 @@ function DeferredLighting:update_light_fading(dt)
 end
 
 function DeferredLighting:begin_deferred_lighting(camera, canvas)
+	@@profb("deferred_lighting")
 	camera:attach()
 		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
 			love.graphics.setShader(self.geometry_pass)
 				love.graphics.setColor(1, 1, 1)
-				self.world:emit("draw_bg")
-				self.world:emit("draw")
-				self.world:emit("draw_z")
+				if self.ev_draw_main_id then
+					self.world:emit(self.ev_draw_main_id)
+				end
 			love.graphics.setShader() --unset geometry_pass
 
 		love.graphics.setCanvas(canvas.canvas)
@@ -267,10 +273,13 @@ function DeferredLighting:end_deferred_lighting()
 		love.graphics.setBlendMode("alpha")
 		self.world:emit("draw_clip")
 	love.graphics.setCanvas() --unset canvas.canvas
+	@@profe("deferred_lighting")
 end
 
 function DeferredLighting:draw_lights()
+	@@profb("draw_lights")
 	love.graphics.drawInstanced(self.mesh.light, #self.pool)
+	@@profe("draw_lights")
 end
 
 function DeferredLighting:create_mesh_p()

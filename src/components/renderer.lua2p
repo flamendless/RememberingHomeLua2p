@@ -1,0 +1,6 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component("custom_renderer", function(c, str)
+	@@assert(type(str) == "string")
+	c.value = str
+end)

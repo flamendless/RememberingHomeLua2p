@@ -180,6 +180,7 @@ function List:update_cursor(index)
 	local group = self.groups[self.focused]
 	local cursor_new_index = index or (group.per_page * group.offset + group.cursor)
 	local e_hovered = group.entities[cursor_new_index]
+	if not e_hovered then return end
 	if e_hovered.list_item_skip then
 		return
 	end
@@ -230,5 +231,37 @@ function List:cleanup()
 	tablex.clear(self.focus_stack)
 	self.focused = nil
 end
+
+!if _DEV then
+local Slab = require("modules.slab")
+
+local selected
+
+function List:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("list_sys", {
+		Title = "List",
+		IsOpen = self.debug_show
+	})
+
+	if Slab.BeginComboBox("cb_groups", {Selected = selected or self.focused}) then
+		for id in pairs(self.groups) do
+			if Slab.TextSelectable(id) then
+				selected = id
+				break
+			end
+		end
+		Slab.EndComboBox()
+	end
+
+	local group = self.groups[selected or self.focused]
+	if group.entities then
+		for _, e in ipairs(group.entities) do
+			Slab.CheckBox(e.list_cursor, e.text.value)
+		end
+	end
+	Slab.EndWindow()
+end
+!end
 
 return List

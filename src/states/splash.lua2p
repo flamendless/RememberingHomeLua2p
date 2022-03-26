@@ -1,29 +1,65 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 local LoveSplash = require("modules.splashes.o-ten-one")
 local Lume = require("modules.lume.lume")
 local TLE = require("modules.tle.timeline")
 local Timer = require("modules.hump.timer")
 
 local Animation = require("animation")
+local Canvas = require("canvas")
+local Enums = require("enums")
 local Fade = require("fade")
 local Inputs = require("inputs")
 local Palette = require("palette")
 local Save = require("save")
+local Shaders = require("shaders")
 
 local Common = require("assemblages.common")
-local states = Enum("splash_love", "splash_wits", "splash_flam")
 local delay_skip = 0.5
 
-local Splash = Concord.system({
-	pool = {"splash"}
-})
+local Splash = Concord.system()
 
 function Splash:init(world)
 	self.world = world
-	self.color_a = {0.898, 0.48627451, 0.074509804, 1}
-	self.color_b = {0.952941176, 0.952941176, 0.054901961, 1}
 end
+
+function Splash:state_setup()
+	self.canvas = Canvas.create_main()
+	--TODO maybe add glitch effect to other sub-splash screens?
+	self.world:emit("setup_post_process", {
+		Shaders.Glitch(),
+	})
+end
+
+function Splash:state_init()
+	if Save.data.splash_done then
+		self.world:emit("show_skip")
+	end
+
+	self.timeline = TLE.Do(function()
+		self.world:emit("set_post_process_effect", $_PP_GLITCH, true)
+		self.current_state = Enums.splash_state.love
+		self:set_skippable_timer()
+		self:create_splash_love()
+		self:do_glitch(3, 2)
+		self.timeline:Pause()
+
+		self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
+		self.world:emit("set_post_process_effect", $_PP_GLITCH, false)
+		self.current_state = Enums.splash_state.wits
+		self:set_skippable_timer()
+		self:create_splash_wits()
+		self.timeline:Pause()
+
+		self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
+		self.world:emit("set_post_process_effect", $_PP_GLITCH, true)
+		self.current_state = Enums.splash_state.flam
+		self:set_skippable_timer()
+		self:create_splash_flamendless()
+		self:do_glitch(5, 1)
+		self.timeline:Pause()
+	end)
+end
+
 
 function Splash:set_skippable_timer()
 	if Save.data.splash_done then
@@ -42,6 +78,7 @@ function Splash:create_splash_love()
 end
 
 function Splash:create_splash_wits()
+	self.world:emit("set_post_process_effect", $_PP_GLITCH, false)
 	local ww, wh = love.graphics.getDimensions()
 	self.splash_wits = Concord.entity(self.world):assemble(Common.animated_sprite,
 			Animation.get("wits"), ww * 0.5, wh * 0.5)
@@ -51,7 +88,6 @@ function Splash:create_splash_wits()
 		:give("auto_scale", ww, wh, true)
 		:give("fade_to_black", 1.5, 1)
 		:give("animation_on_finish", "splash_wits_done")
-		:give("splash")
 	self.splash_wits:give("animation_on_loop", "anim_pause_at_end", 0, self.splash_wits)
 end
 
@@ -63,11 +99,6 @@ function Splash:create_splash_flamendless()
 		:give("pos", ww * 0.5, wh * 0.5)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("color", {1, 1, 1, 1})
-		:give("splash")
-		:give("displacement_texture", "tex_displacement")
-		:give("nf_render_sprite")
-		:give("glitch_shader")
-		:give("use_canvas", ww, wh)
 
 	self.txt_flamendless = Concord.entity(self.world)
 		:give("id", "txt_flamendless")
@@ -76,30 +107,6 @@ function Splash:create_splash_flamendless()
 		:give("pos", ww * 0.5, wh * 0.75)
 		:give("transform", 0, 1, 1, 0.5, 0.5)
 		:give("color", {1, 1, 1, 1})
-		:give("splash")
-		:give("displacement_texture", "tex_displacement")
-		:give("nf_render_text")
-		:give("glitch_shader")
-		:give("use_canvas", ww, wh)
-
-	self.world:emit("reset_glitch", self.splash_flamendless)
-	self.world:emit("reset_glitch", self.txt_flamendless)
-
-	local c = {logo = 0.075, txt = 0.075, reset = 0.15, none = 0.7}
-	Timer.during(5, function()
-		local res = Lume.weightedchoice(c)
-		if res == "logo" then
-			self.world:emit("do_random_glitch", self.splash_flamendless)
-		elseif res == "txt" then
-			self.world:emit("do_random_glitch", self.txt_flamendless)
-		elseif res == "reset" then
-			self.world:emit("reset_glitch", self.splash_flamendless)
-			self.world:emit("reset_glitch", self.txt_flamendless)
-		end
-	end, function()
-		self.world:emit("reset_glitch", self.splash_flamendless)
-		self.world:emit("reset_glitch", self.txt_flamendless)
-	end)
 end
 
 function Splash:create_effects()
@@ -115,7 +122,6 @@ function Splash:create_effects()
 		:give("typewriter", 0.2)
 		:give("typewriter_timer")
 		:give("typewriter_on_finish", "switch_state", 1.25, "Menu")
-		:give("splash")
 end
 
 function Splash:splash_wits_done()
@@ -128,26 +134,21 @@ function Splash:splash_wits_done()
 	end)
 end
 
-function Splash:state_init()
-	if Save.data.splash_done then
-		self.world:emit("show_skip")
-	end
-
-	self.timeline = TLE.Do(function()
-		self.current_state = states.splash_love
-		self:set_skippable_timer()
-		self:create_splash_love()
-		self.timeline:Pause()
-
-		self.current_state = states.splash_wits
-		self:set_skippable_timer()
-		self:create_splash_wits()
-		self.timeline:Pause()
-
-		self.current_state = states.splash_flam
-		self:set_skippable_timer()
-		self:create_splash_flamendless()
-		self.timeline:Pause()
+local c = {none = 0.7, reset = 0.25, glitch = 0.05}
+function Splash:do_glitch(time, delay)
+	@@assert(type(time) == "number")
+	@@sassert(delay, type(delay) == "number")
+	Timer.after(delay or 0, function()
+		Timer.during(time, function()
+			local res = Lume.weightedchoice(c)
+			if res == "glitch" then
+				self.world:emit("ev_pp_invoke", $_PP_GLITCH, "do_random_glitch")
+			elseif res == "reset" then
+				self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
+			end
+		end, function()
+			self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
+		end)
 	end)
 end
 
@@ -156,7 +157,7 @@ function Splash:state_update(dt)
 		self.timer_skip:update(dt)
 	end
 
-	if self.current_state == states.splash_love then
+	if self.current_state == Enums.splash_state.love then
 		self.splash_love:update(dt)
 	else
 		self.world:emit("update", dt)
@@ -164,17 +165,17 @@ function Splash:state_update(dt)
 
 	if Save.data.splash_done then
 		if Inputs.released("interact") then
-			if self.current_state == states.splash_love and self.skippable then
+			if self.current_state == Enums.splash_state.love and self.skippable then
 				self.splash_love:skip()
 				self.skippable = false
 			end
 
-			if self.current_state == states.splash_wits and self.skippable then
+			if self.current_state == Enums.splash_state.wits and self.skippable then
 				self.splash_wits:give("animation_stop", "pauseAtEnd")
 				self.skippable = false
 			end
 
-			if self.current_state == states.splash_flam and self.skippable then
+			if self.current_state == Enums.splash_state.flam and self.skippable then
 				self.world:emit("switch_state", "Menu")
 				self.skippable = false
 			end
@@ -183,13 +184,16 @@ function Splash:state_update(dt)
 end
 
 function Splash:state_draw()
-	if self.current_state == states.splash_love then
-		self.splash_love:draw()
-	else
-		self.world:emit("draw")
-	end
-	self.world:emit("draw_ui")
-	self.world:emit("draw_glitch_effect")
+	love.graphics.setCanvas(self.canvas.canvas)
+		love.graphics.clear()
+		if self.current_state == Enums.splash_state.love then
+			self.splash_love:draw()
+		else
+			self.world:emit("draw")
+		end
+		self.world:emit("draw_ui")
+	love.graphics.setCanvas()
+	self.world:emit("apply_post_process", self.canvas)
 	Fade.draw()
 end
 

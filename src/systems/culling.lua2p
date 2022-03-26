@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local Culling = Concord.system({
-	pool_sprite = {"sprite", "pos", "cullable", "!nf_render_sprite", "!notification"},
+	pool_sprite = {"sprite", "pos", "cullable", "!nf_renderer", "!notification"},
 })
 
 function Culling:init(world)

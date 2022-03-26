@@ -2,23 +2,39 @@ local Resources = require("resources")
 local Shaders = require("shaders")
 
 local DitherGradient = class({
-	name = "DitherGradient"
+	name = $_PP_DITHERGRADIENT,
 })
 
-function DitherGradient:new(is_active)
+local ranges = {
+	depth = {min = 0, max = 32},
+	dither_size = {min = 0, max = 32},
+	contrast = {min = 0, max = 4},
+	offset = {min = -1, max = 1}
+}
+
+function DitherGradient:new(is_active, t_dither, t_pal, values)
 	@@sassert(is_active, type(is_active) == "boolean")
-	self.shader = love.graphics.newShader(Shaders.paths.dither_gradient)
-	-- self.is_active = is_active == nil or not not is_active --default is true
+	@@sassert(t_dither, t_dither:type() == "Image")
+	@@sassert(t_pal, t_pal:type() == "Image")
+	@@sassert(values, type(values) == "table")
 	self.is_active = not not is_active --default is false
+	self.shader = love.graphics.newShader(Shaders.paths.dither_gradient)
 
-	self.depth = 32
-	self.dither_size = 1
-	self.contrast = 1
-	self.offset = 0
+	self.depth = values and values.depth or 32
+	self.dither_size = values and values.dither_size or 1
+	self.contrast = values and values.contrast or 1
+	self.offset = values and values.offset or 0
 
-	local tex_dither = Resources.data.images.bayer16
+	!if _DEV then
+	@@assert(self.depth >= ranges.depth.min and self.depth <= ranges.depth.max)
+	@@assert(self.dither_size >= ranges.dither_size.min and self.dither_size <= ranges.dither_size.max)
+	@@assert(self.contrast >= ranges.contrast.min and self.contrast <= ranges.contrast.max)
+	@@assert(self.offset >= ranges.offset.min and self.offset <= ranges.offset.max)
+	!end
+
+	local tex_dither = t_dither or Resources.data.images.bayer16
 	tex_dither:setWrap("repeat", "repeat")
-	local tex_palette = Resources.data.images.pal_hollow
+	local tex_palette = t_pal or Resources.data.images.pal_hollow
 
 	self.shader:send("u_tex_dither", tex_dither)
 	self.shader:send("u_tex_palette", tex_palette)
@@ -66,10 +82,10 @@ function DitherGradient:debug_update(dt)
 		Title = "DitherGradient",
 		IsOpen = self.debug_show,
 	})
-	self:debug_slider("depth", self.depth, 0, 32, opt_slider_int)
-	self:debug_slider("dither_size", self.dither_size, 0, 32, opt_slider_int)
-	self:debug_slider("contrast", self.contrast, 0, 4, opt_slider_float)
-	self:debug_slider("offset", self.offset, -1, 1, opt_slider_float)
+	self:debug_slider("depth", self.depth, ranges.depth.min, ranges.depth.max, opt_slider_int)
+	self:debug_slider("dither_size", self.dither_size, ranges.dither_size.min, ranges.dither_size.max, opt_slider_int)
+	self:debug_slider("contrast", self.contrast, ranges.contrast.min, ranges.contrast.max, opt_slider_float)
+	self:debug_slider("offset", self.offset, ranges.offset.min, ranges.offset.max, opt_slider_float)
 	Slab.EndWindow()
 end
 !end

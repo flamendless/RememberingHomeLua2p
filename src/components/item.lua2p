@@ -1,7 +1,6 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 
-local ITEM_IDS = Enum("note_item", "inventory_item", "choice_item")
+local Enums = require("enums")
 
 Concord.component("usable_with_item")
 Concord.component("item_preview")
@@ -9,7 +8,7 @@ Concord.component("room_item")
 
 Concord.component("item_id", function(c, id)
 	@@assert(type(id) == "string")
-	c.value = ITEM_IDS[id]
+	c.value = Enums.item[id]
 end)
 
 Concord.component("item", function(c, id, name, desc)

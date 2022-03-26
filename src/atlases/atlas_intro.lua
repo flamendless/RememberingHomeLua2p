@@ -2,92 +2,92 @@
 -- check build.sh create_atlas
 local Data = {
 	frames = {
-		["grass2"] = {
-			x = 2078,
-			y = 177,
-			w = 384,
-			h = 27
+		["post"] = {
+			x = 2264,
+			y = 4,
+			w = 25,
+			h = 131
 		},
 		["post_light"] = {
-			x = 844,
+			x = 1631,
 			y = 4,
 			w = 146,
 			h = 154
 		},
 		["trees_fg"] = {
-			x = 1596,
-			y = 4,
+			x = 757,
+			y = 137,
 			w = 474,
 			h = 91
 		},
-		["grass"] = {
-			x = 2078,
-			y = 138,
-			w = 384,
-			h = 31
-		},
-		["title_light"] = {
-			x = 1124,
-			y = 137,
-			w = 118,
-			h = 86
-		},
-		["buildings"] = {
-			x = 2078,
-			y = 4,
-			w = 384,
-			h = 59
-		},
-		["grass_front"] = {
-			x = 2078,
-			y = 71,
-			w = 384,
-			h = 59
-		},
 		["road"] = {
-			x = 1596,
-			y = 180,
+			x = 1149,
+			y = 81,
 			w = 384,
 			h = 47
 		},
 		["grass_back"] = {
-			x = 1596,
-			y = 103,
+			x = 1149,
+			y = 4,
 			w = 384,
 			h = 69
 		},
-		["post"] = {
-			x = 4,
-			y = 261,
-			w = 25,
-			h = 131
-		},
-		["title"] = {
-			x = 998,
+		["grass_front"] = {
+			x = 1239,
 			y = 137,
+			w = 384,
+			h = 59
+		},
+		["title_light"] = {
+			x = 1631,
+			y = 166,
 			w = 118,
 			h = 86
 		},
-		["bg_tree_cover"] = {
-			x = 4,
-			y = 4,
-			w = 79,
-			h = 249
+		["grass2"] = {
+			x = 1872,
+			y = 150,
+			w = 384,
+			h = 27
 		},
-		["clouds"] = {
-			x = 91,
+		["grass"] = {
+			x = 1872,
+			y = 111,
+			w = 384,
+			h = 31
+		},
+		["title"] = {
+			x = 2078,
 			y = 4,
-			w = 745,
-			h = 231
+			w = 118,
+			h = 86
 		},
 		["car_headlight"] = {
-			x = 1390,
+			x = 1872,
 			y = 4,
 			w = 198,
 			h = 99
 		},
+		["bg_tree_cover"] = {
+			x = 1785,
+			y = 4,
+			w = 79,
+			h = 249
+		},
+		["buildings"] = {
+			x = 1239,
+			y = 204,
+			w = 384,
+			h = 59
+		},
+		["clouds"] = {
+			x = 4,
+			y = 4,
+			w = 745,
+			h = 231
+		},
 		["trees_bg"] = {
-			x = 998,
+			x = 757,
 			y = 4,
 			w = 384,
 			h = 125
@@ -96,8 +96,8 @@ local Data = {
 	meta = {
 		padding = 4,
 		extrude = 0,
-		atlasWidth = 2466,
-		atlasHeight = 396,
+		atlasWidth = 2293,
+		atlasHeight = 267,
 		quadCount = 15
 	}
 }

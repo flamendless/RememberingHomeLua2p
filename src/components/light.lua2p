@@ -1,12 +1,9 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
-
-local light_shapes = Enum("round", "rectangle", "cone", "custom")
 
 Concord.component("light", function(c, light_shape, power)
 	@@assert(type(power) == "number")
 	@@assert(power >= 0 and power <= 4)
-	c.light_shape = light_shapes[light_shape]
+	c.light_shape = light_shape
 	c.power = power
 end)
 

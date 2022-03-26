@@ -13,7 +13,7 @@ local defaults = {
 }
 
 local Settings = {
-	current = tablex.copy(defaults, {}),
+	current = tablex.copy(defaults),
 	available_graphics_quality = {"low", "high"},
 }
 
@@ -30,7 +30,7 @@ function Settings.init()
 end
 
 function Settings.create_new()
-	Settings.current = tablex.copy(defaults, {})
+	Settings.current = tablex.copy(defaults)
 	local gl_version = string.sub(Info.data.renderer.version, 1, 3)
 	if gl_version == $_MIN_GL_VERSION then
 		Settings.current.graphics_quality = "low"

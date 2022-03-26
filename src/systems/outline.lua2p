@@ -1,7 +1,8 @@
 local Concord = require("modules.concord.concord")
-local Outliner = require("outliner")
+local Log = require("modules.log.log")
 
 local Cache = require("cache")
+local Outliner = require("outliner")
 local Palette = require("palette")
 
 local Outline = Concord.system({
@@ -9,11 +10,10 @@ local Outline = Concord.system({
 	pool_grouped = {"grouped"},
 })
 
-local col_outline = Palette.get("outline")
-
 function Outline:init(world)
 	self.world = world
 
+	local col_outline = Palette.colors.outline
 	self.pool.onAdded = function(pool, e)
 		local outline = e.outline
 		local outliner = Outliner(true)
@@ -36,9 +36,7 @@ function Outline:create_outline(e)
 	end
 
 	local pos = e.pos
-	local quad = e.quad
-	local x, y = pos.x - $_PADDING, pos.y - $_PADDING
-
+	local x, y = pos.x - $_OUTLINE_PADDING, pos.y - $_OUTLINE_PADDING
 	local outline_e = Concord.entity(self.world)
 		:give("id", id)
 		:give("pos", x, y)
@@ -47,6 +45,7 @@ function Outline:create_outline(e)
 		:give("outline_val", e.outline_val.value)
 		:give("z_index", e.z_index.value - 1, false)
 
+	local quad = e.quad
 	if quad then
 		local qx, qy, qw, qh = quad.quad:getViewport()
 		local qsw, qsh = quad.quad:getTextureDimensions()
@@ -55,24 +54,25 @@ function Outline:create_outline(e)
 			outline_e:give("quad_transform", 0, qt.sx, qt.sy)
 		end
 
-		qx = qx - $_PADDING
-		qy = qy - $_PADDING
-		qw = qw + $_PADDING * 2
-		qh = qh + $_PADDING * 2
+		qx = qx - $_OUTLINE_PADDING
+		qy = qy - $_OUTLINE_PADDING
+		qw = qw + $_OUTLINE_PADDING * 2
+		qh = qh + $_OUTLINE_PADDING * 2
 		local nq = love.graphics.newQuad(qx, qy, qw, qh, qsw, qsh)
 		outline_e:give("quad", nq)
 	end
 end
 
 function Outline:on_change_interactive(e, other)
-	self:on_collide_interactive(e, other)
 	self:remove_outlines()
+	self:on_collide_interactive(e, other)
 end
 
 function Outline:on_collide_interactive(_, other)
-	if other.grouped then
+	local other_grouped = other.grouped
+	if other_grouped then
 		for _, e in ipairs(self.pool_grouped) do
-			if e.grouped.value == other.grouped.value then
+			if e.grouped.value == other_grouped.value then
 				self:create_outline(e)
 			end
 		end
@@ -99,6 +99,7 @@ function Outline:cleanup()
 		Cache.remove_entity(e)
 		e:destroy()
 	end
+	Log.info("cleaned cache by system/outline")
 end
 
 return Outline

@@ -25,7 +25,7 @@ end
 function Notes:open_notes()
 	self.world:emit("set_system_to", "dialogues", false)
 	self.is_open = true
-	self.world:emit("set_post_process_effect", "Blur", true)
+	self.world:emit("set_post_process_effect", $_PP_BLUR, true)
 	self:create_notes()
 	self.world:emit("create_note_items")
 end
@@ -37,7 +37,7 @@ function Notes:close_notes(not_close)
 		self.world:emit("on_leave_interact_or_inventory")
 	end
 	self.is_open = false
-	self.world:emit("set_post_process_effect", "Blur", false)
+	self.world:emit("set_post_process_effect", $_PP_BLUR, false)
 	self.world:emit("destroy_key", "notes")
 	self.e_bg:destroy()
 	self.e_cursor:destroy()
@@ -60,21 +60,6 @@ function Notes:update(dt)
 	end
 end
 
-function Notes:draw_inventory()
-	if not self.is_open then return end
-	self.world:emit("draw_sprite_ex", self.e_bg)
-
-	for _, e in ipairs(self.pool_item) do
-		local list = e.list_item
-		if list.on_current_page then
-			self.world:emit("draw_text_ex", e)
-			if e.list_cursor then
-				self.world:emit("draw_sprite_ex", self.e_cursor)
-			end
-		end
-	end
-end
-
 function Notes:create_notes()
 	local camera = self.world:getResource("camera")
 	local _, _, w, h = camera:getWindow()
@@ -85,8 +70,7 @@ function Notes:create_notes()
 	local pad = 36
 	local nh = h - pad * 2 - bar_h * 2
 	local scale = math.min(w/iw, nh/ih)
-	local x = w * 0.5
-	local y = h * 0.5
+	local x, y = w * 0.5, h * 0.5
 
 	self.e_bg = Concord.entity(self.world):assemble(AssemNotes.bg, x, y, scale)
 

@@ -30,7 +30,7 @@ function create_output_dir()
 {
 	if [ ! -d "$dir_output" ]; then
 		echo "creating $dir_output..."
-		mkdir $dir_output
+		mkdir $dir_output && echo "created $dir_output"
 	fi
 }
 
@@ -59,6 +59,7 @@ function process_file()
 	if [ "$ext" == "lua2p" ]; then
 		$lua "$lpp_path" --handler="$handler" --data="$data $gv $padding" --outputpaths "$1" "$out".lua --silent;
 		if [ $? -ne 0 ]; then
+			echo "error in $1"
 			exit;
 		fi
 	else
@@ -122,25 +123,26 @@ function create_atlas()
 function copy_modules()
 {
 	echo "copying modules..."
-	rsync -a "$dir_modules" "$dir_output" "${exclude_modules[@]}"
+	rsync -a "$dir_modules" "$dir_output" "${exclude_modules[@]}" && echo "copied modules"
 }
 
 function copy_res()
 {
 	echo "copying resources..."
-	rsync -a "$dir_res" "$dir_output"
+	rsync -a "$dir_res" "$dir_output" && echo "copied resources"
+	rsync -a "slab.style" "$dir_output" && echo "copied slab.style"
 }
 
 function clean()
 {
 	echo "cleaning $dir_output..."
-	rm -rf $dir_output/*
+	rm -rf $dir_output/* && echo "cleaned $dir_output"
 }
 
 function clean_logs()
 {
 	echo "cleaning $appdata..."
-	rm $appdata/*
+	rm $appdata/* && echo "removed $appdata"
 }
 
 function init()
@@ -162,12 +164,12 @@ function rebuild()
 function run()
 {
 	echo "Running build.sh"
+	process_src "$dir_source"
 	if [ $(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip') ]; then
 		echo "This is Windows WSL!"
 		./build_win.sh run
 	else
 		echo "This is Linux"
-		process_src "$dir_source"
 		love "$dir_output"
 	fi
 	echo "Completed build.sh"
@@ -177,13 +179,18 @@ function profile()
 {
 	data=prof
 	dir_output=output_dev
-	run
-	prof_viewer
+	run && prof_viewer
 }
 
 function prof_viewer()
 {
-	love modules/jprof goinghomerevisited prof.mpack
+	if [ $(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip') ]; then
+		echo "This is Windows WSL!"
+		./build_win.sh prof_viewer
+	else
+		echo "This is Linux"
+		love modules/jprof goinghomerevisited prof.mpack
+	fi
 }
 
 if [ $# -eq 0 ]; then

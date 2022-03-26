@@ -34,12 +34,11 @@ end)
 
 Concord.component("animation_pause_at", function(c, at_frame)
 	@@assert(type(at_frame) == "string" or type(at_frame) == "number")
-	@@assert(type(at_frame) == "string" and (at_frame == "first" or at_frame == "last"))
+	@@assert(type(at_frame) == "string")
 	c.at_frame = at_frame
 end)
 
 Concord.component("animation_stop", function(c, event)
-	@@assert(event == "pauseAtEnd" or event == "pauseAtStart")
 	c.event = event
 end)
 

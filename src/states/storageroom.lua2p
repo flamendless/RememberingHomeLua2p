@@ -12,10 +12,7 @@ local Shaders = require("shaders")
 
 local Assemblages = {
 	Common = require("assemblages.common"),
-	Inventory = require("assemblages.inventory"),
-	Player = require("assemblages.player"),
 	StorageRoom = require("assemblages.storage_room"),
-	UI = require("assemblages.ui"),
 }
 
 local StorageRoom = Concord.system()
@@ -26,15 +23,15 @@ end
 
 function StorageRoom:state_setup()
 	local w, h = Resources.data.images.storage_room:getDimensions()
-	local ww, hh = love.graphics.getDimensions()
+	local ww, wh = love.graphics.getDimensions()
 
 	self.canvas = Canvas.create_main()
-	self.scale = math.min(ww/w, hh/h)
+	self.scale = math.min(ww/w, wh/h)
 	self.camera = Gamera.new(0, 0, w, h)
-	self.camera:setWindow(0, 0, ww, hh)
+	self.camera:setWindow(0, 0, ww, wh)
 	Concord.entity(self.world):assemble(Assemblages.Common.camera,
 		self.camera, self.scale, w, h)
-	Concord.entity(self.world):assemble(Assemblages.StorageRoom.bg)
+	Concord.entity(self.world):assemble(Assemblages.Common.bg, "storage_room")
 
 	self.world:emit("create_room_bounds", w, h)
 	self.world:emit("parse_room_items", "storage_room")
@@ -48,6 +45,7 @@ function StorageRoom:state_setup()
 		Concord.entity(self.world):assemble(v)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_storage_room"))
+	self.world:emit("set_draw", "ev_draw_ex")
 end
 
 function StorageRoom:state_init()
@@ -80,10 +78,13 @@ function StorageRoom:state_draw()
 	self.world:emit("begin_deferred_lighting", self.camera, self.canvas)
 	self.world:emit("end_deferred_lighting")
 	self.world:emit("apply_post_process", self.canvas)
-	self.world:emit("draw_inventory")
-	self.world:emit("draw_dialogues")
 	self.world:emit("draw_ui")
 	Fade.draw()
+end
+
+function StorageRoom:ev_draw_ex()
+	self.world:emit("draw_bg")
+	self.world:emit("draw")
 end
 
 function StorageRoom:search_shelf(e, dialogues_t)

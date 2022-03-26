@@ -1,14 +1,14 @@
 local Concord = require("modules.concord.concord")
-local Enum = require("modules.enum.enum")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
+
+local Enums = require("enums")
 
 local Camera = Concord.system({
 	pool = {"camera"},
 	pool_clip = {"camera", "camera_clip"},
 })
 
-local states = Enum("zoomed_in", "zoomed_out")
 local dur_transition = 0.15
 
 function Camera:init(world)
@@ -18,7 +18,7 @@ function Camera:init(world)
 	self.clip = false
 	self.follow = false
 	self.bars = false
-	self.state = states.zoomed_out
+	self.state = Enums.camera_state.zoomed_out
 
 	self.pool.onAdded = function(pool, e)
 		local camera = e.camera
@@ -130,7 +130,8 @@ function Camera:tween_camera(dir)
 	@@assert(type(dir) == "number" and (dir == 1 or dir == -1))
 	local cs = self.main_camera:getScale()
 	self.target_scale = dir == 1 and cs + 0.25 or cs - 0.25
-	self.target_state = dir == 1 and states.zoomed_in or states.zoomed_out
+	self.target_state = dir == 1 and
+		Enums.camera_state.zoomed_in or Enums.camera_state.zoomed_out
 
 	self.flux = Flux.to(self, dur_transition, {scale = self.target_scale})
 		:ease("circout")
@@ -147,14 +148,14 @@ end
 
 function Camera:on_interact_or_inventory()
 	if self.flux then self:force(1) return end
-	if self.state ~= states.zoomed_out then return end
+	if self.state ~= Enums.camera_state.zoomed_out then return end
 	self:tween_camera(1)
 	self:display_bars()
 end
 
 function Camera:on_leave_interact_or_inventory()
 	if self.flux then self:force(-1) return end
-	if self.state ~= states.zoomed_in then return end
+	if self.state ~= Enums.camera_state.zoomed_in then return end
 	self:tween_camera(-1)
 	self:hide_bars()
 end
