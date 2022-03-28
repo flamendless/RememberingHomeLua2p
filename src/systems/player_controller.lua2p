@@ -232,7 +232,6 @@ function PlayerController:player_reset_anim()
 	:remove("change_animation_tag")
 	:remove("animation_on_loop")
 	local anim = self.player.animation
-	anim.is_playing = true
 	anim.anim8:resume()
 end
 

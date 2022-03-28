@@ -11,6 +11,7 @@ Enums.item = Enum("note", "inventory", "choice")
 Enums.light_shape = Enum("round", "rectangle", "cone", "custom")
 Enums.pause_at = Enum("first", "last")
 Enums.stop_at = Enum("pauseAtStart", "pauseAtEnd")
+Enums.anim8_status = Enum("playing", "paused")
 
 Enums.ease = Enum("linear", "quadin", "quadout", "quadinout",
   "cubicin", "cubicout", "cubicinout",

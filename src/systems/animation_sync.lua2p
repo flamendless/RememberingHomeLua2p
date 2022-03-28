@@ -42,17 +42,16 @@ end
 function AnimationSync:update(dt)
 	for _, e in ipairs(self.pool) do
 		local e_target = self.world:getEntityByKey(e.anim_sync_with.key)
-		local anim_sync_data = e.anim_sync_data
 		local animation = e_target.animation
-		local c_props = anim_sync_data.c_props
-		local target_c = e_target[anim_sync_data.c_name]
-		local frame = e_target.current_frame.value
-
+		local anim_sync_data = e.anim_sync_data
 		local data = anim_sync_data.data[animation.base_tag]
 		if data then
+			local c_props = anim_sync_data.c_props
+			local frame = e_target.current_frame.value
 			for _, prop in ipairs(c_props) do
 				local target_data = data[frame]
 				if target_data then
+					local target_c = e_target[anim_sync_data.c_name]
 					target_c[prop] = target_data[prop]
 				end
 			end

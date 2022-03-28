@@ -18,6 +18,7 @@ AnimationDataEnemySuit.lean_back = {
 	rows_count = 3,
 	columns_count = 3,
 	n_frames = 8,
+	pause_at = Enums.pause_at.last,
 }
 
 AnimationDataEnemySuit.lean_return_back = {
@@ -27,6 +28,7 @@ AnimationDataEnemySuit.lean_return_back = {
 	rows_count = 3,
 	columns_count = 3,
 	n_frames = 8,
+	pause_at = Enums.pause_at.last,
 }
 
 return AnimationDataEnemySuit
