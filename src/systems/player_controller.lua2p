@@ -203,9 +203,9 @@ function PlayerController:on_interact_or_inventory()
 		self.player:give("prev_can", self.player)
 		self:idle(true)
 	end
-	self:player_can_run(false)
-	self:player_can_move(false)
-	self:player_can_interact(false)
+	self.world:emit("toggle_component", self.player, "can_move", false)
+	self.world:emit("toggle_component", self.player, "can_interact", false)
+	self.world:emit("toggle_component", self.player, "can_run", false)
 end
 
 function PlayerController:on_leave_interact_or_inventory()
@@ -233,33 +233,6 @@ function PlayerController:player_reset_anim()
 	:remove("animation_on_loop")
 	local anim = self.player.animation
 	anim.anim8:resume()
-end
-
-function PlayerController:player_can_move(bool)
-	@@assert(type(bool) == "boolean")
-	if bool then
-		self.player:give("can_move")
-	else
-		self.player:remove("can_move")
-	end
-end
-
-function PlayerController:player_can_run(bool)
-	@@assert(type(bool) == "boolean")
-	if bool then
-		self.player:give("can_run")
-	else
-		self.player:remove("can_run")
-	end
-end
-
-function PlayerController:player_can_interact(bool)
-	@@assert(type(bool) == "boolean")
-	if bool then
-		self.player:give("can_interact")
-	else
-		self.player:remove("can_interact")
-	end
 end
 
 !if _DEV then

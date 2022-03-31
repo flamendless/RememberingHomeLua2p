@@ -12,4 +12,16 @@ function Entity:destroy_entity(e)
 	e:destroy()
 end
 
+function Entity:toggle_component(e, prop, bool)
+	@@assert(e.__isEntity)
+	@@assert(type(prop) == "string")
+	@@assert(type(bool) == "boolean")
+	if bool then
+		e:give(prop)
+	else
+		e:remove(prop)
+	end
+end
+
+
 return Entity

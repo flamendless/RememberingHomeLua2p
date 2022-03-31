@@ -51,9 +51,9 @@ end
 function StorageRoom:state_init()
 	self.world:emit("spawn_player", function(e_player)
 		self.world:emit("camera_follow", e_player, 0.25)
-		self.world:emit("player_can_move", true, e_player)
-		self.world:emit("player_can_interact", true, e_player)
-		self.world:emit("player_can_run", true, e_player)
+		self.world:emit("toggle_component", e_player, "can_move", true)
+		self.world:emit("toggle_component", e_player, "can_interact", true)
+		self.world:emit("toggle_component", e_player, "can_run", true)
 	end)
 
 	-- self.world:emit("generate_ants", 18, vec2(12, 28), vec2(56, 4), true, 32)
