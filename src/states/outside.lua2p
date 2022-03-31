@@ -403,7 +403,7 @@ function Outside:check_backdoor(e, dialogues_t)
 		self.world:emit("wait_dialogue", true)
 		self.world:emit("toggle_component", e_player, "can_move", true)
 		self.world:emit("toggle_component", e_player, "can_interact", true)
-		self.world:emit("player_open_door")
+		self.world:emit("anim_open_door", e_player)
 		self.world:emit("switch_state", "StorageRoom", 3, 2)
 	end
 end

@@ -45,3 +45,8 @@ end)
 Concord.component("current_frame", function(c)
 	c.value = 0
 end)
+
+Concord.component("animation_ev_update", function(c, ev_update)
+	@@assert(type(ev_update) == "string")
+	c.value = ev_update
+end)

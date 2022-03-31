@@ -29,7 +29,13 @@ Enums.camera_state = Enum("zoomed_in", "zoomed_out")
 Enums.battery_state = Enum("full", "low", "critical", "empty")
 
 Enums.face_dir = Enum("left", "right")
-Enums.player_anim = Enum("idle", "idle_left", "walk", "run")
+
+Enums.anim_state = Enum(
+	"idle", "idle_left",
+	"walk", "run",
+	"open_door", "open_door_left",
+	"open_locked_door", "open_locked_door_left"
+)
 
 Enums.enemy_type = Enum("suit")
 Enums.enemy_suit_anim = Enum("idle", "walk")

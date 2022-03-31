@@ -29,9 +29,9 @@ end
 function PlayerController:on_toggle_equip_flashlight()
 	local has_f = Items.is_equipped("flashlight")
 	self.player:remove("multi_animation_data")
-	self.player:give("multi_animation_data", Enums.player_anim.idle,
+	self.player:give("multi_animation_data", Enums.anim_state.idle,
 		AssemPlayer.get_multi_anim_data(has_f, self.player.can_open_door))
-	local tag = (self.player.body.dir == -1) and Enums.player_anim.idle_left or Enums.player_anim.idle
+	local tag = (self.player.body.dir == -1) and Enums.anim_state.idle_left or Enums.anim_state.idle
 	self.player:give("change_animation_tag", tag, true)
 end
 
@@ -42,9 +42,9 @@ function PlayerController:spawn_player(fn)
 	self.player = Concord.entity(self.world):assemble(AssemPlayer.room, x, y)
 	self.world:__flush()
 	if face == Enums.face_dir.left then
-		self:face_left()
+		self.world:emit("anim_face_left", self.player)
 	elseif face == Enums.face_dir.right then
-		self:face_right()
+		self.world:emit("anim_face_right", self.player)
 	end
 	if fn then
 		fn(self.player)
@@ -92,7 +92,7 @@ function PlayerController:update(dt)
 	end
 
 	local anim_name = self:player_update_animation()
-	self:update_speed(anim_name)
+	self.world:emit("update_animation_speed", self.player, anim_name)
 end
 
 function PlayerController:player_update_animation(override_name, override_variant)
@@ -103,12 +103,12 @@ function PlayerController:player_update_animation(override_name, override_varian
 	if not anim_name then
 		if body.dx ~= 0 and not self.player.hit_wall then
 			if self.player.is_running.value then
-				anim_name = Enums.player_anim.run
+				anim_name = Enums.anim_state.run
 			else
-				anim_name = Enums.player_anim.walk
+				anim_name = Enums.anim_state.walk
 			end
 		else
-			anim_name = Enums.player_anim.idle
+			anim_name = Enums.anim_state.idle
 		end
 	end
 
@@ -128,65 +128,6 @@ function PlayerController:player_update_animation(override_name, override_varian
 	return anim_name
 end
 
-function PlayerController:update_speed(anim_name)
-	local speed = self.player.speed
-	local speed_data = self.player.speed_data
-
-	if speed and speed_data then
-		local body = self.player.body
-		local new_speed = speed_data.speed_data[anim_name]
-
-		if body.dx ~= 0 then
-			local speed_dt = mathx.lerp(speed.vx, new_speed.x, 0.5)
-			speed.vx = speed_dt
-		end
-	end
-end
-
-function PlayerController:face_left()
-	if not self.player then return end
-	if self.player.override_animation then return end
-	self.player.body.dir = -1
-	self:player_update_animation(Enums.player_anim.idle, "_left")
-end
-
-function PlayerController:face_right()
-	if not self.player then return end
-	if self.player.override_animation then return end
-	self.player.body.dir = 1
-	self:player_update_animation(Enums.player_anim.idle)
-end
-
-function PlayerController:idle(stop)
-	if self.player.override_animation then return end
-	local body = self.player.body
-	if body.dir == -1 then
-		self:player_update_animation(Enums.player_anim.idle, "_left")
-	else
-		self:player_update_animation(Enums.player_anim.idle)
-	end
-
-	if stop then
-		body.dx = 0
-		body.vel_x = 0
-		body.vel_y = 0
-	end
-end
-
-function PlayerController:player_open_door()
-	local tag = (self.player.body.dir == -1) and "open_door_left" or "open_door"
-	self.player:give("change_animation_tag", tag)
-		:give("override_animation")
-	self.player:give("animation_on_loop", "anim_pause_at_end", 0, self.player)
-end
-
-function PlayerController:player_open_locked_door()
-	local tag = (self.player.body.dir == -1) and "open_locked_door_left" or "open_locked_door"
-	self.player:give("change_animation_tag", tag)
-		:give("override_animation")
-	self.player:give("animation_on_loop", "anim_pause_at_end", 0, self.player)
-end
-
 function PlayerController:on_player_interact(player, interactive)
 	@@assert(player.__isEntity and player.player)
 	@@assert(interactive.__isEntity and interactive.interactive)
@@ -201,7 +142,7 @@ end
 function PlayerController:on_interact_or_inventory()
 	if not self.player.prev_can then
 		self.player:give("prev_can", self.player)
-		self:idle(true)
+		self.world:emit("anim_idle", self.player, true)
 	end
 	self.world:emit("toggle_component", self.player, "can_move", false)
 	self.world:emit("toggle_component", self.player, "can_interact", false)
@@ -225,14 +166,6 @@ function PlayerController:on_leave_interact_or_inventory()
 	end
 	self.player:remove("prev_can")
 	-- self.world:emit("remove_speech_bubble")
-end
-
-function PlayerController:player_reset_anim()
-	self.player:remove("override_animation")
-	:remove("change_animation_tag")
-	:remove("animation_on_loop")
-	local anim = self.player.animation
-	anim.anim8:resume()
 end
 
 !if _DEV then

@@ -22,7 +22,7 @@ local commons = {
 	"interactive", "inventory", "items", "movement", "outline", "pause",
 	"player_controller", "renderer", "room", "systems", "transform",
 	"typewriter", "door", "light_switch", "notes", "list", "post_processing",
-	"randomize_uv", "timeline", "enemy_controller",
+	"randomize_uv", "timeline", "enemy_controller", "animation_state"
 	--"flashlight", "animation_sync",
 }
 
