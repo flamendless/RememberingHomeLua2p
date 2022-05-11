@@ -1,9 +1,8 @@
 local Animation = require("animation")
+local Colliders = require("data.colliders")
 local Enums = require("enums")
 
 local Player = {}
-
-local player_h = 64
 
 function Player.get_multi_anim_data(for_flashlight, can_open_door)
 	local tbl_anim = {"idle", "walk", "run"}
@@ -26,12 +25,13 @@ function Player.base(e, x, y, speed_data, gravity, can)
 	@@sassert(can.run, type(can.run) == "boolean")
 	@@sassert(can.open_door, type(can.open_door) == "boolean")
 	local data, mods = Player.get_multi_anim_data(false, can.open_door)
+	local collider = Colliders.player
 
 	e:give("id", "player")
 	:give("player")
 	:give("pos", x, y)
 	:give("transform", 0, 1, 1, 18, 0)
-	:give("collider", 24, player_h)
+	:give("collider", collider.w, collider.h)
 	:give("bump")
 	:give("speed")
 	:give("speed_data", speed_data)

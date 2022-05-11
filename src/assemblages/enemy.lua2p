@@ -1,17 +1,12 @@
 local Animation = require("animation")
+local Colliders = require("data.colliders")
 local Enums = require("enums")
 
 local Enemy = {}
 
-local colliders = {
-	suit = {
-		walk = {w = 20, h = 64, ox = 22},
-	}
-}
-
 function Enemy.get_multi_anim_data(enemy_type)
 	@@assert(type(enemy_type) == "string")
-	local tbl_anim = {"walk", "lean_back", "lean_return_back"}
+	local tbl_anim = {"idle", "walk", "lean_back", "lean_return_back"}
 	local data, mods = Animation.get_multi_by_id("enemy_" .. enemy_type, tbl_anim)
 	return data, mods
 end
@@ -21,14 +16,14 @@ function Enemy.base(e, enemy_type, x, y)
 	@@assert(type(enemy_type) == "string")
 	@@assert(type(x) == "number" and type(y) == "number")
 	local data, mods = Enemy.get_multi_anim_data(enemy_type)
-	local col = colliders[enemy_type].walk
+	local collider = Colliders.enemy[enemy_type].idle
 
 	e:give("id", "enemy")
 	:give("enemy", enemy_type)
 	:give("pos", x, y)
-	:give("multi_animation_data", Enums.enemy_suit_anim.walk, data, mods)
-	:give("transform", 0, 1, 1, col.ox, 0)
-	:give("collider", col.w, col.h)
+	:give("multi_animation_data", Enums.enemy_suit_anim.idle, data, mods)
+	:give("transform", 0, 1, 1, collider.ox, 0)
+	:give("collider", collider.w, collider.h)
 	:give("bump")
 	:give("enemy_controller")
 	:give("body")
