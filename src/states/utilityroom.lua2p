@@ -37,6 +37,7 @@ function UtilityRoom:state_setup()
 		Shaders.NGrading($_LUT_DUSK),
 		Shaders.FilmGrain(),
 		Shaders.Blur(),
+		Shaders.Glitch(),
 	})
 
 	for _, v in pairs(Assemblages.UtilityRoom.lights) do

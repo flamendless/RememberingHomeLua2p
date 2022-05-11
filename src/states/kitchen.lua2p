@@ -37,6 +37,7 @@ function Kitchen:state_setup()
 		Shaders.NGrading($_LUT_DUSK),
 		Shaders.FilmGrain(),
 		Shaders.Blur(),
+		Shaders.Glitch(),
 	})
 
 	for _, v in pairs(Assemblages.Kitchen.lights) do

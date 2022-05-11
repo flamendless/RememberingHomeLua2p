@@ -19,7 +19,6 @@ local DevTools = {
 		flashlight = true,
 		fog = false,
 		gamestates = false,
-		glitch_shader_effect = false,
 		id = true,
 		light = false,
 		log = false,

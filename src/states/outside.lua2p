@@ -85,7 +85,8 @@ function Outside:state_setup()
 
 	self.world:emit("setup_post_process", {
 		Shaders.NGrading($_LUT_DUSK),
-		Shaders.Blur()
+		Shaders.Blur(),
+		Shaders.Glitch(),
 	})
 
 	--setup lights

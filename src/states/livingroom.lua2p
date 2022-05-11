@@ -39,6 +39,7 @@ function LivingRoom:state_setup()
 		Shaders.FilmGrain(),
 		Shaders.Blur(),
 		Shaders.DitherGradient(),
+		Shaders.Glitch(),
 	})
 
 	for _, v in pairs(Assemblages.LivingRoom.lights) do

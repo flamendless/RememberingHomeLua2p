@@ -6,8 +6,8 @@ dir_output=output_dev
 file_makelove=makelove.toml
 cmd="/mnt/c/Windows/System32/cmd.exe"
 path_love="C:\Program Files\LOVE"
-path_game="A:\home\flamendless\GoingHomeRevisited\release\love\\"${love_title}
-path_prof_viewer="A:\home\flamendless\GoingHomeRevisited\modules\jprof"
+path_game="Z:\home\flamendless\GoingHomeRevisited\release\love\\"${love_title}
+path_prof_viewer="Z:\home\flamendless\GoingHomeRevisited\modules\jprof"
 echo $path_game
 
 function win32()

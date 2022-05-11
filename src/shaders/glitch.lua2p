@@ -46,7 +46,8 @@ function Glitch:send_values_to_shader(new_values)
 	end
 end
 
-function Glitch:do_random_glitch()
+function Glitch:do_random_glitch(reset_after)
+	@@sassert(reset_after, type(reset_after) == "number")
 	self:send_values_to_shader({
 		u_dis_amount = love.math.random() * 0.1,
 		u_dis_size = love.math.random() * 2.0,
@@ -54,10 +55,23 @@ function Glitch:do_random_glitch()
 		u_abb_amount_y = love.math.random() * 0.1,
 		u_max_a = love.math.random() * 1.0 + 0.5,
 	})
+
+	if reset_after then
+		self.timer = timer(reset_after, nil, function()
+			self:reset_glitch()
+			self.timer:reset(reset_after)
+		end)
+	end
 end
 
 function Glitch:reset_glitch()
 	self:send_values_to_shader(reset_tbl)
+end
+
+function Glitch:update(dt)
+	if self.timer then
+		self.timer:update(dt)
+	end
 end
 
 !if _DEV then
@@ -91,6 +105,9 @@ function Glitch:debug_update(dt)
 	self:debug_slider("u_abb_amount_x", 0, 0.1)
 	self:debug_slider("u_abb_amount_y", 0, 0.1)
 	self:debug_slider("u_max_a", 0.1, 1.0)
+	if self.timer then
+		Slab.Text(self.timer:progress())
+	end
 	if Slab.Button("randomize") then
 		self:do_random_glitch()
 	end

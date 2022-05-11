@@ -92,7 +92,6 @@ end
 function GameStates.draw()
 	if not GameStates.is_ready then return end
 	GameStates.world:emit("state_draw")
-	GameStates.world:emit("draw_paused")
 end
 
 function GameStates.keypressed(key)
