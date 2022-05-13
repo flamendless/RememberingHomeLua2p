@@ -6,7 +6,7 @@ Colliders.player = {
 
 Colliders.enemy = {
 	suit = {
-		idle = {w = 20, h = 64, ox = 22},
+		idle = {w = 14, h = 64, ox = 26},
 		walk = {w = 20, h = 64, ox = 22},
 	}
 }

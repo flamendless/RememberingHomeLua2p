@@ -22,6 +22,7 @@ t.player = {
 }
 
 t.enemy_suit = {
+	{"sheet_enemy_suit_idle", path_images .. "enemy_suit/sheet_enemy_idle.png"},
 	{"sheet_enemy_suit_walk", path_images .. "enemy_suit/sheet_enemy_walk.png"},
 	{"sheet_enemy_suit_lean_back", path_images .. "enemy_suit/sheet_enemy_lean_back.png"},
 	{"sheet_enemy_suit_lean_return_back", path_images .. "enemy_suit/sheet_enemy_lean_return_back.png"},
