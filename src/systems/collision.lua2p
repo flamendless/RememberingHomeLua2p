@@ -8,7 +8,6 @@ local Collision = Concord.system({
 local function circle_rect(cx, cy, cr, rx, ry, rw, rh)
 	local dx = cx - math.max(rx, math.min(cx, rx + rw))
 	local dy = cy - math.max(ry, math.min(cy, ry + rh))
-
 	return (dx * dx + dy * dy) < (cr * cr)
 end
 
@@ -27,14 +26,12 @@ function Collision:check_circle_to_rect(cx, cy, cr)
 		end
 
 		local res = circle_rect(cx, cy, cr, rx, ry, rw, rh)
-
 		col.is_hit = res
 
 		if res then
 			return true
 		end
 	end
-
 	return false
 end
 
@@ -52,14 +49,12 @@ function Collision:check_rect_to_circle(rx, ry, rw, rh)
 		end
 
 		local res = circle_rect(cx, cy, cr, rx, ry, rw, rh)
-
 		col.is_hit = res
 
 		if res then
 			return true
 		end
 	end
-
 	return false
 end
 
@@ -94,7 +89,6 @@ function Collision:check_collision(e)
 
 		-- local res1 = self:check_circle_to_cicle(e)
 		local res2 = self:check_circle_to_rect(cx, cy, r)
-
 		col_c.is_hit = res2
 	end
 end

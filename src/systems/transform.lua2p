@@ -21,7 +21,8 @@ function Transform:init(world)
 	self.pool.onAdded = function(pool, e)
 		!if _DEV then
 			if e.quad and e.atlas then
-				Log.warn(e.id.value, "has quad but uses transform, maybe you want quad_transform?")
+				local id = e.id.value
+				Log.warn(id, "has quad but uses transform, maybe you want quad_transform?")
 			end
 		!end
 		local t = e.transform

@@ -12,6 +12,8 @@ local Animation = Concord.system({
 	pool_change = {"animation", "animation_data", "change_animation_tag"}
 })
 
+local EMPTY_FN = function() end
+
 function Animation:setup_animation_data(e, new_tag)
 	@@assert(e.__isEntity and e.animation)
 	@@assert(type(new_tag) == "string")
@@ -27,8 +29,6 @@ function Animation:setup_animation_data(e, new_tag)
 		e:give("animation_on_loop", v, 0, e)
 	end
 end
-
-local EMPTY_FN = function() end
 
 function Animation:setup_on_loop(e, animation)
 	@@assert(animation.__isComponent)
@@ -184,48 +184,47 @@ function Animation:switch_animation_tag(e, new_tag, base_tag, override)
 		animation.base_tag = base_tag or new_tag
 		e:remove("change_animation_tag")
 	end
+
+	self.world:emit("update_collider", e)
 end
 
 function Animation:update(dt)
 	for _, e in ipairs(self.pool) do
 		local animation = e.animation
 		local anim8 = animation and animation.anim8
-		if anim8 then
-			local dt_multiplier = e.dt_multiplier
-			if dt_multiplier then
-				dt = dt * dt_multiplier.mul
-			end
-
-			animation.is_playing = anim8.status == Enums.anim8_status.playing
-
-			if animation.is_playing then
-				local stop = e.animation_stop
-				if stop then
-					anim8[stop.event](animation.anim8)
-
-					local on_finish = e.animation_on_finish
-					if on_finish then
-						Timer.after(on_finish.delay, function()
-							self.world:emit(on_finish.signal, unpack(on_finish.args))
-						end)
-					end
-				end
-
-				anim8:update(dt)
-
-				local current_frame = e.current_frame
-				if current_frame then
-					current_frame.value = anim8.position
-				end
-
-				local on_update = e.animation_on_update
-				if on_update then
-					self.world:emit(on_update.signal, dt, e, unpack(on_update.args))
-				end
-			end
-
-			e.quad.quad = anim8:getFrameInfo()
+		local dt_multiplier = e.dt_multiplier
+		if dt_multiplier then
+			dt = dt * dt_multiplier.mul
 		end
+
+		animation.is_playing = anim8.status == Enums.anim8_status.playing
+		if animation.is_playing then
+			local stop = e.animation_stop
+			if stop then
+				anim8[stop.event](animation.anim8)
+
+				local on_finish = e.animation_on_finish
+				if on_finish then
+					Timer.after(on_finish.delay, function()
+						self.world:emit(on_finish.signal, unpack(on_finish.args))
+					end)
+				end
+			end
+
+			anim8:update(dt)
+
+			local current_frame = e.current_frame
+			if current_frame then
+				current_frame.value = anim8.position
+			end
+
+			local on_update = e.animation_on_update
+			if on_update then
+				self.world:emit(on_update.signal, dt, e, unpack(on_update.args))
+			end
+		end
+
+		e.quad.quad = anim8:getFrameInfo()
 	end
 end
 
@@ -313,6 +312,8 @@ function Animation:debug_update(dt)
 			Slab.SameLine()
 			local cur_frame = selected_e.current_frame
 			local max = multi_anim_data[selected_anim].n_frames
+			local anim_pause_at = selected_e.animation_pause_at
+			local anim_stop = selected_e.animation_stop
 
 			if Slab.InputNumberSlider("frame", cur_frame.value, 1, max, opt_slider) then
 				local v = Slab.GetInputNumber()
@@ -322,8 +323,6 @@ function Animation:debug_update(dt)
 				end
 			end
 
-			local anim_pause_at = selected_e.animation_pause_at
-			local anim_stop = selected_e.animation_stop
 			local anim_loop = selected_e.animation_on_loop
 			local cat = selected_e.change_animation_tag
 			Slab.CheckBox(anim_pause_at, "PauseAt")

@@ -1,7 +1,5 @@
 local Bump = require("modules.bump.bump-niji")
 
-local BumpStorage = {}
-
 local meta = getmetatable(Bump.newWorld($_BUMP_CELL_SIZE))
 local BumpStorage = setmetatable({super = meta.__index}, meta)
 
@@ -18,6 +16,7 @@ local ctor = function(def)
 end
 
 function BumpStorage:add(entity)
+	@@assert(entity.__isEntity)
 	local x = entity.pos.x
 	local y = entity.pos.y
 	local w = entity.collider.w
@@ -31,12 +30,13 @@ function BumpStorage:add(entity)
 end
 
 function BumpStorage:has(entity)
+	@@assert(entity.__isEntity)
 	return self:hasItem(entity)
 end
 
 function BumpStorage:clear()
 	for _, e in ipairs(self:getItems()) do
-		self:remove(item)
+		self:remove(e)
 	end
 end
 

@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local BumpStorage = require("ctor.bump_storage")
+local Colliders = require("data.colliders")
 local Enums = require("enums")
 
 local BumpCollision = Concord.system({
@@ -142,6 +143,35 @@ function BumpCollision:on_item_use(item)
 	self.world:emit("on_item_use_with", item, e_other)
 end
 
+function BumpCollision:update_collider(e)
+	@@assert(e.__isEntity and e.collider and e.animation)
+	local id = e.id
+	if id.value ~= "enemy" then return end
+	local new_collider = Colliders[id.value]
+	local sub_id = id.sub_id
+	if sub_id then
+		new_collider = new_collider[sub_id]
+	end
+	new_collider = new_collider[e.animation.current_tag]
+
+	if new_collider then
+		self.pool:remove(e)
+		local collider = e.collider
+		local w = new_collider.w or collider.w
+		local h = new_collider.h or collider.h
+		e:remove("collider")
+		:give("collider", w, h)
+
+		if new_collider.ox or new_collider.oy then
+			local t = e.transform
+			t.sx = new_collider.sx or t.sx
+			t.sy = new_collider.sy or t.sy
+			t.ox = new_collider.ox or t.ox
+			t.oy = new_collider.oy or t.oy
+		end
+	end
+end
+
 !if _DEV then
 local Slab = require("modules.slab")
 local flags = {
@@ -238,36 +268,33 @@ function BumpCollision:debug_update(dt)
 end
 
 function BumpCollision:debug_draw()
-	local scale = 1
+	if not flags.bodies then return end
 	local camera = self.world:getResource("camera")
-	if camera then scale = camera:getScale() end
+	local scale = (camera and camera:getScale()) or 1
 	love.graphics.setFont(fnt)
+	local x, y, w, h = get_query_rect(self)
+	local items, len = self.pool:queryRect(x, y, w, h)
+	for i = 1, len do
+		local e = items[i]
+		local id = e.id.value
+		local rx, ry, rw, rh = self.pool:getRect(e)
 
-	if flags.bodies then
-		local x, y, w, h = get_query_rect(self)
-		local items, len = self.pool:queryRect(x, y, w, h)
-		for i = 1, len do
-			local e = items[i]
-			local id = e.id.value
-			local rx, ry, rw, rh = self.pool:getRect(e)
+		if flags.fill then
+			love.graphics.setColor(1, 0, 0, 0.3)
+			love.graphics.rectangle("fill", rx, ry, rw, rh)
+		end
 
-			if flags.fill then
-				love.graphics.setColor(1, 0, 0, 0.3)
-				love.graphics.rectangle("fill", rx, ry, rw, rh)
-			end
+		love.graphics.setLineWidth(1/scale)
+		if e.bump.debug_hovered or
+			(e.interactive and e.collider.is_hit) then
+			love.graphics.setColor(1, 1, 0, 0.7)
+		else
+			love.graphics.setColor(1, 0, 0, 0.7)
+		end
+		love.graphics.rectangle("line", rx, ry, rw, rh)
 
-			love.graphics.setLineWidth(1/scale)
-			if e.bump.debug_hovered or
-				(e.interactive and e.collider.is_hit) then
-				love.graphics.setColor(1, 1, 0, 0.7)
-			else
-				love.graphics.setColor(1, 0, 0, 0.7)
-			end
-			love.graphics.rectangle("line", rx, ry, rw, rh)
-
-			if flags.ids then
-				love.graphics.print(id, rx, ry)
-			end
+		if flags.ids then
+			love.graphics.print(id, rx, ry)
 		end
 	end
 end

@@ -18,7 +18,7 @@ function Enemy.base(e, enemy_type, x, y)
 	local data, mods = Enemy.get_multi_anim_data(enemy_type)
 	local collider = Colliders.enemy[enemy_type].idle
 
-	e:give("id", "enemy")
+	e:give("id", "enemy", "suit")
 	:give("enemy", enemy_type)
 	:give("pos", x, y)
 	:give("multi_animation_data", Enums.enemy_suit_anim.idle, data, mods)
