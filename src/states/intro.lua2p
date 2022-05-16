@@ -22,8 +22,8 @@ local Assemblages = {
 local PS = {RainIntro = require("particle_systems/rain_intro")}
 
 local Intro = Concord.system({
-	pool_intro_text = {"intro_text"},
-	pool_light = {"intro_light"},
+	pool_intro_text = {$_C_INTRO_TEXT},
+	pool_light = {$_C_INTRO_LIGHT},
 })
 
 function Intro:init(world)
@@ -70,24 +70,24 @@ function Intro:state_setup()
 		local e_tree = Concord.entity(self.world):assemble(asm_parallax, "trees_bg")
 		if i == 1 then
 			Concord.entity(self.world):assemble(asm_intro.bg_tree_cover)
-				:give("attach_to", e_tree)
+				:give($_C_ATTACH_TO, e_tree)
 		end
 		Concord.entity(self.world):assemble(asm_parallax, "trees_fg", 4)
 		local e_post_light = Concord.entity(self.world)
 			:assemble(Assemblages.Intro.post_light, "post_light", 2)
-			:give("parallax_gap", w)
+			:give($_C_PARALLAX_GAP, w)
 		Concord.entity(self.world):assemble(asm_parallax, "post", 2)
-			:give("attach_to", e_post_light)
-			:give("attach_to_offset", 108, 0)
+			:give($_C_ATTACH_TO, e_post_light)
+			:give($_C_ATTACH_TO_OFFSET, 108, 0)
 	end
 
 	self.e_car = Concord.entity(self.world):assemble(asm_intro.car)
 	Concord.entity(self.world):assemble(asm_intro.car_light, self.e_car)
-		:give("light_disabled")
-		:give("intro_light")
+		:give($_C_LIGHT_DISABLED)
+		:give($_C_INTRO_LIGHT)
 	self.e_car_reflect = Concord.entity(self.world)
 		:assemble(asm_intro.car_reflect, self.e_car)
-		:give("animation_on_loop", "car_reflection_flicker")
+		:give($_C_ANIMATION_ON_LOOP, "car_reflection_flicker")
 
 	local fw, fh = 512, 128
 	local fsx = ww2 * 4/fw
@@ -98,40 +98,40 @@ function Intro:state_setup()
 		"fog2", fw, fh, {0.75, 0.75, 0.75, 0.55}, 0, 290, fsx, fsy * 0.35, 3)
 	Concord.entity(self.world):assemble(asm_intro.fog,
 			"fog3", fw, fh, {0.9, 0.9, 0.9, 0}, 0, 340, fsx, fsy * 0.5, 4)
-		:give("fade_in_target_alpha", 0.45)
-		:give("hidden")
+		:give($_C_FADE_IN_TARGET_ALPHA, 0.45)
+		:give($_C_HIDDEN)
 	Concord.entity(self.world):assemble(asm_intro.fog,
 			"fog4", fw, fh, {0.6, 0.6, 0.6, 0}, 0, 290, fsx, fsy * 0.35, 2)
-		:give("fade_in_target_alpha", 0.45)
-		:give("hidden")
+		:give($_C_FADE_IN_TARGET_ALPHA, 0.45)
+		:give($_C_HIDDEN)
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			"flamendless studio presents", "ui", 32, 32)
-		:give("intro_text")
-		:give("animation_data", Animation.get("splat"))
+		:give($_C_INTRO_TEXT)
+		:give($_C_ANIMATION_DATA, Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("a game by " .. _NAME_DEVELOPER), "ui", 32, 32)
-		:give("intro_text")
-		:give("animation_data", Animation.get("splat"))
+		:give($_C_INTRO_TEXT)
+		:give($_C_ANIMATION_DATA, Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("arts by " .. _NAME_ARTIST), "ui", 32, 32)
-		:give("intro_text")
-		:give("animation_data", Animation.get("splat"))
+		:give($_C_INTRO_TEXT)
+		:give($_C_ANIMATION_DATA, Animation.get("splat"))
 
 	Concord.entity(self.world):assemble(Assemblages.UI.ui_text,
 			!("music by " .. _NAME_MUSICIAN), "ui", 32, 32)
-		:give("intro_text")
-		:give("animation_data", Animation.get("splat"))
+		:give($_C_INTRO_TEXT)
+		:give($_C_ANIMATION_DATA, Animation.get("splat"))
 
 	self.e_title_light = Concord.entity(self.world)
 		:assemble(asm_intro.title_light, ww * 0.5, wh * 0.5)
-		:give("intro_text")
+		:give($_C_INTRO_TEXT)
 
 	self.e_title = Concord.entity(self.world):assemble(asm_intro.title,
 			ww * 0.5, wh * 0.5)
-		:give("intro_text")
+		:give($_C_INTRO_TEXT)
 
 	if Save.data.intro_done or !(_DEV) then
 		self.world:emit("show_skip")
@@ -221,11 +221,11 @@ function Intro:state_init()
 		self.world:emit("destroy_key", "skip")
 
 		TLE.Event.Wait(1)
-		self.e_title_light:remove("hidden")
+		self.e_title_light:remove($_C_HIDDEN)
 		self.e_title_light:remove("light_disabled")
-		self.e_title:remove("hidden")
-			:give("color_fade_in", 4)
-			:give("color_fade_in_finish", "resume_timeline")
+		self.e_title:remove($_C_HIDDEN)
+			:give($_C_COLOR_FADE_IN, 4)
+			:give($_C_COLOR_FADE_IN_FINISH, "resume_timeline")
 		self.world:emit("pause_timeline")
 
 		TLE.Event.Wait(2)
@@ -315,9 +315,9 @@ end
 function Intro:car_reflection_flicker()
 	local chance = Lume.randomchoice({true, false})
 	if chance then
-		self.e_car_reflect:remove("hidden")
+		self.e_car_reflect:remove($_C_HIDDEN)
 	else
-		self.e_car_reflect:give("hidden")
+		self.e_car_reflect:give($_C_HIDDEN)
 	end
 end
 

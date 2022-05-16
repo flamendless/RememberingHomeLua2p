@@ -106,8 +106,8 @@ function Outside:state_setup()
 		local d = i - 1
 		Concord.entity(self.world):assemble(Assemblages.Light.point,
 			bx + ix * d, by - iy * d, r, s, color)
-		:give("id", "pl_headlight_end" .. i)
-		:give("car_lights")
+		:give($_C_ID, "pl_headlight_end" .. i)
+		:give($_C_CAR_LIGHTS)
 	end
 	self.world:emit("set_ambiance", Palette.get_diffuse("ambiance_outside"))
 	self.world:emit("set_draw", "ev_draw_ex")
@@ -128,8 +128,8 @@ function Outside:state_init()
 		for _, e in ipairs(self.pool_bump) do
 			local id = e.id.value
 			if id == "backdoor" then
-				e:remove("dialogue_meta")
-				:give("is_door")
+				e:remove($_C_DIALOGUE_META)
+				:give($_C_IS_DOOR)
 			end
 		end
 		return
@@ -203,11 +203,11 @@ function Outside:state_init()
 		self.timeline:Pause()
 
 		tle_log("car light off")
-		self.main_car_light:give("d_light_flicker", 2.5, 0.75, 0.25)
-			:give("on_d_light_flicker_during", "flicker_sync",
+		self.main_car_light:give($_C_DLIGHT_FLICKER, 2.5, 0.75, 0.25)
+			:give($_C_ON_DLIGHT_FLICKER_DURING, "flicker_sync",
 				0, self.main_car_light, self.pool_car_lights)
-			:give("on_d_light_flicker_after", "on_car_light_flicker_after")
-			:give("d_light_flicker_remove_after")
+			:give($_C_ON_DLIGHT_FLICKER_AFTER, "on_car_light_flicker_after")
+			:give($_C_DLIGHT_FLICKER_REMOVE_AFTER)
 		self.timeline:Pause()
 
 		tle_log("show player")
@@ -215,7 +215,7 @@ function Outside:state_init()
 		local e_player
 		self.world:emit("spawn_player", function(e)
 			e_player = e
-			e_player:give("color_fade_in", 0.25)
+			e_player:give($_C_COLOR_FADE_IN, 0.25)
 		end)
 		dt_cam.x, dt_cam.y = self.camera:getPosition()
 		dt_cam.scale = self.camera:getScale()
@@ -290,7 +290,7 @@ end
 function Outside:start_rain_fade()
 	local dur_fade_rain = 8
 	for _, e in ipairs(self.pool_splashes) do
-		e:give("color_fade_out", dur_fade_rain)
+		e:give($_C_COLOR_FADE_OUT, dur_fade_rain)
 	end
 
 	Flux.to(self.rain_state, dur_fade_rain, {current = 0})
@@ -352,21 +352,21 @@ function Outside:toggle_car_power(ent)
 	self.world:emit("remove_choices")
 	local mcl = self.main_car_light.light_disabled
 	for _, e in ipairs(self.pool_car_lights) do
-		e:remove("light_disabled")
+		e:remove($_C_LIGHT_DISABLED)
 	end
-	self.main_car_light:give("d_light_flicker", 2, 0.75, 0.25)
-		:give("on_d_light_flicker_during", "flicker_sync",
+	self.main_car_light:give($_C_DLIGHT_FLICKER, 2, 0.75, 0.25)
+		:give($_C_ON_DLIGHT_FLICKER_DURING, "flicker_sync",
 			0, self.main_car_light, self.pool_car_lights)
-		:give("on_d_light_flicker_after", "toggle_car_power_after", 0, ent, mcl)
-		:give("d_light_flicker_remove_after")
+		:give($_C_ON_DLIGHT_FLICKER_AFTER, "toggle_car_power_after", 0, ent, mcl)
+		:give($_C_DLIGHT_FLICKER_REMOVE_AFTER)
 end
 
 function Outside:toggle_car_power_after(ent, flag)
 	for _, e in ipairs(self.pool_car_lights) do
 		if flag then
-			e:remove("light_disabled")
+			e:remove($_C_LIGHT_DISABLED)
 		else
-			e:give("light_disabled")
+			e:give($_C_LIGHT_DISABLED)
 		end
 	end
 	self.world:emit("wait_dialogue", false)
@@ -387,7 +387,7 @@ end
 function Outside:make_car_interactive()
 	for _, e in ipairs(self.pool_bump) do
 		if e.id.value == "car" then
-			e:give("interactive")
+			e:give($_C_INTERACTIVE)
 			break
 		end
 	end

@@ -17,7 +17,7 @@ local Save = require("save")
 local Shaders = require("shaders")
 
 local Menu = Concord.system({
-	pool = {"option_key", "color", "pos", "text", "on_enter_menu"},
+	pool = {"option_key", "color", "pos", "text", $_C_ON_ENTER_MENU},
 	pool_disabled = {"option_key", "option_disabled"},
 	pool_text = {"menu_text"},
 	pool_main_menu = {
@@ -155,7 +155,7 @@ function Menu:state_init()
 		self.timeline:Pause()
 		Fade.fade_in(function() self:menu_unpause() end)
 		self.timeline:Pause()
-		self.subtitle:remove("anchor")
+		self.subtitle:remove($_C_ANCHOR)
 		self:show_main_menu()
 		self.timeline:Pause()
 		self.world:emit("set_focus_list", $_LIST_MAIN_MENU)
@@ -261,10 +261,10 @@ function Menu:setup_menu()
 		local e = Concord.entity(self.world):assemble(AMenu.option_item,
 				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 2,
 				$_LIST_SUB_MENU)
-			:give("on_enter_menu", "on_" .. lstr)
+			:give($_C_ON_ENTER_MENU, "on_" .. lstr)
 
 		if not has_save and str == "Continue" then
-			e:give("list_item_skip")
+			e:give($_C_LIST_ITEM_SKIP)
 		end
 	end
 
@@ -279,7 +279,7 @@ function Menu:setup_menu()
 		Concord.entity(self.world):assemble(AMenu.option_item,
 				id, str, jamboree_fnt, jamboree_png, x, y, str_scale, i, 1,
 				$_LIST_MAIN_MENU)
-			:give("on_enter_menu", "on_" .. lstr, 0, lstr)
+			:give($_C_ON_ENTER_MENU, "on_" .. lstr, 0, lstr)
 	end
 	self.world:__flush()
 end
@@ -298,7 +298,7 @@ function Menu:setup_about()
 
 	Concord.entity(self.world)
 		:assemble(AMenu.btn_back, 8, base_y)
-		:give("on_click", 1, "menu_back")
+		:give($_C_ON_CLICK, 1, "menu_back")
 
 	for i, el in ipairs(about) do
 		if type(el[1]) == "string" and el[1] ~= "_IMAGES" then
@@ -360,7 +360,7 @@ function Menu:setup_about()
 				local y = base_y - ih * 0.5 - pad * 0.5
 				Concord.entity(self.world):assemble(AMenu.about_ext_link,
 						id, resource_id, x, y)
-					:give("on_click", 1, "open_url", about_links[i2])
+					:give($_C_ON_CLICK, 1, "open_url", about_links[i2])
 			end
 		end
 	end
@@ -375,10 +375,10 @@ end
 
 function Menu:show_main_menu()
 	for _, e in ipairs(self.pool_main_menu) do
-		e:remove("hidden")
-		:give("target_color", Palette.get("white", 1), duration_show)
-		:give("lerp_on_finish", "menu_unpause", 0, false)
-		:give("move_to_original", duration_pos)
+		e:remove($_C_HIDDEN)
+		:give($_C_TARGET_COLOR, Palette.get("white", 1), duration_show)
+		:give($_C_LERP_ON_FINISH, "menu_unpause", 0, false)
+		:give($_C_MOVE_TO_ORIGINAL, duration_pos)
 	end
 	self.current_state = Enums.menu_state.menu
 	self.world:emit("set_focus_list", $_LIST_MAIN_MENU)
@@ -387,20 +387,20 @@ end
 function Menu:hide_main_menu(duration)
 	@@sassert(duration, type(duration) == "number")
 	for _, e in ipairs(self.pool_main_menu) do
-		e:give("target_color", Palette.get("white", 0), duration or duration_hide)
-		:give("lerp_on_finish_multi",
+		e:give($_C_TARGET_COLOR, Palette.get("white", 0), duration or duration_hide)
+		:give($_C_LERP_ON_FINISH_MULTI,
 			{signal = "hide_entity", args = {e}},
 			{signal = "menu_unpause"})
-		:give("move_by", target_x, 0, duration or duration_pos)
+		:give($_C_MOVE_BY, target_x, 0, duration or duration_pos)
 	end
 end
 
 function Menu:show_sub_menu()
 	for _, e in ipairs(self.pool_sub_menu) do
-		e:remove("hidden")
-		:give("target_color", Palette.get("white", 1), duration_show)
-		:give("lerp_on_finish", "menu_unpause", 0, false)
-		:give("move_to_original", duration_pos)
+		e:remove($_C_HIDDEN)
+		:give($_C_TARGET_COLOR, Palette.get("white", 1), duration_show)
+		:give($_C_LERP_ON_FINISH, "menu_unpause", 0, false)
+		:give($_C_MOVE_TO_ORIGINAL, duration_pos)
 	end
 
 	Timer.after(duration_show, function()
@@ -413,9 +413,9 @@ end
 function Menu:hide_sub_menu(duration)
 	@@sassert(duration, type(duration) == "number")
 	for _, e in ipairs(self.pool_sub_menu) do
-		e:give("target_color", Palette.get("white", 0), duration or duration_hide)
-		:give("lerp_on_finish", "hide_entity", 0, e)
-		:give("move_by", target_x, 0, duration or duration_pos)
+		e:give($_C_TARGET_COLOR, Palette.get("white", 0), duration or duration_hide)
+		:give($_C_LERP_ON_FINISH, "hide_entity", 0, e)
+		:give($_C_MOVE_BY, target_x, 0, duration or duration_pos)
 	end
 end
 
@@ -426,11 +426,11 @@ function Menu:on_newgame()
 	-- TODO turn off BGM
 
 	self:hide_sub_menu()
-	self.e_desk:give("hidden")
+	self.e_desk:give($_C_HIDDEN)
 
 	--TODO change target_color
 	for _, e in ipairs(self.pool_text) do
-		e:give("target_color", Palette.get("white", 0), dur)
+		e:give($_C_TARGET_COLOR, Palette.get("white", 0), dur)
 	end
 
 	local e_desk_fast = Concord.entity(self.world)
@@ -438,7 +438,7 @@ function Menu:on_newgame()
 
 	Timer.after(timer, function()
 		-- TODO add sudden static sound
-		e_desk_fast:give("hidden")
+		e_desk_fast:give($_C_HIDDEN)
 		Timer.after(timer, function()
 			self.world:emit("switch_state", "Intro")
 		end)

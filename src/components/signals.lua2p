@@ -23,27 +23,24 @@ local function callback(name, ctor)
 end
 
 local names = {
-	"animation_on_loop",
-	"animation_on_update",
-	"animation_on_finish",
-	"lerp_on_finish",
-	"typewriter_on_finish",
-	"on_enter_menu",
-	"hold_on_finish",
-	"task_on_update",
-	"color_fade_out_finish",
-	"color_fade_in_finish",
-	"on_keypressed",
-	"on_dialogue_end",
-	"on_blink_end",
-	"on_d_light_flicker_during",
-	"on_d_light_flicker_after",
-	"on_path_update",
-	"on_path_reached_end",
+	$_C_ANIMATION_ON_LOOP,
+	$_C_ANIMATION_ON_UPDATE,
+	$_C_ANIMATION_ON_FINISH,
+	$_C_LERP_ON_FINISH,
+	$_C_TYPEWRITER_ON_FINISH,
+	$_C_ON_ENTER_MENU,
+	$_C_COLOR_FADE_OUT_FINISH,
+	$_C_COLOR_FADE_IN_FINISH,
+	$_C_ON_DIALOGUE_END,
+	$_C_ON_BLINK_END,
+	$_C_ON_DLIGHT_FLICKER_DURING,
+	$_C_ON_DLIGHT_FLICKER_AFTER,
+	$_C_ON_PATH_UPDATE,
+	$_C_ON_PATH_REACHED_END,
 }
 
 local names_multi = {
-	"lerp_on_finish_multi",
+	$_C_LERP_ON_FINISH_MULTI
 }
 
 for _, v in ipairs(names) do

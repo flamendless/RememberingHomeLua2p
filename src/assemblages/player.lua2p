@@ -27,37 +27,37 @@ function Player.base(e, x, y, speed_data, gravity, can)
 	local data, mods = Player.get_multi_anim_data(false, can.open_door)
 	local collider = Colliders.player
 
-	e:give("id", "player")
-	:give("player")
-	:give("pos", x, y)
-	:give("transform", 0, 1, 1, 18, 0)
-	:give("collider", collider.w, collider.h)
-	:give("bump")
-	:give("speed")
-	:give("speed_data", speed_data)
-	:give("gravity", gravity)
-	:give("animation")
-	:give("animation_ev_update", "player_update_animation")
-	:give("player_controller")
-	:give("body")
-	:give("multi_animation_data", Enums.anim_state.idle, data, mods)
-	:give("current_frame")
-	:give("movement")
-	:give("fl_spawn_offset", 7, -16)
-	:give("is_running")
-	:give("is_interacting")
+	e:give($_C_ID, "player")
+	:give($_C_PLAYER)
+	:give($_C_POS, x, y)
+	:give($_C_TRANSFORM, 0, 1, 1, 18, 0)
+	:give($_C_COLLIDER, collider.w, collider.h)
+	:give($_C_BUMP)
+	:give($_C_SPEED)
+	:give($_C_SPEED_DATA, speed_data)
+	:give($_C_GRAVITY, gravity)
+	:give($_C_ANIMATION)
+	:give($_C_ANIMATION_EV_UPDATE, "player_update_animation")
+	:give($_C_PLAYER_CONTROLLER)
+	:give($_C_BODY)
+	:give($_C_MULTI_ANIMATION_DATA, Enums.anim_state.idle, data, mods)
+	:give($_C_CURRENT_FRAME)
+	:give($_C_MOVEMENT)
+	:give($_C_FL_SPAWN_OFFSET, 7, -16)
+	:give($_C_IS_RUNNING)
+	:give($_C_IS_INTERACTING)
 
 	if can.move then
-		e:give("can_move")
+		e:give($_C_CAN_MOVE)
 	end
 	if can.run then
-		e:give("can_run")
+		e:give($_C_CAN_RUN)
 	end
 	if can.interact then
-		e:give("can_interact")
+		e:give($_C_CAN_INTERACT)
 	end
 	if can.open_door then
-		e:give("can_open_door")
+		e:give($_C_CAN_OPEN_DOOR)
 	end
 end
 
@@ -77,8 +77,8 @@ function Player.outside_house(e, x, y)
 			run = false,
 			open_door = true,
 		})
-	:give("z_index", 5)
-	:give("color", {1, 1, 1, 0})
+	:give($_C_Z_INDEX, 5)
+	:give($_C_COLOR, {1, 1, 1, 0})
 end
 
 function Player.room(e, x, y)
@@ -97,8 +97,8 @@ function Player.room(e, x, y)
 			run = false,
 			open_door = true,
 		})
-	:give("z_index", 8)
-	:give("color", {1, 1, 1, 1})
+	:give($_C_Z_INDEX, 8)
+	:give($_C_COLOR, {1, 1, 1, 1})
 end
 
 return Player
