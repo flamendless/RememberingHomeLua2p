@@ -1,16 +1,16 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("grouped", function(c, id)
+Concord.component($_C_GROUPED, function(c, id)
 	@@assert(type(id) == "string")
 	c.value = id
 end)
 
-Concord.component("atlas", function(c, frame)
+Concord.component($_C_ATLAS, function(c, frame)
 	@@assert(type(frame) == "table")
 	c.value = frame
 end)
 
-local c_quad = Concord.component("quad", function(c, quad, info)
+local c_quad = Concord.component($_C_QUAD, function(c, quad, info)
 	@@assert(quad:type() == "Quad")
 	@@sassert(info, type(info) == "table")
 	c.quad = quad

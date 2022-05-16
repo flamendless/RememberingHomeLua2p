@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("path", function(c, points, max)
+Concord.component($_C_PATH, function(c, points, max)
 	@@assert(type(points) == "table")
 	@@sassert(max, type(max) == "number" and max > 0)
 	!if _DEV then
@@ -15,15 +15,15 @@ Concord.component("path", function(c, points, max)
 	c.max = max or 1
 end)
 
-Concord.component("path_speed", function(c, speed)
+Concord.component($_C_PATH_SPEED, function(c, speed)
 	@@assert(type(speed) == "number")
 	c.value = speed
 end)
 
-Concord.component("apply_bezier_curve", function(c)
+Concord.component($_C_APPLY_BEZIER_CURVE, function(c)
 	c.dt = 0
 end)
 
-Concord.component("path_loop")
-Concord.component("path_repeat")
-Concord.component("path_move")
+Concord.component($_C_PATH_LOOP)
+Concord.component($_C_PATH_REPEAT)
+Concord.component($_C_PATH_MOVE)

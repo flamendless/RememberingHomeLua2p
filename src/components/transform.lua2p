@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
+Concord.component($_C_TRANSFORM, function(c, rotation, sx, sy, ox, oy, kx, ky)
 	@@sassert(rotation, type(rotation) == "number")
 	@@sassert(sx, type(sx) == "number")
 	@@sassert(sy, type(sy) == "number")
@@ -20,7 +20,7 @@ Concord.component("transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
 	c.orig_sy = c.sy
 end)
 
-Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy, kx, ky)
+Concord.component($_C_QUAD_TRANSFORM, function(c, rotation, sx, sy, ox, oy, kx, ky)
 	@@sassert(rotation, type(rotation) == "number")
 	@@sassert(sx, type(sx) == "number")
 	@@sassert(sy, type(sy) == "number")
@@ -40,7 +40,7 @@ Concord.component("quad_transform", function(c, rotation, sx, sy, ox, oy, kx, ky
 	c.orig_sy = c.sy
 end)
 
-Concord.component("depth_zoom", function(c, zoom_factor)
+Concord.component($_C_DEPTH_ZOOM, function(c, zoom_factor)
 	@@assert(type(zoom_factor) == "number")
 	c.value = zoom_factor
 end)

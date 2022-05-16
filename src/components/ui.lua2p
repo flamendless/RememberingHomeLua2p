@@ -1,15 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("ui_element")
+Concord.component($_C_UI_ELEMENT)
 
-Concord.component("ui_offset", function(c, ox, oy)
-	@@assert(type(ox) == "number")
-	@@assert(type(oy) == "number")
-	c.ox = ox
-	c.oy = oy
-end)
-
-Concord.component("layer", function(c, id, n)
+Concord.component($_C_LAYER, function(c, id, n)
 	@@assert(type(id) == "string")
 	@@sassert(n, type(n) == "number")
 	c.id = id

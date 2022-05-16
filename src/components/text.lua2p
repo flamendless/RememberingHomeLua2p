@@ -2,31 +2,31 @@ local Concord = require("modules.concord.concord")
 
 local Enums = require("enums")
 
-Concord.component("target_text", function(c, text)
+Concord.component($_C_TARGET_TEXT, function(c, text)
 	@@assert(type(text) == "string")
 	c.value = text
 end)
 
-Concord.component("text", function(c, text)
+Concord.component($_C_TEXT, function(c, text)
 	@@assert(type(text) == "string")
 	c.value = text
 end)
 
-Concord.component("text_t", function(c, t)
+Concord.component($_C_TEXT_T, function(c, t)
 	@@assert(type(t) == "table", "got " .. type(t))
 	c.value = t
 	c.current_index = 1
 	c.max_n = #t
 end)
 
-Concord.component("textf", function(c, limit, align)
+Concord.component($_C_TEXTF, function(c, limit, align)
 	@@assert(type(limit) == "number")
 	@@assert(type(align) == "string")
 	c.limit = limit
 	c.align = align
 end)
 
-local c_static_text = Concord.component("static_text", function(c, text)
+local c_static_text = Concord.component($_C_STATIC_TEXT, function(c, text)
 	@@assert(type(text) == "string")
 	c.value = text
 	c.obj = nil

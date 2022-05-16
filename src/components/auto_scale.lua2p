@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("auto_scale", function(c, tw, th, is_proportion, is_floored)
+Concord.component($_C_AUTO_SCALE, function(c, tw, th, is_proportion, is_floored)
 	@@assert(type(tw) == "number")
 	@@assert(type(th) == "number")
 	@@sassert(is_proportion, type(is_proportion) == "boolean")

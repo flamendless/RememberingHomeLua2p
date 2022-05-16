@@ -1,17 +1,17 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("interactive")
-Concord.component("locked")
-Concord.component("is_door")
+Concord.component($_C_INTERACTIVE)
+Concord.component($_C_LOCKED)
+Concord.component($_C_IS_DOOR)
 
-Concord.component("target_interactive", function(c, interactive_e)
+Concord.component($_C_TARGET_INTERACTIVE, function(c, interactive_e)
 	@@assert(interactive_e.__isEntity)
 	@@assert(interactive_e.interactive)
 	interactive_e:ensure("key")
 	c.interactive_e = interactive_e
 end)
 
-Concord.component("within_interactive", function(c, entity)
+Concord.component($_C_WITHIN_INTERACTIVE, function(c, entity)
 	@@assert(entity.__isEntity)
 	@@assert(entity.id)
 	@@assert(entity.interactive)
@@ -19,7 +19,7 @@ Concord.component("within_interactive", function(c, entity)
 	c.entity = entity
 end)
 
-Concord.component("interactive_req_player_dir", function(c, x, y)
+Concord.component($_C_INTERACTIVE_REQ_PLAYER_DIR, function(c, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	c.x = x

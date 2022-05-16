@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("angle", function(c, radius, angle)
+Concord.component($_C_ANGLE, function(c, radius, angle)
 	@@assert(type(radius) == "number")
 	@@sassert(angle, type(angle) == "number")
 	c.radius = radius
@@ -8,7 +8,7 @@ Concord.component("angle", function(c, radius, angle)
 	c.orig_radius = radius
 end)
 
-Concord.component("angular_speed", function(c, speed, dir)
+Concord.component($_C_ANGULAR_SPEED, function(c, speed, dir)
 	@@assert(type(speed) == "number")
 	@@assert(type(dir) == "number")
 	c.speed = speed

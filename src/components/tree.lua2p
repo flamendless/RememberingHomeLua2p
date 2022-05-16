@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("bg_tree", function(c, is_cover)
+Concord.component($_C_BG_TREE, function(c, is_cover)
 	@@sassert(is_cover, type(is_cover) == "boolean")
 	c.is_cover = is_cover
 end)

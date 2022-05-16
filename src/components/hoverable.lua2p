@@ -1,20 +1,20 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("hover_emit")
+Concord.component($_C_HOVER_EMIT)
 
-Concord.component("hoverable", function(c)
+Concord.component($_C_HOVERABLE, function(c)
 	c.prev_hovered = false
 	c.is_hovered = false
 end)
 
-Concord.component("hover_change_color", function(c, target, step)
+Concord.component($_C_HOVER_CHANGE_COLOR, function(c, target, step)
 	@@assert(type(target) == "table")
 	@@assert(type(step) == "number")
 	c.target = target
 	c.step = step
 end)
 
-Concord.component("hover_change_scale", function(c, target, step)
+Concord.component($_C_HOVER_CHANGE_SCALE, function(c, target, step)
 	@@assert(type(target) == "number")
 	@@assert(type(step) == "number")
 	c.target = target

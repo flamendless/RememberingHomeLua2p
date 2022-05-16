@@ -1,10 +1,10 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("option_key", function(c, id, page)
+Concord.component($_C_OPTION_KEY, function(c, id, page)
 	@@assert(type(id) == "number")
 	@@assert(type(page) == "number")
 	c.id = id
 	c.page = page
 end)
 
-Concord.component("option_disabled")
+Concord.component($_C_OPTION_DISABLED)

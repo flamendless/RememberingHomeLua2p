@@ -4,10 +4,10 @@ local Concord = require("modules.concord.concord")
 local Dialogues = require("dialogues")
 !end
 
-Concord.component("text_can_proceed")
-Concord.component("text_skipped")
+Concord.component($_C_TEXT_CAN_PROCEED)
+Concord.component($_C_TEXT_SKIPPED)
 
-Concord.component("has_choices", function(c, ...)
+Concord.component($_C_HAS_CHOICES, function(c, ...)
 	c.value = {...}
 	!if _DEV then
 	@@assert(#c.value ~= 0)
@@ -18,8 +18,8 @@ Concord.component("has_choices", function(c, ...)
 	@@assert(#c.value ~= 0)
 end)
 
-Concord.component("dialogue_item")
-Concord.component("dialogue_meta", function(c, main, sub)
+Concord.component($_C_DIALOGUE_ITEM)
+Concord.component($_C_DIALOGUE_META, function(c, main, sub)
 	@@assert(type(main) == "string")
 	@@assert(type(sub) == "string")
 	@@assert(Dialogues.get(main, sub))

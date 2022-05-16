@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("outline")
+Concord.component($_C_OUTLINE)
 
-Concord.component("outline_val", function(c, size)
+Concord.component($_C_OUTLINE_VAL, function(c, size)
 	@@assert(type(size) == "number")
 	c.value = size
 end)

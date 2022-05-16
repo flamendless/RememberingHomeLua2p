@@ -9,6 +9,7 @@ return {
 		"stringx",
 		"tablex",
 		"functional",
+		"toLua",
 	},
 	ignore = {'212'},
 }

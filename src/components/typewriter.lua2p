@@ -1,15 +1,13 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("typewriter_timer", function(c)
-	c.timer = nil
-end)
+Concord.component($_C_TYPEWRITER_TIMER)
 
-Concord.component("typewriter", function(c, every)
+Concord.component($_C_TYPEWRITER, function(c, every)
 	@@assert(type(every) == "number")
 	c.every = every
 end)
 
-Concord.component("reflowprint", function(c, width, alignment, speed)
+Concord.component($_C_REFLOWPRINT, function(c, width, alignment, speed)
 	@@assert(type(width) == "number")
 	@@assert(type(alignment) == "string")
 	@@sassert(speed, type(speed) == "number")

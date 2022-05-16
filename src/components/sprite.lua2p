@@ -3,10 +3,10 @@ local Concord = require("modules.concord.concord")
 local Image = require("image")
 local Resources = require("resources")
 
-Concord.component("bg")
-Concord.component("array_image")
+Concord.component($_C_BG)
+Concord.component($_C_ARRAY_IMAGE)
 
-local c_sprite = Concord.component("sprite", function(c, resource_id, container)
+local c_sprite = Concord.component($_C_SPRITE, function(c, resource_id, container)
 	@@assert(type(resource_id) == "string")
 	@@sassert(container, type(container) == "string")
 	c.resource_id = resource_id
@@ -27,7 +27,7 @@ function c_sprite:deserialize(data)
 end
 
 --TODO remove with fog?
-local c_noise_tex = Concord.component("noise_texture", function(c, w, h)
+local c_noise_tex = Concord.component($_C_NOISE_TEXTURE, function(c, w, h)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")
 	c.w = w

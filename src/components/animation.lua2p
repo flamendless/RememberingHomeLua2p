@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("override_animation")
+Concord.component($_C_OVERRIDE_ANIMATION)
 
-local c_anim = Concord.component("animation", function(c, stop_on_last)
+local c_anim = Concord.component($_C_ANIMATION, function(c, stop_on_last)
 	@@sassert(stop_on_last, type(stop_on_last) == "boolean")
 	c.grid = nil
 	c.anim8 = nil
@@ -25,28 +25,28 @@ function c_anim:deserialize(data)
 	self:__populate(data.stop_on_last)
 end
 
-Concord.component("change_animation_tag", function(c, new_tag, override)
+Concord.component($_C_CHANGE_ANIMATION_TAG, function(c, new_tag, override)
 	@@assert(type(new_tag) == "string")
 	@@sassert(override, type(override) == "boolean")
 	c.new_tag = new_tag
 	c.override = override
 end)
 
-Concord.component("animation_pause_at", function(c, at_frame)
+Concord.component($_C_ANIMATION_PAUSE_AT, function(c, at_frame)
 	@@assert(type(at_frame) == "string" or type(at_frame) == "number")
 	@@assert(type(at_frame) == "string")
 	c.at_frame = at_frame
 end)
 
-Concord.component("animation_stop", function(c, event)
+Concord.component($_C_ANIMATION_STOP, function(c, event)
 	c.event = event
 end)
 
-Concord.component("current_frame", function(c)
+Concord.component($_C_CURRENT_FRAME, function(c)
 	c.value = 0
 end)
 
-Concord.component("animation_ev_update", function(c, ev_update)
+Concord.component($_C_ANIMATION_EV_UPDATE, function(c, ev_update)
 	@@assert(type(ev_update) == "string")
 	c.value = ev_update
 end)

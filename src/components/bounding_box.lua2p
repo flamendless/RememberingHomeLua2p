@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("bounding_box", function(c, x, y, w, h)
+Concord.component($_C_BOUNDING_BOX, function(c, x, y, w, h)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	@@assert(type(w) == "number")

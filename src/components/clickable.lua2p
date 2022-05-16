@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("clickable")
+Concord.component($_C_CLICKABLE)
 
-Concord.component("on_click", function(c, mb, signal, ...)
+Concord.component($_C_ON_CLICK, function(c, mb, signal, ...)
 	@@assert(mb >= 1 and mb <= 3)
 	@@assert(type(signal) == "string")
 	c.mb = mb

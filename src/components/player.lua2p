@@ -1,4 +1,4 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("player")
-Concord.component("hit_wall")
+Concord.component($_C_PLAYER)
+Concord.component($_C_HIT_WALL)

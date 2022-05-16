@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 local Resources = require("resources")
 
-local c_multi_anim_data = Concord.component("multi_animation_data", function(c, first, data, modifier)
+local c = Concord.component($_C_MULTI_ANIMATION_DATA, function(c, first, data, modifier)
 	@@assert(type(first) == "string")
 	@@assert(type(data) == "table")
 	@@assert(data[first], "no " .. first .. " found in data")
@@ -50,7 +50,7 @@ local c_multi_anim_data = Concord.component("multi_animation_data", function(c, 
 	c.modifier = modifier
 end)
 
-function c_multi_anim_data:serialize()
+function c:serialize()
 	return {
 		first = self.first,
 		data = self.orig_data,
@@ -58,6 +58,6 @@ function c_multi_anim_data:serialize()
 	}
 end
 
-function c_multi_anim_data:deserialize(data)
+function c:deserialize(data)
 	self:__populate(data.first, data.data, data.modifier)
 end

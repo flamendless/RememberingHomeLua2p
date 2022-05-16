@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("refs", function(c, ...)
+Concord.component($_C_REFS, function(c, ...)
 	local t = {...}
 	@@assert(#t > 0)
 	local v = {}

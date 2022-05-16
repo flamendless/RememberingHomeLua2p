@@ -1,15 +1,15 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("bump")
-Concord.component("wall")
-Concord.component("ground")
+Concord.component($_C_BUMP)
+Concord.component($_C_WALL)
+Concord.component($_C_GROUND)
 
-Concord.component("req_col_dir", function(c, dir)
+Concord.component($_C_REQ_COL_DIR, function(c, dir)
 	@@assert(type(dir) == "number" and (dir == -1 or dir == 1))
 	c.value = dir
 end)
 
-Concord.component("collider", function(c, w, h, filter)
+Concord.component($_C_COLLIDER, function(c, w, h, filter)
 	@@assert(type(w) == "number")
 	@@assert(type(h) == "number")
 	@@sassert(filter, type(filter) == "string")
@@ -22,14 +22,14 @@ Concord.component("collider", function(c, w, h, filter)
 	c.filter = filter
 end)
 
-Concord.component("collider_offset", function(c, ox, oy)
+Concord.component($_C_COLLIDER_OFFSET, function(c, ox, oy)
 	@@assert(type(ox) == "number")
 	@@assert(type(oy) == "number")
 	c.ox = ox
 	c.oy = oy
 end)
 
-Concord.component("collider_circle", function(c, size, ox, oy)
+Concord.component($_C_COLLIDER_CIRCLE, function(c, size, ox, oy)
 	@@assert(type(size) == "number")
 	@@sassert(ox, type(ox) == "number")
 	@@sassert(oy, type(oy) == "number")

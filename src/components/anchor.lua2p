@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local c_anchor = Concord.component("anchor", function(c, entity, ax, ay, padding_x, padding_y)
+local c_anchor = Concord.component($_C_ANCHOR, function(c, entity, ax, ay, padding_x, padding_y)
 	@@assert(entity.__isEntity)
 	@@assert(type(ax) == "string")
 	@@assert(type(ay) == "string")

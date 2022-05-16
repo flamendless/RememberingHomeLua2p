@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("move_by", function(c, x, y, duration, delay)
+Concord.component($_C_MOVE_BY, function(c, x, y, duration, delay)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	@@assert(type(duration) == "number")
@@ -11,9 +11,9 @@ Concord.component("move_by", function(c, x, y, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("move_repeat")
+Concord.component($_C_MOVE_REPEAT)
 
-Concord.component("move_to_x", function(c, x_pos, duration, delay)
+Concord.component($_C_MOVE_TO_X, function(c, x_pos, duration, delay)
 	@@assert(type(x_pos) == "number")
 	@@assert(type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
@@ -22,7 +22,7 @@ Concord.component("move_to_x", function(c, x_pos, duration, delay)
 	c.delay = delay or 0
 end)
 
-Concord.component("move_to_original", function(c, duration, delay)
+Concord.component($_C_MOVE_TO_ORIGINAL, function(c, duration, delay)
 	@@assert(type(duration) == "number")
 	@@sassert(delay, type(delay) == "number")
 	c.duration = duration

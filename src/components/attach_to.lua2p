@@ -1,6 +1,6 @@
 local Concord = require("modules.concord.concord")
 
-local c_attach_to = Concord.component("attach_to", function(c, e_target)
+local c_attach_to = Concord.component($_C_ATTACH_TO, function(c, e_target)
 	@@assert(e_target.__isEntity)
 	e_target:ensure("key")
 	c.key = e_target.key.value
@@ -14,14 +14,14 @@ function c_attach_to:deserialize(data)
 	self.key = data.key
 end
 
-Concord.component("attach_to_offset", function(c, ox, oy)
+Concord.component($_C_ATTACH_TO_OFFSET, function(c, ox, oy)
 	@@assert(type(ox) == "number")
 	@@assert(type(oy) == "number")
 	c.ox = ox
 	c.oy = oy
 end)
 
-Concord.component("attach_to_spawn_point", function(c, x, y)
+Concord.component($_C_ATTACH_TO_SPAWN_POINT, function(c, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	c.x = x

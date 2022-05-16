@@ -1,26 +1,26 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component("can_move")
-Concord.component("can_run")
-Concord.component("can_open_door")
-Concord.component("can_interact")
+Concord.component($_C_CAN_MOVE)
+Concord.component($_C_CAN_RUN)
+Concord.component($_C_CAN_OPEN_DOOR)
+Concord.component($_C_CAN_INTERACT)
 
-Concord.component("is_running", function(c)
+Concord.component($_C_IS_RUNNING, function(c)
 	c.value = false
 end)
 
-Concord.component("is_interacting", function(c)
+Concord.component($_C_IS_INTERACTING, function(c)
 	c.value = false
 end)
 
-Concord.component("body", function(c)
+Concord.component($_C_BODY, function(c)
 	c.dx = 0
 	c.dir = 1
 	c.vel_x = 0
 	c.vel_y = 0
 end)
 
-Concord.component("prev_can", function(c, e_player)
+Concord.component($_C_PREV_CAN, function(c, e_player)
 	@@assert(e_player.__isEntity)
 	c.value = {
 		move = e_player.can_move,
