@@ -4,7 +4,7 @@ local Gamera = require("modules.gamera.gamera")
 local Helper = require("helper")
 
 local BoundingBox = Concord.system({
-	pool = {"bounding_box", "pos"},
+	pool = {$_C_BOUNDING_BOX, $_C_POS},
 })
 
 function BoundingBox:init(world)

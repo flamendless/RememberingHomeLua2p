@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Enums = require("enums")
 
 local Light = Concord.system({
-	pool = {"id", "pos", "transform", "color", "light", "sprite"},
+	pool = {$_C_ID, $_C_POS, $_C_TRANSFORM, $_C_COLOR, $_C_LIGHT, $_C_SPRITE},
 })
 
 local function randomf(min, max)
@@ -61,7 +61,7 @@ function Light:init(world)
 		local flicker = e.light_flicker
 
 		if recolor or flash or flicker then
-			e:give("light_timer")
+			e:give($_C_LIGHT_TIMER)
 		end
 
 		manage_offset(light.light_shape, e.transform, e.sprite.image)

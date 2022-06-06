@@ -8,7 +8,7 @@ local Generator = require("generator")
 local Utils = require("utils")
 
 local Ants = Concord.system({
-	pool = {"id", "bug", "ant"},
+	pool = {$_C_ID, $_C_BUG, $_C_ANT},
 })
 
 function Ants:init(world)
@@ -30,23 +30,23 @@ function Ants:generate_ants(n, start_p, end_p, path_repeat, ms)
 	for i = 1, n do
 		local speed = ms - (i - 1)
 		local e = Concord.entity(self.world)
-			:give("id", "ant" .. i)
-			:give("ant")
-			:give("bug")
-			:give("color", {0, 0, 0, 1})
-			:give("point", 4)
-			:give("pos", p.x, p.y)
-			:give("path", points)
-			:give("path_speed", speed)
-			:give("no_shader")
+			:give($_C_ID, "ant" .. i)
+			:give($_C_ANT)
+			:give($_C_BUG)
+			:give($_C_COLOR, {0, 0, 0, 1})
+			:give($_C_POINT, 4)
+			:give($_C_POS, p.x, p.y)
+			:give($_C_PATH, points)
+			:give($_C_PATH_SPEED, speed)
+			:give($_C_NO_SHADER)
 			!if not _DEV then
-			:give("hidden")
+			:give($_C_HIDDEN)
 			!end
 
 		if path_repeat then
-			e:give("path_repeat")
+			e:give($_C_PATH_REPEAT)
 		else
-			e:give("on_path_reached_end", "destroy_entity", 0, e)
+			e:give($_C_ON_PATH_REACHED_END, "destroy_entity", 0, e)
 		end
 	end
 end
@@ -60,16 +60,16 @@ function Ants:set_ants_visibility(bool)
 	!end
 	for _, e in ipairs(self.pool) do
 		if bool then
-			e:remove("hidden")
+			e:remove($_C_HIDDEN)
 		else
-			e:give("hidden")
+			e:give($_C_HIDDEN)
 		end
 	end
 end
 
 function Ants:move_ants()
 	for _, e in ipairs(self.pool) do
-		e:give("path_move")
+		e:give($_C_PATH_MOVE)
 	end
 end
 

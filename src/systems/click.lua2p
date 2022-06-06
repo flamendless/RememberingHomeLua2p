@@ -3,8 +3,8 @@ local Concord = require("modules.concord.concord")
 local Helper = require("helper")
 
 local Click = Concord.system({
-	pool = {"bounding_box", "clickable", "on_click"},
-	pool_ui = {"bounding_box", "clickable", "on_click", "ui_element"},
+	pool = {$_C_BOUNDING_BOX, $_C_CLICKABLE, $_C_ON_CLICK},
+	pool_ui = {$_C_BOUNDING_BOX, $_C_CLICKABLE, $_C_ON_CLICK, $_C_UI_ELEMENT},
 })
 
 function Click:init(world)

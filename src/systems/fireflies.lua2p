@@ -5,7 +5,7 @@ local Generator = require("generator")
 local Palette = require("palette")
 
 local Fireflies = Concord.system({
-	pool = {"firefly"},
+	pool = {$_C_FIREFLY},
 })
 
 local Outside = require("assemblages.outside")
@@ -27,11 +27,11 @@ function Fireflies:generate_fireflies()
 		local size = love.math.random(12, 20)
 		local points = Generator.path_points_fireflies(x, y, 64)
 		local e = Concord.entity(self.world):assemble(Outside.firefly, x, y, size, points)
-			:give("light_disabled")
-			:give("path", points, love.math.random(2, 6))
-			:give("path_speed", love.math.random(4, 8))
-			:give("apply_bezier_curve")
-			:give("path_loop")
+			:give($_C_LIGHT_DISABLED)
+			:give($_C_PATH, points, love.math.random(2, 6))
+			:give($_C_PATH_SPEED, love.math.random(4, 8))
+			:give($_C_APPLY_BEZIER_CURVE)
+			:give($_C_PATH_LOOP)
 		e:give("on_path_update", "update_light_pos", 0, e)
 	end
 end
@@ -39,7 +39,7 @@ end
 function Fireflies:show_fireflies(dur)
 	@@assert(type(dur) == "number")
 	for _, e in ipairs(self.pool) do
-		e:remove("light_disabled")
+		e:remove($_C_LIGHT_DISABLED)
 		Flux.to(e.diffuse.value, dur, {
 			[1] = col_target[1],
 			[2] = col_target[2],
@@ -51,7 +51,7 @@ function Fireflies:show_fireflies(dur)
 		:oncomplete(function()
 			local lp = e.point_light.value
 			local amount = love.math.random(lp * 0.25, lp * 0.4)
-			e:give("light_fading", amount, -1)
+			e:give($_C_LIGHT_FADING, amount, -1)
 		end)
 	end
 
@@ -63,7 +63,7 @@ end
 function Fireflies:hide_fireflies(dur)
 	@@assert(type(dur) == "number")
 	for _, e in ipairs(self.pool) do
-		e:remove("light_fading")
+		e:remove($_C_LIGHT_FADING)
 		Flux.to(e.diffuse.value, dur, {
 			[1] = 0,
 			[2] = 0,
@@ -73,7 +73,7 @@ function Fireflies:hide_fireflies(dur)
 			self.world:emit("update_light_diffuse", e)
 		end)
 		:oncomplete(function()
-			e:give("light_disabled")
+			e:give($_C_LIGHT_DISABLED)
 		end)
 	end
 
@@ -84,7 +84,7 @@ end
 
 function Fireflies:move_fireflies()
 	for _, e in ipairs(self.pool) do
-		e:give("path_move")
+		e:give($_C_PATH_MOVE)
 	end
 	!if _DEV then
 	self.debug_move = true
@@ -93,8 +93,8 @@ end
 
 function Fireflies:stop_fireflies()
 	for _, e in ipairs(self.pool) do
-		e:remove("path_move")
-		:remove("path_loop")
+		e:remove($_C_PATH_MOVE)
+		:remove($_C_PATH_LOOP)
 	end
 	!if _DEV then
 	self.debug_move = false

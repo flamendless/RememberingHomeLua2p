@@ -4,7 +4,7 @@ local Entity = Concord.system()
 
 function Entity:hide_entity(e)
 	@@assert(e.__isEntity)
-	e:give("hidden")
+	e:give($_C_HIDDEN)
 end
 
 function Entity:destroy_entity(e)

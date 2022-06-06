@@ -5,15 +5,15 @@ local Enums = require("enums")
 local Helper = require("helper")
 
 local Transform = Concord.system({
-	pool = {"transform", "!auto_scale", "!rect"},
-	pool_pos = {"pos", "!pos_vec2"},
-	pool_pos_vec2 = {"pos", "pos_vec2"},
-	pool_atlas = {"quad_transform", "atlas"},
-	pool_anchor = {"pos", "anchor"},
-	pool_camera = {"pos", "camera"},
-	pool_attach = {"pos", "attach_to"},
-	pool_auto_scale = {"transform", "auto_scale"},
-	pool_spawn = {"pos", "attach_to_spawn_point"},
+	pool = {$_C_TRANSFORM, @@c_not($_C_AUTO_SCALE), @@c_not($_C_RECT)},
+	pool_pos = {$_C_POS, @@c_not($_C_POS_VEC2)},
+	pool_pos_vec2 = {$_C_POS, $_C_POS_VEC2},
+	pool_atlas = {$_C_QUAD_TRANSFORM, $_C_ATLAS},
+	pool_anchor = {$_C_POS, $_C_ANCHOR},
+	pool_camera = {$_C_POS, $_C_CAMERA},
+	pool_attach = {$_C_POS, $_C_ATTACH_TO},
+	pool_auto_scale = {$_C_TRANSFORM, $_C_AUTO_SCALE},
+	pool_spawn = {$_C_POS, $_C_ATTACH_TO_SPAWN_POINT},
 })
 
 function Transform:init(world)

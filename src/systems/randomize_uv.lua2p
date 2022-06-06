@@ -3,7 +3,7 @@ local Log = require("modules.log.log")
 local Timer = require("modules.hump.timer")
 
 local RandomizeUV = Concord.system({
-	pool = {"room_item", "atlas"},
+	pool_room_item = {$_C_ROOM_ITEM, $_C_ATLAS},
 })
 
 function RandomizeUV:init(world)
@@ -15,7 +15,7 @@ end
 
 function RandomizeUV:update(dt)
 	if not self.has_randomized then return end
-	for _, e in ipairs(self.pool) do
+	for _, e in ipairs(self.pool_room_item) do
 		local quad = e.quad
 		local dx = love.math.random() < 0.5 and -self.power or self.power
 		local dy = love.math.random() < 0.5 and -self.power or self.power
@@ -29,11 +29,11 @@ end
 function RandomizeUV:randomize_uv()
 	Log.info("Randomizing UV for room items")
 	local choices = {}
-	for i, e in ipairs(self.pool) do
+	for i, e in ipairs(self.pool_room_item) do
 		choices[i] = {id = e.id.value, info = e.quad.info}
 	end
 
-	for _, e in ipairs(self.pool) do
+	for _, e in ipairs(self.pool_room_item) do
 		local id = e.id.value
 		if not self.orig_data[id] then
 			self.orig_data[id] = tablex.copy(e.quad.info)
@@ -48,7 +48,7 @@ end
 function RandomizeUV:reset_uv()
 	if not self.has_randomized then return end
 	Log.info("Resetting UV for room items")
-	for _, e in ipairs(self.pool) do
+	for _, e in ipairs(self.pool_room_item) do
 		local id = e.id.value
 		@@assert(self.orig_data[id], id .. " is missing orig quad data")
 		self.world:emit("update_atlas", e, self.orig_data[id])

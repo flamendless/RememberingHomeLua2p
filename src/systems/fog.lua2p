@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Fog = Concord.system({
-	pool = {"id", "fog", "noise_texture", "pos", "color", "transform"},
+	pool = {$_C_ID, $_C_FOG, $_C_NOISE_TEXTURE, $_C_POS, $_C_COLOR, $_C_TRANSFORM},
 })
 
 function Fog:init(world)
@@ -37,8 +37,8 @@ function Fog:fade_in_fog(target_id, dur)
 	for _, e in ipairs(self.pool) do
 		local id = e.id.value
 		if id == target_id then
-			e:remove("hidden")
-			:give("color_fade_in", dur)
+			e:remove($_C_HIDDEN)
+			:give($_C_COLOR_FADE_IN, dur)
 			break
 		end
 	end
@@ -50,8 +50,8 @@ function Fog:fade_out_fog(target_id, dur)
 	for _, e in ipairs(self.pool) do
 		local id = e.id.value
 		if id == target_id then
-			e:give("color_fade_out", dur)
-			:give("color_fade_out_finish", "hide_entity", 0, e)
+			e:give($_C_COLOR_FADE_OUT, dur)
+			:give($_C_COLOR_FADE_OUT_FINISH, "hide_entity", 0, e)
 			break
 		end
 	end

@@ -3,7 +3,7 @@ local Concord = require("modules.concord.concord")
 local Inputs = require("inputs")
 
 local Typewriter = Concord.system({
-	pool = {"text", "reflowprint"},
+	pool = {$_C_TEXT, $_C_REFLOWPRINT},
 })
 
 function Typewriter:init(world)
@@ -17,10 +17,10 @@ function Typewriter:update(dt)
 			local rfp = e.reflowprint
 			rfp.dt = rfp.dt + dt * rfp.speed
 			if rfp.dt * #text > #text then
-				e:give("text_can_proceed")
+				e:give($_C_TEXT_CAN_PROCEED)
 			elseif Inputs.pressed("interact") then
 				rfp.dt = #text - 1
-				e:give("text_skipped")
+				e:give($_C_TEXT_SKIPPED)
 			end
 		end
 	end

@@ -3,8 +3,13 @@ local Concord = require("modules.concord.concord")
 local Utils = require("utils")
 
 local Parallax = Concord.system({
-	pool = {"parallax", "quad", "sprite", "quad_transform", "!parallax_multi_sprite"},
-	pool_multi = {"parallax", "sprite", "pos", "parallax_multi_sprite"},
+	pool = {
+		$_C_PARALLAX, $_C_QUAD,
+		$_C_SPRITE,
+		$_C_QUAD_TRANSFORM,
+		@@c_not($_C_PARALLAX_MULTI_SPRITE)
+	},
+	pool_multi = {$_C_PARALLAX, $_C_SPRITE, $_C_POS, $_C_PARALLAX_MULTI_SPRITE},
 })
 
 function Parallax:init(world)
@@ -42,22 +47,22 @@ end
 
 function Parallax:start_parallax()
 	for _, e in ipairs(self.pool) do
-		e:remove("parallax_stop")
+		e:remove($_C_PARALLAX_STOP)
 	end
 	for _, v in pairs(self.tags) do
 		for _, e in ipairs(v) do
-			e:remove("parallax_stop")
+			e:remove($_C_PARALLAX_STOP)
 		end
 	end
 end
 
 function Parallax:stop_parallax()
 	for _, e in ipairs(self.pool) do
-		e:give("parallax_stop")
+		e:give($_C_PARALLAX_STOP)
 	end
 	for _, v in pairs(self.tags) do
 		for _, e in ipairs(v) do
-			e:give("parallax_stop")
+			e:give($_C_PARALLAX_STOP)
 		end
 	end
 end

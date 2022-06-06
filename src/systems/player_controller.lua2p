@@ -9,7 +9,7 @@ local PlayerSpawnPoints = require("data.player_spawn_points")
 local AssemPlayer = require("assemblages.player")
 
 local PlayerController = Concord.system({
-	pool = {"player_controller", "body", "collider"},
+	pool = {$_C_PLAYER_CONTROLLER, $_C_BODY, $_C_COLLIDER},
 })
 
 local function get_spawn_points(current_id, prev_id)
@@ -28,11 +28,11 @@ end
 
 function PlayerController:on_toggle_equip_flashlight()
 	local has_f = Items.is_equipped("flashlight")
-	self.player:remove("multi_animation_data")
-	self.player:give("multi_animation_data", Enums.anim_state.idle,
+	self.player:remove($_C_MULTI_ANIMATION_DATA)
+	self.player:give($_C_MULTI_ANIMATION_DATA, Enums.anim_state.idle,
 		AssemPlayer.get_multi_anim_data(has_f, self.player.can_open_door))
 	local tag = (self.player.body.dir == -1) and Enums.anim_state.idle_left or Enums.anim_state.idle
-	self.player:give("change_animation_tag", tag, true)
+	self.player:give($_C_CHANGE_ANIMATION_TAG, tag, true)
 end
 
 function PlayerController:spawn_player(fn)
@@ -141,7 +141,7 @@ end
 
 function PlayerController:on_interact_or_inventory()
 	if not self.player.prev_can then
-		self.player:give("prev_can", self.player)
+		self.player:give($_C_PREV_CAN, self.player)
 		self.world:emit("anim_idle", self.player, true)
 	end
 	self.world:emit("toggle_component", self.player, "can_move", false)
@@ -153,18 +153,18 @@ function PlayerController:on_leave_interact_or_inventory()
 	local prev_can = self.player.prev_can and self.player.prev_can.value
 	if not prev_can then return end
 	if prev_can.move then
-		self.player:give("can_move")
+		self.player:give($_C_CAN_MOVE)
 	end
 	if prev_can.run then
-		self.player:give("can_run")
+		self.player:give($_C_CAN_RUN)
 	end
 	if prev_can.interact then
 		Timer.after(0.5, function()
-			self.player:give("can_interact")
+			self.player:give($_C_CAN_INTERACT)
 			self.player.is_interacting.value = false
 		end)
 	end
-	self.player:remove("prev_can")
+	self.player:remove($_C_PREV_CAN)
 	-- self.world:emit("remove_speech_bubble")
 end
 

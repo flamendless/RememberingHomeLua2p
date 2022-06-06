@@ -2,9 +2,9 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 
 local Move = Concord.system({
-	pool = {"pos", "move_by"},
-	pool_move_x = {"pos", "move_to_x"},
-	pool_original = {"pos", "move_to_original"},
+	pool = {$_C_POS, $_C_MOVE_BY},
+	pool_move_x = {$_C_POS, $_C_MOVE_TO_X},
+	pool_original = {$_C_POS, $_C_MOVE_TO_ORIGINAL},
 })
 
 local function internal_move_by(e, is_repeat)
@@ -24,7 +24,7 @@ local function internal_move_by(e, is_repeat)
 		-- end)
 	else
 		f:oncomplete(function()
-			e:remove("move_by")
+			e:remove($_C_MOVE_BY)
 		end)
 	end
 end
@@ -43,7 +43,7 @@ function Move:init()
 		Flux.to(pos, target.duration, {x = target.target_x})
 			:delay(target.delay)
 			:oncomplete(function()
-				e:remove("move_to_x")
+				e:remove($_C_MOVE_TO_X)
 			end)
 	end
 
@@ -57,7 +57,7 @@ function Move:init()
 			})
 			:delay(move.delay)
 			:oncomplete(function()
-				e:remove("move_to_original")
+				e:remove($_C_MOVE_TO_ORIGINAL)
 			end)
 	end
 end

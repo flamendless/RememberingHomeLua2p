@@ -3,8 +3,8 @@ local Flux = require("modules.flux.flux")
 local Lume = require("modules.lume.lume")
 
 local TextPaint = Concord.system({
-	pool_text = {"text_with_paint"},
-	pool_paint = {"paint"},
+	pool_text = {$_C_TEXT_WITH_PAINT},
+	pool_paint = {$_C_PAINT},
 })
 
 local def_delay_paint = 1
@@ -36,7 +36,7 @@ function TextPaint:show_text_paint(e, dur, widest)
 	@@assert(type(dur) == "number")
 	@@sassert(widest, type(widest) == "string")
 	self:show_paint(e, dur, widest)
-	e:remove("hidden")
+	e:remove($_C_HIDDEN)
 	Flux.to(e.color.value, dur, {[4] = 1})
 end
 
@@ -63,7 +63,7 @@ function TextPaint:fade_text_paint(e, dur, on_complete)
 				on_complete()
 			end
 
-			e:give("hidden")
+			e:give($_C_HIDDEN)
 			-- e:destroy()
 		end)
 	self:fade_paint(e.text_with_paint.e_paint, dur, delay)
@@ -106,16 +106,16 @@ function TextPaint:show_paint(e, dur_in, widest)
 
 	local paint_id = e.text_with_paint.id
 	local paint = Concord.entity(self.world)
-		:give("id", "text_paint")
-		:give("pos", x, y)
-		:give("animation_data", e.animation_data.data)
-		:give("animation", true)
-		:give("auto_scale", str_w + offset, str_h + offset, false)
-		:give("transform", 0, sx, sy, 0.5, 0.5)
-		:give("color", {1, 1, 1, 0})
-		:give("paint")
-		:give("ui_element")
-		:ensure("key")
+		:give($_C_ID, "text_paint")
+		:give($_C_POS, x, y)
+		:give($_C_ANIMATION_DATA, e.animation_data.data)
+		:give($_C_ANIMATION, true)
+		:give($_C_AUTO_SCALE, str_w + offset, str_h + offset, false)
+		:give($_C_TRANSFORM, 0, sx, sy, 0.5, 0.5)
+		:give($_C_COLOR, {1, 1, 1, 0})
+		:give($_C_PAINT)
+		:give($_C_UI_ELEMENT)
+		:ensure($_C_KEY)
 
 	e.text_with_paint.e_paint = paint
 	Flux.to(paint.color.value, dur_in, {[4] = 1})
@@ -136,17 +136,17 @@ end
 function TextPaint:toggle_paint(bool)
 	for _, e in ipairs(self.pool_text) do
 		if bool then
-			e:give("hidden")
+			e:give($_C_HIDDEN)
 		else
-			e:remove("hidden")
+			e:remove($_C_HIDDEN)
 		end
 	end
 
 	for _, e in ipairs(self.pool_paint) do
 		if bool then
-			e:give("hidden")
+			e:give($_C_HIDDEN)
 		else
-			e:remove("hidden")
+			e:remove($_C_HIDDEN)
 		end
 	end
 end

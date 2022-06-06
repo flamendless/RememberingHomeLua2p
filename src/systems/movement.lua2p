@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Movement = Concord.system({
-	pool = {"speed", "gravity", "body", "movement", "can_move"},
+	pool = {$_C_SPEED, $_C_GRAVITY, $_C_BODY, $_C_MOVEMENT, $_C_CAN_MOVE},
 })
 
 function Movement:update(dt)

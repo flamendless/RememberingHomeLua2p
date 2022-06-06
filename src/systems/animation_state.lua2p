@@ -43,18 +43,18 @@ end
 function AnimationState:anim_open_door(e)
 	@@assert(e.__isEntity and e.animation and e.body)
 	local tag = (e.body.dir == -1) and ANIM_STATE.open_door_left or ANIM_STATE.open_door
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	:give("animation_on_loop", "anim_pause_at_end", 0, e)
+	e:give($_C_CHANGE_ANIMATION_TAG, tag)
+	:give($_C_OVERRIDE_ANIMATION)
+	:give($_C_ANIMATION_ON_LOOP, "anim_pause_at_end", 0, e)
 end
 
 function AnimationState:anim_open_locked_door(e)
 	@@assert(e.__isEntity and e.animation and e.body)
 	local tag = (e.body.dir == -1) and ANIM_STATE.open_locked_door_left or
 		ANIM_STATE.open_locked_door
-	e:give("change_animation_tag", tag)
-	:give("override_animation")
-	:give("animation_on_loop", "anim_pause_at_end", 0, e)
+	e:give($_C_CHANGE_ANIMATION_TAG, tag)
+	:give($_C_OVERRIDE_ANIMATION)
+	:give($_C_ANIMATION_ON_LOOP, "anim_pause_at_end", 0, e)
 end
 
 return AnimationState

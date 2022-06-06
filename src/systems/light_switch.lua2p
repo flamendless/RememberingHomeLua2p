@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local LightSwitch = Concord.system({
-	pool_lights = {"id", "point_light", "pos", "diffuse", "light_switch_id"},
+	pool_lights = {$_C_ID, $_C_POINT_LIGHT, $_C_POS, $_C_DIFFUSE, $_C_LIGHT_SWITCH_ID},
 })
 
 function LightSwitch:init(world)
@@ -19,9 +19,9 @@ function LightSwitch:toggle_light_switch(_, _, choice)
 		if valid then
 			--TODO play sound
 			if e.light_disabled then
-				e:remove("light_disabled")
+				e:remove($_C_LIGHT_DISABLED)
 			else
-				e:give("light_disabled")
+				e:give($_C_LIGHT_DISABLED)
 			end
 		end
 	end

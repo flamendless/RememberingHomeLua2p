@@ -3,14 +3,14 @@ local Flux = require("modules.flux.flux")
 local Timer = require("modules.hump.timer")
 
 local Color = Concord.system({
-	pool = {"color", "id"},
-	pool_fade_to_black = {"color", "fade_to_black"},
-	pool_fade_in_out = {"color", "color_fade_in_out"},
-	pool_fade_in = {"color", "color_fade_in"},
-	pool_fade_out = {"color", "color_fade_out"},
-	pool_colors = {"color", "lerp_colors"},
-	pool_color = {"color", "target_color"},
-	pool_blink = {"color", "blink"},
+	pool = {$_C_ID, $_C_COLOR},
+	pool_fade_to_black = {$_C_COLOR, $_C_FADE_TO_BLACK},
+	pool_fade_in_out = {$_C_COLOR, $_C_COLOR_FADE_IN_OUT},
+	pool_fade_in = {$_C_COLOR, $_C_COLOR_FADE_IN},
+	pool_fade_out = {$_C_COLOR, $_C_COLOR_FADE_OUT},
+	pool_colors = {$_C_COLOR, $_C_LERP_COLORS},
+	pool_color = {$_C_COLOR, $_C_TARGET_COLOR},
+	pool_blink = {$_C_COLOR, $_C_BLINK},
 })
 
 --TODO implement checking for alpha_range
@@ -66,7 +66,7 @@ function Color:init(world)
 					self.world:emit(on_complete.signal, unpack(on_complete.args))
 					-- e:remove("color_fade_in_finish")
 				end
-				e:remove("color_fade_in")
+				e:remove($_C_COLOR_FADE_IN)
 			end)
 
 		local ease = e.ease
@@ -82,7 +82,7 @@ function Color:init(world)
 					self.world:emit(on_complete.signal, unpack(on_complete.args))
 					-- e:remove("color_fade_out_finish")
 				end
-				e:remove("color_fade_out")
+				e:remove($_C_COLOR_FADE_OUT)
 			end)
 
 		local ease = e.ease
@@ -105,7 +105,7 @@ function Color:init(world)
 
 					if count == f_in_out.count then
 						f:stop()
-						e:remove("color_fade_in_out")
+						e:remove($_C_COLOR_FADE_IN_OUT)
 					end
 				end)
 
@@ -120,7 +120,7 @@ function Color:init(world)
 
 					if count == f_in_out.count then
 						f:stop()
-						e:remove("color_fade_in_out")
+						e:remove($_C_COLOR_FADE_IN_OUT)
 					end
 				end)
 
@@ -190,9 +190,9 @@ function Color:setup_blink(e)
 				self.world:emit(obe.signal, e)
 			end
 			if e.remove_blink_on_end then
-				e:remove("blink")
-				:remove("remove_blink_on_end")
-				:remove("on_blink_end")
+				e:remove($_C_BLINK)
+				:remove($_C_REMOVE_BLINK_ON_END)
+				:remove($_C_ON_BLINK_END)
 			end
 		end
 	end)

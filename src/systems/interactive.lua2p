@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Interactive = Concord.system({
-	pool = {"id", "interactive", "collider", "bump"},
+	pool = {$_C_ID, $_C_INTERACTIVE, $_C_COLLIDER, $_C_BUMP},
 })
 
 function Interactive:init(world)
@@ -21,19 +21,19 @@ function Interactive:on_collide_interactive(e, other)
 		end
 	end
 	if valid then
-		e:give("within_interactive", other)
+		e:give($_C_WITHIN_INTERACTIVE, other)
 	end
 end
 
 function Interactive:on_change_interactive(e, other)
 	@@assert(e.__isEntity)
 	@@assert(other.__isEntity)
-	e:give("within_interactive", other)
+	e:give($_C_WITHIN_INTERACTIVE, other)
 end
 
 function Interactive:on_leave_interactive(e)
 	@@assert(e.__isEntity)
-	e:remove("within_interactive")
+	e:remove($_C_WITHIN_INTERACTIVE)
 end
 
 return Interactive

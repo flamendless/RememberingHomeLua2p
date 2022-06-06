@@ -5,9 +5,9 @@ local Enums = require("enums")
 local Inputs = require("inputs")
 
 local Flashlight = Concord.system({
-	pool = {"id", "light_id", "point_light", "pos", "diffuse", "flashlight"},
-	pool_flashlight = {"id", "flashlight_light"},
-	pool_player = {"player_controller", "body", "collider"},
+	pool = {$_C_ID, $_C_LIGHT_ID, $_C_POINT_LIGHT, $_C_POS, $_C_DIFFUSE, $_C_FLASHLIGHT},
+	pool_flashlight = {$_C_ID, $_C_FLASHLIGHT_LIGHT},
+	pool_player = {$_C_PLAYER_CONTROLLER, $_C_BODY, $_C_COLLIDER},
 })
 
 local Light = require("assemblages.light")
@@ -22,11 +22,11 @@ function Flashlight:init(world)
 	self.pool.onAdded = function(pool, e)
 		@@assert(self.flashlight == nil, "Flashlight was already added")
 		self.flashlight = e
-		e:give("d_light_flicker", 0.5, 0.75, 0.25)
-		:give("on_d_light_flicker_during", "flicker_sync",
+		e:give($_C_DLIGHT_FLICKER, 0.5, 0.75, 0.25)
+		:give($_C_ON_DLIGHT_FLICKER_DURING, "flicker_sync",
 			0, self.flashlight, self.pool_flashlight)
-		:give("d_light_flicker_repeat", -1, 7)
-		:give("d_light_flicker_sure_on_after")
+		:give($_C_DLIGHT_FLICKER_REPEAT, -1, 7)
+		:give($_C_DLIGHT_FLICKER_SURE_ON_AFTER)
 	end
 
 	self.pool_player.onAdded = function(pool, e)
@@ -40,8 +40,8 @@ function Flashlight:create_flashlight()
 	Concord.entity(self.world):assemble(Light.fl_spot,
 			self.player, Animation.get_sync_data("flashlight"))
 	!if _DEV then
-		:give("battery", 100)
-		:give("battery_state", Enums.battery_state.full)
+		:give($_C_BATTERY, 100)
+		:give($_C_BATTERY_STATE, Enums.battery_state.full)
 	!end
 	self.start_l = Concord.entity(self.world):assemble(Light.fl_start)
 	self.end_l = Concord.entity(self.world):assemble(Light.fl_end)
@@ -60,12 +60,12 @@ function Flashlight:update(dt)
 	if Inputs.released("flashlight") then
 		local pl = self.start_l.point_light
 		if self.flashlight.light_disabled then
-			self.flashlight:remove("light_disabled")
-			self.end_l:remove("light_disabled")
+			self.flashlight:remove($_C_LIGHT_DISABLED)
+			self.end_l:remove($_C_LIGHT_DISABLED)
 			pl.value = pl.orig_value
 		else
-			self.flashlight:give("light_disabled")
-			self.end_l:give("light_disabled")
+			self.flashlight:give($_C_LIGHT_DISABLED)
+			self.end_l:give($_C_LIGHT_DISABLED)
 			pl.value = min_light_power
 		end
 	end
@@ -111,11 +111,11 @@ function Flashlight:update_battery(dt)
 	local f_pl = self.flashlight.point_light
 	if f_pl.value <= 0 then
 		bs:set(Enums.battery_state.empty)
-		self.flashlight:give("light_disabled")
-			:remove("battery")
-			:remove("d_light_flicker")
-		self.end_l:give("light_disabled")
-		self.start_l:give("point_light", min_light_power)
+		self.flashlight:give($_C_LIGHT_DISABLED)
+			:remove($_C_BATTERY)
+			:remove($_C_DLIGHT_FLICKER)
+		self.end_l:give($_C_LIGHT_DISABLED)
+		self.start_l:give($_C_POINT_LIGHT, min_light_power)
 		return
 	end
 

@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
 local Collision = Concord.system({
-	pool = {"pos", "collider"},
-	pool_circle = {"pos", "collider_circle"},
+	pool = {$_C_POS, $_C_COLLIDER},
+	pool_circle = {$_C_POS, $_C_COLLIDER_CIRCLE},
 })
 
 local function circle_rect(cx, cy, cr, rx, ry, rw, rh)

@@ -1,7 +1,7 @@
 local Concord = require("modules.concord.concord")
 
 local Atlas = Concord.system({
-	pool = {"atlas", "sprite"},
+	pool = {$_C_ATLAS, $_C_SPRITE},
 })
 
 local function create_quad(e)
@@ -15,7 +15,7 @@ end
 
 function Atlas:init()
 	self.pool.onAdded = function(pool, e)
-		e:give("quad", create_quad(e))
+		e:give($_C_QUAD, create_quad(e))
 	end
 end
 

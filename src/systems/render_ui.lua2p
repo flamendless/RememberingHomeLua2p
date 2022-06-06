@@ -22,7 +22,7 @@ local RenderUI = Concord.system({
 		layer = "hud",
 		"ui_element",
 	},
-	pool_ui = {"ui_element", "pos", "!layer"},
+	pool_ui = {$_C_UI_ELEMENT, $_C_POS, @@c_not($_C_LAYER)},
 })
 
 function RenderUI:init(world)

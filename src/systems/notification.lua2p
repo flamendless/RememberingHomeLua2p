@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 --TODO this is unused, maybe remove completely?
 local Notification = Concord.system({
-	pool = {"notification"},
+	pool = {$_C_NOTIFICATION},
 })
 
 local Assemblages = {

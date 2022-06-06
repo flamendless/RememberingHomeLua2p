@@ -15,15 +15,15 @@ local Renderers = {
 }
 
 local Renderer = Concord.system({
-	pool_circle = {"circle", "draw_mode", "pos"},
-	pool_point = {"point", "pos"},
-	pool_rect = {"rect", "pos", "draw_mode"},
-	pool_text = {"text", "pos"},
-	pool_static_text = {"static_text", "pos", "font"},
-	pool_bg = {"bg", "sprite", "pos"},
-	pool_sprite = {"sprite", "pos", "!bg"},
+	pool_circle = {$_C_CIRCLE, $_C_DRAW_MODE, $_C_POS},
+	pool_point = {$_C_POINT, $_C_POS},
+	pool_rect = {$_C_RECT, $_C_POS, $_C_DRAW_MODE},
+	pool_text = {$_C_TEXT, $_C_POS},
+	pool_static_text = {$_C_STATIC_TEXT, $_C_POS, $_C_FONT},
+	pool_bg = {$_C_BG, $_C_SPRITE, $_C_POS},
+	pool_sprite = {$_C_SPRITE, $_C_POS, @@c_not($_C_BG)},
 	!if _DEV then
-	pool_layer = {"sprite", "pos", "layer"},
+	pool_layer = {$_C_SPRITE, $_C_POS, $_C_LAYER},
 	!end
 })
 

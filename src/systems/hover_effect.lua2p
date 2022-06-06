@@ -1,8 +1,8 @@
 local Concord = require("modules.concord.concord")
 
 local HoverEffect = Concord.system({
-	pool_change_color = {"bounding_box", "hoverable", "color", "hover_change_color"},
-	pool_change_scale = {"bounding_box", "hoverable", "transform", "hover_change_scale"},
+	pool_change_color = {$_C_BOUNDING_BOX, $_C_HOVERABLE, $_C_COLOR, $_C_HOVER_CHANGE_COLOR},
+	pool_change_scale = {$_C_BOUNDING_BOX, $_C_HOVERABLE, $_C_TRANSFORM, $_C_HOVER_CHANGE_SCALE},
 })
 
 function HoverEffect:init(world)
@@ -10,7 +10,6 @@ function HoverEffect:init(world)
 
 	self.pool_change_scale.onRemoved = function(pool, e)
 		local transform = e.transform
-
 		transform.sx = transform.orig_sx
 		transform.sy = transform.orig_sy
 	end

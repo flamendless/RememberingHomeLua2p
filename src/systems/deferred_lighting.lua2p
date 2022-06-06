@@ -6,10 +6,31 @@ local Canvas = require("canvas")
 local Shaders = require("shaders")
 
 local DeferredLighting = Concord.system({
-	pool = {"id", "point_light", "pos", "diffuse"},
-	pool_disabled = {"id", "light_id", "light_disabled", "point_light", "pos", "diffuse"},
-	pool_fading = {"id", "light_id", "point_light", "pos", "diffuse", "light_fading"},
-	pool_flicker = {"id", "light_id", "point_light", "pos", "diffuse", "d_light_flicker"},
+	pool = {$_C_ID, $_C_POINT_LIGHT, $_C_POS, $_C_DIFFUSE},
+	pool_disabled = {
+		$_C_ID,
+		$_C_LIGHT_ID,
+		$_C_LIGHT_DISABLED,
+		$_C_POINT_LIGHT,
+		$_C_POS,
+		$_C_DIFFUSE
+	},
+	pool_fading = {
+		$_C_ID,
+		$_C_LIGHT_ID,
+		$_C_POINT_LIGHT,
+		$_C_POS,
+		$_C_DIFFUSE,
+		$_C_LIGHT_FADING
+	},
+	pool_flicker = {
+		$_C_ID,
+		$_C_LIGHT_ID,
+		$_C_POINT_LIGHT,
+		$_C_POS,
+		$_C_DIFFUSE,
+		$_C_DLIGHT_FLICKER
+	},
 })
 
 local lvfp = {{"u_lpos", "float", 4}} -- pos.xyz, scale
@@ -46,7 +67,7 @@ function DeferredLighting:init(world)
 		if dir then
 			self.mesh.dir:setVertex(id, dir)
 		end
-		e:give("light_id", id)
+		e:give($_C_LIGHT_ID, id)
 
 		local group_id = e.light_group and e.light_group.value
 		if group_id then
@@ -101,10 +122,10 @@ function DeferredLighting:start_flicker(e)
 		end
 		local on_repeat = e.d_light_flicker_repeat
 		if e.d_light_flicker_remove_after then
-			e:remove("d_light_flicker")
-			:remove("d_light_flicker_remove_after")
-			:remove("on_d_light_flicker_during")
-			:remove("on_d_light_flicker_after")
+			e:remove($_C_DLIGHT_FLICKER)
+			:remove($_C_DLIGHT_FLICKER_REMOVE_AFTER)
+			:remove($_C_ON_DLIGHT_FLICKER_DURING)
+			:remove($_C_ON_DLIGHT_FLICKER_AFTER)
 		elseif on_repeat then
 			on_repeat.count = on_repeat.count - 1
 			if e.d_light_flicker_sure_on_after then
@@ -125,7 +146,7 @@ function DeferredLighting:start_flicker(e)
 					self:start_flicker(e)
 				end
 			else
-				e:remove("d_light_flicker_repeat")
+				e:remove($_C_DLIGHT_FLICKER_REPEAT)
 			end
 		end
 	end)
@@ -157,9 +178,9 @@ function DeferredLighting:light_group_set_disable(group_id, is_d, e)
 	for _, other in ipairs(self.groups[group_id]) do
 		if e ~= other then
 			if is_d then
-				other:give("light_disabled")
+				other:give($_C_LIGHT_DISABLED)
 			else
-				other:remove("light_disabled")
+				other:remove($_C_LIGHT_DISABLED)
 			end
 		end
 	end
@@ -380,7 +401,7 @@ function DeferredLighting:debug_update(dt)
 
 	if Slab.Button("Disable All") then
 		for _, e in ipairs(self.pool) do
-			e:give("light_disabled")
+			e:give($_C_LIGHT_DISABLED)
 		end
 	end
 
@@ -407,10 +428,10 @@ function DeferredLighting:debug_edit(pool, group_id)
 			if Slab.CheckBox(ld, "Disabled") then
 				local is_d
 				if ld then
-					e:remove("light_disabled")
+					e:remove($_C_LIGHT_DISABLED)
 					is_d = false
 				else
-					e:give("light_disabled")
+					e:give($_C_LIGHT_DISABLED)
 					is_d = true
 				end
 				if group_id then
@@ -426,9 +447,9 @@ function DeferredLighting:debug_edit(pool, group_id)
 				Slab.SameLine()
 				if Slab.CheckBox(flicker, "Flicker") then
 					if flicker then
-						e:remove("d_light_flicker")
+						e:remove($_C_DLIGHT_FLICKER)
 					else
-						e:give("d_light_flicker", unpack(cache[id]))
+						e:give($_C_DLIGHT_FLICKER, unpack(cache[id]))
 					end
 				end
 			end

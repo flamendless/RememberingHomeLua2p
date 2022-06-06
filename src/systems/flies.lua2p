@@ -5,7 +5,7 @@ local Log = require("modules.log.log")
 !end
 
 local Flies = Concord.system({
-	pool = {"id", "bug", "fly"}
+	pool = {$_C_ID, $_C_BUG, $_C_FLY}
 })
 
 function Flies:init(world)
@@ -26,17 +26,17 @@ function Flies:generate_flies(n, start_p, min_dist)
 		local dist = love.math.random(min_dist, min_dist * 1.5)
 		local speed = love.math.random(24, 32)
 		Concord.entity(self.world)
-			:give("id", "fly" .. i)
-			:give("fly")
-			:give("bug")
-			:give("color", {0, 0, 0, 1})
-			:give("point", 4)
-			:give("pos", p:unpack())
-			:give("pos_vec2")
-			:give("ref_pos_vec2", sx, sy)
-			:give("angle", dist, angle)
-			:give("angular_speed", speed, love.math.random(0, 1) * 2 - 1)
-			:give("no_shader")
+			:give($_C_ID, "fly" .. i)
+			:give($_C_FLY)
+			:give($_C_BUG)
+			:give($_C_COLOR, {0, 0, 0, 1})
+			:give($_C_POINT, 4)
+			:give($_C_POS, p:unpack())
+			:give($_C_POS_VEC2)
+			:give($_C_REF_POS_VEC2, sx, sy)
+			:give($_C_ANGLE, dist, angle)
+			:give($_C_ANGULAR_SPEED, speed, love.math.random(0, 1) * 2 - 1)
+			:give($_C_NO_SHADER)
 	end
 end
 
@@ -72,9 +72,9 @@ function Flies:set_flies_visibility(bool)
 	!end
 	for _, e in ipairs(self.pool) do
 		if bool then
-			e:remove("hidden")
+			e:remove($_C_HIDDEN)
 		else
-			e:give("hidden")
+			e:give($_C_HIDDEN)
 		end
 	end
 end

@@ -33,7 +33,7 @@ function Room:parse_room_items(res)
 			group_t[g_id] = t
 			has_group = true
 		else
-			self:create_room_item(frames, spr_res, t):give("room_item")
+			self:create_room_item(frames, spr_res, t):give($_C_ROOM_ITEM)
 		end
 	end
 
@@ -55,33 +55,33 @@ function Room:create_room_item(frames, spr_res, t, g_id)
 	local h = math.floor(item.h * scale)
 
 	local e = Concord.entity(self.world)
-		:give("id", t.name or id)
-		:give("sprite", spr_res)
-		:give("pos", t.x, t.y)
-		:give("atlas", item)
-		:give("quad_transform", 0, scale, scale)
-		:give("z_index", t.z or 4, false)
-		:give("outline_val", t.outline_val or 1)
-		:give("cullable")
+		:give($_C_ID, t.name or id)
+		:give($_C_SPRITE, spr_res)
+		:give($_C_POS, t.x, t.y)
+		:give($_C_ATLAS, item)
+		:give($_C_QUAD_TRANSFORM, 0, scale, scale)
+		:give($_C_Z_INDEX, t.z or 4, false)
+		:give($_C_OUTLINE_VAL, t.outline_val or 1)
+		:give($_C_CULLABLE)
 
 	if not g_id and not t.no_col then
-		e:give("collider", w, h, Enums.bump_filter.cross)
-		:give("bump")
+		e:give($_C_COLLIDER, w, h, Enums.bump_filter.cross)
+		:give($_C_BUMP)
 
 		if not t.not_interactive then
-			e:give("interactive")
+			e:give($_C_INTERACTIVE)
 		end
 		if t.dialogue then
-			e:give("dialogue_meta", unpack(t.dialogue))
+			e:give($_C_DIALOGUE_META, unpack(t.dialogue))
 		end
 		if t.usable_with_item then
-			e:give("usable_with_item")
+			e:give($_C_USABLE_WITH_ITEM)
 		end
 		if t.is_door then
-			e:give("is_door")
+			e:give($_C_IS_DOOR)
 		end
 		if t.req_col_dir then
-			e:give("req_col_dir", t.req_col_dir)
+			e:give($_C_REQ_COL_DIR, t.req_col_dir)
 		end
 	end
 	return e
@@ -104,23 +104,23 @@ function Room:create_grouped_items(group, group_t, frames, list)
 			y = math.min(y, pos.y)
 			w = math.max(w, pos.x + frame.w * scale)
 			h = math.max(h, pos.y + frame.h * scale)
-			e:give("grouped", id)
+			e:give($_C_GROUPED, id)
 		end
 
 		local e_g = Concord.entity(self.world)
-			:give("id", "col_" .. id)
-			:give("pos", x, y)
-			:give("bump")
-			:give("collider", w - x, h - y, Enums.bump_filter.cross)
-			:give("interactive")
-			:give("grouped", id)
+			:give($_C_ID, "col_" .. id)
+			:give($_C_POS, x, y)
+			:give($_C_BUMP)
+			:give($_C_COLLIDER, w - x, h - y, Enums.bump_filter.cross)
+			:give($_C_INTERACTIVE)
+			:give($_C_GROUPED, id)
 
 		local gt = group_t[id]
 		if gt.dialogue then
-			e_g:give("dialogue_meta", unpack(gt.dialogue))
+			e_g:give($_C_DIALOGUE_META, unpack(gt.dialogue))
 		end
 		if gt.usable_with_item then
-			e_g:give("usable_with_item")
+			e_g:give($_C_USABLE_WITH_ITEM)
 		end
 	end
 end

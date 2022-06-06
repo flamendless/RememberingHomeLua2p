@@ -9,9 +9,9 @@ local Settings = require("settings")
 local ShowKeys = Concord.system()
 
 local function Assemble(e, key)
-	e:give("atlas", AtlasKeys.frames[key])
-	:give("sprite", "atlas_keys")
-	:give("ui_element")
+	e:give($_C_ATLAS, AtlasKeys.frames[key])
+	:give($_C_SPRITE, "atlas_keys")
+	:give($_C_UI_ELEMENT)
 end
 
 function ShowKeys:init(world)
@@ -25,29 +25,29 @@ function ShowKeys:create_key_with_text(id, txt, key)
 	@@assert(type(txt) == "string")
 	local ww, wh = love.graphics.getDimensions()
 	self.keys[id] = Concord.entity(self.world):assemble(Assemble, key)
-		:give("id", "key_" .. id)
-		:give("pos", ww - 8, wh - 8)
-		:give("transform", 0, 1, 1, 0.5, 1)
-		:give("quad_transform", 0, 3, 3, 1, 1)
-		:give("color", {1, 1, 1, 1})
+		:give($_C_ID, "key_" .. id)
+		:give($_C_POS, ww - 8, wh - 8)
+		:give($_C_TRANSFORM, 0, 1, 1, 0.5, 1)
+		:give($_C_QUAD_TRANSFORM, 0, 3, 3, 1, 1)
+		:give($_C_COLOR, {1, 1, 1, 1})
 
 	self.texts[id] = Concord.entity(self.world)
-		:give("id", "text_" .. id)
-		:give("static_text", txt)
-		:give("font", "ui")
-		:give("pos", 0, 0)
-		:give("color", Palette.get("ui_show_key_text"))
-		:give("ui_element")
-		:give("transform", 0, 1, 1, 1, 1)
-		:give("anchor", self.keys[id], Enums.anchor.right, Enums.anchor.bottom, 16, 0)
+		:give($_C_ID, "text_" .. id)
+		:give($_C_STATIC_TEXT, txt)
+		:give($_C_FONT, "ui")
+		:give($_C_POS, 0, 0)
+		:give($_C_COLOR, Palette.get("ui_show_key_text"))
+		:give($_C_UI_ELEMENT)
+		:give($_C_TRANSFORM, 0, 1, 1, 1, 1)
+		:give($_C_ANCHOR, self.keys[id], Enums.anchor.right, Enums.anchor.bottom, 16, 0)
 
 	return self.keys[id], self.texts[id]
 end
 
 function ShowKeys:show_skip()
 	local k, t = self:create_key_with_text("skip", "Skip", Inputs.rev_map.interact)
-	k:give("color_fade_in_out", 1):give("skip")
-	t:give("color_fade_in_out", 1):give("skip")
+	k:give($_C_COLOR_FADE_IN_OUT, 1):give($_C_SKIP)
+	t:give($_C_COLOR_FADE_IN_OUT, 1):give($_C_SKIP)
 end
 
 function ShowKeys:create_inventory_key()
@@ -64,11 +64,11 @@ function ShowKeys:create_dialogue_key()
 	if not Settings.current.show_keys then return end
 	local w, h = love.graphics.getDimensions()
 	self.keys.dialogue = Concord.entity(self.world):assemble(Assemble, Inputs.rev_map.interact)
-		:give("id", "dialogue_proceed_key")
-		:give("pos", w - 8, h - 8)
-		:give("quad_transform", 0, 3, 3, 1, 1)
-		:give("color", {1, 1, 1, 1})
-		:give("hidden")
+		:give($_C_ID, "dialogue_proceed_key")
+		:give($_C_POS, w - 8, h - 8)
+		:give($_C_QUAD_TRANSFORM, 0, 3, 3, 1, 1)
+		:give($_C_COLOR, {1, 1, 1, 1})
+		:give($_C_HIDDEN)
 end
 
 function ShowKeys:show_key(id, bool)
@@ -78,17 +78,17 @@ function ShowKeys:show_key(id, bool)
 	local e = self.keys[id]
 	@@assert(e ~= nil)
 	if not bool then
-		e:give("hidden")
+		e:give($_C_HIDDEN)
 	else
-		e:remove("hidden")
+		e:remove($_C_HIDDEN)
 	end
 
 	local t = self.texts[id]
 	if t then
 		if not bool then
-			t:give("hidden")
+			t:give($_C_HIDDEN)
 		else
-			t:remove("hidden")
+			t:remove($_C_HIDDEN)
 		end
 	end
 end

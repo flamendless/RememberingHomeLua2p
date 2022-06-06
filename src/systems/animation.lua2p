@@ -6,10 +6,10 @@ local Timer = require("modules.hump.timer")
 local Enums = require("enums")
 
 local Animation = Concord.system({
-	pool = {"animation", "animation_data"},
-	pool_multi = {"multi_animation_data", "animation"},
-	pool_pause = {"animation", "animation_data", "animation_pause_at"},
-	pool_change = {"animation", "animation_data", "change_animation_tag"}
+	pool = {$_C_ANIMATION, $_C_ANIMATION_DATA},
+	pool_multi = {$_C_MULTI_ANIMATION_DATA, $_C_ANIMATION},
+	pool_pause = {$_C_ANIMATION, $_C_ANIMATION_DATA, $_C_ANIMATION_PAUSE_AT},
+	pool_change = {$_C_ANIMATION, $_C_ANIMATION_DATA, $_C_CHANGE_ANIMATION_TAG}
 })
 
 local EMPTY_FN = function() end
@@ -26,7 +26,7 @@ function Animation:setup_animation_data(e, new_tag)
 		elseif data.pause_at == Enums.pause_at.last then
 			v = "anim_pause_at_end"
 		end
-		e:give("animation_on_loop", v, 0, e)
+		e:give($_C_ANIMATION_ON_LOOP, v, 0, e)
 	end
 end
 
@@ -42,7 +42,7 @@ function Animation:setup_on_loop(e, animation)
 				Timer.after(on_finish.delay, function()
 					self.world:emit(on_finish.signal, unpack(on_finish.args))
 				end)
-				e:remove("animation_on_finish")
+				e:remove($_C_ANIMATION_ON_FINISH)
 			end
 		end
 	elseif animation.stop_on_last then
@@ -91,7 +91,7 @@ function Animation:setup_animation(e, data, on_loop)
 
 	local quad, _, _, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
-	e:give("sprite", data.resource_id):give("quad", quad)
+	e:give($_C_SPRITE, data.resource_id):give($_C_QUAD, quad)
 
 	if data.is_flipped then
 		local transform = e.transform
@@ -99,9 +99,9 @@ function Animation:setup_animation(e, data, on_loop)
 			ox = ox - transform.ox
 			oy = oy - transform.oy
 		end
-		e:give("quad_transform", r, sx, sy, ox, oy)
+		e:give($_C_QUAD_TRANSFORM, r, sx, sy, ox, oy)
 	else
-		e:remove("quad_transform")
+		e:remove($_C_QUAD_TRANSFORM)
 	end
 
 	if data.start_frame then
@@ -127,7 +127,7 @@ function Animation:init(world)
 		self:setup_on_loop(e, animation)
 		local data = multi.data[multi.first]
 		animation.current_tag = multi.first
-		e:give("animation_data", data)
+		e:give($_C_ANIMATION_DATA, data)
 		Log.trace("added multi_animation_data")
 	end
 
@@ -177,12 +177,12 @@ function Animation:switch_animation_tag(e, new_tag, base_tag, override)
 		local data = multi.data[new_tag]
 		@@assert(data)
 		animation.current_tag = new_tag
-		e:give("animation_data", data)
+		e:give($_C_ANIMATION_DATA, data)
 		self:setup_animation(e, data, on_loop)
 		animation.anim8:gotoFrame(1)
 		e.animation.anim8:resume()
 		animation.base_tag = base_tag or new_tag
-		e:remove("change_animation_tag")
+		e:remove($_C_CHANGE_ANIMATION_TAG)
 	end
 
 	self.world:emit("update_collider", e)

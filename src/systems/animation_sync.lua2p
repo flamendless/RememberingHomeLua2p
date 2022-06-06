@@ -5,7 +5,7 @@ local Log = require("modules.log.log")
 !end
 
 local AnimationSync = Concord.system({
-	pool = {"anim_sync_with", "anim_sync_data"},
+	pool = {$_C_ANIM_SYNC_WITH, $_C_ANIM_SYNC_DATA},
 })
 
 function AnimationSync:init(world)

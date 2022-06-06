@@ -5,8 +5,8 @@ local Gamera = require("modules.gamera.gamera")
 local Enums = require("enums")
 
 local Camera = Concord.system({
-	pool = {"camera"},
-	pool_clip = {"camera", "camera_clip"},
+	pool = {$_C_CAMERA},
+	pool_clip = {$_C_CAMERA, $_C_CAMERA_CLIP},
 })
 
 local dur_transition = 0.15
@@ -169,7 +169,7 @@ function Camera:display_bars()
 	Flux.to(self.bar_top, dur_transition, { h = h * p }):ease("circout")
 	Flux.to(self.bar_bot, dur_transition, { h = -h * p }):ease("circout")
 	for _, e in ipairs(self.pool) do
-		e:give("bar_height", h * p)
+		e:give($_C_BAR_HEIGHT, h * p)
 	end
 end
 

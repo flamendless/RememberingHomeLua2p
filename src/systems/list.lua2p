@@ -4,7 +4,7 @@ local Log = require("modules.log.log")
 local Inputs = require("inputs")
 
 local List = Concord.system({
-	pool = {"list_item", "list_group"},
+	pool = {$_C_LIST_ITEM, $_C_LIST_GROUP},
 })
 
 function List:init(world)
@@ -185,7 +185,7 @@ function List:update_cursor(index)
 		return
 	end
 	if e_hovered then
-		e_hovered:give("list_cursor", cursor_new_index)
+		e_hovered:give($_C_LIST_CURSOR, cursor_new_index)
 		local signal = $_SIGNAL_LIST_UPDATE .. self.focused
 		self.world:emit(signal, e_hovered)
 		return cursor_new_index

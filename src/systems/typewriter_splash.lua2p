@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 local Timer = require("modules.hump.timer")
 
 local TypewriterSplash = Concord.system({
-	pool = {"text", "target_text", "typewriter", "pos", "typewriter_timer"}
+	pool = {$_C_TEXT, $_C_TARGET_TEXT, $_C_TYPEWRITER, $_C_POS, $_C_TYPEWRITER_TIMER}
 })
 
 function TypewriterSplash:init(world)
@@ -28,7 +28,7 @@ function TypewriterSplash:start_typewriter()
 				elseif cb then
 					timer.timer:after(cb.delay, function()
 						self.world:emit(cb.signal, unpack(cb.args))
-						e:remove("typewriter_on_finish")
+						e:remove($_C_TYPEWRITER_ON_FINISH)
 					end)
 				end
 			end)

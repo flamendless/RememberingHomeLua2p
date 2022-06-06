@@ -14,6 +14,10 @@ function assert(cond, msg)
 	return "if not (" .. cond .. ") then error(" .. msg ..") end"
 end
 
+function c_not(component)
+	return toLua("!" .. evaluate(component))
+end
+
 function sassert(v, cond, msg)
 	if not _DEV then return "" end
 	local str = assert(cond, msg)
@@ -384,6 +388,7 @@ _C_NO_SHADER = toLua("no_shader")
 _C_FOG = toLua("fog")
 _C_CUSTOM_RENDERER = toLua("custom_renderer")
 _C_REFS = toLua("refs")
+_C_KEY = toLua("key")
 
 _C_ANIMATION_ON_LOOP = toLua("animation_on_loop")
 _C_ANIMATION_ON_UPDATE = toLua("animation_on_update")

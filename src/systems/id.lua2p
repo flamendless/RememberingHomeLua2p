@@ -4,7 +4,7 @@ local Log = require("modules.log.log")
 local ID = Concord.system({
 	pool = {"id"},
 	!if _DEV then
-	pool_dev = {"id", "sprite", "pos"},
+	pool_dev = {$_C_ID, $_C_SPRITE, $_C_POS},
 	!end
 })
 

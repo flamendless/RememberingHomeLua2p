@@ -1,12 +1,12 @@
 local Concord = require("modules.concord.concord")
 
 local Tree = Concord.system({
-	pool_bg_tree = {"bg_tree", "pos", "!hspeed"},
+	pool_bg_tree = {$_C_BG_TREE, $_C_POS, @@c_not($_C_HSPEED)},
 })
 
 function Tree:start_trees()
 	for _, e in ipairs(self.pool_bg_tree) do
-		e:remove("parallax_stop")
+		e:remove($_C_PARALLAX_STOP)
 	end
 end
 

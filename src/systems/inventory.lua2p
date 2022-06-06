@@ -14,8 +14,8 @@ local Inventory = Concord.system({
 		constructor = ListByID,
 		id = $_LIST_INVENTORY_CHOICES,
 	},
-	pool_border = {"id", "sprite", "textured_line"},
-	pool_item = {"item"},
+	pool_border = {$_C_ID, $_C_SPRITE, $_C_TEXTURED_LINE},
+	pool_item = {$_C_ITEM},
 })
 
 local AInventory = require("assemblages.inventory")
@@ -33,8 +33,8 @@ function Inventory:init(world)
 		local refs = e_cell.refs.value
 		local e_dline1 = self.world:getEntityByKey(refs[1])
 		local e_dline2 = self.world:getEntityByKey(refs[2])
-		e_dline1:give("hidden")
-		e_dline2:give("hidden")
+		e_dline1:give($_C_HIDDEN)
+		e_dline2:give($_C_HIDDEN)
 		local pos = e.pos
 		pos.x = c_pos.x + c_rect.half_w
 		pos.y = c_pos.y + c_rect.half_h
@@ -45,8 +45,8 @@ function Inventory:init(world)
 		local refs = e_cell.refs.value
 		local e_dline1 = self.world:getEntityByKey(refs[1])
 		local e_dline2 = self.world:getEntityByKey(refs[2])
-		e_dline1:remove("hidden")
-		e_dline2:remove("hidden")
+		e_dline1:remove($_C_HIDDEN)
+		e_dline2:remove($_C_HIDDEN)
 	end
 end
 
@@ -169,7 +169,7 @@ function Inventory:create_inventory()
 			local l2 = Concord.entity(self.world):assemble(AInventory.dline,
 				i .. "b", cx, cy + ch, cx + cw, cy)
 			Concord.entity(self.world):assemble(AInventory.cell, i, cx, cy, cw, ch)
-				:give("refs", l1, l2)
+				:give($_C_REFS, l1, l2)
 		end
 	end
 end

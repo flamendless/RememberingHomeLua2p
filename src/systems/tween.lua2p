@@ -2,6 +2,8 @@ local Concord = require("modules.concord.concord")
 local Flux = require("modules.flux.flux")
 local Gamera = require("modules.gamera.gamera")
 
+local Enums = require("enums")
+
 local Tween = Concord.system()
 
 function Tween:init(world)
@@ -17,7 +19,7 @@ function Tween:tween_camera_pos(camera, dur, dx, dy, ease)
 	Flux.to(camera, dur, {
 		x = dx,
 		y = dy,
-	}):ease(ease or "linear")
+	}):ease(ease or Enums.ease.linear)
 end
 
 function Tween:tween_camera_pos_rel(camera, dur, dx, dy, ease)
@@ -30,7 +32,7 @@ function Tween:tween_camera_pos_rel(camera, dur, dx, dy, ease)
 	Flux.to(camera, dur, {
 		x = cx + dx,
 		y = cy + dy,
-	}):ease(ease or "linear")
+	}):ease(ease or Enums.ease.linear)
 end
 
 function Tween:tween_camera_scale(camera, dur, scale, ease)
@@ -40,7 +42,7 @@ function Tween:tween_camera_scale(camera, dur, scale, ease)
 	@@sassert(ease, type(ease) == "string")
 	local f = Flux.to(camera, dur, {
 		scale = scale
-	}):ease(ease or "linear")
+	}):ease(ease or Enums.ease.linear)
 end
 
 return Tween
