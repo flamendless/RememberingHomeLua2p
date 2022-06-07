@@ -4,7 +4,7 @@ local Resources = require("resources")
 
 local c_anim_data = Concord.component($_C_ANIMATION_DATA, function(c, data)
 	@@assert(type(data) == "table")
-	@@assert(type(data.resource_id) == "string")
+	@@assert(data.resource_id and type(data.resource_id) == "string")
 	@@assert(type(data.frames) == "table")
 	@@assert(type(data.rows_count) == "number")
 	@@assert(type(data.columns_count) == "number")

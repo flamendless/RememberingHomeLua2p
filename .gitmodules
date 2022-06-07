@@ -10,6 +10,7 @@
 [submodule "modules/concord"]
 	path = modules/concord
 	url = https://github.com/Tjakka5/Concord
+	branch = experimental
 [submodule "modules/lily"]
 	path = modules/lily
 	url = https://github.com/MikuAuahDark/lily.git
@@ -37,6 +38,7 @@
 [submodule "modules/sdf"]
 	path = modules/sdf
 	url = https://github.com/flamendless/love-sdf-text.git
+	branch = development
 [submodule "modules/tle"]
 	path = modules/tle
 	url = https://github.com/flamendless/TimelineEvents

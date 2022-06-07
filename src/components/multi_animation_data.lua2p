@@ -29,8 +29,7 @@ local c = Concord.component($_C_MULTI_ANIMATION_DATA, function(c, first, data, m
 
 	for _, v in pairs(data) do
 		v.spritesheet = Resources.data.images[v.resource_id]
-		v.sheet_width = v.spritesheet:getWidth()
-		v.sheet_height = v.spritesheet:getHeight()
+		v.sheet_width, v.sheet_height = v.spritesheet:getDimensions()
 		v.frame_width = math.floor(v.sheet_width/v.columns_count)
 		v.frame_height = math.floor(v.sheet_height/v.rows_count)
 	end
@@ -39,8 +38,7 @@ local c = Concord.component($_C_MULTI_ANIMATION_DATA, function(c, first, data, m
 		for id, v in pairs(modifier) do
 			local target = v[1]
 			-- local action = v[2]
-			data[target] = {}
-			tablex.copy(data[id], data[target])
+			data[target] = tablex.copy(data[id])
 			data[target].is_flipped = true
 		end
 	end
