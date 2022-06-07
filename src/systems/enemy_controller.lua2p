@@ -2,7 +2,9 @@ local Concord = require("modules.concord.concord")
 
 local Enemy = require("assemblages.enemy")
 
-local EnemyController = Concord.system()
+local EnemyController = Concord.system({
+	pool = {$_C_ID, $_C_ENEMY_CONTROLLER},
+})
 
 function EnemyController:init(world)
 	self.world = world

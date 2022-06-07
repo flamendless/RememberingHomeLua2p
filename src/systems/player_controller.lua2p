@@ -29,7 +29,7 @@ end
 function PlayerController:on_toggle_equip_flashlight()
 	local has_f = Items.is_equipped("flashlight")
 	self.player:remove($_C_MULTI_ANIMATION_DATA)
-	self.player:give($_C_MULTI_ANIMATION_DATA, Enums.anim_state.idle,
+		:give($_C_MULTI_ANIMATION_DATA, Enums.anim_state.idle,
 		AssemPlayer.get_multi_anim_data(has_f, self.player.can_open_door))
 	local tag = (self.player.body.dir == -1) and Enums.anim_state.idle_left or Enums.anim_state.idle
 	self.player:give($_C_CHANGE_ANIMATION_TAG, tag, true)

@@ -170,6 +170,11 @@ _RA = toLua({math.cos(math.pi/32), math.sin(math.pi/32)})
 _LUT_DUSK = toLua("lut_dusk")
 _LUT_AFTERNOON = toLua("lut_afternoon")
 
+--Beehive
+_BT_SUCCESS = toLua("success")
+_BT_FAILURE = toLua("failure")
+_BT_RUNNING = toLua("running")
+
 --IDS
 _ITEMS_ACTION_USE = toLua("Use")
 _ITEMS_ACTION_EQUIP = toLua("Equip")
@@ -389,6 +394,7 @@ _C_FOG = toLua("fog")
 _C_CUSTOM_RENDERER = toLua("custom_renderer")
 _C_REFS = toLua("refs")
 _C_KEY = toLua("key")
+_C_BEHAVIOR_TREE = toLua("behavior_tree")
 
 _C_ANIMATION_ON_LOOP = toLua("animation_on_loop")
 _C_ANIMATION_ON_UPDATE = toLua("animation_on_update")

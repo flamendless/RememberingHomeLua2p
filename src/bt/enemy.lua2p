@@ -1,0 +1,17 @@
+local Selector = require("modules.beehive.beehive.selector")
+local Sequence = require("modules.beehive.beehive.sequence")
+
+local function idle()
+end
+
+local function walk_around()
+end
+
+local function enemy()
+	return Selector({
+		idle,
+		walk_around,
+	})
+end
+
+return enemy

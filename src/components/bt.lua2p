@@ -1,0 +1,6 @@
+local Concord = require("modules.concord.concord")
+
+Concord.component($_C_BEHAVIOR_TREE, function(c, bt)
+	@@assert(type(bt) == "function")
+	c.value = bt
+end)
