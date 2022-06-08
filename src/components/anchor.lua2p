@@ -6,7 +6,7 @@ local c_anchor = Concord.component($_C_ANCHOR, function(c, entity, ax, ay, paddi
 	@@assert(type(ay) == "string")
 	@@sassert(padding_x, type(padding_x) == "number")
 	@@sassert(padding_y, type(padding_y) == "number")
-	entity:ensure("key")
+	entity:ensure($_C_KEY)
 	c.key = entity.key.value
 	c.anchor_x = ax
 	c.anchor_y = ay

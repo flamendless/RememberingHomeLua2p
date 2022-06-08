@@ -46,6 +46,7 @@ function Player.base(e, x, y, speed_data, gravity, can)
 	:give($_C_FL_SPAWN_OFFSET, 7, -16)
 	:give($_C_IS_RUNNING)
 	:give($_C_IS_INTERACTING)
+	:give($_C_CONTROLLER_ORIGIN)
 
 	if can.move then
 		e:give($_C_CAN_MOVE)

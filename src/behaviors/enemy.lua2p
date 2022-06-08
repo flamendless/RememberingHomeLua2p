@@ -1,13 +1,9 @@
 local Selector = require("modules.beehive.beehive.selector")
 local Sequence = require("modules.beehive.beehive.sequence")
 
+local Common = require("behaviors.common")
 local Enums = require("enums")
 local bt_enemy = Enums.bt.enemy
-
-local function check_player_distance(e, dt)
-	@@assert(e.__isEntity)
-	return $_BT_SUCCESS
-end
 
 local function idle(e, dt)
 	@@assert(e.__isEntity)
@@ -15,7 +11,7 @@ local function idle(e, dt)
 	bt.current_node = bt_enemy.idle
 
 	return Sequence({
-		check_player_distance,
+		Common.sees_other,
 	})
 end
 
@@ -25,7 +21,7 @@ local function walk_around(e, dt)
 	bt.current_node = bt_enemy.walk_around
 
 	return Sequence({
-		check_player_distance,
+		Common.sees_other,
 	})
 end
 

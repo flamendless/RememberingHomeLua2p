@@ -7,7 +7,7 @@ Concord.component($_C_IS_DOOR)
 Concord.component($_C_TARGET_INTERACTIVE, function(c, interactive_e)
 	@@assert(interactive_e.__isEntity)
 	@@assert(interactive_e.interactive)
-	interactive_e:ensure("key")
+	interactive_e:ensure($_C_KEY)
 	c.interactive_e = interactive_e
 end)
 
@@ -15,7 +15,7 @@ Concord.component($_C_WITHIN_INTERACTIVE, function(c, entity)
 	@@assert(entity.__isEntity)
 	@@assert(entity.id)
 	@@assert(entity.interactive)
-	entity:ensure("key")
+	entity:ensure($_C_KEY)
 	c.entity = entity
 end)
 

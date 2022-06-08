@@ -2,7 +2,7 @@ local Concord = require("modules.concord.concord")
 
 local c_attach_to = Concord.component($_C_ATTACH_TO, function(c, e_target)
 	@@assert(e_target.__isEntity)
-	e_target:ensure("key")
+	e_target:ensure($_C_KEY)
 	c.key = e_target.key.value
 end)
 

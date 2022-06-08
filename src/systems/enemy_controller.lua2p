@@ -17,4 +17,42 @@ function EnemyController:spawn_enemy(enemy_type, x, y)
 	Concord.entity(self.world):assemble(Enemy.base, enemy_type, x, y)
 end
 
+!if _DEV then
+local Slab = require("modules.slab")
+
+local cb_line_of_sight = true
+
+function EnemyController:debug_update(dt)
+	if not self.debug_show then return end
+	self.debug_show = Slab.BeginWindow("enemy_controller", {
+		Title = "EnemyController",
+		IsOpen = self.debug_show
+	})
+	if Slab.CheckBox(cb_line_of_sight, "Line of Sight") then
+		cb_line_of_sight = not cb_line_of_sight
+	end
+	Slab.EndWindow()
+end
+
+function EnemyController:debug_draw()
+	if not self.debug_show then return end
+
+	if cb_line_of_sight then
+		local r, g, b, a = love.graphics.getColor()
+		love.graphics.setColor(1, 0, 0, 1)
+
+		for _, e in ipairs(self.pool) do
+			local line_of_sight = e.line_of_sight.value
+			local dir = e.body.dir
+			local controller_origin = e.controller_origin
+			local x = controller_origin.x
+			local y = controller_origin.y
+			love.graphics.line(x, y, x + line_of_sight * dir, y)
+		end
+
+		love.graphics.setColor(r, g, b, a)
+	end
+end
+!end
+
 return EnemyController

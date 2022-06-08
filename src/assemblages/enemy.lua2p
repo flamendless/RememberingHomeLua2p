@@ -34,6 +34,8 @@ function Enemy.base(e, enemy_type, x, y)
 	:give($_C_MOVEMENT)
 	:give($_C_Z_INDEX, 10)
 	:give($_C_BEHAVIOR_TREE, BTEnemy, Enums.bt.enemy)
+	:give($_C_LINE_OF_SIGHT, 48)
+	:give($_C_CONTROLLER_ORIGIN)
 
 	return e
 end

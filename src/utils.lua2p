@@ -118,4 +118,14 @@ function Utils.math.lerp_range(range, t)
 	return mathx.lerp(range.min, range.max, t)
 end
 
+function Utils.math.calc_e_controller_origin(e)
+	@@assert(e.__isEntity)
+	local anim_data = e.animation_data
+	local transform = e.transform
+	local pos = e.pos
+	local x = pos.x + anim_data.frame_width * 0.5 - transform.ox
+	local y = pos.y
+	return x, y
+end
+
 return Utils

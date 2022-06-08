@@ -1,6 +1,7 @@
 local Concord = require("modules.concord.concord")
 
-Concord.component($_C_POS_VEC2) --filled in systems/transform
+--filled in systems/transform
+Concord.component($_C_POS_VEC2)
 
 Concord.component($_C_POS, function(c, x, y, z)
 	@@assert(type(x) == "number")
@@ -25,4 +26,9 @@ Concord.component($_C_SIZE, function(c, w, h)
 	@@assert(type(h) == "number")
 	c.w = w
 	c.h = h
+end)
+
+Concord.component($_C_CONTROLLER_ORIGIN, function(c)
+	c.x, c.y = nil, nil
+	c.vec2 = vec2()
 end)

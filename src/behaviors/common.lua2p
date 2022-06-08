@@ -1,0 +1,22 @@
+local Common = {}
+
+function Common.sees_other(e, dt)
+	@@assert(e.__isEntity)
+	@@assert(e.ref_e_key)
+	local world = e:getWorld()
+	local ref = e.ref_e_key.value
+	local other_e = world:getEntityByKey(ref)
+
+	local dir = e.body.dir
+	local line_of_sight = e.line_of_sight.value
+
+	local co = e.controller_origin.vec2
+	local other_co = other_e.controller_origin.vec2
+
+	local distance = co:distance(other_co)
+	local sees = distance <= line_of_sight
+
+	return sees and $_BT_SUCCESS or $_BT_FAILURE
+end
+
+return Common
