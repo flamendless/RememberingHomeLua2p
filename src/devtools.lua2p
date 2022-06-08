@@ -27,6 +27,7 @@ local DevTools = {
 		render_sprite = false,
 		transform = false,
 		randomize_uv = true,
+		behavior_tree = true,
 	},
 }
 

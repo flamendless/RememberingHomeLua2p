@@ -2,7 +2,7 @@ local Animation = require("animation")
 local Colliders = require("data.colliders")
 local Enums = require("enums")
 
-local BTEnemy = require("bt.enemy")
+local BTEnemy = require("behaviors.enemy")
 
 local Enemy = {}
 
@@ -33,7 +33,7 @@ function Enemy.base(e, enemy_type, x, y)
 	:give($_C_CURRENT_FRAME)
 	:give($_C_MOVEMENT)
 	:give($_C_Z_INDEX, 10)
-	:give($_C_BEHAVIOR_TREE, BTEnemy())
+	:give($_C_BEHAVIOR_TREE, BTEnemy, Enums.bt.enemy)
 
 	return e
 end
