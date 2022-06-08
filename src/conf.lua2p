@@ -25,4 +25,8 @@ function love.conf(t)
 
 	t.identity = $_IDENTITY
 	t.version = $_LOVE_VERSION
+
+	!if _DEV then
+	t.console = true
+	!end
 end

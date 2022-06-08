@@ -6,7 +6,7 @@ dir_output=output_dev
 file_makelove=makelove.toml
 cmd="/mnt/c/Windows/System32/cmd.exe"
 path_love="C:\Program Files\LOVE"
-path_game="Z:\home\flamendless\GoingHomeRevisited\release\love\\"${love_title}
+path_game='Z:\home\flamendless\GoingHomeRevisited\release\love\'${love_title}
 path_prof_viewer="Z:\home\flamendless\GoingHomeRevisited\modules\jprof"
 echo $path_game
 
@@ -40,7 +40,7 @@ function run()
 	# TODO change this when in RELEASE mode
 	# win64
 	love_only
-	$cmd /c "cd $path_love & lovec.exe $path_game"
+	$cmd /c start cmd.exe /c "cd $path_love && lovec.exe $path_game"
 	echo "Completed build_win.sh"
 }
 
