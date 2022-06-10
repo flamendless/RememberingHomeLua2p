@@ -9,8 +9,7 @@ local Common = {}
 local function set_tag(e, tag)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(type(tag) == "string")
-	local bt = e.behavior_tree
-	bt.current_node = bt_enemy[tag]
+	e.behavior_tree.current_node = bt_enemy[tag]
 end
 
 local function get_distance(e, other_e)
@@ -35,8 +34,7 @@ function Common.random(tbl)
 	!if _DEV then
 	for _, bt in ipairs(tbl) do @@assert(type(bt) == "function") end
 	!end
-	local i = lm_random(1, #tbl)
-	return tbl[i]
+	return tbl[lm_random(1, #tbl)]
 end
 
 function Common.wait_random(e, min, max)
@@ -46,7 +44,6 @@ function Common.wait_random(e, min, max)
 	@@assert(min > 0 and min < max)
 	local elapsed = 0
 	local r = lm_random(min, max)
-
 	return function()
 		elapsed = elapsed + get_dt()
 		if elapsed >= r then
@@ -73,8 +70,13 @@ function Common.chase_other(world, e)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(e.ref_e_key)
 	set_tag(e, "chase")
+	local sees = Common.sees_other(world, e)
+	if sees == $_BT_FAILURE then
+		return $_BT_FAILURE
+	end
+
 	local collide_with = e.collide_with
-	return collide_with and $_BT_RUNNING or $_BT_SUCCESS
+	return collide_with and $_BT_SUCCESS or $_BT_RUNNING
 end
 
 return Common

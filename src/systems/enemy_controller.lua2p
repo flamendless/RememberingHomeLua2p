@@ -1,9 +1,11 @@
 local Concord = require("modules.concord.concord")
 
 local Enemy = require("assemblages.enemy")
+local Enums = require("enums")
+local bt_enemy = Enums.bt.enemy
 
 local EnemyController = Concord.system({
-	pool = {$_C_ID, $_C_ENEMY_CONTROLLER},
+	pool = {$_C_ID, $_C_ENEMY_CONTROLLER, $_C_BEHAVIOR_TREE},
 })
 
 function EnemyController:init(world)
@@ -23,6 +25,17 @@ function EnemyController:spawn_enemy(enemy_type, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	Concord.entity(self.world):assemble(Enemy.base, enemy_type, x, y)
+end
+
+function EnemyController:update(dt)
+	for _, e in ipairs(self.pool) do
+		local current_node = e.behavior_tree.current_node
+		if current_node == bt_enemy.idle then
+			self.world:emit("switch_animation_tag", e, "idle")
+		elseif current_node == bt_enemy.chase then
+			self.world:emit("switch_animation_tag", e, "walk")
+		end
+	end
 end
 
 !if _DEV then

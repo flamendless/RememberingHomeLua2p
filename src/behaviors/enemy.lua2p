@@ -11,7 +11,7 @@ local function idle(world, e)
 	return Sequence({
 		Common.set_node(e, "idle"),
 		Invert(Common.sees_other),
-		Common.wait_random(e, 0.3, 1),
+		Common.wait_random(e, 0.3, 0.7),
 	})
 end
 
