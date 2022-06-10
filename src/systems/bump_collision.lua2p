@@ -54,6 +54,7 @@ function BumpCollision:update(dt)
 			!if _DEV then
 			if e.bump.debug_clicked then return end
 			!end
+			e:remove($_C_COLLIDE_WITH)
 			self:update_body(e)
 			self:check_col(e)
 		end
@@ -87,10 +88,9 @@ end
 
 function BumpCollision:check_col(e)
 	local pos = e.pos
-	local col = e.collider
-	local within_int = e.within_interactive
 	local _, _, cols, len = self.pool:check(e, pos.x, pos.y, filter)
 
+	local within_int = e.within_interactive
 	for i = 1, len do
 		local c = cols[i]
 		local other = c.other
@@ -98,7 +98,7 @@ function BumpCollision:check_col(e)
 		-- other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
-		if i == 1 and e.can_interact then
+		if i == 1 and e.can_interact and other.interactive then
 			local proceed = true
 			local req = other.req_col_dir
 
@@ -114,8 +114,16 @@ function BumpCollision:check_col(e)
 				end
 			end
 		end
+
+		if other.controller then
+			e:give($_C_COLLIDE_WITH, other)
+		end
+		if e.controller then
+			other:give($_C_COLLIDE_WITH, e)
+		end
 	end
 
+	local col = e.collider
 	if not col.is_hit and within_int and len == 0 then
 		self.world:emit("on_leave_interactive", e, within_int.entity)
 	end

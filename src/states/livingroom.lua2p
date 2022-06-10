@@ -59,7 +59,7 @@ function LivingRoom:state_init()
 		local pos = e_player.pos
 		local ex = pos.x - 96
 		local ey = pos.y
-		self.world:emit("spawn_enemy", Enums.enemy_type.suit, ex, ey)
+		self.world:emit("spawn_enemy", Enums.enemy_type.suit, ex, ey, e_player)
 	end)
 
 	self.timeline = TLE.Do(function()

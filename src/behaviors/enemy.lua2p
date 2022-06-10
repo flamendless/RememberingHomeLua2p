@@ -1,3 +1,5 @@
+local Invert = require("modules.beehive.beehive.invert")
+local Repeat = require("modules.beehive.beehive.repeat")
 local Selector = require("modules.beehive.beehive.selector")
 local Sequence = require("modules.beehive.beehive.sequence")
 
@@ -5,29 +7,29 @@ local Common = require("behaviors.common")
 local Enums = require("enums")
 local bt_enemy = Enums.bt.enemy
 
-local function idle(e, dt)
-	@@assert(e.__isEntity)
-	local bt = e.behavior_tree
-	bt.current_node = bt_enemy.idle
-
+local function idle(world, e)
 	return Sequence({
-		Common.sees_other,
+		Common.set_node(e, "idle"),
+		Invert(Common.sees_other),
+		Common.wait_random(e, 0.3, 1),
 	})
 end
 
-local function walk_around(e, dt)
-	@@assert(e.__isEntity)
-	local bt = e.behavior_tree
-	bt.current_node = bt_enemy.walk_around
-
+local function walk_around(world, e)
 	return Sequence({
+		Common.set_node(e, "walk_around"),
 		Common.sees_other,
+		Common.random({
+			Common.chase_other,
+		})
 	})
 end
 
-return function()
+return function(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
 	return Selector({
-		idle,
-		walk_around,
+		walk_around(world, e),
+		idle(world, e),
 	})
 end

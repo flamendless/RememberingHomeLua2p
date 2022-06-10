@@ -38,3 +38,9 @@ Concord.component($_C_COLLIDER_CIRCLE, function(c, size, ox, oy)
 	c.oy = oy
 	c.is_hit = false
 end)
+
+Concord.component($_C_COLLIDE_WITH, function(c, e)
+	@@assert(e.__isEntity and e.collider)
+	e:ensure($_C_KEY)
+	c.value = e.key.value
+end)

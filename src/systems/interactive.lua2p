@@ -11,18 +11,13 @@ end
 function Interactive:on_collide_interactive(e, other)
 	@@assert(e.__isEntity)
 	@@assert(other.__isEntity)
-	local valid = true
 	local body = e.body
 	local other_col = other.collider
 	local req_n = other.interactive_req_player_dir
-	if body and req_n then
-		if req_n.x ~= body.dir then
-			valid = false
-		end
+	if body and req_n and req_n.x ~= body.dir then
+		return
 	end
-	if valid then
-		e:give($_C_WITHIN_INTERACTIVE, other)
-	end
+	e:give($_C_WITHIN_INTERACTIVE, other)
 end
 
 function Interactive:on_change_interactive(e, other)

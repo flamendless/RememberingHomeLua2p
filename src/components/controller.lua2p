@@ -1,4 +1,5 @@
 local Concord = require("modules.concord.concord")
 
+Concord.component($_C_CONTROLLER)
 Concord.component($_C_PLAYER_CONTROLLER)
 Concord.component($_C_ENEMY_CONTROLLER)

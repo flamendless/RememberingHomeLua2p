@@ -24,6 +24,10 @@ end
 
 function PlayerController:init(world)
 	self.world = world
+
+	self.pool.onAdded = function(_, e)
+		self.world:setResource("e_player", e)
+	end
 end
 
 function PlayerController:on_toggle_equip_flashlight()
@@ -71,22 +75,20 @@ function PlayerController:update(dt)
 		body.dx = 1
 	end
 
-	if Inputs.pressed("interact") then
-		if self.player.can_interact and within_int then
-			local other = within_int.entity
-			local req = other.req_col_dir
-			local proceed = true
+	if within_int and self.player.can_interact and Inputs.pressed("interact") then
+		local other = within_int.entity
+		local req = other.req_col_dir
+		local proceed = true
 
-			if req and (body.dir ~= req.value) then
-				proceed = false
-			end
+		if req and (body.dir ~= req.value) then
+			proceed = false
+		end
 
-			if proceed then
-				if other.dialogue_meta then
-					self:on_player_interact(self.player, other)
-				elseif other.is_door then
-					self.world:emit("on_interact_door", self.player, other)
-				end
+		if proceed then
+			if other.dialogue_meta then
+				self:on_player_interact(self.player, other)
+			elseif other.is_door then
+				self.world:emit("on_interact_door", self.player, other)
 			end
 		end
 	end
