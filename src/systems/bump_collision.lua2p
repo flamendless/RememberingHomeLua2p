@@ -27,8 +27,7 @@ local function get_query_point(self)
 end
 
 local function filter(item, other)
-	local other_col = other.collider
-	return other_col.filter or Enums.bump_filter.slide
+	return other.collider.filter or Enums.bump_filter.slide
 end
 
 function BumpCollision:init(world)
@@ -95,7 +94,6 @@ function BumpCollision:check_col(e)
 		local c = cols[i]
 		local other = c.other
 		local other_col = other.collider
-		-- other_col.is_hit = true
 		other_col.normal.x = c.normalX
 		other_col.normal.y = c.normalY
 		if i == 1 and e.can_interact and other.interactive then
@@ -161,23 +159,31 @@ function BumpCollision:update_collider(e)
 		new_collider = new_collider[sub_id]
 	end
 	new_collider = new_collider[e.animation.current_tag]
+	if not new_collider then return end
 
-	if new_collider then
-		self.pool:remove(e)
-		local collider = e.collider
-		local w = new_collider.w or collider.w
-		local h = new_collider.h or collider.h
-		e:remove($_C_COLLIDER)
-		:give($_C_COLLIDER, w, h)
-
-		if new_collider.ox or new_collider.oy then
-			local t = e.transform
-			t.sx = new_collider.sx or t.sx
-			t.sy = new_collider.sy or t.sy
-			t.ox = new_collider.ox or t.ox
-			t.oy = new_collider.oy or t.oy
-		end
+	local collider = e.collider
+	local pos = e.pos
+	local w = new_collider.w or collider.w
+	local h = new_collider.h or collider.h
+	local col_offset = e.collider_offset
+	if col_offset then
+		pos.x = pos.x + col_offset.ox
+		pos.y = pos.y + col_offset.oy
 	end
+
+	collider.w, collider.h = w, h
+	collider.w_h = w * 0.5
+	collider.h_h = h * 0.5
+
+	if new_collider.ox or new_collider.oy then
+		local t = e.transform
+		t.sx = new_collider.sx or t.sx
+		t.sy = new_collider.sy or t.sy
+		t.ox = new_collider.ox or t.ox
+		t.oy = new_collider.oy or t.oy
+	end
+
+	self.pool:update(e, pos.x, pos.y, w, h)
 end
 
 !if _DEV then
@@ -206,6 +212,8 @@ local function edit(id, value, t)
 	return value
 end
 
+local tbl_n = {Text = "", ReturnOnText = false, NumbersOnly = true}
+
 function BumpCollision:debug_update(dt)
 	if not self.debug_show then
 		flags.bodies = false
@@ -215,6 +223,8 @@ function BumpCollision:debug_update(dt)
 		Title = self.debug_title,
 		IsOpen = self.debug_show
 	})
+	tbl_n.Text = tostring(self.pool:countItems())
+	Slab.Input("bump_n", tbl_n)
 	if Slab.CheckBox(flags.bodies, "Bodies") then
 		flags.bodies = not flags.bodies
 	end
