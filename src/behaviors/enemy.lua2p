@@ -1,26 +1,112 @@
+local get_dt = love.timer.getDelta
+local lm_random = love.math.random
+
 local Invert = require("modules.beehive.beehive.invert")
 local Repeat = require("modules.beehive.beehive.repeat")
 local Selector = require("modules.beehive.beehive.selector")
 local Sequence = require("modules.beehive.beehive.sequence")
 
-local Common = require("behaviors.common")
 local Enums = require("enums")
 local bt_enemy = Enums.bt.enemy
 
-local function idle(world, e)
+local function set_tag(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(type(tag) == "string")
+	e.behavior_tree.current_node = bt_enemy[tag]
+end
+
+local function set_node(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(type(tag) == "string")
+	return function()
+		set_tag(e, tag)
+		return $_BT_SUCCESS
+	end
+end
+
+local function is_current_node(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(type(tag) == "string")
+	return function()
+		local current_node = e.behavior_tree.current_node
+		return current_node == tag and $_BT_SUCCESS or $_BT_FAILURE
+	end
+end
+
+local function is_other_behind(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
+	local other_e = world:getEntityByKey(e.ref_e_key.value)
+	local other_dir = other_e.body.dir
+	local dir = e.body.dir
+	local diff = (e.pos.x <= other_e.pos.x) and -1 or 1
+	return (dir == other_dir and dir == diff) and $_BT_SUCCESS or $_BT_FAILURE
+end
+
+local function random(tbl)
+	@@assert(type(tbl) == "table" and #tbl > 0)
+	!if _DEV then
+	for _, bt in ipairs(tbl) do @@assert(type(bt) == "function") end
+	!end
+	return tbl[lm_random(1, #tbl)]
+end
+
+local function wait_random(e, min, max)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(type(min) == "number")
+	@@assert(type(max) == "number")
+	@@assert(min > 0 and min < max)
+	local elapsed = 0
+	local r = lm_random(min, max)
+	return function()
+		elapsed = elapsed + get_dt()
+		if elapsed >= r then
+			elapsed = 0
+			r = lm_random(min, max)
+			return $_BT_SUCCESS
+		end
+		return $_BT_RUNNING
+	end
+end
+
+local function sees_other(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
+	local other_e = world:getEntityByKey(e.ref_e_key.value)
+	local distance = e.controller_origin.vec2:distance(other_e.controller_origin.vec2)
+	local sees = distance <= e.line_of_sight.value
+	return sees and $_BT_SUCCESS or $_BT_FAILURE
+end
+
+local function chase_other(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(e.ref_e_key)
+	set_tag(e, "chase")
+	local sees = sees_other(world, e)
+	if sees == $_BT_FAILURE then
+		return $_BT_FAILURE
+	end
+	return e.collide_with and $_BT_SUCCESS or $_BT_RUNNING
+end
+
+local function lean_back(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
 	return Sequence({
-		Common.set_node(e, "idle"),
-		Invert(Common.sees_other),
-		Common.wait_random(e, 0.3, 0.7),
+		set_node(e, "lean_back"),
+		is_other_behind,
 	})
 end
 
 local function walk_around(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
 	return Sequence({
-		Common.set_node(e, "walk_around"),
-		Common.sees_other,
-		Common.random({
-			Common.chase_other,
+		set_node(e, "walk_around"),
+		sees_other,
+		random({
+			chase_other,
 		})
 	})
 end
@@ -29,7 +115,8 @@ return function(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree)
 	return Selector({
+		lean_back(world, e),
 		walk_around(world, e),
-		idle(world, e),
+		set_node(e, "idle"),
 	})
 end
