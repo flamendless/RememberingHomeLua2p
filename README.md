@@ -23,6 +23,7 @@ For cleaning files and logs `./build clean && ./build clean_logs`
 
 * [anim8](https://github.com/kikito/anim8) - for sprite animation
 * [Batteries](https://github.com/1bardesign/batteries) - for class, vec2, vec3, math, string, table, etc.
+* [beehive](https://github.com/drhayes/beehive.lua) - for behavior trees for AI
 * [bitser](https://github.com/gvx/bitser) - for serialization/deserialization of lua data to binary files
 * [bump-niji](https://github.com/oniietzschan/bump-niji) - for 2D collision detection
 * [Concord](https://github.com/Tjakka5/Concord) - for Entity Component System

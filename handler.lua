@@ -154,10 +154,10 @@ _TOOLS = toLua({
 })
 
 _LIBS = toLua({
-	"Anim8", "Batteries", "Bitser", "Bump-niji", "Concord", "Enum", "Flux",
-	"Gamera", "HUMP", "JProf", "Lily", "Log", "Lume", "ngrading", "Outliner",
-	"Peeker", "ReflowPrint", "SDF", "Semver", "Slab", "Splashes", "strict",
-	"TimelineEvents",
+	"Anim8", "Batteries", "beehive", "Bitser", "Bump-niji", "Concord", "Enum",
+	"Flux", "Gamera", "HUMP", "JProf", "Lily", "Log", "Lume", "ngrading",
+	"Outliner", "Peeker", "ReflowPrint", "SDF", "Semver", "Slab", "Splashes",
+	"strict", "TimelineEvents",
 })
 
 --PRE CALCULATED
