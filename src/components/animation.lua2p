@@ -42,8 +42,10 @@ Concord.component($_C_ANIMATION_STOP, function(c, event)
 	c.event = event
 end)
 
-Concord.component($_C_CURRENT_FRAME, function(c)
+Concord.component($_C_CURRENT_FRAME, function(c, max)
+	@@sassert(max, type(max) == "number" and max > 0)
 	c.value = 0
+	c.max = max
 end)
 
 Concord.component($_C_ANIMATION_EV_UPDATE, function(c, ev_update)

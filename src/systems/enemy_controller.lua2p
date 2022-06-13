@@ -34,6 +34,10 @@ function EnemyController:update(dt)
 			self.world:emit("switch_animation_tag", e, "walk")
 		elseif current_node == bt_enemy.chase then
 			self.world:emit("switch_animation_tag", e, "walk")
+		elseif current_node == bt_enemy.lean_back then
+			self.world:emit("switch_animation_tag", e, "lean_back")
+		elseif current_node == bt_enemy.lean_return_back then
+			self.world:emit("switch_animation_tag", e, "lean_return_back")
 		else
 			self.world:emit("switch_animation_tag", e, "idle")
 		end

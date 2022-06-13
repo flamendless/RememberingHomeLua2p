@@ -40,7 +40,7 @@ function run()
 	# TODO change this when in RELEASE mode
 	# win64
 	love_only
-	$cmd /c start cmd.exe /c "cd $path_love && lovec.exe $path_game"
+	$cmd /c start cmd.exe /c "cd $path_love && lovec.exe $path_game & pause"
 	echo "Completed build_win.sh"
 }
 

@@ -1,6 +1,7 @@
 local get_dt = love.timer.getDelta
 local lm_random = love.math.random
 
+local Fail = require("modules.beehive.beehive.fail")
 local Invert = require("modules.beehive.beehive.invert")
 local Repeat = require("modules.beehive.beehive.repeat")
 local Selector = require("modules.beehive.beehive.selector")
@@ -24,7 +25,7 @@ local function set_node(e, tag)
 	end
 end
 
-local function is_current_node(e, tag)
+local function is_current_node_bt(e, tag)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(type(tag) == "string")
 	return function()
@@ -33,14 +34,61 @@ local function is_current_node(e, tag)
 	end
 end
 
+local function is_current_anim(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree and e.animation)
+	@@assert(type(tag) == "string")
+	local base_tag = e.animation.base_tag
+	print(base_tag, e.behavior_tree.current_node)
+	return (base_tag == tag) and $_BT_SUCCESS or $_BT_FAILURE
+end
+
+local function is_current_anim_bt(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree and e.animation)
+	@@assert(type(tag) == "string")
+	return function()
+		return is_current_anim(e, tag)
+	end
+end
+
+local function is_current_anim_done(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree and e.animation)
+	@@assert(type(tag) == "string")
+	local base_tag = e.animation.base_tag
+	if base_tag ~= tag then
+		return $_BT_RUNNING
+	end
+	local current_frame = e.current_frame
+	return (current_frame.value == current_frame.max) and $_BT_SUCCESS or $_BT_RUNNING
+end
+
+local function is_current_anim_done_bt(e, tag)
+	@@assert(e.__isEntity and e.behavior_tree and e.animation)
+	@@assert(type(tag) == "string")
+	return function()
+		return is_current_anim_done(e, tag)
+	end
+end
+
+local function get_distance(world, e, other_e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
+	@@sassert(other_e, other_e.__isEntity)
+	other_e = other_e or world:getEntityByKey(e.ref_e_key.value)
+	return e.controller_origin.vec2:distance(other_e.controller_origin.vec2)
+end
+
 local function is_other_behind(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
 	local other_e = world:getEntityByKey(e.ref_e_key.value)
-	local other_dir = other_e.body.dir
-	local dir = e.body.dir
 	local diff = (e.pos.x <= other_e.pos.x) and -1 or 1
-	return (dir == other_dir and dir == diff) and $_BT_SUCCESS or $_BT_FAILURE
+	local is_behind = e.body.dir == diff
+	if not is_behind then
+		return $_BT_FAILURE
+	end
+	local distance = get_distance(world, e, other_e)
+	local within_distance = distance <= e.line_of_sight.value
+	return within_distance and $_BT_SUCCESS or $_BT_FAILURE
 end
 
 local function random(tbl)
@@ -72,8 +120,7 @@ end
 local function sees_other(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
-	local other_e = world:getEntityByKey(e.ref_e_key.value)
-	local distance = e.controller_origin.vec2:distance(other_e.controller_origin.vec2)
+	local distance = get_distance(world, e)
 	local sees = distance <= e.line_of_sight.value
 	return sees and $_BT_SUCCESS or $_BT_FAILURE
 end
@@ -90,12 +137,24 @@ local function chase_other(world, e)
 	return e.collide_with and $_BT_SUCCESS or $_BT_RUNNING
 end
 
+local function lean_return_back(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
+	return Sequence({
+		is_current_anim_bt(e, bt_enemy.lean_back),
+		Invert(is_other_behind),
+		set_node(e, bt_enemy.lean_return_back),
+		is_current_anim_done_bt(e, bt_enemy.lean_return_back),
+		Fail,
+	})
+end
+
 local function lean_back(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree)
 	return Sequence({
-		set_node(e, "lean_back"),
 		is_other_behind,
+		set_node(e, bt_enemy.lean_back),
 	})
 end
 
@@ -103,11 +162,11 @@ local function walk_around(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree)
 	return Sequence({
-		set_node(e, "walk_around"),
 		sees_other,
 		random({
 			chase_other,
-		})
+		}),
+		set_node(e, bt_enemy.walk_around),
 	})
 end
 
@@ -115,8 +174,9 @@ return function(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree)
 	return Selector({
+		lean_return_back(world, e),
 		lean_back(world, e),
 		walk_around(world, e),
-		set_node(e, "idle"),
+		set_node(e, bt_enemy.idle),
 	})
 end

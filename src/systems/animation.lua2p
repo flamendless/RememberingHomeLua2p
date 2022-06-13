@@ -89,6 +89,11 @@ function Animation:setup_animation(e, data, on_loop)
 	animation.grid = obj_grid
 	animation.anim8 = obj_animation
 
+	local current_frame = e.current_frame
+	if current_frame then
+		current_frame.max = #obj_animation.frames
+	end
+
 	local quad, _, _, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
 	e:give($_C_SPRITE, data.resource_id):give($_C_QUAD, quad)
