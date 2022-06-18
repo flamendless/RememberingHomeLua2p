@@ -94,7 +94,7 @@ function PlayerController:update(dt)
 	end
 
 	local anim_name = self:player_update_animation()
-	self.world:emit("update_animation_speed", self.player, anim_name)
+	self.world:emit("update_speed_data", self.player, anim_name)
 end
 
 function PlayerController:player_update_animation(override_name, override_variant)

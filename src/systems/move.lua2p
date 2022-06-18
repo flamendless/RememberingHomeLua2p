@@ -8,20 +8,21 @@ local Move = Concord.system({
 })
 
 local function internal_move_by(e, is_repeat)
+	@@assert(e.__isEntity)
+	@@assert(type(is_repeat) == "boolean")
 	local pos = e.pos
 	local move_by = e.move_by
-	local mb_pos = move_by
 
 	local f = Flux.to(pos, move_by.duration, {
-			x = pos.x + mb_pos.x,
-			y = pos.y + mb_pos.y,
+			x = pos.x + move_by.x,
+			y = pos.y + move_by.y,
 		})
 		:delay(move_by.delay)
 
 	if is_repeat then
-		-- f:oncomplete(function()
-		-- 	internal_move_by(e, is_repeat)
-		-- end)
+		f:oncomplete(function()
+			internal_move_by(e, is_repeat)
+		end)
 	else
 		f:oncomplete(function()
 			e:remove($_C_MOVE_BY)
@@ -31,15 +32,12 @@ end
 
 function Move:init()
 	self.pool.onAdded = function(pool, e)
-		local is_repeat = e.move_repeat ~= nil
-
-		internal_move_by(e, is_repeat)
+		internal_move_by(e, e.move_repeat ~= nil)
 	end
 
 	self.pool_move_x.onAdded = function(pool, e)
 		local pos = e.pos
 		local target = e.move_to_x
-
 		Flux.to(pos, target.duration, {x = target.target_x})
 			:delay(target.delay)
 			:oncomplete(function()
@@ -50,7 +48,6 @@ function Move:init()
 	self.pool_original.onAdded = function(pool, e)
 		local pos = e.pos
 		local move = e.move_to_original
-
 		Flux.to(pos, move.duration, {
 				x = pos.orig_x,
 				y = pos.orig_y,

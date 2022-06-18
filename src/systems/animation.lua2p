@@ -254,17 +254,6 @@ function Animation:anim_pause_at_end(e, signal)
 	end
 end
 
-function Animation:update_animation_speed(e, anim_name)
-	@@assert(e.__isEntity and e.animation and e.speed and e.speed_data and e.body)
-	@@assert(type(anim_name) == "string")
-	local body = e.body
-	if body.dx ~= 0 then
-		local new_speed = e.speed_data.speed_data[anim_name]
-		local speed = e.speed
-		speed.vx = mathx.lerp(speed.vx, new_speed.x, 0.5)
-	end
-end
-
 !if _DEV then
 local Slab = require("modules.slab")
 local selected

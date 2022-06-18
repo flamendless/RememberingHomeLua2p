@@ -29,18 +29,30 @@ end
 
 function EnemyController:update(dt)
 	for _, e in ipairs(self.pool) do
+		local body = e.body
+		local anim_name = "idle"
 		local current_node = e.behavior_tree.current_node
-		if current_node == bt_enemy.walk_around then
-			self.world:emit("switch_animation_tag", e, "walk")
+
+		body.dx = 0
+
+		if current_node == bt_enemy.walk then
+			anim_name = "walk"
 		elseif current_node == bt_enemy.chase then
-			self.world:emit("switch_animation_tag", e, "walk")
+			local other_e = self.world:getEntityByKey(e.ref_e_key.value)
+			local collide_with = e.collide_with
+			if (not collide_with) or (collide_with.value ~= other_e.key.value) then
+				local dir = (e.pos.x <= other_e.pos.x) and 1 or -1
+				body.dx = dir
+			end
+			anim_name = "walk"
 		elseif current_node == bt_enemy.lean_back then
-			self.world:emit("switch_animation_tag", e, "lean_back")
+			anim_name = "lean_back"
 		elseif current_node == bt_enemy.lean_return_back then
-			self.world:emit("switch_animation_tag", e, "lean_return_back")
-		else
-			self.world:emit("switch_animation_tag", e, "idle")
+			anim_name = "lean_return_back"
 		end
+
+		self.world:emit("switch_animation_tag", e, anim_name)
+		self.world:emit("update_speed_data", e, anim_name)
 	end
 end
 

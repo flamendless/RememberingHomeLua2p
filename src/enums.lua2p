@@ -42,6 +42,8 @@ Enums.anim_state = Enum(
 Enums.enemy_type = Enum("suit")
 Enums.enemy_suit_anim = Enum("idle", "walk")
 
-Enums.bt.enemy = Enum("idle", "walk_around", "chase", "lean_back", "lean_return_back")
+Enums.bt.enemy = Enum(
+	"idle", "walk", "chase", "lean_back", "lean_return_back", "caught_other"
+)
 
 return Enums

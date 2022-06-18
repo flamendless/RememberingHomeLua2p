@@ -53,7 +53,6 @@ function BumpCollision:update(dt)
 			!if _DEV then
 			if e.bump.debug_clicked then return end
 			!end
-			e:remove($_C_COLLIDE_WITH)
 			self:update_body(e)
 			self:check_col(e)
 		end
@@ -88,6 +87,7 @@ end
 function BumpCollision:check_col(e)
 	local pos = e.pos
 	local _, _, cols, len = self.pool:check(e, pos.x, pos.y, filter)
+	local has_collide_with = false
 
 	local within_int = e.within_interactive
 	for i = 1, len do
@@ -114,10 +114,12 @@ function BumpCollision:check_col(e)
 		end
 
 		if other.controller then
-			e:give($_C_COLLIDE_WITH, other)
+			e:ensure($_C_COLLIDE_WITH, other)
+			has_collide_with = true
 		end
 		if e.controller then
-			other:give($_C_COLLIDE_WITH, e)
+			other:ensure($_C_COLLIDE_WITH, e)
+			has_collide_with = true
 		end
 	end
 
@@ -125,6 +127,11 @@ function BumpCollision:check_col(e)
 	if not col.is_hit and within_int and len == 0 then
 		self.world:emit("on_leave_interactive", e, within_int.entity)
 	end
+
+	if not has_collide_with then
+		e:remove($_C_COLLIDE_WITH)
+	end
+
 	self.pool.freeCollisions(cols)
 end
 
@@ -151,6 +158,7 @@ end
 
 function BumpCollision:update_collider(e)
 	@@assert(e.__isEntity and e.collider and e.animation)
+	if e.skip_collider_update then return end
 	local id = e.id
 	if id.value ~= "enemy" then return end
 	local new_collider = Colliders[id.value]

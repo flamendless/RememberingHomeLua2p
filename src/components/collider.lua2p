@@ -3,6 +3,7 @@ local Concord = require("modules.concord.concord")
 Concord.component($_C_BUMP)
 Concord.component($_C_WALL)
 Concord.component($_C_GROUND)
+Concord.component($_C_SKIP_COLLIDER_UPDATE)
 
 Concord.component($_C_REQ_COL_DIR, function(c, dir)
 	@@assert(type(dir) == "number" and (dir == -1 or dir == 1))

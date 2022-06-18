@@ -4,6 +4,13 @@ local Enums = require("enums")
 
 local Player = {}
 
+local speed_data = {
+	idle = {x = 0, y = 0},
+	walk = {x = 96, y = 0},
+	run = {x = 148, y = 0},
+}
+local gravity = 320
+
 function Player.get_multi_anim_data(for_flashlight, can_open_door)
 	local tbl_anim = {"idle", "walk", "run"}
 	if can_open_door then
@@ -19,7 +26,7 @@ function Player.get_multi_anim_data(for_flashlight, can_open_door)
 	return data, mods
 end
 
-function Player.base(e, x, y, speed_data, gravity, can)
+function Player.base(e, x, y, speed_data, can)
 	@@sassert(can, type(can) == "table")
 	@@sassert(can.move, type(can.move) == "boolean")
 	@@sassert(can.run, type(can.run) == "boolean")
@@ -30,6 +37,7 @@ function Player.base(e, x, y, speed_data, gravity, can)
 	e:give($_C_ID, "player")
 	:give($_C_PLAYER)
 	:give($_C_POS, x, y)
+	:give($_C_POS_VEC2)
 	:give($_C_TRANSFORM, 0, 1, 1, 18, 0)
 	:give($_C_COLLIDER, collider.w, collider.h, Enums.bump_filter.cross)
 	:give($_C_BUMP)
@@ -67,13 +75,7 @@ function Player.outside_house(e, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	e:assemble(Player.base,
-		x, y,
-		{
-			idle = {x = 0, y = 0},
-			walk = {x = 96, y = 0},
-			run = {x = 148, y = 0},
-		},
-		320,
+		x, y, speed_data,
 		{
 			move = false,
 			run = false,
@@ -87,13 +89,7 @@ function Player.room(e, x, y)
 	@@assert(type(x) == "number")
 	@@assert(type(y) == "number")
 	e:assemble(Player.base,
-		x, y,
-		{
-			idle = {x = 0, y = 0},
-			walk = {x = 96, y = 0},
-			run = {x = 148, y = 0},
-		},
-		320,
+		x, y, speed_data,
 		{
 			move = false,
 			run = false,

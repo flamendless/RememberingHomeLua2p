@@ -6,16 +6,26 @@ local Movement = Concord.system({
 
 function Movement:update(dt)
 	for _, e in ipairs(self.pool) do
-		local speed = e.speed
-		local vel_x = 0
-		local vel_y = e.gravity.value * dt
+		local vel_x, vel_y = 0, e.gravity.value * dt
+		local body = e.body
 
-		if e.body.dx ~= 0 then
-			vel_x = speed.vx * e.body.dx * dt
+		if body.dx ~= 0 then
+			vel_x = e.speed.vx * body.dx * dt
 		end
 
-		e.body.vel_x = vel_x
-		e.body.vel_y = vel_y
+		body.vel_x, body.vel_y = vel_x, vel_y
+	end
+end
+
+function Movement:update_speed_data(e, anim_name)
+	@@assert(e.__isEntity and e.animation and e.speed and e.speed_data and e.body)
+	@@assert(type(anim_name) == "string")
+	local body = e.body
+	if body.dx ~= 0 then
+		local new_speed = e.speed_data.speed_data[anim_name]
+		if not new_speed then return end
+		local speed = e.speed
+		speed.vx = mathx.lerp(speed.vx, new_speed.x, 0.5)
 	end
 end
 
