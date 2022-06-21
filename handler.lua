@@ -401,6 +401,7 @@ _C_BEHAVIOR_TREE = toLua("behavior_tree")
 _C_LINE_OF_SIGHT = toLua("line_of_sight")
 _C_CONTROLLER_ORIGIN = toLua("controller_origin")
 _C_SKIP_COLLIDER_UPDATE = toLua("skip_collider_update")
+_C_RANDOM_WALK = toLua("random_walk")
 
 _C_ANIMATION_ON_LOOP = toLua("animation_on_loop")
 _C_ANIMATION_ON_UPDATE = toLua("animation_on_update")

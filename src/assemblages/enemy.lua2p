@@ -8,7 +8,8 @@ local Enemy = {}
 
 local speed_data = {
 	idle = {x = 0, y = 0},
-	walk = {x = 32, y = 0},
+	walk = {x = 16, y = 0},
+	chase = {x = 32, y = 0},
 }
 
 function Enemy.get_multi_anim_data(enemy_type)

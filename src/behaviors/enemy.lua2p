@@ -10,7 +10,7 @@ local Sequence = require("modules.beehive.beehive.sequence")
 local Enums = require("enums")
 local bt_enemy = Enums.bt.enemy
 
-local function set_tag(e, tag)
+local function set_node(e, tag)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(type(tag) == "string")
 	e.behavior_tree.current_node = bt_enemy[tag]
@@ -20,7 +20,7 @@ local function set_node_bt(e, tag)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(type(tag) == "string")
 	return function()
-		set_tag(e, tag)
+		set_node(e, tag)
 		return $_BT_SUCCESS
 	end
 end
@@ -73,6 +73,15 @@ local function is_current_anim_done_bt(e, tag)
 	end
 end
 
+local function has_component_bt(e, component)
+	@@assert(e.__isEntity and e.behavior_tree)
+	@@assert(type(component) == "string")
+	return function()
+		local has = e[component]
+		return has and $_BT_SUCCESS or $_BT_FAILURE
+	end
+end
+
 local function get_distance(world, e, other_e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
@@ -100,10 +109,21 @@ local function random(tbl)
 	!if _DEV then
 	for _, bt in ipairs(tbl) do @@assert(type(bt) == "function") end
 	!end
-	return tbl[lm_random(1, #tbl)]
+	local r = lm_random(1, #tbl)
+	return tbl[r]
 end
 
-local function wait_random(e, min, max)
+local function random_bt(tbl)
+	@@assert(type(tbl) == "table" and #tbl > 0)
+	!if _DEV then
+	for _, bt in ipairs(tbl) do @@assert(type(bt) == "function") end
+	!end
+	return function()
+		return random(tbl)()
+	end
+end
+
+local function wait_random_bt(e, min, max)
 	@@assert(e.__isEntity and e.behavior_tree)
 	@@assert(type(min) == "number")
 	@@assert(type(max) == "number")
@@ -132,7 +152,7 @@ end
 local function chase_other(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree and e.ref_e_key)
-	set_tag(e, "chase")
+	set_node(e, "chase")
 	local sees = sees_other(world, e)
 	if sees == $_BT_FAILURE then
 		return $_BT_FAILURE
@@ -185,7 +205,7 @@ local function lean_back(world, e)
 	})
 end
 
-local function walk(world, e)
+local function chase(world, e)
 	@@assert(world.__isWorld)
 	@@assert(e.__isEntity and e.behavior_tree)
 	return Sequence({
@@ -193,7 +213,30 @@ local function walk(world, e)
 		random({
 			chase_other,
 		}),
-		set_node_bt(e, bt_enemy.walk),
+		set_node_bt(e, bt_enemy.chase),
+	})
+end
+
+local function walk(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
+	return Sequence({
+		has_component_bt(e, $_C_RANDOM_WALK),
+	})
+end
+
+local function wait(world, e)
+	@@assert(world.__isWorld)
+	@@assert(e.__isEntity and e.behavior_tree)
+	local min = lm_random(0.5, 0.9)
+	local max = min + lm_random(0.5, 0.9)
+
+	return Sequence({
+		wait_random_bt(e, min, max),
+		random_bt({
+			set_node_bt(e, bt_enemy.idle),
+			set_node_bt(e, bt_enemy.walk),
+		}),
 	})
 end
 
@@ -204,7 +247,8 @@ return function(world, e)
 		caught_other(world, e),
 		lean_return_back(world, e),
 		lean_back(world, e),
+		chase(world, e),
 		walk(world, e),
-		set_node_bt(e, bt_enemy.idle),
+		wait(world, e),
 	})
 end

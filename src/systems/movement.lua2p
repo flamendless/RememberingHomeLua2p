@@ -2,9 +2,22 @@ local Concord = require("modules.concord.concord")
 
 local Movement = Concord.system({
 	pool = {$_C_SPEED, $_C_GRAVITY, $_C_BODY, $_C_MOVEMENT, $_C_CAN_MOVE},
+	pool_walk = {$_C_SPEED, $_C_BODY, $_C_MOVEMENT, $_C_CAN_MOVE, $_C_RANDOM_WALK},
 })
 
 function Movement:update(dt)
+	for _, e in ipairs(self.pool_walk) do
+		local random_walk = e.random_walk
+		local orig_pos = random_walk.orig_pos
+		local diff = random_walk.orig_pos:distance(e.pos_vec2.value)
+
+		if diff <= random_walk.distance then
+			e.body.dx = random_walk.dir
+		else
+			e:remove($_C_RANDOM_WALK)
+		end
+	end
+
 	for _, e in ipairs(self.pool) do
 		local vel_x, vel_y = 0, e.gravity.value * dt
 		local body = e.body
@@ -20,13 +33,10 @@ end
 function Movement:update_speed_data(e, anim_name)
 	@@assert(e.__isEntity and e.animation and e.speed and e.speed_data and e.body)
 	@@assert(type(anim_name) == "string")
-	local body = e.body
-	if body.dx ~= 0 then
-		local new_speed = e.speed_data.speed_data[anim_name]
-		if not new_speed then return end
-		local speed = e.speed
-		speed.vx = mathx.lerp(speed.vx, new_speed.x, 0.5)
-	end
+	local new_speed = e.speed_data.speed_data[anim_name]
+	if not new_speed then return end
+	local speed = e.speed
+	speed.vx = mathx.lerp(speed.vx, new_speed.x, 0.5)
 end
 
 !if _DEV then

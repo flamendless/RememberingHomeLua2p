@@ -8,6 +8,13 @@ local EnemyController = Concord.system({
 	pool = {$_C_ID, $_C_ENEMY_CONTROLLER, $_C_BEHAVIOR_TREE},
 })
 
+local anim_mapping = {
+	walk = "walk",
+	chase = "walk",
+	lean_back = "lean_back",
+	lean_return_back = "lean_return_back"
+}
+
 function EnemyController:init(world)
 	self.world = world
 
@@ -30,29 +37,29 @@ end
 function EnemyController:update(dt)
 	for _, e in ipairs(self.pool) do
 		local body = e.body
-		local anim_name = "idle"
-		local current_node = e.behavior_tree.current_node
-
 		body.dx = 0
 
+		local current_node = e.behavior_tree.current_node
 		if current_node == bt_enemy.walk then
-			anim_name = "walk"
+			local random_walk = e.random_walk
+			if not random_walk then
+				local line_of_sight = e.line_of_sight.value
+				local dir = 1 - love.math.random(0, 1) * 2
+				local distance = love.math.random(line_of_sight * 0.25, line_of_sight)
+				local pos = e.pos
+				e:give($_C_RANDOM_WALK, dir, distance, pos.x, pos.y)
+			end
 		elseif current_node == bt_enemy.chase then
 			local other_e = self.world:getEntityByKey(e.ref_e_key.value)
 			local collide_with = e.collide_with
 			if (not collide_with) or (collide_with.value ~= other_e.key.value) then
-				local dir = (e.pos.x <= other_e.pos.x) and 1 or -1
-				body.dx = dir
+				body.dx = (e.pos.x <= other_e.pos.x) and 1 or -1
 			end
-			anim_name = "walk"
-		elseif current_node == bt_enemy.lean_back then
-			anim_name = "lean_back"
-		elseif current_node == bt_enemy.lean_return_back then
-			anim_name = "lean_return_back"
 		end
 
+		local anim_name = anim_mapping[current_node] or "idle"
 		self.world:emit("switch_animation_tag", e, anim_name)
-		self.world:emit("update_speed_data", e, anim_name)
+		self.world:emit("update_speed_data", e, current_node or anim_name)
 	end
 end
 
