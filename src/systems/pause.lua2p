@@ -35,15 +35,13 @@ function Pause:init(world)
 	end)
 end
 
-function Pause:create_pause_e()
+function Pause:create_pause_entities()
 	local ww, wh = love.graphics.getDimensions()
 	local ww2, wh2 = ww * 0.5, wh * 0.5
 	self.e_bg = Concord.entity(self.world):assemble(APause.bg, ww2, wh2)
 	self.e_title = Concord.entity(self.world):assemble(APause.text, ww2, wh2 - 64)
 	self.world:emit("ev_pp_invoke", $_PP_GLITCH, "reset_glitch")
-end
 
-function Pause:create_pause_choices()
 	if #self.pool_choice ~= 0 then return end
 	local ww, wh = love.graphics.getDimensions()
 	local ww2, wh2 = ww * 0.5, wh * 0.5
@@ -77,8 +75,7 @@ function Pause:on_pause()
 				v:setEnabled(false)
 			end
 		end
-		self:create_pause_e()
-		self:create_pause_choices()
+		self:create_pause_entities()
 		self.world:__flush()
 		self.world:emit("ev_pp_invoke", $_PP_GLITCH, "do_random_glitch", self.reset_after)
 	else

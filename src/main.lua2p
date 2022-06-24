@@ -58,14 +58,21 @@ function love.load()
 	Log.info(!("Commit: " .. _COMMIT_VERSION))
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter($_DEFAULT_FILTER, $_DEFAULT_FILTER)
-	WindowMode.init()
-	Shaders.init()
-	LoadingScreen.init()
-	Info.init()
-	Save.init()
-	Settings.init()
-	Audio.init()
-	Inputs.init()
+
+	local modules = {
+		WindowMode,
+		Shaders,
+		LoadingScreen,
+		Info,
+		Save,
+		Settings,
+		Audio,
+		Inputs,
+	}
+	for _, module in ipairs(modules) do
+		module.init()
+	end
+
 	TLE.Attach()
 
 	!if _DEV then

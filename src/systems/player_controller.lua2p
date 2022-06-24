@@ -102,7 +102,7 @@ end
 
 function PlayerController:player_update_animation(override_name, override_variant)
 	local anim_name = override_name
-	local anim_variant = override_variant
+	local anim_variant = override_variant or ""
 	local body = self.player.body
 
 	if not anim_name then
@@ -117,18 +117,11 @@ function PlayerController:player_update_animation(override_name, override_varian
 		end
 	end
 
-	if not anim_variant then
-		if body.dir == -1 then
-			anim_variant = "_left"
-		end
+	if body.dir == -1 then
+		anim_variant = "_left"
 	end
 
-	if anim_variant then
-		self.world:emit("switch_animation_tag",
-			self.player, anim_name .. anim_variant, anim_name)
-	else
-		self.world:emit("switch_animation_tag", self.player, anim_name)
-	end
+	self.world:emit("switch_animation_tag", self.player, anim_name .. anim_variant, anim_name)
 
 	return anim_name
 end

@@ -26,21 +26,19 @@ function Dissolve:set_kind(kind)
 end
 
 function Dissolve:update(dt)
-	if self.shader_code and self.flag_process then
-		self.time = self.time + dt * self.dir
+	if not self.shader_code or not self.flag_process then return end
 
-		local n = self.kind + smootherstep(math.max(0, math.min(self.time/self.duration, 1)))
+	self.time = self.time + dt * self.dir
+	local n = self.kind + smootherstep(math.max(0, math.min(self.time/self.duration, 1)))
+	self.shader_code:send("u_time", math.abs(n))
 
-		self.shader_code:send("u_time", math.abs(n))
-
-		if self.time > self.duration then
-			if self.on_complete then
-				self.on_complete()
-				self.on_complete = nil
-			end
-
-			self.flag_process = false
+	if self.time > self.duration then
+		if self.on_complete then
+			self.on_complete()
+			self.on_complete = nil
 		end
+
+		self.flag_process = false
 	end
 end
 
@@ -52,6 +50,18 @@ function Dissolve:draw(fn)
 		love.graphics.setShader()
 	else
 		fn()
+	end
+end
+
+function Dissolve:draw_emit(world, ev_name)
+	@@assert(world.__isWorld)
+	@@assert(type(ev_name) == "string" and ev_name ~= "")
+	if self.flag_process then
+		love.graphics.setShader(self.shader_code)
+		world:emit(ev_name)
+		love.graphics.setShader()
+	else
+		world:emit(ev_name)
 	end
 end
 

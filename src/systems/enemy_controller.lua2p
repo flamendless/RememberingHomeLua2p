@@ -58,6 +58,10 @@ function EnemyController:update(dt)
 		end
 
 		local anim_name = anim_mapping[current_node] or "idle"
+		if body.dir == -1 then
+			anim_name = anim_name .. "_left"
+		end
+
 		self.world:emit("switch_animation_tag", e, anim_name)
 		self.world:emit("update_speed_data", e, current_node or anim_name)
 	end

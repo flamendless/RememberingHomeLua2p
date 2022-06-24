@@ -6,5 +6,5 @@ Concord.component($_C_BEHAVIOR_TREE, function(c, beehive, nodes)
 	c.beehive = beehive
 	c.nodes = nodes
 	c.current_node = nil
-	c.result = nil
+	c.result = ""
 end)

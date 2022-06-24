@@ -8,7 +8,6 @@ local TLE = require("modules.tle.timeline")
 local Canvas = require("canvas")
 local Enums = require("enums")
 local Fade = require("fade")
-local Image = require("image")
 local Inputs = require("inputs")
 local ListByID = require("ctor.list_by_id")
 local Palette = require("palette")
@@ -137,13 +136,11 @@ end
 
 function Menu:state_setup()
 	local ww, wh = love.graphics.getDimensions()
-	local img_ff = Image.resize_image(Resources.data.images.flowfield)
 	self.camera = Gamera.new(0, 0, ww * 2, wh * 2)
 	self.camera:setWindow(0, 0, ww, wh)
 	self.canvases = {}
 	Canvas.init_canvases(self.canvases)
 	self.mb = Shaders.MotionBlur(self.canvases.main)
-	self.dissolve = Shaders.Dissolve(img_ff, 2)
 	self:setup_menu()
 end
 
@@ -176,8 +173,6 @@ function Menu:state_update(dt)
 
 	if self.current_state == Enums.menu_state.settings and not self.mb.flag_process then
 		self.world:emit("update_settings", dt)
-	elseif self.current_state == Enums.menu_state.exit then
-		self.dissolve:update(dt)
 	end
 end
 
@@ -198,10 +193,6 @@ function Menu:state_draw()
 		self.canvases.main:detach()
 		self.mb:post_process_draw()
 		self.canvases.main:render()
-	elseif self.current_state == Enums.menu_state.exit then
-		self.dissolve:draw(function()
-			self.world:emit("draw")
-		end)
 	end
 end
 
@@ -474,10 +465,6 @@ function Menu:on_exit()
 
 	if btn == 1 then
 		self:hide_main_menu()
-		self.dissolve.flag_process = true
-		self.dissolve.on_complete = function()
-			love.event.quit()
-		end
 	elseif btn == 2 then
 		self.current_state = Enums.menu_state.menu
 		Log.info("Switched Menu State to:", self.current_state)
