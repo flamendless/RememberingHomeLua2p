@@ -22,11 +22,10 @@ function win64()
 
 function love_only()
 {
-	cd "$dir_output" && zip -9ru "${love_title}" . -x "${love_title}"
 	if [ ! -d release ]; then
 		mkdir -p ../release/love
 	fi
-	mv -v ${love_title} ../release/love
+	cd "$dir_output" && zip -9ru "../release/love/${love_title}" . -x "${love_title}"
 }
 
 function prof_viewer()

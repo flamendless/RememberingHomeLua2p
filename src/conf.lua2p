@@ -22,6 +22,7 @@ function love.conf(t)
 	t.window.width = !(_GAME_SIZE.x)
 	t.window.height = !(_GAME_SIZE.y)
 	t.window.resizable = false
+	t.window.icon = "res/icon.png"
 
 	t.identity = $_IDENTITY
 	t.version = $_LOVE_VERSION
