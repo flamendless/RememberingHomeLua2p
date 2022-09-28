@@ -18,7 +18,9 @@ local function get_spawn_points(current_id, prev_id)
 	if not d[3] then
 		d[3] = Enums.face_dir.left
 	end
-	@@assert(type(d[3]) == "string" and (d[3] == Enums.face_dir.left or d[3] == Enums.face_dir.right))
+	@@assert(type(d[3]) == "string" and
+		(d[3] == Enums.face_dir.left or d[3] == Enums.face_dir.right)
+	)
 	return unpack(d)
 end
 

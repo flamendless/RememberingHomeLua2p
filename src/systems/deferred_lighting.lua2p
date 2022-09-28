@@ -400,9 +400,11 @@ function DeferredLighting:debug_update(dt)
 	ac[4] = UIWrapper.edit_range("aa", ac[4], 0, 1)
 
 	if Slab.Button("Disable All") then
-		for _, e in ipairs(self.pool) do
-			e:give($_C_LIGHT_DISABLED)
-		end
+		for _, e in ipairs(self.pool) do e:give($_C_LIGHT_DISABLED) end
+	end
+
+	if Slab.Button("Enable All") then
+		for _, e in ipairs(self.pool) do e:remove($_C_LIGHT_DISABLED) end
 	end
 
 	if flags.group then
