@@ -1,8 +1,8 @@
-local Enum = require("modules.enum.enum")
-
 local Enums = {
 	bt = {}
 }
+
+Enums.gfx_quality = Enum("low", "high")
 
 Enums.mode = Enum("fill", "line")
 Enums.arc_type = Enum("pie", "open", "closed")

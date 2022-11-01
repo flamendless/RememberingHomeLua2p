@@ -1,42 +1,37 @@
-local Log = require("modules.log.log")
-
-local Utils = require("utils")
-
-local Info = {
+local SystemInfo = {
 	data = {},
 	options = {},
 }
 
-local filename = $_LOG_INFO
+local FILENAME = "system_info.txt"
 
 local function insert_str(src, dest)
-	@@assert(type(src) == "table")
-	@@assert(type(dest) == "table")
+	ASSERT(type(src) == "table")
+	ASSERT(type(dest) == "table")
 	for k, v in pairs(src) do
 		local str = string.format("\t%s: %s\n", k, v)
 		table.insert(dest, str)
 	end
 end
 
-function Info.init()
+function SystemInfo.init()
 	Log.info("System information checking...")
-	local data = Info.data
+	local data = SystemInfo.data
 	local system_limits = {}
 	local canvas_formats = {}
 	local image_formats = {}
 	local texture_types = {}
 	local supported = {}
 	local name, version, vendor, device = love.graphics.getRendererInfo()
+	data.game_version = GAME_VERSION
 	data.renderer = {
 		name = name,
 		version = version,
 		vendor = vendor,
 		device = device
 	}
-	data.info_os = love.system.getOS()
+	data.os = love.system.getOS()
 	data.processor_count = love.system.getProcessorCount()
-	data.game_version = $_GAME_VERSION
-	data.git_version = $_COMMIT_VERSION
 	data.limits = love.graphics.getSystemLimits()
 	data.canvasformats = love.graphics.getCanvasFormats()
 	data.imageformats = love.graphics.getImageFormats()
@@ -51,9 +46,7 @@ function Info.init()
 
 	local str = {
 		string.format("Game Version: %s", data.game_version),
-		string.format("Git Commit Version: %s", data.git_version),
-		string.format("OS: %s", data.info_os),
-
+		string.format("OS: %s", data.os),
 		string.format("Processor Count: %s", data.processor_count),
 
 		"Renderer Info:",
@@ -82,30 +75,34 @@ function Info.init()
 	}
 
 	local to_write = table.concat(str, "\n")
-	local content, exists = Utils.file.read(filename)
+	local content, exists = Utils.file.read(FILENAME)
 
 	if exists then
-		Info.validate_file(content, to_write)
+		SystemInfo.validate_file(content, to_write)
 	else
-		Utils.file.write(filename, to_write)
-		love.filesystem.write("PLEASE_DO_NOT_EDIT_ANY_FILES",
-			"Editing any files in this directory will invalidate all your progress")
+		Utils.file.write(FILENAME, to_write)
+		love.filesystem.write(
+			"PLEASE_DO_NOT_EDIT_ANY_FILES",
+			"Editing any files in this directory will invalidate all your progress"
+		)
 	end
 end
 
-function Info.validate_file(content, to_write)
+function SystemInfo.validate_file(content, to_write)
+	ASSERT(type(content) == "string")
+	ASSERT(type(to_write) == "table")
 	local same = Utils.hash.compare(content, to_write)
 	if same then
-		Log.info(filename, "untouched")
+		Log.info(FILENAME, "untouched")
 	else
-		love.filesystem.write(filename, to_write)
-		Log.info(filename, "overwritten")
+		love.filesystem.write(FILENAME, to_write)
+		Log.info(FILENAME, "overwritten")
 	end
 end
 
-function Info.is_texturesize_compatible(size)
-	local max_size = Info.data.limits.texturesize
-	return size <= max_size
+function SystemInfo.is_texturesize_compatible(size)
+	ASSERT(type(size) == "number")
+	return size <= SystemInfo.ata.limits.texturesize
 end
 
-return Info
+return SystemInfo

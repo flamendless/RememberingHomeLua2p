@@ -1,7 +1,5 @@
-local Settings = require("settings")
-
 local Audio = {
-	volume = 100
+	volume = 1
 }
 
 function Audio.init()
@@ -10,17 +8,17 @@ function Audio.init()
 end
 
 function Audio.set_volume(volume)
-	@@assert(type(volume) == "number")
+	ASSERT(type(volume) == "number" and volume >= 0.0 and volume <= 1.0)
 	Audio.volume = volume
-	love.audio.setVolume(Audio.volume/100)
+	love.audio.setVolume(Audio.volume)
 end
 
 function Audio.set_mute(mute)
-	@@assert(type(mute) == "boolean")
+	ASSERT(type(mute) == "boolean")
 	if mute then
 		love.audio.setVolume(0)
 	else
-		love.audio.setVolume(Audio.volume/100)
+		love.audio.setVolume(Audio.volume)
 	end
 end
 

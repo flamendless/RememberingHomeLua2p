@@ -1,24 +1,24 @@
 [submodule "modules/anim8"]
-	path = modules/anim8
+	path = game/modules/anim8
 	url = https://github.com/kikito/anim8
 [submodule "modules/flux"]
-	path = modules/flux
+	path = game/modules/flux
 	url = https://github.com/rxi/flux
 [submodule "modules/splashes"]
-	path = modules/splashes
+	path = game/modules/splashes
 	url = https://github.com/love2d-community/splashes
 [submodule "modules/concord"]
-	path = modules/concord
+	path = game/modules/concord
 	url = https://github.com/Tjakka5/Concord
 	branch = experimental
 [submodule "modules/lily"]
-	path = modules/lily
+	path = game/modules/lily
 	url = https://github.com/MikuAuahDark/lily.git
 [submodule "modules/hump"]
-	path = modules/hump
+	path = game/modules/hump
 	url = https://github.com/vrld/hump
 [submodule "modules/batteries"]
-	path = modules/batteries
+	path = game/modules/batteries
 	url = https://github.com/1bardesign/batteries
 [submodule "modules/log"]
 	path = modules/log
@@ -27,29 +27,29 @@
 	path = modules/enum
 	url = https://github.com/Tjakka5/Enum
 [submodule "modules/lume"]
-	path = modules/lume
+	path = game/modules/lume
 	url = https://github.com/rxi/lume
 [submodule "modules/semver"]
-	path = modules/semver
+	path = game/modules/semver
 	url = https://github.com/kikito/semver.lua
 [submodule "modules/gamera"]
-	path = modules/gamera
+	path = game/modules/gamera
 	url = https://github.com/flamendless/gamera
 [submodule "modules/sdf"]
-	path = modules/sdf
+	path = game/modules/sdf
 	url = https://github.com/flamendless/love-sdf-text.git
 	branch = development
 [submodule "modules/tle"]
-	path = modules/tle
+	path = game/modules/tle
 	url = https://github.com/flamendless/TimelineEvents
 [submodule "modules/bump"]
-	path = modules/bump
+	path = game/modules/bump
 	url = https://github.com/oniietzschan/bump-niji
 [submodule "modules/bitser"]
-	path = modules/bitser
+	path = game/modules/bitser
 	url = https://github.com/gvx/bitser
 [submodule "modules/jprof"]
-	path = modules/jprof
+	path = game/modules/jprof
 	url = https://github.com/pfirsich/jprof
 [submodule "libs/LPP"]
 	path = libs/LPP
@@ -58,11 +58,14 @@
 	path = hump
 	url = https://github.com/vrld/hump
 [submodule "modules/slab"]
-	path = modules/slab
+	path = game/modules/slab
 	url = https://github.com/flamendless/Slab
 [submodule "libs/ExportTextureAtlas"]
 	path = libs/ExportTextureAtlas
 	url = https://github.com/EngineerSmith/Export-TextureAtlas
 [submodule "modules/beehive"]
-	path = modules/beehive
+	path = game/modules/beehive
 	url = https://github.com/drhayes/beehive.lua
+[submodule "game/modules/cron"]
+	path = game/modules/cron
+	url = https://github.com/kikito/cron.lua

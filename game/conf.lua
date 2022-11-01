@@ -1,3 +1,5 @@
+require("boot")
+
 function love.conf(t)
 	t.modules.audio = true
 	t.modules.data = true
@@ -18,16 +20,16 @@ function love.conf(t)
 	t.modules.video = false
 	t.modules.window = true
 
-	t.window.title = $_GAME_TITLE
-	t.window.width = !(_GAME_SIZE.x)
-	t.window.height = !(_GAME_SIZE.y)
+	t.window.title = "Going Home: Revisited"
+	t.window.width = WINDOW_WIDTH
+	t.window.height = WINDOW_HEIGHT
 	t.window.resizable = false
 	t.window.icon = "res/icon.png"
 
-	t.identity = $_IDENTITY
-	t.version = $_LOVE_VERSION
+	t.identity = "goinghomerevisited"
+	t.version = "11.4"
 
-	!if _DEV then
-	t.console = true
-	!end
+	if DEV then
+		t.console = true
+	end
 end

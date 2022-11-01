@@ -1,7 +1,6 @@
-!if _DEV then
-local Slab = require("modules.slab")
-
-local GameStates = require("gamestates")
+if not _DEV then
+	return {}
+end
 
 local DevTools = {
 	show = false,
@@ -75,6 +74,9 @@ local getFPS = love.timer.getFPS
 local font = love.graphics.getFont()
 local cols = 2
 
+local font_overlay = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
+font_overlay:setFilter("nearest", "nearest")
+
 function DevTools.init()
 	Slab.Initialize({"NoDocks"})
 end
@@ -142,6 +144,25 @@ function DevTools.draw()
 		DevTools.camera:detach()
 	end
 	Slab.Draw()
+
+	love.graphics.setColor(1, 0, 0, 1)
+	if DevTools.show_fps then
+		love.graphics.setFont(font_overlay)
+		love.graphics.print(tostring(love.timer.getFPS()))
+		love.graphics.print(MODE, love.graphics.getWidth() - font_overlay:getWidth(MODE))
+		love.graphics.setFont(font)
+	end
+	if DevTools.pause then
+		local ww, wh = love.graphics.getDimensions()
+		love.graphics.setFont(font)
+		love.graphics.printf("PAUSED", 0, wh * 0.5, ww, "center")
+	end
+	if stats.show then
+		stats.stats = love.graphics.getStats(stats.stats)
+		if stats.exclude_slab then
+			stats.stats = Slab.CalculateStats(stats.stats)
+		end
+	end
 	@@profe("devtools_draw")
 end
 
@@ -297,15 +318,6 @@ function DevTools.draw_debug_list()
 	Slab.EndWindow()
 end
 
-function DevTools.end_draw()
-	if stats.show then
-		stats.stats = love.graphics.getStats(stats.stats)
-		if stats.exclude_slab then
-			stats.stats = Slab.CalculateStats(stats.stats)
-		end
-	end
-end
-
 function DevTools.keypressed(key)
 	if not GameStates.world then return end
 	if Slab.IsAnyInputFocused() then return end
@@ -348,4 +360,3 @@ function DevTools.wheelmoved(wx, wy)
 end
 
 return DevTools
-!end

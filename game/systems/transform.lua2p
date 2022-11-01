@@ -4,7 +4,16 @@ local Log = require("modules.log.log")
 local Enums = require("enums")
 local Helper = require("helper")
 local Utils = require("utils")
-local calc_e_controller_origin = Utils.math.calc_e_controller_origin
+
+local function calc_e_controller_origin(e)
+	ASSERT(e.__isEntity)
+	local anim_data = e.animation_data
+	local transform = e.transform
+	local pos = e.pos
+	local x = pos.x + anim_data.frame_width * 0.5 - transform.ox
+	local y = pos.y
+	return x, y
+end
 
 local Transform = Concord.system({
 	pool = {$_C_TRANSFORM, @@c_not($_C_AUTO_SCALE), @@c_not($_C_RECT)},

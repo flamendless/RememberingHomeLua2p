@@ -1,14 +1,12 @@
-local Lily = require("modules.lily.lily")
-
-local UTF8 = require("utf8")
-
 local ErrorHandler = {}
 local font, p
 local pos_x, pos_y = 0, 24
 
 local function error_printer(msg, layer)
-	local err_msg = (debug.traceback("Error: " .. tostring(msg),
-		1 + (layer or 1)):gsub("\n[^\n]+$", ""))
+	local err_msg = (
+		debug.traceback("Error: " .. tostring(msg),
+		1 + (layer or 1)):gsub("\n[^\n]+$", "")
+	)
 	print(err_msg)
 end
 
@@ -34,11 +32,11 @@ function ErrorHandler.callback(msg)
 	msg = tostring(msg)
 	error_printer(msg, 2)
 
-	if not love.window or not love.graphics or not love.event then
+	if (not love.window) or (not love.graphics) or (not love.event) then
 		return
 	end
 
-	if not love.graphics.isCreated() or not love.window.isOpen() then
+	if (not love.graphics.isCreated()) or (not love.window.isOpen()) then
 		local success, status = pcall(love.window.setMode, 800, 600)
 
 		if not success or not status then
@@ -57,7 +55,7 @@ function ErrorHandler.callback(msg)
 	end
 
 	if love.joystick then
-		for i, v in ipairs(love.joystick.getJoysticks()) do
+		for _, v in ipairs(love.joystick.getJoysticks()) do
 			v:setVibration()
 		end
 	end
@@ -68,7 +66,7 @@ function ErrorHandler.callback(msg)
 
 	love.graphics.reset()
 	font = love.graphics.newFont("res/fonts/DigitalDisco.ttf", 16)
-	font:setFilter($_FONT_FILTER, $_FONT_FILTER)
+	font:setFilter("nearest", "nearest")
 	love.graphics.setFont(font)
 	love.graphics.setColor(1, 1, 1, 1)
 
@@ -76,13 +74,13 @@ function ErrorHandler.callback(msg)
 
 	love.graphics.origin()
 
-	local sanitized_msg = {}
+	local sanitized_data = {}
 
 	for char in msg:gmatch(UTF8.charpattern) do
-		table.insert(sanitized_msg, char)
+		table.insert(sanitized_data, char)
 	end
 
-	sanitized_msg = table.concat(sanitized_msg)
+	sanitized_msg = table.concat(sanitized_data)
 
 	local err = {}
 
@@ -91,22 +89,22 @@ function ErrorHandler.callback(msg)
 	table.insert(err, "You can help by submitting the error throught GitHub or Itch.io")
 	table.insert(err, "Thank you!\n")
 
-	!if _DEV then
-	table.insert(err, sanitized_msg)
+	if DEV then
+		table.insert(err, sanitized_msg)
 
-	if #sanitized_msg ~= #msg then
-		table.insert(err, "Invalid UTF-8 string in error message")
-	end
+		if #sanitized_msg ~= #msg then
+			table.insert(err, "Invalid UTF-8 string in error message")
+		end
 
-	table.insert(err, "\n")
+		table.insert(err, "\n")
 
-	for l in trace:gmatch("(.-)\n") do
-		if not l:match("boot.lua") then
-			l = l:gsub("stack traceback:", "Traceback\n")
-			table.insert(err, l)
+		for l in trace:gmatch("(.-)\n") do
+			if not l:match("boot.lua") then
+				l = l:gsub("stack traceback:", "Traceback\n")
+				table.insert(err, l)
+			end
 		end
 	end
-	!end
 
 	p = table.concat(err, "\n")
 	p = p:gsub("\t", "")
@@ -118,18 +116,15 @@ function ErrorHandler.callback(msg)
 
 	return function()
 		love.event.pump()
-		for e, a, b, c in love.event.poll() do
+		for e, a, _, _ in love.event.poll() do
 			if e == "quit" then
 				return 1
-
-			!if _PLATFORM == "desktop" then
 			elseif e == "keypressed" and a == "escaped" then
 				return 1
 			elseif e == "keypressed" and a == "c" and
 				love.keyboard.isDown("lctrl", "rctrl") then
 				copy_to_clipboard(text_full)
 			end
-			!else
 
 			if e == "touchpressed" then
 				local name = love.window.getTitle()
@@ -144,17 +139,18 @@ function ErrorHandler.callback(msg)
 					buttons[3] = "Copy to clipboard"
 				end
 
-				local pressed = love.window.showMessageBox("Quit " .. name .. "?",
-					"", buttons)
+				local pressed = love.window.showMessageBox(
+					"Quit " .. name .. "?",
+					"",
+					buttons
+				)
 
-				if presssed == 1 then
+				if pressed == 1 then
 					return 1
 				elseif pressed == 3 then
 					copy_to_clipboard(text_full)
 				end
 			end
-
-			!end
 		end
 
 		draw()
