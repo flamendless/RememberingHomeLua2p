@@ -5,7 +5,7 @@ function Helper.check_point_rect(px, py, x, y, w, h)
 end
 
 function Helper.get_real_size(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	local box = e.bounding_box
 	local bw, bh = box.w, box.h
 	local t = e.transform
@@ -17,7 +17,7 @@ function Helper.get_real_size(e)
 end
 
 function Helper.get_offset(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	local transform = e.transform
 	local anim_data = e.animation_data
 	local sprite = e.sprite
@@ -56,7 +56,7 @@ function Helper.get_offset(e)
 end
 
 function Helper.get_real_pos_box(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	local box = e.bounding_box
 	local pos = e.pos
 	local transform = e.transform
@@ -80,7 +80,7 @@ function Helper.get_real_pos_box(e)
 end
 
 function Helper.get_ltwh(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	--get the size
 	local sprite = e.sprite
 	local w, h = sprite.iw, sprite.ih

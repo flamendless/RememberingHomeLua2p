@@ -11,7 +11,7 @@ Start Date: Tue Mar 17 18:42:00 PST 2020
 --]]
 
 function love.load()
-	Log.info("Game Version:", Config.this_version)
+	Log.info("Game Version:", GAME_VERSION)
 	love.math.setRandomSeed(love.timer.getTime())
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -47,11 +47,10 @@ function love.load()
 end
 
 function love.update(dt)
-	if DEV then
-		if DevTools.pause then return end
+	if DEV and DevTools.pause then
+		return
 	end
 
-	Cron.update(dt)
 	Flux.update(dt)
 	GameStates.update(dt)
 	Inputs.update()

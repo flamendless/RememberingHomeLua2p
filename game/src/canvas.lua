@@ -3,8 +3,8 @@ local Canvas = class({
 })
 
 function Canvas.init_canvases(canvases)
-	@@assert(type(canvases) == "table")
-	local game_size = $_GAME_BASE_SIZE
+	ASSERT(type(canvases) == "table")
+	local game_size = GAME_BASE_SIZE
 	local ww, wh = love.graphics.getDimensions()
 	local scale = math.min(ww/game_size.x, wh/game_size.y)
 	local mid_canvas_prop = {}
@@ -69,14 +69,14 @@ function Canvas.create_main(canvases)
 end
 
 function Canvas:new_default(x, y, width, height, rotation, scale)
-	@@assert(type(x) == "number")
-	@@assert(type(y) == "number")
-	@@assert(type(width) == "number")
-	@@assert(type(height) == "number")
-	@@assert(type(rotation) == "number")
-	@@assert(type(scale) == "number")
+	ASSERT(type(x) == "number")
+	ASSERT(type(y) == "number")
+	ASSERT(type(width) == "number")
+	ASSERT(type(height) == "number")
+	ASSERT(type(rotation) == "number")
+	ASSERT(type(scale) == "number")
 	self.canvas = love.graphics.newCanvas(width, height)
-	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
+	self.canvas:setFilter("nearest", "nearest")
 	self.x, self.y = x, y
 	self.width, self.height = width, height
 	self.rotation = rotation
@@ -85,7 +85,7 @@ function Canvas:new_default(x, y, width, height, rotation, scale)
 end
 
 function Canvas:new_from_table(tbl)
-	@@assert(type(tbl) == "table")
+	ASSERT(type(tbl) == "table")
 	self.x = tbl.x
 	self.y = tbl.y
 	self.width = tbl.width
@@ -93,14 +93,14 @@ function Canvas:new_from_table(tbl)
 	self.rotation = tbl.rotation
 	self.scale = tbl.scale or 1
 	self.canvas = love.graphics.newCanvas(self.width, self.height)
-	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
+	self.canvas:setFilter("nearest", "nearest")
 	return self
 end
 
 function Canvas:new_from_canvas(source)
-	@@assert(source:type() == "CustomCanvas")
+	ASSERT(source:type() == "CustomCanvas")
 	self.canvas = love.graphics.newCanvas(source.width, source.height)
-	self.canvas:setFilter($_CANVAS_FILTER, $_CANVAS_FILTER)
+	self.canvas:setFilter("nearest", "nearest")
 	self.x, self.y = source.x, source.y
 	self.width, self.height = source.width, source.height
 	self.rotation = source.rotation
@@ -109,12 +109,12 @@ function Canvas:new_from_canvas(source)
 end
 
 function Canvas:new(x, y, width, height, rotation, scale)
-	@@assert(type(x) == "number" or type(x) == "table")
-	@@sassert(y, type(y) == "number")
-	@@sassert(width, type(width) == "number")
-	@@sassert(height, type(height) == "number")
-	@@sassert(rotation, type(rotation) == "number")
-	@@sassert(scale, type(scale) == "number")
+	ASSERT(type(x) == "number" or type(x) == "table")
+	SASSERT(y, type(y) == "number")
+	SASSERT(width, type(width) == "number")
+	SASSERT(height, type(height) == "number")
+	SASSERT(rotation, type(rotation) == "number")
+	SASSERT(scale, type(scale) == "number")
 	if type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			self:new_from_canvas(x)
@@ -127,12 +127,12 @@ function Canvas:new(x, y, width, height, rotation, scale)
 end
 
 function Canvas:set(x, y, width, height, rotation, scale)
-	@@assert(type(x) == "number")
-	@@assert(type(y) == "number")
-	@@assert(type(width) == "number")
-	@@assert(type(height) == "number")
-	@@sassert(rotation, type(rotation) == "number")
-	@@sassert(scale, type(scale) == "number")
+	ASSERT(type(x) == "number")
+	ASSERT(type(y) == "number")
+	ASSERT(type(width) == "number")
+	ASSERT(type(height) == "number")
+	SASSERT(rotation, type(rotation) == "number")
+	SASSERT(scale, type(scale) == "number")
 	local _x, _y, _w, _h, _rotation, _scale
 
 	if type(x) == "number" then
@@ -145,7 +145,6 @@ function Canvas:set(x, y, width, height, rotation, scale)
 	elseif type(x) == "table" then
 		if x.type and x:type() == "Canvas" then
 			local c = x
-
 			_x = c.x
 			_y = c.y
 			_w = c.width
@@ -154,7 +153,6 @@ function Canvas:set(x, y, width, height, rotation, scale)
 			_scale = c.scale
 		else
 			local tbl = x
-
 			_x = tbl.x
 			_y = tbl.y
 			_w = tbl.width

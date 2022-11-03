@@ -59,7 +59,7 @@ end
 function Utils.math.lerp_range(range, t)
 	ASSERT((type(range) == "table") and range.min and range.max)
 	ASSERT(type(t) == "number")
-	return Batteries.mathx.lerp(range.min, range.max, t)
+	return mathx.lerp(range.min, range.max, t)
 end
 
 return Utils

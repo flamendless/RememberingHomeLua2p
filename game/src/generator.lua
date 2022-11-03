@@ -1,9 +1,20 @@
 local Generator = {}
 
+function Generator.generate_noise_image(w, h)
+	ASSERT(type(w) == "number")
+	ASSERT(type(h) == "number")
+	local data = love.image.newImageData(w, h)
+	data:mapPixel(function(x, y)
+		local n = love.math.noise(x, y)
+		return n, n, n, 1
+	end)
+	return data
+end
+
 function Generator.path_points_fireflies(x, y, n)
-	@@assert(type(x) == "number")
-	@@assert(type(y) == "number")
-	@@assert(type(n) == "number")
+	ASSERT(type(x) == "number")
+	ASSERT(type(y) == "number")
+	ASSERT(type(n) == "number")
 	local offset = 8
 	local points = {x = x, y = y}
 	local prev_x = x
@@ -21,11 +32,11 @@ function Generator.path_points_fireflies(x, y, n)
 end
 
 function Generator.path_points_ants(x, y, ex, ey, n)
-	@@assert(type(x) == "number")
-	@@assert(type(y) == "number")
-	@@assert(type(ex) == "number")
-	@@assert(type(ey) == "number")
-	@@assert(type(n) == "number")
+	ASSERT(type(x) == "number")
+	ASSERT(type(y) == "number")
+	ASSERT(type(ex) == "number")
+	ASSERT(type(ey) == "number")
+	ASSERT(type(n) == "number")
 	local points = {}
 	local dx = 1
 	local dy = (y <= ey) and -1 or 1
@@ -48,8 +59,8 @@ function Generator.path_points_ants(x, y, ex, ey, n)
 end
 
 function Generator.path_points_flies(x, y)
-	@@assert(type(x) == "number")
-	@@assert(type(y) == "number")
+	ASSERT(type(x) == "number")
+	ASSERT(type(y) == "number")
 	local minx, maxx = 8, 16
 	local miny, maxy = 6, 12
 

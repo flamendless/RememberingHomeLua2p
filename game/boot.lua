@@ -4,6 +4,7 @@ PROF = false
 GAME_VERSION = "0.1.0"
 WINDOW_WIDTH = 1024
 WINDOW_HEIGHT = 640
+GAME_BASE_SIZE = {x = 128, y = 32}
 
 local args = love.arg.parseGameArguments(arg)
 for _, v in pairs(args) do
@@ -31,8 +32,15 @@ end
 UTF8 = require("utf8")
 
 require("modules.sdf").mount()
-Batteries = require("modules.batteries")
+local Batteries = require("modules.batteries")
+mathx = Batteries.mathx
+pretty = Batteries.pretty
+stringx = Batteries.stringx
+tablex = Batteries.tablex
+vec2 = Batteries.vec2
+
 Bitser = require("modules.bitser.bitser")
+Concord = require("modules.concord.concord")
 Cron = require("modules.cron.cron")
 Enum = require("modules.enum.enum")
 --TODO replace
@@ -45,19 +53,25 @@ Tle = require("modules.tle.timeline")
 
 --LOAD SOURCES
 Audio = require("src.audio")
-Config = require("src.config")
+Cache = require("src.cache")
+Ecs = require("src.ecs")
 Enums = require("src.enums")
 ErrorHandler = require("src.error_handler")
 love.errhand = ErrorHandler.callback
 GameStates = require("src.gamestates")
+Generator = require("src.generator")
 SystemInfo = require("src.system_info")
 Inputs = require("src.inputs")
+Items = require("src.items")
 LoadingScreen = require("src.loading_screen")
+Notes = require("src.notes")
 Preloader = require("src.preloader")
+Resources = require("src.resources")
 Save = require("src.save")
 Settings = require("src.settings")
 Shaders = require("src.shaders")
 Shaders.load_shaders()
+UIWrapper = require("src.ui_wrapper")
 Utils = require("src.utils")
 
 if DEV then

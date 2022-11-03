@@ -1,15 +1,11 @@
-local Log = require("modules.log.log")
-
 local Cache = {
 	entities = {},
 	calculated = {},
-	!if _CACHED_PRELOAD then
 	resources = {},
-	!end
 }
 
 function Cache.add_entity(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	local id = e.id.value
 	Cache.entities[id] = e
 	Log.info(id, "added to cache")
@@ -20,12 +16,12 @@ function Cache.has_entity(e)
 end
 
 function Cache.get_entity(id)
-	@@assert(type(id) == "string")
+	ASSERT(type(id) == "string")
 	return Cache.entities[id]
 end
 
 function Cache.remove_entity(e)
-	@@assert(e.__isEntity)
+	ASSERT(e.__isEntity)
 	local id = e.id.value
 	if Cache.entities[id] then
 		Cache.entities[id] = nil
@@ -34,39 +30,39 @@ function Cache.remove_entity(e)
 end
 
 function Cache.get(t_id, id)
-	@@assert(type(t_id) == "string")
-	@@assert(type(id) == "string")
-	@@assert(Cache[t_id], t_id .. " is not valid")
+	ASSERT(type(t_id) == "string")
+	ASSERT(type(id) == "string")
+	ASSERT(Cache[t_id], t_id .. " is not valid")
 	return Cache[t_id][id]
 end
 
-function Cache.store(t_id, id, v)
-	@@assert(type(t_id) == "string")
-	@@assert(type(id) == "string")
-	@@assert(v ~= nil)
-	Cache[t_id][id] = v
+function Cache.store(t_id, id, ref)
+	ASSERT(type(t_id) == "string")
+	ASSERT(type(id) == "string")
+	ASSERT(ref ~= nil)
+	Cache[t_id][id] = ref
 end
 
-!if _CACHED_PRELOAD then
 function Cache.has_resource(id)
+	ASSERT(type(id) == "string")
 	return Cache.resources[id] ~= nil
 end
 
 function Cache.clean_resources()
 	tablex.clear(Cache.resources)
-	@@assert(#Cache.resources == 0)
+	ASSERT(#Cache.resources == 0)
 end
 
 function Cache.manage_resources(resources, list, prev_res)
-	@@assert(type(resources) == "table")
-	@@assert(type(list) == "table")
-	@@assert(type(prev_res) == "table")
+	ASSERT(type(resources) == "table")
+	ASSERT(type(list) == "table")
+	ASSERT(type(prev_res) == "table")
 	for kind, t in pairs(list) do
 		local res = prev_res[kind]
 		if res then
-			!if _DEV then
-			setmetatable(res, nil)
-			!end
+			if DEV then
+				setmetatable(res, nil)
+			end
 			for i = #t, 1, -1 do
 				local id = t[i][1]
 				if res[id] then
@@ -78,6 +74,5 @@ function Cache.manage_resources(resources, list, prev_res)
 		end
 	end
 end
-!end
 
 return Cache

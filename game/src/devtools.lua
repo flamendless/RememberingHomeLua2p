@@ -1,6 +1,4 @@
-if not _DEV then
-	return {}
-end
+if not DEV then return {} end
 
 local DevTools = {
 	show = false,
@@ -77,6 +75,8 @@ local cols = 2
 local font_overlay = love.graphics.newFont("res/fonts/Jamboree.ttf", 32)
 font_overlay:setFilter("nearest", "nearest")
 
+local TBL_MAIN = {Title = "DevTools"}
+
 function DevTools.init()
 	Slab.Initialize({"NoDocks"})
 end
@@ -85,10 +85,10 @@ local color_white = {1, 1, 1, 1}
 function DevTools.update(dt)
 	if not DevTools.show then return end
 	if not GameStates.world then return end
-	@@profb("devtools_update")
+	-- @@profb("devtools_update")
 	Slab.Update(dt)
 
-	Slab.BeginWindow("list", {Title = "DevTools"})
+	Slab.BeginWindow("list", TBL_MAIN)
 	if DevTools.pp_effects then
 		for _, effect in ipairs(DevTools.pp_effects) do
 			if Slab.CheckBox(effect.is_active, effect:type()) then
@@ -124,14 +124,14 @@ function DevTools.update(dt)
 	DevTools.draw_component_list()
 	DevTools.draw_debug_list()
 	GameStates.world:emit("debug_update", dt)
-	@@profe("devtools_update")
+	-- @@profe("devtools_update")
 end
 
 function DevTools.draw()
 	if not DevTools.show then return end
 	if not GameStates.world then return end
 
-	@@profb("devtools_draw")
+	-- @@profb("devtools_draw")
 	love.graphics.setFont(font)
 	if DevTools.camera then
 		DevTools.camera:attach()
@@ -163,7 +163,7 @@ function DevTools.draw()
 			stats.stats = Slab.CalculateStats(stats.stats)
 		end
 	end
-	@@profe("devtools_draw")
+	-- @@profe("devtools_draw")
 end
 
 function DevTools.draw_stats()

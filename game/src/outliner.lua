@@ -48,11 +48,7 @@ outliner:draw(size, img, ...)
 --]==========================================================================]--
 
 local aux = {0, 0, 0, 0}
-!if _GLSL_NORMALS then
-local lgdraw = love.graphics.drawLayer
-!else
 local lgdraw = love.graphics.draw
-!end
 local lgsetShader = love.graphics.setShader
 
 local function outline(self, r, g, b)
@@ -86,86 +82,13 @@ local function draw(self, size, img, ...)
   aux[3], aux[4] = nil, nil
   self.shader:send("stepSize", aux)
   lgsetShader(self.shader)
-  !if _GLSL_NORMALS then
-  lgdraw(img, 1, ...)
-  !else
   lgdraw(img, ...)
-  !end
   lgsetShader()
 end
 
 
-!if _GLSL_NORMALS then
 local function new_outliner(outline_only)
-  local shader = [[
-
-// This parameter affects the roundness. 0.75 is close to the Euclidean
-// correct value. If it's 0.0, the shape of the "brush" making the outline
-// will be a diamond; if it's 1.0, it will be a square.
-const float t = 0.0;
-
-extern vec3 outline; // Outline R,G,B
-extern vec2 stepSize; // Distance parameter
-extern vec4 quad;
-
-const vec4 zero = vec4(0.,0.,0.,0.);
-vec2 q1 = quad.xy;
-vec2 q2 = quad.xy + quad.zw;
-
-uniform ArrayImage MainTex;
-void effect()
-{
-  // get color of pixels:
-  vec2 tc = VaryingTexCoord.xy;
-  float alpha = -20.0 * Texel(MainTex, vec3(clamp(tc, q1, q2), VaryingTexCoord.z)).a;
-  vec2 aux = vec2(stepSize.x, 0.);
-  alpha += Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
-  alpha += Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
-  aux = vec2(0., stepSize.y);
-  alpha += Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
-  alpha += Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
-
-  if (t != 0.0)
-  {
-    aux = stepSize;
-    alpha += t * Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
-    alpha += t * Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
-    aux = vec2(-stepSize.x, stepSize.y);
-    alpha += t * Texel(MainTex, vec3(clamp(tc + aux, q1, q2), VaryingTexCoord.z)).a;
-    alpha += t * Texel(MainTex, vec3(clamp(tc - aux, q1, q2), VaryingTexCoord.z)).a;
-  }
-
-@calc_result@
-  love_PixelColor = result;
-}
-  ]]
-
-
-  if outline_only then
-    shader = shader:gsub("@calc_result@", [[
-  vec4 result = vec4(outline, alpha);
-]])
-  else
-    shader = shader:gsub("@calc_result@", [[
-  vec4 result =
-      max(max(sign(alpha), 0.) * vec4( outline, alpha ), zero)
-    - min(min(sign(alpha), 0.) * Texel(MainTex, tc), zero);
-]])
-  end
-  shader = love.graphics.newShader(shader)
-
-
-  local result = {
-    shader = shader;
-    draw = draw;
-    outline = outline;
-  }
-  result:outline(0, 1, 0) -- define some starting value
-  return result
-end
-!else
-local function new_outliner(outline_only)
-  local shader = [[
+  local str_shader = [[
 
 // This parameter affects the roundness. 0.75 is close to the Euclidean
 // correct value. If it's 0.0, the shape of the "brush" making the outline
@@ -209,17 +132,17 @@ vec4 effect( vec4 col, Image texture, vec2 texturePos, vec2 screenPos )
 
 
   if outline_only then
-    shader = shader:gsub("@calc_result@", [[
+    str_shader = str_shader:gsub("@calc_result@", [[
   vec4 result = vec4(outline, alpha);
 ]])
   else
-    shader = shader:gsub("@calc_result@", [[
+    str_shader = str_shader:gsub("@calc_result@", [[
   vec4 result =
       max(max(sign(alpha), 0.) * vec4( outline, alpha ), zero)
     - min(min(sign(alpha), 0.) * texture2D(texture, texturePos), zero);
 ]])
   end
-  shader = love.graphics.newShader(shader)
+  shader = love.graphics.newShader(str_shader)
 
 
   local result = {
@@ -230,6 +153,5 @@ vec4 effect( vec4 col, Image texture, vec2 texturePos, vec2 screenPos )
   result:outline(0, 1, 0) -- define some starting value
   return result
 end
-!end
 
 return new_outliner

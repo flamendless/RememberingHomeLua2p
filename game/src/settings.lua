@@ -18,7 +18,7 @@ local defaults = {
 }
 
 local Settings = {
-	current = Batteries.tablex.copy(defaults),
+	current = tablex.copy(defaults),
 	available_graphics_quality = {"low", "high"},
 }
 
@@ -33,14 +33,14 @@ function Settings.init()
 	local content, exists = Utils.serial.read(FILENAME)
 	if exists then
 		Settings.current = content
-		Batteries.pretty.print(Settings.current)
+		pretty.print(Settings.current)
 	else
 		Settings.create_new()
 	end
 end
 
 function Settings.create_new()
-	Settings.current = Batteries.tablex.copy(defaults)
+	Settings.current = tablex.copy(defaults)
 	local gl_version = string.sub(SystemInfo.data.renderer.version, 1, 3)
 	if gl_version == "2.1" then
 		Settings.current.gfx_quality = Enums.gfx_quality.low

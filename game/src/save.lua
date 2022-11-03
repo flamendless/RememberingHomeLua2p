@@ -39,7 +39,7 @@ function Save.init()
 	end
 
 	Save.exists = exists
-	Log.info("Save Data:", Batteries.pretty.string(Save.data))
+	Log.info("Save Data:", pretty.string(Save.data))
 end
 
 function Save.save()

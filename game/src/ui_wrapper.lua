@@ -1,5 +1,4 @@
-!if _DEV then
-local Slab = require("modules.slab")
+if not DEV then return {} end
 
 local UIWrapper = {}
 
@@ -40,6 +39,3 @@ function UIWrapper.edit_range(id, value, min, max, is_int)
 end
 
 return UIWrapper
-!else
-return {}
-!end

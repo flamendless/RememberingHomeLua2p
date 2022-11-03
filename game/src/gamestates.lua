@@ -1,11 +1,3 @@
-local Concord = require("modules.concord.concord")
-local Log = require("modules.log.log")
-
-local Cache = require("cache")
-local ECS = require("ecs")
-local Preloader = require("preloader")
-local Resources = require("resources")
-
 local GameStates = {
 	type_id = "GameStates",
 	is_ready = false,
@@ -24,13 +16,8 @@ function GameStates.preload()
 		fonts = {},
 	}
 	local list = Resources.get_meta(GameStates.current_id)
-	!if _CACHED_PRELOAD then
 	Cache.manage_resources(resources, list, Resources.data)
-	!end
 	Resources.clean()
-	!if _CACHED_PRELOAD and _GLSL_NORMALS then
-	Resources.copy_array_images(resources)
-	!end
 	Log.info("Preloading: " .. GameStates.current_id)
 	Preloader.start(list, resources, function()
 		GameStates.start(resources)
@@ -38,32 +25,32 @@ function GameStates.preload()
 end
 
 function GameStates.start(resources)
-	@@profb("gs_start")
+	-- @@profb("gs_start")
 	Resources.set_resources(resources)
 	GameStates.is_ready = true
 	GameStates.world = Concord.world()
 	GameStates.world.current_id = GameStates.current_id
-	ECS.load_systems(GameStates.current_id, GameStates.world, GameStates.prev_id)
+	Ecs.load_systems(GameStates.current_id, GameStates.world, GameStates.prev_id)
 
-	@@profb("state_setup")
+	-- @@profb("state_setup")
 	GameStates.world:emit("state_setup")
-	@@profe("state_setup")
+	-- @@profe("state_setup")
 
-	@@profb("state_init")
+	-- @@profb("state_init")
 	GameStates.world:emit("state_init")
-	@@profe("state_init")
+	-- @@profe("state_init")
 
-	!if _DEV then
-	local sc = ECS.get_state_class(GameStates.current_id)
-	local DevTools = require("devtools")
-	DevTools.camera = GameStates.world:getSystem(sc).camera
-	!end
-	@@profe("gs_start")
+	if DEV then
+		local sc = Ecs.get_state_class(GameStates.current_id)
+		local DevTools = require("devtools")
+		DevTools.camera = GameStates.world:getSystem(sc).camera
+	end
+	-- @@profe("gs_start")
 end
 
 function GameStates.switch(next_id)
-	@@assert(type(next_id) == "string")
-	@@profb("gs_switch")
+	ASSERT(type(next_id) == "string")
+	-- @@profb("gs_switch")
 
 	GameStates.is_ready = false
 	if GameStates.world then
@@ -74,10 +61,10 @@ function GameStates.switch(next_id)
 
 	Log.info("Switching to:", next_id)
 	GameStates.current_id = next_id
-	@@profb("preload")
+	-- @@profb("preload")
 	GameStates.preload()
-	@@profe("preload")
-	@@profe("gs_switch")
+	-- @@profe("preload")
+	-- @@profe("gs_switch")
 end
 
 function GameStates.switch_to_previous()
@@ -104,22 +91,22 @@ function GameStates.keyreleased(key)
 	GameStates.world:emit("state_keyreleased", key)
 end
 
-!if _DEV then
-function GameStates.mousemoved(mx, my, dx, dy)
-	if not GameStates.is_ready then return end
-	GameStates.world:emit("state_mousemoved", mx, my, dx, dy)
-end
+if DEV then
+	function GameStates.mousemoved(mx, my, dx, dy)
+		if not GameStates.is_ready then return end
+		GameStates.world:emit("state_mousemoved", mx, my, dx, dy)
+	end
 
-function GameStates.mousepressed(mx, my, mb)
-	if not GameStates.is_ready then return end
-	GameStates.world:emit("state_mousepressed", mx, my, mb)
-end
+	function GameStates.mousepressed(mx, my, mb)
+		if not GameStates.is_ready then return end
+		GameStates.world:emit("state_mousepressed", mx, my, mb)
+	end
 
-function GameStates.mousereleased(mx, my, mb)
-	if not GameStates.is_ready then return end
-	GameStates.world:emit("state_mousereleased", mx, my, mb)
+	function GameStates.mousereleased(mx, my, mb)
+		if not GameStates.is_ready then return end
+		GameStates.world:emit("state_mousereleased", mx, my, mb)
+	end
 end
-!end
 
 function GameStates.exit()
 	GameStates.world:emit("cleanup")

@@ -1,27 +1,36 @@
+local bit = require("bit")
+local band = bit.band
+local rshift = bit.rshift
+
 local Palette = {}
 
--- TODO finalize colors
+local function hex_to_rgb(hex)
+	local r = rshift(band(hex, 0x00ff0000), 16) / 255.0
+	local g = rshift(band(hex, 0x0000ff00), 8)  / 255.0
+	local b = rshift(band(hex, 0x000000ff), 0)  / 255.0
+	return string.format("{%f, %f, %f}", r, g, b)
+end
 
 Palette.colors = {
 	white = {1, 1, 1},
 	red = {1, 0, 0},
 	camera_clip = {0, 0, 0},
-	red_desaturated = @@hex_to_rgb(0x73160f),
+	red_desaturated = hex_to_rgb(0x73160f),
 
-	menu_text = @@hex_to_rgb(0xffffff),
-	menu_select = @@hex_to_rgb(0x73160f),
-	menu_disabled = @@hex_to_rgb(0x4C4C4C),
+	menu_text = hex_to_rgb(0xffffff),
+	menu_select = hex_to_rgb(0x73160f),
+	menu_disabled = hex_to_rgb(0x4C4C4C),
 
-	about_normal = @@hex_to_rgb(0xffffff),
-	about_hint = @@hex_to_rgb(0xff1744),
+	about_normal = hex_to_rgb(0xffffff),
+	about_hint = hex_to_rgb(0xff1744),
 
 	ui_show_key_text = {1, 1, 1},
 	ui_key = {0.121568627, 0.078431373, 0.207843137},
 	ui_hold_progress = {0.988235294, 0.988235294, 0.925490196},
 	ui_feedback = {0.380392, 0.878431, 0.635294},
-	ui_not_hovered = @@hex_to_rgb(0xccc9da),
-	ui_hovered = @@hex_to_rgb(0xffffff),
-	ui_dialogue = @@hex_to_rgb(0xffffff),
+	ui_not_hovered = hex_to_rgb(0xccc9da),
+	ui_hovered = hex_to_rgb(0xffffff),
+	ui_dialogue = hex_to_rgb(0xffffff),
 	hovered_choice = {1, 0, 0},
 
 	outline = {1, 1, 1},
@@ -31,11 +40,11 @@ Palette.colors = {
 	note_on_hovered = {1, 0, 0},
 }
 
-!if _DEV then
-for k, v in pairs(Palette.colors) do
-	@@assert(v[4] == nil, k .. " must have no alpha set")
+if DEV then
+	for k, v in pairs(Palette.colors) do
+		ASSERT(v[4] == nil, k .. " must have no alpha set")
+	end
 end
-!end
 
 Palette.diffuse = {
 	--intro
@@ -67,17 +76,17 @@ Palette.diffuse = {
 }
 
 function Palette.get(color, alpha)
-	@@assert(type(color) == "string")
-	@@assert(Palette.colors[color])
-	@@sassert(alpha, type(alpha) == "number")
+	ASSERT(type(color) == "string")
+	ASSERT(Palette.colors[color])
+	SASSERT(alpha, type(alpha) == "number")
 	local c = Palette.colors[color]
-	local a = alpha or c[4] or 1
+	local a = alpha or 1
 	return {c[1], c[2], c[3], a}
 end
 
 function Palette.get_diffuse(color)
-	@@assert(type(color) == "string")
-	@@assert(Palette.diffuse[color])
+	ASSERT(type(color) == "string")
+	ASSERT(Palette.diffuse[color])
 	return {unpack(Palette.diffuse[color])}
 end
 

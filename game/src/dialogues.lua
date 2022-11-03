@@ -3,15 +3,15 @@ local Dialogues = {}
 local DialoguesList = require("data.dialogues")
 
 function Dialogues.get(main, sub)
-	@@assert(#main ~= 0 and type(main) == "string")
-	@@assert(#sub ~= 0 and type(sub) == "string")
-	@@assert(DialoguesList[main], "there is no " .. main .. " in dialogue table")
-	@@assert(DialoguesList[main][sub], "there is no " .. sub .. " in dialogue table")
+	ASSERT(#main ~= 0 and type(main) == "string")
+	ASSERT(#sub ~= 0 and type(sub) == "string")
+	ASSERT(DialoguesList[main], "there is no " .. main .. " in dialogue table")
+	ASSERT(DialoguesList[main][sub], "there is no " .. sub .. " in dialogue table")
 	return tablex.copy(DialoguesList[main][sub])
 end
 
 function Dialogues.check_signal(str)
-	@@assert(type(str) == "string")
+	ASSERT(type(str) == "string")
 	local bool = stringx.starts_with(str, "_")
 	if not bool then
 		return false, "", true
@@ -28,7 +28,7 @@ function Dialogues.check_signal(str)
 end
 
 function Dialogues.validate(dialogue_t)
-	@@assert(type(dialogue_t) == "table")
+	ASSERT(type(dialogue_t) == "table")
 	if #dialogue_t == 0 then return true end
 	local bool = Dialogues.check_signal(dialogue_t[1])
 	if bool and #dialogue_t == 1 and dialogue_t.choices == nil then

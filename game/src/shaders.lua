@@ -16,18 +16,13 @@ Shaders.paths = {
 	ngrading_volume = "shaders/ngrading_volume.glsl",
 	ngrading_volume_multi = "shaders/ngrading_volume_multi.glsl",
 	ngrading_effect = [[
-	vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
-	{
-		return ngrading(tex, tc) * color;
-	}
+		vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
+		{
+			return ngrading(tex, tc) * color;
+		}
 	]],
 
-	!if _GLSL_NORMALS then
-	df_geometry = "shaders/geometry_pass.glsl",
-	df_lighting = "shaders/lighting_pass.glsl",
-	!else
 	df_lighting = "shaders/lighting_pass_basic.glsl",
-	!end
 }
 
 function Shaders.init()
