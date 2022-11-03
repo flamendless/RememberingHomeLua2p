@@ -109,6 +109,7 @@ if DEV then
 end
 
 function GameStates.exit()
+	Timer.clear()
 	GameStates.world:emit("cleanup")
 	GameStates.world:clear()
 	for _, e in ipairs(GameStates.world:getEntities()) do

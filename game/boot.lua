@@ -37,6 +37,8 @@ end
 UTF8 = require("utf8")
 
 require("modules.sdf").mount()
+
+Anim8 = require("modules.anim8.anim8")
 local Batteries = require("modules.batteries")
 mathx = Batteries.mathx
 pretty = Batteries.pretty
@@ -78,6 +80,7 @@ Save = require("src.save")
 Settings = require("src.settings")
 Shaders = require("src.shaders")
 Shaders.load_shaders()
+Timer = require("src.timer")
 UIWrapper = require("src.ui_wrapper")
 Utils = require("src.utils")
 

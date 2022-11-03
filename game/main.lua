@@ -51,6 +51,7 @@ function love.update(dt)
 		return
 	end
 
+	Timer.update(dt)
 	Flux.update(dt)
 	GameStates.update(dt)
 	Inputs.update()
