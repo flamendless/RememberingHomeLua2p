@@ -6,6 +6,11 @@ WINDOW_WIDTH = 1024
 WINDOW_HEIGHT = 640
 GAME_BASE_SIZE = {x = 128, y = 32}
 
+HALF_PI = math.pi * 0.5
+TWO_PI = math.pi * 2
+T_H_PI = 3 * _HALF_PI
+-- RA = {math.cos(math.pi/32), math.sin(math.pi/32)}
+
 local args = love.arg.parseGameArguments(arg)
 for _, v in pairs(args) do
 	if v == "dev" then
@@ -45,6 +50,7 @@ Cron = require("modules.cron.cron")
 Enum = require("modules.enum.enum")
 --TODO replace
 Flux = require("modules.flux.flux")
+Gamera = require("modules.gamera.gamera")
 Lily = require("modules.lily.lily")
 Log = require("modules.log.log")
 Log.lovesave = true
@@ -54,6 +60,7 @@ Tle = require("modules.tle.timeline")
 --LOAD SOURCES
 Audio = require("src.audio")
 Cache = require("src.cache")
+Dialogues = require("src.dialogues")
 Ecs = require("src.ecs")
 Enums = require("src.enums")
 ErrorHandler = require("src.error_handler")
