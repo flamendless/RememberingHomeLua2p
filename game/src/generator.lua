@@ -16,53 +16,43 @@ function Generator.path_points_fireflies(x, y, n)
 	ASSERT(type(y) == "number")
 	ASSERT(type(n) == "number")
 	local offset = 8
-	local points = {x = x, y = y}
-	local prev_x = x
-	local prev_y = y
+	local points = {vec2(x, y)}
+	local prev_pos = vec2(x, y)
 
 	for _ = 1, n - 1 do
-		local px = love.math.random(prev_x - offset, prev_x + offset)
-		local py = love.math.random(prev_y - offset, prev_y + offset)
-		local p = {x = px, y = py}
-		prev_x = px
-		prev_y = py
+		local px = love.math.random(prev_pos.x - offset, prev_pos.x + offset)
+		local py = love.math.random(prev_pos.y - offset, prev_pos.y + offset)
+		local p = vec2(px, py)
+		prev_pos = p:copy()
 		table.insert(points, p)
 	end
 	return points
 end
 
-function Generator.path_points_ants(x, y, ex, ey, n)
-	ASSERT(type(x) == "number")
-	ASSERT(type(y) == "number")
-	ASSERT(type(ex) == "number")
-	ASSERT(type(ey) == "number")
+function Generator.path_points_ants(start_pos, end_pos, n)
+	ASSERT(start_pos:type() == "vec2")
+	ASSERT(end_pos:type() == "vec2")
 	ASSERT(type(n) == "number")
 	local points = {}
-	local dx = 1
-	local dy = (y <= ey) and -1 or 1
+	local dir = vec2(1, (start_pos.y <= end_pos.y) and -1 or 1)
 	local offset = 2
 
 	for i = 0, n - 1 do
 		local t = i/n
 		local ox = love.math.random(-offset, offset)
 		local oy = love.math.random(-offset, offset)
-		local px = mathx.lerp(x, ex, t)
-		local py = mathx.lerp(y, ey, t)
-
-		px = px + ox * dx
-		py = py + oy * dy
-		dx = dx * -1
-		dy = dy * -1
-		table.insert(points, {x = px, y = py})
+		local delta_pos = start_pos:copy():lerp_inplace(end_pos, t)
+		delta_pos:sadd_inplace(ox, oy):vmul_inplace(dir)
+		dir:smul_inplace(-1)
+		table.insert(points, delta_pos)
 	end
 	return points
 end
 
-function Generator.path_points_flies(x, y)
-	ASSERT(type(x) == "number")
-	ASSERT(type(y) == "number")
-	local minx, maxx = 8, 16
-	local miny, maxy = 6, 12
+function Generator.path_points_flies(pos)
+	ASSERT(pos:type() == "vec2")
+	local min = vec2(8, 16)
+	local max = vec2(6, 12)
 
 	--[[
 	  b  c  d
@@ -70,12 +60,12 @@ function Generator.path_points_flies(x, y)
 	  h  g  f
 	--]]
 
-	local hx = love.math.random(minx, maxx)
+	local hx = love.math.random(min.x, max.x)
 	local hx_h = hx * 0.5
-	local hy = love.math.random(miny, maxy)
+	local hy = love.math.random(min.y, max.y)
 	local hy_h = hy * 0.75
 
-	local o = vec2(x, y)
+	local o = pos:copy()
 	local vecs = {
 		o:sadd(-hx, 0), --a
 		o:sadd(-hx_h, -hy_h), --b
@@ -92,7 +82,7 @@ function Generator.path_points_flies(x, y)
 	local r = love.math.random(math.pi/6, math.pi/4)
 	for _, v in ipairs(vecs) do
 		v:rotate_around_inplace(r, o)
-		table.insert(points, {x = v.x, y = v.y})
+		table.insert(points, vec2(v.x, v.y))
 	end
 	return points
 end

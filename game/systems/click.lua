@@ -1,10 +1,6 @@
-local Concord = require("modules.concord.concord")
-
-local Helper = require("helper")
-
 local Click = Concord.system({
-	pool = {$_C_BOUNDING_BOX, $_C_CLICKABLE, $_C_ON_CLICK},
-	pool_ui = {$_C_BOUNDING_BOX, $_C_CLICKABLE, $_C_ON_CLICK, $_C_UI_ELEMENT},
+	pool = {"bounding_box", "clickable", "on_click", "!ui_element"},
+	pool_ui = {"bounding_box", "clickable", "on_click", "ui_element"},
 })
 
 function Click:init(world)
@@ -15,13 +11,11 @@ function Click:mousepressed(mx, my, mb)
 	for _, e in ipairs(self.pool) do
 		if not e.hidden and not e.ui_element then
 			local on_click = e.on_click
-
 			if mb == on_click.mb then
 				local box = e.bounding_box
-				local bx, by = Helper.get_real_pos_box(e)
-				local bw, bh = box.w, box.h
-				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
-
+				local bpos = Utils.math.get_real_pos_box(e)
+				local bw, bh = box.size:unpack()
+				local result = Utils.math.check_point_rect(mx, my, bpos.x, bpos.y, bw, bh)
 				if result then
 					self.world:emit(on_click.signal, unpack(on_click.args))
 				end
@@ -34,13 +28,11 @@ function Click:mousepressed_ui(mx, my, mb)
 	for _, e in ipairs(self.pool_ui) do
 		if not e.hidden then
 			local on_click = e.on_click
-
 			if mb == on_click.mb then
 				local box = e.bounding_box
-				local bx, by = box.screen_pos:unpack()
-				local bw, bh = box.w, box.h
-				local result = Helper.check_point_rect(mx, my, bx, by, bw, bh)
-
+				local bpos = box.screen_pos:unpack()
+				local bw, bh = box.size:unpack()
+				local result = Utils.math.check_point_rect(mx, my, bpos.x, bpos.y, bw, bh)
 				if result then
 					self.world:emit(on_click.signal, unpack(on_click.args))
 				end

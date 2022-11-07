@@ -1,5 +1,5 @@
 Concord.component("pos", function(c, pos)
-	ASSERT(pos:type() == "vec2")
+	ASSERT(pos:type() == "vec2" or pos:type() == "vec3")
 	c.pos = pos
 	c.orig_pos = pos:copy()
 end)

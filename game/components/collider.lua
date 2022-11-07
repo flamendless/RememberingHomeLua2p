@@ -12,8 +12,7 @@ Concord.component("collider", function(c, size, filter)
 	ASSERT(size:type() == "vec2")
 	SASSERT(filter, type(filter) == "string")
 	c.size = size
-	c.w_h = size.x * 0.5
-	c.h_h = size.y * 0.5
+	c.half_size = c.size:smul(0.5)
 	c.is_hit = false
 	c.normal = vec2()
 	c.filter = filter
@@ -26,9 +25,9 @@ end)
 
 Concord.component("collider_circle", function(c, size, offset)
 	ASSERT(type(size) == "number")
-	ASSERT(offset:type() == "vec2")
+	SASSERT(offset, offset:type() == "vec2")
 	c.size = size
-	c.offset = offset
+	c.offset = offset or vec2()
 	c.is_hit = false
 end)
 

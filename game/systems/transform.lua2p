@@ -181,11 +181,11 @@ function Transform:update_anchor(e)
 		y = y + h
 	end
 
-	if anchor.padding_x then
-		x = x + anchor.padding_x
+	if anchor.pad_x then
+		x = x + anchor.pad_x
 	end
-	if anchor.padding_y then
-		y = y + anchor.padding_y
+	if anchor.pad_y then
+		y = y + anchor.pad_y
 	end
 
 	local pos = e.pos

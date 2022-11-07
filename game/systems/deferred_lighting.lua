@@ -1,51 +1,41 @@
-local Concord = require("modules.concord.concord")
-local Lume = require("modules.lume.lume")
-local Timer = require("modules.hump.timer")
-
-local Canvas = require("canvas")
-local Shaders = require("shaders")
-
 local DeferredLighting = Concord.system({
-	pool = {$_C_ID, $_C_POINT_LIGHT, $_C_POS, $_C_DIFFUSE},
+	pool = {"id", "point_light", "pos", "diffuse"},
 	pool_disabled = {
-		$_C_ID,
-		$_C_LIGHT_ID,
-		$_C_LIGHT_DISABLED,
-		$_C_POINT_LIGHT,
-		$_C_POS,
-		$_C_DIFFUSE
+		"id",
+		"light_id",
+		"light_disabled",
+		"point_light",
+		"pos",
+		"diffuse"
 	},
 	pool_fading = {
-		$_C_ID,
-		$_C_LIGHT_ID,
-		$_C_POINT_LIGHT,
-		$_C_POS,
-		$_C_DIFFUSE,
-		$_C_LIGHT_FADING
+		"id",
+		"light_id",
+		"point_light",
+		"pos",
+		"diffuse",
+		"light_fading"
 	},
 	pool_flicker = {
-		$_C_ID,
-		$_C_LIGHT_ID,
-		$_C_POINT_LIGHT,
-		$_C_POS,
-		$_C_DIFFUSE,
-		$_C_DLIGHT_FLICKER
+		"id",
+		"light_id",
+		"point_light",
+		"pos",
+		"diffuse",
+		"d_light_flicker"
 	},
 })
 
-local lvfp = {{"u_lpos", "float", 4}} -- pos.xyz, scale
-local lvft = {{"u_ldir", "float", 4}} -- dir.xyz, angle
-local lvfd = {{"u_diffuse", "float", 3}} -- color
-local RA = $_RA
+local LVFP = {{"u_lpos", "float", 4}} -- pos.xyz, scale
+local LVFT = {{"u_ldir", "float", 4}} -- dir.xyz, angle
+local LVFD = {{"u_diffuse", "float", 3}} -- color
+local RA = {math.cos(math.pi/32), math.sin(math.pi/32)}
 local MAX_LIGHTS = 96
 
 function DeferredLighting:init(world)
 	self.world = world
 	self.timer = Timer.new()
 
-	!if _GLSL_NORMALS then
-	self.geometry_pass = love.graphics.newShader(Shaders.paths.df_geometry)
-	!end
 	self.lighting_pass = love.graphics.newShader(Shaders.paths.df_lighting)
 	self.ambiance = {1, 1, 1, 1}
 	self.groups = {}
@@ -56,7 +46,7 @@ function DeferredLighting:init(world)
 	}
 
 	self.pool.onAdded = function(pool, e)
-		local pos = e.pos
+		local pos = e.pos.pos
 		local pl = e.point_light
 		local diffuse = e.diffuse
 		local ld = e.light_dir
@@ -67,7 +57,7 @@ function DeferredLighting:init(world)
 		if dir then
 			self.mesh.dir:setVertex(id, dir)
 		end
-		e:give($_C_LIGHT_ID, id)
+		e:give("light_id", id)
 
 		local group_id = e.light_group and e.light_group.value
 		if group_id then
@@ -78,16 +68,16 @@ function DeferredLighting:init(world)
 		end
 	end
 
-	self.pool_disabled.onAdded = function(pool, e)
+	self.pool_disabled.onAdded = function(_, e)
 		self.mesh.diffuse:setVertex(e.light_id.value, {0, 0, 0})
 	end
 
-	self.pool_disabled.onRemoved = function(pool, e)
+	self.pool_disabled.onRemoved = function(_, e)
 		local diffuse = e.diffuse
 		self.mesh.diffuse:setVertex(e.light_id.value, diffuse.value)
 	end
 
-	self.pool_flicker.onAdded = function(pool, e)
+	self.pool_flicker.onAdded = function(_, e)
 		self:start_flicker(e)
 	end
 end
@@ -101,6 +91,7 @@ function DeferredLighting:start_flicker(e)
 	local signal_after = e.on_d_light_flicker_after
 
 	self.timer:during(dlf.during, function()
+		--TODO replace with Batteries.tablex.xxxx
 		local c = Lume.weightedchoice({on = dlf.on_chance, off = dlf.off_chance})
 		if c == "on" then
 			diff.value[1] = orig_diff[1]
@@ -122,10 +113,10 @@ function DeferredLighting:start_flicker(e)
 		end
 		local on_repeat = e.d_light_flicker_repeat
 		if e.d_light_flicker_remove_after then
-			e:remove($_C_DLIGHT_FLICKER)
-			:remove($_C_DLIGHT_FLICKER_REMOVE_AFTER)
-			:remove($_C_ON_DLIGHT_FLICKER_DURING)
-			:remove($_C_ON_DLIGHT_FLICKER_AFTER)
+			e:remove("d_light_flicker")
+			:remove("d_light_flicker_remove_after")
+			:remove("on_d_light_flicker_during")
+			:remove("on_d_light_flicker_after")
 		elseif on_repeat then
 			on_repeat.count = on_repeat.count - 1
 			if e.d_light_flicker_sure_on_after then
@@ -146,19 +137,19 @@ function DeferredLighting:start_flicker(e)
 					self:start_flicker(e)
 				end
 			else
-				e:remove($_C_DLIGHT_FLICKER_REPEAT)
+				e:remove("d_light_flicker_repeat")
 			end
 		end
 	end)
 end
 
 function DeferredLighting:set_draw(id)
-	@@assert(type(id) == "string")
+	ASSERT(type(id) == "string")
 	self.ev_draw_main_id = id
 end
 
 function DeferredLighting:set_ambiance(t)
-	@@assert(type(t) == "table")
+	ASSERT(type(t) == "table")
 	if not self.orig_ambiance then
 		self.orig_ambiance = {unpack(t)}
 	end
@@ -178,9 +169,9 @@ function DeferredLighting:light_group_set_disable(group_id, is_d, e)
 	for _, other in ipairs(self.groups[group_id]) do
 		if e ~= other then
 			if is_d then
-				other:give($_C_LIGHT_DISABLED)
+				other:give("light_disabled")
 			else
-				other:remove($_C_LIGHT_DISABLED)
+				other:remove("light_disabled")
 			end
 		end
 	end
@@ -189,7 +180,7 @@ end
 function DeferredLighting:update_light_pos(e)
 	if e.light_disabled then return end
 	local pl = e.point_light
-	local pos = e.pos
+	local pos = e.pos.pos
 	self.mesh.pos:setVertex(e.light_id.value, {pos.x, pos.y, pos.z, pl.value})
 end
 
@@ -198,7 +189,7 @@ function DeferredLighting:update_light_radius_group(group_id, e)
 	for _, other in ipairs(self.groups[group_id]) do
 		local o_id = other.light_id.value
 		local o_pl = other.point_light
-		local o_pos = other.pos
+		local o_pos = other.pos.pos
 		if e ~= other then
 			o_pl.value = pl.value
 		end
@@ -207,10 +198,10 @@ function DeferredLighting:update_light_radius_group(group_id, e)
 end
 
 function DeferredLighting:update_light_pos_group(group_id, e, prop)
-	local pos = e.pos
+	local pos = e.pos.pos
 	for _, other in ipairs(self.groups[group_id]) do
 		local o_id = other.light_id.value
-		local o_pos = other.pos
+		local o_pos = other.pos.pos
 		local o_pl = other.point_light
 		if e ~= other then
 			o_pos[prop] = pos[prop]
@@ -262,7 +253,7 @@ function DeferredLighting:update_light_fading(dt)
 end
 
 function DeferredLighting:begin_deferred_lighting(camera, canvas)
-	@@profb("deferred_lighting")
+	-- @@profb("deferred_lighting")
 	camera:attach()
 		love.graphics.setCanvas(self.buffers[1].canvas, self.buffers[2].canvas)
 			love.graphics.clear()
@@ -276,9 +267,6 @@ function DeferredLighting:begin_deferred_lighting(camera, canvas)
 		love.graphics.setCanvas(canvas.canvas)
 			love.graphics.setShader(self.lighting_pass)
 			self.lighting_pass:send("u_cb", self.buffers[1].canvas)
-			!if _GLSL_NORMALS then
-			self.lighting_pass:send("u_nb", self.buffers[2].canvas)
-			!end
 				love.graphics.clear()
 				love.graphics.setBlendMode("add")
 				self.world:emit("draw_lights")
@@ -294,13 +282,13 @@ function DeferredLighting:end_deferred_lighting()
 		love.graphics.setBlendMode("alpha")
 		self.world:emit("draw_clip")
 	love.graphics.setCanvas() --unset canvas.canvas
-	@@profe("deferred_lighting")
+	-- @@profe("deferred_lighting")
 end
 
 function DeferredLighting:draw_lights()
-	@@profb("draw_lights")
+	-- @@profb("draw_lights")
 	love.graphics.drawInstanced(self.mesh.light, #self.pool)
-	@@profe("draw_lights")
+	-- @@profe("draw_lights")
 end
 
 function DeferredLighting:create_mesh_p()
@@ -314,9 +302,9 @@ function DeferredLighting:create_mesh_p()
 		}
 	end
 	local light = love.graphics.newMesh(v, nil, "static")
-	local m_position = love.graphics.newMesh(lvfp, MAX_LIGHTS)
-	local m_diffuse =  love.graphics.newMesh(lvfd, MAX_LIGHTS)
-	local m_direction = love.graphics.newMesh(lvft, MAX_LIGHTS)
+	local m_position = love.graphics.newMesh(LVFP, MAX_LIGHTS)
+	local m_diffuse =  love.graphics.newMesh(LVFD, MAX_LIGHTS)
+	local m_direction = love.graphics.newMesh(LVFT, MAX_LIGHTS)
 	light:attachAttribute("u_lpos", m_position, "perinstance")
 	light:attachAttribute("u_diffuse", m_diffuse, "perinstance")
 	light:attachAttribute("u_ldir", m_direction, "perinstance")
@@ -329,8 +317,8 @@ function DeferredLighting:create_mesh_p()
 end
 
 function DeferredLighting:flicker_sync(main, others)
-	@@assert(main.__isEntity)
-	@@assert(type(others) == "table")
+	ASSERT(main.__isEntity)
+	ASSERT(type(others) == "table")
 	local main_diff = main.diffuse.value
 	local is_off = main_diff[1] == 0
 	for _, e in ipairs(others) do
@@ -351,160 +339,157 @@ function DeferredLighting:cleanup()
 	self.timer:clear()
 end
 
-!if _DEV then
-local Slab = require("modules.slab")
-local UIWrapper = require("ui_wrapper")
+if DEV then
+	local flags = {
+		ambiance = true,
+		group = true,
+	}
+	local cache = {}
 
-local flags = {
-	ambiance = true,
-	group = true,
-}
-local cache = {}
-
-function DeferredLighting:debug_on_toggle()
-	if self.debug_show then
-		self:set_ambiance({0, 0, 0, 0})
-	else
-		self:set_ambiance(self.orig_ambiance)
-	end
-	flags.ambiance = not self.debug_show
-end
-
-function DeferredLighting:debug_update(dt)
-	if not self.debug_show then return end
-	self.debug_show = Slab.BeginWindow("light", {
-		Title = "DeferredLighting",
-		IsOpen = self.debug_show,
-	})
-	Slab.Text("Group")
-	Slab.SameLine()
-	if Slab.CheckBox(flags.group, "group") then
-		flags.group = not flags.group
-	end
-	Slab.SameLine()
-
-	local ac = self.ambiance
-	Slab.Text("Ambiance")
-	Slab.SameLine()
-	if Slab.CheckBox(flags.ambiance, "ambiance") then
-		flags.ambiance = not flags.ambiance
-		if not flags.ambiance then
+	function DeferredLighting:debug_on_toggle()
+		if self.debug_show then
 			self:set_ambiance({0, 0, 0, 0})
 		else
 			self:set_ambiance(self.orig_ambiance)
 		end
-	end
-	ac[1] = UIWrapper.edit_range("ar", ac[1], 0, 1)
-	ac[2] = UIWrapper.edit_range("ag", ac[2], 0, 1)
-	ac[3] = UIWrapper.edit_range("ab", ac[3], 0, 1)
-	ac[4] = UIWrapper.edit_range("aa", ac[4], 0, 1)
-
-	if Slab.Button("Disable All") then
-		for _, e in ipairs(self.pool) do e:give($_C_LIGHT_DISABLED) end
+		flags.ambiance = not self.debug_show
 	end
 
-	if Slab.Button("Enable All") then
-		for _, e in ipairs(self.pool) do e:remove($_C_LIGHT_DISABLED) end
-	end
+	function DeferredLighting:debug_update(dt)
+		if not self.debug_show then return end
+		self.debug_show = Slab.BeginWindow("light", {
+			Title = "DeferredLighting",
+			IsOpen = self.debug_show,
+		})
+		Slab.Text("Group")
+		Slab.SameLine()
+		if Slab.CheckBox(flags.group, "group") then
+			flags.group = not flags.group
+		end
+		Slab.SameLine()
 
-	if flags.group then
-		for k, v in pairs(self.groups) do
-			if Slab.BeginTree(k, {Title = k}) then
-				self:debug_edit(v, k)
-				Slab.EndTree()
+		local ac = self.ambiance
+		Slab.Text("Ambiance")
+		Slab.SameLine()
+		if Slab.CheckBox(flags.ambiance, "ambiance") then
+			flags.ambiance = not flags.ambiance
+			if not flags.ambiance then
+				self:set_ambiance({0, 0, 0, 0})
+			else
+				self:set_ambiance(self.orig_ambiance)
 			end
 		end
-	else
-		self:debug_edit(self.pool)
-	end
-	Slab.EndWindow()
-end
+		ac[1] = UIWrapper.edit_range("ar", ac[1], 0, 1)
+		ac[2] = UIWrapper.edit_range("ag", ac[2], 0, 1)
+		ac[3] = UIWrapper.edit_range("ab", ac[3], 0, 1)
+		ac[4] = UIWrapper.edit_range("aa", ac[4], 0, 1)
 
-function DeferredLighting:debug_edit(pool, group_id)
-	for i, e in ipairs(pool) do
-		if group_id and i ~= 1 then return end
-		local id = e.id.value
-		if Slab.BeginTree(id, {Title = id}) then
-			Slab.Indent()
-			local ld = e.light_disabled
-			if Slab.CheckBox(ld, "Disabled") then
-				local is_d
-				if ld then
-					e:remove($_C_LIGHT_DISABLED)
-					is_d = false
-				else
-					e:give($_C_LIGHT_DISABLED)
-					is_d = true
-				end
-				if group_id then
-					self:light_group_set_disable(group_id, is_d, e)
+		if Slab.Button("Disable All") then
+			for _, e in ipairs(self.pool) do e:give("light_disabled") end
+		end
+
+		if Slab.Button("Enable All") then
+			for _, e in ipairs(self.pool) do e:remove("light_disabled") end
+		end
+
+		if flags.group then
+			for k, v in pairs(self.groups) do
+				if Slab.BeginTree(k, {Title = k}) then
+					self:debug_edit(v, k)
+					Slab.EndTree()
 				end
 			end
+		else
+			self:debug_edit(self.pool)
+		end
+		Slab.EndWindow()
+	end
 
-			local flicker = e.d_light_flicker
-			if flicker then
-				if not cache[id] then
-					cache[id] = {flicker.during, flicker.on_chance, flicker.off_chance}
-				end
-				Slab.SameLine()
-				if Slab.CheckBox(flicker, "Flicker") then
-					if flicker then
-						e:remove($_C_DLIGHT_FLICKER)
+	function DeferredLighting:debug_edit(pool, group_id)
+		for i, e in ipairs(pool) do
+			if group_id and i ~= 1 then return end
+			local id = e.id.value
+			if Slab.BeginTree(id, {Title = id}) then
+				Slab.Indent()
+				local ld = e.light_disabled
+				if Slab.CheckBox(ld, "Disabled") then
+					local is_d
+					if ld then
+						e:remove("light_disabled")
+						is_d = false
 					else
-						e:give($_C_DLIGHT_FLICKER, unpack(cache[id]))
+						e:give("light_disabled")
+						is_d = true
+					end
+					if group_id then
+						self:light_group_set_disable(group_id, is_d, e)
 					end
 				end
-			end
 
-			local pos = e.pos
-			local pl = e.point_light
-			local diffuse = e.diffuse.value
-			local dir = e.light_dir and e.light_dir.value
-			local b_x, b_y, b_z, b_r, b_g, b_b, b_v, b_dx, b_dy, b_dz, b_da
-			pos.x, b_x = UIWrapper.edit_number("x", pos.x, true)
-			pos.y, b_y = UIWrapper.edit_number("y", pos.y, true)
-			pos.z, b_z = UIWrapper.edit_range("z", pos.z, 1, 256, true)
-			pl.value, b_v = UIWrapper.edit_range("s", pl.value, 0, 256, true)
-			if dir then
+				local flicker = e.d_light_flicker
+				if flicker then
+					if not cache[id] then
+						cache[id] = {flicker.during, flicker.on_chance, flicker.off_chance}
+					end
+					Slab.SameLine()
+					if Slab.CheckBox(flicker, "Flicker") then
+						if flicker then
+							e:remove("d_light_flicker")
+						else
+							e:give("d_light_flicker", unpack(cache[id]))
+						end
+					end
+				end
+
+				local pos = e.pos
+				local pl = e.point_light
+				local diffuse = e.diffuse.value
+				local dir = e.light_dir and e.light_dir.value
+				local b_x, b_y, b_z, b_r, b_g, b_b, b_v, b_dx, b_dy, b_dz, b_da
+				pos.x, b_x = UIWrapper.edit_number("x", pos.x, true)
+				pos.y, b_y = UIWrapper.edit_number("y", pos.y, true)
+				pos.z, b_z = UIWrapper.edit_range("z", pos.z, 1, 256, true)
+				pl.value, b_v = UIWrapper.edit_range("s", pl.value, 0, 256, true)
+				if dir then
+					Slab.Separator()
+					dir[1], b_dx = UIWrapper.edit_range("dx", dir[1], -32, 32)
+					dir[2], b_dy = UIWrapper.edit_range("dy", dir[2], -32, 32)
+					dir[3], b_dz = UIWrapper.edit_range("dz", dir[3], -1, 1)
+					dir[4], b_da = UIWrapper.edit_range("angle", dir[4], -1, 1)
+				end
 				Slab.Separator()
-				dir[1], b_dx = UIWrapper.edit_range("dx", dir[1], -32, 32)
-				dir[2], b_dy = UIWrapper.edit_range("dy", dir[2], -32, 32)
-				dir[3], b_dz = UIWrapper.edit_range("dz", dir[3], -1, 1)
-				dir[4], b_da = UIWrapper.edit_range("angle", dir[4], -1, 1)
-			end
-			Slab.Separator()
-			diffuse[1], b_r = UIWrapper.edit_range("r", diffuse[1], 0, 6)
-			diffuse[2], b_g = UIWrapper.edit_range("g", diffuse[2], 0, 6)
-			diffuse[3], b_b = UIWrapper.edit_range("b", diffuse[3], 0, 6)
+				diffuse[1], b_r = UIWrapper.edit_range("r", diffuse[1], 0, 6)
+				diffuse[2], b_g = UIWrapper.edit_range("g", diffuse[2], 0, 6)
+				diffuse[3], b_b = UIWrapper.edit_range("b", diffuse[3], 0, 6)
 
-			if flags.group then
-				local prop_pos = (b_x and "x") or (b_y and "y") or (b_z and "z")
-				if prop_pos then
-					self:update_light_pos_group(group_id, e, prop_pos)
+				if flags.group then
+					local prop_pos = (b_x and "x") or (b_y and "y") or (b_z and "z")
+					if prop_pos then
+						self:update_light_pos_group(group_id, e, prop_pos)
+					end
+					if b_v then
+						self:update_light_radius_group(group_id, e)
+					end
+					local prop_diff = (b_r and 1) or (b_g and 2) or (b_b and 3)
+					if prop_diff then
+						self:update_light_diff_group(group_id, e, prop_diff)
+					end
+				else
+					if b_x or b_y or b_z or b_v then
+						self:update_light_pos(e)
+					end
+					if b_dx or b_dy or b_dz or b_da then
+						self:update_light_dir(e)
+					end
+					if b_r or b_g or b_b then
+						self:update_light_diffuse(e)
+					end
 				end
-				if b_v then
-					self:update_light_radius_group(group_id, e)
-				end
-				local prop_diff = (b_r and 1) or (b_g and 2) or (b_b and 3)
-				if prop_diff then
-					self:update_light_diff_group(group_id, e, prop_diff)
-				end
-			else
-				if b_x or b_y or b_z or b_v then
-					self:update_light_pos(e)
-				end
-				if b_dx or b_dy or b_dz or b_da then
-					self:update_light_dir(e)
-				end
-				if b_r or b_g or b_b then
-					self:update_light_diffuse(e)
-				end
+				Slab.EndTree()
+				Slab.Unindent()
 			end
-			Slab.EndTree()
-			Slab.Unindent()
 		end
 	end
 end
-!end
 
 return DeferredLighting

@@ -1,7 +1,5 @@
-local Concord = require("modules.concord.concord")
-
 local Atlas = Concord.system({
-	pool = {$_C_ATLAS, $_C_SPRITE},
+	pool = {"atlas", "sprite"},
 })
 
 local function create_quad(e)
@@ -10,18 +8,19 @@ local function create_quad(e)
 	return love.graphics.newQuad(
 		atlas.x, atlas.y,
 		atlas.w, atlas.h,
-		sprite.iw, sprite.ih)
+		sprite.iw, sprite.ih
+	)
 end
 
 function Atlas:init()
-	self.pool.onAdded = function(pool, e)
-		e:give($_C_QUAD, create_quad(e))
+	self.pool.onAdded = function(_, e)
+		e:give("quad", create_quad(e))
 	end
 end
 
 function Atlas:update_atlas(e, new_data)
-	@@assert(self.pool:has(e))
-	@@assert(type(new_data) == "table")
+	ASSERT(self.pool:has(e))
+	ASSERT(type(new_data) == "table")
 	local quad = e.quad
 	quad.quad:setViewport(new_data.x, new_data.y, new_data.w, new_data.h)
 	quad.info = tablex.copy(new_data)

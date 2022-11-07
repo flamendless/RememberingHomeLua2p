@@ -17,9 +17,11 @@ local c_anim_data = Concord.component("animation_data", function(c, data)
 	c.n_frames = data.n_frames
 	c.start_frame = data.start_frame
 
-	c.sheet_width, c.sheet_height = c.spritesheet:getDimensions()
-	c.frame_width = math.floor(c.sheet_width/c.columns_count)
-	c.frame_height = math.floor(c.sheet_height/c.rows_count)
+	c.sheet_size = vec2(c.spritesheet:getDimensions())
+	c.frame_size = vec2(
+		math.floor(c.sheet_width/c.columns_count),
+		math.floor(c.sheet_height/c.rows_count)
+	)
 
 	c.data = data
 end)

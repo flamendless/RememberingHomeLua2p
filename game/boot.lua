@@ -9,7 +9,7 @@ GAME_BASE_SIZE = {x = 128, y = 32}
 HALF_PI = math.pi * 0.5
 TWO_PI = math.pi * 2
 T_H_PI = 3 * _HALF_PI
--- RA = {math.cos(math.pi/32), math.sin(math.pi/32)}
+CULL_PAD = 32
 
 local args = love.arg.parseGameArguments(arg)
 for _, v in pairs(args) do
@@ -40,6 +40,7 @@ require("modules.sdf").mount()
 
 Anim8 = require("modules.anim8.anim8")
 local Batteries = require("modules.batteries")
+intersect = Batteries.intersect
 mathx = Batteries.mathx
 pretty = Batteries.pretty
 stringx = Batteries.stringx
@@ -62,6 +63,7 @@ Tle = require("modules.tle.timeline")
 --LOAD SOURCES
 Audio = require("src.audio")
 Cache = require("src.cache")
+Canvas = require("src.canvas")
 Dialogues = require("src.dialogues")
 Ecs = require("src.ecs")
 Enums = require("src.enums")

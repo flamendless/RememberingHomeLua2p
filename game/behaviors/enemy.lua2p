@@ -62,7 +62,7 @@ local function is_current_anim_done(e, tag)
 		return $_BT_RUNNING
 	end
 	local current_frame = e.current_frame
-	return (current_frame.value == current_frame.max) and $_BT_SUCCESS or $_BT_RUNNING
+	return (current_frame.value == current_frame.limit) and $_BT_SUCCESS or $_BT_RUNNING
 end
 
 local function is_current_anim_done_bt(e, tag)

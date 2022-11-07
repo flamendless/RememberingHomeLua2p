@@ -1,22 +1,15 @@
-local Anim8 = require("modules.anim8.anim8")
-local Concord = require("modules.concord.concord")
-local Log = require("modules.log.log")
-local Timer = require("modules.hump.timer")
-
-local Enums = require("enums")
-
 local Animation = Concord.system({
-	pool = {$_C_ANIMATION, $_C_ANIMATION_DATA},
-	pool_multi = {$_C_MULTI_ANIMATION_DATA, $_C_ANIMATION},
-	pool_pause = {$_C_ANIMATION, $_C_ANIMATION_DATA, $_C_ANIMATION_PAUSE_AT},
-	pool_change = {$_C_ANIMATION, $_C_ANIMATION_DATA, $_C_CHANGE_ANIMATION_TAG}
+	pool = {"animation", "animation_data"},
+	pool_multi = {"multi_animation_data", "animation"},
+	pool_pause = {"animation", "animation_data", "animation_pause_at"},
+	pool_change = {"animation", "animation_data", "change_animation_tag"}
 })
 
 local EMPTY_FN = function() end
 
 function Animation:setup_animation_data(e, new_tag)
-	@@assert(e.__isEntity and e.animation)
-	@@assert(type(new_tag) == "string")
+	ASSERT(e.__isEntity and e.animation)
+	ASSERT(type(new_tag) == "string")
 	if not e.multi_animation_data then return end
 	local data = e.multi_animation_data.data[new_tag]
 	if data.pause_at then
@@ -26,12 +19,12 @@ function Animation:setup_animation_data(e, new_tag)
 		elseif data.pause_at == Enums.pause_at.last then
 			v = "anim_pause_at_end"
 		end
-		e:give($_C_ANIMATION_ON_LOOP, v, 0, e)
+		e:give("animation_on_loop", v, 0, e)
 	end
 end
 
 function Animation:setup_on_loop(e, animation)
-	@@assert(animation.__isComponent)
+	ASSERT(animation.__isComponent)
 	local on_loop = e.animation_on_loop
 	local on_finish = e.animation_on_finish
 
@@ -39,10 +32,10 @@ function Animation:setup_on_loop(e, animation)
 		return function()
 			self.world:emit(on_loop.signal, unpack(on_loop.args))
 			if on_finish then
-				Timer.after(on_finish.delay, function()
+				Timer.new(Cron.after(on_finish.delay, function()
 					self.world:emit(on_finish.signal, unpack(on_finish.args))
-				end)
-				e:remove($_C_ANIMATION_ON_FINISH)
+				end))
+				e:remove("animation_on_finish")
 			end
 		end
 	elseif animation.stop_on_last then
@@ -55,19 +48,23 @@ function Animation:setup_on_loop(e, animation)
 end
 
 function Animation:setup_animation(e, data, on_loop)
-	@@assert(e.__isEntity)
-	@@assert(type(data) == "table")
-	@@assert(type(on_loop) == "function")
+	ASSERT(e.__isEntity)
+	ASSERT(type(data) == "table")
+	ASSERT(type(on_loop) == "function")
 	local animation = e.animation
 	local current_tag = animation.current_tag
 	local multi = e.multi_animation_data
 	local obj_grid, obj_animation
 
+	local fw, fh = data.frame_size:unpack()
+	local sw, sh = data.sheet_size:unpack()
+
 	if not multi then
-		obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
-			data.sheet_width, data.sheet_height)
-		obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
-			data.delay, on_loop)
+		obj_grid = Anim8.newGrid(fw, fh, sw, sh)
+		obj_animation = Anim8.newAnimation(
+			obj_grid(unpack(data.frames)),
+			data.delay, on_loop
+		)
 	else
 		local cache = self.cache_multi_animation[e.id.value]
 		if cache[current_tag] then
@@ -75,10 +72,11 @@ function Animation:setup_animation(e, data, on_loop)
 			obj_grid = cached.grid
 			obj_animation = cached.animation
 		else
-			obj_grid = Anim8.newGrid(data.frame_width, data.frame_height,
-				data.sheet_width, data.sheet_height)
-			obj_animation = Anim8.newAnimation(obj_grid(unpack(data.frames)),
-				data.delay, on_loop)
+			obj_grid = Anim8.newGrid(fw, fh, sw, sh)
+			obj_animation = Anim8.newAnimation(
+				obj_grid(unpack(data.frames)),
+				data.delay, on_loop
+			)
 			cache[current_tag] = {grid = obj_grid, animation = obj_animation}
 			if data.is_flipped then
 				obj_animation:flipH()
@@ -91,12 +89,13 @@ function Animation:setup_animation(e, data, on_loop)
 
 	local current_frame = e.current_frame
 	if current_frame then
-		current_frame.max = #obj_animation.frames
+		current_frame.limit = #obj_animation.frames
 	end
 
 	local quad, _, _, r, sx, sy, ox, oy = obj_animation:getFrameInfo()
 
-	e:give($_C_SPRITE, data.resource_id):give($_C_QUAD, quad)
+	e:give("sprite", data.resource_id)
+	:give("quad", quad)
 
 	if data.is_flipped then
 		local transform = e.transform
@@ -104,9 +103,9 @@ function Animation:setup_animation(e, data, on_loop)
 			ox = ox - transform.ox
 			oy = oy - transform.oy
 		end
-		e:give($_C_QUAD_TRANSFORM, r, sx, sy, ox, oy)
+		e:give("quad_transform", r, vec2(sx, sy), vec2(ox, oy))
 	else
-		e:remove($_C_QUAD_TRANSFORM)
+		e:remove("quad_transform")
 	end
 
 	if data.start_frame then
@@ -118,25 +117,25 @@ function Animation:init(world)
 	self.world = world
 	self.cache_multi_animation = {}
 
-	self.pool.onAdded = function(pool, e)
+	self.pool.onAdded = function(_, e)
 		local data = e.animation_data
 		local animation = e.animation
 		local on_loop = self:setup_on_loop(e, animation)
 		self:setup_animation(e, data, on_loop)
 	end
 
-	self.pool_multi.onAdded = function(pool, e)
+	self.pool_multi.onAdded = function(_, e)
 		self.cache_multi_animation[e.id.value] = {}
 		local multi = e.multi_animation_data
 		local animation = e.animation
 		self:setup_on_loop(e, animation)
 		local data = multi.data[multi.first]
 		animation.current_tag = multi.first
-		e:give($_C_ANIMATION_DATA, data)
+		e:give("animation_data", data)
 		Log.trace("added multi_animation_data")
 	end
 
-	self.pool_pause.onAdded = function(pool, e)
+	self.pool_pause.onAdded = function(_, e)
 		local data = e.animation_data
 		local animation = e.animation
 		local pause_at = e.animation_pause_at
@@ -148,31 +147,32 @@ function Animation:init(world)
 				animation.anim8:pauseAtEnd()
 			end
 		elseif type(pause_at.at_frame) == "number" then
-			@@assert(pause_at.at_frame <= data.n_frames)
+			ASSERT(pause_at.at_frame <= data.n_frames)
 			animation.anim8:gotoFrame(pause_at.at_frame)
 			animation.anim8:pause()
 		end
 	end
 
-	self.pool_pause.onRemoved = function(pool, e)
+	self.pool_pause.onRemoved = function(_, e)
 		local animation = e.animation
 		animation.anim8:resume()
 	end
 
-	self.pool_change.onAdded = function(pool, e)
+	self.pool_change.onAdded = function(_, e)
 		local cat = e.change_animation_tag
 		self:switch_animation_tag(e, cat.new_tag, nil, cat.override)
-		local str = string.format("Switched animation tag to: %s, override: %s",
-			cat.new_tag, tostring(cat.override))
-		Log.trace(str)
+		Log.trace(string.format(
+			"Switched animation tag to: %s, override: %s",
+			cat.new_tag, tostring(cat.override)
+		))
 	end
 end
 
 function Animation:switch_animation_tag(e, new_tag, base_tag, override)
-	@@assert(e.__isEntity)
-	@@assert(type(new_tag) == "string")
-	@@sassert(base_tag, type(base_tag) == "string")
-	@@sassert(override, type(override) == "boolean")
+	ASSERT(e.__isEntity)
+	ASSERT(type(new_tag) == "string")
+	SASSERT(base_tag, type(base_tag) == "string")
+	SASSERT(override, type(override) == "boolean")
 	self:setup_animation_data(e, new_tag)
 	local animation = e.animation
 	local on_loop = self:setup_on_loop(e, animation)
@@ -181,14 +181,14 @@ function Animation:switch_animation_tag(e, new_tag, base_tag, override)
 		local multi = e.multi_animation_data
 		if not multi then return end
 		local data = multi.data[new_tag]
-		@@assert(data)
+		ASSERT(data)
 		animation.current_tag = new_tag
-		e:give($_C_ANIMATION_DATA, data)
+		e:give("animation_data", data)
 		self:setup_animation(e, data, on_loop)
 		animation.anim8:gotoFrame(1)
 		e.animation.anim8:resume()
 		animation.base_tag = base_tag or new_tag
-		e:remove($_C_CHANGE_ANIMATION_TAG)
+		e:remove("change_animation_tag")
 	end
 
 	self.world:emit("update_collider", e)
@@ -200,7 +200,7 @@ function Animation:update(dt)
 		local anim8 = animation and animation.anim8
 		local dt_multiplier = e.dt_multiplier
 		if dt_multiplier then
-			dt = dt * dt_multiplier.mul
+			dt = dt * dt_multiplier.value
 		end
 
 		animation.is_playing = anim8.status == Enums.anim8_status.playing
@@ -211,9 +211,9 @@ function Animation:update(dt)
 
 				local on_finish = e.animation_on_finish
 				if on_finish then
-					Timer.after(on_finish.delay, function()
+					Timer.new(Cron.after(on_finish.delay, function()
 						self.world:emit(on_finish.signal, unpack(on_finish.args))
-					end)
+					end))
 				end
 			end
 
@@ -235,8 +235,8 @@ function Animation:update(dt)
 end
 
 function Animation:anim_pause_at_start(e, signal)
-	@@assert(e.__isEntity and e.animation)
-	@@sassert(signal, type(signal) == "string")
+	ASSERT(e.__isEntity and e.animation)
+	SASSERT(signal, type(signal) == "string")
 	local anim = e.animation
 	anim.anim8:pauseAtStart()
 	if signal then
@@ -245,8 +245,8 @@ function Animation:anim_pause_at_start(e, signal)
 end
 
 function Animation:anim_pause_at_end(e, signal)
-	@@assert(e.__isEntity and e.animation)
-	@@sassert(signal, type(signal) == "string")
+	ASSERT(e.__isEntity and e.animation)
+	SASSERT(signal, type(signal) == "string")
 	local anim = e.animation
 	anim.anim8:pauseAtEnd()
 	if signal then
@@ -254,83 +254,82 @@ function Animation:anim_pause_at_end(e, signal)
 	end
 end
 
-!if _DEV then
-local Slab = require("modules.slab")
-local selected
-local selected_e
-local selected_anim
-local opt_slider = {
-	ReturnOnText = false,
-	NumbersOnly = true,
-	Precision = 0,
-}
+if DEV then
+	local selected
+	local selected_e
+	local selected_anim
+	local opt_slider = {
+		ReturnOnText = false,
+		NumbersOnly = true,
+		Precision = 0,
+	}
 
-function Animation:debug_update(dt)
-	if not self.debug_show then return end
-	self.debug_show = Slab.BeginWindow("animation", {
-		Title = "MultiAnimation",
-		IsOpen = self.debug_show
-	})
+	function Animation:debug_update(dt)
+		if not self.debug_show then return end
+		self.debug_show = Slab.BeginWindow("animation", {
+			Title = "MultiAnimation",
+			IsOpen = self.debug_show
+		})
 
-	if Slab.BeginComboBox("cb_e", {Selected = selected}) then
-		for _, e in ipairs(self.pool) do
-			local id = e.id.value
-			if Slab.TextSelectable(id) then
-				selected = id
-				selected_e = e
-				break
-			end
-		end
-		Slab.EndComboBox()
-	end
-
-	if selected_e then
-		local multi_anim_data = selected_e.multi_animation_data.data
-		if Slab.BeginComboBox("cb_anim", {Selected = selected_anim}) then
-			for tag in pairs(multi_anim_data) do
-				if Slab.TextSelectable(tag) then
-					selected_anim = tag
-					local cache = self.cache_multi_animation[selected_e.id.value]
-					if cache then
-						cache[tag] = nil
-					end
-					self:switch_animation_tag(selected_e, tag, nil, true)
+		if Slab.BeginComboBox("cb_e", {Selected = selected}) then
+			for _, e in ipairs(self.pool) do
+				local id = e.id.value
+				if Slab.TextSelectable(id) then
+					selected = id
+					selected_e = e
 					break
 				end
 			end
 			Slab.EndComboBox()
 		end
 
-		local animation = selected_e.animation
-		if selected_anim then
-			Slab.Text("Frame")
-			Slab.SameLine()
-			local cur_frame = selected_e.current_frame
-			local max = multi_anim_data[selected_anim].n_frames
-			local anim_pause_at = selected_e.animation_pause_at
-			local anim_stop = selected_e.animation_stop
-
-			if Slab.InputNumberSlider("frame", cur_frame.value, 1, max, opt_slider) then
-				local v = Slab.GetInputNumber()
-				animation.anim8:gotoFrame(v)
-				if not anim_pause_at and not anim_stop then
-					cur_frame.value = v
+		if selected_e then
+			local multi_anim_data = selected_e.multi_animation_data.data
+			if Slab.BeginComboBox("cb_anim", {Selected = selected_anim}) then
+				for tag in pairs(multi_anim_data) do
+					if Slab.TextSelectable(tag) then
+						selected_anim = tag
+						local cache = self.cache_multi_animation[selected_e.id.value]
+						if cache then
+							cache[tag] = nil
+						end
+						self:switch_animation_tag(selected_e, tag, nil, true)
+						break
+					end
 				end
+				Slab.EndComboBox()
 			end
 
-			local anim_loop = selected_e.animation_on_loop
-			local cat = selected_e.change_animation_tag
-			Slab.CheckBox(anim_pause_at, "PauseAt")
-			Slab.CheckBox(anim_stop, "Stop")
-			Slab.CheckBox(anim_loop, "OnLoop")
-			Slab.CheckBox(cat, "ChangeAnimTag")
+			local animation = selected_e.animation
+			if selected_anim then
+				Slab.Text("Frame")
+				Slab.SameLine()
+				local cur_frame = selected_e.current_frame
+				local max = multi_anim_data[selected_anim].n_frames
+				local anim_pause_at = selected_e.animation_pause_at
+				local anim_stop = selected_e.animation_stop
+
+				if Slab.InputNumberSlider("frame", cur_frame.value, 1, max, opt_slider) then
+					local v = Slab.GetInputNumber()
+					animation.anim8:gotoFrame(v)
+					if not anim_pause_at and not anim_stop then
+						cur_frame.value = v
+					end
+				end
+
+				local anim_loop = selected_e.animation_on_loop
+				local cat = selected_e.change_animation_tag
+				Slab.CheckBox(anim_pause_at, "PauseAt")
+				Slab.CheckBox(anim_stop, "Stop")
+				Slab.CheckBox(anim_loop, "OnLoop")
+				Slab.CheckBox(cat, "ChangeAnimTag")
+			end
+
+			Slab.Text("Status: " .. animation.anim8.status)
 		end
 
-		Slab.Text("Status: " .. animation.anim8.status)
+		Slab.EndWindow()
 	end
-
-	Slab.EndWindow()
 end
-!end
 
 return Animation

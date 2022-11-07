@@ -1,19 +1,13 @@
-local Concord = require("modules.concord.concord")
-local Flux = require("modules.flux.flux")
-local Timer = require("modules.hump.timer")
-
 local Color = Concord.system({
-	pool = {$_C_ID, $_C_COLOR},
-	pool_fade_to_black = {$_C_COLOR, $_C_FADE_TO_BLACK},
-	pool_fade_in_out = {$_C_COLOR, $_C_COLOR_FADE_IN_OUT},
-	pool_fade_in = {$_C_COLOR, $_C_COLOR_FADE_IN},
-	pool_fade_out = {$_C_COLOR, $_C_COLOR_FADE_OUT},
-	pool_colors = {$_C_COLOR, $_C_LERP_COLORS},
-	pool_color = {$_C_COLOR, $_C_TARGET_COLOR},
-	pool_blink = {$_C_COLOR, $_C_BLINK},
+	pool = {"id", "color"},
+	pool_fade_to_black = {"color", "fade_to_black"},
+	pool_fade_in_out = {"color", "color_fade_in_out"},
+	pool_fade_in = {"color", "color_fade_in"},
+	pool_fade_out = {"color", "color_fade_out"},
+	pool_colors = {"color", "lerp_colors"},
+	pool_color = {"color", "target_color"},
+	pool_blink = {"color", "blink"},
 })
-
---TODO implement checking for alpha_range
 
 local function lerp_colors(lc, color)
 	local duration = lc.duration
@@ -49,7 +43,7 @@ end
 
 function Color:init(world)
 	self.world = world
-	self.pool_fade_in.onAdded = function(pool, e)
+	self.pool_fade_in.onAdded = function(_, e)
 		local c = e.color_fade_in
 		local f_in = e.fade_in_target_alpha
 		local target = 1
@@ -66,14 +60,14 @@ function Color:init(world)
 					self.world:emit(on_complete.signal, unpack(on_complete.args))
 					-- e:remove("color_fade_in_finish")
 				end
-				e:remove($_C_COLOR_FADE_IN)
+				e:remove("color_fade_in")
 			end)
 
 		local ease = e.ease
 		if ease then f:ease(ease.value) end
 	end
 
-	self.pool_fade_out.onAdded = function(pool, e)
+	self.pool_fade_out.onAdded = function(_, e)
 		local f = Flux.to(e.color.value, e.color_fade_out.duration, {[4] = 0})
 			:delay(e.color_fade_out.delay)
 			:oncomplete(function()
@@ -82,14 +76,14 @@ function Color:init(world)
 					self.world:emit(on_complete.signal, unpack(on_complete.args))
 					-- e:remove("color_fade_out_finish")
 				end
-				e:remove($_C_COLOR_FADE_OUT)
+				e:remove("color_fade_out")
 			end)
 
 		local ease = e.ease
 		if ease then f:ease(ease.value) end
 	end
 
-	self.pool_fade_in_out.onAdded = function(pool, e)
+	self.pool_fade_in_out.onAdded = function(_, e)
 		local color = e.color
 		local f_in_out = e.color_fade_in_out
 		local ease = e.ease
@@ -105,7 +99,7 @@ function Color:init(world)
 
 					if count == f_in_out.count then
 						f:stop()
-						e:remove($_C_COLOR_FADE_IN_OUT)
+						e:remove("color_fade_in_out")
 					end
 				end)
 
@@ -120,7 +114,7 @@ function Color:init(world)
 
 					if count == f_in_out.count then
 						f:stop()
-						e:remove($_C_COLOR_FADE_IN_OUT)
+						e:remove("color_fade_in_out")
 					end
 				end)
 
@@ -134,7 +128,7 @@ function Color:init(world)
 		end
 	end
 
-	self.pool_color.onAdded = function(pool, e)
+	self.pool_color.onAdded = function(_, e)
 		local color = e.color
 		local target = e.target_color
 		local target_color = e.target_color.target
@@ -169,7 +163,7 @@ function Color:init(world)
 		if ease then f:ease(ease.value) end
 	end
 
-	self.pool_blink.onAdded = function(pool, e)
+	self.pool_blink.onAdded = function(_, e)
 		self:setup_blink(e)
 	end
 end
@@ -190,9 +184,9 @@ function Color:setup_blink(e)
 				self.world:emit(obe.signal, e)
 			end
 			if e.remove_blink_on_end then
-				e:remove($_C_BLINK)
-				:remove($_C_REMOVE_BLINK_ON_END)
-				:remove($_C_ON_BLINK_END)
+				e:remove("blink")
+				:remove("remove_blink_on_end")
+				:remove("on_blink_end")
 			end
 		end
 	end)
@@ -222,10 +216,10 @@ function Color:start_colors_lerp()
 end
 
 function Color:lerp_color(e, color, dur, ease)
-	@@assert(e.__isEntity and e.color)
-	@@assert(type(color) == "table")
-	@@assert(type(dur) == "number")
-	@@sassert(ease, type(ease) == "string")
+	ASSERT(e.__isEntity and e.color)
+	ASSERT(type(color) == "table")
+	ASSERT(type(dur) == "number")
+	SASSERT(ease, type(ease) == "string")
 	Flux.to(e.color.value, dur, {
 		[1] = color[1],
 		[2] = color[2],
